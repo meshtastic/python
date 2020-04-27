@@ -5,30 +5,6 @@
 
 ## Primary API: MeshInterface
 
-Contains a reader thread that is always trying to read on the serial port.
-
-methods:
-
-- constructor(serialPort)
-- send(meshPacket) - throws errors if we have errors talking to the device
-- close() - shuts down the interface
-- init() - starts the enumeration process to download NodeDB etc... - we will not publish to topics until this enumeration completes
-- radioConfig
-- nodeDB
-- myNodeInfo
-- myNodeId
-
-## PubSub topics
-
-Use a pubsub model to communicate events [https://pypubsub.readthedocs.io/en/v4.0.3/ ]
-
-- meshtastic.send(MeshPacket) - Not implemented, instead call send(packet) on MeshInterface
-- meshtastic.connection.established - published once we've successfully connected to the radio and downloaded the node DB
-- meshtastic.connection.lost - published once we've lost our link to the radio
-- meshtastic.receive.position(MeshPacket)
-- meshtastic.receive.user(MeshPacket)
-- meshtastic.receive.data(MeshPacket)
-- meshtastic.debug(string)
 
 ## Wire encoding
 

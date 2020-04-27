@@ -1,7 +1,7 @@
 #!python3
 
 import argparse
-from .interface import MeshInterface
+from .interface import StreamInterface
 import logging
 
 
@@ -35,7 +35,7 @@ def main():
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
-    client = MeshInterface("/dev/ttyUSB0")
+    client = StreamInterface("/dev/ttyUSB0")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
 
 """API for Meshtastic devices"""
 
-from .interface import MeshInterface
+from .interface import StreamInterface
