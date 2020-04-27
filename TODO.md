@@ -16,7 +16,7 @@ myNodeInfo
 myNodeId
 
 ## PubSub topics:
-Use a pubsub model to communicate events ( https://pypubsub.readthedocs.io/en/v4.0.3/ )
+Use a pubsub model to communicate events [https://pypubsub.readthedocs.io/en/v4.0.3/ ]
 
 meshtastic.send(MeshPacket) - Not implemented, instead call send(packet) on MeshInterface
 meshtastic.connection.established - published once we've successfully connected to the radio and downloaded the node DB
