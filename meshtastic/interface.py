@@ -137,7 +137,7 @@ class StreamInterface(MeshInterface):
             devPath, 921600, exclusive=True, timeout=0.5)
         self._rxThread = threading.Thread(target=self.__reader, args=())
         self._rxThread.start()
-        MeshInterface.__init__(self)
+        MeshInterface.__init__(self, debugOut=debugOut)
 
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""
@@ -172,10 +172,11 @@ class StreamInterface(MeshInterface):
                 if ptr == 0:  # looking for START1
                     if c != START1:
                         self._rxBuf = empty  # failed to find start
-                        try:
-                            self.debugOut.write(b.decode("utf-8"))
-                        except:
-                            self.debugOut.write('?')
+                        if self.debugOut != None:
+                            try:
+                                self.debugOut.write(b.decode("utf-8"))
+                            except:
+                                self.debugOut.write('?')
 
                 elif ptr == 1:  # looking for START2
                     if c != START2:
