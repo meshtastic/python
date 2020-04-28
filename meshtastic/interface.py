@@ -82,10 +82,10 @@ class StreamInterface(MeshInterface):
     def __init__(self, devPath):
         """Constructor, opens a connection to a specified serial port"""
         logging.debug(f"Connecting to {devPath}")
-        self.rxBuf = bytes()  # empty
+        self._rxBuf = bytes()  # empty
         self.stream = serial.Serial(devPath, 921600)
-        self.rxThread = threading.Thread(target=self.__reader, args=())
-        self.rxThread.start()
+        self._rxThread = threading.Thread(target=self.__reader, args=())
+        self._rxThread.start()
         MeshInterface.__init__(self)
 
     def _sendToRadio(self, toRadio):
@@ -96,6 +96,7 @@ class StreamInterface(MeshInterface):
         header = bytes([START1, START2, (bufLen >> 8) & 0xff,  bufLen & 0xff])
         self.stream.write(header)
         self.stream.write(b)
+        self.stream.flush()
 
     def close(self):
         self.stream.close()  # This will cause our reader thread to exit
@@ -107,24 +108,30 @@ class StreamInterface(MeshInterface):
         while True:
             b = self.stream.read(1)
             c = b[0]
-            ptr = len(self.rxBuf)
+            ptr = len(self._rxBuf)
 
-            self.rxBuf = self.rxBuf + b  # Assume we want to append this byte
+            # Assume we want to append this byte, fixme use bytearray instead
+            self._rxBuf = self._rxBuf + b
 
             if ptr == 0:  # looking for START1
                 if c != START1:
-                    self.rxBuf = empty  # failed to find start
-                    self.debugOut.write(b.decode("utf-8"))
+                    self._rxBuf = empty  # failed to find start
+                    try:
+                        self.debugOut.write(b.decode("utf-8"))
+                    except:
+                        self.debugOut.write('?')
+
             elif ptr == 1:  # looking for START2
                 if c != START2:
                     self.rfBuf = empty  # failed to find start2
             elif ptr >= HEADER_LEN:  # we've at least got a header
                 # big endian length follos header
-                packetlen = (self.rxBuf[2] << 8) + self.rxBuf[3]
+                packetlen = (self._rxBuf[2] << 8) + self._rxBuf[3]
 
                 if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
                     if packetlen > MAX_TO_FROM_RADIO_SIZE:
                         self.rfBuf = empty  # length ws out out bounds, restart
 
-                if len(self.rxBuf) != 0 and ptr == packetlen + HEADER_LEN:
-                    self._handleFromRadio(self.rxBuf[HEADER_LEN:])
+                if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
+                    self._handleFromRadio(self._rxBuf[HEADER_LEN:])
+                    self._rxBuf = empty
