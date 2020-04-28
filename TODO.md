@@ -2,6 +2,7 @@
 
 ## Before initial release
 
+- add fromId and toId to received messages dictionaries
 - make docs decent
 - document properties/fields
 - include examples in readme. hello.py, textchat.py, replymessage.py

@@ -117,7 +117,7 @@ class MeshInterface:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             pub.sendMessage("meshtastic.connection.established")
         elif fromRadio.HasField("packet"):
-            self._handlePacketFromRadio(self, fromRadio.packet)
+            self._handlePacketFromRadio(fromRadio.packet)
         else:
             logging.warn("Unexpected FromRadio payload")
 
