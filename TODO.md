@@ -5,7 +5,7 @@
 - add fromId and toId to received messages dictionaries
 - update nodedb as nodes change
 - radioConfig - getter/setter syntax: https://www.python-course.eu/python3_properties.php
-- DONE keep everything in dicts
+- let user change radio params via commandline options
 - document properties/fields
 - include more examples: textchat.py, replymessage.py all as one little demo
 - have python client turn on/off radio sleep (use 0 for X to mean restore defaults)
@@ -15,6 +15,7 @@
 - DONE make serial debug output optional (by providing a null stream)
 - DONE make pubsub work
 - DONE make docs decent
+- DONE keep everything in dicts
 
 ## Soon after initial release
 
