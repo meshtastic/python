@@ -3,6 +3,7 @@
 import argparse
 from .interface import StreamInterface
 import logging
+from time import sleep
 
 
 def main():

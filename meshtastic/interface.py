@@ -83,7 +83,9 @@ class StreamInterface(MeshInterface):
         """Constructor, opens a connection to a specified serial port"""
         logging.debug(f"Connecting to {devPath}")
         self._rxBuf = bytes()  # empty
-        self.stream = serial.Serial(devPath, 921600)
+        self._wantExit = False
+        self.stream = serial.Serial(
+            devPath, 921600, exclusive=True, timeout=0.5)
         self._rxThread = threading.Thread(target=self.__reader, args=())
         self._rxThread.start()
         MeshInterface.__init__(self)
@@ -99,39 +101,50 @@ class StreamInterface(MeshInterface):
         self.stream.flush()
 
     def close(self):
-        self.stream.close()  # This will cause our reader thread to exit
+        """Close a connection to the device"""
+        logging.debug("Closing serial stream")
+        # pyserial cancel_read doesn't seem to work, therefore we ask the reader thread to close things for us
+        self._wantExit = True
 
     def __reader(self):
         """The reader thread that reads bytes from our stream"""
         empty = bytes()
 
-        while True:
+        while not self._wantExit:
             b = self.stream.read(1)
-            c = b[0]
-            ptr = len(self._rxBuf)
+            if len(b) > 0:
+                #logging.debug(f"read returned {b}")
+                c = b[0]
+                ptr = len(self._rxBuf)
 
-            # Assume we want to append this byte, fixme use bytearray instead
-            self._rxBuf = self._rxBuf + b
+                # Assume we want to append this byte, fixme use bytearray instead
+                self._rxBuf = self._rxBuf + b
 
-            if ptr == 0:  # looking for START1
-                if c != START1:
-                    self._rxBuf = empty  # failed to find start
-                    try:
-                        self.debugOut.write(b.decode("utf-8"))
-                    except:
-                        self.debugOut.write('?')
+                if ptr == 0:  # looking for START1
+                    if c != START1:
+                        self._rxBuf = empty  # failed to find start
+                        try:
+                            self.debugOut.write(b.decode("utf-8"))
+                        except:
+                            self.debugOut.write('?')
 
-            elif ptr == 1:  # looking for START2
-                if c != START2:
-                    self.rfBuf = empty  # failed to find start2
-            elif ptr >= HEADER_LEN:  # we've at least got a header
-                # big endian length follos header
-                packetlen = (self._rxBuf[2] << 8) + self._rxBuf[3]
+                elif ptr == 1:  # looking for START2
+                    if c != START2:
+                        self.rfBuf = empty  # failed to find start2
+                elif ptr >= HEADER_LEN:  # we've at least got a header
+                    # big endian length follos header
+                    packetlen = (self._rxBuf[2] << 8) + self._rxBuf[3]
 
-                if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
-                    if packetlen > MAX_TO_FROM_RADIO_SIZE:
-                        self.rfBuf = empty  # length ws out out bounds, restart
+                    if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
+                        if packetlen > MAX_TO_FROM_RADIO_SIZE:
+                            self.rfBuf = empty  # length ws out out bounds, restart
 
-                if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
-                    self._handleFromRadio(self._rxBuf[HEADER_LEN:])
-                    self._rxBuf = empty
+                    if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
+                        try:
+                            self._handleFromRadio(self._rxBuf[HEADER_LEN:])
+                        except:
+                            logging.warn(
+                                f"Error handling FromRadio, possibly corrupted?")
+                        self._rxBuf = empty
+        logging.debug("reader is exiting")
+        self.stream.close()

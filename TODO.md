@@ -1,10 +1,8 @@
 # TODO
 
-- protobuf docs https://developers.google.com/protocol-buffers/docs/pythontutorial
 - possibly use tk to make a multiwindow test console: https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
 
 ## Primary API: MeshInterface
-
 
 ## Wire encoding
 
