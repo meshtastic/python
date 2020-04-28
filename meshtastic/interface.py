@@ -3,6 +3,13 @@ import serial
 import threading
 import logging
 import sys
+from . import mesh_pb2
+
+START1 = 0x94
+START2 = 0xc3
+HEADER_LEN = 4
+MAX_TO_FROM_RADIO_SIZE = 512
+
 
 """
 
@@ -46,12 +53,27 @@ class MeshInterface:
     def __init__(self):
         self.debugOut = sys.stdout
         self.nodes = None  # FIXME
+        self.configId = 17
+        self._startConfig()
 
-    def __handleReceived(fromradio):
+    def _startConfig(self):
+        """Start device packets flowing"""
+        startConfig = mesh_pb2.ToRadio()
+        startConfig.want_config_id = self.configId
+        self._sendToRadio(startConfig)
+
+    def _sendToRadio(self, toRadio):
+        """Send a ToRadio protobuf to the device"""
+        logging.error(f"Subclass must provide toradio: {toRadio}")
+
+    def _handleFromRadio(self, fromRadioBytes):
         """
         Handle a packet that arrived from the radio (update model and publish events)
 
         Called by subclasses."""
+        fromRadio = mesh_pb2.FromRadio()
+        fromRadio.ParseFromString(fromRadioBytes)
+        logging.debug(f"Received: {fromRadio}")
 
 
 class StreamInterface(MeshInterface):
@@ -59,18 +81,50 @@ class StreamInterface(MeshInterface):
 
     def __init__(self, devPath):
         """Constructor, opens a connection to a specified serial port"""
-        MeshInterface.__init__(self)
         logging.debug(f"Connecting to {devPath}")
         self.rxBuf = bytes()  # empty
         self.stream = serial.Serial(devPath, 921600)
         self.rxThread = threading.Thread(target=self.__reader, args=())
         self.rxThread.start()
+        MeshInterface.__init__(self)
+
+    def _sendToRadio(self, toRadio):
+        """Send a ToRadio protobuf to the device"""
+        logging.debug(f"Sending: {toRadio}")
+        b = toRadio.SerializeToString()
+        bufLen = len(b)
+        header = bytes([START1, START2, (bufLen >> 8) & 0xff,  bufLen & 0xff])
+        self.stream.write(header)
+        self.stream.write(b)
 
     def close(self):
         self.stream.close()  # This will cause our reader thread to exit
 
     def __reader(self):
         """The reader thread that reads bytes from our stream"""
+        empty = bytes()
+
         while True:
             b = self.stream.read(1)
-            self.debugOut.write(b.decode("utf-8"))
+            c = b[0]
+            ptr = len(self.rxBuf)
+
+            self.rxBuf = self.rxBuf + b  # Assume we want to append this byte
+
+            if ptr == 0:  # looking for START1
+                if c != START1:
+                    self.rxBuf = empty  # failed to find start
+                    self.debugOut.write(b.decode("utf-8"))
+            elif ptr == 1:  # looking for START2
+                if c != START2:
+                    self.rfBuf = empty  # failed to find start2
+            elif ptr >= HEADER_LEN:  # we've at least got a header
+                # big endian length follos header
+                packetlen = (self.rxBuf[2] << 8) + self.rxBuf[3]
+
+                if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
+                    if packetlen > MAX_TO_FROM_RADIO_SIZE:
+                        self.rfBuf = empty  # length ws out out bounds, restart
+
+                if len(self.rxBuf) != 0 and ptr == packetlen + HEADER_LEN:
+                    self._handleFromRadio(self.rxBuf[HEADER_LEN:])
