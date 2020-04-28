@@ -4,5 +4,5 @@ A python client for using Meshtastic devices. This small library (and example ap
 
 You probably don't want this yet because it is a pre-alpha WIP.
 
-For the API documentation [click here](./docs/meshtastic).
+For the API documentation [click here](https://meshtastic.github.io/Meshtastic-python/meshtastic/index.html).
 For the rough notes/implementation plan see [TODO](./TODO.md).
