@@ -24,7 +24,7 @@ setup(
     python_requires='>=3',
     entry_points={
         "console_scripts": [
-            "meshtastic=meshtastic.__main__:main",
+            "meshtastic=meshtastic.__main__:main"
         ]
     },
 )

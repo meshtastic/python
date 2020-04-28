@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>meshtastic API documentation</title>
+<meta name="description" content="an API for Meshtastic devices …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Package <code>meshtastic</code></h1>
+</header>
+<section id="section-intro">
+<h2 id="an-api-for-meshtastic-devices">an API for Meshtastic devices</h2>
+<p>Primary class: StreamInterface</p>
+<p>properties of StreamInterface:</p>
+<ul>
+<li>radioConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to
+the device.</li>
+<li>nodes - The database of received nodes.
+Includes always up-to-date location and username information for each
+node in the mesh.
+This is a read-only datastructure.</li>
+<li>myNodeInfo - You probably don't want this.</li>
+</ul>
+<h2 id="published-pubsub-topics">Published PubSub topics</h2>
+<p>We use a publish-subscribe model to communicate asynchronous events [<a href="https://pypubsub.readthedocs.io/en/v4.0.3/">https://pypubsub.readthedocs.io/en/v4.0.3/</a> ].
+Available
+topics:</p>
+<ul>
+<li>meshtastic.connection.established - published once we've successfully connected to the radio and downloaded the node DB</li>
+<li>meshtastic.connection.lost - published once we've lost our link to the radio</li>
+<li>meshtastic.receive.position(packet) - delivers a received packet as a dictionary, if you only care about a particular
+type of packet, you should subscribe to the full topic name.
+If you want to see all packets, simply subscribe to "meshtastic.receive".</li>
+<li>meshtastic.receive.user(packet)</li>
+<li>meshtastic.receive.data(packet)</li>
+<li>meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc&hellip;)</li>
+</ul>
+<p>Example Usage:</p>
+<pre><code>import meshtastic
+from pubsub import pub
+
+def onReceive(packet):
+    print(f&quot;Received: {packet}&quot;)
+
+interface = StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+pub.subscribe(onReceive, &quot;meshtastic.receive&quot;)
+interface.sendData(&quot;hello world&quot;) # defaults to broadcast, specify a destination ID if you wish
+</code></pre>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+## an API for Meshtastic devices
+
+Primary class: StreamInterface
+
+properties of StreamInterface:
+
+- radioConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to 
+the device.
+- nodes - The database of received nodes.  Includes always up-to-date location and username information for each 
+node in the mesh.  This is a read-only datastructure.
+- myNodeInfo - You probably don&#39;t want this.
+
+## Published PubSub topics
+
+We use a publish-subscribe model to communicate asynchronous events [https://pypubsub.readthedocs.io/en/v4.0.3/ ].  Available
+topics:
+
+- meshtastic.connection.established - published once we&#39;ve successfully connected to the radio and downloaded the node DB
+- meshtastic.connection.lost - published once we&#39;ve lost our link to the radio
+- meshtastic.receive.position(packet) - delivers a received packet as a dictionary, if you only care about a particular 
+type of packet, you should subscribe to the full topic name.  If you want to see all packets, simply subscribe to &#34;meshtastic.receive&#34;.
+- meshtastic.receive.user(packet)
+- meshtastic.receive.data(packet)
+- meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
+
+Example Usage:
+
+```
+import meshtastic
+from pubsub import pub
+
+def onReceive(packet):
+    print(f&#34;Received: {packet}&#34;)
+
+interface = StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+pub.subscribe(onReceive, &#34;meshtastic.receive&#34;)
+interface.sendData(&#34;hello world&#34;) # defaults to broadcast, specify a destination ID if you wish
+```
+
+&#34;&#34;&#34;
+
+import google.protobuf.json_format
+import serial
+import serial.tools.list_ports
+import threading
+import logging
+import sys
+import traceback
+from . import mesh_pb2
+from pubsub import pub
+
+START1 = 0x94
+START2 = 0xc3
+HEADER_LEN = 4
+MAX_TO_FROM_RADIO_SIZE = 512
+
+BROADCAST_ADDR = &#34;all&#34;  # A special ID that means broadcast
+
+
+MY_CONFIG_ID = 42
+
+
+class MeshInterface:
+    &#34;&#34;&#34;Interface class for meshtastic devices
+    &#34;&#34;&#34;
+
+    def __init__(self, debugOut=None):
+        &#34;&#34;&#34;Constructor&#34;&#34;&#34;
+        self.debugOut = debugOut
+        self.nodes = None  # FIXME
+        self._startConfig()
+
+    def sendText(self, text, destinationId=BROADCAST_ADDR):
+        &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
+
+        Arguments:
+            text {string} -- The text to send
+
+        Keyword Arguments:
+            destinationId {nodeId} -- where to send this message (default: {BROADCAST_ADDR})
+        &#34;&#34;&#34;
+        self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
+                      dataType=mesh_pb2.Data.CLEAR_TEXT)
+
+    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE):
+        &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
+        meshPacket = mesh_pb2.MeshPacket()
+        meshPacket.payload.data.payload = byteData
+        meshPacket.payload.data.typ = dataType
+        self.sendPacket(meshPacket, destinationId)
+
+    def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR):
+        &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast). 
+        You probably don&#39;t want this - use sendData instead.&#34;&#34;&#34;
+        toRadio = mesh_pb2.ToRadio()
+        # FIXME add support for non broadcast addresses
+        meshPacket.to = 255
+        toRadio.packet.CopyFrom(meshPacket)
+        self._sendToRadio(toRadio)
+
+    def _disconnected(self):
+        &#34;&#34;&#34;Called by subclasses to tell clients this interface has disconnected&#34;&#34;&#34;
+        pub.sendMessage(&#34;meshtastic.connection.lost&#34;)
+
+    def _startConfig(self):
+        &#34;&#34;&#34;Start device packets flowing&#34;&#34;&#34;
+        self.myInfo = None
+        self.nodes = {}  # nodes keyed by ID
+        self._nodesByNum = {}  # nodes keyed by nodenum
+        self.radioConfig = None
+
+        startConfig = mesh_pb2.ToRadio()
+        startConfig.want_config_id = MY_CONFIG_ID  # we don&#39;t use this value
+        self._sendToRadio(startConfig)
+
+    def _sendToRadio(self, toRadio):
+        &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
+        logging.error(f&#34;Subclass must provide toradio: {toRadio}&#34;)
+
+    def _handleFromRadio(self, fromRadioBytes):
+        &#34;&#34;&#34;
+        Handle a packet that arrived from the radio(update model and publish events)
+
+        Called by subclasses.&#34;&#34;&#34;
+        fromRadio = mesh_pb2.FromRadio()
+        fromRadio.ParseFromString(fromRadioBytes)
+        json = google.protobuf.json_format.MessageToJson(fromRadio)
+        logging.debug(f&#34;Received: {json}&#34;)
+        if fromRadio.HasField(&#34;my_info&#34;):
+            self.myInfo = fromRadio.my_info
+        elif fromRadio.HasField(&#34;radio&#34;):
+            self.radioConfig = fromRadio.radio
+        elif fromRadio.HasField(&#34;node_info&#34;):
+            node = fromRadio.node_info
+            self._nodesByNum[node.num] = node
+            self.nodes[node.user.id] = node
+        elif fromRadio.config_complete_id == MY_CONFIG_ID:
+            # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
+            pub.sendMessage(&#34;meshtastic.connection.established&#34;)
+        elif fromRadio.HasField(&#34;packet&#34;):
+            self._handlePacketFromRadio(fromRadio.packet)
+        else:
+            logging.warn(&#34;Unexpected FromRadio payload&#34;)
+
+    def _handlePacketFromRadio(self, meshPacket):
+        &#34;&#34;&#34;Handle a MeshPacket that just arrived from the radio
+
+        Will publish one of the following events:
+        - meshtastic.receive.position(packet = MeshPacket dictionary)
+        - meshtastic.receive.user(packet = MeshPacket dictionary)
+        - meshtastic.receive.data(packet = MeshPacket dictionary)
+        &#34;&#34;&#34;
+        # FIXME, update node DB as needed
+        json = google.protobuf.json_format.MessageToDict(meshPacket)
+        if meshPacket.payload.HasField(&#34;position&#34;):
+            pub.sendMessage(&#34;meshtastic.receive.position&#34;, packet=json)
+        if meshPacket.payload.HasField(&#34;user&#34;):
+            pub.sendMessage(&#34;meshtastic.receive.user&#34;,
+                            packet=json)
+        if meshPacket.payload.HasField(&#34;data&#34;):
+            pub.sendMessage(&#34;meshtastic.receive.data&#34;,
+                            packet=json)
+
+
+class StreamInterface(MeshInterface):
+    &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
+
+    def __init__(self, devPath=None, debugOut=None):
+        &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to 
+        find one Meshtastic device by probing
+
+        Keyword Arguments:
+            devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
+            debugOut {stream} -- If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})
+
+        Raises:
+            Exception: [description]
+            Exception: [description]
+        &#34;&#34;&#34;
+
+        if devPath is None:
+            ports = list(filter(lambda port: port.vid != None,
+                                serial.tools.list_ports.comports()))
+            if len(ports) == 0:
+                raise Exception(&#34;No Meshtastic devices detected&#34;)
+            elif len(ports) &gt; 1:
+                raise Exception(
+                    f&#34;Multiple ports detected, you must specify a device, such as {ports[0].device}&#34;)
+            else:
+                devPath = ports[0].device
+
+        logging.debug(f&#34;Connecting to {devPath}&#34;)
+        self._rxBuf = bytes()  # empty
+        self._wantExit = False
+        self.stream = serial.Serial(
+            devPath, 921600, exclusive=True, timeout=0.5)
+        self._rxThread = threading.Thread(target=self.__reader, args=())
+        self._rxThread.start()
+        MeshInterface.__init__(self, debugOut=debugOut)
+
+    def _sendToRadio(self, toRadio):
+        &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
+        logging.debug(f&#34;Sending: {toRadio}&#34;)
+        b = toRadio.SerializeToString()
+        bufLen = len(b)
+        header = bytes([START1, START2, (bufLen &gt;&gt; 8) &amp; 0xff,  bufLen &amp; 0xff])
+        self.stream.write(header)
+        self.stream.write(b)
+        self.stream.flush()
+
+    def close(self):
+        &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
+        logging.debug(&#34;Closing serial stream&#34;)
+        # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
+        self._wantExit = True
+
+    def __reader(self):
+        &#34;&#34;&#34;The reader thread that reads bytes from our stream&#34;&#34;&#34;
+        empty = bytes()
+
+        while not self._wantExit:
+            b = self.stream.read(1)
+            if len(b) &gt; 0:
+                # logging.debug(f&#34;read returned {b}&#34;)
+                c = b[0]
+                ptr = len(self._rxBuf)
+
+                # Assume we want to append this byte, fixme use bytearray instead
+                self._rxBuf = self._rxBuf + b
+
+                if ptr == 0:  # looking for START1
+                    if c != START1:
+                        self._rxBuf = empty  # failed to find start
+                        if self.debugOut != None:
+                            try:
+                                self.debugOut.write(b.decode(&#34;utf-8&#34;))
+                            except:
+                                self.debugOut.write(&#39;?&#39;)
+
+                elif ptr == 1:  # looking for START2
+                    if c != START2:
+                        self.rfBuf = empty  # failed to find start2
+                elif ptr &gt;= HEADER_LEN:  # we&#39;ve at least got a header
+                    # big endian length follos header
+                    packetlen = (self._rxBuf[2] &lt;&lt; 8) + self._rxBuf[3]
+
+                    if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
+                        if packetlen &gt; MAX_TO_FROM_RADIO_SIZE:
+                            self.rfBuf = empty  # length ws out out bounds, restart
+
+                    if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
+                        try:
+                            self._handleFromRadio(self._rxBuf[HEADER_LEN:])
+                        except Exception as ex:
+                            logging.warn(
+                                f&#34;Error handling FromRadio, possibly corrupted? {ex}&#34;)
+                            traceback.print_exc()
+                        self._rxBuf = empty
+        logging.debug(&#34;reader is exiting&#34;)
+        self.stream.close()
+        self._disconnected()</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="meshtastic.mesh_pb2" href="mesh_pb2.html">meshtastic.mesh_pb2</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="meshtastic.MeshInterface"><code class="flex name class">
+<span>class <span class="ident">MeshInterface</span></span>
+<span>(</span><span>debugOut=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface class for meshtastic devices</p>
+<p>Constructor</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MeshInterface:
+    &#34;&#34;&#34;Interface class for meshtastic devices
+    &#34;&#34;&#34;
+
+    def __init__(self, debugOut=None):
+        &#34;&#34;&#34;Constructor&#34;&#34;&#34;
+        self.debugOut = debugOut
+        self.nodes = None  # FIXME
+        self._startConfig()
+
+    def sendText(self, text, destinationId=BROADCAST_ADDR):
+        &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
+
+        Arguments:
+            text {string} -- The text to send
+
+        Keyword Arguments:
+            destinationId {nodeId} -- where to send this message (default: {BROADCAST_ADDR})
+        &#34;&#34;&#34;
+        self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
+                      dataType=mesh_pb2.Data.CLEAR_TEXT)
+
+    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE):
+        &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
+        meshPacket = mesh_pb2.MeshPacket()
+        meshPacket.payload.data.payload = byteData
+        meshPacket.payload.data.typ = dataType
+        self.sendPacket(meshPacket, destinationId)
+
+    def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR):
+        &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast). 
+        You probably don&#39;t want this - use sendData instead.&#34;&#34;&#34;
+        toRadio = mesh_pb2.ToRadio()
+        # FIXME add support for non broadcast addresses
+        meshPacket.to = 255
+        toRadio.packet.CopyFrom(meshPacket)
+        self._sendToRadio(toRadio)
+
+    def _disconnected(self):
+        &#34;&#34;&#34;Called by subclasses to tell clients this interface has disconnected&#34;&#34;&#34;
+        pub.sendMessage(&#34;meshtastic.connection.lost&#34;)
+
+    def _startConfig(self):
+        &#34;&#34;&#34;Start device packets flowing&#34;&#34;&#34;
+        self.myInfo = None
+        self.nodes = {}  # nodes keyed by ID
+        self._nodesByNum = {}  # nodes keyed by nodenum
+        self.radioConfig = None
+
+        startConfig = mesh_pb2.ToRadio()
+        startConfig.want_config_id = MY_CONFIG_ID  # we don&#39;t use this value
+        self._sendToRadio(startConfig)
+
+    def _sendToRadio(self, toRadio):
+        &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
+        logging.error(f&#34;Subclass must provide toradio: {toRadio}&#34;)
+
+    def _handleFromRadio(self, fromRadioBytes):
+        &#34;&#34;&#34;
+        Handle a packet that arrived from the radio(update model and publish events)
+
+        Called by subclasses.&#34;&#34;&#34;
+        fromRadio = mesh_pb2.FromRadio()
+        fromRadio.ParseFromString(fromRadioBytes)
+        json = google.protobuf.json_format.MessageToJson(fromRadio)
+        logging.debug(f&#34;Received: {json}&#34;)
+        if fromRadio.HasField(&#34;my_info&#34;):
+            self.myInfo = fromRadio.my_info
+        elif fromRadio.HasField(&#34;radio&#34;):
+            self.radioConfig = fromRadio.radio
+        elif fromRadio.HasField(&#34;node_info&#34;):
+            node = fromRadio.node_info
+            self._nodesByNum[node.num] = node
+            self.nodes[node.user.id] = node
+        elif fromRadio.config_complete_id == MY_CONFIG_ID:
+            # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
+            pub.sendMessage(&#34;meshtastic.connection.established&#34;)
+        elif fromRadio.HasField(&#34;packet&#34;):
+            self._handlePacketFromRadio(fromRadio.packet)
+        else:
+            logging.warn(&#34;Unexpected FromRadio payload&#34;)
+
+    def _handlePacketFromRadio(self, meshPacket):
+        &#34;&#34;&#34;Handle a MeshPacket that just arrived from the radio
+
+        Will publish one of the following events:
+        - meshtastic.receive.position(packet = MeshPacket dictionary)
+        - meshtastic.receive.user(packet = MeshPacket dictionary)
+        - meshtastic.receive.data(packet = MeshPacket dictionary)
+        &#34;&#34;&#34;
+        # FIXME, update node DB as needed
+        json = google.protobuf.json_format.MessageToDict(meshPacket)
+        if meshPacket.payload.HasField(&#34;position&#34;):
+            pub.sendMessage(&#34;meshtastic.receive.position&#34;, packet=json)
+        if meshPacket.payload.HasField(&#34;user&#34;):
+            pub.sendMessage(&#34;meshtastic.receive.user&#34;,
+                            packet=json)
+        if meshPacket.payload.HasField(&#34;data&#34;):
+            pub.sendMessage(&#34;meshtastic.receive.data&#34;,
+                            packet=json)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.MeshInterface.sendData"><code class="name flex">
+<span>def <span class="ident">sendData</span></span>(<span>self, byteData, destinationId='all', dataType=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send a data packet to some other node</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE):
+    &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
+    meshPacket = mesh_pb2.MeshPacket()
+    meshPacket.payload.data.payload = byteData
+    meshPacket.payload.data.typ = dataType
+    self.sendPacket(meshPacket, destinationId)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.MeshInterface.sendPacket"><code class="name flex">
+<span>def <span class="ident">sendPacket</span></span>(<span>self, meshPacket, destinationId='all')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send a MeshPacket to the specified node (or if unspecified, broadcast).
+You probably don't want this - use sendData instead.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR):
+    &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast). 
+    You probably don&#39;t want this - use sendData instead.&#34;&#34;&#34;
+    toRadio = mesh_pb2.ToRadio()
+    # FIXME add support for non broadcast addresses
+    meshPacket.to = 255
+    toRadio.packet.CopyFrom(meshPacket)
+    self._sendToRadio(toRadio)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.MeshInterface.sendText"><code class="name flex">
+<span>def <span class="ident">sendText</span></span>(<span>self, text, destinationId='all')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send a utf8 string to some other node, if the node has a display it will also be shown on the device.</p>
+<h2 id="arguments">Arguments</h2>
+<p>text {string} &ndash; The text to send</p>
+<p>Keyword Arguments:
+destinationId {nodeId} &ndash; where to send this message (default: {BROADCAST_ADDR})</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sendText(self, text, destinationId=BROADCAST_ADDR):
+    &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
+
+    Arguments:
+        text {string} -- The text to send
+
+    Keyword Arguments:
+        destinationId {nodeId} -- where to send this message (default: {BROADCAST_ADDR})
+    &#34;&#34;&#34;
+    self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
+                  dataType=mesh_pb2.Data.CLEAR_TEXT)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.StreamInterface"><code class="flex name class">
+<span>class <span class="ident">StreamInterface</span></span>
+<span>(</span><span>devPath=None, debugOut=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface class for meshtastic devices over a stream link (serial, TCP, etc)</p>
+<p>Constructor, opens a connection to a specified serial port, or if unspecified try to
+find one Meshtastic device by probing</p>
+<p>Keyword Arguments:
+devPath {string} &ndash; A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
+debugOut {stream} &ndash; If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>Exception</code></dt>
+<dd>[description]</dd>
+<dt><code>Exception</code></dt>
+<dd>[description]</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StreamInterface(MeshInterface):
+    &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
+
+    def __init__(self, devPath=None, debugOut=None):
+        &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to 
+        find one Meshtastic device by probing
+
+        Keyword Arguments:
+            devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
+            debugOut {stream} -- If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})
+
+        Raises:
+            Exception: [description]
+            Exception: [description]
+        &#34;&#34;&#34;
+
+        if devPath is None:
+            ports = list(filter(lambda port: port.vid != None,
+                                serial.tools.list_ports.comports()))
+            if len(ports) == 0:
+                raise Exception(&#34;No Meshtastic devices detected&#34;)
+            elif len(ports) &gt; 1:
+                raise Exception(
+                    f&#34;Multiple ports detected, you must specify a device, such as {ports[0].device}&#34;)
+            else:
+                devPath = ports[0].device
+
+        logging.debug(f&#34;Connecting to {devPath}&#34;)
+        self._rxBuf = bytes()  # empty
+        self._wantExit = False
+        self.stream = serial.Serial(
+            devPath, 921600, exclusive=True, timeout=0.5)
+        self._rxThread = threading.Thread(target=self.__reader, args=())
+        self._rxThread.start()
+        MeshInterface.__init__(self, debugOut=debugOut)
+
+    def _sendToRadio(self, toRadio):
+        &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
+        logging.debug(f&#34;Sending: {toRadio}&#34;)
+        b = toRadio.SerializeToString()
+        bufLen = len(b)
+        header = bytes([START1, START2, (bufLen &gt;&gt; 8) &amp; 0xff,  bufLen &amp; 0xff])
+        self.stream.write(header)
+        self.stream.write(b)
+        self.stream.flush()
+
+    def close(self):
+        &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
+        logging.debug(&#34;Closing serial stream&#34;)
+        # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
+        self._wantExit = True
+
+    def __reader(self):
+        &#34;&#34;&#34;The reader thread that reads bytes from our stream&#34;&#34;&#34;
+        empty = bytes()
+
+        while not self._wantExit:
+            b = self.stream.read(1)
+            if len(b) &gt; 0:
+                # logging.debug(f&#34;read returned {b}&#34;)
+                c = b[0]
+                ptr = len(self._rxBuf)
+
+                # Assume we want to append this byte, fixme use bytearray instead
+                self._rxBuf = self._rxBuf + b
+
+                if ptr == 0:  # looking for START1
+                    if c != START1:
+                        self._rxBuf = empty  # failed to find start
+                        if self.debugOut != None:
+                            try:
+                                self.debugOut.write(b.decode(&#34;utf-8&#34;))
+                            except:
+                                self.debugOut.write(&#39;?&#39;)
+
+                elif ptr == 1:  # looking for START2
+                    if c != START2:
+                        self.rfBuf = empty  # failed to find start2
+                elif ptr &gt;= HEADER_LEN:  # we&#39;ve at least got a header
+                    # big endian length follos header
+                    packetlen = (self._rxBuf[2] &lt;&lt; 8) + self._rxBuf[3]
+
+                    if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
+                        if packetlen &gt; MAX_TO_FROM_RADIO_SIZE:
+                            self.rfBuf = empty  # length ws out out bounds, restart
+
+                    if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
+                        try:
+                            self._handleFromRadio(self._rxBuf[HEADER_LEN:])
+                        except Exception as ex:
+                            logging.warn(
+                                f&#34;Error handling FromRadio, possibly corrupted? {ex}&#34;)
+                            traceback.print_exc()
+                        self._rxBuf = empty
+        logging.debug(&#34;reader is exiting&#34;)
+        self.stream.close()
+        self._disconnected()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.StreamInterface.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Close a connection to the device</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
+    logging.debug(&#34;Closing serial stream&#34;)
+    # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
+    self._wantExit = True</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></b></code>:
+<ul class="hlist">
+<li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#an-api-for-meshtastic-devices">an API for Meshtastic devices</a></li>
+<li><a href="#published-pubsub-topics">Published PubSub topics</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="meshtastic.mesh_pb2" href="mesh_pb2.html">meshtastic.mesh_pb2</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.StreamInterface.close" href="#meshtastic.StreamInterface.close">close</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

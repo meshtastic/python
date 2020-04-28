@@ -5,7 +5,8 @@
 - add fromId and toId to received messages dictionaries
 - update nodedb as nodes change
 - make docs decent
-- keep everything in dicts
+- radioConfig - getter/setter syntax: https://www.python-course.eu/python3_properties.php
+- DONE keep everything in dicts
 - document properties/fields
 - include examples in readme. hello.py, textchat.py, replymessage.py all as one little demo
 - have python client turn off radio sleep (use 0 for X to mean restore defaults)

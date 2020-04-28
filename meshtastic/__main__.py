@@ -1,7 +1,7 @@
 #!python3
 
 import argparse
-from .interface import StreamInterface
+from . import StreamInterface
 import logging
 import sys
 from pubsub import pub

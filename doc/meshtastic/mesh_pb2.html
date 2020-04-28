@@ -1,0 +1,1941 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>meshtastic.mesh_pb2 API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>meshtastic.mesh_pb2</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python"># Generated by the protocol buffer compiler.  DO NOT EDIT!
+# source: mesh.proto
+
+import sys
+_b=sys.version_info[0]&lt;3 and (lambda x:x) or (lambda x:x.encode(&#39;latin1&#39;))
+from google.protobuf.internal import enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf import reflection as _reflection
+from google.protobuf import symbol_database as _symbol_database
+# @@protoc_insertion_point(imports)
+
+_sym_db = _symbol_database.Default()
+
+
+
+
+DESCRIPTOR = _descriptor.FileDescriptor(
+  name=&#39;mesh.proto&#39;,
+  package=&#39;&#39;,
+  syntax=&#39;proto3&#39;,
+  serialized_options=_b(&#39;\n\023com.geeksville.meshB\nMeshProtos&#39;),
+  serialized_pb=_b(&#39;\n\nmesh.proto\&#34;f\n\x08Position\x12\x10\n\x08latitude\x18\x01 \x01(\x01\x12\x11\n\tlongitude\x18\x02 \x01(\x01\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x15\n\rbattery_level\x18\x04 \x01(\x05\x12\x0c\n\x04time\x18\x06 \x01(\r\&#34;g\n\x04\x44\x61ta\x12\x17\n\x03typ\x18\x01 \x01(\x0e\x32\n.Data.Type\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\&#34;5\n\x04Type\x12\n\n\x06OPAQUE\x10\x00\x12\x0e\n\nCLEAR_TEXT\x10\x01\x12\x11\n\rCLEAR_READACK\x10\x02\&#34;J\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x0f\n\x07macaddr\x18\x04 \x01(\x0c\&#34;\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x02 \x03(\x05\&#34;i\n\tSubPacket\x12\x1b\n\x08position\x18\x01 \x01(\x0b\x32\t.Position\x12\x13\n\x04\x64\x61ta\x18\x03 \x01(\x0b\x32\x05.Data\x12\x13\n\x04user\x18\x04 \x01(\x0b\x32\x05.User\x12\x15\n\rwant_response\x18\x05 \x01(\x08\&#34;p\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x05\x12\n\n\x02to\x18\x02 \x01(\x05\x12\x1b\n\x07payload\x18\x03 \x01(\x0b\x32\n.SubPacket\x12\x0f\n\x07rx_time\x18\x04 \x01(\r\x12\x0e\n\x06rx_snr\x18\x05 \x01(\x11\x12\n\n\x02id\x18\x06 \x01(\r\&#34;\xd4\x01\n\x0f\x43hannelSettings\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x32\n\x0cmodem_config\x18\x03 \x01(\x0e\x32\x1c.ChannelSettings.ModemConfig\x12\x0b\n\x03psk\x18\x04 \x01(\x0c\x12\x0c\n\x04name\x18\x05 \x01(\t\&#34;`\n\x0bModemConfig\x12\x12\n\x0e\x42w125Cr45Sf128\x10\x00\x12\x12\n\x0e\x42w500Cr45Sf128\x10\x01\x12\x14\n\x10\x42w31_25Cr48Sf512\x10\x02\x12\x13\n\x0f\x42w125Cr48Sf4096\x10\x03\&#34;\xd7\x03\n\x0bRadioConfig\x12\x31\n\x0bpreferences\x18\x01 \x01(\x0b\x32\x1c.RadioConfig.UserPreferences\x12*\n\x10\x63hannel_settings\x18\x02 \x01(\x0b\x32\x10.ChannelSettings\x1a\xe8\x02\n\x0fUserPreferences\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12\x1b\n\x13send_owner_interval\x18\x02 \x01(\r\x12\x1a\n\x12num_missed_to_fail\x18\x03 \x01(\r\x12\x1b\n\x13wait_bluetooth_secs\x18\x04 \x01(\r\x12\x16\n\x0escreen_on_secs\x18\x05 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x06 \x01(\r\x12\x1d\n\x15phone_sds_timeout_sec\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\x08 \x01(\r\x12\x10\n\x08sds_secs\x18\t \x01(\r\x12\x0f\n\x07ls_secs\x18\n \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0b \x01(\r\x12\x18\n\x10keep_all_packets\x18\x64 \x01(\x08\x12\x18\n\x10promiscuous_mode\x18\x65 \x01(\x08\&#34;o\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\x05\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x05 \x01(\x05\x12\x17\n\x0f\x66requency_error\x18\x06 \x01(\x05\&#34;\xc4\x01\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\x05\x12\x0f\n\x07has_gps\x18\x02 \x01(\x08\x12\x14\n\x0cnum_channels\x18\x03 \x01(\x05\x12\x0e\n\x06region\x18\x04 \x01(\t\x12\x10\n\x08hw_model\x18\x05 \x01(\t\x12\x18\n\x10\x66irmware_version\x18\x06 \x01(\t\x12\x12\n\nerror_code\x18\x07 \x01(\r\x12\x15\n\rerror_address\x18\x08 \x01(\r\x12\x13\n\x0b\x65rror_count\x18\t \x01(\r\&#34;\xd5\x01\n\x0b\x44\x65viceState\x12\x1b\n\x05radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfig\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\&#34;\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\&#34;\x1e\n\x0b\x44\x65\x62ugString\x12\x0f\n\x07message\x18\x01 \x01(\t\&#34;\xe5\x01\n\tFromRadio\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12\x1d\n\x05radio\x18\x06 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12$\n\x0c\x64\x65\x62ug_string\x18\x07 \x01(\x0b\x32\x0c.DebugStringH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x08 \x01(\rH\x00\x42\t\n\x07variant\&#34;\x8c\x01\n\x07ToRadio\x12\x1d\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x18\n\x0ewant_config_id\x18\x64 \x01(\rH\x00\x12!\n\tset_radio\x18\x65 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x66 \x01(\x0b\x32\x05.UserH\x00\x42\t\n\x07variant*\x17\n\tConstants\x12\n\n\x06Unused\x10\x00\x42!\n\x13\x63om.geeksville.meshB\nMeshProtosb\x06proto3&#39;)
+)
+
+_CONSTANTS = _descriptor.EnumDescriptor(
+  name=&#39;Constants&#39;,
+  full_name=&#39;Constants&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name=&#39;Unused&#39;, index=0, number=0,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=2177,
+  serialized_end=2200,
+)
+_sym_db.RegisterEnumDescriptor(_CONSTANTS)
+
+Constants = enum_type_wrapper.EnumTypeWrapper(_CONSTANTS)
+Unused = 0
+
+
+_DATA_TYPE = _descriptor.EnumDescriptor(
+  name=&#39;Type&#39;,
+  full_name=&#39;Data.Type&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name=&#39;OPAQUE&#39;, index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;CLEAR_TEXT&#39;, index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;CLEAR_READACK&#39;, index=2, number=2,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=168,
+  serialized_end=221,
+)
+_sym_db.RegisterEnumDescriptor(_DATA_TYPE)
+
+_CHANNELSETTINGS_MODEMCONFIG = _descriptor.EnumDescriptor(
+  name=&#39;ModemConfig&#39;,
+  full_name=&#39;ChannelSettings.ModemConfig&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name=&#39;Bw125Cr45Sf128&#39;, index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;Bw500Cr45Sf128&#39;, index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;Bw31_25Cr48Sf512&#39;, index=2, number=2,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;Bw125Cr48Sf4096&#39;, index=3, number=3,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=670,
+  serialized_end=766,
+)
+_sym_db.RegisterEnumDescriptor(_CHANNELSETTINGS_MODEMCONFIG)
+
+
+_POSITION = _descriptor.Descriptor(
+  name=&#39;Position&#39;,
+  full_name=&#39;Position&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;latitude&#39;, full_name=&#39;Position.latitude&#39;, index=0,
+      number=1, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;longitude&#39;, full_name=&#39;Position.longitude&#39;, index=1,
+      number=2, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;altitude&#39;, full_name=&#39;Position.altitude&#39;, index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;battery_level&#39;, full_name=&#39;Position.battery_level&#39;, index=3,
+      number=4, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;time&#39;, full_name=&#39;Position.time&#39;, index=4,
+      number=6, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=14,
+  serialized_end=116,
+)
+
+
+_DATA = _descriptor.Descriptor(
+  name=&#39;Data&#39;,
+  full_name=&#39;Data&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;typ&#39;, full_name=&#39;Data.typ&#39;, index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;payload&#39;, full_name=&#39;Data.payload&#39;, index=1,
+      number=2, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(&#34;&#34;),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _DATA_TYPE,
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=118,
+  serialized_end=221,
+)
+
+
+_USER = _descriptor.Descriptor(
+  name=&#39;User&#39;,
+  full_name=&#39;User&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;id&#39;, full_name=&#39;User.id&#39;, index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(&#34;&#34;).decode(&#39;utf-8&#39;),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;long_name&#39;, full_name=&#39;User.long_name&#39;, index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(&#34;&#34;).decode(&#39;utf-8&#39;),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;short_name&#39;, full_name=&#39;User.short_name&#39;, index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(&#34;&#34;).decode(&#39;utf-8&#39;),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;macaddr&#39;, full_name=&#39;User.macaddr&#39;, index=3,
+      number=4, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(&#34;&#34;),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=223,
+  serialized_end=297,
+)
+
+
+_ROUTEDISCOVERY = _descriptor.Descriptor(
+  name=&#39;RouteDiscovery&#39;,
+  full_name=&#39;RouteDiscovery&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;route&#39;, full_name=&#39;RouteDiscovery.route&#39;, index=0,
+      number=2, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=299,
+  serialized_end=330,
+)
+
+
+_SUBPACKET = _descriptor.Descriptor(
+  name=&#39;SubPacket&#39;,
+  full_name=&#39;SubPacket&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;position&#39;, full_name=&#39;SubPacket.position&#39;, index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;data&#39;, full_name=&#39;SubPacket.data&#39;, index=1,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;user&#39;, full_name=&#39;SubPacket.user&#39;, index=2,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;want_response&#39;, full_name=&#39;SubPacket.want_response&#39;, index=3,
+      number=5, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=332,
+  serialized_end=437,
+)
+
+
+_MESHPACKET = _descriptor.Descriptor(
+  name=&#39;MeshPacket&#39;,
+  full_name=&#39;MeshPacket&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;from&#39;, full_name=&#39;MeshPacket.from&#39;, index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;to&#39;, full_name=&#39;MeshPacket.to&#39;, index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;payload&#39;, full_name=&#39;MeshPacket.payload&#39;, index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;rx_time&#39;, full_name=&#39;MeshPacket.rx_time&#39;, index=3,
+      number=4, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;rx_snr&#39;, full_name=&#39;MeshPacket.rx_snr&#39;, index=4,
+      number=5, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;id&#39;, full_name=&#39;MeshPacket.id&#39;, index=5,
+      number=6, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=439,
+  serialized_end=551,
+)
+
+
+_CHANNELSETTINGS = _descriptor.Descriptor(
+  name=&#39;ChannelSettings&#39;,
+  full_name=&#39;ChannelSettings&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;tx_power&#39;, full_name=&#39;ChannelSettings.tx_power&#39;, index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;modem_config&#39;, full_name=&#39;ChannelSettings.modem_config&#39;, index=1,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;psk&#39;, full_name=&#39;ChannelSettings.psk&#39;, index=2,
+      number=4, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(&#34;&#34;),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;name&#39;, full_name=&#39;ChannelSettings.name&#39;, index=3,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(&#34;&#34;).decode(&#39;utf-8&#39;),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _CHANNELSETTINGS_MODEMCONFIG,
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=554,
+  serialized_end=766,
+)
+
+
+_RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
+  name=&#39;UserPreferences&#39;,
+  full_name=&#39;RadioConfig.UserPreferences&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;position_broadcast_secs&#39;, full_name=&#39;RadioConfig.UserPreferences.position_broadcast_secs&#39;, index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;send_owner_interval&#39;, full_name=&#39;RadioConfig.UserPreferences.send_owner_interval&#39;, index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;num_missed_to_fail&#39;, full_name=&#39;RadioConfig.UserPreferences.num_missed_to_fail&#39;, index=2,
+      number=3, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;wait_bluetooth_secs&#39;, full_name=&#39;RadioConfig.UserPreferences.wait_bluetooth_secs&#39;, index=3,
+      number=4, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;screen_on_secs&#39;, full_name=&#39;RadioConfig.UserPreferences.screen_on_secs&#39;, index=4,
+      number=5, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;phone_timeout_secs&#39;, full_name=&#39;RadioConfig.UserPreferences.phone_timeout_secs&#39;, index=5,
+      number=6, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;phone_sds_timeout_sec&#39;, full_name=&#39;RadioConfig.UserPreferences.phone_sds_timeout_sec&#39;, index=6,
+      number=7, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;mesh_sds_timeout_secs&#39;, full_name=&#39;RadioConfig.UserPreferences.mesh_sds_timeout_secs&#39;, index=7,
+      number=8, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;sds_secs&#39;, full_name=&#39;RadioConfig.UserPreferences.sds_secs&#39;, index=8,
+      number=9, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;ls_secs&#39;, full_name=&#39;RadioConfig.UserPreferences.ls_secs&#39;, index=9,
+      number=10, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;min_wake_secs&#39;, full_name=&#39;RadioConfig.UserPreferences.min_wake_secs&#39;, index=10,
+      number=11, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;keep_all_packets&#39;, full_name=&#39;RadioConfig.UserPreferences.keep_all_packets&#39;, index=11,
+      number=100, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;promiscuous_mode&#39;, full_name=&#39;RadioConfig.UserPreferences.promiscuous_mode&#39;, index=12,
+      number=101, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=880,
+  serialized_end=1240,
+)
+
+_RADIOCONFIG = _descriptor.Descriptor(
+  name=&#39;RadioConfig&#39;,
+  full_name=&#39;RadioConfig&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;preferences&#39;, full_name=&#39;RadioConfig.preferences&#39;, index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;channel_settings&#39;, full_name=&#39;RadioConfig.channel_settings&#39;, index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_RADIOCONFIG_USERPREFERENCES, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=769,
+  serialized_end=1240,
+)
+
+
+_NODEINFO = _descriptor.Descriptor(
+  name=&#39;NodeInfo&#39;,
+  full_name=&#39;NodeInfo&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;num&#39;, full_name=&#39;NodeInfo.num&#39;, index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;user&#39;, full_name=&#39;NodeInfo.user&#39;, index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;position&#39;, full_name=&#39;NodeInfo.position&#39;, index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;snr&#39;, full_name=&#39;NodeInfo.snr&#39;, index=3,
+      number=5, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;frequency_error&#39;, full_name=&#39;NodeInfo.frequency_error&#39;, index=4,
+      number=6, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1242,
+  serialized_end=1353,
+)
+
+
+_MYNODEINFO = _descriptor.Descriptor(
+  name=&#39;MyNodeInfo&#39;,
+  full_name=&#39;MyNodeInfo&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;my_node_num&#39;, full_name=&#39;MyNodeInfo.my_node_num&#39;, index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;has_gps&#39;, full_name=&#39;MyNodeInfo.has_gps&#39;, index=1,
+      number=2, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;num_channels&#39;, full_name=&#39;MyNodeInfo.num_channels&#39;, index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;region&#39;, full_name=&#39;MyNodeInfo.region&#39;, index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(&#34;&#34;).decode(&#39;utf-8&#39;),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;hw_model&#39;, full_name=&#39;MyNodeInfo.hw_model&#39;, index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(&#34;&#34;).decode(&#39;utf-8&#39;),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;firmware_version&#39;, full_name=&#39;MyNodeInfo.firmware_version&#39;, index=5,
+      number=6, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(&#34;&#34;).decode(&#39;utf-8&#39;),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;error_code&#39;, full_name=&#39;MyNodeInfo.error_code&#39;, index=6,
+      number=7, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;error_address&#39;, full_name=&#39;MyNodeInfo.error_address&#39;, index=7,
+      number=8, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;error_count&#39;, full_name=&#39;MyNodeInfo.error_count&#39;, index=8,
+      number=9, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1356,
+  serialized_end=1552,
+)
+
+
+_DEVICESTATE = _descriptor.Descriptor(
+  name=&#39;DeviceState&#39;,
+  full_name=&#39;DeviceState&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;radio&#39;, full_name=&#39;DeviceState.radio&#39;, index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;my_node&#39;, full_name=&#39;DeviceState.my_node&#39;, index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;owner&#39;, full_name=&#39;DeviceState.owner&#39;, index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;node_db&#39;, full_name=&#39;DeviceState.node_db&#39;, index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;receive_queue&#39;, full_name=&#39;DeviceState.receive_queue&#39;, index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;version&#39;, full_name=&#39;DeviceState.version&#39;, index=5,
+      number=8, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;rx_text_message&#39;, full_name=&#39;DeviceState.rx_text_message&#39;, index=6,
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1555,
+  serialized_end=1768,
+)
+
+
+_DEBUGSTRING = _descriptor.Descriptor(
+  name=&#39;DebugString&#39;,
+  full_name=&#39;DebugString&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;message&#39;, full_name=&#39;DebugString.message&#39;, index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(&#34;&#34;).decode(&#39;utf-8&#39;),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1770,
+  serialized_end=1800,
+)
+
+
+_FROMRADIO = _descriptor.Descriptor(
+  name=&#39;FromRadio&#39;,
+  full_name=&#39;FromRadio&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;num&#39;, full_name=&#39;FromRadio.num&#39;, index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;packet&#39;, full_name=&#39;FromRadio.packet&#39;, index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;my_info&#39;, full_name=&#39;FromRadio.my_info&#39;, index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;node_info&#39;, full_name=&#39;FromRadio.node_info&#39;, index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;radio&#39;, full_name=&#39;FromRadio.radio&#39;, index=4,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;debug_string&#39;, full_name=&#39;FromRadio.debug_string&#39;, index=5,
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;config_complete_id&#39;, full_name=&#39;FromRadio.config_complete_id&#39;, index=6,
+      number=8, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name=&#39;variant&#39;, full_name=&#39;FromRadio.variant&#39;,
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=1803,
+  serialized_end=2032,
+)
+
+
+_TORADIO = _descriptor.Descriptor(
+  name=&#39;ToRadio&#39;,
+  full_name=&#39;ToRadio&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;packet&#39;, full_name=&#39;ToRadio.packet&#39;, index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;want_config_id&#39;, full_name=&#39;ToRadio.want_config_id&#39;, index=1,
+      number=100, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;set_radio&#39;, full_name=&#39;ToRadio.set_radio&#39;, index=2,
+      number=101, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;set_owner&#39;, full_name=&#39;ToRadio.set_owner&#39;, index=3,
+      number=102, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name=&#39;variant&#39;, full_name=&#39;ToRadio.variant&#39;,
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=2035,
+  serialized_end=2175,
+)
+
+_DATA.fields_by_name[&#39;typ&#39;].enum_type = _DATA_TYPE
+_DATA_TYPE.containing_type = _DATA
+_SUBPACKET.fields_by_name[&#39;position&#39;].message_type = _POSITION
+_SUBPACKET.fields_by_name[&#39;data&#39;].message_type = _DATA
+_SUBPACKET.fields_by_name[&#39;user&#39;].message_type = _USER
+_MESHPACKET.fields_by_name[&#39;payload&#39;].message_type = _SUBPACKET
+_CHANNELSETTINGS.fields_by_name[&#39;modem_config&#39;].enum_type = _CHANNELSETTINGS_MODEMCONFIG
+_CHANNELSETTINGS_MODEMCONFIG.containing_type = _CHANNELSETTINGS
+_RADIOCONFIG_USERPREFERENCES.containing_type = _RADIOCONFIG
+_RADIOCONFIG.fields_by_name[&#39;preferences&#39;].message_type = _RADIOCONFIG_USERPREFERENCES
+_RADIOCONFIG.fields_by_name[&#39;channel_settings&#39;].message_type = _CHANNELSETTINGS
+_NODEINFO.fields_by_name[&#39;user&#39;].message_type = _USER
+_NODEINFO.fields_by_name[&#39;position&#39;].message_type = _POSITION
+_DEVICESTATE.fields_by_name[&#39;radio&#39;].message_type = _RADIOCONFIG
+_DEVICESTATE.fields_by_name[&#39;my_node&#39;].message_type = _MYNODEINFO
+_DEVICESTATE.fields_by_name[&#39;owner&#39;].message_type = _USER
+_DEVICESTATE.fields_by_name[&#39;node_db&#39;].message_type = _NODEINFO
+_DEVICESTATE.fields_by_name[&#39;receive_queue&#39;].message_type = _MESHPACKET
+_DEVICESTATE.fields_by_name[&#39;rx_text_message&#39;].message_type = _MESHPACKET
+_FROMRADIO.fields_by_name[&#39;packet&#39;].message_type = _MESHPACKET
+_FROMRADIO.fields_by_name[&#39;my_info&#39;].message_type = _MYNODEINFO
+_FROMRADIO.fields_by_name[&#39;node_info&#39;].message_type = _NODEINFO
+_FROMRADIO.fields_by_name[&#39;radio&#39;].message_type = _RADIOCONFIG
+_FROMRADIO.fields_by_name[&#39;debug_string&#39;].message_type = _DEBUGSTRING
+_FROMRADIO.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _FROMRADIO.fields_by_name[&#39;packet&#39;])
+_FROMRADIO.fields_by_name[&#39;packet&#39;].containing_oneof = _FROMRADIO.oneofs_by_name[&#39;variant&#39;]
+_FROMRADIO.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _FROMRADIO.fields_by_name[&#39;my_info&#39;])
+_FROMRADIO.fields_by_name[&#39;my_info&#39;].containing_oneof = _FROMRADIO.oneofs_by_name[&#39;variant&#39;]
+_FROMRADIO.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _FROMRADIO.fields_by_name[&#39;node_info&#39;])
+_FROMRADIO.fields_by_name[&#39;node_info&#39;].containing_oneof = _FROMRADIO.oneofs_by_name[&#39;variant&#39;]
+_FROMRADIO.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _FROMRADIO.fields_by_name[&#39;radio&#39;])
+_FROMRADIO.fields_by_name[&#39;radio&#39;].containing_oneof = _FROMRADIO.oneofs_by_name[&#39;variant&#39;]
+_FROMRADIO.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _FROMRADIO.fields_by_name[&#39;debug_string&#39;])
+_FROMRADIO.fields_by_name[&#39;debug_string&#39;].containing_oneof = _FROMRADIO.oneofs_by_name[&#39;variant&#39;]
+_FROMRADIO.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _FROMRADIO.fields_by_name[&#39;config_complete_id&#39;])
+_FROMRADIO.fields_by_name[&#39;config_complete_id&#39;].containing_oneof = _FROMRADIO.oneofs_by_name[&#39;variant&#39;]
+_TORADIO.fields_by_name[&#39;packet&#39;].message_type = _MESHPACKET
+_TORADIO.fields_by_name[&#39;set_radio&#39;].message_type = _RADIOCONFIG
+_TORADIO.fields_by_name[&#39;set_owner&#39;].message_type = _USER
+_TORADIO.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _TORADIO.fields_by_name[&#39;packet&#39;])
+_TORADIO.fields_by_name[&#39;packet&#39;].containing_oneof = _TORADIO.oneofs_by_name[&#39;variant&#39;]
+_TORADIO.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _TORADIO.fields_by_name[&#39;want_config_id&#39;])
+_TORADIO.fields_by_name[&#39;want_config_id&#39;].containing_oneof = _TORADIO.oneofs_by_name[&#39;variant&#39;]
+_TORADIO.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _TORADIO.fields_by_name[&#39;set_radio&#39;])
+_TORADIO.fields_by_name[&#39;set_radio&#39;].containing_oneof = _TORADIO.oneofs_by_name[&#39;variant&#39;]
+_TORADIO.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _TORADIO.fields_by_name[&#39;set_owner&#39;])
+_TORADIO.fields_by_name[&#39;set_owner&#39;].containing_oneof = _TORADIO.oneofs_by_name[&#39;variant&#39;]
+DESCRIPTOR.message_types_by_name[&#39;Position&#39;] = _POSITION
+DESCRIPTOR.message_types_by_name[&#39;Data&#39;] = _DATA
+DESCRIPTOR.message_types_by_name[&#39;User&#39;] = _USER
+DESCRIPTOR.message_types_by_name[&#39;RouteDiscovery&#39;] = _ROUTEDISCOVERY
+DESCRIPTOR.message_types_by_name[&#39;SubPacket&#39;] = _SUBPACKET
+DESCRIPTOR.message_types_by_name[&#39;MeshPacket&#39;] = _MESHPACKET
+DESCRIPTOR.message_types_by_name[&#39;ChannelSettings&#39;] = _CHANNELSETTINGS
+DESCRIPTOR.message_types_by_name[&#39;RadioConfig&#39;] = _RADIOCONFIG
+DESCRIPTOR.message_types_by_name[&#39;NodeInfo&#39;] = _NODEINFO
+DESCRIPTOR.message_types_by_name[&#39;MyNodeInfo&#39;] = _MYNODEINFO
+DESCRIPTOR.message_types_by_name[&#39;DeviceState&#39;] = _DEVICESTATE
+DESCRIPTOR.message_types_by_name[&#39;DebugString&#39;] = _DEBUGSTRING
+DESCRIPTOR.message_types_by_name[&#39;FromRadio&#39;] = _FROMRADIO
+DESCRIPTOR.message_types_by_name[&#39;ToRadio&#39;] = _TORADIO
+DESCRIPTOR.enum_types_by_name[&#39;Constants&#39;] = _CONSTANTS
+_sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+Position = _reflection.GeneratedProtocolMessageType(&#39;Position&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _POSITION,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:Position)
+  ))
+_sym_db.RegisterMessage(Position)
+
+Data = _reflection.GeneratedProtocolMessageType(&#39;Data&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _DATA,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:Data)
+  ))
+_sym_db.RegisterMessage(Data)
+
+User = _reflection.GeneratedProtocolMessageType(&#39;User&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _USER,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:User)
+  ))
+_sym_db.RegisterMessage(User)
+
+RouteDiscovery = _reflection.GeneratedProtocolMessageType(&#39;RouteDiscovery&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _ROUTEDISCOVERY,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:RouteDiscovery)
+  ))
+_sym_db.RegisterMessage(RouteDiscovery)
+
+SubPacket = _reflection.GeneratedProtocolMessageType(&#39;SubPacket&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _SUBPACKET,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:SubPacket)
+  ))
+_sym_db.RegisterMessage(SubPacket)
+
+MeshPacket = _reflection.GeneratedProtocolMessageType(&#39;MeshPacket&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _MESHPACKET,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:MeshPacket)
+  ))
+_sym_db.RegisterMessage(MeshPacket)
+
+ChannelSettings = _reflection.GeneratedProtocolMessageType(&#39;ChannelSettings&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _CHANNELSETTINGS,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:ChannelSettings)
+  ))
+_sym_db.RegisterMessage(ChannelSettings)
+
+RadioConfig = _reflection.GeneratedProtocolMessageType(&#39;RadioConfig&#39;, (_message.Message,), dict(
+
+  UserPreferences = _reflection.GeneratedProtocolMessageType(&#39;UserPreferences&#39;, (_message.Message,), dict(
+    DESCRIPTOR = _RADIOCONFIG_USERPREFERENCES,
+    __module__ = &#39;mesh_pb2&#39;
+    # @@protoc_insertion_point(class_scope:RadioConfig.UserPreferences)
+    ))
+  ,
+  DESCRIPTOR = _RADIOCONFIG,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:RadioConfig)
+  ))
+_sym_db.RegisterMessage(RadioConfig)
+_sym_db.RegisterMessage(RadioConfig.UserPreferences)
+
+NodeInfo = _reflection.GeneratedProtocolMessageType(&#39;NodeInfo&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _NODEINFO,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:NodeInfo)
+  ))
+_sym_db.RegisterMessage(NodeInfo)
+
+MyNodeInfo = _reflection.GeneratedProtocolMessageType(&#39;MyNodeInfo&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _MYNODEINFO,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:MyNodeInfo)
+  ))
+_sym_db.RegisterMessage(MyNodeInfo)
+
+DeviceState = _reflection.GeneratedProtocolMessageType(&#39;DeviceState&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _DEVICESTATE,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:DeviceState)
+  ))
+_sym_db.RegisterMessage(DeviceState)
+
+DebugString = _reflection.GeneratedProtocolMessageType(&#39;DebugString&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _DEBUGSTRING,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:DebugString)
+  ))
+_sym_db.RegisterMessage(DebugString)
+
+FromRadio = _reflection.GeneratedProtocolMessageType(&#39;FromRadio&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _FROMRADIO,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:FromRadio)
+  ))
+_sym_db.RegisterMessage(FromRadio)
+
+ToRadio = _reflection.GeneratedProtocolMessageType(&#39;ToRadio&#39;, (_message.Message,), dict(
+  DESCRIPTOR = _TORADIO,
+  __module__ = &#39;mesh_pb2&#39;
+  # @@protoc_insertion_point(class_scope:ToRadio)
+  ))
+_sym_db.RegisterMessage(ToRadio)
+
+
+DESCRIPTOR._options = None
+# @@protoc_insertion_point(module_scope)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="meshtastic.mesh_pb2.ChannelSettings"><code class="flex name class">
+<span>class <span class="ident">ChannelSettings</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.Bw125Cr45Sf128"><code class="name">var <span class="ident">Bw125Cr45Sf128</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.Bw125Cr48Sf4096"><code class="name">var <span class="ident">Bw125Cr48Sf4096</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.Bw31_25Cr48Sf512"><code class="name">var <span class="ident">Bw31_25Cr48Sf512</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.Bw500Cr45Sf128"><code class="name">var <span class="ident">Bw500Cr45Sf128</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.MODEM_CONFIG_FIELD_NUMBER"><code class="name">var <span class="ident">MODEM_CONFIG_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.ModemConfig"><code class="name">var <span class="ident">ModemConfig</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.NAME_FIELD_NUMBER"><code class="name">var <span class="ident">NAME_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.PSK_FIELD_NUMBER"><code class="name">var <span class="ident">PSK_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.TX_POWER_FIELD_NUMBER"><code class="name">var <span class="ident">TX_POWER_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.Data"><code class="flex name class">
+<span>class <span class="ident">Data</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.Data.CLEAR_READACK"><code class="name">var <span class="ident">CLEAR_READACK</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Data.CLEAR_TEXT"><code class="name">var <span class="ident">CLEAR_TEXT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Data.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Data.OPAQUE"><code class="name">var <span class="ident">OPAQUE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Data.PAYLOAD_FIELD_NUMBER"><code class="name">var <span class="ident">PAYLOAD_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Data.TYP_FIELD_NUMBER"><code class="name">var <span class="ident">TYP_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Data.Type"><code class="name">var <span class="ident">Type</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.DebugString"><code class="flex name class">
+<span>class <span class="ident">DebugString</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.DebugString.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.DebugString.MESSAGE_FIELD_NUMBER"><code class="name">var <span class="ident">MESSAGE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.DeviceState"><code class="flex name class">
+<span>class <span class="ident">DeviceState</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.DeviceState.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.DeviceState.MY_NODE_FIELD_NUMBER"><code class="name">var <span class="ident">MY_NODE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.DeviceState.NODE_DB_FIELD_NUMBER"><code class="name">var <span class="ident">NODE_DB_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.DeviceState.OWNER_FIELD_NUMBER"><code class="name">var <span class="ident">OWNER_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.DeviceState.RADIO_FIELD_NUMBER"><code class="name">var <span class="ident">RADIO_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.DeviceState.RECEIVE_QUEUE_FIELD_NUMBER"><code class="name">var <span class="ident">RECEIVE_QUEUE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.DeviceState.RX_TEXT_MESSAGE_FIELD_NUMBER"><code class="name">var <span class="ident">RX_TEXT_MESSAGE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.DeviceState.VERSION_FIELD_NUMBER"><code class="name">var <span class="ident">VERSION_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.FromRadio"><code class="flex name class">
+<span>class <span class="ident">FromRadio</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.FromRadio.CONFIG_COMPLETE_ID_FIELD_NUMBER"><code class="name">var <span class="ident">CONFIG_COMPLETE_ID_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.FromRadio.DEBUG_STRING_FIELD_NUMBER"><code class="name">var <span class="ident">DEBUG_STRING_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.FromRadio.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.FromRadio.MY_INFO_FIELD_NUMBER"><code class="name">var <span class="ident">MY_INFO_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.FromRadio.NODE_INFO_FIELD_NUMBER"><code class="name">var <span class="ident">NODE_INFO_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.FromRadio.NUM_FIELD_NUMBER"><code class="name">var <span class="ident">NUM_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.FromRadio.PACKET_FIELD_NUMBER"><code class="name">var <span class="ident">PACKET_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.FromRadio.RADIO_FIELD_NUMBER"><code class="name">var <span class="ident">RADIO_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.MeshPacket"><code class="flex name class">
+<span>class <span class="ident">MeshPacket</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.MeshPacket.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MeshPacket.FROM_FIELD_NUMBER"><code class="name">var <span class="ident">FROM_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MeshPacket.ID_FIELD_NUMBER"><code class="name">var <span class="ident">ID_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MeshPacket.PAYLOAD_FIELD_NUMBER"><code class="name">var <span class="ident">PAYLOAD_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MeshPacket.RX_SNR_FIELD_NUMBER"><code class="name">var <span class="ident">RX_SNR_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MeshPacket.RX_TIME_FIELD_NUMBER"><code class="name">var <span class="ident">RX_TIME_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MeshPacket.TO_FIELD_NUMBER"><code class="name">var <span class="ident">TO_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo"><code class="flex name class">
+<span>class <span class="ident">MyNodeInfo</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.ERROR_ADDRESS_FIELD_NUMBER"><code class="name">var <span class="ident">ERROR_ADDRESS_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.ERROR_CODE_FIELD_NUMBER"><code class="name">var <span class="ident">ERROR_CODE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.ERROR_COUNT_FIELD_NUMBER"><code class="name">var <span class="ident">ERROR_COUNT_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.FIRMWARE_VERSION_FIELD_NUMBER"><code class="name">var <span class="ident">FIRMWARE_VERSION_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.HAS_GPS_FIELD_NUMBER"><code class="name">var <span class="ident">HAS_GPS_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.HW_MODEL_FIELD_NUMBER"><code class="name">var <span class="ident">HW_MODEL_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.MY_NODE_NUM_FIELD_NUMBER"><code class="name">var <span class="ident">MY_NODE_NUM_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.NUM_CHANNELS_FIELD_NUMBER"><code class="name">var <span class="ident">NUM_CHANNELS_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.REGION_FIELD_NUMBER"><code class="name">var <span class="ident">REGION_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.NodeInfo"><code class="flex name class">
+<span>class <span class="ident">NodeInfo</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.NodeInfo.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.NodeInfo.FREQUENCY_ERROR_FIELD_NUMBER"><code class="name">var <span class="ident">FREQUENCY_ERROR_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.NodeInfo.NUM_FIELD_NUMBER"><code class="name">var <span class="ident">NUM_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.NodeInfo.POSITION_FIELD_NUMBER"><code class="name">var <span class="ident">POSITION_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.NodeInfo.SNR_FIELD_NUMBER"><code class="name">var <span class="ident">SNR_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.NodeInfo.USER_FIELD_NUMBER"><code class="name">var <span class="ident">USER_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.Position"><code class="flex name class">
+<span>class <span class="ident">Position</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.Position.ALTITUDE_FIELD_NUMBER"><code class="name">var <span class="ident">ALTITUDE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Position.BATTERY_LEVEL_FIELD_NUMBER"><code class="name">var <span class="ident">BATTERY_LEVEL_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Position.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Position.LATITUDE_FIELD_NUMBER"><code class="name">var <span class="ident">LATITUDE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Position.LONGITUDE_FIELD_NUMBER"><code class="name">var <span class="ident">LONGITUDE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Position.TIME_FIELD_NUMBER"><code class="name">var <span class="ident">TIME_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.RadioConfig"><code class="flex name class">
+<span>class <span class="ident">RadioConfig</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.RadioConfig.CHANNEL_SETTINGS_FIELD_NUMBER"><code class="name">var <span class="ident">CHANNEL_SETTINGS_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.RadioConfig.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.RadioConfig.PREFERENCES_FIELD_NUMBER"><code class="name">var <span class="ident">PREFERENCES_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.RadioConfig.UserPreferences"><code class="name">var <span class="ident">UserPreferences</span></code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.RouteDiscovery"><code class="flex name class">
+<span>class <span class="ident">RouteDiscovery</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.RouteDiscovery.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.RouteDiscovery.ROUTE_FIELD_NUMBER"><code class="name">var <span class="ident">ROUTE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.SubPacket"><code class="flex name class">
+<span>class <span class="ident">SubPacket</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.SubPacket.DATA_FIELD_NUMBER"><code class="name">var <span class="ident">DATA_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.SubPacket.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.SubPacket.POSITION_FIELD_NUMBER"><code class="name">var <span class="ident">POSITION_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.SubPacket.USER_FIELD_NUMBER"><code class="name">var <span class="ident">USER_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.SubPacket.WANT_RESPONSE_FIELD_NUMBER"><code class="name">var <span class="ident">WANT_RESPONSE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.ToRadio"><code class="flex name class">
+<span>class <span class="ident">ToRadio</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.ToRadio.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ToRadio.PACKET_FIELD_NUMBER"><code class="name">var <span class="ident">PACKET_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ToRadio.SET_OWNER_FIELD_NUMBER"><code class="name">var <span class="ident">SET_OWNER_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ToRadio.SET_RADIO_FIELD_NUMBER"><code class="name">var <span class="ident">SET_RADIO_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ToRadio.WANT_CONFIG_ID_FIELD_NUMBER"><code class="name">var <span class="ident">WANT_CONFIG_ID_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.mesh_pb2.User"><code class="flex name class">
+<span>class <span class="ident">User</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.User.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.User.ID_FIELD_NUMBER"><code class="name">var <span class="ident">ID_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.User.LONG_NAME_FIELD_NUMBER"><code class="name">var <span class="ident">LONG_NAME_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.User.MACADDR_FIELD_NUMBER"><code class="name">var <span class="ident">MACADDR_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.User.SHORT_NAME_FIELD_NUMBER"><code class="name">var <span class="ident">SHORT_NAME_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="meshtastic" href="index.html">meshtastic</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.ChannelSettings" href="#meshtastic.mesh_pb2.ChannelSettings">ChannelSettings</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.Bw125Cr45Sf128" href="#meshtastic.mesh_pb2.ChannelSettings.Bw125Cr45Sf128">Bw125Cr45Sf128</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.Bw125Cr48Sf4096" href="#meshtastic.mesh_pb2.ChannelSettings.Bw125Cr48Sf4096">Bw125Cr48Sf4096</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.Bw31_25Cr48Sf512" href="#meshtastic.mesh_pb2.ChannelSettings.Bw31_25Cr48Sf512">Bw31_25Cr48Sf512</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.Bw500Cr45Sf128" href="#meshtastic.mesh_pb2.ChannelSettings.Bw500Cr45Sf128">Bw500Cr45Sf128</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.DESCRIPTOR" href="#meshtastic.mesh_pb2.ChannelSettings.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.MODEM_CONFIG_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.MODEM_CONFIG_FIELD_NUMBER">MODEM_CONFIG_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.ModemConfig" href="#meshtastic.mesh_pb2.ChannelSettings.ModemConfig">ModemConfig</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.NAME_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.NAME_FIELD_NUMBER">NAME_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.PSK_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.PSK_FIELD_NUMBER">PSK_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.TX_POWER_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.TX_POWER_FIELD_NUMBER">TX_POWER_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.Data" href="#meshtastic.mesh_pb2.Data">Data</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.Data.CLEAR_READACK" href="#meshtastic.mesh_pb2.Data.CLEAR_READACK">CLEAR_READACK</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Data.CLEAR_TEXT" href="#meshtastic.mesh_pb2.Data.CLEAR_TEXT">CLEAR_TEXT</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Data.DESCRIPTOR" href="#meshtastic.mesh_pb2.Data.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Data.OPAQUE" href="#meshtastic.mesh_pb2.Data.OPAQUE">OPAQUE</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Data.PAYLOAD_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Data.PAYLOAD_FIELD_NUMBER">PAYLOAD_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Data.TYP_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Data.TYP_FIELD_NUMBER">TYP_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Data.Type" href="#meshtastic.mesh_pb2.Data.Type">Type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.DebugString" href="#meshtastic.mesh_pb2.DebugString">DebugString</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.DebugString.DESCRIPTOR" href="#meshtastic.mesh_pb2.DebugString.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DebugString.MESSAGE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DebugString.MESSAGE_FIELD_NUMBER">MESSAGE_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.DeviceState" href="#meshtastic.mesh_pb2.DeviceState">DeviceState</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.DESCRIPTOR" href="#meshtastic.mesh_pb2.DeviceState.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.MY_NODE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.MY_NODE_FIELD_NUMBER">MY_NODE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.NODE_DB_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.NODE_DB_FIELD_NUMBER">NODE_DB_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.OWNER_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.OWNER_FIELD_NUMBER">OWNER_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.RADIO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.RADIO_FIELD_NUMBER">RADIO_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.RECEIVE_QUEUE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.RECEIVE_QUEUE_FIELD_NUMBER">RECEIVE_QUEUE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.RX_TEXT_MESSAGE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.RX_TEXT_MESSAGE_FIELD_NUMBER">RX_TEXT_MESSAGE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.VERSION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.VERSION_FIELD_NUMBER">VERSION_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.FromRadio" href="#meshtastic.mesh_pb2.FromRadio">FromRadio</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.CONFIG_COMPLETE_ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.CONFIG_COMPLETE_ID_FIELD_NUMBER">CONFIG_COMPLETE_ID_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.DEBUG_STRING_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.DEBUG_STRING_FIELD_NUMBER">DEBUG_STRING_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.DESCRIPTOR" href="#meshtastic.mesh_pb2.FromRadio.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.MY_INFO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.MY_INFO_FIELD_NUMBER">MY_INFO_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.NODE_INFO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.NODE_INFO_FIELD_NUMBER">NODE_INFO_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.NUM_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.NUM_FIELD_NUMBER">NUM_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.PACKET_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.PACKET_FIELD_NUMBER">PACKET_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.RADIO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.RADIO_FIELD_NUMBER">RADIO_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.MeshPacket" href="#meshtastic.mesh_pb2.MeshPacket">MeshPacket</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.DESCRIPTOR" href="#meshtastic.mesh_pb2.MeshPacket.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.FROM_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.FROM_FIELD_NUMBER">FROM_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.ID_FIELD_NUMBER">ID_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.PAYLOAD_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.PAYLOAD_FIELD_NUMBER">PAYLOAD_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.RX_SNR_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.RX_SNR_FIELD_NUMBER">RX_SNR_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.RX_TIME_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.RX_TIME_FIELD_NUMBER">RX_TIME_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.TO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.TO_FIELD_NUMBER">TO_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.MyNodeInfo" href="#meshtastic.mesh_pb2.MyNodeInfo">MyNodeInfo</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.DESCRIPTOR" href="#meshtastic.mesh_pb2.MyNodeInfo.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.ERROR_ADDRESS_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.ERROR_ADDRESS_FIELD_NUMBER">ERROR_ADDRESS_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.ERROR_CODE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.ERROR_CODE_FIELD_NUMBER">ERROR_CODE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.ERROR_COUNT_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.ERROR_COUNT_FIELD_NUMBER">ERROR_COUNT_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.FIRMWARE_VERSION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.FIRMWARE_VERSION_FIELD_NUMBER">FIRMWARE_VERSION_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.HAS_GPS_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.HAS_GPS_FIELD_NUMBER">HAS_GPS_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.HW_MODEL_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.HW_MODEL_FIELD_NUMBER">HW_MODEL_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.MY_NODE_NUM_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.MY_NODE_NUM_FIELD_NUMBER">MY_NODE_NUM_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.NUM_CHANNELS_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.NUM_CHANNELS_FIELD_NUMBER">NUM_CHANNELS_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.REGION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.REGION_FIELD_NUMBER">REGION_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.NodeInfo" href="#meshtastic.mesh_pb2.NodeInfo">NodeInfo</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.NodeInfo.DESCRIPTOR" href="#meshtastic.mesh_pb2.NodeInfo.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.NodeInfo.FREQUENCY_ERROR_FIELD_NUMBER" href="#meshtastic.mesh_pb2.NodeInfo.FREQUENCY_ERROR_FIELD_NUMBER">FREQUENCY_ERROR_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.NodeInfo.NUM_FIELD_NUMBER" href="#meshtastic.mesh_pb2.NodeInfo.NUM_FIELD_NUMBER">NUM_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.NodeInfo.POSITION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.NodeInfo.POSITION_FIELD_NUMBER">POSITION_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.NodeInfo.SNR_FIELD_NUMBER" href="#meshtastic.mesh_pb2.NodeInfo.SNR_FIELD_NUMBER">SNR_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.NodeInfo.USER_FIELD_NUMBER" href="#meshtastic.mesh_pb2.NodeInfo.USER_FIELD_NUMBER">USER_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.Position" href="#meshtastic.mesh_pb2.Position">Position</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.Position.ALTITUDE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Position.ALTITUDE_FIELD_NUMBER">ALTITUDE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Position.BATTERY_LEVEL_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Position.BATTERY_LEVEL_FIELD_NUMBER">BATTERY_LEVEL_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Position.DESCRIPTOR" href="#meshtastic.mesh_pb2.Position.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Position.LATITUDE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Position.LATITUDE_FIELD_NUMBER">LATITUDE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Position.LONGITUDE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Position.LONGITUDE_FIELD_NUMBER">LONGITUDE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Position.TIME_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Position.TIME_FIELD_NUMBER">TIME_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.RadioConfig" href="#meshtastic.mesh_pb2.RadioConfig">RadioConfig</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.RadioConfig.CHANNEL_SETTINGS_FIELD_NUMBER" href="#meshtastic.mesh_pb2.RadioConfig.CHANNEL_SETTINGS_FIELD_NUMBER">CHANNEL_SETTINGS_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.RadioConfig.DESCRIPTOR" href="#meshtastic.mesh_pb2.RadioConfig.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.RadioConfig.PREFERENCES_FIELD_NUMBER" href="#meshtastic.mesh_pb2.RadioConfig.PREFERENCES_FIELD_NUMBER">PREFERENCES_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.RadioConfig.UserPreferences" href="#meshtastic.mesh_pb2.RadioConfig.UserPreferences">UserPreferences</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.RouteDiscovery" href="#meshtastic.mesh_pb2.RouteDiscovery">RouteDiscovery</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.RouteDiscovery.DESCRIPTOR" href="#meshtastic.mesh_pb2.RouteDiscovery.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.RouteDiscovery.ROUTE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.RouteDiscovery.ROUTE_FIELD_NUMBER">ROUTE_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.SubPacket" href="#meshtastic.mesh_pb2.SubPacket">SubPacket</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.DATA_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.DATA_FIELD_NUMBER">DATA_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.DESCRIPTOR" href="#meshtastic.mesh_pb2.SubPacket.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.POSITION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.POSITION_FIELD_NUMBER">POSITION_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.USER_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.USER_FIELD_NUMBER">USER_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.WANT_RESPONSE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.WANT_RESPONSE_FIELD_NUMBER">WANT_RESPONSE_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.ToRadio" href="#meshtastic.mesh_pb2.ToRadio">ToRadio</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.ToRadio.DESCRIPTOR" href="#meshtastic.mesh_pb2.ToRadio.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ToRadio.PACKET_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ToRadio.PACKET_FIELD_NUMBER">PACKET_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ToRadio.SET_OWNER_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ToRadio.SET_OWNER_FIELD_NUMBER">SET_OWNER_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ToRadio.SET_RADIO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ToRadio.SET_RADIO_FIELD_NUMBER">SET_RADIO_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ToRadio.WANT_CONFIG_ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ToRadio.WANT_CONFIG_ID_FIELD_NUMBER">WANT_CONFIG_ID_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.mesh_pb2.User" href="#meshtastic.mesh_pb2.User">User</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.mesh_pb2.User.DESCRIPTOR" href="#meshtastic.mesh_pb2.User.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.User.ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.User.ID_FIELD_NUMBER">ID_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.User.LONG_NAME_FIELD_NUMBER" href="#meshtastic.mesh_pb2.User.LONG_NAME_FIELD_NUMBER">LONG_NAME_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.User.MACADDR_FIELD_NUMBER" href="#meshtastic.mesh_pb2.User.MACADDR_FIELD_NUMBER">MACADDR_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.User.SHORT_NAME_FIELD_NUMBER" href="#meshtastic.mesh_pb2.User.SHORT_NAME_FIELD_NUMBER">SHORT_NAME_FIELD_NUMBER</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

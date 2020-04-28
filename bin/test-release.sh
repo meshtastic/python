@@ -1,9 +1,8 @@
 rm dist/*
 set -e
 
-pydoc3 -w meshtastic
-mv *.html doc
-
+bin/regen-docs.sh
+pandoc --from=markdown --to=rst --output=README README.md
 python3 setup.py sdist bdist_wheel
 python3 -m twine check dist/*
 # test the upload
