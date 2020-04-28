@@ -4,6 +4,30 @@ import argparse
 from .interface import StreamInterface
 import logging
 import sys
+from pubsub import pub
+import google.protobuf.json_format
+
+
+def onReceive(packet):
+    """Callback invoked when a packet arrives"""
+    print(f"Received: {packet}")
+
+
+def onConnection(topic=pub.AUTO_TOPIC):
+    """Callback invoked when we connect/disconnect from a radio"""
+    print(f"Connection changed: {topic.getName()}")
+
+
+def onNode(node):
+    """Callback invoked when the node DB changes"""
+    print(f"Node changed: {node}")
+
+
+def subscribe():
+    """Subscribe to the topics the user probably wants to see, prints output to stdout"""
+    pub.subscribe(onReceive, "meshtastic.receive")
+    pub.subscribe(onConnection, "meshtastic.connection")
+    pub.subscribe(onNode, "meshtastic.node")
 
 
 def main():
@@ -35,6 +59,7 @@ def main():
         logging.info(f"Logging serial output to {args.seriallog}")
         logfile = open(args.seriallog, 'w+', buffering=1)  # line buffering
 
+    subscribe()
     client = StreamInterface(args.device, debugOut=logfile)
 
 

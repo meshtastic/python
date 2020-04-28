@@ -7,6 +7,7 @@ import logging
 import sys
 import traceback
 from . import mesh_pb2
+from pubsub import pub
 
 START1 = 0x94
 START2 = 0xc3
@@ -34,12 +35,12 @@ Use a pubsub model to communicate events [https://pypubsub.readthedocs.io/en/v4.
 
 - meshtastic.connection.established - published once we've successfully connected to the radio and downloaded the node DB
 - meshtastic.connection.lost - published once we've lost our link to the radio
-- meshtastic.receive.position(MeshPacket)
-- meshtastic.receive.user(MeshPacket)
-- meshtastic.receive.data(MeshPacket)
-- meshtastic.node.updated(NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
-- meshtastic.debug(string)
-- meshtastic.send(MeshPacket) - Not yet implemented, instead call sendPacket(...) on MeshInterface
+- meshtastic.receive.position(packet = MeshPacket)
+- meshtastic.receive.user(packet = MeshPacket)
+- meshtastic.receive.data(packet = MeshPacket)
+- meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
+- meshtastic.debug(message = string)
+- meshtastic.send(packet = MeshPacket) - Not yet implemented, instead call sendPacket(...) on MeshInterface
 
 """
 
@@ -76,6 +77,10 @@ class MeshInterface:
         toRadio.packet.CopyFrom(meshPacket)
         self._sendToRadio(toRadio)
 
+    def _disconnected(self):
+        """Called by subclasses to tell clients this interface has disconnected"""
+        pub.sendMessage("meshtastic.connection.lost")
+
     def _startConfig(self):
         """Start device packets flowing"""
         self.myInfo = None
@@ -102,7 +107,7 @@ class MeshInterface:
         logging.debug(f"Received: {json}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
-        if fromRadio.HasField("radio"):
+        elif fromRadio.HasField("radio"):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField("node_info"):
             node = fromRadio.node_info
@@ -110,9 +115,30 @@ class MeshInterface:
             self.nodes[node.user.id] = node
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
-            pass
+            pub.sendMessage("meshtastic.connection.established")
+        elif fromRadio.HasField("packet"):
+            self._handlePacketFromRadio(self, fromRadio.packet)
         else:
             logging.warn("Unexpected FromRadio payload")
+
+    def _handlePacketFromRadio(self, meshPacket):
+        """Handle a MeshPacket that just arrived from the radio
+
+        Will publish one of the following events:
+        - meshtastic.receive.position(packet = MeshPacket dictionary)
+        - meshtastic.receive.user(packet = MeshPacket dictionary)
+        - meshtastic.receive.data(packet = MeshPacket dictionary)
+        """
+        # FIXME, update node DB as needed
+        json = google.protobuf.json_format.MessageToDict(meshPacket)
+        if meshPacket.payload.HasField("position"):
+            pub.sendMessage("meshtastic.receive.position", packet=json)
+        if meshPacket.payload.HasField("user"):
+            pub.sendMessage("meshtastic.receive.user",
+                            packet=json)
+        if meshPacket.payload.HasField("data"):
+            pub.sendMessage("meshtastic.receive.data",
+                            packet=json)
 
 
 class StreamInterface(MeshInterface):
@@ -201,3 +227,4 @@ class StreamInterface(MeshInterface):
                         self._rxBuf = empty
         logging.debug("reader is exiting")
         self.stream.close()
+        self._disconnected()

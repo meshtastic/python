@@ -2,12 +2,17 @@
 
 ## Before initial release
 
-- make pubsub work
 - make docs decent
 - document properties/fields
 - include examples in readme. hello.py, textchat.py, replymessage.py
 - DONE use port enumeration to find ports https://pyserial.readthedocs.io/en/latest/shortintro.html
 - DONE make serial debug output optional (by providing a null stream)
+- DONE make pubsub work
+
+## Soon after initial release
+
+- keep nodedb up-to-date based on received MeshPackets
+- handle radio reboots and redownload db when that happens. Look for a special FromRadio.rebooted packet
 
 ## Eventual
 

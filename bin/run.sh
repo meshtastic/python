@@ -1,1 +1,1 @@
-python3 -m meshtastic "$@"
+python3 -m meshtastic "$@" --seriallog none 
