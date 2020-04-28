@@ -2,6 +2,8 @@
 ## an API for Meshtastic devices
 
 Primary class: StreamInterface
+Install with pip: "pip3 install meshtastic"
+Source code on [github](https://github.com/meshtastic/Meshtastic-python)
 
 properties of StreamInterface:
 
@@ -13,7 +15,7 @@ node in the mesh.  This is a read-only datastructure.
 
 ## Published PubSub topics
 
-We use a publish-subscribe model to communicate asynchronous events [https://pypubsub.readthedocs.io/en/v4.0.3/ ].  Available
+We use a [publish-subscribe](https://pypubsub.readthedocs.io/en/v4.0.3/) model to communicate asynchronous events.  Available
 topics:
 
 - meshtastic.connection.established - published once we've successfully connected to the radio and downloaded the node DB
@@ -24,18 +26,20 @@ type of packet, you should subscribe to the full topic name.  If you want to see
 - meshtastic.receive.data(packet)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
 
-Example Usage:
-
+## Example Usage
 ```
 import meshtastic
 from pubsub import pub
 
-def onReceive(packet):
+def onReceive(packet): # called when a packet arrives
     print(f"Received: {packet}")
 
-interface = StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+def onConnection(): # called when we (re)connect to the radio
+    interface.sendData("hello world") # defaults to broadcast, specify a destination ID if you wish
+
+interface = meshtastic.StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
 pub.subscribe(onReceive, "meshtastic.receive")
-interface.sendData("hello world") # defaults to broadcast, specify a destination ID if you wish
+pub.subscribe(onConnection, "meshtastic.connection.established")
 ```
 
 """
