@@ -23,3 +23,7 @@ For the rough notes/implementation plan see [TODO](https://github.com/meshtastic
 ## Command line tool
 
 This pip package will also install a "meshtastic" commandline executable, which displays packets sent over the network as JSON and lets you see serial debugging information from the meshtastic devices. The source code for this tool is also a good [example](https://github.com/meshtastic/Meshtastic-python/meshtastic/__main__.py) of a 'complete' application that uses the meshtastic python API.
+
+## Required device software version
+
+This API and tool both require that the device is running Meshtastic 0.6.0 or later.

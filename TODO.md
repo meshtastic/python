@@ -8,7 +8,8 @@
 - DONE keep everything in dicts
 - document properties/fields
 - include more examples: textchat.py, replymessage.py all as one little demo
-- have python client turn off radio sleep (use 0 for X to mean restore defaults)
+- have python client turn on/off radio sleep (use 0 for X to mean restore defaults)
+- have device send a special packet at boot so the serial client can detect if it rebooted
 - announce at the usual places
 - DONE use port enumeration to find ports https://pyserial.readthedocs.io/en/latest/shortintro.html
 - DONE make serial debug output optional (by providing a null stream)
