@@ -21,7 +21,9 @@
 </header>
 <section id="section-intro">
 <h2 id="an-api-for-meshtastic-devices">an API for Meshtastic devices</h2>
-<p>Primary class: StreamInterface</p>
+<p>Primary class: StreamInterface
+Install with pip: "pip3 install meshtastic"
+Source code on <a href="https://github.com/meshtastic/Meshtastic-python">github</a></p>
 <p>properties of StreamInterface:</p>
 <ul>
 <li>radioConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to
@@ -33,7 +35,7 @@ This is a read-only datastructure.</li>
 <li>myNodeInfo - You probably don't want this.</li>
 </ul>
 <h2 id="published-pubsub-topics">Published PubSub topics</h2>
-<p>We use a publish-subscribe model to communicate asynchronous events [<a href="https://pypubsub.readthedocs.io/en/v4.0.3/">https://pypubsub.readthedocs.io/en/v4.0.3/</a> ].
+<p>We use a <a href="https://pypubsub.readthedocs.io/en/v4.0.3/">publish-subscribe</a> model to communicate asynchronous events.
 Available
 topics:</p>
 <ul>
@@ -46,16 +48,19 @@ If you want to see all packets, simply subscribe to "meshtastic.receive".</li>
 <li>meshtastic.receive.data(packet)</li>
 <li>meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc&hellip;)</li>
 </ul>
-<p>Example Usage:</p>
+<h2 id="example-usage">Example Usage</h2>
 <pre><code>import meshtastic
 from pubsub import pub
 
-def onReceive(packet):
+def onReceive(packet): # called when a packet arrives
     print(f&quot;Received: {packet}&quot;)
 
-interface = StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+def onConnection(): # called when we (re)connect to the radio
+    interface.sendData(&quot;hello world&quot;) # defaults to broadcast, specify a destination ID if you wish
+
+interface = meshtastic.StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
 pub.subscribe(onReceive, &quot;meshtastic.receive&quot;)
-interface.sendData(&quot;hello world&quot;) # defaults to broadcast, specify a destination ID if you wish
+pub.subscribe(onConnection, &quot;meshtastic.connection.established&quot;)
 </code></pre>
 <details class="source">
 <summary>
@@ -65,6 +70,8 @@ interface.sendData(&quot;hello world&quot;) # defaults to broadcast, specify a d
 ## an API for Meshtastic devices
 
 Primary class: StreamInterface
+Install with pip: &#34;pip3 install meshtastic&#34;
+Source code on [github](https://github.com/meshtastic/Meshtastic-python)
 
 properties of StreamInterface:
 
@@ -76,7 +83,7 @@ node in the mesh.  This is a read-only datastructure.
 
 ## Published PubSub topics
 
-We use a publish-subscribe model to communicate asynchronous events [https://pypubsub.readthedocs.io/en/v4.0.3/ ].  Available
+We use a [publish-subscribe](https://pypubsub.readthedocs.io/en/v4.0.3/) model to communicate asynchronous events.  Available
 topics:
 
 - meshtastic.connection.established - published once we&#39;ve successfully connected to the radio and downloaded the node DB
@@ -87,18 +94,20 @@ type of packet, you should subscribe to the full topic name.  If you want to see
 - meshtastic.receive.data(packet)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
 
-Example Usage:
-
+## Example Usage
 ```
 import meshtastic
 from pubsub import pub
 
-def onReceive(packet):
+def onReceive(packet): # called when a packet arrives
     print(f&#34;Received: {packet}&#34;)
 
-interface = StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+def onConnection(): # called when we (re)connect to the radio
+    interface.sendData(&#34;hello world&#34;) # defaults to broadcast, specify a destination ID if you wish
+
+interface = meshtastic.StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
 pub.subscribe(onReceive, &#34;meshtastic.receive&#34;)
-interface.sendData(&#34;hello world&#34;) # defaults to broadcast, specify a destination ID if you wish
+pub.subscribe(onConnection, &#34;meshtastic.connection.established&#34;)
 ```
 
 &#34;&#34;&#34;
@@ -687,6 +696,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <ul>
 <li><a href="#an-api-for-meshtastic-devices">an API for Meshtastic devices</a></li>
 <li><a href="#published-pubsub-topics">Published PubSub topics</a></li>
+<li><a href="#example-usage">Example Usage</a></li>
 </ul>
 </div>
 <ul id="index">

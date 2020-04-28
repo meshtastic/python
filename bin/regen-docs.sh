@@ -1,1 +1,1 @@
-pdoc3 --html --output-dir docs meshtastic
+pdoc3 --html -f --output-dir docs meshtastic
