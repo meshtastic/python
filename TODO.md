@@ -1,5 +1,16 @@
 # TODO
 
+## Before initial release
+
+- make pubsub work
+- make docs decent
+- document properties/fields
+- include examples in readme. hello.py, textchat.py, replymessage.py
+- DONE use port enumeration to find ports https://pyserial.readthedocs.io/en/latest/shortintro.html
+- DONE make serial debug output optional (by providing a null stream)
+
+## Eventual
+
 - possibly use tk to make a multiwindow test console: https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
 
 ## Primary API: MeshInterface

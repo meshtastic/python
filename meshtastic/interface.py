@@ -1,5 +1,6 @@
 
 import serial
+import serial.tools.list_ports
 import threading
 import logging
 import sys
@@ -16,8 +17,6 @@ BROADCAST_ADDR = "all"  # A special ID that means broadcast
 """
 
 TODO:
-* use port enumeration to find ports https://pyserial.readthedocs.io/en/latest/shortintro.html
-
 
 Contains a reader thread that is always trying to read on the serial port.
 
@@ -49,9 +48,9 @@ MY_CONFIG_ID = 42
 class MeshInterface:
     """Interface class for meshtastic devices"""
 
-    def __init__(self):
+    def __init__(self, debugOut=sys.stdout):
         """Constructor"""
-        self.debugOut = sys.stdout
+        self.debugOut = debugOut
         self.nodes = None  # FIXME
         self._startConfig()
 
@@ -117,8 +116,20 @@ class MeshInterface:
 class StreamInterface(MeshInterface):
     """Interface class for meshtastic devices over a stream link(serial, TCP, etc)"""
 
-    def __init__(self, devPath):
-        """Constructor, opens a connection to a specified serial port"""
+    def __init__(self, devPath=None, debugOut=sys.stdout):
+        """Constructor, opens a connection to a specified serial port, or if unspecified try to find one Meshtastic device by probing"""
+
+        if devPath is None:
+            ports = list(filter(lambda port: port.vid != None,
+                                serial.tools.list_ports.comports()))
+            if len(ports) == 0:
+                raise Exception("No Meshtastic devices detected")
+            elif len(ports) > 1:
+                raise Exception(
+                    f"Multiple ports detected, you must specify a device, such as {ports[0].device}")
+            else:
+                devPath = ports[0].device
+
         logging.debug(f"Connecting to {devPath}")
         self._rxBuf = bytes()  # empty
         self._wantExit = False

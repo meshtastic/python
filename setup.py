@@ -25,7 +25,7 @@ setup(
     ],
     packages=["meshtastic"],
     include_package_data=True,
-    install_requires=["pyserial"],
+    install_requires=["pyserial>=3.4"],
     python_requires='>=3',
     entry_points={
         "console_scripts": [
