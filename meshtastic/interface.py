@@ -53,13 +53,17 @@ class MeshInterface:
     def __init__(self):
         self.debugOut = sys.stdout
         self.nodes = None  # FIXME
-        self.configId = 17
         self._startConfig()
 
     def _startConfig(self):
         """Start device packets flowing"""
+        self.myInfo = None
+        self.nodes = {}  # nodes keyed by ID
+        self._nodesByNum = {}  # nodes keyed by nodenum
+        self.radioConfig = None
+
         startConfig = mesh_pb2.ToRadio()
-        startConfig.want_config_id = self.configId
+        startConfig.want_config_id = 42  # we don't use this value
         self._sendToRadio(startConfig)
 
     def _sendToRadio(self, toRadio):
@@ -74,6 +78,39 @@ class MeshInterface:
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
         logging.debug(f"Received: {fromRadio}")
+        if fromRadio.HasField("my_info"):
+            self.myInfo = fromRadio.my_info
+        if fromRadio.HasField("radio"):
+            self.radioConfig = fromRadio.radio
+        elif fromRadio.HasField("node_info"):
+            node = fromRadio.node_info
+            self._nodesByNum[node.num] = node
+            self.nodes[node.user.id] = node
+        elif fromRadio.HasField("config_complete_id"):
+            # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
+            pass
+
+
+"""
+    // / Tells the phone what our node number is, can be - 1 if we've not yet
+    // / joined a mesh.
+    // REV2: In the rev 1 API this is in the BLE mynodeinfo characteristic
+    MyNodeInfo my_info = 3
+
+    // / One packet is sent for each node in the on radio DB
+    // REV2: In the rev1 API this is available in the nodeinfo characteristic
+    // starts over with the first node in our DB
+    NodeInfo node_info = 4
+
+    // / REV2: In rev1 this was the radio BLE characteristic
+    RadioConfig radio = 6
+
+    // / REV2: sent as true once the device has finished sending all of the
+    // / responses to want_config
+    // / recipient should check if this ID matches our original request nonce, if
+    // / not, it means your config responses haven't started yet
+    uint32 config_complete_id = 8
+"""
 
 
 class StreamInterface(MeshInterface):
