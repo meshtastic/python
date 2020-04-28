@@ -19,5 +19,7 @@ def main():
     client = StreamInterface("/dev/ttyUSB0")
 
 
+#             self.sendText("hello world")
+
 if __name__ == "__main__":
     main()

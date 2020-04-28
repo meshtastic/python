@@ -3,6 +3,7 @@ import serial
 import threading
 import logging
 import sys
+import traceback
 from . import mesh_pb2
 
 START1 = 0x94
@@ -10,10 +11,11 @@ START2 = 0xc3
 HEADER_LEN = 4
 MAX_TO_FROM_RADIO_SIZE = 512
 
+BROADCAST_ADDR = "all"  # A special ID that means broadcast
 
 """
 
-TODO: 
+TODO:
 * use port enumeration to find ports https://pyserial.readthedocs.io/en/latest/shortintro.html
 
 
@@ -21,21 +23,15 @@ Contains a reader thread that is always trying to read on the serial port.
 
 methods:
 
-- constructor(serialPort)
-- sendData(destinationId, bytes, variant)
-- sendPacket(destinationId, meshPacket) - throws errors if we have errors talking to the device
-- close() - shuts down the interface
-- init() - starts the enumeration process to download NodeDB etc... - we will not publish to topics until this enumeration completes
 - radioConfig - getter/setter syntax: https://www.python-course.eu/python3_properties.php
 - nodes - the database of received nodes
 - myNodeInfo
 - myNodeId
 
-## PubSub topics
+# PubSub topics
 
 Use a pubsub model to communicate events [https://pypubsub.readthedocs.io/en/v4.0.3/ ]
 
-- meshtastic.send(MeshPacket) - Not implemented, instead call send(packet) on MeshInterface
 - meshtastic.connection.established - published once we've successfully connected to the radio and downloaded the node DB
 - meshtastic.connection.lost - published once we've lost our link to the radio
 - meshtastic.receive.position(MeshPacket)
@@ -43,17 +39,42 @@ Use a pubsub model to communicate events [https://pypubsub.readthedocs.io/en/v4.
 - meshtastic.receive.data(MeshPacket)
 - meshtastic.node.updated(NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
 - meshtastic.debug(string)
+- meshtastic.send(MeshPacket) - Not yet implemented, instead call sendPacket(...) on MeshInterface
 
 """
+
+MY_CONFIG_ID = 42
 
 
 class MeshInterface:
     """Interface class for meshtastic devices"""
 
     def __init__(self):
+        """Constructor"""
         self.debugOut = sys.stdout
         self.nodes = None  # FIXME
         self._startConfig()
+
+    def sendText(self, text, destinationId=BROADCAST_ADDR):
+        """Send a utf8 string to some other node, if the node has a display it will also be shown on the device."""
+        self.sendData(text.encode("utf-8"), destinationId,
+                      dataType=mesh_pb2.Data.CLEAR_TEXT)
+
+    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE):
+        """Send a data packet to some other node"""
+        meshPacket = mesh_pb2.MeshPacket()
+        meshPacket.payload.data.payload = byteData
+        meshPacket.payload.data.typ = dataType
+        self.sendPacket(meshPacket, destinationId)
+
+    def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR):
+        """Send a MeshPacket to the specified node (or if unspecified, broadcast). 
+        You probably don't want this - use sendData instead."""
+        toRadio = mesh_pb2.ToRadio()
+        # FIXME add support for non broadcast addresses
+        meshPacket.to = 255
+        toRadio.packet.CopyFrom(meshPacket)
+        self._sendToRadio(toRadio)
 
     def _startConfig(self):
         """Start device packets flowing"""
@@ -63,7 +84,7 @@ class MeshInterface:
         self.radioConfig = None
 
         startConfig = mesh_pb2.ToRadio()
-        startConfig.want_config_id = 42  # we don't use this value
+        startConfig.want_config_id = MY_CONFIG_ID  # we don't use this value
         self._sendToRadio(startConfig)
 
     def _sendToRadio(self, toRadio):
@@ -72,7 +93,7 @@ class MeshInterface:
 
     def _handleFromRadio(self, fromRadioBytes):
         """
-        Handle a packet that arrived from the radio (update model and publish events)
+        Handle a packet that arrived from the radio(update model and publish events)
 
         Called by subclasses."""
         fromRadio = mesh_pb2.FromRadio()
@@ -86,35 +107,15 @@ class MeshInterface:
             node = fromRadio.node_info
             self._nodesByNum[node.num] = node
             self.nodes[node.user.id] = node
-        elif fromRadio.HasField("config_complete_id"):
+        elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             pass
-
-
-"""
-    // / Tells the phone what our node number is, can be - 1 if we've not yet
-    // / joined a mesh.
-    // REV2: In the rev 1 API this is in the BLE mynodeinfo characteristic
-    MyNodeInfo my_info = 3
-
-    // / One packet is sent for each node in the on radio DB
-    // REV2: In the rev1 API this is available in the nodeinfo characteristic
-    // starts over with the first node in our DB
-    NodeInfo node_info = 4
-
-    // / REV2: In rev1 this was the radio BLE characteristic
-    RadioConfig radio = 6
-
-    // / REV2: sent as true once the device has finished sending all of the
-    // / responses to want_config
-    // / recipient should check if this ID matches our original request nonce, if
-    // / not, it means your config responses haven't started yet
-    uint32 config_complete_id = 8
-"""
+        else:
+            logging.warn("Unexpected FromRadio payload")
 
 
 class StreamInterface(MeshInterface):
-    """Interface class for meshtastic devices over a stream link (serial, TCP, etc)"""
+    """Interface class for meshtastic devices over a stream link(serial, TCP, etc)"""
 
     def __init__(self, devPath):
         """Constructor, opens a connection to a specified serial port"""
@@ -150,7 +151,7 @@ class StreamInterface(MeshInterface):
         while not self._wantExit:
             b = self.stream.read(1)
             if len(b) > 0:
-                #logging.debug(f"read returned {b}")
+                # logging.debug(f"read returned {b}")
                 c = b[0]
                 ptr = len(self._rxBuf)
 
@@ -179,9 +180,10 @@ class StreamInterface(MeshInterface):
                     if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
                         try:
                             self._handleFromRadio(self._rxBuf[HEADER_LEN:])
-                        except:
+                        except Exception as ex:
                             logging.warn(
-                                f"Error handling FromRadio, possibly corrupted?")
+                                f"Error handling FromRadio, possibly corrupted? {ex}")
+                            traceback.print_exc()
                         self._rxBuf = empty
         logging.debug("reader is exiting")
         self.stream.close()
