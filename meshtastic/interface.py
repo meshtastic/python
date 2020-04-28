@@ -1,4 +1,5 @@
 
+import google.protobuf.json_format
 import serial
 import serial.tools.list_ports
 import threading
@@ -97,7 +98,8 @@ class MeshInterface:
         Called by subclasses."""
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
-        logging.debug(f"Received: {fromRadio}")
+        json = google.protobuf.json_format.MessageToJson(fromRadio)
+        logging.debug(f"Received: {json}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
         if fromRadio.HasField("radio"):

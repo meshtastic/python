@@ -1,1 +1,1 @@
-python3 -m meshtastic --debug "$@"
+python3 -m meshtastic "$@"
