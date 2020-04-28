@@ -18,11 +18,7 @@ BROADCAST_ADDR = "all"  # A special ID that means broadcast
 
 """
 
-TODO:
-
-Contains a reader thread that is always trying to read on the serial port.
-
-methods:
+properties:
 
 - radioConfig - getter/setter syntax: https://www.python-course.eu/python3_properties.php
 - nodes - the database of received nodes

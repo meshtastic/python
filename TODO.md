@@ -3,9 +3,13 @@
 ## Before initial release
 
 - add fromId and toId to received messages dictionaries
+- update nodedb as nodes change
 - make docs decent
+- keep everything in dicts
 - document properties/fields
-- include examples in readme. hello.py, textchat.py, replymessage.py
+- include examples in readme. hello.py, textchat.py, replymessage.py all as one little demo
+- have python client turn off radio sleep (use 0 for X to mean restore defaults)
+- announce various places
 - DONE use port enumeration to find ports https://pyserial.readthedocs.io/en/latest/shortintro.html
 - DONE make serial debug output optional (by providing a null stream)
 - DONE make pubsub work
