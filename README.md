@@ -18,8 +18,8 @@ interface = meshtastic.StreamInterface() # By default will try to find a meshtas
 interface.sendData("hello world")
 ```
 
-For the rough notes/implementation plan see [TODO](./TODO.md).
+For the rough notes/implementation plan see [TODO](https://github.com/meshtastic/Meshtastic-python/TODO.md).
 
 ## Command line tool
 
-This pip package will also install a "meshtastic" commandline executable, which displays packets sent over the network as JSON and lets you see serial debugging information from the meshtastic devices. The source code for this tool is also a good [example](./meshtastic/__main__.py) of a 'complete' application that uses the meshtastic python API.
+This pip package will also install a "meshtastic" commandline executable, which displays packets sent over the network as JSON and lets you see serial debugging information from the meshtastic devices. The source code for this tool is also a good [example](https://github.com/meshtastic/Meshtastic-python/meshtastic/__main__.py) of a 'complete' application that uses the meshtastic python API.
