@@ -145,6 +145,9 @@ class MeshInterface:
             pub.sendMessage("meshtastic.connection.established")
         elif fromRadio.HasField("packet"):
             self._handlePacketFromRadio(fromRadio.packet)
+        elif fromRadio.rebooted:
+            self._disconnected()
+            self._startConfig()  # redownload the node db etc...
         else:
             logging.warn("Unexpected FromRadio payload")
 
