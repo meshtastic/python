@@ -1,6 +1,6 @@
 # TODO
 
-## Before initial release
+## Before beta
 
 - add fromId and toId to received messages dictionaries
 - update nodedb as nodes change
@@ -8,14 +8,9 @@
 - let user change radio params via commandline options
 - document properties/fields
 - include more examples: textchat.py, replymessage.py all as one little demo
-- have python client turn on/off radio sleep (use 0 for X to mean restore defaults)
+- have device side StreamAPI client prevent radio sleep
+- device side PhoneAPI should only allow message delivery to one connected device - currently breaks when you have BLE and serial connections
 - announce at the usual places
-- DONE use port enumeration to find ports https://pyserial.readthedocs.io/en/latest/shortintro.html
-- DONE make serial debug output optional (by providing a null stream)
-- DONE make pubsub work
-- DONE make docs decent
-- DONE keep everything in dicts
-- DONE have device send a special packet at boot so the serial client can detect if it rebooted
 
 ## Soon after initial release
 
@@ -26,25 +21,17 @@
 
 - possibly use tk to make a multiwindow test console: https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
 
-## Primary API: MeshInterface
+## MeshtasticShell todos
 
-## Wire encoding
+- Possibly use multiple windows: https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
+- make pingpong test
 
-When sending protobuf packets over serial or TCP each packet is preceded by uint32 sent in network byte order (big endian).
-The upper 16 bits must be 0x94C3. The lower 16 bits are packet length (this encoding gives room to eventually allow quite large packets).
+## Done
 
-Implementations validate length against the maximum possible size of a BLE packet (our lowest common denominator) of 512 bytes. If the
-length provided is larger than that we assume the packet is corrupted and begin again looking for 0x4403 framing.
+- DONE use port enumeration to find ports https://pyserial.readthedocs.io/en/latest/shortintro.html
+- DONE make serial debug output optional (by providing a null stream)
+- DONE make pubsub work
+- DONE make docs decent
+- DONE keep everything in dicts
+- DONE have device send a special packet at boot so the serial client can detect if it rebooted
 
-The packets flowing towards the device are ToRadio protobufs, the packets flowing from the device are FromRadio protobufs.
-The 0x94C3 marker can be used as framing to (eventually) resync if packets are corrupted over the wire.
-
-Note: the 0x94C3 framing was chosen to prevent confusion with the 7 bit ascii character set. It also doesn't collide with any valid utf8 encoding. This makes it a bit easier to start a device outputting regular debug output on its serial port and then only after it has received a valid packet from the PC, turn off unencoded debug printing and switch to this
-packet encoding.
-
-## MeshtasticShell
-
-A tool to talk to radios (also serves as an example of the API).
-
-tips to output to multiple windows:
-https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
