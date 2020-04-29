@@ -2,7 +2,7 @@
 ## an API for Meshtastic devices
 
 Primary class: StreamInterface
-Install with pip: "pip3 install meshtastic"
+Install with pip: "[pip3 install meshtastic](https://pypi.org/project/meshtastic/)"
 Source code on [github](https://github.com/meshtastic/Meshtastic-python)
 
 properties of StreamInterface:
