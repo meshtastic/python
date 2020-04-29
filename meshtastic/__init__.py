@@ -35,11 +35,12 @@ def onReceive(packet): # called when a packet arrives
     print(f"Received: {packet}")
 
 def onConnection(): # called when we (re)connect to the radio
-    interface.sendData("hello world") # defaults to broadcast, specify a destination ID if you wish
+    interface.sendText("hello mesh") # defaults to broadcast, specify a destination ID if you wish
 
-interface = meshtastic.StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
 pub.subscribe(onReceive, "meshtastic.receive")
 pub.subscribe(onConnection, "meshtastic.connection.established")
+interface = meshtastic.StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+
 ```
 
 """
