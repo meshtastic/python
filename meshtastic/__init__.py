@@ -11,7 +11,7 @@ properties of StreamInterface:
 the device.
 - nodes - The database of received nodes.  Includes always up-to-date location and username information for each 
 node in the mesh.  This is a read-only datastructure.
-- myNodeInfo - You probably don't want this.
+- myNodeInfo - Contains read-only information about the local radio device (software version, hardware version, etc)
 
 ## Published PubSub topics
 
