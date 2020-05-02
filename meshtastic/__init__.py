@@ -192,6 +192,12 @@ class MeshInterface:
             pub.sendMessage("meshtastic.receive.user",
                             packet=asObj)
         if meshPacket.payload.HasField("data"):
+
+            # For text messages, we go ahead and decode the text to ascii for our users
+            # if asObj.payload.data.typ == "CLEAR_TEXT":
+            #    asObj.payload.data.text = asObj.payload.data.payload.decode(
+            #        "utf-8")
+
             pub.sendMessage("meshtastic.receive.data",
                             packet=asObj)
 
