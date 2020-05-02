@@ -91,7 +91,7 @@ class MeshInterface:
             text {string} -- The text to send
 
         Keyword Arguments:
-            destinationId {nodeId} -- where to send this message (default: {BROADCAST_ADDR})
+            destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
         """
         self.sendData(text.encode("utf-8"), destinationId,
                       dataType=mesh_pb2.Data.CLEAR_TEXT)
@@ -108,7 +108,16 @@ class MeshInterface:
         You probably don't want this - use sendData instead."""
         toRadio = mesh_pb2.ToRadio()
         # FIXME add support for non broadcast addresses
-        meshPacket.to = 255
+
+        if isinstance(destinationId, int):
+            nodeNum = destinationId
+        elif nodenum == BROADCAST_ADDR:
+            nodeNum = 255
+        else:
+            raise Exception(
+                "invalid destination addr, we don't yet support nodeid lookup")
+
+        meshPacket.to = nodeNum
         toRadio.packet.CopyFrom(meshPacket)
         self._sendToRadio(toRadio)
 
@@ -214,6 +223,7 @@ class StreamInterface(MeshInterface):
                 devPath = ports[0]
 
         logging.debug(f"Connecting to {devPath}")
+        self.devPath = devPath
         self._rxBuf = bytes()  # empty
         self._wantExit = False
         self.stream = serial.Serial(
@@ -237,6 +247,7 @@ class StreamInterface(MeshInterface):
         logging.debug("Closing serial stream")
         # pyserial cancel_read doesn't seem to work, therefore we ask the reader thread to close things for us
         self._wantExit = True
+        self._rxThread.join()  # wait for it to exit
 
     def __reader(self):
         """The reader thread that reads bytes from our stream"""
@@ -276,10 +287,13 @@ class StreamInterface(MeshInterface):
                         try:
                             self._handleFromRadio(self._rxBuf[HEADER_LEN:])
                         except Exception as ex:
-                            logging.warn(
+                            logging.error(
                                 f"Error handling FromRadio, possibly corrupted? {ex}")
                             traceback.print_exc()
                         self._rxBuf = empty
+            else:
+                # logging.debug(f"timeout on {self.devPath}")
+                pass
         logging.debug("reader is exiting")
         self.stream.close()
         self._disconnected()

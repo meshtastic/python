@@ -3,6 +3,7 @@ from . import util
 from . import StreamInterface
 from pubsub import pub
 import time
+import threading
 
 """The interfaces we are using for our tests"""
 interfaces = None
@@ -60,13 +61,13 @@ def testSend(fromInterface, toInterface):
         return False
 
 
-def startTests():
+def testThread():
     logging.info("Found devices, starting tests...")
     while True:
         global testNumber
         testNumber = testNumber + 1
         testSend(interfaces[0], interfaces[1])
-        time.sleep(20)
+        time.sleep(10)
 
 
 def onConnection(topic=pub.AUTO_TOPIC):
@@ -76,7 +77,8 @@ def onConnection(topic=pub.AUTO_TOPIC):
     global testsRunning
     if (all(iface.isConnected for iface in interfaces) and not testsRunning):
         testsRunning = True
-        startTests()
+        t = threading.Thread(target=testThread, args=())
+        t.start()
 
 
 def openDebugLog(portName):
