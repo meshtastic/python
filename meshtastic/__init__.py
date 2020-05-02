@@ -47,13 +47,14 @@ interface = meshtastic.StreamInterface() # By default will try to find a meshtas
 
 import google.protobuf.json_format
 import serial
-import serial.tools.list_ports
 import threading
 import logging
 import sys
 import traceback
 from . import mesh_pb2
+from . import util
 from pubsub import pub
+from dotmap import DotMap
 
 START1 = 0x94
 START2 = 0xc3
@@ -68,12 +69,19 @@ MY_CONFIG_ID = 42
 
 class MeshInterface:
     """Interface class for meshtastic devices
+
+    Properties:
+
+    isConnected
+    nodes
+    debugOut
     """
 
     def __init__(self, debugOut=None):
         """Constructor"""
         self.debugOut = debugOut
         self.nodes = None  # FIXME
+        self.isConnected = False
         self._startConfig()
 
     def sendText(self, text, destinationId=BROADCAST_ADDR):
@@ -106,7 +114,14 @@ class MeshInterface:
 
     def _disconnected(self):
         """Called by subclasses to tell clients this interface has disconnected"""
+        self.isConnected = False
         pub.sendMessage("meshtastic.connection.lost")
+
+    def _connected(self):
+        """Called by this class to tell clients we are now fully connected to a node
+        """
+        self.isConnected = True
+        pub.sendMessage("meshtastic.connection.established")
 
     def _startConfig(self):
         """Start device packets flowing"""
@@ -142,7 +157,7 @@ class MeshInterface:
             self.nodes[node.user.id] = node
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
-            pub.sendMessage("meshtastic.connection.established")
+            self._connected()
         elif fromRadio.HasField("packet"):
             self._handlePacketFromRadio(fromRadio.packet)
         elif fromRadio.rebooted:
@@ -160,15 +175,16 @@ class MeshInterface:
         - meshtastic.receive.data(packet = MeshPacket dictionary)
         """
         # FIXME, update node DB as needed
-        json = google.protobuf.json_format.MessageToDict(meshPacket)
+        # We provide our objects as DotMaps - which work with . notation or as dictionaries
+        asObj = DotMap(google.protobuf.json_format.MessageToDict(meshPacket))
         if meshPacket.payload.HasField("position"):
-            pub.sendMessage("meshtastic.receive.position", packet=json)
+            pub.sendMessage("meshtastic.receive.position", packet=asObj)
         if meshPacket.payload.HasField("user"):
             pub.sendMessage("meshtastic.receive.user",
-                            packet=json)
+                            packet=asObj)
         if meshPacket.payload.HasField("data"):
             pub.sendMessage("meshtastic.receive.data",
-                            packet=json)
+                            packet=asObj)
 
 
 class StreamInterface(MeshInterface):
@@ -188,15 +204,14 @@ class StreamInterface(MeshInterface):
         """
 
         if devPath is None:
-            ports = list(filter(lambda port: port.vid != None,
-                                serial.tools.list_ports.comports()))
+            ports = util.findPorts()
             if len(ports) == 0:
                 raise Exception("No Meshtastic devices detected")
             elif len(ports) > 1:
                 raise Exception(
                     f"Multiple ports detected, you must specify a device, such as {ports[0].device}")
             else:
-                devPath = ports[0].device
+                devPath = ports[0]
 
         logging.debug(f"Connecting to {devPath}")
         self._rxBuf = bytes()  # empty

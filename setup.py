@@ -25,7 +25,8 @@ setup(
     ],
     packages=["meshtastic"],
     include_package_data=True,
-    install_requires=["pyserial>=3.4", "protobuf>=3.6.1", "pypubsub>=4.0.3"],
+    install_requires=["pyserial>=3.4", "protobuf>=3.6.1",
+                      "pypubsub>=4.0.3", "dotmap>=1.3.14"],
     python_requires='>=3',
     entry_points={
         "console_scripts": [

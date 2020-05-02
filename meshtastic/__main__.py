@@ -1,7 +1,7 @@
 #!python3
 
 import argparse
-from . import StreamInterface
+from . import StreamInterface, test
 import logging
 import sys
 from pubsub import pub
@@ -47,20 +47,26 @@ def main():
     parser.add_argument("--debug", help="Show API library debug log messages",
                         action="store_true")
 
+    parser.add_argument("--test", help="Run stress test against all connected Meshtastic devices",
+                        action="store_true")
+
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
-    if args.seriallog == "stdout":
-        logfile = sys.stdout
-    elif args.seriallog == "none":
-        logging.debug("Not logging serial output")
-        logfile = None
+    if args.test:
+        test.testAll()
     else:
-        logging.info(f"Logging serial output to {args.seriallog}")
-        logfile = open(args.seriallog, 'w+', buffering=1)  # line buffering
+        if args.seriallog == "stdout":
+            logfile = sys.stdout
+        elif args.seriallog == "none":
+            logging.debug("Not logging serial output")
+            logfile = None
+        else:
+            logging.info(f"Logging serial output to {args.seriallog}")
+            logfile = open(args.seriallog, 'w+', buffering=1)  # line buffering
 
-    subscribe()
-    client = StreamInterface(args.device, debugOut=logfile)
+        subscribe()
+        client = StreamInterface(args.device, debugOut=logfile)
 
 
 if __name__ == "__main__":

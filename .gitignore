@@ -2,3 +2,4 @@ README
 build
 dist
 *.egg-info
+log_*
