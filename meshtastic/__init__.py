@@ -186,20 +186,19 @@ class MeshInterface:
         # FIXME, update node DB as needed
         # We provide our objects as DotMaps - which work with . notation or as dictionaries
         asObj = DotMap(google.protobuf.json_format.MessageToDict(meshPacket))
+        topic = None
         if meshPacket.payload.HasField("position"):
-            pub.sendMessage("meshtastic.receive.position", packet=asObj)
+            topic = "meshtastic.receive.position"
         if meshPacket.payload.HasField("user"):
-            pub.sendMessage("meshtastic.receive.user",
-                            packet=asObj)
+            topic = "meshtastic.receive.user"
         if meshPacket.payload.HasField("data"):
-
+            topic = "meshtastic.receive.data"
             # For text messages, we go ahead and decode the text to ascii for our users
             # if asObj.payload.data.typ == "CLEAR_TEXT":
             #    asObj.payload.data.text = asObj.payload.data.payload.decode(
             #        "utf-8")
 
-            pub.sendMessage("meshtastic.receive.data",
-                            packet=asObj)
+        pub.sendMessage(topic, packet=asObj, interface=self)
 
 
 class StreamInterface(MeshInterface):
