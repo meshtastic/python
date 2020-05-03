@@ -57,8 +57,8 @@ def testSend(fromInterface, toInterface):
 
     logging.info(f"Sending test packet from {fromNode} to {toNode}")
     fromInterface.sendText(f"Test {testNumber}", toNode)
-    time.sleep(10)
-    return (len(receivedPackets) == 1)
+    time.sleep(15)
+    return (len(receivedPackets) >= 1)
 
 
 def testThread():
@@ -77,12 +77,12 @@ def testThread():
             numSuccess = numSuccess + 1
             logging.info(f"Test succeeded ({numSuccess} successes so far)")
 
-        if numFail >= 2 and numSuccess >= 2:
+        if numFail >= 3:
             for i in interfaces:
                 i.close()
             return
 
-        time.sleep(5)
+        time.sleep(1)
 
 
 def onConnection(topic=pub.AUTO_TOPIC):
@@ -110,7 +110,7 @@ def testAll():
         Exception: If not enough devices are found
     """
     ports = util.findPorts()
-    if (len(ports) != 2):
+    if (len(ports) < 2):
         raise Exception("Must have at least two devices connected to USB")
 
     pub.subscribe(onConnection, "meshtastic.connection")
