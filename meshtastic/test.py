@@ -5,6 +5,7 @@ from pubsub import pub
 import time
 import sys
 import threading
+from dotmap import DotMap
 
 """The interfaces we are using for our tests"""
 interfaces = None
@@ -17,12 +18,14 @@ testsRunning = False
 testNumber = 0
 
 
-def onReceive(packet):
+def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
-    print(f"Received: {packet}")
-    if packet.payload.data.typ == "CLEAR_TEXT":
+    print(f"From {interface.devPath}: {packet}")
+    p = DotMap(packet)
+
+    if p.payload.data.typ == "CLEAR_TEXT":
         # We only care a about clear text packets
-        receivedPackets.append(packet)
+        receivedPackets.append(p)
 
 
 def onNode(node):

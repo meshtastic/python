@@ -184,8 +184,9 @@ class MeshInterface:
         - meshtastic.receive.data(packet = MeshPacket dictionary)
         """
         # FIXME, update node DB as needed
-        # We provide our objects as DotMaps - which work with . notation or as dictionaries
-        asObj = DotMap(google.protobuf.json_format.MessageToDict(meshPacket))
+        asDict = google.protobuf.json_format.MessageToDict(meshPacket)
+        # We could provide our objects as DotMaps - which work with . notation or as dictionaries
+        #asObj = DotMap(asDict)
         topic = None
         if meshPacket.payload.HasField("position"):
             topic = "meshtastic.receive.position"
@@ -198,7 +199,7 @@ class MeshInterface:
             #    asObj.payload.data.text = asObj.payload.data.payload.decode(
             #        "utf-8")
 
-        pub.sendMessage(topic, packet=asObj, interface=self)
+        pub.sendMessage(topic, packet=asDict, interface=self)
 
 
 class StreamInterface(MeshInterface):
