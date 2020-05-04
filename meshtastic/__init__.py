@@ -121,6 +121,15 @@ class MeshInterface:
         toRadio.packet.CopyFrom(meshPacket)
         self._sendToRadio(toRadio)
 
+    def writeConfig(self):
+        """Write the current (edited) radioConfig to the device"""
+        if self.radioConfig == None:
+            raise Exception("No RadioConfig has been read")
+
+        t = mesh_pb2.ToRadio()
+        t.set_radio.CopyFrom(self.radioConfig)
+        self._sendToRadio(t)
+
     def _disconnected(self):
         """Called by subclasses to tell clients this interface has disconnected"""
         self.isConnected = False

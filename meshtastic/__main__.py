@@ -20,14 +20,27 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
     global args
-    if topic.getName() == "meshtastic.connection.established" and args.info:
-        print(interface.myInfo)
-        print(interface.radioConfig)
-        interface.close()
-        print("Nodes in mesh:")
-        for n in interface.nodes.values():
-            asDict = google.protobuf.json_format.MessageToJson(n)
-            print(asDict)
+    if topic.getName() == "meshtastic.connection.established":
+        try:
+            if args.setpref:
+                name = args.setpref[0]
+                val = int(args.setpref[1])
+                setattr(interface.radioConfig.preferences, name, val)
+                print("Writing modified preferences to device...")
+                interface.writeConfig()
+
+            if args.info:
+                print(interface.myInfo)
+                print(interface.radioConfig)
+                print("Nodes in mesh:")
+                for n in interface.nodes.values():
+                    asDict = google.protobuf.json_format.MessageToJson(n)
+                    print(asDict)
+        except Exception as ex:
+            print(ex)
+
+        if args.info or args.setpref:
+            interface.close()  # after running command then exit
 
 
 def onNode(node):
@@ -59,6 +72,8 @@ def main():
     parser.add_argument("--info", help="Read and display the radio config information",
                         action="store_true")
 
+    parser.add_argument("--setpref", help="Set a preferences field", nargs=2)
+
     parser.add_argument("--debug", help="Show API library debug log messages",
                         action="store_true")
 
@@ -68,6 +83,9 @@ def main():
     global args
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+
+    if args.info or args.setpref:
+        args.seriallog = "none"  # assume no debug output in this case
 
     if args.test:
         test.testAll()

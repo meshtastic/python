@@ -2,7 +2,6 @@
 
 ## Before beta
 
-- make command line options for displaying/changing config
 - update nodedb as nodes change
 - radioConfig - getter/setter syntax: https://www.python-course.eu/python3_properties.php
 - let user change radio params via commandline options
@@ -35,3 +34,4 @@
 - DONE keep everything in dicts
 - DONE have device send a special packet at boot so the serial client can detect if it rebooted
 - DONE add fromId and toId to received messages dictionaries
+- make command line options for displaying/changing config
