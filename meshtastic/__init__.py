@@ -111,11 +111,10 @@ class MeshInterface:
 
         if isinstance(destinationId, int):
             nodeNum = destinationId
-        elif nodeNum == BROADCAST_ADDR:
+        elif destinationId == BROADCAST_ADDR:
             nodeNum = 255
         else:
-            raise Exception(
-                "invalid destination addr, we don't yet support nodeid lookup")
+            nodeNum = self.nodes[destinationId].num
 
         meshPacket.to = nodeNum
         toRadio.packet.CopyFrom(meshPacket)
