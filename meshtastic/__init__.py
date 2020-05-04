@@ -62,7 +62,7 @@ HEADER_LEN = 4
 MAX_TO_FROM_RADIO_SIZE = 512
 
 BROADCAST_ADDR = "all"  # A special ID that means broadcast
-
+BROADCAST_NUM = 255
 
 MY_CONFIG_ID = 42
 
@@ -111,7 +111,7 @@ class MeshInterface:
 
         if isinstance(destinationId, int):
             nodeNum = destinationId
-        elif nodenum == BROADCAST_ADDR:
+        elif nodeNum == BROADCAST_ADDR:
             nodeNum = 255
         else:
             raise Exception(
@@ -124,13 +124,13 @@ class MeshInterface:
     def _disconnected(self):
         """Called by subclasses to tell clients this interface has disconnected"""
         self.isConnected = False
-        pub.sendMessage("meshtastic.connection.lost")
+        pub.sendMessage("meshtastic.connection.lost", interface=self)
 
     def _connected(self):
         """Called by this class to tell clients we are now fully connected to a node
         """
         self.isConnected = True
-        pub.sendMessage("meshtastic.connection.established")
+        pub.sendMessage("meshtastic.connection.established", interface=self)
 
     def _startConfig(self):
         """Start device packets flowing"""
@@ -175,6 +175,16 @@ class MeshInterface:
         else:
             logging.warn("Unexpected FromRadio payload")
 
+    def _nodeNumToId(self, num):
+        if num == BROADCAST_NUM:
+            return BROADCAST_ADDR
+
+        try:
+            return self._nodesByNum[num].user.id
+        except:
+            logging.error("Node not found for fromId")
+            return None
+
     def _handlePacketFromRadio(self, meshPacket):
         """Handle a MeshPacket that just arrived from the radio
 
@@ -183,15 +193,21 @@ class MeshInterface:
         - meshtastic.receive.user(packet = MeshPacket dictionary)
         - meshtastic.receive.data(packet = MeshPacket dictionary)
         """
-        # FIXME, update node DB as needed
+
         asDict = google.protobuf.json_format.MessageToDict(meshPacket)
+        # /add fromId and toId fields based on the node ID
+        asDict["fromId"] = self._nodeNumToId(asDict["from"])
+        asDict["toId"] = self._nodeNumToId(asDict["to"])
+
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
         #asObj = DotMap(asDict)
         topic = None
         if meshPacket.payload.HasField("position"):
             topic = "meshtastic.receive.position"
+            # FIXME, update node DB as needed
         if meshPacket.payload.HasField("user"):
             topic = "meshtastic.receive.user"
+            # FIXME, update node DB as needed
         if meshPacket.payload.HasField("data"):
             topic = "meshtastic.receive.data"
             # For text messages, we go ahead and decode the text to ascii for our users
@@ -253,7 +269,8 @@ class StreamInterface(MeshInterface):
         logging.debug("Closing serial stream")
         # pyserial cancel_read doesn't seem to work, therefore we ask the reader thread to close things for us
         self._wantExit = True
-        self._rxThread.join()  # wait for it to exit
+        if self._rxThread != threading.current_thread():
+            self._rxThread.join()  # wait for it to exit
 
     def __reader(self):
         """The reader thread that reads bytes from our stream"""

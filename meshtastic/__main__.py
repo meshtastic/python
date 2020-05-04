@@ -7,15 +7,27 @@ import sys
 from pubsub import pub
 import google.protobuf.json_format
 
+"""The command line arguments"""
+args = None
+
 
 def onReceive(packet):
     """Callback invoked when a packet arrives"""
     print(f"Received: {packet}")
 
 
-def onConnection(topic=pub.AUTO_TOPIC):
+def onConnection(interface, topic=pub.AUTO_TOPIC):
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
+    global args
+    if topic.getName() == "meshtastic.connection.established" and args.info:
+        print(interface.myInfo)
+        print(interface.radioConfig)
+        interface.close()
+        print("Nodes in mesh:")
+        for n in interface.nodes.values():
+            asDict = google.protobuf.json_format.MessageToJson(n)
+            print(asDict)
 
 
 def onNode(node):
@@ -44,12 +56,16 @@ def main():
         help="Log device serial output to either 'stdout', 'none' or a filename to append to.  Defaults to stdout.",
         default="stdout")
 
+    parser.add_argument("--info", help="Read and display the radio config information",
+                        action="store_true")
+
     parser.add_argument("--debug", help="Show API library debug log messages",
                         action="store_true")
 
     parser.add_argument("--test", help="Run stress test against all connected Meshtastic devices",
                         action="store_true")
 
+    global args
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
