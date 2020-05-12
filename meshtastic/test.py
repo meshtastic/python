@@ -23,7 +23,7 @@ def onReceive(packet, interface):
     print(f"From {interface.devPath}: {packet}")
     p = DotMap(packet)
 
-    if p.payload.data.typ == "CLEAR_TEXT":
+    if p.decoded.data.typ == "CLEAR_TEXT":
         # We only care a about clear text packets
         receivedPackets.append(p)
 

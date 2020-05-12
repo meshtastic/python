@@ -99,8 +99,8 @@ class MeshInterface:
     def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE):
         """Send a data packet to some other node"""
         meshPacket = mesh_pb2.MeshPacket()
-        meshPacket.payload.data.payload = byteData
-        meshPacket.payload.data.typ = dataType
+        meshPacket.decoded.data.payload = byteData
+        meshPacket.decoded.data.typ = dataType
         self.sendPacket(meshPacket, destinationId)
 
     def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR):
@@ -162,16 +162,17 @@ class MeshInterface:
         Called by subclasses."""
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
-        json = google.protobuf.json_format.MessageToJson(fromRadio)
-        logging.debug(f"Received: {json}")
+        asDict = google.protobuf.json_format.MessageToDict(fromRadio)
+        logging.debug(f"Received: {asDict}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
         elif fromRadio.HasField("radio"):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField("node_info"):
-            node = fromRadio.node_info
-            self._nodesByNum[node.num] = node
-            self.nodes[node.user.id] = node
+            node = asDict["nodeInfo"]
+            self._fixupPosition(node["position"])
+            self._nodesByNum[node["num"]] = node
+            self.nodes[node["user"]["id"]] = node
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             self._connected()
@@ -182,6 +183,18 @@ class MeshInterface:
             self._startConfig()  # redownload the node db etc...
         else:
             logging.warn("Unexpected FromRadio payload")
+
+    def _fixupPosition(self, position):
+        """Convert integer lat/lon into floats
+
+        Arguments:
+            position {Position dictionary} -- object ot fix up
+        """
+        if "latitudeI" in position:
+            position["latitude"] = position["latitudeI"] * 1e-7
+        if "longitudeI" in position:
+            position["longitude"] = position["longitudeI"] * 1e-7
+
 
     def _nodeNumToId(self, num):
         if num == BROADCAST_NUM:
@@ -210,17 +223,18 @@ class MeshInterface:
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
         #asObj = DotMap(asDict)
         topic = None
-        if meshPacket.payload.HasField("position"):
+        if meshPacket.decoded.HasField("position"):
             topic = "meshtastic.receive.position"
+            self._fixupPosition(asDict["payload"]["position"])
             # FIXME, update node DB as needed
-        if meshPacket.payload.HasField("user"):
+        if meshPacket.decoded.HasField("user"):
             topic = "meshtastic.receive.user"
             # FIXME, update node DB as needed
-        if meshPacket.payload.HasField("data"):
+        if meshPacket.decoded.HasField("data"):
             topic = "meshtastic.receive.data"
             # For text messages, we go ahead and decode the text to ascii for our users
-            # if asObj.payload.data.typ == "CLEAR_TEXT":
-            #    asObj.payload.data.text = asObj.payload.data.payload.decode(
+            # if asObj.decoded.data.typ == "CLEAR_TEXT":
+            #    asObj.decoded.data.text = asObj.decoded.data.decoded.decode(
             #        "utf-8")
 
         pub.sendMessage(topic, packet=asDict, interface=self)
