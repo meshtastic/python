@@ -2,6 +2,8 @@
 
 ## Before beta
 
+- ./bin/run.sh --debug --ble --device 24:62:AB:DD:DF:3A
+- merge my local fixes to bleak: /home/kevinh/.local/lib/python3.8/site-packages/bleak/backends/bluezdbus/
 - update nodedb as nodes change
 - radioConfig - getter/setter syntax: https://www.python-course.eu/python3_properties.php
 - let user change radio params via commandline options

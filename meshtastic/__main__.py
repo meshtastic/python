@@ -1,7 +1,8 @@
 #!python3
 
+import asyncio
 import argparse
-from . import StreamInterface, test
+from . import StreamInterface, BLEInterface, test
 import logging
 import sys
 from pubsub import pub
@@ -95,6 +96,9 @@ def main():
     parser.add_argument("--test", help="Run stress test against all connected Meshtastic devices",
                         action="store_true")
 
+    parser.add_argument("--ble", help="hack for testing BLE code",
+                        action="store_true")
+
     global args
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
@@ -115,7 +119,12 @@ def main():
             logfile = open(args.seriallog, 'w+', buffering=1)  # line buffering
 
         subscribe()
-        client = StreamInterface(args.device, debugOut=logfile)
+        if args.ble:
+            client = BLEInterface(args.device, debugOut=logfile)
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(client.run(loop))
+        else:
+            client = StreamInterface(args.device, debugOut=logfile)
 
 
 if __name__ == "__main__":

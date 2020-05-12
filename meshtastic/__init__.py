@@ -1,5 +1,5 @@
 """
-## an API for Meshtastic devices
+# an API for Meshtastic devices
 
 Primary class: StreamInterface
 Install with pip: "[pip3 install meshtastic](https://pypi.org/project/meshtastic/)"
@@ -7,26 +7,26 @@ Source code on [github](https://github.com/meshtastic/Meshtastic-python)
 
 properties of StreamInterface:
 
-- radioConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to 
+- radioConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to
 the device.
-- nodes - The database of received nodes.  Includes always up-to-date location and username information for each 
+- nodes - The database of received nodes.  Includes always up-to-date location and username information for each
 node in the mesh.  This is a read-only datastructure.
 - myNodeInfo - Contains read-only information about the local radio device (software version, hardware version, etc)
 
-## Published PubSub topics
+# Published PubSub topics
 
 We use a [publish-subscribe](https://pypubsub.readthedocs.io/en/v4.0.3/) model to communicate asynchronous events.  Available
 topics:
 
 - meshtastic.connection.established - published once we've successfully connected to the radio and downloaded the node DB
 - meshtastic.connection.lost - published once we've lost our link to the radio
-- meshtastic.receive.position(packet) - delivers a received packet as a dictionary, if you only care about a particular 
+- meshtastic.receive.position(packet) - delivers a received packet as a dictionary, if you only care about a particular
 type of packet, you should subscribe to the full topic name.  If you want to see all packets, simply subscribe to "meshtastic.receive".
 - meshtastic.receive.user(packet)
 - meshtastic.receive.data(packet)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
 
-## Example Usage
+# Example Usage
 ```
 import meshtastic
 from pubsub import pub
@@ -35,16 +35,20 @@ def onReceive(packet): # called when a packet arrives
     print(f"Received: {packet}")
 
 def onConnection(): # called when we (re)connect to the radio
-    interface.sendText("hello mesh") # defaults to broadcast, specify a destination ID if you wish
+    # defaults to broadcast, specify a destination ID if you wish
+    interface.sendText("hello mesh")
 
 pub.subscribe(onReceive, "meshtastic.receive")
 pub.subscribe(onConnection, "meshtastic.connection.established")
-interface = meshtastic.StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+# By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+interface = meshtastic.StreamInterface()
 
 ```
 
 """
 
+import asyncio
+from bleak import BleakClient
 import google.protobuf.json_format
 import serial
 import threading
@@ -82,7 +86,6 @@ class MeshInterface:
         self.debugOut = debugOut
         self.nodes = None  # FIXME
         self.isConnected = False
-        self._startConfig()
 
     def sendText(self, text, destinationId=BROADCAST_ADDR):
         """Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
@@ -104,7 +107,7 @@ class MeshInterface:
         self.sendPacket(meshPacket, destinationId)
 
     def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR):
-        """Send a MeshPacket to the specified node (or if unspecified, broadcast). 
+        """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead."""
         toRadio = mesh_pb2.ToRadio()
         # FIXME add support for non broadcast addresses
@@ -195,8 +198,15 @@ class MeshInterface:
         if "longitudeI" in position:
             position["longitude"] = position["longitudeI"] * 1e-7
 
-
     def _nodeNumToId(self, num):
+        """Map a node node number to a node ID
+
+        Arguments:
+            num {int} -- Node number
+
+        Returns:
+            string -- Node ID
+        """
         if num == BROADCAST_NUM:
             return BROADCAST_ADDR
 
@@ -221,7 +231,7 @@ class MeshInterface:
         asDict["toId"] = self._nodeNumToId(asDict["to"])
 
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
-        #asObj = DotMap(asDict)
+        # asObj = DotMap(asDict)
         topic = None
         if meshPacket.decoded.HasField("position"):
             topic = "meshtastic.receive.position"
@@ -240,11 +250,39 @@ class MeshInterface:
         pub.sendMessage(topic, packet=asDict, interface=self)
 
 
+# Our standard BLE characteristics
+TORADIO_UUID = "f75c76d2-129e-4dad-a1dd-7866124401e7"
+FROMRADIO_UUID = "8ba2bcc2-ee02-4a55-a531-c525c5e454d5"
+FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
+
+
+class BLEInterface(MeshInterface):
+    def __init__(self, address, debugOut=None):
+        self.address = address
+        MeshInterface.__init__(self, debugOut=debugOut)
+
+    async def close(self):
+        await self.client.disconnect()
+
+    async def run(self, loop):
+        self.client = BleakClient(self.address, loop=loop)
+        try:
+            logging.debug(f"Connecting to {self.address}")
+            await self.client.connect()
+            logging.debug("Connected to device")
+            fromradio = await self.client.read_gatt_char(FROMRADIO_UUID)
+            print(f"****** fromradio {fromradio}")
+        except Exception as e:
+            logging.error(e)
+        finally:
+            await self.close()
+
+
 class StreamInterface(MeshInterface):
     """Interface class for meshtastic devices over a stream link (serial, TCP, etc)"""
 
     def __init__(self, devPath=None, debugOut=None):
-        """Constructor, opens a connection to a specified serial port, or if unspecified try to 
+        """Constructor, opens a connection to a specified serial port, or if unspecified try to
         find one Meshtastic device by probing
 
         Keyword Arguments:
@@ -275,6 +313,7 @@ class StreamInterface(MeshInterface):
         self._rxThread = threading.Thread(target=self.__reader, args=())
         self._rxThread.start()
         MeshInterface.__init__(self, debugOut=debugOut)
+        self._startConfig()
 
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""
