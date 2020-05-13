@@ -42,8 +42,7 @@ def onConnected(interface):
             print(interface.radioConfig)
             print("Nodes in mesh:")
             for n in interface.nodes.values():
-                asDict = google.protobuf.json_format.MessageToJson(n)
-                print(asDict)
+                print(n)
     except Exception as ex:
         print(ex)
 

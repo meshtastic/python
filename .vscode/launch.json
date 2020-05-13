@@ -5,12 +5,20 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Module",
+      "name": "meshtastic BLE",
       "type": "python",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": false,
       "args": ["--debug", "--ble", "--device", "24:62:AB:DD:DF:3A"]
+    },
+    {
+      "name": "meshtastic info",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--info"]
     }
   ]
 }
