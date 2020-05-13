@@ -19,6 +19,14 @@
       "module": "meshtastic",
       "justMyCode": true,
       "args": ["--debug", "--info"]
+    },
+    {
+      "name": "meshtastic shell",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--seriallog", "stdout"]
     }
   ]
 }

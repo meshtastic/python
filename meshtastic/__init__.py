@@ -211,7 +211,7 @@ class MeshInterface:
             return BROADCAST_ADDR
 
         try:
-            return self._nodesByNum[num].user.id
+            return self._nodesByNum[num]["user"]["id"]
         except:
             logging.error("Node not found for fromId")
             return None
@@ -235,11 +235,17 @@ class MeshInterface:
         topic = None
         if meshPacket.decoded.HasField("position"):
             topic = "meshtastic.receive.position"
-            self._fixupPosition(asDict["payload"]["position"])
-            # FIXME, update node DB as needed
+            p = asDict["decoded"]["position"]
+            self._fixupPosition(p)
+            # update node DB as needed
+            self._nodesByNum[asDict["from"]]["position"] = p
+
         if meshPacket.decoded.HasField("user"):
             topic = "meshtastic.receive.user"
-            # FIXME, update node DB as needed
+            u = asDict["decoded"]["user"]
+            # update node DB as needed
+            self._nodesByNum[asDict["from"]]["user"] = u
+
         if meshPacket.decoded.HasField("data"):
             topic = "meshtastic.receive.data"
             # For text messages, we go ahead and decode the text to ascii for our users
@@ -257,6 +263,8 @@ FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
 
 
 class BLEInterface(MeshInterface):
+    """A not quite ready - FIXME - BLE interface to devices"""
+
     def __init__(self, address, debugOut=None):
         self.address = address
         self.adapter = pygatt.GATTToolBackend()  # BGAPIBackend()
