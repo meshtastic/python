@@ -1,6 +1,5 @@
 #!python3
 
-import asyncio
 import argparse
 from . import StreamInterface, BLEInterface, test
 import logging
@@ -121,8 +120,6 @@ def main():
         subscribe()
         if args.ble:
             client = BLEInterface(args.device, debugOut=logfile)
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(client.run(loop))
         else:
             client = StreamInterface(args.device, debugOut=logfile)
 

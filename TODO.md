@@ -1,9 +1,14 @@
 # TODO
 
+## Bluetooth support
+
+(Alpha level feature)
+This library supports connecting to Meshtastic devices over either USB (serial) or Bluetooth. Before connecting to the device you must [pair](https://docs.ubuntu.com/core/en/stacks/bluetooth/bluez/docs/reference/pairing/outbound.html) your PC with it.
+We use the pip3 install "pygatt[GATTTOOL]"
+
 ## Before beta
 
 - ./bin/run.sh --debug --ble --device 24:62:AB:DD:DF:3A
-- merge my local fixes to bleak: /home/kevinh/.local/lib/python3.8/site-packages/bleak/backends/bluezdbus/
 - update nodedb as nodes change
 - radioConfig - getter/setter syntax: https://www.python-course.eu/python3_properties.php
 - let user change radio params via commandline options

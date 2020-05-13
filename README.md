@@ -24,12 +24,6 @@ For the rough notes/implementation plan see [TODO](https://github.com/meshtastic
 
 This pip package will also install a "meshtastic" commandline executable, which displays packets sent over the network as JSON and lets you see serial debugging information from the meshtastic devices. The source code for this tool is also a good [example](https://github.com/meshtastic/Meshtastic-python/blob/master/meshtastic/__main__.py) of a 'complete' application that uses the meshtastic python API.
 
-## Bluetooth support
-
-(Alpha level feature)
-This library supports connecting to Meshtastic devices over either USB (serial) or Bluetooth. Before connecting to the device you must [pair](https://docs.ubuntu.com/core/en/stacks/bluetooth/bluez/docs/reference/pairing/outbound.html) your PC with it.
-We use the Bleak library, but a very particular version (due to a bleak [bug](https://github.com/hbldh/bleak/issues/139)): python3 -m pip install git+https://github.com/pliniofpa/bleak.git@cbad754205b8dbbe1def448b18d04c65cf5a75e7
-
 ## Required device software version
 
 This API and tool both require that the device is running Meshtastic 0.6.0 or later.

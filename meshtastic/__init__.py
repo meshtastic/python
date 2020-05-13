@@ -47,8 +47,7 @@ interface = meshtastic.StreamInterface()
 
 """
 
-import asyncio
-from bleak import BleakClient
+import pygatt
 import google.protobuf.json_format
 import serial
 import threading
@@ -86,6 +85,7 @@ class MeshInterface:
         self.debugOut = debugOut
         self.nodes = None  # FIXME
         self.isConnected = False
+        self._startConfig()
 
     def sendText(self, text, destinationId=BROADCAST_ADDR):
         """Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
@@ -259,23 +259,37 @@ FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
 class BLEInterface(MeshInterface):
     def __init__(self, address, debugOut=None):
         self.address = address
+        self.adapter = pygatt.GATTToolBackend()  # BGAPIBackend()
+        self.adapter.start()
+        logging.debug(f"Connecting to {self.address}")
+        self.device = self.adapter.connect(address)
+        logging.debug("Connected to device")
+        # fromradio = self.device.char_read(FROMRADIO_UUID)
         MeshInterface.__init__(self, debugOut=debugOut)
 
-    async def close(self):
-        await self.client.disconnect()
+        self._readFromRadio()  # read the initial responses
 
-    async def run(self, loop):
-        self.client = BleakClient(self.address, loop=loop)
-        try:
-            logging.debug(f"Connecting to {self.address}")
-            await self.client.connect()
-            logging.debug("Connected to device")
-            fromradio = await self.client.read_gatt_char(FROMRADIO_UUID)
-            print(f"****** fromradio {fromradio}")
-        except Exception as e:
-            logging.error(e)
-        finally:
-            await self.close()
+        def handle_data(handle, data):
+            self._handleFromRadio(data)
+
+        self.device.subscribe(FROMNUM_UUID, callback=handle_data)
+
+    def _sendToRadio(self, toRadio):
+        """Send a ToRadio protobuf to the device"""
+        logging.debug(f"Sending: {toRadio}")
+        b = toRadio.SerializeToString()
+        self.device.char_write(TORADIO_UUID, b)
+
+    def close(self):
+        self.adapter.stop()
+
+    def _readFromRadio(self):
+        wasEmpty = False
+        while not wasEmpty:
+            b = self.device.char_read(FROMRADIO_UUID)
+            wasEmpty = len(b) == 0
+            if not wasEmpty:
+                self._handleFromRadio(b)
 
 
 class StreamInterface(MeshInterface):
@@ -313,7 +327,6 @@ class StreamInterface(MeshInterface):
         self._rxThread = threading.Thread(target=self.__reader, args=())
         self._rxThread.start()
         MeshInterface.__init__(self, debugOut=debugOut)
-        self._startConfig()
 
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""
