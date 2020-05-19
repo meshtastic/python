@@ -56,7 +56,7 @@ def testSend(fromInterface, toInterface):
     toNode = toInterface.myInfo.my_node_num
 
     # FIXME, hack to test broadcast
-    toNode = 255
+    # toNode = 255
 
     logging.info(f"Sending test packet from {fromNode} to {toNode}")
     fromInterface.sendText(f"Test {testNumber}", toNode)

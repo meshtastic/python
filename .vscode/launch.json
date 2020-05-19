@@ -27,6 +27,14 @@
       "module": "meshtastic",
       "justMyCode": true,
       "args": ["--debug", "--seriallog", "stdout"]
+    },
+    {
+      "name": "meshtastic test",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--test"]
     }
   ]
 }

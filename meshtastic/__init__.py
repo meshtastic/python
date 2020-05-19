@@ -249,9 +249,9 @@ class MeshInterface:
         if meshPacket.decoded.HasField("data"):
             topic = "meshtastic.receive.data"
             # For text messages, we go ahead and decode the text to ascii for our users
-            # if asObj.decoded.data.typ == "CLEAR_TEXT":
-            #    asObj.decoded.data.text = asObj.decoded.data.decoded.decode(
-            #        "utf-8")
+            if asDict["decoded"]["data"]["typ"] == "CLEAR_TEXT":
+                asDict["decoded"]["data"]["text"] = meshPacket.decoded.data.payload.decode(
+                    "utf-8")
 
         pub.sendMessage(topic, packet=asDict, interface=self)
 
