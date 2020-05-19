@@ -87,7 +87,7 @@ class MeshInterface:
         self.isConnected = False
         self._startConfig()
 
-    def sendText(self, text, destinationId=BROADCAST_ADDR):
+    def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False):
         """Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
         Arguments:
@@ -97,16 +97,16 @@ class MeshInterface:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
         """
         self.sendData(text.encode("utf-8"), destinationId,
-                      dataType=mesh_pb2.Data.CLEAR_TEXT)
+                      dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck)
 
-    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE):
+    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False):
         """Send a data packet to some other node"""
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.data.payload = byteData
         meshPacket.decoded.data.typ = dataType
-        self.sendPacket(meshPacket, destinationId)
+        self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
-    def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR):
+    def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead."""
         toRadio = mesh_pb2.ToRadio()
@@ -120,6 +120,7 @@ class MeshInterface:
             nodeNum = self.nodes[destinationId].num
 
         meshPacket.to = nodeNum
+        meshPacket.want_ack = wantAck
         toRadio.packet.CopyFrom(meshPacket)
         self._sendToRadio(toRadio)
 
@@ -232,7 +233,7 @@ class MeshInterface:
 
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
         # asObj = DotMap(asDict)
-        topic = None
+        topic = "meshtastic.receive"  # Generic unknown packet type
         if meshPacket.decoded.HasField("position"):
             topic = "meshtastic.receive.position"
             p = asDict["decoded"]["position"]

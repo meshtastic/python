@@ -59,8 +59,8 @@ def testSend(fromInterface, toInterface):
     # toNode = 255
 
     logging.info(f"Sending test packet from {fromNode} to {toNode}")
-    fromInterface.sendText(f"Test {testNumber}", toNode)
-    time.sleep(40)
+    fromInterface.sendText(f"Test {testNumber}", toNode, wantAck=False)
+    time.sleep(30)
     return (len(receivedPackets) >= 1)
 
 
