@@ -94,7 +94,7 @@ def main():
     parser.add_argument("--test", help="Run stress test against all connected Meshtastic devices",
                         action="store_true")
 
-    parser.add_argument("--ble", help="hack for testing BLE code",
+    parser.add_argument("--ble", help="hack for testing BLE code (BLE is not yet supported for this tool)",
                         action="store_true")
 
     global args
