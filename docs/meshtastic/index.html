@@ -20,7 +20,7 @@
 <h1 class="title">Package <code>meshtastic</code></h1>
 </header>
 <section id="section-intro">
-<h2 id="an-api-for-meshtastic-devices">an API for Meshtastic devices</h2>
+<h1 id="an-api-for-meshtastic-devices">an API for Meshtastic devices</h1>
 <p>Primary class: StreamInterface
 Install with pip: "<a href="https://pypi.org/project/meshtastic/">pip3 install meshtastic</a>"
 Source code on <a href="https://github.com/meshtastic/Meshtastic-python">github</a></p>
@@ -34,7 +34,7 @@ node in the mesh.
 This is a read-only datastructure.</li>
 <li>myNodeInfo - Contains read-only information about the local radio device (software version, hardware version, etc)</li>
 </ul>
-<h2 id="published-pubsub-topics">Published PubSub topics</h2>
+<h1 id="published-pubsub-topics">Published PubSub topics</h1>
 <p>We use a <a href="https://pypubsub.readthedocs.io/en/v4.0.3/">publish-subscribe</a> model to communicate asynchronous events.
 Available
 topics:</p>
@@ -48,7 +48,7 @@ If you want to see all packets, simply subscribe to "meshtastic.receive".</li>
 <li>meshtastic.receive.data(packet)</li>
 <li>meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc&hellip;)</li>
 </ul>
-<h2 id="example-usage">Example Usage</h2>
+<h1 id="example-usage">Example Usage</h1>
 <pre><code>import meshtastic
 from pubsub import pub
 
@@ -56,11 +56,13 @@ def onReceive(packet): # called when a packet arrives
     print(f&quot;Received: {packet}&quot;)
 
 def onConnection(): # called when we (re)connect to the radio
-    interface.sendText(&quot;hello mesh&quot;) # defaults to broadcast, specify a destination ID if you wish
+    # defaults to broadcast, specify a destination ID if you wish
+    interface.sendText(&quot;hello mesh&quot;)
 
 pub.subscribe(onReceive, &quot;meshtastic.receive&quot;)
 pub.subscribe(onConnection, &quot;meshtastic.connection.established&quot;)
-interface = meshtastic.StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+# By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+interface = meshtastic.StreamInterface()
 
 </code></pre>
 <details class="source">
@@ -68,7 +70,7 @@ interface = meshtastic.StreamInterface() # By default will try to find a meshtas
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-## an API for Meshtastic devices
+# an API for Meshtastic devices
 
 Primary class: StreamInterface
 Install with pip: &#34;[pip3 install meshtastic](https://pypi.org/project/meshtastic/)&#34;
@@ -76,26 +78,26 @@ Source code on [github](https://github.com/meshtastic/Meshtastic-python)
 
 properties of StreamInterface:
 
-- radioConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to 
+- radioConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to
 the device.
-- nodes - The database of received nodes.  Includes always up-to-date location and username information for each 
+- nodes - The database of received nodes.  Includes always up-to-date location and username information for each
 node in the mesh.  This is a read-only datastructure.
 - myNodeInfo - Contains read-only information about the local radio device (software version, hardware version, etc)
 
-## Published PubSub topics
+# Published PubSub topics
 
 We use a [publish-subscribe](https://pypubsub.readthedocs.io/en/v4.0.3/) model to communicate asynchronous events.  Available
 topics:
 
 - meshtastic.connection.established - published once we&#39;ve successfully connected to the radio and downloaded the node DB
 - meshtastic.connection.lost - published once we&#39;ve lost our link to the radio
-- meshtastic.receive.position(packet) - delivers a received packet as a dictionary, if you only care about a particular 
+- meshtastic.receive.position(packet) - delivers a received packet as a dictionary, if you only care about a particular
 type of packet, you should subscribe to the full topic name.  If you want to see all packets, simply subscribe to &#34;meshtastic.receive&#34;.
 - meshtastic.receive.user(packet)
 - meshtastic.receive.data(packet)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
 
-## Example Usage
+# Example Usage
 ```
 import meshtastic
 from pubsub import pub
@@ -104,16 +106,19 @@ def onReceive(packet): # called when a packet arrives
     print(f&#34;Received: {packet}&#34;)
 
 def onConnection(): # called when we (re)connect to the radio
-    interface.sendText(&#34;hello mesh&#34;) # defaults to broadcast, specify a destination ID if you wish
+    # defaults to broadcast, specify a destination ID if you wish
+    interface.sendText(&#34;hello mesh&#34;)
 
 pub.subscribe(onReceive, &#34;meshtastic.receive&#34;)
 pub.subscribe(onConnection, &#34;meshtastic.connection.established&#34;)
-interface = meshtastic.StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+# By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+interface = meshtastic.StreamInterface()
 
 ```
 
 &#34;&#34;&#34;
 
+import pygatt
 import google.protobuf.json_format
 import serial
 import threading
@@ -153,7 +158,7 @@ class MeshInterface:
         self.isConnected = False
         self._startConfig()
 
-    def sendText(self, text, destinationId=BROADCAST_ADDR):
+    def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
         Arguments:
@@ -163,30 +168,30 @@ class MeshInterface:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
         &#34;&#34;&#34;
         self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                      dataType=mesh_pb2.Data.CLEAR_TEXT)
+                      dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck)
 
-    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE):
+    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False):
         &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
         meshPacket = mesh_pb2.MeshPacket()
-        meshPacket.payload.data.payload = byteData
-        meshPacket.payload.data.typ = dataType
-        self.sendPacket(meshPacket, destinationId)
+        meshPacket.decoded.data.payload = byteData
+        meshPacket.decoded.data.typ = dataType
+        self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
-    def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR):
-        &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast). 
+    def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
+        &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don&#39;t want this - use sendData instead.&#34;&#34;&#34;
         toRadio = mesh_pb2.ToRadio()
         # FIXME add support for non broadcast addresses
 
         if isinstance(destinationId, int):
             nodeNum = destinationId
-        elif nodeNum == BROADCAST_ADDR:
+        elif destinationId == BROADCAST_ADDR:
             nodeNum = 255
         else:
-            raise Exception(
-                &#34;invalid destination addr, we don&#39;t yet support nodeid lookup&#34;)
+            nodeNum = self.nodes[destinationId].num
 
         meshPacket.to = nodeNum
+        meshPacket.want_ack = wantAck
         toRadio.packet.CopyFrom(meshPacket)
         self._sendToRadio(toRadio)
 
@@ -232,16 +237,17 @@ class MeshInterface:
         Called by subclasses.&#34;&#34;&#34;
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
-        json = google.protobuf.json_format.MessageToJson(fromRadio)
-        logging.debug(f&#34;Received: {json}&#34;)
+        asDict = google.protobuf.json_format.MessageToDict(fromRadio)
+        logging.debug(f&#34;Received: {asDict}&#34;)
         if fromRadio.HasField(&#34;my_info&#34;):
             self.myInfo = fromRadio.my_info
         elif fromRadio.HasField(&#34;radio&#34;):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField(&#34;node_info&#34;):
-            node = fromRadio.node_info
-            self._nodesByNum[node.num] = node
-            self.nodes[node.user.id] = node
+            node = asDict[&#34;nodeInfo&#34;]
+            self._fixupPosition(node[&#34;position&#34;])
+            self._nodesByNum[node[&#34;num&#34;]] = node
+            self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             self._connected()
@@ -253,12 +259,31 @@ class MeshInterface:
         else:
             logging.warn(&#34;Unexpected FromRadio payload&#34;)
 
+    def _fixupPosition(self, position):
+        &#34;&#34;&#34;Convert integer lat/lon into floats
+
+        Arguments:
+            position {Position dictionary} -- object ot fix up
+        &#34;&#34;&#34;
+        if &#34;latitudeI&#34; in position:
+            position[&#34;latitude&#34;] = position[&#34;latitudeI&#34;] * 1e-7
+        if &#34;longitudeI&#34; in position:
+            position[&#34;longitude&#34;] = position[&#34;longitudeI&#34;] * 1e-7
+
     def _nodeNumToId(self, num):
+        &#34;&#34;&#34;Map a node node number to a node ID
+
+        Arguments:
+            num {int} -- Node number
+
+        Returns:
+            string -- Node ID
+        &#34;&#34;&#34;
         if num == BROADCAST_NUM:
             return BROADCAST_ADDR
 
         try:
-            return self._nodesByNum[num].user.id
+            return self._nodesByNum[num][&#34;user&#34;][&#34;id&#34;]
         except:
             logging.error(&#34;Node not found for fromId&#34;)
             return None
@@ -278,29 +303,80 @@ class MeshInterface:
         asDict[&#34;toId&#34;] = self._nodeNumToId(asDict[&#34;to&#34;])
 
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
-        #asObj = DotMap(asDict)
-        topic = None
-        if meshPacket.payload.HasField(&#34;position&#34;):
+        # asObj = DotMap(asDict)
+        topic = &#34;meshtastic.receive&#34;  # Generic unknown packet type
+        if meshPacket.decoded.HasField(&#34;position&#34;):
             topic = &#34;meshtastic.receive.position&#34;
-            # FIXME, update node DB as needed
-        if meshPacket.payload.HasField(&#34;user&#34;):
+            p = asDict[&#34;decoded&#34;][&#34;position&#34;]
+            self._fixupPosition(p)
+            # update node DB as needed
+            self._nodesByNum[asDict[&#34;from&#34;]][&#34;position&#34;] = p
+
+        if meshPacket.decoded.HasField(&#34;user&#34;):
             topic = &#34;meshtastic.receive.user&#34;
-            # FIXME, update node DB as needed
-        if meshPacket.payload.HasField(&#34;data&#34;):
+            u = asDict[&#34;decoded&#34;][&#34;user&#34;]
+            # update node DB as needed
+            self._nodesByNum[asDict[&#34;from&#34;]][&#34;user&#34;] = u
+
+        if meshPacket.decoded.HasField(&#34;data&#34;):
             topic = &#34;meshtastic.receive.data&#34;
             # For text messages, we go ahead and decode the text to ascii for our users
-            # if asObj.payload.data.typ == &#34;CLEAR_TEXT&#34;:
-            #    asObj.payload.data.text = asObj.payload.data.payload.decode(
-            #        &#34;utf-8&#34;)
+            if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;typ&#34;] == &#34;CLEAR_TEXT&#34;:
+                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;text&#34;] = meshPacket.decoded.data.payload.decode(
+                    &#34;utf-8&#34;)
 
         pub.sendMessage(topic, packet=asDict, interface=self)
+
+
+# Our standard BLE characteristics
+TORADIO_UUID = &#34;f75c76d2-129e-4dad-a1dd-7866124401e7&#34;
+FROMRADIO_UUID = &#34;8ba2bcc2-ee02-4a55-a531-c525c5e454d5&#34;
+FROMNUM_UUID = &#34;ed9da18c-a800-4f66-a670-aa7547e34453&#34;
+
+
+class BLEInterface(MeshInterface):
+    &#34;&#34;&#34;A not quite ready - FIXME - BLE interface to devices&#34;&#34;&#34;
+
+    def __init__(self, address, debugOut=None):
+        self.address = address
+        self.adapter = pygatt.GATTToolBackend()  # BGAPIBackend()
+        self.adapter.start()
+        logging.debug(f&#34;Connecting to {self.address}&#34;)
+        self.device = self.adapter.connect(address)
+        logging.debug(&#34;Connected to device&#34;)
+        # fromradio = self.device.char_read(FROMRADIO_UUID)
+        MeshInterface.__init__(self, debugOut=debugOut)
+
+        self._readFromRadio()  # read the initial responses
+
+        def handle_data(handle, data):
+            self._handleFromRadio(data)
+
+        self.device.subscribe(FROMNUM_UUID, callback=handle_data)
+
+    def _sendToRadio(self, toRadio):
+        &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
+        logging.debug(f&#34;Sending: {toRadio}&#34;)
+        b = toRadio.SerializeToString()
+        self.device.char_write(TORADIO_UUID, b)
+
+    def close(self):
+        self.adapter.stop()
+
+    def _readFromRadio(self):
+        wasEmpty = False
+        while not wasEmpty:
+            b = self.device.char_read(FROMRADIO_UUID)
+            wasEmpty = len(b) == 0
+            if not wasEmpty:
+                self._handleFromRadio(b)
 
 
 class StreamInterface(MeshInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
 
     def __init__(self, devPath=None, debugOut=None):
-        &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to 
+        &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to
         find one Meshtastic device by probing
 
         Keyword Arguments:
@@ -403,6 +479,10 @@ class StreamInterface(MeshInterface):
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
+<dt><code class="name"><a title="meshtastic.ble" href="ble.html">meshtastic.ble</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="meshtastic.mesh_pb2" href="mesh_pb2.html">meshtastic.mesh_pb2</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -424,6 +504,86 @@ class StreamInterface(MeshInterface):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="meshtastic.BLEInterface"><code class="flex name class">
+<span>class <span class="ident">BLEInterface</span></span>
+<span>(</span><span>address, debugOut=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A not quite ready - FIXME - BLE interface to devices</p>
+<p>Constructor</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BLEInterface(MeshInterface):
+    &#34;&#34;&#34;A not quite ready - FIXME - BLE interface to devices&#34;&#34;&#34;
+
+    def __init__(self, address, debugOut=None):
+        self.address = address
+        self.adapter = pygatt.GATTToolBackend()  # BGAPIBackend()
+        self.adapter.start()
+        logging.debug(f&#34;Connecting to {self.address}&#34;)
+        self.device = self.adapter.connect(address)
+        logging.debug(&#34;Connected to device&#34;)
+        # fromradio = self.device.char_read(FROMRADIO_UUID)
+        MeshInterface.__init__(self, debugOut=debugOut)
+
+        self._readFromRadio()  # read the initial responses
+
+        def handle_data(handle, data):
+            self._handleFromRadio(data)
+
+        self.device.subscribe(FROMNUM_UUID, callback=handle_data)
+
+    def _sendToRadio(self, toRadio):
+        &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
+        logging.debug(f&#34;Sending: {toRadio}&#34;)
+        b = toRadio.SerializeToString()
+        self.device.char_write(TORADIO_UUID, b)
+
+    def close(self):
+        self.adapter.stop()
+
+    def _readFromRadio(self):
+        wasEmpty = False
+        while not wasEmpty:
+            b = self.device.char_read(FROMRADIO_UUID)
+            wasEmpty = len(b) == 0
+            if not wasEmpty:
+                self._handleFromRadio(b)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.BLEInterface.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    self.adapter.stop()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></b></code>:
+<ul class="hlist">
+<li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="meshtastic.MeshInterface"><code class="flex name class">
 <span>class <span class="ident">MeshInterface</span></span>
 <span>(</span><span>debugOut=None)</span>
@@ -456,7 +616,7 @@ debugOut</p>
         self.isConnected = False
         self._startConfig()
 
-    def sendText(self, text, destinationId=BROADCAST_ADDR):
+    def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
         Arguments:
@@ -466,30 +626,30 @@ debugOut</p>
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
         &#34;&#34;&#34;
         self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                      dataType=mesh_pb2.Data.CLEAR_TEXT)
+                      dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck)
 
-    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE):
+    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False):
         &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
         meshPacket = mesh_pb2.MeshPacket()
-        meshPacket.payload.data.payload = byteData
-        meshPacket.payload.data.typ = dataType
-        self.sendPacket(meshPacket, destinationId)
+        meshPacket.decoded.data.payload = byteData
+        meshPacket.decoded.data.typ = dataType
+        self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
-    def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR):
-        &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast). 
+    def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
+        &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don&#39;t want this - use sendData instead.&#34;&#34;&#34;
         toRadio = mesh_pb2.ToRadio()
         # FIXME add support for non broadcast addresses
 
         if isinstance(destinationId, int):
             nodeNum = destinationId
-        elif nodeNum == BROADCAST_ADDR:
+        elif destinationId == BROADCAST_ADDR:
             nodeNum = 255
         else:
-            raise Exception(
-                &#34;invalid destination addr, we don&#39;t yet support nodeid lookup&#34;)
+            nodeNum = self.nodes[destinationId].num
 
         meshPacket.to = nodeNum
+        meshPacket.want_ack = wantAck
         toRadio.packet.CopyFrom(meshPacket)
         self._sendToRadio(toRadio)
 
@@ -535,16 +695,17 @@ debugOut</p>
         Called by subclasses.&#34;&#34;&#34;
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
-        json = google.protobuf.json_format.MessageToJson(fromRadio)
-        logging.debug(f&#34;Received: {json}&#34;)
+        asDict = google.protobuf.json_format.MessageToDict(fromRadio)
+        logging.debug(f&#34;Received: {asDict}&#34;)
         if fromRadio.HasField(&#34;my_info&#34;):
             self.myInfo = fromRadio.my_info
         elif fromRadio.HasField(&#34;radio&#34;):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField(&#34;node_info&#34;):
-            node = fromRadio.node_info
-            self._nodesByNum[node.num] = node
-            self.nodes[node.user.id] = node
+            node = asDict[&#34;nodeInfo&#34;]
+            self._fixupPosition(node[&#34;position&#34;])
+            self._nodesByNum[node[&#34;num&#34;]] = node
+            self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             self._connected()
@@ -556,12 +717,31 @@ debugOut</p>
         else:
             logging.warn(&#34;Unexpected FromRadio payload&#34;)
 
+    def _fixupPosition(self, position):
+        &#34;&#34;&#34;Convert integer lat/lon into floats
+
+        Arguments:
+            position {Position dictionary} -- object ot fix up
+        &#34;&#34;&#34;
+        if &#34;latitudeI&#34; in position:
+            position[&#34;latitude&#34;] = position[&#34;latitudeI&#34;] * 1e-7
+        if &#34;longitudeI&#34; in position:
+            position[&#34;longitude&#34;] = position[&#34;longitudeI&#34;] * 1e-7
+
     def _nodeNumToId(self, num):
+        &#34;&#34;&#34;Map a node node number to a node ID
+
+        Arguments:
+            num {int} -- Node number
+
+        Returns:
+            string -- Node ID
+        &#34;&#34;&#34;
         if num == BROADCAST_NUM:
             return BROADCAST_ADDR
 
         try:
-            return self._nodesByNum[num].user.id
+            return self._nodesByNum[num][&#34;user&#34;][&#34;id&#34;]
         except:
             logging.error(&#34;Node not found for fromId&#34;)
             return None
@@ -581,31 +761,39 @@ debugOut</p>
         asDict[&#34;toId&#34;] = self._nodeNumToId(asDict[&#34;to&#34;])
 
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
-        #asObj = DotMap(asDict)
-        topic = None
-        if meshPacket.payload.HasField(&#34;position&#34;):
+        # asObj = DotMap(asDict)
+        topic = &#34;meshtastic.receive&#34;  # Generic unknown packet type
+        if meshPacket.decoded.HasField(&#34;position&#34;):
             topic = &#34;meshtastic.receive.position&#34;
-            # FIXME, update node DB as needed
-        if meshPacket.payload.HasField(&#34;user&#34;):
+            p = asDict[&#34;decoded&#34;][&#34;position&#34;]
+            self._fixupPosition(p)
+            # update node DB as needed
+            self._nodesByNum[asDict[&#34;from&#34;]][&#34;position&#34;] = p
+
+        if meshPacket.decoded.HasField(&#34;user&#34;):
             topic = &#34;meshtastic.receive.user&#34;
-            # FIXME, update node DB as needed
-        if meshPacket.payload.HasField(&#34;data&#34;):
+            u = asDict[&#34;decoded&#34;][&#34;user&#34;]
+            # update node DB as needed
+            self._nodesByNum[asDict[&#34;from&#34;]][&#34;user&#34;] = u
+
+        if meshPacket.decoded.HasField(&#34;data&#34;):
             topic = &#34;meshtastic.receive.data&#34;
             # For text messages, we go ahead and decode the text to ascii for our users
-            # if asObj.payload.data.typ == &#34;CLEAR_TEXT&#34;:
-            #    asObj.payload.data.text = asObj.payload.data.payload.decode(
-            #        &#34;utf-8&#34;)
+            if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;typ&#34;] == &#34;CLEAR_TEXT&#34;:
+                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;text&#34;] = meshPacket.decoded.data.payload.decode(
+                    &#34;utf-8&#34;)
 
         pub.sendMessage(topic, packet=asDict, interface=self)</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="meshtastic.BLEInterface" href="#meshtastic.BLEInterface">BLEInterface</a></li>
 <li><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
 <dt id="meshtastic.MeshInterface.sendData"><code class="name flex">
-<span>def <span class="ident">sendData</span></span>(<span>self, byteData, destinationId='all', dataType=0)</span>
+<span>def <span class="ident">sendData</span></span>(<span>self, byteData, destinationId='all', dataType=0, wantAck=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a data packet to some other node</p></div>
@@ -613,16 +801,16 @@ debugOut</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE):
+<pre><code class="python">def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False):
     &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
     meshPacket = mesh_pb2.MeshPacket()
-    meshPacket.payload.data.payload = byteData
-    meshPacket.payload.data.typ = dataType
-    self.sendPacket(meshPacket, destinationId)</code></pre>
+    meshPacket.decoded.data.payload = byteData
+    meshPacket.decoded.data.typ = dataType
+    self.sendPacket(meshPacket, destinationId, wantAck=wantAck)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendPacket"><code class="name flex">
-<span>def <span class="ident">sendPacket</span></span>(<span>self, meshPacket, destinationId='all')</span>
+<span>def <span class="ident">sendPacket</span></span>(<span>self, meshPacket, destinationId='all', wantAck=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a MeshPacket to the specified node (or if unspecified, broadcast).
@@ -631,27 +819,27 @@ You probably don't want this - use sendData instead.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR):
-    &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast). 
+<pre><code class="python">def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
+    &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast).
     You probably don&#39;t want this - use sendData instead.&#34;&#34;&#34;
     toRadio = mesh_pb2.ToRadio()
     # FIXME add support for non broadcast addresses
 
     if isinstance(destinationId, int):
         nodeNum = destinationId
-    elif nodeNum == BROADCAST_ADDR:
+    elif destinationId == BROADCAST_ADDR:
         nodeNum = 255
     else:
-        raise Exception(
-            &#34;invalid destination addr, we don&#39;t yet support nodeid lookup&#34;)
+        nodeNum = self.nodes[destinationId].num
 
     meshPacket.to = nodeNum
+    meshPacket.want_ack = wantAck
     toRadio.packet.CopyFrom(meshPacket)
     self._sendToRadio(toRadio)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendText"><code class="name flex">
-<span>def <span class="ident">sendText</span></span>(<span>self, text, destinationId='all')</span>
+<span>def <span class="ident">sendText</span></span>(<span>self, text, destinationId='all', wantAck=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a utf8 string to some other node, if the node has a display it will also be shown on the device.</p>
@@ -663,7 +851,7 @@ destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sendText(self, text, destinationId=BROADCAST_ADDR):
+<pre><code class="python">def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False):
     &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
     Arguments:
@@ -673,7 +861,7 @@ destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {
         destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
     &#34;&#34;&#34;
     self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                  dataType=mesh_pb2.Data.CLEAR_TEXT)</code></pre>
+                  dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.writeConfig"><code class="name flex">
@@ -723,7 +911,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
     &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
 
     def __init__(self, devPath=None, debugOut=None):
-        &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to 
+        &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to
         find one Meshtastic device by probing
 
         Keyword Arguments:
@@ -874,6 +1062,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
+<li><code><a title="meshtastic.ble" href="ble.html">meshtastic.ble</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2" href="mesh_pb2.html">meshtastic.mesh_pb2</a></code></li>
 <li><code><a title="meshtastic.test" href="test.html">meshtastic.test</a></code></li>
 <li><code><a title="meshtastic.util" href="util.html">meshtastic.util</a></code></li>
@@ -881,6 +1070,12 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="meshtastic.BLEInterface" href="#meshtastic.BLEInterface">BLEInterface</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.BLEInterface.close" href="#meshtastic.BLEInterface.close">close</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></code></h4>
 <ul class="">

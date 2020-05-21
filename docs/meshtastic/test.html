@@ -49,7 +49,7 @@ def onReceive(packet, interface):
     print(f&#34;From {interface.devPath}: {packet}&#34;)
     p = DotMap(packet)
 
-    if p.payload.data.typ == &#34;CLEAR_TEXT&#34;:
+    if p.decoded.data.typ == &#34;CLEAR_TEXT&#34;:
         # We only care a about clear text packets
         receivedPackets.append(p)
 
@@ -82,11 +82,11 @@ def testSend(fromInterface, toInterface):
     toNode = toInterface.myInfo.my_node_num
 
     # FIXME, hack to test broadcast
-    toNode = 255
+    # toNode = 255
 
     logging.info(f&#34;Sending test packet from {fromNode} to {toNode}&#34;)
-    fromInterface.sendText(f&#34;Test {testNumber}&#34;, toNode)
-    time.sleep(40)
+    fromInterface.sendText(f&#34;Test {testNumber}&#34;, toNode, wantAck=True)
+    time.sleep(30)
     return (len(receivedPackets) &gt;= 1)
 
 
@@ -212,7 +212,7 @@ def testAll():
     print(f&#34;From {interface.devPath}: {packet}&#34;)
     p = DotMap(packet)
 
-    if p.payload.data.typ == &#34;CLEAR_TEXT&#34;:
+    if p.decoded.data.typ == &#34;CLEAR_TEXT&#34;:
         # We only care a about clear text packets
         receivedPackets.append(p)</code></pre>
 </details>
@@ -314,11 +314,11 @@ toInterface {[type]} &ndash; [description]</p>
     toNode = toInterface.myInfo.my_node_num
 
     # FIXME, hack to test broadcast
-    toNode = 255
+    # toNode = 255
 
     logging.info(f&#34;Sending test packet from {fromNode} to {toNode}&#34;)
-    fromInterface.sendText(f&#34;Test {testNumber}&#34;, toNode)
-    time.sleep(40)
+    fromInterface.sendText(f&#34;Test {testNumber}&#34;, toNode, wantAck=True)
+    time.sleep(30)
     return (len(receivedPackets) &gt;= 1)</code></pre>
 </details>
 </dd>
