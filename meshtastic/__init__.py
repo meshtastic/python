@@ -87,7 +87,7 @@ class MeshInterface:
         self.isConnected = False
         self._startConfig()
 
-    def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False):
+    def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         """Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
         Arguments:
@@ -97,13 +97,14 @@ class MeshInterface:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
         """
         self.sendData(text.encode("utf-8"), destinationId,
-                      dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck)
+                      dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)
 
-    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False):
+    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
         """Send a data packet to some other node"""
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.data.payload = byteData
         meshPacket.decoded.data.typ = dataType
+        meshPacket.decoded.want_response = wantResponse
         self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
     def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):

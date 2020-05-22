@@ -35,6 +35,14 @@
       "module": "meshtastic",
       "justMyCode": true,
       "args": ["--test"]
+    },
+    {
+      "name": "meshtastic sendtext",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--sendtext", "pytest"]
     }
   ]
 }

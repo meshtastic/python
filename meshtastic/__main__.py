@@ -11,9 +11,13 @@ import google.protobuf.json_format
 args = None
 
 
-def onReceive(packet):
+def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
     print(f"Received: {packet}")
+
+    # Exit once we receive a reply
+    if args.sendtext and packet["to"] == interface.myInfo.my_node_num:
+        interface.close()  # after running command then exit
 
 
 def onConnection(interface, topic=pub.AUTO_TOPIC):
@@ -28,7 +32,8 @@ def onConnected(interface):
     try:
         if args.sendtext:
             print(f"Sending text message {args.sendtext} to {args.dest}")
-            interface.sendText(args.sendtext, args.dest)
+            interface.sendText(args.sendtext, args.dest,
+                               wantAck=True, wantResponse=True)
 
         if args.setpref:
             name = args.setpref[0]
@@ -46,7 +51,7 @@ def onConnected(interface):
     except Exception as ex:
         print(ex)
 
-    if args.info or args.setpref or args.sendtext:
+    if args.info or args.setpref:
         interface.close()  # after running command then exit
 
 
