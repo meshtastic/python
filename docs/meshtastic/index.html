@@ -158,7 +158,7 @@ class MeshInterface:
         self.isConnected = False
         self._startConfig()
 
-    def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False):
+    def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
         Arguments:
@@ -168,13 +168,14 @@ class MeshInterface:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
         &#34;&#34;&#34;
         self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                      dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck)
+                      dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)
 
-    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False):
+    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.data.payload = byteData
         meshPacket.decoded.data.typ = dataType
+        meshPacket.decoded.want_response = wantResponse
         self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
     def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
@@ -245,7 +246,10 @@ class MeshInterface:
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField(&#34;node_info&#34;):
             node = asDict[&#34;nodeInfo&#34;]
-            self._fixupPosition(node[&#34;position&#34;])
+            try:
+                self._fixupPosition(node[&#34;position&#34;])
+            except:
+                logging.debug(&#34;Node without position&#34;)
             self._nodesByNum[node[&#34;num&#34;]] = node
             self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
@@ -616,7 +620,7 @@ debugOut</p>
         self.isConnected = False
         self._startConfig()
 
-    def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False):
+    def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
         Arguments:
@@ -626,13 +630,14 @@ debugOut</p>
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
         &#34;&#34;&#34;
         self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                      dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck)
+                      dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)
 
-    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False):
+    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.data.payload = byteData
         meshPacket.decoded.data.typ = dataType
+        meshPacket.decoded.want_response = wantResponse
         self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
     def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
@@ -703,7 +708,10 @@ debugOut</p>
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField(&#34;node_info&#34;):
             node = asDict[&#34;nodeInfo&#34;]
-            self._fixupPosition(node[&#34;position&#34;])
+            try:
+                self._fixupPosition(node[&#34;position&#34;])
+            except:
+                logging.debug(&#34;Node without position&#34;)
             self._nodesByNum[node[&#34;num&#34;]] = node
             self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
@@ -793,7 +801,7 @@ debugOut</p>
 <h3>Methods</h3>
 <dl>
 <dt id="meshtastic.MeshInterface.sendData"><code class="name flex">
-<span>def <span class="ident">sendData</span></span>(<span>self, byteData, destinationId='all', dataType=0, wantAck=False)</span>
+<span>def <span class="ident">sendData</span></span>(<span>self, byteData, destinationId='all', dataType=0, wantAck=False, wantResponse=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a data packet to some other node</p></div>
@@ -801,11 +809,12 @@ debugOut</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False):
+<pre><code class="python">def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
     &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
     meshPacket = mesh_pb2.MeshPacket()
     meshPacket.decoded.data.payload = byteData
     meshPacket.decoded.data.typ = dataType
+    meshPacket.decoded.want_response = wantResponse
     self.sendPacket(meshPacket, destinationId, wantAck=wantAck)</code></pre>
 </details>
 </dd>
@@ -839,7 +848,7 @@ You probably don't want this - use sendData instead.</p></div>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendText"><code class="name flex">
-<span>def <span class="ident">sendText</span></span>(<span>self, text, destinationId='all', wantAck=False)</span>
+<span>def <span class="ident">sendText</span></span>(<span>self, text, destinationId='all', wantAck=False, wantResponse=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a utf8 string to some other node, if the node has a display it will also be shown on the device.</p>
@@ -851,7 +860,7 @@ destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False):
+<pre><code class="python">def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
     &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
     Arguments:
@@ -861,7 +870,7 @@ destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {
         destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
     &#34;&#34;&#34;
     self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                  dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck)</code></pre>
+                  dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.writeConfig"><code class="name flex">

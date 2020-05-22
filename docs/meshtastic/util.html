@@ -28,6 +28,9 @@
 import serial
 import serial.tools.list_ports
 
+&#34;&#34;&#34;Some devices such as a seger jlink we never want to accidentally open&#34;&#34;&#34;
+blacklistVids = dict.fromkeys([0x1366])
+
 
 def findPorts():
     &#34;&#34;&#34;Find all ports that might have meshtastic devices
@@ -36,7 +39,7 @@ def findPorts():
         list -- a list of device paths
     &#34;&#34;&#34;
     l = list(map(lambda port: port.device,
-                 filter(lambda port: port.vid != None,
+                 filter(lambda port: port.vid != None and port.vid not in blacklistVids,
                         serial.tools.list_ports.comports())))
     l.sort()
     return l
@@ -77,7 +80,7 @@ class dotdict(dict):
         list -- a list of device paths
     &#34;&#34;&#34;
     l = list(map(lambda port: port.device,
-                 filter(lambda port: port.vid != None,
+                 filter(lambda port: port.vid != None and port.vid not in blacklistVids,
                         serial.tools.list_ports.comports())))
     l.sort()
     return l</code></pre>

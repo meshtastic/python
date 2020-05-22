@@ -65,7 +65,7 @@ def subscribe():
     pub.subscribe(onNode, &#34;meshtastic.node&#34;)
 
 
-def testSend(fromInterface, toInterface):
+def testSend(fromInterface, toInterface, isBroadcast=False):
     &#34;&#34;&#34;
     Sends one test packet between two nodes and then returns success or failure
 
@@ -79,25 +79,27 @@ def testSend(fromInterface, toInterface):
     global receivedPackets
     receivedPackets = []
     fromNode = fromInterface.myInfo.my_node_num
-    toNode = toInterface.myInfo.my_node_num
 
-    # FIXME, hack to test broadcast
-    # toNode = 255
+    if isBroadcast:
+        toNode = 255
+    else:
+        toNode = toInterface.myInfo.my_node_num
 
     logging.info(f&#34;Sending test packet from {fromNode} to {toNode}&#34;)
     fromInterface.sendText(f&#34;Test {testNumber}&#34;, toNode, wantAck=True)
-    time.sleep(30)
+    time.sleep(45)
     return (len(receivedPackets) &gt;= 1)
 
 
-def testThread():
+def testThread(numTests=50):
     logging.info(&#34;Found devices, starting tests...&#34;)
     numFail = 0
     numSuccess = 0
-    while True:
+    for i in range(numTests):
         global testNumber
         testNumber = testNumber + 1
-        success = testSend(interfaces[0], interfaces[1])
+        isBroadcast = True
+        success = testSend(interfaces[0], interfaces[1], isBroadcast)
         if not success:
             numFail = numFail + 1
             logging.error(
@@ -281,7 +283,7 @@ def testAll():
 </details>
 </dd>
 <dt id="meshtastic.test.testSend"><code class="name flex">
-<span>def <span class="ident">testSend</span></span>(<span>fromInterface, toInterface)</span>
+<span>def <span class="ident">testSend</span></span>(<span>fromInterface, toInterface, isBroadcast=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Sends one test packet between two nodes and then returns success or failure</p>
@@ -297,7 +299,7 @@ toInterface {[type]} &ndash; [description]</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def testSend(fromInterface, toInterface):
+<pre><code class="python">def testSend(fromInterface, toInterface, isBroadcast=False):
     &#34;&#34;&#34;
     Sends one test packet between two nodes and then returns success or failure
 
@@ -311,19 +313,20 @@ toInterface {[type]} &ndash; [description]</p>
     global receivedPackets
     receivedPackets = []
     fromNode = fromInterface.myInfo.my_node_num
-    toNode = toInterface.myInfo.my_node_num
 
-    # FIXME, hack to test broadcast
-    # toNode = 255
+    if isBroadcast:
+        toNode = 255
+    else:
+        toNode = toInterface.myInfo.my_node_num
 
     logging.info(f&#34;Sending test packet from {fromNode} to {toNode}&#34;)
     fromInterface.sendText(f&#34;Test {testNumber}&#34;, toNode, wantAck=True)
-    time.sleep(30)
+    time.sleep(45)
     return (len(receivedPackets) &gt;= 1)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.test.testThread"><code class="name flex">
-<span>def <span class="ident">testThread</span></span>(<span>)</span>
+<span>def <span class="ident">testThread</span></span>(<span>numTests=50)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -331,14 +334,15 @@ toInterface {[type]} &ndash; [description]</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def testThread():
+<pre><code class="python">def testThread(numTests=50):
     logging.info(&#34;Found devices, starting tests...&#34;)
     numFail = 0
     numSuccess = 0
-    while True:
+    for i in range(numTests):
         global testNumber
         testNumber = testNumber + 1
-        success = testSend(interfaces[0], interfaces[1])
+        isBroadcast = True
+        success = testSend(interfaces[0], interfaces[1], isBroadcast)
         if not success:
             numFail = numFail + 1
             logging.error(
