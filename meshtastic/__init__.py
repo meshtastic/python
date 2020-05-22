@@ -174,7 +174,10 @@ class MeshInterface:
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField("node_info"):
             node = asDict["nodeInfo"]
-            self._fixupPosition(node["position"])
+            try:
+                self._fixupPosition(node["position"])
+            except:
+                logging.debug("Node without position")
             self._nodesByNum[node["num"]] = node
             self.nodes[node["user"]["id"]] = node
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
