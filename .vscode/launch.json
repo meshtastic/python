@@ -34,7 +34,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": ["--test"]
+      "args": [ "--debug", "--test"]
     },
     {
       "name": "meshtastic sendtext",
