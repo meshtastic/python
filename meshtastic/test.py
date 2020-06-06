@@ -1,6 +1,6 @@
 import logging
 from . import util
-from . import StreamInterface
+from . import StreamInterface, BROADCAST_NUM
 from pubsub import pub
 import time
 import sys
@@ -55,7 +55,7 @@ def testSend(fromInterface, toInterface, isBroadcast=False):
     fromNode = fromInterface.myInfo.my_node_num
 
     if isBroadcast:
-        toNode = 255
+        toNode = BROADCAST_NUM
     else:
         toNode = toInterface.myInfo.my_node_num
 

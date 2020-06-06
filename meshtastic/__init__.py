@@ -64,8 +64,10 @@ START2 = 0xc3
 HEADER_LEN = 4
 MAX_TO_FROM_RADIO_SIZE = 512
 
-BROADCAST_ADDR = "all"  # A special ID that means broadcast
-BROADCAST_NUM = 255
+BROADCAST_ADDR = "^all"  # A special ID that means broadcast
+
+# if using 8 bit nodenums this will be shortend on the target
+BROADCAST_NUM = 0xffffffff
 
 MY_CONFIG_ID = 42
 
@@ -119,7 +121,7 @@ class MeshInterface:
         if isinstance(destinationId, int):
             nodeNum = destinationId
         elif destinationId == BROADCAST_ADDR:
-            nodeNum = 255
+            nodeNum = BROADCAST_NUM
         else:
             nodeNum = self.nodes[destinationId].num
 

@@ -88,7 +88,7 @@ def main():
     parser.add_argument("--setpref", help="Set a preferences field", nargs=2)
 
     parser.add_argument(
-        "--dest", help="The destination node id for the --send commands, if not set 'all' is assumed", default="all")
+        "--dest", help="The destination node id for the --send commands, if not set '^all' is assumed", default="^all")
 
     parser.add_argument(
         "--sendtext", help="Send a text message")
