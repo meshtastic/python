@@ -69,6 +69,9 @@ BROADCAST_NUM = 255
 
 MY_CONFIG_ID = 42
 
+"""The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand"""
+OUR_APP_VERSION = 167
+
 
 class MeshInterface:
     """Interface class for meshtastic devices
@@ -171,6 +174,9 @@ class MeshInterface:
         logging.debug(f"Received: {asDict}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
+            if self.myInfo.min_app_version > OUR_APP_VERSION:
+                raise Exception(
+                    "This device needs a newer python client, please \"pip install --upgrade meshtastic\"")
         elif fromRadio.HasField("radio"):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField("node_info"):
