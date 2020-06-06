@@ -140,6 +140,9 @@ BROADCAST_NUM = 255
 
 MY_CONFIG_ID = 42
 
+&#34;&#34;&#34;The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand&#34;&#34;&#34;
+OUR_APP_VERSION = 167
+
 
 class MeshInterface:
     &#34;&#34;&#34;Interface class for meshtastic devices
@@ -242,6 +245,9 @@ class MeshInterface:
         logging.debug(f&#34;Received: {asDict}&#34;)
         if fromRadio.HasField(&#34;my_info&#34;):
             self.myInfo = fromRadio.my_info
+            if self.myInfo.min_app_version &gt; OUR_APP_VERSION:
+                raise Exception(
+                    &#34;This device needs a newer python client, please \&#34;pip install --upgrade meshtastic\&#34;&#34;)
         elif fromRadio.HasField(&#34;radio&#34;):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField(&#34;node_info&#34;):
@@ -502,6 +508,13 @@ class StreamInterface(MeshInterface):
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="meshtastic.MY_CONFIG_ID"><code class="name">var <span class="ident">MY_CONFIG_ID</span></code></dt>
+<dd>
+<div class="desc"><p>The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand</p></div>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -704,6 +717,9 @@ debugOut</p>
         logging.debug(f&#34;Received: {asDict}&#34;)
         if fromRadio.HasField(&#34;my_info&#34;):
             self.myInfo = fromRadio.my_info
+            if self.myInfo.min_app_version &gt; OUR_APP_VERSION:
+                raise Exception(
+                    &#34;This device needs a newer python client, please \&#34;pip install --upgrade meshtastic\&#34;&#34;)
         elif fromRadio.HasField(&#34;radio&#34;):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField(&#34;node_info&#34;):
@@ -1075,6 +1091,11 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <li><code><a title="meshtastic.mesh_pb2" href="mesh_pb2.html">meshtastic.mesh_pb2</a></code></li>
 <li><code><a title="meshtastic.test" href="test.html">meshtastic.test</a></code></li>
 <li><code><a title="meshtastic.util" href="util.html">meshtastic.util</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="meshtastic.MY_CONFIG_ID" href="#meshtastic.MY_CONFIG_ID">MY_CONFIG_ID</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
