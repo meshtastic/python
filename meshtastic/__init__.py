@@ -72,7 +72,7 @@ BROADCAST_NUM = 0xffffffff
 MY_CONFIG_ID = 42
 
 """The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand"""
-OUR_APP_VERSION = 167
+OUR_APP_VERSION = 172
 
 
 class MeshInterface:
@@ -85,12 +85,13 @@ class MeshInterface:
     debugOut
     """
 
-    def __init__(self, debugOut=None):
+    def __init__(self, debugOut=None, noProto=False):
         """Constructor"""
         self.debugOut = debugOut
         self.nodes = None  # FIXME
         self.isConnected = False
-        self._startConfig()
+        if not noProto:
+            self._startConfig()
 
     def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         """Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
@@ -316,7 +317,7 @@ class BLEInterface(MeshInterface):
 class StreamInterface(MeshInterface):
     """Interface class for meshtastic devices over a stream link (serial, TCP, etc)"""
 
-    def __init__(self, devPath=None, debugOut=None):
+    def __init__(self, devPath=None, debugOut=None, noProto=False):
         """Constructor, opens a connection to a specified serial port, or if unspecified try to
         find one Meshtastic device by probing
 
@@ -347,7 +348,7 @@ class StreamInterface(MeshInterface):
             devPath, 921600, exclusive=True, timeout=0.5)
         self._rxThread = threading.Thread(target=self.__reader, args=())
         self._rxThread.start()
-        MeshInterface.__init__(self, debugOut=debugOut)
+        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""

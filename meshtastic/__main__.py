@@ -102,6 +102,9 @@ def main():
     parser.add_argument("--ble", help="hack for testing BLE code (BLE is not yet supported for this tool)",
                         action="store_true")
 
+    parser.add_argument("--noproto", help="Don't start the API, just function as a dumb serial terminal.",
+                        action="store_true")
+
     global args
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
@@ -125,7 +128,8 @@ def main():
         if args.ble:
             client = BLEInterface(args.device, debugOut=logfile)
         else:
-            client = StreamInterface(args.device, debugOut=logfile)
+            client = StreamInterface(
+                args.device, debugOut=logfile, noProto=args.noproto)
 
 
 if __name__ == "__main__":
