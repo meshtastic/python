@@ -52,6 +52,7 @@ import google.protobuf.json_format
 import serial
 import threading
 import logging
+import time
 import sys
 import traceback
 from . import mesh_pb2
@@ -347,8 +348,16 @@ class StreamInterface(MeshInterface):
         self.stream = serial.Serial(
             devPath, 921600, exclusive=True, timeout=0.5)
         self._rxThread = threading.Thread(target=self.__reader, args=())
-        self._rxThread.start()
+
+        # Send some bogus UART characters to force a sleeping device to wake
+        self.stream.write(bytes([START1, START1, START1, START1]))
+        self.stream.flush()
+        time.sleep(0.1)  # wait 100ms to give device time to start running
+
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
+
+        # Start the reader thread after superclass constructor completes init
+        self._rxThread.start()
 
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""
