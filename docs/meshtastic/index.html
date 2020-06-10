@@ -135,13 +135,15 @@ START2 = 0xc3
 HEADER_LEN = 4
 MAX_TO_FROM_RADIO_SIZE = 512
 
-BROADCAST_ADDR = &#34;all&#34;  # A special ID that means broadcast
-BROADCAST_NUM = 255
+BROADCAST_ADDR = &#34;^all&#34;  # A special ID that means broadcast
+
+# if using 8 bit nodenums this will be shortend on the target
+BROADCAST_NUM = 0xffffffff
 
 MY_CONFIG_ID = 42
 
 &#34;&#34;&#34;The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand&#34;&#34;&#34;
-OUR_APP_VERSION = 167
+OUR_APP_VERSION = 172
 
 
 class MeshInterface:
@@ -154,12 +156,13 @@ class MeshInterface:
     debugOut
     &#34;&#34;&#34;
 
-    def __init__(self, debugOut=None):
+    def __init__(self, debugOut=None, noProto=False):
         &#34;&#34;&#34;Constructor&#34;&#34;&#34;
         self.debugOut = debugOut
         self.nodes = None  # FIXME
         self.isConnected = False
-        self._startConfig()
+        if not noProto:
+            self._startConfig()
 
     def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
@@ -190,7 +193,7 @@ class MeshInterface:
         if isinstance(destinationId, int):
             nodeNum = destinationId
         elif destinationId == BROADCAST_ADDR:
-            nodeNum = 255
+            nodeNum = BROADCAST_NUM
         else:
             nodeNum = self.nodes[destinationId].num
 
@@ -385,7 +388,7 @@ class BLEInterface(MeshInterface):
 class StreamInterface(MeshInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
 
-    def __init__(self, devPath=None, debugOut=None):
+    def __init__(self, devPath=None, debugOut=None, noProto=False):
         &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to
         find one Meshtastic device by probing
 
@@ -416,7 +419,7 @@ class StreamInterface(MeshInterface):
             devPath, 921600, exclusive=True, timeout=0.5)
         self._rxThread = threading.Thread(target=self.__reader, args=())
         self._rxThread.start()
-        MeshInterface.__init__(self, debugOut=debugOut)
+        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
     def _sendToRadio(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
@@ -603,7 +606,7 @@ class StreamInterface(MeshInterface):
 </dd>
 <dt id="meshtastic.MeshInterface"><code class="flex name class">
 <span>class <span class="ident">MeshInterface</span></span>
-<span>(</span><span>debugOut=None)</span>
+<span>(</span><span>debugOut=None, noProto=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Interface class for meshtastic devices</p>
@@ -626,12 +629,13 @@ debugOut</p>
     debugOut
     &#34;&#34;&#34;
 
-    def __init__(self, debugOut=None):
+    def __init__(self, debugOut=None, noProto=False):
         &#34;&#34;&#34;Constructor&#34;&#34;&#34;
         self.debugOut = debugOut
         self.nodes = None  # FIXME
         self.isConnected = False
-        self._startConfig()
+        if not noProto:
+            self._startConfig()
 
     def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
@@ -662,7 +666,7 @@ debugOut</p>
         if isinstance(destinationId, int):
             nodeNum = destinationId
         elif destinationId == BROADCAST_ADDR:
-            nodeNum = 255
+            nodeNum = BROADCAST_NUM
         else:
             nodeNum = self.nodes[destinationId].num
 
@@ -817,7 +821,7 @@ debugOut</p>
 <h3>Methods</h3>
 <dl>
 <dt id="meshtastic.MeshInterface.sendData"><code class="name flex">
-<span>def <span class="ident">sendData</span></span>(<span>self, byteData, destinationId='all', dataType=0, wantAck=False, wantResponse=False)</span>
+<span>def <span class="ident">sendData</span></span>(<span>self, byteData, destinationId='^all', dataType=0, wantAck=False, wantResponse=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a data packet to some other node</p></div>
@@ -835,7 +839,7 @@ debugOut</p>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendPacket"><code class="name flex">
-<span>def <span class="ident">sendPacket</span></span>(<span>self, meshPacket, destinationId='all', wantAck=False)</span>
+<span>def <span class="ident">sendPacket</span></span>(<span>self, meshPacket, destinationId='^all', wantAck=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a MeshPacket to the specified node (or if unspecified, broadcast).
@@ -853,7 +857,7 @@ You probably don't want this - use sendData instead.</p></div>
     if isinstance(destinationId, int):
         nodeNum = destinationId
     elif destinationId == BROADCAST_ADDR:
-        nodeNum = 255
+        nodeNum = BROADCAST_NUM
     else:
         nodeNum = self.nodes[destinationId].num
 
@@ -864,7 +868,7 @@ You probably don't want this - use sendData instead.</p></div>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendText"><code class="name flex">
-<span>def <span class="ident">sendText</span></span>(<span>self, text, destinationId='all', wantAck=False, wantResponse=False)</span>
+<span>def <span class="ident">sendText</span></span>(<span>self, text, destinationId='^all', wantAck=False, wantResponse=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a utf8 string to some other node, if the node has a display it will also be shown on the device.</p>
@@ -912,7 +916,7 @@ destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {
 </dd>
 <dt id="meshtastic.StreamInterface"><code class="flex name class">
 <span>class <span class="ident">StreamInterface</span></span>
-<span>(</span><span>devPath=None, debugOut=None)</span>
+<span>(</span><span>devPath=None, debugOut=None, noProto=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Interface class for meshtastic devices over a stream link (serial, TCP, etc)</p>
@@ -935,7 +939,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <pre><code class="python">class StreamInterface(MeshInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
 
-    def __init__(self, devPath=None, debugOut=None):
+    def __init__(self, devPath=None, debugOut=None, noProto=False):
         &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to
         find one Meshtastic device by probing
 
@@ -966,7 +970,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
             devPath, 921600, exclusive=True, timeout=0.5)
         self._rxThread = threading.Thread(target=self.__reader, args=())
         self._rxThread.start()
-        MeshInterface.__init__(self, debugOut=debugOut)
+        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
     def _sendToRadio(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
