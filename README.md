@@ -4,7 +4,7 @@ A python client for using [Meshtastic](https://www.meshtastic.org) devices. This
 
 Full documentation including examples and installation instructions [here](https://meshtastic.github.io/Meshtastic-python/meshtastic/index.html).
 
-But suffice it to say, it is really easy:
+But suffice it to say, it is really easy (note, you must use pip version 20 or later):
 
 ```
 pip3 install meshtastic
