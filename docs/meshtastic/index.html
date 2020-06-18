@@ -302,6 +302,19 @@ class MeshInterface:
             logging.error(&#34;Node not found for fromId&#34;)
             return None
 
+    def _getOrCreateByNum(self, nodeNum):
+        &#34;&#34;&#34;Given a nodenum find the NodeInfo in the DB (or create if necessary)&#34;&#34;&#34;
+        if nodeNum == BROADCAST_NUM:
+            raise Exception(&#34;Can not create/find nodenum by the broadcast num&#34;)
+
+        if nodeNum in self._nodesByNum:
+            return self._nodesByNum[nodeNum]
+        else:
+            n = { num: n } # Create a minimial node db entry
+            self._nodesByNum[nodeNum] = n
+            return n
+
+
     def _handlePacketFromRadio(self, meshPacket):
         &#34;&#34;&#34;Handle a MeshPacket that just arrived from the radio
 
@@ -324,13 +337,16 @@ class MeshInterface:
             p = asDict[&#34;decoded&#34;][&#34;position&#34;]
             self._fixupPosition(p)
             # update node DB as needed
-            self._nodesByNum[asDict[&#34;from&#34;]][&#34;position&#34;] = p
+            self._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;position&#34;] = p
 
         if meshPacket.decoded.HasField(&#34;user&#34;):
             topic = &#34;meshtastic.receive.user&#34;
             u = asDict[&#34;decoded&#34;][&#34;user&#34;]
             # update node DB as needed
-            self._nodesByNum[asDict[&#34;from&#34;]][&#34;user&#34;] = u
+            n = self._getOrCreateByNum(asDict[&#34;from&#34;])
+            n[&#34;user&#34;] = u
+            # We now have a node ID, make sure it is uptodate in that table
+            self.nodes[u[&#34;id&#34;]] = u
 
         if meshPacket.decoded.HasField(&#34;data&#34;):
             topic = &#34;meshtastic.receive.data&#34;
@@ -783,6 +799,19 @@ debugOut</p>
             logging.error(&#34;Node not found for fromId&#34;)
             return None
 
+    def _getOrCreateByNum(self, nodeNum):
+        &#34;&#34;&#34;Given a nodenum find the NodeInfo in the DB (or create if necessary)&#34;&#34;&#34;
+        if nodeNum == BROADCAST_NUM:
+            raise Exception(&#34;Can not create/find nodenum by the broadcast num&#34;)
+
+        if nodeNum in self._nodesByNum:
+            return self._nodesByNum[nodeNum]
+        else:
+            n = { num: n } # Create a minimial node db entry
+            self._nodesByNum[nodeNum] = n
+            return n
+
+
     def _handlePacketFromRadio(self, meshPacket):
         &#34;&#34;&#34;Handle a MeshPacket that just arrived from the radio
 
@@ -805,13 +834,16 @@ debugOut</p>
             p = asDict[&#34;decoded&#34;][&#34;position&#34;]
             self._fixupPosition(p)
             # update node DB as needed
-            self._nodesByNum[asDict[&#34;from&#34;]][&#34;position&#34;] = p
+            self._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;position&#34;] = p
 
         if meshPacket.decoded.HasField(&#34;user&#34;):
             topic = &#34;meshtastic.receive.user&#34;
             u = asDict[&#34;decoded&#34;][&#34;user&#34;]
             # update node DB as needed
-            self._nodesByNum[asDict[&#34;from&#34;]][&#34;user&#34;] = u
+            n = self._getOrCreateByNum(asDict[&#34;from&#34;])
+            n[&#34;user&#34;] = u
+            # We now have a node ID, make sure it is uptodate in that table
+            self.nodes[u[&#34;id&#34;]] = u
 
         if meshPacket.decoded.HasField(&#34;data&#34;):
             topic = &#34;meshtastic.receive.data&#34;
