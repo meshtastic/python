@@ -310,7 +310,7 @@ class MeshInterface:
         if nodeNum in self._nodesByNum:
             return self._nodesByNum[nodeNum]
         else:
-            n = { num: n } # Create a minimial node db entry
+            n = { &#34;num&#34;: nodeNum } # Create a minimial node db entry
             self._nodesByNum[nodeNum] = n
             return n
 
@@ -807,7 +807,7 @@ debugOut</p>
         if nodeNum in self._nodesByNum:
             return self._nodesByNum[nodeNum]
         else:
-            n = { num: n } # Create a minimial node db entry
+            n = { &#34;num&#34;: nodeNum } # Create a minimial node db entry
             self._nodesByNum[nodeNum] = n
             return n
 
