@@ -36,9 +36,15 @@ def onConnected(interface):
                                wantAck=True, wantResponse=True)
 
         if args.setpref:
-            name = args.setpref[0]
-            val = int(args.setpref[1])
-            setattr(interface.radioConfig.preferences, name, val)
+            for pref in args.setpref:
+                name = pref[0]
+                print(f"Setting preference {name} to {pref[1]}")
+                # FIXME, currently this tool only supports setting integers
+                try:
+                    val = int(pref[1])
+                    setattr(interface.radioConfig.preferences, name, val)
+                except Exception as ex:
+                    print(f"Can't set {name} due to {ex}")
             print("Writing modified preferences to device...")
             interface.writeConfig()
 
@@ -85,7 +91,8 @@ def main():
     parser.add_argument("--info", help="Read and display the radio config information",
                         action="store_true")
 
-    parser.add_argument("--setpref", help="Set a preferences field", nargs=2)
+    parser.add_argument(
+        "--setpref", help="Set a preferences field", nargs=2, action='append')
 
     parser.add_argument(
         "--dest", help="The destination node id for the --send commands, if not set '^all' is assumed", default="^all")

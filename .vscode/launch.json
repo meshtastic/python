@@ -4,7 +4,6 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-    
     {
       "name": "meshtastic BLE",
       "type": "python",
@@ -22,6 +21,14 @@
       "args": ["--debug", "--info"]
     },
     {
+      "name": "meshtastic setpref",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--setpref", "a", "1", "--setpref", "b", "2"]
+    },
+    {
       "name": "meshtastic shell",
       "type": "python",
       "request": "launch",
@@ -35,7 +42,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": [ "--debug", "--test"]
+      "args": ["--debug", "--test"]
     },
     {
       "name": "meshtastic sendtext",
