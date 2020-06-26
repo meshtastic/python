@@ -7,7 +7,7 @@ Full documentation including examples and installation instructions [here](https
 But suffice it to say, it is really easy (note, you must use pip version 20 or later):
 
 ```
-pip3 install meshtastic
+pip3 install --upgrade meshtastic
 ```
 
 then run the following python3 code:
@@ -23,6 +23,16 @@ For the rough notes/implementation plan see [TODO](https://github.com/meshtastic
 ## Command line tool
 
 This pip package will also install a "meshtastic" commandline executable, which displays packets sent over the network as JSON and lets you see serial debugging information from the meshtastic devices. The source code for this tool is also a good [example](https://github.com/meshtastic/Meshtastic-python/blob/master/meshtastic/__main__.py) of a 'complete' application that uses the meshtastic python API.
+
+You can also use this tool to set any of the device parameters which are stored in persistent storage. For instance, here's how to set the device
+to keep the bluetooth link alive for eight hours (any usage of the bluetooth protcol from your phone will reset this timer)
+
+```
+meshtastic --setpref wait_bluetooth_secs 28800
+Connected to radio...
+Setting preference wait_bluetooth_secs to 28800
+Writing modified preferences to device...
+```
 
 ## Required device software version
 
