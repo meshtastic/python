@@ -28,7 +28,7 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
     global args
-    print("Connected to radio...")
+    print("Connected to radio")
     try:
         if args.sendtext:
             print(f"Sending text message {args.sendtext} to {args.dest}")
@@ -45,7 +45,7 @@ def onConnected(interface):
                     setattr(interface.radioConfig.preferences, name, val)
                 except Exception as ex:
                     print(f"Can't set {name} due to {ex}")
-            print("Writing modified preferences to device...")
+            print("Writing modified preferences to device")
             interface.writeConfig()
 
         if args.info:
