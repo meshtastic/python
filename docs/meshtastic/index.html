@@ -261,7 +261,8 @@ class MeshInterface:
             except:
                 logging.debug(&#34;Node without position&#34;)
             self._nodesByNum[node[&#34;num&#34;]] = node
-            self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
+            if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
+                self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             self._connected()
@@ -310,10 +311,9 @@ class MeshInterface:
         if nodeNum in self._nodesByNum:
             return self._nodesByNum[nodeNum]
         else:
-            n = { &#34;num&#34;: nodeNum } # Create a minimial node db entry
+            n = {&#34;num&#34;: nodeNum}  # Create a minimial node db entry
             self._nodesByNum[nodeNum] = n
             return n
-
 
     def _handlePacketFromRadio(self, meshPacket):
         &#34;&#34;&#34;Handle a MeshPacket that just arrived from the radio
@@ -758,7 +758,8 @@ debugOut</p>
             except:
                 logging.debug(&#34;Node without position&#34;)
             self._nodesByNum[node[&#34;num&#34;]] = node
-            self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
+            if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
+                self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             self._connected()
@@ -807,10 +808,9 @@ debugOut</p>
         if nodeNum in self._nodesByNum:
             return self._nodesByNum[nodeNum]
         else:
-            n = { &#34;num&#34;: nodeNum } # Create a minimial node db entry
+            n = {&#34;num&#34;: nodeNum}  # Create a minimial node db entry
             self._nodesByNum[nodeNum] = n
             return n
-
 
     def _handlePacketFromRadio(self, meshPacket):
         &#34;&#34;&#34;Handle a MeshPacket that just arrived from the radio
