@@ -190,7 +190,8 @@ class MeshInterface:
             except:
                 logging.debug("Node without position")
             self._nodesByNum[node["num"]] = node
-            self.nodes[node["user"]["id"]] = node
+            if "user" in node:  # Some nodes might not have user/ids assigned yet
+                self.nodes[node["user"]["id"]] = node
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             self._connected()
@@ -239,10 +240,9 @@ class MeshInterface:
         if nodeNum in self._nodesByNum:
             return self._nodesByNum[nodeNum]
         else:
-            n = { "num": nodeNum } # Create a minimial node db entry
+            n = {"num": nodeNum}  # Create a minimial node db entry
             self._nodesByNum[nodeNum] = n
             return n
-
 
     def _handlePacketFromRadio(self, meshPacket):
         """Handle a MeshPacket that just arrived from the radio
