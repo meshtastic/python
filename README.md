@@ -37,3 +37,11 @@ Writing modified preferences to device...
 ## Required device software version
 
 This API and tool both require that the device is running Meshtastic 0.6.0 or later.
+
+
+## Required Python modules
+
+This API and tool both require additional modules
+```
+pip install pygatt
+```
