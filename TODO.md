@@ -3,10 +3,8 @@
 ## Before beta
 
 - Improve documentation on properties/fields
+- change back to Bleak for BLE support - now that they fixed https://github.com/hbldh/bleak/issues/139#event-3499535304
 - include more examples: textchat.py, replymessage.py all as one little demo
-- have device side StreamAPI client prevent radio sleep
-- device side PhoneAPI should only allow message delivery to one connected device - currently breaks when you have BLE and serial connections
-- announce at the usual places
 
 ## Eventual
 
