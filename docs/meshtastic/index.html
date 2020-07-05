@@ -126,6 +126,7 @@ import logging
 import time
 import sys
 import traceback
+import time
 from . import mesh_pb2
 from . import util
 from pubsub import pub
@@ -182,6 +183,32 @@ class MeshInterface:
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.data.payload = byteData
         meshPacket.decoded.data.typ = dataType
+        meshPacket.decoded.want_response = wantResponse
+        self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+
+    def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
+        &#34;&#34;&#34;
+        Send a position packet to some other node (normally a broadcast)
+
+        Also, the device software will notice this packet and use it to automatically set its notion of
+        the local position.
+
+        If timeSec is not specified (recommended), we will use the local machine time.
+        &#34;&#34;&#34;
+        meshPacket = mesh_pb2.MeshPacket()
+        if(latitude != 0.0):
+            meshPacket.decoded.position.latitude_i = int(latitude / 1e-7)
+
+        if(longitude != 0.0):
+            meshPacket.decoded.position.longitude_i = int(longitude / 1e-7)
+
+        if(altitude != 0):
+            meshPacket.decoded.position.altitude = int(altitude)
+
+        if timeSec == 0:
+            timeSec = time.time() # returns unix timestamp in seconds
+        meshPacket.decoded.position.time = int(timeSec)
+
         meshPacket.decoded.want_response = wantResponse
         self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
@@ -623,6 +650,7 @@ class StreamInterface(MeshInterface):
 <ul class="hlist">
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
@@ -679,6 +707,32 @@ debugOut</p>
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.data.payload = byteData
         meshPacket.decoded.data.typ = dataType
+        meshPacket.decoded.want_response = wantResponse
+        self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+
+    def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
+        &#34;&#34;&#34;
+        Send a position packet to some other node (normally a broadcast)
+
+        Also, the device software will notice this packet and use it to automatically set its notion of
+        the local position.
+
+        If timeSec is not specified (recommended), we will use the local machine time.
+        &#34;&#34;&#34;
+        meshPacket = mesh_pb2.MeshPacket()
+        if(latitude != 0.0):
+            meshPacket.decoded.position.latitude_i = int(latitude / 1e-7)
+
+        if(longitude != 0.0):
+            meshPacket.decoded.position.longitude_i = int(longitude / 1e-7)
+
+        if(altitude != 0):
+            meshPacket.decoded.position.altitude = int(altitude)
+
+        if timeSec == 0:
+            timeSec = time.time() # returns unix timestamp in seconds
+        meshPacket.decoded.position.time = int(timeSec)
+
         meshPacket.decoded.want_response = wantResponse
         self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
@@ -908,6 +962,45 @@ You probably don't want this - use sendData instead.</p></div>
     self._sendToRadio(toRadio)</code></pre>
 </details>
 </dd>
+<dt id="meshtastic.MeshInterface.sendPosition"><code class="name flex">
+<span>def <span class="ident">sendPosition</span></span>(<span>self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId='^all', wantAck=False, wantResponse=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send a position packet to some other node (normally a broadcast)</p>
+<p>Also, the device software will notice this packet and use it to automatically set its notion of
+the local position.</p>
+<p>If timeSec is not specified (recommended), we will use the local machine time.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
+    &#34;&#34;&#34;
+    Send a position packet to some other node (normally a broadcast)
+
+    Also, the device software will notice this packet and use it to automatically set its notion of
+    the local position.
+
+    If timeSec is not specified (recommended), we will use the local machine time.
+    &#34;&#34;&#34;
+    meshPacket = mesh_pb2.MeshPacket()
+    if(latitude != 0.0):
+        meshPacket.decoded.position.latitude_i = int(latitude / 1e-7)
+
+    if(longitude != 0.0):
+        meshPacket.decoded.position.longitude_i = int(longitude / 1e-7)
+
+    if(altitude != 0):
+        meshPacket.decoded.position.altitude = int(altitude)
+
+    if timeSec == 0:
+        timeSec = time.time() # returns unix timestamp in seconds
+    meshPacket.decoded.position.time = int(timeSec)
+
+    meshPacket.decoded.want_response = wantResponse
+    self.sendPacket(meshPacket, destinationId, wantAck=wantAck)</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.MeshInterface.sendText"><code class="name flex">
 <span>def <span class="ident">sendText</span></span>(<span>self, text, destinationId='^all', wantAck=False, wantResponse=False)</span>
 </code></dt>
@@ -1119,6 +1212,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <ul class="hlist">
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
@@ -1164,6 +1258,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <ul class="">
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>

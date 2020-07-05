@@ -45,6 +45,14 @@
       "args": ["--debug", "--test"]
     },
     {
+      "name": "meshtastic settime",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--settime"]
+    },
+    {
       "name": "meshtastic sendtext",
       "type": "python",
       "request": "launch",

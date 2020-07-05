@@ -55,6 +55,7 @@ import logging
 import time
 import sys
 import traceback
+import time
 from . import mesh_pb2
 from . import util
 from pubsub import pub
@@ -111,6 +112,32 @@ class MeshInterface:
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.data.payload = byteData
         meshPacket.decoded.data.typ = dataType
+        meshPacket.decoded.want_response = wantResponse
+        self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+
+    def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
+        """
+        Send a position packet to some other node (normally a broadcast)
+
+        Also, the device software will notice this packet and use it to automatically set its notion of
+        the local position.
+
+        If timeSec is not specified (recommended), we will use the local machine time.
+        """
+        meshPacket = mesh_pb2.MeshPacket()
+        if(latitude != 0.0):
+            meshPacket.decoded.position.latitude_i = int(latitude / 1e-7)
+
+        if(longitude != 0.0):
+            meshPacket.decoded.position.longitude_i = int(longitude / 1e-7)
+
+        if(altitude != 0):
+            meshPacket.decoded.position.altitude = int(altitude)
+
+        if timeSec == 0:
+            timeSec = time.time() # returns unix timestamp in seconds
+        meshPacket.decoded.position.time = int(timeSec)
+
         meshPacket.decoded.want_response = wantResponse
         self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 

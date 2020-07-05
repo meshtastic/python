@@ -30,6 +30,10 @@ def onConnected(interface):
     global args
     print("Connected to radio")
     try:
+        if args.settime:
+            print("Setting device RTC time")
+            interface.sendPosition() # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
+
         if args.sendtext:
             print(f"Sending text message {args.sendtext} to {args.dest}")
             interface.sendText(args.sendtext, args.dest,
@@ -99,6 +103,9 @@ def main():
 
     parser.add_argument(
         "--sendtext", help="Send a text message")
+
+    parser.add_argument(
+        "--settime", help="Set the real time clock on the device", action="store_true")
 
     parser.add_argument("--debug", help="Show API library debug log messages",
                         action="store_true")
