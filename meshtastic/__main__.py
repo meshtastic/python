@@ -32,7 +32,8 @@ def onConnected(interface):
     try:
         if args.settime:
             print("Setting device RTC time")
-            interface.sendPosition() # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
+            # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
+            interface.sendPosition()
 
         if args.sendtext:
             print(f"Sending text message {args.sendtext} to {args.dest}")
@@ -123,7 +124,7 @@ def main():
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
-    if args.info or args.setpref or args.sendtext:
+    if (not args.seriallog) and (args.info or args.setpref or args.sendtext):
         args.seriallog = "none"  # assume no debug output in this case
 
     if args.test:
@@ -131,7 +132,8 @@ def main():
     else:
         if args.seriallog == "stdout":
             logfile = sys.stdout
-        elif args.seriallog == "none":
+        elif not args.seriallog or args.seriallog == "none":
+            args.seriallog = None
             logging.debug("Not logging serial output")
             logfile = None
         else:
