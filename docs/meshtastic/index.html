@@ -206,7 +206,7 @@ class MeshInterface:
             meshPacket.decoded.position.altitude = int(altitude)
 
         if timeSec == 0:
-            timeSec = time.time() # returns unix timestamp in seconds
+            timeSec = time.time()  # returns unix timestamp in seconds
         meshPacket.decoded.position.time = int(timeSec)
 
         meshPacket.decoded.want_response = wantResponse
@@ -377,6 +377,12 @@ class MeshInterface:
 
         if meshPacket.decoded.HasField(&#34;data&#34;):
             topic = &#34;meshtastic.receive.data&#34;
+
+            # OPAQUE is the default protobuf typ value, and therefore if not set it will not be populated at all
+            # to make API usage easier, set it to prevent confusion
+            if not &#34;typ&#34; in asDict[&#34;decoded&#34;][&#34;data&#34;]:
+                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;typ&#34;] = &#34;OPAQUE&#34;
+
             # For text messages, we go ahead and decode the text to ascii for our users
             if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;typ&#34;] == &#34;CLEAR_TEXT&#34;:
                 asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;text&#34;] = meshPacket.decoded.data.payload.decode(
@@ -432,7 +438,7 @@ class BLEInterface(MeshInterface):
 class StreamInterface(MeshInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
 
-    def __init__(self, devPath=None, debugOut=None, noProto=False):
+    def __init__(self, devPath=None, debugOut=None, noProto=False, connectNow=True):
         &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to
         find one Meshtastic device by probing
 
@@ -463,14 +469,24 @@ class StreamInterface(MeshInterface):
             devPath, 921600, exclusive=True, timeout=0.5)
         self._rxThread = threading.Thread(target=self.__reader, args=())
 
+        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
+
+        # Start the reader thread after superclass constructor completes init
+        if connectNow:
+            self.connect()
+
+    def connect(self):
+        &#34;&#34;&#34;Connect to our radio
+
+        Normally this is called automatically by the constructor, but if you passed in connectNow=False you can manually
+        start the reading thread later.
+        &#34;&#34;&#34;
+
         # Send some bogus UART characters to force a sleeping device to wake
         self.stream.write(bytes([START1, START1, START1, START1]))
         self.stream.flush()
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
-        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
-
-        # Start the reader thread after superclass constructor completes init
         self._rxThread.start()
 
     def _sendToRadio(self, toRadio):
@@ -730,7 +746,7 @@ debugOut</p>
             meshPacket.decoded.position.altitude = int(altitude)
 
         if timeSec == 0:
-            timeSec = time.time() # returns unix timestamp in seconds
+            timeSec = time.time()  # returns unix timestamp in seconds
         meshPacket.decoded.position.time = int(timeSec)
 
         meshPacket.decoded.want_response = wantResponse
@@ -901,6 +917,12 @@ debugOut</p>
 
         if meshPacket.decoded.HasField(&#34;data&#34;):
             topic = &#34;meshtastic.receive.data&#34;
+
+            # OPAQUE is the default protobuf typ value, and therefore if not set it will not be populated at all
+            # to make API usage easier, set it to prevent confusion
+            if not &#34;typ&#34; in asDict[&#34;decoded&#34;][&#34;data&#34;]:
+                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;typ&#34;] = &#34;OPAQUE&#34;
+
             # For text messages, we go ahead and decode the text to ascii for our users
             if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;typ&#34;] == &#34;CLEAR_TEXT&#34;:
                 asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;text&#34;] = meshPacket.decoded.data.payload.decode(
@@ -994,7 +1016,7 @@ the local position.</p>
         meshPacket.decoded.position.altitude = int(altitude)
 
     if timeSec == 0:
-        timeSec = time.time() # returns unix timestamp in seconds
+        timeSec = time.time()  # returns unix timestamp in seconds
     meshPacket.decoded.position.time = int(timeSec)
 
     meshPacket.decoded.want_response = wantResponse
@@ -1050,7 +1072,7 @@ destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {
 </dd>
 <dt id="meshtastic.StreamInterface"><code class="flex name class">
 <span>class <span class="ident">StreamInterface</span></span>
-<span>(</span><span>devPath=None, debugOut=None, noProto=False)</span>
+<span>(</span><span>devPath=None, debugOut=None, noProto=False, connectNow=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Interface class for meshtastic devices over a stream link (serial, TCP, etc)</p>
@@ -1073,7 +1095,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <pre><code class="python">class StreamInterface(MeshInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
 
-    def __init__(self, devPath=None, debugOut=None, noProto=False):
+    def __init__(self, devPath=None, debugOut=None, noProto=False, connectNow=True):
         &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to
         find one Meshtastic device by probing
 
@@ -1104,14 +1126,24 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
             devPath, 921600, exclusive=True, timeout=0.5)
         self._rxThread = threading.Thread(target=self.__reader, args=())
 
+        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
+
+        # Start the reader thread after superclass constructor completes init
+        if connectNow:
+            self.connect()
+
+    def connect(self):
+        &#34;&#34;&#34;Connect to our radio
+
+        Normally this is called automatically by the constructor, but if you passed in connectNow=False you can manually
+        start the reading thread later.
+        &#34;&#34;&#34;
+
         # Send some bogus UART characters to force a sleeping device to wake
         self.stream.write(bytes([START1, START1, START1, START1]))
         self.stream.flush()
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
-        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
-
-        # Start the reader thread after superclass constructor completes init
         self._rxThread.start()
 
     def _sendToRadio(self, toRadio):
@@ -1205,6 +1237,32 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         self._rxThread.join()  # wait for it to exit</code></pre>
 </details>
 </dd>
+<dt id="meshtastic.StreamInterface.connect"><code class="name flex">
+<span>def <span class="ident">connect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Connect to our radio</p>
+<p>Normally this is called automatically by the constructor, but if you passed in connectNow=False you can manually
+start the reading thread later.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def connect(self):
+    &#34;&#34;&#34;Connect to our radio
+
+    Normally this is called automatically by the constructor, but if you passed in connectNow=False you can manually
+    start the reading thread later.
+    &#34;&#34;&#34;
+
+    # Send some bogus UART characters to force a sleeping device to wake
+    self.stream.write(bytes([START1, START1, START1, START1]))
+    self.stream.flush()
+    time.sleep(0.1)  # wait 100ms to give device time to start running
+
+    self._rxThread.start()</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -1267,6 +1325,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <h4><code><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></code></h4>
 <ul class="">
 <li><code><a title="meshtastic.StreamInterface.close" href="#meshtastic.StreamInterface.close">close</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.connect" href="#meshtastic.StreamInterface.connect">connect</a></code></li>
 </ul>
 </li>
 </ul>
