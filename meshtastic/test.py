@@ -39,7 +39,7 @@ def subscribe():
     pub.subscribe(onNode, "meshtastic.node")
 
 
-def testSend(fromInterface, toInterface, isBroadcast=False):
+def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False):
     """
     Sends one test packet between two nodes and then returns success or failure
 
@@ -60,7 +60,12 @@ def testSend(fromInterface, toInterface, isBroadcast=False):
         toNode = toInterface.myInfo.my_node_num
 
     logging.info(f"Sending test packet from {fromNode} to {toNode}")
-    fromInterface.sendText(f"Test {testNumber}", toNode, wantAck=True)
+    wantAck = True
+    if not asBinary:
+        fromInterface.sendText(f"Test {testNumber}", toNode, wantAck=wantAck)
+    else:
+        fromInterface.sendData((f"Binary {testNumber}").encode(
+            "utf-8"), toNode, wantAck=wantAck)
     time.sleep(45)
     return (len(receivedPackets) >= 1)
 
@@ -73,7 +78,8 @@ def testThread(numTests=50):
         global testNumber
         testNumber = testNumber + 1
         isBroadcast = True
-        success = testSend(interfaces[0], interfaces[1], isBroadcast)
+        success = testSend(
+            interfaces[0], interfaces[1], isBroadcast, asBinary=(i % 2 == 0))
         if not success:
             numFail = numFail + 1
             logging.error(
@@ -95,6 +101,7 @@ def onConnection(topic=pub.AUTO_TOPIC):
     print(f"Connection changed: {topic.getName()}")
 
     global testsRunning
+    global interfaces
     if (all(iface.isConnected for iface in interfaces) and not testsRunning):
         testsRunning = True
         t = threading.Thread(target=testThread, args=())
@@ -122,5 +129,8 @@ def testAll():
     pub.subscribe(onReceive, "meshtastic.receive")
     global interfaces
     interfaces = list(map(lambda port: StreamInterface(
-        port, debugOut=openDebugLog(port)), ports))
+        port, debugOut=openDebugLog(port), connectNow=False), ports))
+    for i in interfaces:
+        i.connect()
+
     logging.info("Ports opened, waiting for device to complete connection")
