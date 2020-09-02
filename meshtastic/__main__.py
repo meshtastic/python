@@ -15,10 +15,25 @@ def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
     print(f"Received: {packet}")
 
-    # Exit once we receive a reply
-    if args.sendtext and packet["to"] == interface.myInfo.my_node_num:
-        interface.close()  # after running command then exit
+    try:
+        # Exit once we receive a reply
+        if args.sendtext and packet["to"] == interface.myInfo.my_node_num:
+            interface.close()  # after running command then exit
 
+        # Reply to every received message with some stats
+        if args.reply:
+            if packet['decoded']['data'] is not None:
+                msg = packet['decoded']['data']['text']
+                #shortName = packet['decoded']['data']['shortName']
+                rxSnr = packet['rxSnr']
+                hopLimit = packet['hopLimit']
+                print(f"message: {msg}")
+                reply="got msg \'{}\' with rxSnr: {} and hopLimit: {}".format(msg,rxSnr,hopLimit)
+                print("Sending reply: ",reply)
+                interface.sendText(reply)
+
+    except Exception as ex:
+        print(ex)
 
 def onConnection(interface, topic=pub.AUTO_TOPIC):
     """Callback invoked when we connect/disconnect from a radio"""
@@ -30,6 +45,7 @@ def onConnected(interface):
     global args
     print("Connected to radio")
     try:
+
         if args.settime:
             print("Setting device RTC time")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
@@ -104,6 +120,10 @@ def main():
 
     parser.add_argument(
         "--sendtext", help="Send a text message")
+
+    parser.add_argument(
+        "--reply", help="Reply to received messages",
+        action="store_true")
 
     parser.add_argument(
         "--settime", help="Set the real time clock on the device", action="store_true")
