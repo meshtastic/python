@@ -174,17 +174,22 @@ class MeshInterface:
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+
+        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
-        self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                      dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)
+        return self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
+                             dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)
 
     def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
-        &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
+        &#34;&#34;&#34;Send a data packet to some other node
+
+        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        &#34;&#34;&#34;
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.data.payload = byteData
         meshPacket.decoded.data.typ = dataType
         meshPacket.decoded.want_response = wantResponse
-        self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
     def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;
@@ -194,6 +199,8 @@ class MeshInterface:
         the local position.
 
         If timeSec is not specified (recommended), we will use the local machine time.
+
+        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
         meshPacket = mesh_pb2.MeshPacket()
         if(latitude != 0.0):
@@ -210,11 +217,14 @@ class MeshInterface:
         meshPacket.decoded.position.time = int(timeSec)
 
         meshPacket.decoded.want_response = wantResponse
-        self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
     def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
         &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast).
-        You probably don&#39;t want this - use sendData instead.&#34;&#34;&#34;
+        You probably don&#39;t want this - use sendData instead.
+
+        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        &#34;&#34;&#34;
         toRadio = mesh_pb2.ToRadio()
         # FIXME add support for non broadcast addresses
 
@@ -223,12 +233,19 @@ class MeshInterface:
         elif destinationId == BROADCAST_ADDR:
             nodeNum = BROADCAST_NUM
         else:
-            nodeNum = self.nodes[destinationId].num
+            nodeNum = self.nodes[destinationId][&#39;num&#39;]
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
+
+        # if the user hasn&#39;t set an ID for this packet (likely and recommended), we should pick a new unique ID
+        # so the message can be tracked.
+        if meshPacket.id == 0:
+            meshPacket.id = self._generatePacketId()
+
         toRadio.packet.CopyFrom(meshPacket)
         self._sendToRadio(toRadio)
+        return meshPacket
 
     def writeConfig(self):
         &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
@@ -238,6 +255,11 @@ class MeshInterface:
         t = mesh_pb2.ToRadio()
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
+
+    def _generatePacketId(self):
+        &#34;&#34;&#34;Get a new unique packet ID&#34;&#34;&#34;
+        self.currentPacketId = (self.currentPacketId + 1) &amp; 0xffffffff
+        return self.currentPacketId
 
     def _disconnected(self):
         &#34;&#34;&#34;Called by subclasses to tell clients this interface has disconnected&#34;&#34;&#34;
@@ -256,6 +278,7 @@ class MeshInterface:
         self.nodes = {}  # nodes keyed by ID
         self._nodesByNum = {}  # nodes keyed by nodenum
         self.radioConfig = None
+        self.currentPacketId = None
 
         startConfig = mesh_pb2.ToRadio()
         startConfig.want_config_id = MY_CONFIG_ID  # we don&#39;t use this value
@@ -279,6 +302,9 @@ class MeshInterface:
             if self.myInfo.min_app_version &gt; OUR_APP_VERSION:
                 raise Exception(
                     &#34;This device needs a newer python client, please \&#34;pip install --upgrade meshtastic\&#34;&#34;)
+            # start assigning our packet IDs from the opposite side of where our local device is assigning them
+            self.currentPacketId = (
+                self.myInfo.current_packet_id + 0x80000000) &amp; 0xffffffff
         elif fromRadio.HasField(&#34;radio&#34;):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField(&#34;node_info&#34;):
@@ -714,17 +740,22 @@ debugOut</p>
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+
+        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
-        self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                      dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)
+        return self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
+                             dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)
 
     def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
-        &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
+        &#34;&#34;&#34;Send a data packet to some other node
+
+        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        &#34;&#34;&#34;
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.data.payload = byteData
         meshPacket.decoded.data.typ = dataType
         meshPacket.decoded.want_response = wantResponse
-        self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
     def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;
@@ -734,6 +765,8 @@ debugOut</p>
         the local position.
 
         If timeSec is not specified (recommended), we will use the local machine time.
+
+        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
         meshPacket = mesh_pb2.MeshPacket()
         if(latitude != 0.0):
@@ -750,11 +783,14 @@ debugOut</p>
         meshPacket.decoded.position.time = int(timeSec)
 
         meshPacket.decoded.want_response = wantResponse
-        self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
     def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
         &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast).
-        You probably don&#39;t want this - use sendData instead.&#34;&#34;&#34;
+        You probably don&#39;t want this - use sendData instead.
+
+        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        &#34;&#34;&#34;
         toRadio = mesh_pb2.ToRadio()
         # FIXME add support for non broadcast addresses
 
@@ -763,12 +799,19 @@ debugOut</p>
         elif destinationId == BROADCAST_ADDR:
             nodeNum = BROADCAST_NUM
         else:
-            nodeNum = self.nodes[destinationId].num
+            nodeNum = self.nodes[destinationId][&#39;num&#39;]
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
+
+        # if the user hasn&#39;t set an ID for this packet (likely and recommended), we should pick a new unique ID
+        # so the message can be tracked.
+        if meshPacket.id == 0:
+            meshPacket.id = self._generatePacketId()
+
         toRadio.packet.CopyFrom(meshPacket)
         self._sendToRadio(toRadio)
+        return meshPacket
 
     def writeConfig(self):
         &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
@@ -778,6 +821,11 @@ debugOut</p>
         t = mesh_pb2.ToRadio()
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
+
+    def _generatePacketId(self):
+        &#34;&#34;&#34;Get a new unique packet ID&#34;&#34;&#34;
+        self.currentPacketId = (self.currentPacketId + 1) &amp; 0xffffffff
+        return self.currentPacketId
 
     def _disconnected(self):
         &#34;&#34;&#34;Called by subclasses to tell clients this interface has disconnected&#34;&#34;&#34;
@@ -796,6 +844,7 @@ debugOut</p>
         self.nodes = {}  # nodes keyed by ID
         self._nodesByNum = {}  # nodes keyed by nodenum
         self.radioConfig = None
+        self.currentPacketId = None
 
         startConfig = mesh_pb2.ToRadio()
         startConfig.want_config_id = MY_CONFIG_ID  # we don&#39;t use this value
@@ -819,6 +868,9 @@ debugOut</p>
             if self.myInfo.min_app_version &gt; OUR_APP_VERSION:
                 raise Exception(
                     &#34;This device needs a newer python client, please \&#34;pip install --upgrade meshtastic\&#34;&#34;)
+            # start assigning our packet IDs from the opposite side of where our local device is assigning them
+            self.currentPacketId = (
+                self.myInfo.current_packet_id + 0x80000000) &amp; 0xffffffff
         elif fromRadio.HasField(&#34;radio&#34;):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField(&#34;node_info&#34;):
@@ -941,18 +993,22 @@ debugOut</p>
 <span>def <span class="ident">sendData</span></span>(<span>self, byteData, destinationId='^all', dataType=0, wantAck=False, wantResponse=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Send a data packet to some other node</p></div>
+<div class="desc"><p>Send a data packet to some other node</p>
+<p>Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
-    &#34;&#34;&#34;Send a data packet to some other node&#34;&#34;&#34;
+    &#34;&#34;&#34;Send a data packet to some other node
+
+    Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+    &#34;&#34;&#34;
     meshPacket = mesh_pb2.MeshPacket()
     meshPacket.decoded.data.payload = byteData
     meshPacket.decoded.data.typ = dataType
     meshPacket.decoded.want_response = wantResponse
-    self.sendPacket(meshPacket, destinationId, wantAck=wantAck)</code></pre>
+    return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendPacket"><code class="name flex">
@@ -960,14 +1016,18 @@ debugOut</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a MeshPacket to the specified node (or if unspecified, broadcast).
-You probably don't want this - use sendData instead.</p></div>
+You probably don't want this - use sendData instead.</p>
+<p>Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
     &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast).
-    You probably don&#39;t want this - use sendData instead.&#34;&#34;&#34;
+    You probably don&#39;t want this - use sendData instead.
+
+    Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+    &#34;&#34;&#34;
     toRadio = mesh_pb2.ToRadio()
     # FIXME add support for non broadcast addresses
 
@@ -976,12 +1036,19 @@ You probably don't want this - use sendData instead.</p></div>
     elif destinationId == BROADCAST_ADDR:
         nodeNum = BROADCAST_NUM
     else:
-        nodeNum = self.nodes[destinationId].num
+        nodeNum = self.nodes[destinationId][&#39;num&#39;]
 
     meshPacket.to = nodeNum
     meshPacket.want_ack = wantAck
+
+    # if the user hasn&#39;t set an ID for this packet (likely and recommended), we should pick a new unique ID
+    # so the message can be tracked.
+    if meshPacket.id == 0:
+        meshPacket.id = self._generatePacketId()
+
     toRadio.packet.CopyFrom(meshPacket)
-    self._sendToRadio(toRadio)</code></pre>
+    self._sendToRadio(toRadio)
+    return meshPacket</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendPosition"><code class="name flex">
@@ -991,7 +1058,8 @@ You probably don't want this - use sendData instead.</p></div>
 <div class="desc"><p>Send a position packet to some other node (normally a broadcast)</p>
 <p>Also, the device software will notice this packet and use it to automatically set its notion of
 the local position.</p>
-<p>If timeSec is not specified (recommended), we will use the local machine time.</p></div>
+<p>If timeSec is not specified (recommended), we will use the local machine time.</p>
+<p>Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1004,6 +1072,8 @@ the local position.</p>
     the local position.
 
     If timeSec is not specified (recommended), we will use the local machine time.
+
+    Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
     &#34;&#34;&#34;
     meshPacket = mesh_pb2.MeshPacket()
     if(latitude != 0.0):
@@ -1020,7 +1090,7 @@ the local position.</p>
     meshPacket.decoded.position.time = int(timeSec)
 
     meshPacket.decoded.want_response = wantResponse
-    self.sendPacket(meshPacket, destinationId, wantAck=wantAck)</code></pre>
+    return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendText"><code class="name flex">
@@ -1031,7 +1101,8 @@ the local position.</p>
 <h2 id="arguments">Arguments</h2>
 <p>text {string} &ndash; The text to send</p>
 <p>Keyword Arguments:
-destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {BROADCAST_ADDR})</p></div>
+destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {BROADCAST_ADDR})</p>
+<p>Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1044,9 +1115,11 @@ destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {
 
     Keyword Arguments:
         destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+
+    Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
     &#34;&#34;&#34;
-    self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                  dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)</code></pre>
+    return self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
+                         dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.writeConfig"><code class="name flex">
