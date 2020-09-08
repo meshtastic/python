@@ -162,7 +162,7 @@ class MeshInterface:
         elif destinationId == BROADCAST_ADDR:
             nodeNum = BROADCAST_NUM
         else:
-            nodeNum = self.nodes[destinationId].num
+            nodeNum = self.nodes[destinationId]['num']
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
