@@ -55,7 +55,7 @@ from pubsub import pub
 def onReceive(packet, interface): # called when a packet arrives
     print(f&quot;Received: {packet}&quot;)
 
-def onConnection(interface, topic): # called when we (re)connect to the radio
+def onConnection(interface, topic=pub.AUTO_TOPIC): # called when we (re)connect to the radio
     # defaults to broadcast, specify a destination ID if you wish
     interface.sendText(&quot;hello mesh&quot;)
 
@@ -105,7 +105,7 @@ from pubsub import pub
 def onReceive(packet, interface): # called when a packet arrives
     print(f&#34;Received: {packet}&#34;)
 
-def onConnection(interface, topic): # called when we (re)connect to the radio
+def onConnection(interface, topic=pub.AUTO_TOPIC): # called when we (re)connect to the radio
     # defaults to broadcast, specify a destination ID if you wish
     interface.sendText(&#34;hello mesh&#34;)
 
@@ -174,6 +174,7 @@ class MeshInterface:
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
@@ -182,6 +183,10 @@ class MeshInterface:
 
     def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a data packet to some other node
+
+        Keyword Arguments:
+            destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
@@ -258,8 +263,11 @@ class MeshInterface:
 
     def _generatePacketId(self):
         &#34;&#34;&#34;Get a new unique packet ID&#34;&#34;&#34;
-        self.currentPacketId = (self.currentPacketId + 1) &amp; 0xffffffff
-        return self.currentPacketId
+        if self.currentPacketId is None:
+            raise Exception(&#34;Not connected yet, can not generate packet&#34;)
+        else:
+            self.currentPacketId = (self.currentPacketId + 1) &amp; 0xffffffff
+            return self.currentPacketId
 
     def _disconnected(self):
         &#34;&#34;&#34;Called by subclasses to tell clients this interface has disconnected&#34;&#34;&#34;
@@ -353,7 +361,7 @@ class MeshInterface:
         try:
             return self._nodesByNum[num][&#34;user&#34;][&#34;id&#34;]
         except:
-            logging.error(&#34;Node not found for fromId&#34;)
+            logging.warn(&#34;Node not found for fromId&#34;)
             return None
 
     def _getOrCreateByNum(self, nodeNum):
@@ -745,6 +753,7 @@ debugOut</p>
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
@@ -753,6 +762,10 @@ debugOut</p>
 
     def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a data packet to some other node
+
+        Keyword Arguments:
+            destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
@@ -829,8 +842,11 @@ debugOut</p>
 
     def _generatePacketId(self):
         &#34;&#34;&#34;Get a new unique packet ID&#34;&#34;&#34;
-        self.currentPacketId = (self.currentPacketId + 1) &amp; 0xffffffff
-        return self.currentPacketId
+        if self.currentPacketId is None:
+            raise Exception(&#34;Not connected yet, can not generate packet&#34;)
+        else:
+            self.currentPacketId = (self.currentPacketId + 1) &amp; 0xffffffff
+            return self.currentPacketId
 
     def _disconnected(self):
         &#34;&#34;&#34;Called by subclasses to tell clients this interface has disconnected&#34;&#34;&#34;
@@ -924,7 +940,7 @@ debugOut</p>
         try:
             return self._nodesByNum[num][&#34;user&#34;][&#34;id&#34;]
         except:
-            logging.error(&#34;Node not found for fromId&#34;)
+            logging.warn(&#34;Node not found for fromId&#34;)
             return None
 
     def _getOrCreateByNum(self, nodeNum):
@@ -999,6 +1015,9 @@ debugOut</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a data packet to some other node</p>
+<p>Keyword Arguments:
+destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {BROADCAST_ADDR})
+wantAck &ndash; True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)</p>
 <p>Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.</p></div>
 <details class="source">
 <summary>
@@ -1006,6 +1025,10 @@ debugOut</p>
 </summary>
 <pre><code class="python">def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
     &#34;&#34;&#34;Send a data packet to some other node
+
+    Keyword Arguments:
+        destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+        wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
     Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
     &#34;&#34;&#34;
@@ -1106,7 +1129,8 @@ the local position.</p>
 <h2 id="arguments">Arguments</h2>
 <p>text {string} &ndash; The text to send</p>
 <p>Keyword Arguments:
-destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {BROADCAST_ADDR})</p>
+destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {BROADCAST_ADDR})
+wantAck &ndash; True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)</p>
 <p>Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.</p></div>
 <details class="source">
 <summary>
@@ -1120,6 +1144,7 @@ destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {
 
     Keyword Arguments:
         destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+        wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
     Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
     &#34;&#34;&#34;
