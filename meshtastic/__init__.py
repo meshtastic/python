@@ -34,7 +34,7 @@ from pubsub import pub
 def onReceive(packet, interface): # called when a packet arrives
     print(f"Received: {packet}")
 
-def onConnection(interface, topic): # called when we (re)connect to the radio
+def onConnection(interface, topic=pub.AUTO_TOPIC): # called when we (re)connect to the radio
     # defaults to broadcast, specify a destination ID if you wish
     interface.sendText("hello mesh")
 
