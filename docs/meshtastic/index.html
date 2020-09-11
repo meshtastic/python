@@ -52,10 +52,10 @@ If you want to see all packets, simply subscribe to "meshtastic.receive".</li>
 <pre><code>import meshtastic
 from pubsub import pub
 
-def onReceive(packet): # called when a packet arrives
+def onReceive(packet, interface): # called when a packet arrives
     print(f&quot;Received: {packet}&quot;)
 
-def onConnection(): # called when we (re)connect to the radio
+def onConnection(interface, topic): # called when we (re)connect to the radio
     # defaults to broadcast, specify a destination ID if you wish
     interface.sendText(&quot;hello mesh&quot;)
 
@@ -102,10 +102,10 @@ type of packet, you should subscribe to the full topic name.  If you want to see
 import meshtastic
 from pubsub import pub
 
-def onReceive(packet): # called when a packet arrives
+def onReceive(packet, interface): # called when a packet arrives
     print(f&#34;Received: {packet}&#34;)
 
-def onConnection(): # called when we (re)connect to the radio
+def onConnection(interface, topic): # called when we (re)connect to the radio
     # defaults to broadcast, specify a destination ID if you wish
     interface.sendText(&#34;hello mesh&#34;)
 
@@ -537,50 +537,55 @@ class StreamInterface(MeshInterface):
         &#34;&#34;&#34;The reader thread that reads bytes from our stream&#34;&#34;&#34;
         empty = bytes()
 
-        while not self._wantExit:
-            b = self.stream.read(1)
-            if len(b) &gt; 0:
-                # logging.debug(f&#34;read returned {b}&#34;)
-                c = b[0]
-                ptr = len(self._rxBuf)
+        try:
+            while not self._wantExit:
+                b = self.stream.read(1)
+                if len(b) &gt; 0:
+                    # logging.debug(f&#34;read returned {b}&#34;)
+                    c = b[0]
+                    ptr = len(self._rxBuf)
 
-                # Assume we want to append this byte, fixme use bytearray instead
-                self._rxBuf = self._rxBuf + b
+                    # Assume we want to append this byte, fixme use bytearray instead
+                    self._rxBuf = self._rxBuf + b
 
-                if ptr == 0:  # looking for START1
-                    if c != START1:
-                        self._rxBuf = empty  # failed to find start
-                        if self.debugOut != None:
+                    if ptr == 0:  # looking for START1
+                        if c != START1:
+                            self._rxBuf = empty  # failed to find start
+                            if self.debugOut != None:
+                                try:
+                                    self.debugOut.write(b.decode(&#34;utf-8&#34;))
+                                except:
+                                    self.debugOut.write(&#39;?&#39;)
+
+                    elif ptr == 1:  # looking for START2
+                        if c != START2:
+                            self.rfBuf = empty  # failed to find start2
+                    elif ptr &gt;= HEADER_LEN:  # we&#39;ve at least got a header
+                        # big endian length follos header
+                        packetlen = (self._rxBuf[2] &lt;&lt; 8) + self._rxBuf[3]
+
+                        if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
+                            if packetlen &gt; MAX_TO_FROM_RADIO_SIZE:
+                                self.rfBuf = empty  # length ws out out bounds, restart
+
+                        if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
                             try:
-                                self.debugOut.write(b.decode(&#34;utf-8&#34;))
-                            except:
-                                self.debugOut.write(&#39;?&#39;)
-
-                elif ptr == 1:  # looking for START2
-                    if c != START2:
-                        self.rfBuf = empty  # failed to find start2
-                elif ptr &gt;= HEADER_LEN:  # we&#39;ve at least got a header
-                    # big endian length follos header
-                    packetlen = (self._rxBuf[2] &lt;&lt; 8) + self._rxBuf[3]
-
-                    if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
-                        if packetlen &gt; MAX_TO_FROM_RADIO_SIZE:
-                            self.rfBuf = empty  # length ws out out bounds, restart
-
-                    if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
-                        try:
-                            self._handleFromRadio(self._rxBuf[HEADER_LEN:])
-                        except Exception as ex:
-                            logging.error(
-                                f&#34;Error handling FromRadio, possibly corrupted? {ex}&#34;)
-                            traceback.print_exc()
-                        self._rxBuf = empty
-            else:
-                # logging.debug(f&#34;timeout on {self.devPath}&#34;)
-                pass
-        logging.debug(&#34;reader is exiting&#34;)
-        self.stream.close()
-        self._disconnected()</code></pre>
+                                self._handleFromRadio(self._rxBuf[HEADER_LEN:])
+                            except Exception as ex:
+                                logging.error(
+                                    f&#34;Error while handling message from radio {ex}&#34;)
+                                traceback.print_exc()
+                            self._rxBuf = empty
+                else:
+                    # logging.debug(f&#34;timeout on {self.devPath}&#34;)
+                    pass
+        except serial.SerialException as ex:
+            logging.warn(
+                &#34;Meshtastic erial port disconnected, disconnecting...&#34;)
+        finally:
+            logging.debug(&#34;reader is exiting&#34;)
+            self.stream.close()
+            self._disconnected()</code></pre>
 </details>
 </section>
 <section>
@@ -1241,50 +1246,55 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         &#34;&#34;&#34;The reader thread that reads bytes from our stream&#34;&#34;&#34;
         empty = bytes()
 
-        while not self._wantExit:
-            b = self.stream.read(1)
-            if len(b) &gt; 0:
-                # logging.debug(f&#34;read returned {b}&#34;)
-                c = b[0]
-                ptr = len(self._rxBuf)
+        try:
+            while not self._wantExit:
+                b = self.stream.read(1)
+                if len(b) &gt; 0:
+                    # logging.debug(f&#34;read returned {b}&#34;)
+                    c = b[0]
+                    ptr = len(self._rxBuf)
 
-                # Assume we want to append this byte, fixme use bytearray instead
-                self._rxBuf = self._rxBuf + b
+                    # Assume we want to append this byte, fixme use bytearray instead
+                    self._rxBuf = self._rxBuf + b
 
-                if ptr == 0:  # looking for START1
-                    if c != START1:
-                        self._rxBuf = empty  # failed to find start
-                        if self.debugOut != None:
+                    if ptr == 0:  # looking for START1
+                        if c != START1:
+                            self._rxBuf = empty  # failed to find start
+                            if self.debugOut != None:
+                                try:
+                                    self.debugOut.write(b.decode(&#34;utf-8&#34;))
+                                except:
+                                    self.debugOut.write(&#39;?&#39;)
+
+                    elif ptr == 1:  # looking for START2
+                        if c != START2:
+                            self.rfBuf = empty  # failed to find start2
+                    elif ptr &gt;= HEADER_LEN:  # we&#39;ve at least got a header
+                        # big endian length follos header
+                        packetlen = (self._rxBuf[2] &lt;&lt; 8) + self._rxBuf[3]
+
+                        if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
+                            if packetlen &gt; MAX_TO_FROM_RADIO_SIZE:
+                                self.rfBuf = empty  # length ws out out bounds, restart
+
+                        if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
                             try:
-                                self.debugOut.write(b.decode(&#34;utf-8&#34;))
-                            except:
-                                self.debugOut.write(&#39;?&#39;)
-
-                elif ptr == 1:  # looking for START2
-                    if c != START2:
-                        self.rfBuf = empty  # failed to find start2
-                elif ptr &gt;= HEADER_LEN:  # we&#39;ve at least got a header
-                    # big endian length follos header
-                    packetlen = (self._rxBuf[2] &lt;&lt; 8) + self._rxBuf[3]
-
-                    if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
-                        if packetlen &gt; MAX_TO_FROM_RADIO_SIZE:
-                            self.rfBuf = empty  # length ws out out bounds, restart
-
-                    if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
-                        try:
-                            self._handleFromRadio(self._rxBuf[HEADER_LEN:])
-                        except Exception as ex:
-                            logging.error(
-                                f&#34;Error handling FromRadio, possibly corrupted? {ex}&#34;)
-                            traceback.print_exc()
-                        self._rxBuf = empty
-            else:
-                # logging.debug(f&#34;timeout on {self.devPath}&#34;)
-                pass
-        logging.debug(&#34;reader is exiting&#34;)
-        self.stream.close()
-        self._disconnected()</code></pre>
+                                self._handleFromRadio(self._rxBuf[HEADER_LEN:])
+                            except Exception as ex:
+                                logging.error(
+                                    f&#34;Error while handling message from radio {ex}&#34;)
+                                traceback.print_exc()
+                            self._rxBuf = empty
+                else:
+                    # logging.debug(f&#34;timeout on {self.devPath}&#34;)
+                    pass
+        except serial.SerialException as ex:
+            logging.warn(
+                &#34;Meshtastic erial port disconnected, disconnecting...&#34;)
+        finally:
+            logging.debug(&#34;reader is exiting&#34;)
+            self.stream.close()
+            self._disconnected()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

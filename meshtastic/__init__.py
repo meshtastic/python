@@ -31,10 +31,10 @@ type of packet, you should subscribe to the full topic name.  If you want to see
 import meshtastic
 from pubsub import pub
 
-def onReceive(packet): # called when a packet arrives
+def onReceive(packet, interface): # called when a packet arrives
     print(f"Received: {packet}")
 
-def onConnection(): # called when we (re)connect to the radio
+def onConnection(interface, topic): # called when we (re)connect to the radio
     # defaults to broadcast, specify a destination ID if you wish
     interface.sendText("hello mesh")
 
@@ -466,47 +466,52 @@ class StreamInterface(MeshInterface):
         """The reader thread that reads bytes from our stream"""
         empty = bytes()
 
-        while not self._wantExit:
-            b = self.stream.read(1)
-            if len(b) > 0:
-                # logging.debug(f"read returned {b}")
-                c = b[0]
-                ptr = len(self._rxBuf)
+        try:
+            while not self._wantExit:
+                b = self.stream.read(1)
+                if len(b) > 0:
+                    # logging.debug(f"read returned {b}")
+                    c = b[0]
+                    ptr = len(self._rxBuf)
 
-                # Assume we want to append this byte, fixme use bytearray instead
-                self._rxBuf = self._rxBuf + b
+                    # Assume we want to append this byte, fixme use bytearray instead
+                    self._rxBuf = self._rxBuf + b
 
-                if ptr == 0:  # looking for START1
-                    if c != START1:
-                        self._rxBuf = empty  # failed to find start
-                        if self.debugOut != None:
+                    if ptr == 0:  # looking for START1
+                        if c != START1:
+                            self._rxBuf = empty  # failed to find start
+                            if self.debugOut != None:
+                                try:
+                                    self.debugOut.write(b.decode("utf-8"))
+                                except:
+                                    self.debugOut.write('?')
+
+                    elif ptr == 1:  # looking for START2
+                        if c != START2:
+                            self.rfBuf = empty  # failed to find start2
+                    elif ptr >= HEADER_LEN:  # we've at least got a header
+                        # big endian length follos header
+                        packetlen = (self._rxBuf[2] << 8) + self._rxBuf[3]
+
+                        if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
+                            if packetlen > MAX_TO_FROM_RADIO_SIZE:
+                                self.rfBuf = empty  # length ws out out bounds, restart
+
+                        if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
                             try:
-                                self.debugOut.write(b.decode("utf-8"))
-                            except:
-                                self.debugOut.write('?')
-
-                elif ptr == 1:  # looking for START2
-                    if c != START2:
-                        self.rfBuf = empty  # failed to find start2
-                elif ptr >= HEADER_LEN:  # we've at least got a header
-                    # big endian length follos header
-                    packetlen = (self._rxBuf[2] << 8) + self._rxBuf[3]
-
-                    if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
-                        if packetlen > MAX_TO_FROM_RADIO_SIZE:
-                            self.rfBuf = empty  # length ws out out bounds, restart
-
-                    if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
-                        try:
-                            self._handleFromRadio(self._rxBuf[HEADER_LEN:])
-                        except Exception as ex:
-                            logging.error(
-                                f"Error handling FromRadio, possibly corrupted? {ex}")
-                            traceback.print_exc()
-                        self._rxBuf = empty
-            else:
-                # logging.debug(f"timeout on {self.devPath}")
-                pass
-        logging.debug("reader is exiting")
-        self.stream.close()
-        self._disconnected()
+                                self._handleFromRadio(self._rxBuf[HEADER_LEN:])
+                            except Exception as ex:
+                                logging.error(
+                                    f"Error while handling message from radio {ex}")
+                                traceback.print_exc()
+                            self._rxBuf = empty
+                else:
+                    # logging.debug(f"timeout on {self.devPath}")
+                    pass
+        except serial.SerialException as ex:
+            logging.warn(
+                "Meshtastic erial port disconnected, disconnecting...")
+        finally:
+            logging.debug("reader is exiting")
+            self.stream.close()
+            self._disconnected()
