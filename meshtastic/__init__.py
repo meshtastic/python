@@ -103,6 +103,7 @@ class MeshInterface:
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
@@ -111,6 +112,10 @@ class MeshInterface:
 
     def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
         """Send a data packet to some other node
+
+        Keyword Arguments:
+            destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
@@ -187,8 +192,11 @@ class MeshInterface:
 
     def _generatePacketId(self):
         """Get a new unique packet ID"""
-        self.currentPacketId = (self.currentPacketId + 1) & 0xffffffff
-        return self.currentPacketId
+        if self.currentPacketId is None:
+            raise Exception("Not connected yet, can not generate packet")
+        else:
+            self.currentPacketId = (self.currentPacketId + 1) & 0xffffffff
+            return self.currentPacketId
 
     def _disconnected(self):
         """Called by subclasses to tell clients this interface has disconnected"""
@@ -282,7 +290,7 @@ class MeshInterface:
         try:
             return self._nodesByNum[num]["user"]["id"]
         except:
-            logging.error("Node not found for fromId")
+            logging.warn("Node not found for fromId")
             return None
 
     def _getOrCreateByNum(self, nodeNum):
