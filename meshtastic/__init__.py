@@ -430,6 +430,7 @@ class StreamInterface(MeshInterface):
         self._wantExit = False
         self.stream = serial.Serial(
             devPath, 921600, exclusive=True, timeout=0.5)
+        self.stream.setRTS(False)
         self._rxThread = threading.Thread(target=self.__reader, args=())
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
