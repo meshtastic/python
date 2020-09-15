@@ -28,10 +28,22 @@ You can also use this tool to set any of the device parameters which are stored 
 to keep the bluetooth link alive for eight hours (any usage of the bluetooth protcol from your phone will reset this timer)
 
 ```
-meshtastic --setpref wait_bluetooth_secs 28800
+meshtastic --set wait_bluetooth_secs 28800
 Connected to radio...
 Setting preference wait_bluetooth_secs to 28800
 Writing modified preferences to device...
+```
+
+Or to configure an ESP32 based board to join a wifi network as a station (wifi support in the device code is coming soon):
+
+```
+meshtastic --set wifi_ap_mode false --setstr wifi_ssid mywifissid --setstr wifi_password mywifipsw
+```
+
+Or to configure an ESP32 to run as a Wifi access point:
+
+```
+meshtastic --set wifi_ap_mode true --setstr wifi_ssid mywifissid --setstr wifi_password mywifipsw
 ```
 
 ## Required device software version

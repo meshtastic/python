@@ -28,12 +28,14 @@ def onReceive(packet, interface):
                 rxSnr = packet['rxSnr']
                 hopLimit = packet['hopLimit']
                 print(f"message: {msg}")
-                reply="got msg \'{}\' with rxSnr: {} and hopLimit: {}".format(msg,rxSnr,hopLimit)
-                print("Sending reply: ",reply)
+                reply = "got msg \'{}\' with rxSnr: {} and hopLimit: {}".format(
+                    msg, rxSnr, hopLimit)
+                print("Sending reply: ", reply)
                 interface.sendText(reply)
 
     except Exception as ex:
         print(ex)
+
 
 def onConnection(interface, topic=pub.AUTO_TOPIC):
     """Callback invoked when we connect/disconnect from a radio"""
@@ -44,8 +46,8 @@ def onConnected(interface):
     """Callback invoked when we connect to a radio"""
     global args
     print("Connected to radio")
+    closeNow = False  # Should we drop the connection after we finish?
     try:
-
         if args.settime:
             print("Setting device RTC time")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
@@ -56,20 +58,51 @@ def onConnected(interface):
             interface.sendText(args.sendtext, args.dest,
                                wantAck=True, wantResponse=True)
 
-        if args.setpref:
-            for pref in args.setpref:
+        if args.set or args.setstr:
+            closeNow = True
+
+            # Handle the int/float/bool arguments
+            for pref in (args.set or []):
                 name = pref[0]
-                print(f"Setting preference {name} to {pref[1]}")
-                # FIXME, currently this tool only supports setting integers
+                # try to parse as int, float or bool
                 try:
-                    val = int(pref[1])
+                    valstr = pref[1]
+                    try:
+                        val = int(valstr)
+                    except ValueError:
+                        try:
+                            val = float(valstr)
+                        except ValueError:
+                            trueTerms = {"t", "true", "yes"}
+                            falseTerms = {"f", "false", "no"}
+                            if valstr in trueTerms:
+                                val = True
+                            elif valstr in falseTerms:
+                                val = False
+                            else:
+                                raise Exception(
+                                    "Value must be numeric or boolean")
+                    print(f"Setting preference {name} to {val}")
                     setattr(interface.radioConfig.preferences, name, val)
                 except Exception as ex:
                     print(f"Can't set {name} due to {ex}")
+
+            # Handle the string arguments
+            for pref in (args.setstr or []):
+                name = pref[0]
+                # try to parse as int, float or bool
+                try:
+                    val = pref[1]
+                    print(f"Setting preference {name} to {val}")
+                    setattr(interface.radioConfig.preferences, name, val)
+                except Exception as ex:
+                    print(f"Can't set {name} due to {ex}")
+
             print("Writing modified preferences to device")
             interface.writeConfig()
 
         if args.info:
+            closeNow = True
             print(interface.myInfo)
             print(interface.radioConfig)
             print("Nodes in mesh:")
@@ -78,7 +111,7 @@ def onConnected(interface):
     except Exception as ex:
         print(ex)
 
-    if args.info or args.setpref:
+    if closeNow:
         interface.close()  # after running command then exit
 
 
@@ -113,7 +146,10 @@ def main():
                         action="store_true")
 
     parser.add_argument(
-        "--setpref", help="Set a preferences field", nargs=2, action='append')
+        "--set", help="Set a numeric preferences field", nargs=2, action='append')
+
+    parser.add_argument(
+        "--setstr", help="Set a string preferences field", nargs=2, action='append')
 
     parser.add_argument(
         "--dest", help="The destination node id for the --send commands, if not set '^all' is assumed", default="^all")
@@ -144,7 +180,7 @@ def main():
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
-    if (not args.seriallog) and (args.info or args.setpref or args.sendtext):
+    if (not args.seriallog) and (args.info or args.set or args.setstr or args.sendtext):
         args.seriallog = "none"  # assume no debug output in this case
 
     if args.test:
