@@ -513,14 +513,14 @@ class StreamInterface(MeshInterface):
 
                     elif ptr == 1:  # looking for START2
                         if c != START2:
-                            self.rfBuf = empty  # failed to find start2
+                            self._rxBuf = empty  # failed to find start2
                     elif ptr >= HEADER_LEN:  # we've at least got a header
                         # big endian length follos header
                         packetlen = (self._rxBuf[2] << 8) + self._rxBuf[3]
 
                         if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
                             if packetlen > MAX_TO_FROM_RADIO_SIZE:
-                                self.rfBuf = empty  # length ws out out bounds, restart
+                                self._rxBuf = empty  # length ws out out bounds, restart
 
                         if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
                             try:
