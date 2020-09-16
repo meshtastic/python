@@ -6,6 +6,7 @@ import logging
 import sys
 from pubsub import pub
 import google.protobuf.json_format
+import pyqrcode
 
 """The command line arguments"""
 args = None
@@ -131,6 +132,12 @@ def onConnected(interface):
             print("Nodes in mesh:")
             for n in interface.nodes.values():
                 print(n)
+
+        if args.qr:
+            closeNow = True
+            print(f"Channel URL {interface.channelURL}")
+            url = pyqrcode.create(interface.channelURL)
+            print(url.terminal())
     except Exception as ex:
         print(ex)
 
@@ -166,6 +173,9 @@ def main():
         default="stdout")
 
     parser.add_argument("--info", help="Read and display the radio config information",
+                        action="store_true")
+
+    parser.add_argument("--qr", help="Display the QR code that corresponds to the current channel",
                         action="store_true")
 
     parser.add_argument(
@@ -206,7 +216,7 @@ def main():
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
-    if (not args.seriallog) and (args.info or args.set or args.setstr or args.setchan or args.sendtext):
+    if (not args.seriallog) and (args.info or args.set or args.setstr or args.setchan or args.sendtext or args.qr):
         args.seriallog = "none"  # assume no debug output in this case
 
     if args.test:
