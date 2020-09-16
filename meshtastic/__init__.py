@@ -57,6 +57,7 @@ import sys
 import traceback
 import time
 import base64
+import platform
 from . import mesh_pb2
 from . import util
 from pubsub import pub
@@ -444,7 +445,12 @@ class StreamInterface(MeshInterface):
 
         # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
         self.stream.port = devPath
-        self.stream.rts = False
+        # OS-X seems to have a bug in its serial driver.  It ignores that we asked for no RTSCTS
+        # control and will always drive RTS either high or low (rather than letting the CP102 leave
+        # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
+        # sure it is driven low, so that the TBEAM won't reset
+        if platform.system() == 'Darwin':
+            self.stream.rts = False
         self.stream.open()
 
         self._rxThread = threading.Thread(target=self.__reader, args=())
@@ -538,6 +544,7 @@ class StreamInterface(MeshInterface):
                 f"Meshtastic serial port disconnected, disconnecting... {ex}")
         finally:
             logging.debug("reader is exiting")
-            self.stream.rts = True  # Return RTS high, so that the reset button still works
+            if platform.system() == 'Darwin':
+                self.stream.rts = True  # Return RTS high, so that the reset button still works
             self.stream.close()
             self._disconnected()
