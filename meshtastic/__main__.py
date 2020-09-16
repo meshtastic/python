@@ -127,6 +127,7 @@ def onConnected(interface):
             closeNow = True
             print(interface.myInfo)
             print(interface.radioConfig)
+            print(f"Channel URL {interface.channelURL}")
             print("Nodes in mesh:")
             for n in interface.nodes.values():
                 print(n)

@@ -56,6 +56,7 @@ import time
 import sys
 import traceback
 import time
+import base64
 from . import mesh_pb2
 from . import util
 from pubsub import pub
@@ -189,6 +190,14 @@ class MeshInterface:
         t = mesh_pb2.ToRadio()
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
+
+    @property
+    def channelURL(self):
+        """The sharable URL that describes the current channel
+        """
+        bytes = self.radioConfig.channel_settings.SerializeToString()
+        s = base64.urlsafe_b64encode(bytes).decode('ascii')
+        return f"https://www.meshtastic.org/c/#{s}"
 
     def _generatePacketId(self):
         """Get a new unique packet ID"""

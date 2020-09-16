@@ -127,6 +127,7 @@ import time
 import sys
 import traceback
 import time
+import base64
 from . import mesh_pb2
 from . import util
 from pubsub import pub
@@ -260,6 +261,14 @@ class MeshInterface:
         t = mesh_pb2.ToRadio()
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
+
+    @property
+    def channelURL(self):
+        &#34;&#34;&#34;The sharable URL that describes the current channel
+        &#34;&#34;&#34;
+        bytes = self.radioConfig.channel_settings.SerializeToString()
+        s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
+        return f&#34;https://www.meshtastic.org/c/#{s}&#34;
 
     def _generatePacketId(self):
         &#34;&#34;&#34;Get a new unique packet ID&#34;&#34;&#34;
@@ -704,6 +713,7 @@ class StreamInterface(MeshInterface):
 <ul class="hlist">
 <li><code><b><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></b></code>:
 <ul class="hlist">
+<li><code><a title="meshtastic.MeshInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
@@ -840,6 +850,14 @@ debugOut</p>
         t = mesh_pb2.ToRadio()
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
+
+    @property
+    def channelURL(self):
+        &#34;&#34;&#34;The sharable URL that describes the current channel
+        &#34;&#34;&#34;
+        bytes = self.radioConfig.channel_settings.SerializeToString()
+        s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
+        return f&#34;https://www.meshtastic.org/c/#{s}&#34;
 
     def _generatePacketId(self):
         &#34;&#34;&#34;Get a new unique packet ID&#34;&#34;&#34;
@@ -1009,6 +1027,25 @@ debugOut</p>
 <li><a title="meshtastic.BLEInterface" href="#meshtastic.BLEInterface">BLEInterface</a></li>
 <li><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></li>
 </ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.MeshInterface.channelURL"><code class="name">var <span class="ident">channelURL</span></code></dt>
+<dd>
+<div class="desc"><p>The sharable URL that describes the current channel</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def channelURL(self):
+    &#34;&#34;&#34;The sharable URL that describes the current channel
+    &#34;&#34;&#34;
+    bytes = self.radioConfig.channel_settings.SerializeToString()
+    s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
+    return f&#34;https://www.meshtastic.org/c/#{s}&#34;</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="meshtastic.MeshInterface.sendData"><code class="name flex">
@@ -1378,6 +1415,7 @@ start the reading thread later.</p></div>
 <ul class="hlist">
 <li><code><b><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></b></code>:
 <ul class="hlist">
+<li><code><a title="meshtastic.MeshInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
@@ -1423,7 +1461,8 @@ start the reading thread later.</p></div>
 </li>
 <li>
 <h4><code><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="meshtastic.MeshInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
