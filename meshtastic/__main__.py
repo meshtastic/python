@@ -42,6 +42,31 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):
     print(f"Connection changed: {topic.getName()}")
 
 
+def fromStr(valstr):
+    """try to parse as int, float or bool (and fallback to a string as last resort)
+
+    Returns: an int, bool, float or str
+
+    Args:
+        valstr (string): A user provided string
+    """
+    try:
+        val = int(valstr)
+    except ValueError:
+        try:
+            val = float(valstr)
+        except ValueError:
+            trueTerms = {"t", "true", "yes"}
+            falseTerms = {"f", "false", "no"}
+            if valstr in trueTerms:
+                val = True
+            elif valstr in falseTerms:
+                val = False
+            else:
+                val = valstr  # Try to treat the parameter as a string
+    return val
+
+
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
     global args
@@ -58,30 +83,16 @@ def onConnected(interface):
             interface.sendText(args.sendtext, args.dest,
                                wantAck=True, wantResponse=True)
 
-        if args.set or args.setstr:
+        if args.set or args.setstr or args.setchan:
             closeNow = True
 
             # Handle the int/float/bool arguments
             for pref in (args.set or []):
                 name = pref[0]
-                # try to parse as int, float or bool
+                #
                 try:
                     valstr = pref[1]
-                    try:
-                        val = int(valstr)
-                    except ValueError:
-                        try:
-                            val = float(valstr)
-                        except ValueError:
-                            trueTerms = {"t", "true", "yes"}
-                            falseTerms = {"f", "false", "no"}
-                            if valstr in trueTerms:
-                                val = True
-                            elif valstr in falseTerms:
-                                val = False
-                            else:
-                                raise Exception(
-                                    "Value must be numeric or boolean")
+                    val = fromStr(valstr)
                     print(f"Setting preference {name} to {val}")
                     setattr(interface.radioConfig.preferences, name, val)
                 except Exception as ex:
@@ -95,6 +106,17 @@ def onConnected(interface):
                     val = pref[1]
                     print(f"Setting preference {name} to {val}")
                     setattr(interface.radioConfig.preferences, name, val)
+                except Exception as ex:
+                    print(f"Can't set {name} due to {ex}")
+
+            for pref in (args.setchan or []):
+                name = pref[0]
+                #
+                try:
+                    valstr = pref[1]
+                    val = fromStr(valstr)
+                    print(f"Setting channel parameter {name} to {val}")
+                    setattr(interface.radioConfig.channel_settings, name, val)
                 except Exception as ex:
                     print(f"Can't set {name} due to {ex}")
 
@@ -152,6 +174,9 @@ def main():
         "--setstr", help="Set a string preferences field", nargs=2, action='append')
 
     parser.add_argument(
+        "--setchan", help="Set a channel parameter", nargs=2, action='append')
+
+    parser.add_argument(
         "--dest", help="The destination node id for the --send commands, if not set '^all' is assumed", default="^all")
 
     parser.add_argument(
@@ -180,7 +205,7 @@ def main():
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
-    if (not args.seriallog) and (args.info or args.set or args.setstr or args.sendtext):
+    if (not args.seriallog) and (args.info or args.set or args.setstr or args.setchan or args.sendtext):
         args.seriallog = "none"  # assume no debug output in this case
 
     if args.test:
