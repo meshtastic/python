@@ -437,9 +437,16 @@ class StreamInterface(MeshInterface):
         self.devPath = devPath
         self._rxBuf = bytes()  # empty
         self._wantExit = False
+
+        # Note: we provide None for port here, because we will be opening it later
         self.stream = serial.Serial(
-            devPath, 921600, exclusive=True, timeout=0.5)
-        self.stream.setRTS(False)
+            None, 921600, exclusive=True, timeout=0.5)
+
+        # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
+        self.stream.port = devPath
+        self.stream.rts = False
+        self.stream.open()
+
         self._rxThread = threading.Thread(target=self.__reader, args=())
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
@@ -528,8 +535,9 @@ class StreamInterface(MeshInterface):
                     pass
         except serial.SerialException as ex:
             logging.warn(
-                "Meshtastic erial port disconnected, disconnecting...")
+                f"Meshtastic serial port disconnected, disconnecting... {ex}")
         finally:
             logging.debug("reader is exiting")
+            self.stream.rts = True  # Return RTS high, so that the reset button still works
             self.stream.close()
             self._disconnected()
