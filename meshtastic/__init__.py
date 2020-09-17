@@ -26,6 +26,12 @@ type of packet, you should subscribe to the full topic name.  If you want to see
 - meshtastic.receive.data(packet)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
 
+We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for 
+that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet 
+you'll see the fields in the dictionary.  decoded.data.payload will contain the raw bytes that were sent.  If the packet was sent with 
+sendText, decoded.data.text will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for 
+unicode scripts they can be different.
+
 # Example Usage
 ```
 import meshtastic
