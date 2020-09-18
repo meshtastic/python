@@ -7,6 +7,8 @@ import sys
 from pubsub import pub
 import google.protobuf.json_format
 import pyqrcode
+import traceback
+import codecs
 
 """The command line arguments"""
 args = None
@@ -87,39 +89,35 @@ def onConnected(interface):
         if args.set or args.setstr or args.setchan:
             closeNow = True
 
-            # Handle the int/float/bool arguments
-            for pref in (args.set or []):
-                name = pref[0]
-                #
+            def setPref(attributes, name, val):
+                """Set a preferences value"""
+                print(f"Setting {name} to {val}")
                 try:
-                    valstr = pref[1]
-                    val = fromStr(valstr)
-                    print(f"Setting preference {name} to {val}")
-                    setattr(interface.radioConfig.preferences, name, val)
+                    try:
+                        setattr(attributes, name, val)
+                    except TypeError as ex:
+                        # The setter didn't like our arg type - try again as a byte array (so we can convert strings to bytearray)
+                        if isinstance(val, str):
+                            setattr(attributes, name,
+                                    codecs.decode(val, "hex"))
+                        else:
+                            print(f"Incorrect type for {name} {ex}")
                 except Exception as ex:
                     print(f"Can't set {name} due to {ex}")
+
+            # Handle the int/float/bool arguments
+            for pref in (args.set or []):
+                setPref(
+                    interface.radioConfig.preferences, pref[0], fromStr(pref[1]))
 
             # Handle the string arguments
             for pref in (args.setstr or []):
-                name = pref[0]
-                # try to parse as int, float or bool
-                try:
-                    val = pref[1]
-                    print(f"Setting preference {name} to {val}")
-                    setattr(interface.radioConfig.preferences, name, val)
-                except Exception as ex:
-                    print(f"Can't set {name} due to {ex}")
+                interface.radioConfig.preferences, setPref(pref[0], pref[1])
 
+            # Handle the channel settings
             for pref in (args.setchan or []):
-                name = pref[0]
-                #
-                try:
-                    valstr = pref[1]
-                    val = fromStr(valstr)
-                    print(f"Setting channel parameter {name} to {val}")
-                    setattr(interface.radioConfig.channel_settings, name, val)
-                except Exception as ex:
-                    print(f"Can't set {name} due to {ex}")
+                setPref(interface.radioConfig.channel_settings,
+                        pref[0], fromStr(pref[1]))
 
             print("Writing modified preferences to device")
             interface.writeConfig()
