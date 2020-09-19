@@ -278,7 +278,7 @@ class MeshInterface:
             self._disconnected()
             self._startConfig()  # redownload the node db etc...
         else:
-            logging.warn("Unexpected FromRadio payload")
+            logging.debug("Unexpected FromRadio payload")
 
     def _fixupPosition(self, position):
         """Convert integer lat/lon into floats

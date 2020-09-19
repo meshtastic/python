@@ -139,7 +139,8 @@ def onConnected(interface):
     except Exception as ex:
         print(ex)
 
-    if closeNow:
+    # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
+    if (not args.seriallog) and closeNow:
         interface.close()  # after running command then exit
 
 
