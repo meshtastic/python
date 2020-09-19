@@ -47,12 +47,13 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # called when we (re)connect 
 pub.subscribe(onReceive, "meshtastic.receive")
 pub.subscribe(onConnection, "meshtastic.connection.established")
 # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
-interface = meshtastic.StreamInterface()
+interface = meshtastic.SerialInterface()
 
 ```
 
 """
 
+import socket
 import pygatt
 import google.protobuf.json_format
 import serial
@@ -417,9 +418,8 @@ class BLEInterface(MeshInterface):
 class StreamInterface(MeshInterface):
     """Interface class for meshtastic devices over a stream link (serial, TCP, etc)"""
 
-    def __init__(self, devPath=None, debugOut=None, noProto=False, connectNow=True):
-        """Constructor, opens a connection to a specified serial port, or if unspecified try to
-        find one Meshtastic device by probing
+    def __init__(self, debugOut=None, noProto=False, connectNow=True):
+        """Constructor, opens a connection to self.stream 
 
         Keyword Arguments:
             devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
@@ -430,34 +430,11 @@ class StreamInterface(MeshInterface):
             Exception: [description]
         """
 
-        if devPath is None:
-            ports = util.findPorts()
-            if len(ports) == 0:
-                raise Exception("No Meshtastic devices detected")
-            elif len(ports) > 1:
-                raise Exception(
-                    f"Multiple ports detected, you must specify a device, such as {ports[0].device}")
-            else:
-                devPath = ports[0]
-
-        logging.debug(f"Connecting to {devPath}")
-        self.devPath = devPath
+        if not hasattr(self, 'stream'):
+            raise Exception(
+                "StreamInterface is now abstract (to update existing code create SerialInterface instead)")
         self._rxBuf = bytes()  # empty
         self._wantExit = False
-
-        # Note: we provide None for port here, because we will be opening it later
-        self.stream = serial.Serial(
-            None, 921600, exclusive=True, timeout=0.5)
-
-        # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
-        self.stream.port = devPath
-        # OS-X seems to have a bug in its serial driver.  It ignores that we asked for no RTSCTS
-        # control and will always drive RTS either high or low (rather than letting the CP102 leave
-        # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
-        # sure it is driven low, so that the TBEAM won't reset
-        if platform.system() == 'Darwin':
-            self.stream.rts = False
-        self.stream.open()
 
         self._rxThread = threading.Thread(target=self.__reader, args=())
 
@@ -481,11 +458,19 @@ class StreamInterface(MeshInterface):
 
         self._rxThread.start()
 
+    def _disconnected(self):
+        """We override the superclass implementation to close our port"""
+        MeshInterface._disconnected(self)
+
+        logging.debug("Closing our port")
+        self.stream.close()
+
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""
         logging.debug(f"Sending: {toRadio}")
         b = toRadio.SerializeToString()
         bufLen = len(b)
+        # We convert into a string, because the TCP code doesn't work with byte arrays
         header = bytes([START1, START2, (bufLen >> 8) & 0xff,  bufLen & 0xff])
         self.stream.write(header)
         self.stream.write(b)
@@ -543,14 +528,82 @@ class StreamInterface(MeshInterface):
                                 traceback.print_exc()
                             self._rxBuf = empty
                 else:
-                    # logging.debug(f"timeout on {self.devPath}")
+                    # logging.debug(f"timeout")
                     pass
         except serial.SerialException as ex:
             logging.warn(
                 f"Meshtastic serial port disconnected, disconnecting... {ex}")
         finally:
             logging.debug("reader is exiting")
-            if platform.system() == 'Darwin':
-                self.stream.rts = True  # Return RTS high, so that the reset button still works
-            self.stream.close()
             self._disconnected()
+
+
+class SerialInterface(StreamInterface):
+    """Interface class for meshtastic devices over a serial link"""
+
+    def __init__(self, devPath=None, debugOut=None, noProto=False, connectNow=True):
+        """Constructor, opens a connection to a specified serial port, or if unspecified try to
+        find one Meshtastic device by probing
+
+        Keyword Arguments:
+            devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
+            debugOut {stream} -- If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})
+        """
+
+        if devPath is None:
+            ports = util.findPorts()
+            if len(ports) == 0:
+                raise Exception("No Meshtastic devices detected")
+            elif len(ports) > 1:
+                raise Exception(
+                    f"Multiple ports detected, you must specify a device, such as {ports[0].device}")
+            else:
+                devPath = ports[0]
+
+        logging.debug(f"Connecting to {devPath}")
+
+        # Note: we provide None for port here, because we will be opening it later
+        self.stream = serial.Serial(
+            None, 921600, exclusive=True, timeout=0.5)
+
+        # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
+        self.stream.port = devPath
+        # OS-X seems to have a bug in its serial driver.  It ignores that we asked for no RTSCTS
+        # control and will always drive RTS either high or low (rather than letting the CP102 leave
+        # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
+        # sure it is driven low, so that the TBEAM won't reset
+        if platform.system() == 'Darwin':
+            self.stream.rts = False
+        self.stream.open()
+
+        StreamInterface.__init__(
+            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
+
+    def _disconnected(self):
+        """We override the superclass implementation to close our port"""
+
+        if platform.system() == 'Darwin':
+            self.stream.rts = True  # Return RTS high, so that the reset button still works
+
+        StreamInterface._disconnected(self)
+
+
+class TCPInterface(StreamInterface):
+    """Interface class for meshtastic devices over a TCP link"""
+
+    def __init__(self, hostname, debugOut=None, noProto=False, connectNow=True, portNumber=4403):
+        """Constructor, opens a connection to a specified IP address/hostname
+
+        Keyword Arguments:
+            hostname {string} -- Hostname/IP address of the device to connect to
+        """
+
+        logging.debug(f"Connecting to {hostname}")
+
+        server_address = (hostname, portNumber)
+        sock = socket.create_connection(server_address)
+
+        self.stream = sock.makefile('rw')
+
+        StreamInterface.__init__(
+            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)

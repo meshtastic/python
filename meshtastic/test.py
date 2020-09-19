@@ -1,6 +1,6 @@
 import logging
 from . import util
-from . import StreamInterface, BROADCAST_NUM
+from . import SerialInterface, BROADCAST_NUM
 from pubsub import pub
 import time
 import sys
@@ -128,7 +128,7 @@ def testAll():
     pub.subscribe(onConnection, "meshtastic.connection")
     pub.subscribe(onReceive, "meshtastic.receive")
     global interfaces
-    interfaces = list(map(lambda port: StreamInterface(
+    interfaces = list(map(lambda port: SerialInterface(
         port, debugOut=openDebugLog(port), connectNow=False), ports))
     for i in interfaces:
         i.connect()

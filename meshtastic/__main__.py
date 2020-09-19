@@ -1,7 +1,7 @@
 #!python3
 
 import argparse
-from . import StreamInterface, BLEInterface, test
+from . import SerialInterface, TCPInterface, BLEInterface, test
 import logging
 import sys
 from pubsub import pub
@@ -162,8 +162,13 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--device",
+        "--port",
         help="The port the Meshtastic device is connected to, i.e. /dev/ttyUSB0. If unspecified, we'll try to find it.",
+        default=None)
+
+    parser.add_argument(
+        "--host",
+        help="The hostname/ipaddr of the device to connect to (over TCP)",
         default=None)
 
     parser.add_argument(
@@ -205,8 +210,8 @@ def main():
     parser.add_argument("--test", help="Run stress test against all connected Meshtastic devices",
                         action="store_true")
 
-    parser.add_argument("--ble", help="hack for testing BLE code (BLE is not yet supported for this tool)",
-                        action="store_true")
+    parser.add_argument("--ble", help="BLE mac address to connect to (BLE is not yet supported for this tool)",
+                        default=None)
 
     parser.add_argument("--noproto", help="Don't start the API, just function as a dumb serial terminal.",
                         action="store_true")
@@ -233,10 +238,13 @@ def main():
 
         subscribe()
         if args.ble:
-            client = BLEInterface(args.device, debugOut=logfile)
+            client = BLEInterface(args.ble, debugOut=logfile)
+        elif args.host:
+            client = TCPInterface(
+                args.host, debugOut=logfile, noProto=args.noproto)
         else:
-            client = StreamInterface(
-                args.device, debugOut=logfile, noProto=args.noproto)
+            client = SerialInterface(
+                args.port, debugOut=logfile, noProto=args.noproto)
 
 
 if __name__ == "__main__":
