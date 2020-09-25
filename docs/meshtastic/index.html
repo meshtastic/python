@@ -74,7 +74,7 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # called when we (re)connect 
 pub.subscribe(onReceive, &quot;meshtastic.receive&quot;)
 pub.subscribe(onConnection, &quot;meshtastic.connection.established&quot;)
 # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
-interface = meshtastic.StreamInterface()
+interface = meshtastic.SerialInterface()
 
 </code></pre>
 <details class="source">
@@ -130,12 +130,13 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # called when we (re)connect 
 pub.subscribe(onReceive, &#34;meshtastic.receive&#34;)
 pub.subscribe(onConnection, &#34;meshtastic.connection.established&#34;)
 # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
-interface = meshtastic.StreamInterface()
+interface = meshtastic.SerialInterface()
 
 ```
 
 &#34;&#34;&#34;
 
+import socket
 import pygatt
 import google.protobuf.json_format
 import serial
@@ -358,10 +359,12 @@ class MeshInterface:
         elif fromRadio.HasField(&#34;packet&#34;):
             self._handlePacketFromRadio(fromRadio.packet)
         elif fromRadio.rebooted:
-            self._disconnected()
+            # Tell clients the device went away.  Careful not to call the overridden subclass version that closes the serial port
+            MeshInterface._disconnected(self)
+
             self._startConfig()  # redownload the node db etc...
         else:
-            logging.warn(&#34;Unexpected FromRadio payload&#34;)
+            logging.debug(&#34;Unexpected FromRadio payload&#34;)
 
     def _fixupPosition(self, position):
         &#34;&#34;&#34;Convert integer lat/lon into floats
@@ -500,9 +503,8 @@ class BLEInterface(MeshInterface):
 class StreamInterface(MeshInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
 
-    def __init__(self, devPath=None, debugOut=None, noProto=False, connectNow=True):
-        &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to
-        find one Meshtastic device by probing
+    def __init__(self, debugOut=None, noProto=False, connectNow=True):
+        &#34;&#34;&#34;Constructor, opens a connection to self.stream 
 
         Keyword Arguments:
             devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
@@ -513,34 +515,11 @@ class StreamInterface(MeshInterface):
             Exception: [description]
         &#34;&#34;&#34;
 
-        if devPath is None:
-            ports = util.findPorts()
-            if len(ports) == 0:
-                raise Exception(&#34;No Meshtastic devices detected&#34;)
-            elif len(ports) &gt; 1:
-                raise Exception(
-                    f&#34;Multiple ports detected, you must specify a device, such as {ports[0].device}&#34;)
-            else:
-                devPath = ports[0]
-
-        logging.debug(f&#34;Connecting to {devPath}&#34;)
-        self.devPath = devPath
+        if not hasattr(self, &#39;stream&#39;):
+            raise Exception(
+                &#34;StreamInterface is now abstract (to update existing code create SerialInterface instead)&#34;)
         self._rxBuf = bytes()  # empty
         self._wantExit = False
-
-        # Note: we provide None for port here, because we will be opening it later
-        self.stream = serial.Serial(
-            None, 921600, exclusive=True, timeout=0.5)
-
-        # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
-        self.stream.port = devPath
-        # OS-X seems to have a bug in its serial driver.  It ignores that we asked for no RTSCTS
-        # control and will always drive RTS either high or low (rather than letting the CP102 leave
-        # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
-        # sure it is driven low, so that the TBEAM won&#39;t reset
-        if platform.system() == &#39;Darwin&#39;:
-            self.stream.rts = False
-        self.stream.open()
 
         self._rxThread = threading.Thread(target=self.__reader, args=())
 
@@ -558,21 +537,36 @@ class StreamInterface(MeshInterface):
         &#34;&#34;&#34;
 
         # Send some bogus UART characters to force a sleeping device to wake
-        self.stream.write(bytes([START1, START1, START1, START1]))
-        self.stream.flush()
+        self._writeBytes(bytes([START1, START1, START1, START1]))
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
+
+    def _disconnected(self):
+        &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
+        MeshInterface._disconnected(self)
+
+        logging.debug(&#34;Closing our port&#34;)
+        if not self.stream is None:
+            self.stream.close()
+
+    def _writeBytes(self, b):
+        &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
+        self.stream.write(b)
+        self.stream.flush()
+
+    def _readBytes(self, len):
+        &#34;&#34;&#34;Read an array of bytes from our stream&#34;&#34;&#34;
+        return self.stream.read(len)
 
     def _sendToRadio(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
         logging.debug(f&#34;Sending: {toRadio}&#34;)
         b = toRadio.SerializeToString()
         bufLen = len(b)
+        # We convert into a string, because the TCP code doesn&#39;t work with byte arrays
         header = bytes([START1, START2, (bufLen &gt;&gt; 8) &amp; 0xff,  bufLen &amp; 0xff])
-        self.stream.write(header)
-        self.stream.write(b)
-        self.stream.flush()
+        self._writeBytes(header + b)
 
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
@@ -588,7 +582,7 @@ class StreamInterface(MeshInterface):
 
         try:
             while not self._wantExit:
-                b = self.stream.read(1)
+                b = self._readBytes(1)
                 if len(b) &gt; 0:
                     # logging.debug(f&#34;read returned {b}&#34;)
                     c = b[0]
@@ -626,17 +620,104 @@ class StreamInterface(MeshInterface):
                                 traceback.print_exc()
                             self._rxBuf = empty
                 else:
-                    # logging.debug(f&#34;timeout on {self.devPath}&#34;)
+                    # logging.debug(f&#34;timeout&#34;)
                     pass
         except serial.SerialException as ex:
             logging.warn(
                 f&#34;Meshtastic serial port disconnected, disconnecting... {ex}&#34;)
         finally:
             logging.debug(&#34;reader is exiting&#34;)
-            if platform.system() == &#39;Darwin&#39;:
-                self.stream.rts = True  # Return RTS high, so that the reset button still works
-            self.stream.close()
-            self._disconnected()</code></pre>
+            self._disconnected()
+
+
+class SerialInterface(StreamInterface):
+    &#34;&#34;&#34;Interface class for meshtastic devices over a serial link&#34;&#34;&#34;
+
+    def __init__(self, devPath=None, debugOut=None, noProto=False, connectNow=True):
+        &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to
+        find one Meshtastic device by probing
+
+        Keyword Arguments:
+            devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
+            debugOut {stream} -- If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})
+        &#34;&#34;&#34;
+
+        if devPath is None:
+            ports = util.findPorts()
+            if len(ports) == 0:
+                raise Exception(&#34;No Meshtastic devices detected&#34;)
+            elif len(ports) &gt; 1:
+                raise Exception(
+                    f&#34;Multiple ports detected, you must specify a device, such as {ports[0].device}&#34;)
+            else:
+                devPath = ports[0]
+
+        logging.debug(f&#34;Connecting to {devPath}&#34;)
+
+        # Note: we provide None for port here, because we will be opening it later
+        self.stream = serial.Serial(
+            None, 921600, exclusive=True, timeout=0.5)
+
+        # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
+        self.stream.port = devPath
+        # OS-X seems to have a bug in its serial driver.  It ignores that we asked for no RTSCTS
+        # control and will always drive RTS either high or low (rather than letting the CP102 leave
+        # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
+        # sure it is driven low, so that the TBEAM won&#39;t reset
+        if platform.system() == &#39;Darwin&#39;:
+            self.stream.rts = False
+        self.stream.open()
+
+        StreamInterface.__init__(
+            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
+
+    def _disconnected(self):
+        &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
+
+        if platform.system() == &#39;Darwin&#39;:
+            self.stream.rts = True  # Return RTS high, so that the reset button still works
+
+        StreamInterface._disconnected(self)
+
+
+class TCPInterface(StreamInterface):
+    &#34;&#34;&#34;Interface class for meshtastic devices over a TCP link&#34;&#34;&#34;
+
+    def __init__(self, hostname, debugOut=None, noProto=False, connectNow=True, portNumber=4403):
+        &#34;&#34;&#34;Constructor, opens a connection to a specified IP address/hostname
+
+        Keyword Arguments:
+            hostname {string} -- Hostname/IP address of the device to connect to
+        &#34;&#34;&#34;
+
+        logging.debug(f&#34;Connecting to {hostname}&#34;)
+
+        server_address = (hostname, portNumber)
+        sock = socket.create_connection(server_address)
+
+        # Instead of wrapping as a stream, we use the native socket API
+        # self.stream = sock.makefile(&#39;rw&#39;)
+        self.stream = None
+        self.socket = sock
+
+        StreamInterface.__init__(
+            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
+
+    def _disconnected(self):
+        &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
+        StreamInterface._disconnected(self)
+
+        logging.debug(&#34;Closing our socket&#34;)
+        if not self.socket is None:
+            self.socket.close()
+
+    def _writeBytes(self, b):
+        &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
+        self.socket.send(b)
+
+    def _readBytes(self, len):
+        &#34;&#34;&#34;Read an array of bytes from our stream&#34;&#34;&#34;
+        return self.socket.recv(len)</code></pre>
 </details>
 </section>
 <section>
@@ -961,10 +1042,12 @@ debugOut</p>
         elif fromRadio.HasField(&#34;packet&#34;):
             self._handlePacketFromRadio(fromRadio.packet)
         elif fromRadio.rebooted:
-            self._disconnected()
+            # Tell clients the device went away.  Careful not to call the overridden subclass version that closes the serial port
+            MeshInterface._disconnected(self)
+
             self._startConfig()  # redownload the node db etc...
         else:
-            logging.warn(&#34;Unexpected FromRadio payload&#34;)
+            logging.debug(&#34;Unexpected FromRadio payload&#34;)
 
     def _fixupPosition(self, position):
         &#34;&#34;&#34;Convert integer lat/lon into floats
@@ -1244,14 +1327,98 @@ wantAck &ndash; True if you want the message sent in a reliable manner (with ret
 </dd>
 </dl>
 </dd>
-<dt id="meshtastic.StreamInterface"><code class="flex name class">
-<span>class <span class="ident">StreamInterface</span></span>
+<dt id="meshtastic.SerialInterface"><code class="flex name class">
+<span>class <span class="ident">SerialInterface</span></span>
 <span>(</span><span>devPath=None, debugOut=None, noProto=False, connectNow=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Interface class for meshtastic devices over a stream link (serial, TCP, etc)</p>
+<div class="desc"><p>Interface class for meshtastic devices over a serial link</p>
 <p>Constructor, opens a connection to a specified serial port, or if unspecified try to
 find one Meshtastic device by probing</p>
+<p>Keyword Arguments:
+devPath {string} &ndash; A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
+debugOut {stream} &ndash; If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SerialInterface(StreamInterface):
+    &#34;&#34;&#34;Interface class for meshtastic devices over a serial link&#34;&#34;&#34;
+
+    def __init__(self, devPath=None, debugOut=None, noProto=False, connectNow=True):
+        &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to
+        find one Meshtastic device by probing
+
+        Keyword Arguments:
+            devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
+            debugOut {stream} -- If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})
+        &#34;&#34;&#34;
+
+        if devPath is None:
+            ports = util.findPorts()
+            if len(ports) == 0:
+                raise Exception(&#34;No Meshtastic devices detected&#34;)
+            elif len(ports) &gt; 1:
+                raise Exception(
+                    f&#34;Multiple ports detected, you must specify a device, such as {ports[0].device}&#34;)
+            else:
+                devPath = ports[0]
+
+        logging.debug(f&#34;Connecting to {devPath}&#34;)
+
+        # Note: we provide None for port here, because we will be opening it later
+        self.stream = serial.Serial(
+            None, 921600, exclusive=True, timeout=0.5)
+
+        # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
+        self.stream.port = devPath
+        # OS-X seems to have a bug in its serial driver.  It ignores that we asked for no RTSCTS
+        # control and will always drive RTS either high or low (rather than letting the CP102 leave
+        # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
+        # sure it is driven low, so that the TBEAM won&#39;t reset
+        if platform.system() == &#39;Darwin&#39;:
+            self.stream.rts = False
+        self.stream.open()
+
+        StreamInterface.__init__(
+            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
+
+    def _disconnected(self):
+        &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
+
+        if platform.system() == &#39;Darwin&#39;:
+            self.stream.rts = True  # Return RTS high, so that the reset button still works
+
+        StreamInterface._disconnected(self)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></li>
+<li><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></b></code>:
+<ul class="hlist">
+<li><code><a title="meshtastic.StreamInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.close" href="#meshtastic.StreamInterface.close">close</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.connect" href="#meshtastic.StreamInterface.connect">connect</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="meshtastic.StreamInterface"><code class="flex name class">
+<span>class <span class="ident">StreamInterface</span></span>
+<span>(</span><span>debugOut=None, noProto=False, connectNow=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface class for meshtastic devices over a stream link (serial, TCP, etc)</p>
+<p>Constructor, opens a connection to self.stream </p>
 <p>Keyword Arguments:
 devPath {string} &ndash; A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
 debugOut {stream} &ndash; If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})</p>
@@ -1269,9 +1436,8 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <pre><code class="python">class StreamInterface(MeshInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
 
-    def __init__(self, devPath=None, debugOut=None, noProto=False, connectNow=True):
-        &#34;&#34;&#34;Constructor, opens a connection to a specified serial port, or if unspecified try to
-        find one Meshtastic device by probing
+    def __init__(self, debugOut=None, noProto=False, connectNow=True):
+        &#34;&#34;&#34;Constructor, opens a connection to self.stream 
 
         Keyword Arguments:
             devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
@@ -1282,34 +1448,11 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
             Exception: [description]
         &#34;&#34;&#34;
 
-        if devPath is None:
-            ports = util.findPorts()
-            if len(ports) == 0:
-                raise Exception(&#34;No Meshtastic devices detected&#34;)
-            elif len(ports) &gt; 1:
-                raise Exception(
-                    f&#34;Multiple ports detected, you must specify a device, such as {ports[0].device}&#34;)
-            else:
-                devPath = ports[0]
-
-        logging.debug(f&#34;Connecting to {devPath}&#34;)
-        self.devPath = devPath
+        if not hasattr(self, &#39;stream&#39;):
+            raise Exception(
+                &#34;StreamInterface is now abstract (to update existing code create SerialInterface instead)&#34;)
         self._rxBuf = bytes()  # empty
         self._wantExit = False
-
-        # Note: we provide None for port here, because we will be opening it later
-        self.stream = serial.Serial(
-            None, 921600, exclusive=True, timeout=0.5)
-
-        # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
-        self.stream.port = devPath
-        # OS-X seems to have a bug in its serial driver.  It ignores that we asked for no RTSCTS
-        # control and will always drive RTS either high or low (rather than letting the CP102 leave
-        # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
-        # sure it is driven low, so that the TBEAM won&#39;t reset
-        if platform.system() == &#39;Darwin&#39;:
-            self.stream.rts = False
-        self.stream.open()
 
         self._rxThread = threading.Thread(target=self.__reader, args=())
 
@@ -1327,21 +1470,36 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         &#34;&#34;&#34;
 
         # Send some bogus UART characters to force a sleeping device to wake
-        self.stream.write(bytes([START1, START1, START1, START1]))
-        self.stream.flush()
+        self._writeBytes(bytes([START1, START1, START1, START1]))
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
+
+    def _disconnected(self):
+        &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
+        MeshInterface._disconnected(self)
+
+        logging.debug(&#34;Closing our port&#34;)
+        if not self.stream is None:
+            self.stream.close()
+
+    def _writeBytes(self, b):
+        &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
+        self.stream.write(b)
+        self.stream.flush()
+
+    def _readBytes(self, len):
+        &#34;&#34;&#34;Read an array of bytes from our stream&#34;&#34;&#34;
+        return self.stream.read(len)
 
     def _sendToRadio(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
         logging.debug(f&#34;Sending: {toRadio}&#34;)
         b = toRadio.SerializeToString()
         bufLen = len(b)
+        # We convert into a string, because the TCP code doesn&#39;t work with byte arrays
         header = bytes([START1, START2, (bufLen &gt;&gt; 8) &amp; 0xff,  bufLen &amp; 0xff])
-        self.stream.write(header)
-        self.stream.write(b)
-        self.stream.flush()
+        self._writeBytes(header + b)
 
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
@@ -1357,7 +1515,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 
         try:
             while not self._wantExit:
-                b = self.stream.read(1)
+                b = self._readBytes(1)
                 if len(b) &gt; 0:
                     # logging.debug(f&#34;read returned {b}&#34;)
                     c = b[0]
@@ -1395,21 +1553,23 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
                                 traceback.print_exc()
                             self._rxBuf = empty
                 else:
-                    # logging.debug(f&#34;timeout on {self.devPath}&#34;)
+                    # logging.debug(f&#34;timeout&#34;)
                     pass
         except serial.SerialException as ex:
             logging.warn(
                 f&#34;Meshtastic serial port disconnected, disconnecting... {ex}&#34;)
         finally:
             logging.debug(&#34;reader is exiting&#34;)
-            if platform.system() == &#39;Darwin&#39;:
-                self.stream.rts = True  # Return RTS high, so that the reset button still works
-            self.stream.close()
             self._disconnected()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="meshtastic.SerialInterface" href="#meshtastic.SerialInterface">SerialInterface</a></li>
+<li><a title="meshtastic.TCPInterface" href="#meshtastic.TCPInterface">TCPInterface</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -1450,8 +1610,7 @@ start the reading thread later.</p></div>
     &#34;&#34;&#34;
 
     # Send some bogus UART characters to force a sleeping device to wake
-    self.stream.write(bytes([START1, START1, START1, START1]))
-    self.stream.flush()
+    self._writeBytes(bytes([START1, START1, START1, START1]))
     time.sleep(0.1)  # wait 100ms to give device time to start running
 
     self._rxThread.start()</code></pre>
@@ -1468,6 +1627,79 @@ start the reading thread later.</p></div>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="meshtastic.TCPInterface"><code class="flex name class">
+<span>class <span class="ident">TCPInterface</span></span>
+<span>(</span><span>hostname, debugOut=None, noProto=False, connectNow=True, portNumber=4403)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface class for meshtastic devices over a TCP link</p>
+<p>Constructor, opens a connection to a specified IP address/hostname</p>
+<p>Keyword Arguments:
+hostname {string} &ndash; Hostname/IP address of the device to connect to</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TCPInterface(StreamInterface):
+    &#34;&#34;&#34;Interface class for meshtastic devices over a TCP link&#34;&#34;&#34;
+
+    def __init__(self, hostname, debugOut=None, noProto=False, connectNow=True, portNumber=4403):
+        &#34;&#34;&#34;Constructor, opens a connection to a specified IP address/hostname
+
+        Keyword Arguments:
+            hostname {string} -- Hostname/IP address of the device to connect to
+        &#34;&#34;&#34;
+
+        logging.debug(f&#34;Connecting to {hostname}&#34;)
+
+        server_address = (hostname, portNumber)
+        sock = socket.create_connection(server_address)
+
+        # Instead of wrapping as a stream, we use the native socket API
+        # self.stream = sock.makefile(&#39;rw&#39;)
+        self.stream = None
+        self.socket = sock
+
+        StreamInterface.__init__(
+            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
+
+    def _disconnected(self):
+        &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
+        StreamInterface._disconnected(self)
+
+        logging.debug(&#34;Closing our socket&#34;)
+        if not self.socket is None:
+            self.socket.close()
+
+    def _writeBytes(self, b):
+        &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
+        self.socket.send(b)
+
+    def _readBytes(self, len):
+        &#34;&#34;&#34;Read an array of bytes from our stream&#34;&#34;&#34;
+        return self.socket.recv(len)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></li>
+<li><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></b></code>:
+<ul class="hlist">
+<li><code><a title="meshtastic.StreamInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.close" href="#meshtastic.StreamInterface.close">close</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.connect" href="#meshtastic.StreamInterface.connect">connect</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1518,11 +1750,17 @@ start the reading thread later.</p></div>
 </ul>
 </li>
 <li>
+<h4><code><a title="meshtastic.SerialInterface" href="#meshtastic.SerialInterface">SerialInterface</a></code></h4>
+</li>
+<li>
 <h4><code><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></code></h4>
 <ul class="">
 <li><code><a title="meshtastic.StreamInterface.close" href="#meshtastic.StreamInterface.close">close</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.connect" href="#meshtastic.StreamInterface.connect">connect</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.TCPInterface" href="#meshtastic.TCPInterface">TCPInterface</a></code></h4>
 </li>
 </ul>
 </li>

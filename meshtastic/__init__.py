@@ -276,7 +276,9 @@ class MeshInterface:
         elif fromRadio.HasField("packet"):
             self._handlePacketFromRadio(fromRadio.packet)
         elif fromRadio.rebooted:
-            self._disconnected()
+            # Tell clients the device went away.  Careful not to call the overridden subclass version that closes the serial port
+            MeshInterface._disconnected(self)
+
             self._startConfig()  # redownload the node db etc...
         else:
             logging.debug("Unexpected FromRadio payload")
