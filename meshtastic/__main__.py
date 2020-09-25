@@ -9,6 +9,7 @@ import google.protobuf.json_format
 import pyqrcode
 import traceback
 import codecs
+import base64
 
 """The command line arguments"""
 args = None
@@ -86,7 +87,7 @@ def onConnected(interface):
             interface.sendText(args.sendtext, args.dest,
                                wantAck=True, wantResponse=True)
 
-        if args.set or args.setstr or args.setchan:
+        if args.set or args.setstr or args.setchan or args.seturl:
             closeNow = True
 
             def setPref(attributes, name, val):
@@ -118,6 +119,14 @@ def onConnected(interface):
             for pref in (args.setchan or []):
                 setPref(interface.radioConfig.channel_settings,
                         pref[0], fromStr(pref[1]))
+
+            # Handle set URL
+            if args.seturl:
+                # URLs are of the form https://www.meshtastic.org/c/#{base64_channel_settings}
+                # Split on '/#' to find the base64 encoded channel settings
+                splitURL = args.seturl.split("/#")
+                bytes = base64.urlsafe_b64decode(splitURL[-1])
+                interface.radioConfig.channel_settings.ParseFromString(bytes)
 
             print("Writing modified preferences to device")
             interface.writeConfig()
@@ -190,6 +199,9 @@ def main():
 
     parser.add_argument(
         "--setchan", help="Set a channel parameter", nargs=2, action='append')
+
+    parser.add_argument(
+        "--seturl", help="Set a channel URL", action="store")
 
     parser.add_argument(
         "--dest", help="The destination node id for the --send commands, if not set '^all' is assumed", default="^all")
