@@ -452,8 +452,7 @@ class StreamInterface(MeshInterface):
         """
 
         # Send some bogus UART characters to force a sleeping device to wake
-        self.stream.write(bytes([START1, START1, START1, START1]))
-        self.stream.flush()
+        self._writeBytes(bytes([START1, START1, START1, START1]))
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
@@ -463,7 +462,17 @@ class StreamInterface(MeshInterface):
         MeshInterface._disconnected(self)
 
         logging.debug("Closing our port")
-        self.stream.close()
+        if not self.stream is None:
+            self.stream.close()
+
+    def _writeBytes(self, b):
+        """Write an array of bytes to our stream and flush"""
+        self.stream.write(b)
+        self.stream.flush()
+
+    def _readBytes(self, len):
+        """Read an array of bytes from our stream"""
+        return self.stream.read(len)
 
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""
@@ -472,9 +481,7 @@ class StreamInterface(MeshInterface):
         bufLen = len(b)
         # We convert into a string, because the TCP code doesn't work with byte arrays
         header = bytes([START1, START2, (bufLen >> 8) & 0xff,  bufLen & 0xff])
-        self.stream.write(header)
-        self.stream.write(b)
-        self.stream.flush()
+        self._writeBytes(header + b)
 
     def close(self):
         """Close a connection to the device"""
@@ -490,7 +497,7 @@ class StreamInterface(MeshInterface):
 
         try:
             while not self._wantExit:
-                b = self.stream.read(1)
+                b = self._readBytes(1)
                 if len(b) > 0:
                     # logging.debug(f"read returned {b}")
                     c = b[0]
@@ -603,7 +610,26 @@ class TCPInterface(StreamInterface):
         server_address = (hostname, portNumber)
         sock = socket.create_connection(server_address)
 
-        self.stream = sock.makefile('rw')
+        # Instead of wrapping as a stream, we use the native socket API
+        # self.stream = sock.makefile('rw')
+        self.stream = None
+        self.socket = sock
 
         StreamInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
+
+    def _disconnected(self):
+        """We override the superclass implementation to close our port"""
+        StreamInterface._disconnected(self)
+
+        logging.debug("Closing our socket")
+        if not self.socket is None:
+            self.socket.close()
+
+    def _writeBytes(self, b):
+        """Write an array of bytes to our stream and flush"""
+        self.socket.send(b)
+
+    def _readBytes(self, len):
+        """Read an array of bytes from our stream"""
+        return self.socket.recv(len)
