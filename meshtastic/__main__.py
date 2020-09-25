@@ -182,8 +182,7 @@ def main():
 
     parser.add_argument(
         "--seriallog",
-        help="Log device serial output to either 'stdout', 'none' or a filename to append to.  Defaults to stdout.",
-        default="stdout")
+        help="Log device serial output to either 'stdout', 'none' or a filename to append to.  Defaults to stdout.")
 
     parser.add_argument("--info", help="Read and display the radio config information",
                         action="store_true")
@@ -232,15 +231,18 @@ def main():
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
-    if (not args.seriallog) and (args.info or args.set or args.setstr or args.setchan or args.sendtext or args.qr):
-        args.seriallog = "none"  # assume no debug output in this case
+    if not args.seriallog:
+        if args.info or args.set or args.setstr or args.setchan or args.sendtext or args.qr:
+            args.seriallog = "none"  # assume no debug output in this case
+        else:
+            args.seriallog = "stdout"  # default to stdout
 
     if args.test:
         test.testAll()
     else:
         if args.seriallog == "stdout":
             logfile = sys.stdout
-        elif not args.seriallog or args.seriallog == "none":
+        elif args.seriallog == "none":
             args.seriallog = None
             logging.debug("Not logging serial output")
             logfile = None
