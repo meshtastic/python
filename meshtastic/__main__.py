@@ -113,7 +113,7 @@ def onConnected(interface):
 
             # Handle the string arguments
             for pref in (args.setstr or []):
-                interface.radioConfig.preferences, setPref(pref[0], pref[1])
+                setPref(interface.radioConfig.preferences, pref[0], pref[1])
 
             # Handle the channel settings
             for pref in (args.setchan or []):
