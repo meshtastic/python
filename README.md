@@ -14,7 +14,7 @@ then run the following python3 code:
 
 ```
 import meshtastic
-interface = meshtastic.StreamInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+interface = meshtastic.SerialInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
 interface.sendText("hello mesh") # or sendData to send binary data, see documentations for other options.
 ```
 

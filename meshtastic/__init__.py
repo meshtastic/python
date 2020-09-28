@@ -1,11 +1,11 @@
 """
 # an API for Meshtastic devices
 
-Primary class: StreamInterface
+Primary class: SerialInterface
 Install with pip: "[pip3 install meshtastic](https://pypi.org/project/meshtastic/)"
 Source code on [github](https://github.com/meshtastic/Meshtastic-python)
 
-properties of StreamInterface:
+properties of SerialInterface:
 
 - radioConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to
 the device.
