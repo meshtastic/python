@@ -20,8 +20,9 @@ topics:
 
 - meshtastic.connection.established - published once we've successfully connected to the radio and downloaded the node DB
 - meshtastic.connection.lost - published once we've lost our link to the radio
-- meshtastic.receive.position(packet) - delivers a received packet as a dictionary, if you only care about a particular
+- meshtastic.receive.text(packet) - delivers a received packet as a dictionary, if you only care about a particular
 type of packet, you should subscribe to the full topic name.  If you want to see all packets, simply subscribe to "meshtastic.receive".
+- meshtastic.receive.position(packet)
 - meshtastic.receive.user(packet)
 - meshtastic.receive.data(packet)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
@@ -328,6 +329,7 @@ class MeshInterface:
         """Handle a MeshPacket that just arrived from the radio
 
         Will publish one of the following events:
+        - meshtastic.receive.text(packet = MeshPacket dictionary)
         - meshtastic.receive.position(packet = MeshPacket dictionary)
         - meshtastic.receive.user(packet = MeshPacket dictionary)
         - meshtastic.receive.data(packet = MeshPacket dictionary)
@@ -367,6 +369,7 @@ class MeshInterface:
 
             # For text messages, we go ahead and decode the text to ascii for our users
             if asDict["decoded"]["data"]["typ"] == "CLEAR_TEXT":
+                topic = "meshtastic.receive.text"
                 asDict["decoded"]["data"]["text"] = meshPacket.decoded.data.payload.decode(
                     "utf-8")
 
