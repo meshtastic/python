@@ -1713,10 +1713,6 @@ DESCRIPTOR._options = None
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="meshtastic.mesh_pb2.ChannelSettings.BANDWIDTH_FIELD_NUMBER"><code class="name">var <span class="ident">BANDWIDTH_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="meshtastic.mesh_pb2.ChannelSettings.Bw125Cr45Sf128"><code class="name">var <span class="ident">Bw125Cr45Sf128</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -1733,19 +1729,7 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ChannelSettings.CHANNEL_NUM_FIELD_NUMBER"><code class="name">var <span class="ident">CHANNEL_NUM_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.ChannelSettings.CODING_RATE_FIELD_NUMBER"><code class="name">var <span class="ident">CODING_RATE_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="meshtastic.mesh_pb2.ChannelSettings.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.ChannelSettings.MODEM_CONFIG_FIELD_NUMBER"><code class="name">var <span class="ident">MODEM_CONFIG_FIELD_NUMBER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1753,21 +1737,40 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ChannelSettings.NAME_FIELD_NUMBER"><code class="name">var <span class="ident">NAME_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.bandwidth"><code class="name">var <span class="ident">bandwidth</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ChannelSettings.bandwidth</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ChannelSettings.PSK_FIELD_NUMBER"><code class="name">var <span class="ident">PSK_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.channel_num"><code class="name">var <span class="ident">channel_num</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ChannelSettings.channel_num</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ChannelSettings.SPREAD_FACTOR_FIELD_NUMBER"><code class="name">var <span class="ident">SPREAD_FACTOR_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.coding_rate"><code class="name">var <span class="ident">coding_rate</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ChannelSettings.coding_rate</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ChannelSettings.TX_POWER_FIELD_NUMBER"><code class="name">var <span class="ident">TX_POWER_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.modem_config"><code class="name">var <span class="ident">modem_config</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ChannelSettings.modem_config</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>Field ChannelSettings.name</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.psk"><code class="name">var <span class="ident">psk</span></code></dt>
+<dd>
+<div class="desc"><p>Field ChannelSettings.psk</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.spread_factor"><code class="name">var <span class="ident">spread_factor</span></code></dt>
+<dd>
+<div class="desc"><p>Field ChannelSettings.spread_factor</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.ChannelSettings.tx_power"><code class="name">var <span class="ident">tx_power</span></code></dt>
+<dd>
+<div class="desc"><p>Field ChannelSettings.tx_power</p></div>
 </dd>
 </dl>
 </dd>
@@ -1800,17 +1803,20 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.Data.PAYLOAD_FIELD_NUMBER"><code class="name">var <span class="ident">PAYLOAD_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.Data.TYP_FIELD_NUMBER"><code class="name">var <span class="ident">TYP_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="meshtastic.mesh_pb2.Data.Type"><code class="name">var <span class="ident">Type</span></code></dt>
 <dd>
 <div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.Data.payload"><code class="name">var <span class="ident">payload</span></code></dt>
+<dd>
+<div class="desc"><p>Field Data.payload</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Data.typ"><code class="name">var <span class="ident">typ</span></code></dt>
+<dd>
+<div class="desc"><p>Field Data.typ</p></div>
 </dd>
 </dl>
 </dd>
@@ -1831,9 +1837,12 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.DebugString.MESSAGE_FIELD_NUMBER"><code class="name">var <span class="ident">MESSAGE_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.DebugString.message"><code class="name">var <span class="ident">message</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field DebugString.message</p></div>
 </dd>
 </dl>
 </dd>
@@ -1854,41 +1863,44 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.DeviceState.DID_GPS_RESET_FIELD_NUMBER"><code class="name">var <span class="ident">DID_GPS_RESET_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.DeviceState.did_gps_reset"><code class="name">var <span class="ident">did_gps_reset</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field DeviceState.did_gps_reset</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.DeviceState.MY_NODE_FIELD_NUMBER"><code class="name">var <span class="ident">MY_NODE_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.DeviceState.my_node"><code class="name">var <span class="ident">my_node</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field DeviceState.my_node</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.DeviceState.NODE_DB_FIELD_NUMBER"><code class="name">var <span class="ident">NODE_DB_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.DeviceState.no_save"><code class="name">var <span class="ident">no_save</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field DeviceState.no_save</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.DeviceState.NO_SAVE_FIELD_NUMBER"><code class="name">var <span class="ident">NO_SAVE_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.DeviceState.node_db"><code class="name">var <span class="ident">node_db</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field DeviceState.node_db</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.DeviceState.OWNER_FIELD_NUMBER"><code class="name">var <span class="ident">OWNER_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.DeviceState.owner"><code class="name">var <span class="ident">owner</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field DeviceState.owner</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.DeviceState.RADIO_FIELD_NUMBER"><code class="name">var <span class="ident">RADIO_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.DeviceState.radio"><code class="name">var <span class="ident">radio</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field DeviceState.radio</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.DeviceState.RECEIVE_QUEUE_FIELD_NUMBER"><code class="name">var <span class="ident">RECEIVE_QUEUE_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.DeviceState.receive_queue"><code class="name">var <span class="ident">receive_queue</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field DeviceState.receive_queue</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.DeviceState.RX_TEXT_MESSAGE_FIELD_NUMBER"><code class="name">var <span class="ident">RX_TEXT_MESSAGE_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.DeviceState.rx_text_message"><code class="name">var <span class="ident">rx_text_message</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field DeviceState.rx_text_message</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.DeviceState.VERSION_FIELD_NUMBER"><code class="name">var <span class="ident">VERSION_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.DeviceState.version"><code class="name">var <span class="ident">version</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field DeviceState.version</p></div>
 </dd>
 </dl>
 </dd>
@@ -1905,41 +1917,44 @@ DESCRIPTOR._options = None
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="meshtastic.mesh_pb2.FromRadio.CONFIG_COMPLETE_ID_FIELD_NUMBER"><code class="name">var <span class="ident">CONFIG_COMPLETE_ID_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.FromRadio.DEBUG_STRING_FIELD_NUMBER"><code class="name">var <span class="ident">DEBUG_STRING_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="meshtastic.mesh_pb2.FromRadio.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.FromRadio.MY_INFO_FIELD_NUMBER"><code class="name">var <span class="ident">MY_INFO_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.FromRadio.config_complete_id"><code class="name">var <span class="ident">config_complete_id</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field FromRadio.config_complete_id</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.FromRadio.NODE_INFO_FIELD_NUMBER"><code class="name">var <span class="ident">NODE_INFO_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.FromRadio.debug_string"><code class="name">var <span class="ident">debug_string</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field FromRadio.debug_string</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.FromRadio.NUM_FIELD_NUMBER"><code class="name">var <span class="ident">NUM_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.FromRadio.my_info"><code class="name">var <span class="ident">my_info</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field FromRadio.my_info</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.FromRadio.PACKET_FIELD_NUMBER"><code class="name">var <span class="ident">PACKET_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.FromRadio.node_info"><code class="name">var <span class="ident">node_info</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field FromRadio.node_info</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.FromRadio.RADIO_FIELD_NUMBER"><code class="name">var <span class="ident">RADIO_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.FromRadio.num"><code class="name">var <span class="ident">num</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field FromRadio.num</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.FromRadio.REBOOTED_FIELD_NUMBER"><code class="name">var <span class="ident">REBOOTED_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.FromRadio.packet"><code class="name">var <span class="ident">packet</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field FromRadio.packet</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.FromRadio.radio"><code class="name">var <span class="ident">radio</span></code></dt>
+<dd>
+<div class="desc"><p>Field FromRadio.radio</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.FromRadio.rebooted"><code class="name">var <span class="ident">rebooted</span></code></dt>
+<dd>
+<div class="desc"><p>Field FromRadio.rebooted</p></div>
 </dd>
 </dl>
 </dd>
@@ -1960,21 +1975,24 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.FRADIOFREQ_FIELD_NUMBER"><code class="name">var <span class="ident">FRADIOFREQ_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.ManufacturingData.fradioFreq"><code class="name">var <span class="ident">fradioFreq</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ManufacturingData.fradioFreq</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.HW_MODEL_FIELD_NUMBER"><code class="name">var <span class="ident">HW_MODEL_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.ManufacturingData.hw_model"><code class="name">var <span class="ident">hw_model</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ManufacturingData.hw_model</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.HW_VERSION_FIELD_NUMBER"><code class="name">var <span class="ident">HW_VERSION_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.ManufacturingData.hw_version"><code class="name">var <span class="ident">hw_version</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ManufacturingData.hw_version</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.SELFTEST_RESULT_FIELD_NUMBER"><code class="name">var <span class="ident">SELFTEST_RESULT_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.ManufacturingData.selftest_result"><code class="name">var <span class="ident">selftest_result</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ManufacturingData.selftest_result</p></div>
 </dd>
 </dl>
 </dd>
@@ -1991,45 +2009,48 @@ DESCRIPTOR._options = None
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="meshtastic.mesh_pb2.MeshPacket.DECODED_FIELD_NUMBER"><code class="name">var <span class="ident">DECODED_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="meshtastic.mesh_pb2.MeshPacket.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MeshPacket.ENCRYPTED_FIELD_NUMBER"><code class="name">var <span class="ident">ENCRYPTED_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.MeshPacket.decoded"><code class="name">var <span class="ident">decoded</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MeshPacket.decoded</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MeshPacket.FROM_FIELD_NUMBER"><code class="name">var <span class="ident">FROM_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MeshPacket.encrypted"><code class="name">var <span class="ident">encrypted</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MeshPacket.encrypted</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MeshPacket.HOP_LIMIT_FIELD_NUMBER"><code class="name">var <span class="ident">HOP_LIMIT_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MeshPacket.from"><code class="name">var <span class="ident">from</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MeshPacket.from</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MeshPacket.ID_FIELD_NUMBER"><code class="name">var <span class="ident">ID_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MeshPacket.hop_limit"><code class="name">var <span class="ident">hop_limit</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MeshPacket.hop_limit</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MeshPacket.RX_SNR_FIELD_NUMBER"><code class="name">var <span class="ident">RX_SNR_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MeshPacket.id"><code class="name">var <span class="ident">id</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MeshPacket.id</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MeshPacket.RX_TIME_FIELD_NUMBER"><code class="name">var <span class="ident">RX_TIME_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MeshPacket.rx_snr"><code class="name">var <span class="ident">rx_snr</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MeshPacket.rx_snr</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MeshPacket.TO_FIELD_NUMBER"><code class="name">var <span class="ident">TO_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MeshPacket.rx_time"><code class="name">var <span class="ident">rx_time</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MeshPacket.rx_time</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MeshPacket.WANT_ACK_FIELD_NUMBER"><code class="name">var <span class="ident">WANT_ACK_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MeshPacket.to"><code class="name">var <span class="ident">to</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MeshPacket.to</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MeshPacket.want_ack"><code class="name">var <span class="ident">want_ack</span></code></dt>
+<dd>
+<div class="desc"><p>Field MeshPacket.want_ack</p></div>
 </dd>
 </dl>
 </dd>
@@ -2046,65 +2067,68 @@ DESCRIPTOR._options = None
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.CURRENT_PACKET_ID_FIELD_NUMBER"><code class="name">var <span class="ident">CURRENT_PACKET_ID_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="meshtastic.mesh_pb2.MyNodeInfo.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.ERROR_ADDRESS_FIELD_NUMBER"><code class="name">var <span class="ident">ERROR_ADDRESS_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.current_packet_id"><code class="name">var <span class="ident">current_packet_id</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.current_packet_id</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.ERROR_CODE_FIELD_NUMBER"><code class="name">var <span class="ident">ERROR_CODE_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.error_address"><code class="name">var <span class="ident">error_address</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.error_address</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.ERROR_COUNT_FIELD_NUMBER"><code class="name">var <span class="ident">ERROR_COUNT_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.error_code"><code class="name">var <span class="ident">error_code</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.error_code</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.FIRMWARE_VERSION_FIELD_NUMBER"><code class="name">var <span class="ident">FIRMWARE_VERSION_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.error_count"><code class="name">var <span class="ident">error_count</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.error_count</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.HAS_GPS_FIELD_NUMBER"><code class="name">var <span class="ident">HAS_GPS_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.firmware_version"><code class="name">var <span class="ident">firmware_version</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.firmware_version</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.HW_MODEL_FIELD_NUMBER"><code class="name">var <span class="ident">HW_MODEL_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.has_gps"><code class="name">var <span class="ident">has_gps</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.has_gps</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.MESSAGE_TIMEOUT_MSEC_FIELD_NUMBER"><code class="name">var <span class="ident">MESSAGE_TIMEOUT_MSEC_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.hw_model"><code class="name">var <span class="ident">hw_model</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.hw_model</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.MIN_APP_VERSION_FIELD_NUMBER"><code class="name">var <span class="ident">MIN_APP_VERSION_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.message_timeout_msec"><code class="name">var <span class="ident">message_timeout_msec</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.message_timeout_msec</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.MY_NODE_NUM_FIELD_NUMBER"><code class="name">var <span class="ident">MY_NODE_NUM_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.min_app_version"><code class="name">var <span class="ident">min_app_version</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.min_app_version</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.NODE_NUM_BITS_FIELD_NUMBER"><code class="name">var <span class="ident">NODE_NUM_BITS_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.my_node_num"><code class="name">var <span class="ident">my_node_num</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.my_node_num</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.NUM_CHANNELS_FIELD_NUMBER"><code class="name">var <span class="ident">NUM_CHANNELS_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.node_num_bits"><code class="name">var <span class="ident">node_num_bits</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.node_num_bits</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.PACKET_ID_BITS_FIELD_NUMBER"><code class="name">var <span class="ident">PACKET_ID_BITS_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.num_channels"><code class="name">var <span class="ident">num_channels</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.num_channels</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.REGION_FIELD_NUMBER"><code class="name">var <span class="ident">REGION_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.packet_id_bits"><code class="name">var <span class="ident">packet_id_bits</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field MyNodeInfo.packet_id_bits</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.region"><code class="name">var <span class="ident">region</span></code></dt>
+<dd>
+<div class="desc"><p>Field MyNodeInfo.region</p></div>
 </dd>
 </dl>
 </dd>
@@ -2125,25 +2149,28 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.NodeInfo.NEXT_HOP_FIELD_NUMBER"><code class="name">var <span class="ident">NEXT_HOP_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.NodeInfo.next_hop"><code class="name">var <span class="ident">next_hop</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field NodeInfo.next_hop</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.NodeInfo.NUM_FIELD_NUMBER"><code class="name">var <span class="ident">NUM_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.NodeInfo.num"><code class="name">var <span class="ident">num</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field NodeInfo.num</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.NodeInfo.POSITION_FIELD_NUMBER"><code class="name">var <span class="ident">POSITION_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.NodeInfo.position"><code class="name">var <span class="ident">position</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field NodeInfo.position</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.NodeInfo.SNR_FIELD_NUMBER"><code class="name">var <span class="ident">SNR_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.NodeInfo.snr"><code class="name">var <span class="ident">snr</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field NodeInfo.snr</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.NodeInfo.USER_FIELD_NUMBER"><code class="name">var <span class="ident">USER_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.NodeInfo.user"><code class="name">var <span class="ident">user</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field NodeInfo.user</p></div>
 </dd>
 </dl>
 </dd>
@@ -2160,29 +2187,32 @@ DESCRIPTOR._options = None
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="meshtastic.mesh_pb2.Position.ALTITUDE_FIELD_NUMBER"><code class="name">var <span class="ident">ALTITUDE_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.Position.BATTERY_LEVEL_FIELD_NUMBER"><code class="name">var <span class="ident">BATTERY_LEVEL_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="meshtastic.mesh_pb2.Position.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.Position.LATITUDE_I_FIELD_NUMBER"><code class="name">var <span class="ident">LATITUDE_I_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.Position.altitude"><code class="name">var <span class="ident">altitude</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field Position.altitude</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.Position.LONGITUDE_I_FIELD_NUMBER"><code class="name">var <span class="ident">LONGITUDE_I_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.Position.battery_level"><code class="name">var <span class="ident">battery_level</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field Position.battery_level</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.Position.TIME_FIELD_NUMBER"><code class="name">var <span class="ident">TIME_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.Position.latitude_i"><code class="name">var <span class="ident">latitude_i</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field Position.latitude_i</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Position.longitude_i"><code class="name">var <span class="ident">longitude_i</span></code></dt>
+<dd>
+<div class="desc"><p>Field Position.longitude_i</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.Position.time"><code class="name">var <span class="ident">time</span></code></dt>
+<dd>
+<div class="desc"><p>Field Position.time</p></div>
 </dd>
 </dl>
 </dd>
@@ -2199,21 +2229,24 @@ DESCRIPTOR._options = None
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="meshtastic.mesh_pb2.RadioConfig.CHANNEL_SETTINGS_FIELD_NUMBER"><code class="name">var <span class="ident">CHANNEL_SETTINGS_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="meshtastic.mesh_pb2.RadioConfig.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.RadioConfig.PREFERENCES_FIELD_NUMBER"><code class="name">var <span class="ident">PREFERENCES_FIELD_NUMBER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 <dt id="meshtastic.mesh_pb2.RadioConfig.UserPreferences"><code class="name">var <span class="ident">UserPreferences</span></code></dt>
 <dd>
 <div class="desc"><p>A ProtocolMessage</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.RadioConfig.channel_settings"><code class="name">var <span class="ident">channel_settings</span></code></dt>
+<dd>
+<div class="desc"><p>Field RadioConfig.channel_settings</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.RadioConfig.preferences"><code class="name">var <span class="ident">preferences</span></code></dt>
+<dd>
+<div class="desc"><p>Field RadioConfig.preferences</p></div>
 </dd>
 </dl>
 </dd>
@@ -2234,9 +2267,12 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.RouteDiscovery.ROUTE_FIELD_NUMBER"><code class="name">var <span class="ident">ROUTE_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.RouteDiscovery.route"><code class="name">var <span class="ident">route</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field RouteDiscovery.route</p></div>
 </dd>
 </dl>
 </dd>
@@ -2253,57 +2289,60 @@ DESCRIPTOR._options = None
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="meshtastic.mesh_pb2.SubPacket.DATA_FIELD_NUMBER"><code class="name">var <span class="ident">DATA_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="meshtastic.mesh_pb2.SubPacket.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.SubPacket.DEST_FIELD_NUMBER"><code class="name">var <span class="ident">DEST_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.SubPacket.data"><code class="name">var <span class="ident">data</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field SubPacket.data</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.SubPacket.FAIL_ID_FIELD_NUMBER"><code class="name">var <span class="ident">FAIL_ID_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.SubPacket.dest"><code class="name">var <span class="ident">dest</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field SubPacket.dest</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.SubPacket.ORIGINAL_ID_FIELD_NUMBER"><code class="name">var <span class="ident">ORIGINAL_ID_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.SubPacket.fail_id"><code class="name">var <span class="ident">fail_id</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field SubPacket.fail_id</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.SubPacket.POSITION_FIELD_NUMBER"><code class="name">var <span class="ident">POSITION_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.SubPacket.original_id"><code class="name">var <span class="ident">original_id</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field SubPacket.original_id</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.SubPacket.ROUTE_ERROR_FIELD_NUMBER"><code class="name">var <span class="ident">ROUTE_ERROR_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.SubPacket.position"><code class="name">var <span class="ident">position</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field SubPacket.position</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.SubPacket.ROUTE_REPLY_FIELD_NUMBER"><code class="name">var <span class="ident">ROUTE_REPLY_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.SubPacket.route_error"><code class="name">var <span class="ident">route_error</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field SubPacket.route_error</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.SubPacket.ROUTE_REQUEST_FIELD_NUMBER"><code class="name">var <span class="ident">ROUTE_REQUEST_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.SubPacket.route_reply"><code class="name">var <span class="ident">route_reply</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field SubPacket.route_reply</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.SubPacket.SOURCE_FIELD_NUMBER"><code class="name">var <span class="ident">SOURCE_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.SubPacket.route_request"><code class="name">var <span class="ident">route_request</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field SubPacket.route_request</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.SubPacket.SUCCESS_ID_FIELD_NUMBER"><code class="name">var <span class="ident">SUCCESS_ID_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.SubPacket.source"><code class="name">var <span class="ident">source</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field SubPacket.source</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.SubPacket.USER_FIELD_NUMBER"><code class="name">var <span class="ident">USER_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.SubPacket.success_id"><code class="name">var <span class="ident">success_id</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field SubPacket.success_id</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.SubPacket.WANT_RESPONSE_FIELD_NUMBER"><code class="name">var <span class="ident">WANT_RESPONSE_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.SubPacket.user"><code class="name">var <span class="ident">user</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field SubPacket.user</p></div>
+</dd>
+<dt id="meshtastic.mesh_pb2.SubPacket.want_response"><code class="name">var <span class="ident">want_response</span></code></dt>
+<dd>
+<div class="desc"><p>Field SubPacket.want_response</p></div>
 </dd>
 </dl>
 </dd>
@@ -2324,21 +2363,24 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ToRadio.PACKET_FIELD_NUMBER"><code class="name">var <span class="ident">PACKET_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.ToRadio.packet"><code class="name">var <span class="ident">packet</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ToRadio.packet</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ToRadio.SET_OWNER_FIELD_NUMBER"><code class="name">var <span class="ident">SET_OWNER_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.ToRadio.set_owner"><code class="name">var <span class="ident">set_owner</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ToRadio.set_owner</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ToRadio.SET_RADIO_FIELD_NUMBER"><code class="name">var <span class="ident">SET_RADIO_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.ToRadio.set_radio"><code class="name">var <span class="ident">set_radio</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ToRadio.set_radio</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.ToRadio.WANT_CONFIG_ID_FIELD_NUMBER"><code class="name">var <span class="ident">WANT_CONFIG_ID_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.ToRadio.want_config_id"><code class="name">var <span class="ident">want_config_id</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field ToRadio.want_config_id</p></div>
 </dd>
 </dl>
 </dd>
@@ -2359,21 +2401,24 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.User.ID_FIELD_NUMBER"><code class="name">var <span class="ident">ID_FIELD_NUMBER</span></code></dt>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.mesh_pb2.User.id"><code class="name">var <span class="ident">id</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field User.id</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.User.LONG_NAME_FIELD_NUMBER"><code class="name">var <span class="ident">LONG_NAME_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.User.long_name"><code class="name">var <span class="ident">long_name</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field User.long_name</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.User.MACADDR_FIELD_NUMBER"><code class="name">var <span class="ident">MACADDR_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.User.macaddr"><code class="name">var <span class="ident">macaddr</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field User.macaddr</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.User.SHORT_NAME_FIELD_NUMBER"><code class="name">var <span class="ident">SHORT_NAME_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.mesh_pb2.User.short_name"><code class="name">var <span class="ident">short_name</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Field User.short_name</p></div>
 </dd>
 </dl>
 </dd>
@@ -2395,190 +2440,190 @@ DESCRIPTOR._options = None
 <ul>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.ChannelSettings" href="#meshtastic.mesh_pb2.ChannelSettings">ChannelSettings</a></code></h4>
-<ul class="">
-<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.BANDWIDTH_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.BANDWIDTH_FIELD_NUMBER">BANDWIDTH_FIELD_NUMBER</a></code></li>
+<ul class="two-column">
 <li><code><a title="meshtastic.mesh_pb2.ChannelSettings.Bw125Cr45Sf128" href="#meshtastic.mesh_pb2.ChannelSettings.Bw125Cr45Sf128">Bw125Cr45Sf128</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.ChannelSettings.Bw125Cr48Sf4096" href="#meshtastic.mesh_pb2.ChannelSettings.Bw125Cr48Sf4096">Bw125Cr48Sf4096</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.ChannelSettings.Bw31_25Cr48Sf512" href="#meshtastic.mesh_pb2.ChannelSettings.Bw31_25Cr48Sf512">Bw31_25Cr48Sf512</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.ChannelSettings.Bw500Cr45Sf128" href="#meshtastic.mesh_pb2.ChannelSettings.Bw500Cr45Sf128">Bw500Cr45Sf128</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.CHANNEL_NUM_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.CHANNEL_NUM_FIELD_NUMBER">CHANNEL_NUM_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.CODING_RATE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.CODING_RATE_FIELD_NUMBER">CODING_RATE_FIELD_NUMBER</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.ChannelSettings.DESCRIPTOR" href="#meshtastic.mesh_pb2.ChannelSettings.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.MODEM_CONFIG_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.MODEM_CONFIG_FIELD_NUMBER">MODEM_CONFIG_FIELD_NUMBER</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.ChannelSettings.ModemConfig" href="#meshtastic.mesh_pb2.ChannelSettings.ModemConfig">ModemConfig</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.NAME_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.NAME_FIELD_NUMBER">NAME_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.PSK_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.PSK_FIELD_NUMBER">PSK_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.SPREAD_FACTOR_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.SPREAD_FACTOR_FIELD_NUMBER">SPREAD_FACTOR_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.TX_POWER_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ChannelSettings.TX_POWER_FIELD_NUMBER">TX_POWER_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.bandwidth" href="#meshtastic.mesh_pb2.ChannelSettings.bandwidth">bandwidth</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.channel_num" href="#meshtastic.mesh_pb2.ChannelSettings.channel_num">channel_num</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.coding_rate" href="#meshtastic.mesh_pb2.ChannelSettings.coding_rate">coding_rate</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.modem_config" href="#meshtastic.mesh_pb2.ChannelSettings.modem_config">modem_config</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.name" href="#meshtastic.mesh_pb2.ChannelSettings.name">name</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.psk" href="#meshtastic.mesh_pb2.ChannelSettings.psk">psk</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.spread_factor" href="#meshtastic.mesh_pb2.ChannelSettings.spread_factor">spread_factor</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ChannelSettings.tx_power" href="#meshtastic.mesh_pb2.ChannelSettings.tx_power">tx_power</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.Data" href="#meshtastic.mesh_pb2.Data">Data</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="meshtastic.mesh_pb2.Data.CLEAR_READACK" href="#meshtastic.mesh_pb2.Data.CLEAR_READACK">CLEAR_READACK</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.CLEAR_TEXT" href="#meshtastic.mesh_pb2.Data.CLEAR_TEXT">CLEAR_TEXT</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.DESCRIPTOR" href="#meshtastic.mesh_pb2.Data.DESCRIPTOR">DESCRIPTOR</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.OPAQUE" href="#meshtastic.mesh_pb2.Data.OPAQUE">OPAQUE</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Data.PAYLOAD_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Data.PAYLOAD_FIELD_NUMBER">PAYLOAD_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Data.TYP_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Data.TYP_FIELD_NUMBER">TYP_FIELD_NUMBER</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.Type" href="#meshtastic.mesh_pb2.Data.Type">Type</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Data.payload" href="#meshtastic.mesh_pb2.Data.payload">payload</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Data.typ" href="#meshtastic.mesh_pb2.Data.typ">typ</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.DebugString" href="#meshtastic.mesh_pb2.DebugString">DebugString</a></code></h4>
 <ul class="">
 <li><code><a title="meshtastic.mesh_pb2.DebugString.DESCRIPTOR" href="#meshtastic.mesh_pb2.DebugString.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.DebugString.MESSAGE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DebugString.MESSAGE_FIELD_NUMBER">MESSAGE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DebugString.message" href="#meshtastic.mesh_pb2.DebugString.message">message</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.DeviceState" href="#meshtastic.mesh_pb2.DeviceState">DeviceState</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="meshtastic.mesh_pb2.DeviceState.DESCRIPTOR" href="#meshtastic.mesh_pb2.DeviceState.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.DeviceState.DID_GPS_RESET_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.DID_GPS_RESET_FIELD_NUMBER">DID_GPS_RESET_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.DeviceState.MY_NODE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.MY_NODE_FIELD_NUMBER">MY_NODE_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.DeviceState.NODE_DB_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.NODE_DB_FIELD_NUMBER">NODE_DB_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.DeviceState.NO_SAVE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.NO_SAVE_FIELD_NUMBER">NO_SAVE_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.DeviceState.OWNER_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.OWNER_FIELD_NUMBER">OWNER_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.DeviceState.RADIO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.RADIO_FIELD_NUMBER">RADIO_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.DeviceState.RECEIVE_QUEUE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.RECEIVE_QUEUE_FIELD_NUMBER">RECEIVE_QUEUE_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.DeviceState.RX_TEXT_MESSAGE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.RX_TEXT_MESSAGE_FIELD_NUMBER">RX_TEXT_MESSAGE_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.DeviceState.VERSION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.DeviceState.VERSION_FIELD_NUMBER">VERSION_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.did_gps_reset" href="#meshtastic.mesh_pb2.DeviceState.did_gps_reset">did_gps_reset</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.my_node" href="#meshtastic.mesh_pb2.DeviceState.my_node">my_node</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.no_save" href="#meshtastic.mesh_pb2.DeviceState.no_save">no_save</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.node_db" href="#meshtastic.mesh_pb2.DeviceState.node_db">node_db</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.owner" href="#meshtastic.mesh_pb2.DeviceState.owner">owner</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.radio" href="#meshtastic.mesh_pb2.DeviceState.radio">radio</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.receive_queue" href="#meshtastic.mesh_pb2.DeviceState.receive_queue">receive_queue</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.rx_text_message" href="#meshtastic.mesh_pb2.DeviceState.rx_text_message">rx_text_message</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.DeviceState.version" href="#meshtastic.mesh_pb2.DeviceState.version">version</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.FromRadio" href="#meshtastic.mesh_pb2.FromRadio">FromRadio</a></code></h4>
-<ul class="">
-<li><code><a title="meshtastic.mesh_pb2.FromRadio.CONFIG_COMPLETE_ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.CONFIG_COMPLETE_ID_FIELD_NUMBER">CONFIG_COMPLETE_ID_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.FromRadio.DEBUG_STRING_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.DEBUG_STRING_FIELD_NUMBER">DEBUG_STRING_FIELD_NUMBER</a></code></li>
+<ul class="two-column">
 <li><code><a title="meshtastic.mesh_pb2.FromRadio.DESCRIPTOR" href="#meshtastic.mesh_pb2.FromRadio.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.FromRadio.MY_INFO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.MY_INFO_FIELD_NUMBER">MY_INFO_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.FromRadio.NODE_INFO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.NODE_INFO_FIELD_NUMBER">NODE_INFO_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.FromRadio.NUM_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.NUM_FIELD_NUMBER">NUM_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.FromRadio.PACKET_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.PACKET_FIELD_NUMBER">PACKET_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.FromRadio.RADIO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.RADIO_FIELD_NUMBER">RADIO_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.FromRadio.REBOOTED_FIELD_NUMBER" href="#meshtastic.mesh_pb2.FromRadio.REBOOTED_FIELD_NUMBER">REBOOTED_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.config_complete_id" href="#meshtastic.mesh_pb2.FromRadio.config_complete_id">config_complete_id</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.debug_string" href="#meshtastic.mesh_pb2.FromRadio.debug_string">debug_string</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.my_info" href="#meshtastic.mesh_pb2.FromRadio.my_info">my_info</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.node_info" href="#meshtastic.mesh_pb2.FromRadio.node_info">node_info</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.num" href="#meshtastic.mesh_pb2.FromRadio.num">num</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.packet" href="#meshtastic.mesh_pb2.FromRadio.packet">packet</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.radio" href="#meshtastic.mesh_pb2.FromRadio.radio">radio</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.FromRadio.rebooted" href="#meshtastic.mesh_pb2.FromRadio.rebooted">rebooted</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.ManufacturingData" href="#meshtastic.mesh_pb2.ManufacturingData">ManufacturingData</a></code></h4>
 <ul class="">
 <li><code><a title="meshtastic.mesh_pb2.ManufacturingData.DESCRIPTOR" href="#meshtastic.mesh_pb2.ManufacturingData.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.FRADIOFREQ_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ManufacturingData.FRADIOFREQ_FIELD_NUMBER">FRADIOFREQ_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.HW_MODEL_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ManufacturingData.HW_MODEL_FIELD_NUMBER">HW_MODEL_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.HW_VERSION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ManufacturingData.HW_VERSION_FIELD_NUMBER">HW_VERSION_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.SELFTEST_RESULT_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ManufacturingData.SELFTEST_RESULT_FIELD_NUMBER">SELFTEST_RESULT_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.fradioFreq" href="#meshtastic.mesh_pb2.ManufacturingData.fradioFreq">fradioFreq</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.hw_model" href="#meshtastic.mesh_pb2.ManufacturingData.hw_model">hw_model</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.hw_version" href="#meshtastic.mesh_pb2.ManufacturingData.hw_version">hw_version</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.selftest_result" href="#meshtastic.mesh_pb2.ManufacturingData.selftest_result">selftest_result</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.MeshPacket" href="#meshtastic.mesh_pb2.MeshPacket">MeshPacket</a></code></h4>
-<ul class="">
-<li><code><a title="meshtastic.mesh_pb2.MeshPacket.DECODED_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.DECODED_FIELD_NUMBER">DECODED_FIELD_NUMBER</a></code></li>
+<ul class="two-column">
 <li><code><a title="meshtastic.mesh_pb2.MeshPacket.DESCRIPTOR" href="#meshtastic.mesh_pb2.MeshPacket.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MeshPacket.ENCRYPTED_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.ENCRYPTED_FIELD_NUMBER">ENCRYPTED_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MeshPacket.FROM_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.FROM_FIELD_NUMBER">FROM_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MeshPacket.HOP_LIMIT_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.HOP_LIMIT_FIELD_NUMBER">HOP_LIMIT_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MeshPacket.ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.ID_FIELD_NUMBER">ID_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MeshPacket.RX_SNR_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.RX_SNR_FIELD_NUMBER">RX_SNR_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MeshPacket.RX_TIME_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.RX_TIME_FIELD_NUMBER">RX_TIME_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MeshPacket.TO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.TO_FIELD_NUMBER">TO_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MeshPacket.WANT_ACK_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MeshPacket.WANT_ACK_FIELD_NUMBER">WANT_ACK_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.decoded" href="#meshtastic.mesh_pb2.MeshPacket.decoded">decoded</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.encrypted" href="#meshtastic.mesh_pb2.MeshPacket.encrypted">encrypted</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.from" href="#meshtastic.mesh_pb2.MeshPacket.from">from</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.hop_limit" href="#meshtastic.mesh_pb2.MeshPacket.hop_limit">hop_limit</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.id" href="#meshtastic.mesh_pb2.MeshPacket.id">id</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.rx_snr" href="#meshtastic.mesh_pb2.MeshPacket.rx_snr">rx_snr</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.rx_time" href="#meshtastic.mesh_pb2.MeshPacket.rx_time">rx_time</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.to" href="#meshtastic.mesh_pb2.MeshPacket.to">to</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MeshPacket.want_ack" href="#meshtastic.mesh_pb2.MeshPacket.want_ack">want_ack</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.MyNodeInfo" href="#meshtastic.mesh_pb2.MyNodeInfo">MyNodeInfo</a></code></h4>
 <ul class="">
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.CURRENT_PACKET_ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.CURRENT_PACKET_ID_FIELD_NUMBER">CURRENT_PACKET_ID_FIELD_NUMBER</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.DESCRIPTOR" href="#meshtastic.mesh_pb2.MyNodeInfo.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.ERROR_ADDRESS_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.ERROR_ADDRESS_FIELD_NUMBER">ERROR_ADDRESS_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.ERROR_CODE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.ERROR_CODE_FIELD_NUMBER">ERROR_CODE_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.ERROR_COUNT_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.ERROR_COUNT_FIELD_NUMBER">ERROR_COUNT_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.FIRMWARE_VERSION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.FIRMWARE_VERSION_FIELD_NUMBER">FIRMWARE_VERSION_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.HAS_GPS_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.HAS_GPS_FIELD_NUMBER">HAS_GPS_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.HW_MODEL_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.HW_MODEL_FIELD_NUMBER">HW_MODEL_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.MESSAGE_TIMEOUT_MSEC_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.MESSAGE_TIMEOUT_MSEC_FIELD_NUMBER">MESSAGE_TIMEOUT_MSEC_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.MIN_APP_VERSION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.MIN_APP_VERSION_FIELD_NUMBER">MIN_APP_VERSION_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.MY_NODE_NUM_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.MY_NODE_NUM_FIELD_NUMBER">MY_NODE_NUM_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.NODE_NUM_BITS_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.NODE_NUM_BITS_FIELD_NUMBER">NODE_NUM_BITS_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.NUM_CHANNELS_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.NUM_CHANNELS_FIELD_NUMBER">NUM_CHANNELS_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.PACKET_ID_BITS_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.PACKET_ID_BITS_FIELD_NUMBER">PACKET_ID_BITS_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.REGION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.MyNodeInfo.REGION_FIELD_NUMBER">REGION_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.current_packet_id" href="#meshtastic.mesh_pb2.MyNodeInfo.current_packet_id">current_packet_id</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.error_address" href="#meshtastic.mesh_pb2.MyNodeInfo.error_address">error_address</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.error_code" href="#meshtastic.mesh_pb2.MyNodeInfo.error_code">error_code</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.error_count" href="#meshtastic.mesh_pb2.MyNodeInfo.error_count">error_count</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.firmware_version" href="#meshtastic.mesh_pb2.MyNodeInfo.firmware_version">firmware_version</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.has_gps" href="#meshtastic.mesh_pb2.MyNodeInfo.has_gps">has_gps</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.hw_model" href="#meshtastic.mesh_pb2.MyNodeInfo.hw_model">hw_model</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.message_timeout_msec" href="#meshtastic.mesh_pb2.MyNodeInfo.message_timeout_msec">message_timeout_msec</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.min_app_version" href="#meshtastic.mesh_pb2.MyNodeInfo.min_app_version">min_app_version</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.my_node_num" href="#meshtastic.mesh_pb2.MyNodeInfo.my_node_num">my_node_num</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.node_num_bits" href="#meshtastic.mesh_pb2.MyNodeInfo.node_num_bits">node_num_bits</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.num_channels" href="#meshtastic.mesh_pb2.MyNodeInfo.num_channels">num_channels</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.packet_id_bits" href="#meshtastic.mesh_pb2.MyNodeInfo.packet_id_bits">packet_id_bits</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.region" href="#meshtastic.mesh_pb2.MyNodeInfo.region">region</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.NodeInfo" href="#meshtastic.mesh_pb2.NodeInfo">NodeInfo</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="meshtastic.mesh_pb2.NodeInfo.DESCRIPTOR" href="#meshtastic.mesh_pb2.NodeInfo.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.NodeInfo.NEXT_HOP_FIELD_NUMBER" href="#meshtastic.mesh_pb2.NodeInfo.NEXT_HOP_FIELD_NUMBER">NEXT_HOP_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.NodeInfo.NUM_FIELD_NUMBER" href="#meshtastic.mesh_pb2.NodeInfo.NUM_FIELD_NUMBER">NUM_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.NodeInfo.POSITION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.NodeInfo.POSITION_FIELD_NUMBER">POSITION_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.NodeInfo.SNR_FIELD_NUMBER" href="#meshtastic.mesh_pb2.NodeInfo.SNR_FIELD_NUMBER">SNR_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.NodeInfo.USER_FIELD_NUMBER" href="#meshtastic.mesh_pb2.NodeInfo.USER_FIELD_NUMBER">USER_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.NodeInfo.next_hop" href="#meshtastic.mesh_pb2.NodeInfo.next_hop">next_hop</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.NodeInfo.num" href="#meshtastic.mesh_pb2.NodeInfo.num">num</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.NodeInfo.position" href="#meshtastic.mesh_pb2.NodeInfo.position">position</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.NodeInfo.snr" href="#meshtastic.mesh_pb2.NodeInfo.snr">snr</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.NodeInfo.user" href="#meshtastic.mesh_pb2.NodeInfo.user">user</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.Position" href="#meshtastic.mesh_pb2.Position">Position</a></code></h4>
-<ul class="">
-<li><code><a title="meshtastic.mesh_pb2.Position.ALTITUDE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Position.ALTITUDE_FIELD_NUMBER">ALTITUDE_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Position.BATTERY_LEVEL_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Position.BATTERY_LEVEL_FIELD_NUMBER">BATTERY_LEVEL_FIELD_NUMBER</a></code></li>
+<ul class="two-column">
 <li><code><a title="meshtastic.mesh_pb2.Position.DESCRIPTOR" href="#meshtastic.mesh_pb2.Position.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Position.LATITUDE_I_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Position.LATITUDE_I_FIELD_NUMBER">LATITUDE_I_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Position.LONGITUDE_I_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Position.LONGITUDE_I_FIELD_NUMBER">LONGITUDE_I_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Position.TIME_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Position.TIME_FIELD_NUMBER">TIME_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Position.altitude" href="#meshtastic.mesh_pb2.Position.altitude">altitude</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Position.battery_level" href="#meshtastic.mesh_pb2.Position.battery_level">battery_level</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Position.latitude_i" href="#meshtastic.mesh_pb2.Position.latitude_i">latitude_i</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Position.longitude_i" href="#meshtastic.mesh_pb2.Position.longitude_i">longitude_i</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Position.time" href="#meshtastic.mesh_pb2.Position.time">time</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.RadioConfig" href="#meshtastic.mesh_pb2.RadioConfig">RadioConfig</a></code></h4>
 <ul class="">
-<li><code><a title="meshtastic.mesh_pb2.RadioConfig.CHANNEL_SETTINGS_FIELD_NUMBER" href="#meshtastic.mesh_pb2.RadioConfig.CHANNEL_SETTINGS_FIELD_NUMBER">CHANNEL_SETTINGS_FIELD_NUMBER</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.RadioConfig.DESCRIPTOR" href="#meshtastic.mesh_pb2.RadioConfig.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.RadioConfig.PREFERENCES_FIELD_NUMBER" href="#meshtastic.mesh_pb2.RadioConfig.PREFERENCES_FIELD_NUMBER">PREFERENCES_FIELD_NUMBER</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.RadioConfig.UserPreferences" href="#meshtastic.mesh_pb2.RadioConfig.UserPreferences">UserPreferences</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.RadioConfig.channel_settings" href="#meshtastic.mesh_pb2.RadioConfig.channel_settings">channel_settings</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.RadioConfig.preferences" href="#meshtastic.mesh_pb2.RadioConfig.preferences">preferences</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.RouteDiscovery" href="#meshtastic.mesh_pb2.RouteDiscovery">RouteDiscovery</a></code></h4>
 <ul class="">
 <li><code><a title="meshtastic.mesh_pb2.RouteDiscovery.DESCRIPTOR" href="#meshtastic.mesh_pb2.RouteDiscovery.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.RouteDiscovery.ROUTE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.RouteDiscovery.ROUTE_FIELD_NUMBER">ROUTE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.RouteDiscovery.route" href="#meshtastic.mesh_pb2.RouteDiscovery.route">route</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.SubPacket" href="#meshtastic.mesh_pb2.SubPacket">SubPacket</a></code></h4>
-<ul class="">
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.DATA_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.DATA_FIELD_NUMBER">DATA_FIELD_NUMBER</a></code></li>
+<ul class="two-column">
 <li><code><a title="meshtastic.mesh_pb2.SubPacket.DESCRIPTOR" href="#meshtastic.mesh_pb2.SubPacket.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.DEST_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.DEST_FIELD_NUMBER">DEST_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.FAIL_ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.FAIL_ID_FIELD_NUMBER">FAIL_ID_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.ORIGINAL_ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.ORIGINAL_ID_FIELD_NUMBER">ORIGINAL_ID_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.POSITION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.POSITION_FIELD_NUMBER">POSITION_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.ROUTE_ERROR_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.ROUTE_ERROR_FIELD_NUMBER">ROUTE_ERROR_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.ROUTE_REPLY_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.ROUTE_REPLY_FIELD_NUMBER">ROUTE_REPLY_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.ROUTE_REQUEST_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.ROUTE_REQUEST_FIELD_NUMBER">ROUTE_REQUEST_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.SOURCE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.SOURCE_FIELD_NUMBER">SOURCE_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.SUCCESS_ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.SUCCESS_ID_FIELD_NUMBER">SUCCESS_ID_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.USER_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.USER_FIELD_NUMBER">USER_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.SubPacket.WANT_RESPONSE_FIELD_NUMBER" href="#meshtastic.mesh_pb2.SubPacket.WANT_RESPONSE_FIELD_NUMBER">WANT_RESPONSE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.data" href="#meshtastic.mesh_pb2.SubPacket.data">data</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.dest" href="#meshtastic.mesh_pb2.SubPacket.dest">dest</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.fail_id" href="#meshtastic.mesh_pb2.SubPacket.fail_id">fail_id</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.original_id" href="#meshtastic.mesh_pb2.SubPacket.original_id">original_id</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.position" href="#meshtastic.mesh_pb2.SubPacket.position">position</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.route_error" href="#meshtastic.mesh_pb2.SubPacket.route_error">route_error</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.route_reply" href="#meshtastic.mesh_pb2.SubPacket.route_reply">route_reply</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.route_request" href="#meshtastic.mesh_pb2.SubPacket.route_request">route_request</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.source" href="#meshtastic.mesh_pb2.SubPacket.source">source</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.success_id" href="#meshtastic.mesh_pb2.SubPacket.success_id">success_id</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.user" href="#meshtastic.mesh_pb2.SubPacket.user">user</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.SubPacket.want_response" href="#meshtastic.mesh_pb2.SubPacket.want_response">want_response</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.ToRadio" href="#meshtastic.mesh_pb2.ToRadio">ToRadio</a></code></h4>
 <ul class="">
 <li><code><a title="meshtastic.mesh_pb2.ToRadio.DESCRIPTOR" href="#meshtastic.mesh_pb2.ToRadio.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ToRadio.PACKET_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ToRadio.PACKET_FIELD_NUMBER">PACKET_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ToRadio.SET_OWNER_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ToRadio.SET_OWNER_FIELD_NUMBER">SET_OWNER_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ToRadio.SET_RADIO_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ToRadio.SET_RADIO_FIELD_NUMBER">SET_RADIO_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ToRadio.WANT_CONFIG_ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ToRadio.WANT_CONFIG_ID_FIELD_NUMBER">WANT_CONFIG_ID_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ToRadio.packet" href="#meshtastic.mesh_pb2.ToRadio.packet">packet</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ToRadio.set_owner" href="#meshtastic.mesh_pb2.ToRadio.set_owner">set_owner</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ToRadio.set_radio" href="#meshtastic.mesh_pb2.ToRadio.set_radio">set_radio</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.ToRadio.want_config_id" href="#meshtastic.mesh_pb2.ToRadio.want_config_id">want_config_id</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.User" href="#meshtastic.mesh_pb2.User">User</a></code></h4>
 <ul class="">
 <li><code><a title="meshtastic.mesh_pb2.User.DESCRIPTOR" href="#meshtastic.mesh_pb2.User.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.User.ID_FIELD_NUMBER" href="#meshtastic.mesh_pb2.User.ID_FIELD_NUMBER">ID_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.User.LONG_NAME_FIELD_NUMBER" href="#meshtastic.mesh_pb2.User.LONG_NAME_FIELD_NUMBER">LONG_NAME_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.User.MACADDR_FIELD_NUMBER" href="#meshtastic.mesh_pb2.User.MACADDR_FIELD_NUMBER">MACADDR_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.User.SHORT_NAME_FIELD_NUMBER" href="#meshtastic.mesh_pb2.User.SHORT_NAME_FIELD_NUMBER">SHORT_NAME_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.User.id" href="#meshtastic.mesh_pb2.User.id">id</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.User.long_name" href="#meshtastic.mesh_pb2.User.long_name">long_name</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.User.macaddr" href="#meshtastic.mesh_pb2.User.macaddr">macaddr</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.User.short_name" href="#meshtastic.mesh_pb2.User.short_name">short_name</a></code></li>
 </ul>
 </li>
 </ul>
