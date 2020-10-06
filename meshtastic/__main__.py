@@ -5,6 +5,7 @@ from . import SerialInterface, TCPInterface, BLEInterface, test
 import logging
 import sys
 from pubsub import pub
+from . import mesh_pb2
 import google.protobuf.json_format
 import pyqrcode
 import traceback
@@ -71,6 +72,54 @@ def fromStr(valstr):
     return val
 
 
+never = 0xffffffff
+oneday = 24 * 60 * 60
+
+
+def setRouter(interface, on):
+    """Turn router mode on or off"""
+    prefs = interface.radioConfig.preferences
+    if on:
+        print("Setting router mode")
+        prefs.is_router = True
+        prefs.is_low_power = True
+        prefs.gps_operation = mesh_pb2.GpsOpMobile
+
+        # prefs.position_broadcast_secs = FIXME possibly broadcast only once an hr
+        prefs.wait_bluetooth_secs = 1  # Don't stay in bluetooth mode
+        prefs.screen_on_secs = 60  # default to only keep screen & bluetooth on for one minute
+        prefs.mesh_sds_timeout_secs = never
+        prefs.phone_sds_timeout_sec = never
+        # try to stay in light sleep one full day, then briefly wake and sleep again
+
+        prefs.ls_secs = oneday
+
+        # if a message wakes us from light sleep, stay awake for 10 secs in hopes of other processing
+        prefs.min_wake_secs = 10
+
+        # allow up to two minutes for each new GPS lock attempt
+        prefs.gps_attempt_time = 120  # FIXME 120
+
+        # get a new GPS position once per day
+        prefs.gps_update_interval = oneday
+
+    else:
+        print("Unsetting router mode")
+        prefs.is_router = False
+        prefs.is_low_power = False
+        prefs.gps_operation = mesh_pb2.GpsOpUnset
+
+        # Set defaults
+        prefs.wait_bluetooth_secs = 0
+        prefs.screen_on_secs = 0
+        prefs.mesh_sds_timeout_secs = 0
+        prefs.phone_sds_timeout_sec = 0
+        prefs.ls_secs = 0
+        prefs.min_wake_secs = 0
+        prefs.gps_attempt_time = 0
+        prefs.gps_update_interval = 0
+
+
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
     global args
@@ -87,7 +136,7 @@ def onConnected(interface):
             interface.sendText(args.sendtext, args.dest,
                                wantAck=True, wantResponse=True)
 
-        if args.set or args.setstr or args.setchan or args.seturl:
+        if args.set or args.setstr or args.setchan or args.seturl or args.router != None:
             closeNow = True
 
             def setPref(attributes, name, val):
@@ -105,6 +154,9 @@ def onConnected(interface):
                             print(f"Incorrect type for {name} {ex}")
                 except Exception as ex:
                     print(f"Can't set {name} due to {ex}")
+
+            if args.router != None:
+                setRouter(interface, args.router)
 
             # Handle the int/float/bool arguments
             for pref in (args.set or []):
@@ -227,12 +279,19 @@ def main():
     parser.add_argument("--noproto", help="Don't start the API, just function as a dumb serial terminal.",
                         action="store_true")
 
+    parser.add_argument('--set-router', dest='router',
+                        action='store_true', help="Turns on router mode")
+    parser.add_argument('--unset-router', dest='router',
+                        action='store_false', help="Turns off router mode")
+
+    parser.set_defaults(router=None)
+
     global args
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
     if not args.seriallog:
-        if args.info or args.set or args.setstr or args.setchan or args.sendtext or args.qr:
+        if args.info or args.set or args.setstr or args.setchan or args.sendtext or args.router != None or args.qr:
             args.seriallog = "none"  # assume no debug output in this case
         else:
             args.seriallog = "stdout"  # default to stdout
