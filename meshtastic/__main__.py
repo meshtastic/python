@@ -85,6 +85,8 @@ def setRouter(interface, on):
         prefs.is_low_power = True
         prefs.gps_operation = mesh_pb2.GpsOpMobile
 
+        # FIXME - after tuning, move these params into the on-device defaults based on is_router and is_low_power
+
         # prefs.position_broadcast_secs = FIXME possibly broadcast only once an hr
         prefs.wait_bluetooth_secs = 1  # Don't stay in bluetooth mode
         prefs.screen_on_secs = 60  # default to only keep screen & bluetooth on for one minute
@@ -97,8 +99,8 @@ def setRouter(interface, on):
         # if a message wakes us from light sleep, stay awake for 10 secs in hopes of other processing
         prefs.min_wake_secs = 10
 
-        # allow up to two minutes for each new GPS lock attempt
-        prefs.gps_attempt_time = 120  # FIXME 120
+        # allow up to five minutes for each new GPS lock attempt
+        prefs.gps_attempt_time = 300
 
         # get a new GPS position once per day
         prefs.gps_update_interval = oneday
