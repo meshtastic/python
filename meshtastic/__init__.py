@@ -370,8 +370,17 @@ class MeshInterface:
             # For text messages, we go ahead and decode the text to ascii for our users
             if asDict["decoded"]["data"]["typ"] == "CLEAR_TEXT":
                 topic = "meshtastic.receive.text"
-                asDict["decoded"]["data"]["text"] = meshPacket.decoded.data.payload.decode(
-                    "utf-8")
+
+                # We don't throw if the utf8 is invalid in the text message.  Instead we just don't populate
+                # the decoded.data.text and we log an error message.  This at least allows some delivery to
+                # the app and the app can deal with the missing decoded representation.
+                #
+                # Usually btw this problem is caused by apps sending binary data but setting the payload type to
+                # text.
+                try:
+                    asDict["decoded"]["data"]["text"] = meshPacket.decoded.data.payload.decode("utf-8")
+                except Exception as ex:
+                    logging.error(f"Malformatted utf8 in text message: {ex}")
 
         pub.sendMessage(topic, packet=asDict, interface=self)
 
