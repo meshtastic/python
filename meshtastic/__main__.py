@@ -128,6 +128,12 @@ def onConnected(interface):
     print("Connected to radio")
     closeNow = False  # Should we drop the connection after we finish?
     try:
+        if args.reset:
+            interface.factoryReset()
+
+        if args.resetstate:
+            interface.factoryReset(True, True)
+
         if args.settime:
             print("Setting device RTC time")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
@@ -272,6 +278,12 @@ def main():
     parser.add_argument(
         "--reply", help="Reply to received messages",
         action="store_true")
+
+    parser.add_argument(
+        "--reset", help="Factory reset device", action="store_true")
+
+    parser.add_argument(
+        "--resetstate", help="Reset device but keep name and channel settings", action="store_true")
 
     parser.add_argument(
         "--settime", help="Set the real time clock on the device", action="store_true")
