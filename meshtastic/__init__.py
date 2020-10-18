@@ -200,6 +200,33 @@ class MeshInterface:
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
 
+    def setOwner(self, long_name, short_name=None):
+        """Set device owner name"""
+        nChars = 3
+        minChars = 2
+        if long_name is not None:
+            long_name = long_name.strip()
+            if short_name is None:
+                words = long_name.split()
+                if len(long_name) <= nChars:
+                    short_name = long_name
+                elif len(words) >= minChars:
+                    short_name = ''.join(map(lambda word: word[0], words))
+                else:
+                    trans = str.maketrans(dict.fromkeys('aeiouAEIOU'))
+                    short_name = long_name[0] + long_name[1:].translate(trans)
+                    if len(short_name) < nChars:
+                        short_name = long_name[:nChars]
+        t = mesh_pb2.ToRadio()
+        if long_name is not None:
+            t.set_owner.long_name = long_name
+        if short_name is not None:
+            short_name = short_name.strip()
+            if len(short_name) > nChars:
+                short_name = short_name[:nChars]
+            t.set_owner.short_name = short_name
+        self._sendToRadio(t)
+
     @property
     def channelURL(self):
         """The sharable URL that describes the current channel
