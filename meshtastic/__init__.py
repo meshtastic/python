@@ -200,6 +200,28 @@ class MeshInterface:
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
 
+    def getMyNode(self):
+        if self.myInfo is None:
+            return None
+        myId = self.myInfo.my_node_num
+        for _, nodeDict in self.nodes.items():
+            if 'num' in nodeDict and nodeDict['num'] == myId:
+                if 'user' in nodeDict:
+                    return nodeDict['user']
+        return None
+
+    def getLongName(self):
+        user = self.getMyNode()
+        if user is not None:
+            return user.get('longName', None)
+        return None
+
+    def getShortName(self):
+        user = self.getMyNode()
+        if user is not None:
+            return user.get('shortName', None)
+        return None
+
     def setOwner(self, long_name, short_name=None):
         """Set device owner name"""
         nChars = 3
