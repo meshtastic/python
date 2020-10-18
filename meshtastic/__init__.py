@@ -191,11 +191,25 @@ class MeshInterface:
         self._sendToRadio(toRadio)
         return meshPacket
 
-    def factoryReset(self):
+    def factoryReset(self, keepName=False, keepChannel=False):
+        c = mesh_pb2.ChannelSettings()
+        c.CopyFrom(self.radioConfig.channel_settings)
+
+        longName = self.getLongName()
+        shortName = self.getShortName()
+
         t = mesh_pb2.ToRadio()
         t.set_radio.CopyFrom(self.radioConfig)
         t.set_radio.preferences.factory_reset = True
         self._sendToRadio(t)
+
+        if keepName:
+            self.setOwner(longName, shortName)
+
+        if keepChannel:
+            t = mesh_pb2.ToRadio()
+            t.set_radio.channel_settings.CopyFrom(c)
+            self._sendToRadio(t)
 
     def writeConfig(self):
         """Write the current (edited) radioConfig to the device"""
