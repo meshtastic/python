@@ -208,6 +208,19 @@ class MeshInterface:
         s = base64.urlsafe_b64encode(bytes).decode('ascii')
         return f"https://www.meshtastic.org/c/#{s}"
 
+    def setURL(self, url, write=True):
+        """Set mesh network URL"""
+        if self.radioConfig == None:
+            raise Exception("No RadioConfig has been read")
+
+        # URLs are of the form https://www.meshtastic.org/c/#{base64_channel_settings}
+        # Split on '/#' to find the base64 encoded channel settings
+        splitURL = url.split("/#")
+        decodedURL = base64.urlsafe_b64decode(splitURL[-1])
+        self.radioConfig.channel_settings.ParseFromString(decodedURL)
+        if write:
+            self.writeConfig()
+
     def _generatePacketId(self):
         """Get a new unique packet ID"""
         if self.currentPacketId is None:
