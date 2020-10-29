@@ -186,11 +186,7 @@ def onConnected(interface):
 
             # Handle set URL
             if args.seturl:
-                # URLs are of the form https://www.meshtastic.org/c/#{base64_channel_settings}
-                # Split on '/#' to find the base64 encoded channel settings
-                splitURL = args.seturl.split("/#")
-                bytes = base64.urlsafe_b64decode(splitURL[-1])
-                interface.radioConfig.channel_settings.ParseFromString(bytes)
+                interface.setURL(args.seturl, False)
 
             print("Writing modified preferences to device")
             interface.writeConfig()

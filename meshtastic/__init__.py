@@ -105,6 +105,16 @@ class MeshInterface:
         if not noProto:
             self._startConfig()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is not None and exc_value is not None:
+            logging.error(f'An exception of type {exc_type} with value {exc_value} has occurred')
+        if traceback is not None:
+            logging.error(f'Traceback: {traceback}')
+        self.close()
+
     def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         """Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
@@ -211,6 +221,14 @@ class MeshInterface:
             t.set_radio.channel_settings.CopyFrom(c)
             self._sendToRadio(t)
 
+    def waitForConfig(self, sleep=.1, maxsecs=20, attrs=('myInfo', 'nodes', 'radioConfig')):
+        """Block until radio config is received. Returns True if config has been received."""
+        for _ in range(int(maxsecs/sleep)):
+            if all(map(lambda a: getattr(self, a, None), attrs)):
+                return True
+            time.sleep(sleep)
+        return False
+
     def writeConfig(self):
         """Write the current (edited) radioConfig to the device"""
         if self.radioConfig == None:
@@ -277,6 +295,19 @@ class MeshInterface:
         s = base64.urlsafe_b64encode(bytes).decode('ascii')
         return f"https://www.meshtastic.org/c/#{s}"
 
+    def setURL(self, url, write=True):
+        """Set mesh network URL"""
+        if self.radioConfig == None:
+            raise Exception("No RadioConfig has been read")
+
+        # URLs are of the form https://www.meshtastic.org/c/#{base64_channel_settings}
+        # Split on '/#' to find the base64 encoded channel settings
+        splitURL = url.split("/#")
+        decodedURL = base64.urlsafe_b64decode(splitURL[-1])
+        self.radioConfig.channel_settings.ParseFromString(decodedURL)
+        if write:
+            self.writeConfig()
+
     def _generatePacketId(self):
         """Get a new unique packet ID"""
         if self.currentPacketId is None:
@@ -340,6 +371,7 @@ class MeshInterface:
             self._nodesByNum[node["num"]] = node
             if "user" in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node["user"]["id"]] = node
+            pub.sendMessage("meshtastic.node.updated", node=node, interface=self)
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             self._connected()
