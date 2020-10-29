@@ -105,6 +105,16 @@ class MeshInterface:
         if not noProto:
             self._startConfig()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is not None and exc_value is not None:
+            logging.error(f'An exception of type {exc_type} with value {exc_value} has occurred')
+        if traceback is not None:
+            logging.error(f'Traceback: {traceback}')
+        self.close()
+
     def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         """Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
