@@ -201,6 +201,14 @@ class MeshInterface:
         self._sendToRadio(toRadio)
         return meshPacket
 
+    def waitForConfig(self, sleep=.1, maxsecs=20, attrs=('myInfo', 'nodes', 'radioConfig')):
+        """Block until radio config is received. Returns True if config has been received."""
+        for _ in range(int(maxsecs/sleep)):
+            if all(map(lambda a: getattr(self, a, None), attrs)):
+                return True
+            time.sleep(sleep)
+        return False
+
     def writeConfig(self):
         """Write the current (edited) radioConfig to the device"""
         if self.radioConfig == None:
