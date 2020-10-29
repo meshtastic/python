@@ -191,6 +191,16 @@ class MeshInterface:
         if not noProto:
             self._startConfig()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is not None and exc_value is not None:
+            logging.error(f&#39;An exception of type {exc_type} with value {exc_value} has occurred&#39;)
+        if traceback is not None:
+            logging.error(f&#39;Traceback: {traceback}&#39;)
+        self.close()
+
     def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
@@ -277,6 +287,14 @@ class MeshInterface:
         self._sendToRadio(toRadio)
         return meshPacket
 
+    def waitForConfig(self, sleep=.1, maxsecs=20, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;, &#39;radioConfig&#39;)):
+        &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
+        for _ in range(int(maxsecs/sleep)):
+            if all(map(lambda a: getattr(self, a, None), attrs)):
+                return True
+            time.sleep(sleep)
+        return False
+
     def writeConfig(self):
         &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
         if self.radioConfig == None:
@@ -286,6 +304,55 @@ class MeshInterface:
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
 
+    def getMyNode(self):
+        if self.myInfo is None:
+            return None
+        myId = self.myInfo.my_node_num
+        for _, nodeDict in self.nodes.items():
+            if &#39;num&#39; in nodeDict and nodeDict[&#39;num&#39;] == myId:
+                if &#39;user&#39; in nodeDict:
+                    return nodeDict[&#39;user&#39;]
+        return None
+
+    def getLongName(self):
+        user = self.getMyNode()
+        if user is not None:
+            return user.get(&#39;longName&#39;, None)
+        return None
+
+    def getShortName(self):
+        user = self.getMyNode()
+        if user is not None:
+            return user.get(&#39;shortName&#39;, None)
+        return None
+
+    def setOwner(self, long_name, short_name=None):
+        &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
+        nChars = 3
+        minChars = 2
+        if long_name is not None:
+            long_name = long_name.strip()
+            if short_name is None:
+                words = long_name.split()
+                if len(long_name) &lt;= nChars:
+                    short_name = long_name
+                elif len(words) &gt;= minChars:
+                    short_name = &#39;&#39;.join(map(lambda word: word[0], words))
+                else:
+                    trans = str.maketrans(dict.fromkeys(&#39;aeiouAEIOU&#39;))
+                    short_name = long_name[0] + long_name[1:].translate(trans)
+                    if len(short_name) &lt; nChars:
+                        short_name = long_name[:nChars]
+        t = mesh_pb2.ToRadio()
+        if long_name is not None:
+            t.set_owner.long_name = long_name
+        if short_name is not None:
+            short_name = short_name.strip()
+            if len(short_name) &gt; nChars:
+                short_name = short_name[:nChars]
+            t.set_owner.short_name = short_name
+        self._sendToRadio(t)
+
     @property
     def channelURL(self):
         &#34;&#34;&#34;The sharable URL that describes the current channel
@@ -293,6 +360,19 @@ class MeshInterface:
         bytes = self.radioConfig.channel_settings.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
         return f&#34;https://www.meshtastic.org/c/#{s}&#34;
+
+    def setURL(self, url, write=True):
+        &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
+        if self.radioConfig == None:
+            raise Exception(&#34;No RadioConfig has been read&#34;)
+
+        # URLs are of the form https://www.meshtastic.org/c/#{base64_channel_settings}
+        # Split on &#39;/#&#39; to find the base64 encoded channel settings
+        splitURL = url.split(&#34;/#&#34;)
+        decodedURL = base64.urlsafe_b64decode(splitURL[-1])
+        self.radioConfig.channel_settings.ParseFromString(decodedURL)
+        if write:
+            self.writeConfig()
 
     def _generatePacketId(self):
         &#34;&#34;&#34;Get a new unique packet ID&#34;&#34;&#34;
@@ -357,6 +437,7 @@ class MeshInterface:
             self._nodesByNum[node[&#34;num&#34;]] = node
             if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
+            pub.sendMessage(&#34;meshtastic.node.updated&#34;, node=node, interface=self)
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             self._connected()
@@ -847,6 +928,9 @@ class TCPInterface(StreamInterface):
 <li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.setOwner" href="#meshtastic.MeshInterface.setOwner">setOwner</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.setURL" href="#meshtastic.MeshInterface.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
 </li>
@@ -884,6 +968,16 @@ debugOut</p>
         self.isConnected = False
         if not noProto:
             self._startConfig()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is not None and exc_value is not None:
+            logging.error(f&#39;An exception of type {exc_type} with value {exc_value} has occurred&#39;)
+        if traceback is not None:
+            logging.error(f&#39;Traceback: {traceback}&#39;)
+        self.close()
 
     def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
@@ -971,6 +1065,14 @@ debugOut</p>
         self._sendToRadio(toRadio)
         return meshPacket
 
+    def waitForConfig(self, sleep=.1, maxsecs=20, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;, &#39;radioConfig&#39;)):
+        &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
+        for _ in range(int(maxsecs/sleep)):
+            if all(map(lambda a: getattr(self, a, None), attrs)):
+                return True
+            time.sleep(sleep)
+        return False
+
     def writeConfig(self):
         &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
         if self.radioConfig == None:
@@ -980,6 +1082,55 @@ debugOut</p>
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
 
+    def getMyNode(self):
+        if self.myInfo is None:
+            return None
+        myId = self.myInfo.my_node_num
+        for _, nodeDict in self.nodes.items():
+            if &#39;num&#39; in nodeDict and nodeDict[&#39;num&#39;] == myId:
+                if &#39;user&#39; in nodeDict:
+                    return nodeDict[&#39;user&#39;]
+        return None
+
+    def getLongName(self):
+        user = self.getMyNode()
+        if user is not None:
+            return user.get(&#39;longName&#39;, None)
+        return None
+
+    def getShortName(self):
+        user = self.getMyNode()
+        if user is not None:
+            return user.get(&#39;shortName&#39;, None)
+        return None
+
+    def setOwner(self, long_name, short_name=None):
+        &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
+        nChars = 3
+        minChars = 2
+        if long_name is not None:
+            long_name = long_name.strip()
+            if short_name is None:
+                words = long_name.split()
+                if len(long_name) &lt;= nChars:
+                    short_name = long_name
+                elif len(words) &gt;= minChars:
+                    short_name = &#39;&#39;.join(map(lambda word: word[0], words))
+                else:
+                    trans = str.maketrans(dict.fromkeys(&#39;aeiouAEIOU&#39;))
+                    short_name = long_name[0] + long_name[1:].translate(trans)
+                    if len(short_name) &lt; nChars:
+                        short_name = long_name[:nChars]
+        t = mesh_pb2.ToRadio()
+        if long_name is not None:
+            t.set_owner.long_name = long_name
+        if short_name is not None:
+            short_name = short_name.strip()
+            if len(short_name) &gt; nChars:
+                short_name = short_name[:nChars]
+            t.set_owner.short_name = short_name
+        self._sendToRadio(t)
+
     @property
     def channelURL(self):
         &#34;&#34;&#34;The sharable URL that describes the current channel
@@ -987,6 +1138,19 @@ debugOut</p>
         bytes = self.radioConfig.channel_settings.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
         return f&#34;https://www.meshtastic.org/c/#{s}&#34;
+
+    def setURL(self, url, write=True):
+        &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
+        if self.radioConfig == None:
+            raise Exception(&#34;No RadioConfig has been read&#34;)
+
+        # URLs are of the form https://www.meshtastic.org/c/#{base64_channel_settings}
+        # Split on &#39;/#&#39; to find the base64 encoded channel settings
+        splitURL = url.split(&#34;/#&#34;)
+        decodedURL = base64.urlsafe_b64decode(splitURL[-1])
+        self.radioConfig.channel_settings.ParseFromString(decodedURL)
+        if write:
+            self.writeConfig()
 
     def _generatePacketId(self):
         &#34;&#34;&#34;Get a new unique packet ID&#34;&#34;&#34;
@@ -1051,6 +1215,7 @@ debugOut</p>
             self._nodesByNum[node[&#34;num&#34;]] = node
             if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
+            pub.sendMessage(&#34;meshtastic.node.updated&#34;, node=node, interface=self)
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             self._connected()
@@ -1190,6 +1355,58 @@ def channelURL(self):
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="meshtastic.MeshInterface.getLongName"><code class="name flex">
+<span>def <span class="ident">getLongName</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getLongName(self):
+    user = self.getMyNode()
+    if user is not None:
+        return user.get(&#39;longName&#39;, None)
+    return None</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.MeshInterface.getMyNode"><code class="name flex">
+<span>def <span class="ident">getMyNode</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getMyNode(self):
+    if self.myInfo is None:
+        return None
+    myId = self.myInfo.my_node_num
+    for _, nodeDict in self.nodes.items():
+        if &#39;num&#39; in nodeDict and nodeDict[&#39;num&#39;] == myId:
+            if &#39;user&#39; in nodeDict:
+                return nodeDict[&#39;user&#39;]
+    return None</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.MeshInterface.getShortName"><code class="name flex">
+<span>def <span class="ident">getShortName</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getShortName(self):
+    user = self.getMyNode()
+    if user is not None:
+        return user.get(&#39;shortName&#39;, None)
+    return None</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.MeshInterface.sendData"><code class="name flex">
 <span>def <span class="ident">sendData</span></span>(<span>self, byteData, destinationId='^all', dataType=0, wantAck=False, wantResponse=False)</span>
 </code></dt>
@@ -1332,6 +1549,84 @@ wantAck &ndash; True if you want the message sent in a reliable manner (with ret
                          dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)</code></pre>
 </details>
 </dd>
+<dt id="meshtastic.MeshInterface.setOwner"><code class="name flex">
+<span>def <span class="ident">setOwner</span></span>(<span>self, long_name, short_name=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set device owner name</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setOwner(self, long_name, short_name=None):
+    &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
+    nChars = 3
+    minChars = 2
+    if long_name is not None:
+        long_name = long_name.strip()
+        if short_name is None:
+            words = long_name.split()
+            if len(long_name) &lt;= nChars:
+                short_name = long_name
+            elif len(words) &gt;= minChars:
+                short_name = &#39;&#39;.join(map(lambda word: word[0], words))
+            else:
+                trans = str.maketrans(dict.fromkeys(&#39;aeiouAEIOU&#39;))
+                short_name = long_name[0] + long_name[1:].translate(trans)
+                if len(short_name) &lt; nChars:
+                    short_name = long_name[:nChars]
+    t = mesh_pb2.ToRadio()
+    if long_name is not None:
+        t.set_owner.long_name = long_name
+    if short_name is not None:
+        short_name = short_name.strip()
+        if len(short_name) &gt; nChars:
+            short_name = short_name[:nChars]
+        t.set_owner.short_name = short_name
+    self._sendToRadio(t)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.MeshInterface.setURL"><code class="name flex">
+<span>def <span class="ident">setURL</span></span>(<span>self, url, write=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set mesh network URL</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setURL(self, url, write=True):
+    &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
+    if self.radioConfig == None:
+        raise Exception(&#34;No RadioConfig has been read&#34;)
+
+    # URLs are of the form https://www.meshtastic.org/c/#{base64_channel_settings}
+    # Split on &#39;/#&#39; to find the base64 encoded channel settings
+    splitURL = url.split(&#34;/#&#34;)
+    decodedURL = base64.urlsafe_b64decode(splitURL[-1])
+    self.radioConfig.channel_settings.ParseFromString(decodedURL)
+    if write:
+        self.writeConfig()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.MeshInterface.waitForConfig"><code class="name flex">
+<span>def <span class="ident">waitForConfig</span></span>(<span>self, sleep=0.1, maxsecs=20, attrs=('myInfo', 'nodes', 'radioConfig'))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Block until radio config is received. Returns True if config has been received.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def waitForConfig(self, sleep=.1, maxsecs=20, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;, &#39;radioConfig&#39;)):
+    &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
+    for _ in range(int(maxsecs/sleep)):
+        if all(map(lambda a: getattr(self, a, None), attrs)):
+            return True
+        time.sleep(sleep)
+    return False</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.MeshInterface.writeConfig"><code class="name flex">
 <span>def <span class="ident">writeConfig</span></span>(<span>self)</span>
 </code></dt>
@@ -1433,6 +1728,9 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <li><code><a title="meshtastic.StreamInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.setOwner" href="#meshtastic.MeshInterface.setOwner">setOwner</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.setURL" href="#meshtastic.MeshInterface.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
 </li>
@@ -1652,6 +1950,9 @@ start the reading thread later.</p></div>
 <li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.setOwner" href="#meshtastic.MeshInterface.setOwner">setOwner</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.setURL" href="#meshtastic.MeshInterface.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
 </li>
@@ -1725,6 +2026,9 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <li><code><a title="meshtastic.StreamInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.setOwner" href="#meshtastic.MeshInterface.setOwner">setOwner</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.setURL" href="#meshtastic.MeshInterface.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
 </li>
@@ -1768,10 +2072,16 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <h4><code><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></code></h4>
 <ul class="two-column">
 <li><code><a title="meshtastic.MeshInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.getLongName" href="#meshtastic.MeshInterface.getLongName">getLongName</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.getMyNode" href="#meshtastic.MeshInterface.getMyNode">getMyNode</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.getShortName" href="#meshtastic.MeshInterface.getShortName">getShortName</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.setOwner" href="#meshtastic.MeshInterface.setOwner">setOwner</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.setURL" href="#meshtastic.MeshInterface.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
 </li>
