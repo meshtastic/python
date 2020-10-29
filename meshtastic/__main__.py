@@ -133,6 +133,10 @@ def onConnected(interface):
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.sendPosition()
 
+        if args.setowner:
+            print(f"Setting device owner to {args.setowner}")
+            interface.setOwner(args.setowner)
+
         if args.sendtext:
             print(f"Sending text message {args.sendtext} to {args.dest}")
             interface.sendText(args.sendtext, args.dest,
@@ -255,6 +259,9 @@ def main():
 
     parser.add_argument(
         "--seturl", help="Set a channel URL", action="store")
+
+    parser.add_argument(
+        "--setowner", help="Set device owner name", action="store")
 
     parser.add_argument(
         "--dest", help="The destination node id for the --send commands, if not set '^all' is assumed", default="^all")
