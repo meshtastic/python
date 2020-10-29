@@ -281,6 +281,7 @@ class MeshInterface:
             self._nodesByNum[node["num"]] = node
             if "user" in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node["user"]["id"]] = node
+            pub.sendMessage("meshtastic.node.updated", node=node, interface=self)
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             self._connected()
