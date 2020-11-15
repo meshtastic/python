@@ -217,7 +217,7 @@ def subscribe():
     pub.subscribe(onReceive, "meshtastic.receive")
     # pub.subscribe(onConnection, "meshtastic.connection")
     pub.subscribe(onConnected, "meshtastic.connection.established")
-    pub.subscribe(onNode, "meshtastic.node")
+    # pub.subscribe(onNode, "meshtastic.node")
 
 
 def main():
