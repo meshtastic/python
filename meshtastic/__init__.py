@@ -159,22 +159,22 @@ class MeshInterface:
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
-        meshPacket = mesh_pb2.MeshPacket()
+        p = mesh_pb2.Position()
         if(latitude != 0.0):
-            meshPacket.decoded.position.latitude_i = int(latitude / 1e-7)
+            p.latitude_i = int(latitude / 1e-7)
 
         if(longitude != 0.0):
-            meshPacket.decoded.position.longitude_i = int(longitude / 1e-7)
+            p.longitude_i = int(longitude / 1e-7)
 
         if(altitude != 0):
-            meshPacket.decoded.position.altitude = int(altitude)
+            p.altitude = int(altitude)
 
         if timeSec == 0:
             timeSec = time.time()  # returns unix timestamp in seconds
-        meshPacket.decoded.position.time = int(timeSec)
+        p.time = int(timeSec)
 
-        meshPacket.decoded.want_response = wantResponse
-        return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        data = p.SerializeToString()
+        return self.sendData(data, destinationId, portNum=portnums_pb2.PortNum.POSITION_APP, wantAck=wantAck, wantResponse=wantResponse)
 
     def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
@@ -446,7 +446,7 @@ class MeshInterface:
         if meshPacket.decoded.HasField("data"):
             topic = "meshtastic.receive.data"
 
-            # OPAQUE is the default protobuf typ value, and therefore if not set it will not be populated at all
+            # UNKNOWN_APP is the default protobuf pornum value, and therefore if not set it will not be populated at all
             # to make API usage easier, set it to prevent confusion
             if not "portnum" in asDict["decoded"]["data"]:
                 asDict["decoded"]["data"]["portnum"] = portnums_pb2.PortNum.UNKNOWN_APP

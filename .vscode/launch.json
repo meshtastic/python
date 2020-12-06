@@ -21,6 +21,14 @@
       "args": ["--debug", "--info"]
     },
     {
+      "name": "meshtastic debug",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug" ]
+    },
+    {
       "name": "meshtastic setpref",
       "type": "python",
       "request": "launch",
