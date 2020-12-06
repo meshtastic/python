@@ -132,18 +132,22 @@ class MeshInterface:
         return self.sendData(text.encode("utf-8"), destinationId,
                              portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP, wantAck=wantAck, wantResponse=wantResponse)
 
-    def sendData(self, byteData, destinationId=BROADCAST_ADDR, portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False, wantResponse=False):
+    def sendData(self, data, destinationId=BROADCAST_ADDR, portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False, wantResponse=False):
         """Send a data packet to some other node
 
         Keyword Arguments:
+            data -- the data to send, either as an array of bytes or as a protobuf (which will be automatically serialized to bytes)
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
             portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
+        if getattr(data, "SerializeToString", None):
+            data = data.SerializeToString()
+
         meshPacket = mesh_pb2.MeshPacket()
-        meshPacket.decoded.data.payload = byteData
+        meshPacket.decoded.data.payload = data
         meshPacket.decoded.data.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
         return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
@@ -173,8 +177,7 @@ class MeshInterface:
             timeSec = time.time()  # returns unix timestamp in seconds
         p.time = int(timeSec)
 
-        data = p.SerializeToString()
-        return self.sendData(data, destinationId, portNum=portnums_pb2.PortNum.POSITION_APP, wantAck=wantAck, wantResponse=wantResponse)
+        return self.sendData(p, destinationId, portNum=portnums_pb2.PortNum.POSITION_APP, wantAck=wantAck, wantResponse=wantResponse)
 
     def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
