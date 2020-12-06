@@ -430,21 +430,11 @@ class MeshInterface:
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
         # asObj = DotMap(asDict)
         topic = "meshtastic.receive"  # Generic unknown packet type
-        if meshPacket.decoded.HasField("position"):
-            topic = "meshtastic.receive.position"
-            p = asDict["decoded"]["position"]
-            self._fixupPosition(p)
-            # update node DB as needed
-            self._getOrCreateByNum(asDict["from"])["position"] = p
 
-        if meshPacket.decoded.HasField("user"):
-            topic = "meshtastic.receive.user"
-            u = asDict["decoded"]["user"]
-            # update node DB as needed
-            n = self._getOrCreateByNum(asDict["from"])
-            n["user"] = u
-            # We now have a node ID, make sure it is uptodate in that table
-            self.nodes[u["id"]] = u
+        # Warn users if firmware doesn't use new portnum based data encodings
+        # But do not crash, because the lib will still basically work and ignore those packet types
+        if meshPacket.decoded.HasField("user") or meshPacket.decoded.HasField("position"):
+            logging.error("The device firmware is too old to work with this version of the python library.  Please update firmware to 1.20 or later")
 
         if meshPacket.decoded.HasField("data"):
             topic = "meshtastic.receive.data"
@@ -468,6 +458,30 @@ class MeshInterface:
                     asDict["decoded"]["data"]["text"] = meshPacket.decoded.data.payload.decode("utf-8")
                 except Exception as ex:
                     logging.error(f"Malformatted utf8 in text message: {ex}")
+
+            # decode position protobufs and update nodedb, provide decoded version as "position" in the published msg
+            if asDict["decoded"]["data"]["portnum"] == portnums_pb2.PortNum.POSITION_APP:
+                topic = "meshtastic.receive.position"
+                pb = mesh_pb2.Position()
+                pb.ParseFromString(meshPacket.decoded.data.payload)
+                p = google.protobuf.json_format.MessageToDict(pb)
+                self._fixupPosition(p)
+                asDict["decoded"]["data"]["position"] = p
+                # update node DB as needed
+                self._getOrCreateByNum(asDict["from"])["position"] = p
+
+            # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
+            if asDict["decoded"]["data"]["user"] == portnums_pb2.PortNum.NODEINFO_APP:
+                topic = "meshtastic.receive.user"
+                pb = mesh_pb2.User()
+                pb.ParseFromString(meshPacket.decoded.data.payload)
+                u = google.protobuf.json_format.MessageToDict(pb)
+                asDict["decoded"]["data"]["user"] = u
+                # update node DB as needed
+                n = self._getOrCreateByNum(asDict["from"])
+                n["user"] = u
+                # We now have a node ID, make sure it is uptodate in that table
+                self.nodes[u["id"]] = u
 
         pub.sendMessage(topic, packet=asDict, interface=self)
 
