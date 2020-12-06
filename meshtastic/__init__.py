@@ -146,6 +146,8 @@ class MeshInterface:
         if getattr(data, "SerializeToString", None):
             data = data.SerializeToString()
 
+        if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
+            raise Exception("Data payload too big")
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.data.payload = data
         meshPacket.decoded.data.portnum = portNum
