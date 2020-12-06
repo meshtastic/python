@@ -66,8 +66,7 @@ import traceback
 import time
 import base64
 import platform
-from . import mesh_pb2
-from . import util
+from . import mesh_pb2, portnums_pb2, util
 from pubsub import pub
 from dotmap import DotMap
 
@@ -125,25 +124,27 @@ class MeshInterface:
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
         return self.sendData(text.encode("utf-8"), destinationId,
-                             dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)
+                             portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP, wantAck=wantAck, wantResponse=wantResponse)
 
-    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
+    def sendData(self, byteData, destinationId=BROADCAST_ADDR, portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False, wantResponse=False):
         """Send a data packet to some other node
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.data.payload = byteData
-        meshPacket.decoded.data.typ = dataType
+        meshPacket.decoded.data.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
         return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
@@ -447,11 +448,11 @@ class MeshInterface:
 
             # OPAQUE is the default protobuf typ value, and therefore if not set it will not be populated at all
             # to make API usage easier, set it to prevent confusion
-            if not "typ" in asDict["decoded"]["data"]:
-                asDict["decoded"]["data"]["typ"] = "OPAQUE"
+            if not "portnum" in asDict["decoded"]["data"]:
+                asDict["decoded"]["data"]["portnum"] = portnums_pb2.PortNum.UNKNOWN_APP
 
             # For text messages, we go ahead and decode the text to ascii for our users
-            if asDict["decoded"]["data"]["typ"] == "CLEAR_TEXT":
+            if asDict["decoded"]["data"]["portnum"] == portnums_pb2.PortNum.TEXT_MESSAGE_APP:
                 topic = "meshtastic.receive.text"
 
                 # We don't throw if the utf8 is invalid in the text message.  Instead we just don't populate
