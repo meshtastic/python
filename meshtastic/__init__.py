@@ -24,7 +24,7 @@ topics:
 type of packet, you should subscribe to the full topic name.  If you want to see all packets, simply subscribe to "meshtastic.receive".
 - meshtastic.receive.position(packet)
 - meshtastic.receive.user(packet)
-- meshtastic.receive.data(packet)
+- meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
 
 We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for 
@@ -441,12 +441,19 @@ class MeshInterface:
             logging.error("The device firmware is too old to work with this version of the python library.  Please update firmware to 1.20 or later")
 
         if meshPacket.decoded.HasField("data"):
-            topic = "meshtastic.receive.data"
+
+            # The default MessageToDict converts byte arrays into base64 strings.
+            # We don't want that - it messes up data payload.  So slam in the correct
+            # byte array.
+            asDict["decoded"]["data"]["payload"] = meshPacket.decoded.data.payload
 
             # UNKNOWN_APP is the default protobuf pornum value, and therefore if not set it will not be populated at all
             # to make API usage easier, set it to prevent confusion
             if not "portnum" in asDict["decoded"]["data"]:
                 asDict["decoded"]["data"]["portnum"] = portnums_pb2.PortNum.UNKNOWN_APP
+
+            portnum = asDict["decoded"]["data"]["portnum"]
+            topic = f"meshtastic.receive.data.{portnum}"
 
             # For text messages, we go ahead and decode the text to ascii for our users
             if asDict["decoded"]["data"]["portnum"] == portnums_pb2.PortNum.TEXT_MESSAGE_APP:
@@ -487,6 +494,7 @@ class MeshInterface:
                 # We now have a node ID, make sure it is uptodate in that table
                 self.nodes[u["id"]] = u
 
+        logging.debug(f"Publishing topic {topic}")
         pub.sendMessage(topic, packet=asDict, interface=self)
 
 
