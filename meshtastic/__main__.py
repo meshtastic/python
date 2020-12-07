@@ -142,15 +142,22 @@ def onConnected(interface):
             interface.sendText(args.sendtext, args.destOrAll,
                                wantAck=True, wantResponse=True)
 
-        if args.gpiowrb:
-            bitmask = 0
-            bitval = 0
-            for wrpair in (args.gpiowrb or []):
-                bitmask |= 1 << int(wrpair[0])
-                bitval |= int(wrpair[1]) << int(wrpair[0])
-            print(f"Writing GPIO mask 0x{bitmask:x} with value 0x{bitval:x} to {args.dest}")
+        if args.gpiowrb or args.gpiord:
             rhc = remote_hardware.RemoteHardwareClient(interface)
-            rhc.writeGPIOs(args.dest, bitmask, bitval)
+
+            if args.gpiowrb:
+                bitmask = 0
+                bitval = 0
+                for wrpair in (args.gpiowrb or []):
+                    bitmask |= 1 << int(wrpair[0])
+                    bitval |= int(wrpair[1]) << int(wrpair[0])
+                print(f"Writing GPIO mask 0x{bitmask:x} with value 0x{bitval:x} to {args.dest}")
+                rhc.writeGPIOs(args.dest, bitmask, bitval)
+
+            if args.gpiord:
+                bitmask = int(args.gpiord)
+                print(f"Reading GPIO mask 0x{bitmask:x} from {args.dest}")
+                rhc.readGPIOs(args.dest, bitmask)
 
         if args.set or args.setstr or args.setchan or args.seturl or args.router != None:
             closeNow = True
@@ -281,6 +288,9 @@ def main():
 
     parser.add_argument(
         "--gpiowrb", nargs=2, help="Set a particlar GPIO # to 1 or 0", action='append')
+
+    parser.add_argument(
+        "--gpiord", help="Read from a GPIO mask")
 
     parser.add_argument(
         "--settime", help="Set the real time clock on the device", action="store_true")
