@@ -190,7 +190,9 @@ class MeshInterface:
         toRadio = mesh_pb2.ToRadio()
         # FIXME add support for non broadcast addresses
 
-        if isinstance(destinationId, int):
+        if destinationId is None:
+            raise Exception("destinationId must not be None")
+        elif isinstance(destinationId, int):
             nodeNum = destinationId
         elif destinationId == BROADCAST_ADDR:
             nodeNum = BROADCAST_NUM
@@ -473,7 +475,7 @@ class MeshInterface:
                 self._getOrCreateByNum(asDict["from"])["position"] = p
 
             # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
-            if asDict["decoded"]["data"]["user"] == portnums_pb2.PortNum.NODEINFO_APP:
+            if asDict["decoded"]["data"]["portnum"] == portnums_pb2.PortNum.NODEINFO_APP:
                 topic = "meshtastic.receive.user"
                 pb = mesh_pb2.User()
                 pb.ParseFromString(meshPacket.decoded.data.payload)

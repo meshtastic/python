@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0eportnums.proto*\x88\x01\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x0c\n\x08GPIO_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x12\n\rIP_TUNNEL_APP\x10\x80\x08\x62\x06proto3'
+  serialized_pb=b'\n\x0eportnums.proto*\x93\x01\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x12\n\rIP_TUNNEL_APP\x10\x80\x08\x62\x06proto3'
 )
 
 _PORTNUM = _descriptor.EnumDescriptor(
@@ -41,7 +41,7 @@ _PORTNUM = _descriptor.EnumDescriptor(
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='GPIO_APP', index=2, number=2,
+      name='REMOTE_HARDWARE_APP', index=2, number=2,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
@@ -69,14 +69,14 @@ _PORTNUM = _descriptor.EnumDescriptor(
   containing_type=None,
   serialized_options=None,
   serialized_start=19,
-  serialized_end=155,
+  serialized_end=166,
 )
 _sym_db.RegisterEnumDescriptor(_PORTNUM)
 
 PortNum = enum_type_wrapper.EnumTypeWrapper(_PORTNUM)
 UNKNOWN_APP = 0
 TEXT_MESSAGE_APP = 1
-GPIO_APP = 2
+REMOTE_HARDWARE_APP = 2
 POSITION_APP = 3
 NODEINFO_APP = 4
 PRIVATE_APP = 256

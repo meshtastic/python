@@ -1,7 +1,7 @@
 #!python3
 
 import argparse
-from . import SerialInterface, TCPInterface, BLEInterface, test
+from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
 import logging
 import sys
 from pubsub import pub
@@ -138,9 +138,19 @@ def onConnected(interface):
             interface.setOwner(args.setowner)
 
         if args.sendtext:
-            print(f"Sending text message {args.sendtext} to {args.dest}")
-            interface.sendText(args.sendtext, args.dest,
+            print(f"Sending text message {args.sendtext} to {args.destOrAll}")
+            interface.sendText(args.sendtext, args.destOrAll,
                                wantAck=True, wantResponse=True)
+
+        if args.gpiowrb:
+            bitmask = 0
+            bitval = 0
+            for wrpair in (args.gpiowrb or []):
+                bitmask |= 1 << int(wrpair[0])
+                bitval |= int(wrpair[1]) << int(wrpair[0])
+            print(f"Writing GPIO mask 0x{bitmask:x} with value 0x{bitval:x} to {args.dest}")
+            rhc = remote_hardware.RemoteHardwareClient(interface)
+            rhc.writeGPIOs(args.dest, bitmask, bitval)
 
         if args.set or args.setstr or args.setchan or args.seturl or args.router != None:
             closeNow = True
@@ -260,7 +270,7 @@ def main():
         "--setowner", help="Set device owner name", action="store")
 
     parser.add_argument(
-        "--dest", help="The destination node id for the --send commands, if not set '^all' is assumed", default="^all")
+        "--dest", help="The destination node id for any sent commands, if not set '^all' is assumed", default=None)
 
     parser.add_argument(
         "--sendtext", help="Send a text message")
@@ -268,6 +278,9 @@ def main():
     parser.add_argument(
         "--reply", help="Reply to received messages",
         action="store_true")
+
+    parser.add_argument(
+        "--gpiowrb", nargs=2, help="Set a particlar GPIO # to 1 or 0", action='append')
 
     parser.add_argument(
         "--settime", help="Set the real time clock on the device", action="store_true")
@@ -294,6 +307,11 @@ def main():
     global args
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+
+    # Some commands require dest to be set, so we now use destOrAll for more lenient commands
+    args.destOrAll = args.dest
+    if not args.destOrAll:
+        args.destOrAll = "^all"
 
     if not args.seriallog:
         if args.info or args.set or args.setstr or args.setchan or args.sendtext or args.router != None or args.qr:
