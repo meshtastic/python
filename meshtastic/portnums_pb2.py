@@ -18,9 +18,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='portnums.proto',
   package='',
   syntax='proto3',
-  serialized_options=None,
+  serialized_options=b'\n\023com.geeksville.meshB\010PortnumsH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0eportnums.proto*\x93\x01\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x12\n\rIP_TUNNEL_APP\x10\x80\x08\x62\x06proto3'
+  serialized_pb=b'\n\x0eportnums.proto*\x93\x01\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x12\n\rIP_TUNNEL_APP\x10\x80\x08\x42!\n\x13\x63om.geeksville.meshB\x08PortnumsH\x03\x62\x06proto3'
 )
 
 _PORTNUM = _descriptor.EnumDescriptor(
@@ -87,4 +87,5 @@ DESCRIPTOR.enum_types_by_name['PortNum'] = _PORTNUM
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
+DESCRIPTOR._options = None
 # @@protoc_insertion_point(module_scope)

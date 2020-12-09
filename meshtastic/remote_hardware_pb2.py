@@ -17,9 +17,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='remote_hardware.proto',
   package='',
   syntax='proto3',
-  serialized_options=None,
+  serialized_options=b'\n\023com.geeksville.meshB\016RemoteHardwareH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x15remote_hardware.proto\"\xca\x01\n\x0fHardwareMessage\x12\"\n\x03typ\x18\x01 \x01(\x0e\x32\x15.HardwareMessage.Type\x12\x11\n\tgpio_mask\x18\x02 \x01(\x04\x12\x12\n\ngpio_value\x18\x03 \x01(\x04\"l\n\x04Type\x12\t\n\x05UNSET\x10\x00\x12\x0f\n\x0bWRITE_GPIOS\x10\x01\x12\x0f\n\x0bWATCH_GPIOS\x10\x02\x12\x11\n\rGPIOS_CHANGED\x10\x03\x12\x0e\n\nREAD_GPIOS\x10\x04\x12\x14\n\x10READ_GPIOS_REPLY\x10\x05\x62\x06proto3'
+  serialized_pb=b'\n\x15remote_hardware.proto\"\xca\x01\n\x0fHardwareMessage\x12\"\n\x03typ\x18\x01 \x01(\x0e\x32\x15.HardwareMessage.Type\x12\x11\n\tgpio_mask\x18\x02 \x01(\x04\x12\x12\n\ngpio_value\x18\x03 \x01(\x04\"l\n\x04Type\x12\t\n\x05UNSET\x10\x00\x12\x0f\n\x0bWRITE_GPIOS\x10\x01\x12\x0f\n\x0bWATCH_GPIOS\x10\x02\x12\x11\n\rGPIOS_CHANGED\x10\x03\x12\x0e\n\nREAD_GPIOS\x10\x04\x12\x14\n\x10READ_GPIOS_REPLY\x10\x05\x42\'\n\x13\x63om.geeksville.meshB\x0eRemoteHardwareH\x03\x62\x06proto3'
 )
 
 
@@ -129,4 +129,5 @@ HardwareMessage = _reflection.GeneratedProtocolMessageType('HardwareMessage', (_
 _sym_db.RegisterMessage(HardwareMessage)
 
 
+DESCRIPTOR._options = None
 # @@protoc_insertion_point(module_scope)

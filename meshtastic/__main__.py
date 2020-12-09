@@ -128,11 +128,33 @@ def onConnected(interface):
     print("Connected to radio")
     closeNow = False  # Should we drop the connection after we finish?
     try:
-        if args.settime:
+        prefs = interface.radioConfig.preferences
+
+        if args.settime or args.setlat or args.setlon or args.setalt:
             closeNow = True
-            print("Setting device RTC time")
+
+            alt = 0
+            lat = 0.0
+            lon = 0.0
+            time = 0
+            if args.settime:
+                time = int(args.settime)
+            if args.setalt:
+                alt = int(args.setalt)
+                prefs.fixed_position = True
+                print(f"Fixing altitude at {alt} meters")
+            if args.setlat:
+                lat = float(args.setlat)
+                prefs.fixed_position = True
+                print(f"Fixing latitude at {lat} degrees")
+            if args.setlon:
+                lon = float(args.setlon)
+                prefs.fixed_position = True
+                print(f"Fixing longitude at {lon} degrees")
+
+            print("Setting device time/position")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
-            interface.sendPosition()
+            interface.sendPosition(lat, lon, alt, time)
 
         if args.setowner:
             closeNow = True
@@ -187,11 +209,11 @@ def onConnected(interface):
             # Handle the int/float/bool arguments
             for pref in (args.set or []):
                 setPref(
-                    interface.radioConfig.preferences, pref[0], fromStr(pref[1]))
+                    prefs, pref[0], fromStr(pref[1]))
 
             # Handle the string arguments
             for pref in (args.setstr or []):
-                setPref(interface.radioConfig.preferences, pref[0], pref[1])
+                setPref(prefs, pref[0], pref[1])
 
             # Handle the channel settings
             for pref in (args.setchan or []):
@@ -298,6 +320,15 @@ def main():
     parser.add_argument(
         "--settime", help="Set the real time clock on the device", action="store_true")
 
+    parser.add_argument(
+        "--setalt", help="Set device altitude (allows use without GPS)")
+
+    parser.add_argument(
+        "--setlat", help="Set device latitude (allows use without GPS)")
+
+    parser.add_argument(
+        "--setlon", help="Set device longitude (allows use without GPS)")
+
     parser.add_argument("--debug", help="Show API library debug log messages",
                         action="store_true")
 
@@ -327,7 +358,7 @@ def main():
         args.destOrAll = "^all"
 
     if not args.seriallog:
-        if args.info or args.set or args.seturl or args.setowner or args.settime or args.setstr or args.setchan or args.sendtext or args.router != None or args.qr:
+        if args.info or args.set or args.seturl or args.setowner or args.setlat or args.setlon or args.settime or args.setstr or args.setchan or args.sendtext or args.router != None or args.qr:
             args.seriallog = "none"  # assume no debug output in this case
         else:
             args.seriallog = "stdout"  # default to stdout
