@@ -563,7 +563,7 @@ class StreamInterface(MeshInterface):
         self._rxBuf = bytes()  # empty
         self._wantExit = False
 
-        self._rxThread = threading.Thread(target=self.__reader, args=())
+        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
