@@ -99,7 +99,11 @@ class MeshInterface:
     """
 
     def __init__(self, debugOut=None, noProto=False):
-        """Constructor"""
+        """Constructor
+
+        Keyword Arguments:
+            noProto -- If True, don't try to run our protocol on the link - just be a dumb serial client.
+        """
         self.debugOut = debugOut
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
