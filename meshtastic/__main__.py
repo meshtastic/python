@@ -327,7 +327,7 @@ def main():
         args.destOrAll = "^all"
 
     if not args.seriallog:
-        if args.info or args.set or args.setstr or args.setchan or args.sendtext or args.router != None or args.qr:
+        if args.info or args.set or args.seturl or args.setowner or args.settime or args.setstr or args.setchan or args.sendtext or args.router != None or args.qr:
             args.seriallog = "none"  # assume no debug output in this case
         else:
             args.seriallog = "stdout"  # default to stdout

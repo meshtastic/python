@@ -233,6 +233,7 @@ class MeshInterface:
         t = mesh_pb2.ToRadio()
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
+        logging.debug("Wrote config")
 
     def getMyNode(self):
         if self.myInfo is None:
