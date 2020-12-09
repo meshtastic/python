@@ -102,7 +102,7 @@ class MeshInterface:
         """Constructor"""
         self.debugOut = debugOut
         self.nodes = None  # FIXME
-        self.isConnected = False
+        self.isConnected = threading.Event()
         if not noProto:
             self._startConfig()
 
@@ -187,6 +187,8 @@ class MeshInterface:
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
+        self._waitConnected()
+
         toRadio = mesh_pb2.ToRadio()
         # FIXME add support for non broadcast addresses
 
@@ -298,6 +300,12 @@ class MeshInterface:
         if write:
             self.writeConfig()
 
+    def _waitConnected(self):
+        """Block until the initial node db download is complete, or timeout
+        and raise an exception"""
+        if not self.isConnected.wait(5.0): # timeout after 5 seconds
+            raise Exception("Timed out waiting for connection completion")
+
     def _generatePacketId(self):
         """Get a new unique packet ID"""
         if self.currentPacketId is None:
@@ -308,13 +316,13 @@ class MeshInterface:
 
     def _disconnected(self):
         """Called by subclasses to tell clients this interface has disconnected"""
-        self.isConnected = False
+        self.isConnected.clear()
         pub.sendMessage("meshtastic.connection.lost", interface=self)
 
     def _connected(self):
         """Called by this class to tell clients we are now fully connected to a node
         """
-        self.isConnected = True
+        self.isConnected.set()
         pub.sendMessage("meshtastic.connection.established", interface=self)
 
     def _startConfig(self):
