@@ -107,6 +107,7 @@ class MeshInterface:
         self.debugOut = debugOut
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
+        self.noProto = noProto
         if not noProto:
             self._startConfig()
 
@@ -598,7 +599,8 @@ class StreamInterface(MeshInterface):
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
-        self._waitConnected()
+        if not self.noProto: # Wait for the db download if using the protocol
+            self._waitConnected()
 
     def _disconnected(self):
         """We override the superclass implementation to close our port"""
