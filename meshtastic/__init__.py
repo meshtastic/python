@@ -575,7 +575,8 @@ class StreamInterface(MeshInterface):
         self._rxBuf = bytes()  # empty
         self._wantExit = False
 
-        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
+        # FIXME, figure out why daemon=True causes reader thread to exit too early
+        self._rxThread = threading.Thread(target=self.__reader, args=())
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
@@ -595,6 +596,7 @@ class StreamInterface(MeshInterface):
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
+        self._waitConnected()
 
     def _disconnected(self):
         """We override the superclass implementation to close our port"""

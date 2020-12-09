@@ -129,15 +129,18 @@ def onConnected(interface):
     closeNow = False  # Should we drop the connection after we finish?
     try:
         if args.settime:
+            closeNow = True
             print("Setting device RTC time")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.sendPosition()
 
         if args.setowner:
+            closeNow = True
             print(f"Setting device owner to {args.setowner}")
             interface.setOwner(args.setowner)
 
         if args.sendtext:
+            closeNow = True
             print(f"Sending text message {args.sendtext} to {args.destOrAll}")
             interface.sendText(args.sendtext, args.destOrAll,
                                wantAck=True, wantResponse=True)

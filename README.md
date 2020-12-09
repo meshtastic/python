@@ -16,6 +16,7 @@ then run the following python3 code:
 import meshtastic
 interface = meshtastic.SerialInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
 interface.sendText("hello mesh") # or sendData to send binary data, see documentations for other options.
+interface.close()
 ```
 
 For the rough notes/implementation plan see [TODO](https://github.com/meshtastic/Meshtastic-python/blob/master/TODO.md).
