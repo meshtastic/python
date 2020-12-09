@@ -48,7 +48,7 @@ type of packet, you should subscribe to the full topic name.
 If you want to see all packets, simply subscribe to "meshtastic.receive".</li>
 <li>meshtastic.receive.position(packet)</li>
 <li>meshtastic.receive.user(packet)</li>
-<li>meshtastic.receive.data(packet)</li>
+<li>meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)</li>
 <li>meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc&hellip;)</li>
 </ul>
 <p>We receive position, user, or data packets from the mesh.
@@ -110,7 +110,7 @@ topics:
 type of packet, you should subscribe to the full topic name.  If you want to see all packets, simply subscribe to &#34;meshtastic.receive&#34;.
 - meshtastic.receive.position(packet)
 - meshtastic.receive.user(packet)
-- meshtastic.receive.data(packet)
+- meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
 
 We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for 
@@ -152,8 +152,7 @@ import traceback
 import time
 import base64
 import platform
-from . import mesh_pb2
-from . import util
+from . import mesh_pb2, portnums_pb2, util
 from pubsub import pub
 from dotmap import DotMap
 
@@ -169,9 +168,11 @@ BROADCAST_NUM = 0xffffffff
 
 MY_CONFIG_ID = 42
 
-&#34;&#34;&#34;The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand&#34;&#34;&#34;
-OUR_APP_VERSION = 172
+&#34;&#34;&#34;The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand
 
+format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
+&#34;&#34;&#34;
+OUR_APP_VERSION = 20120 
 
 class MeshInterface:
     &#34;&#34;&#34;Interface class for meshtastic devices
@@ -184,10 +185,15 @@ class MeshInterface:
     &#34;&#34;&#34;
 
     def __init__(self, debugOut=None, noProto=False):
-        &#34;&#34;&#34;Constructor&#34;&#34;&#34;
+        &#34;&#34;&#34;Constructor
+
+        Keyword Arguments:
+            noProto -- If True, don&#39;t try to run our protocol on the link - just be a dumb serial client.
+        &#34;&#34;&#34;
         self.debugOut = debugOut
         self.nodes = None  # FIXME
-        self.isConnected = False
+        self.isConnected = threading.Event()
+        self.noProto = noProto
         if not noProto:
             self._startConfig()
 
@@ -209,25 +215,34 @@ class MeshInterface:
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
         return self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                             dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)
+                             portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP, wantAck=wantAck, wantResponse=wantResponse)
 
-    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
+    def sendData(self, data, destinationId=BROADCAST_ADDR, portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a data packet to some other node
 
         Keyword Arguments:
+            data -- the data to send, either as an array of bytes or as a protobuf (which will be automatically serialized to bytes)
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
+        if getattr(data, &#34;SerializeToString&#34;, None):
+            logging.debug(f&#34;Serializing protobuf as data: {data}&#34;)
+            data = data.SerializeToString()
+
+        if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
+            raise Exception(&#34;Data payload too big&#34;)
         meshPacket = mesh_pb2.MeshPacket()
-        meshPacket.decoded.data.payload = byteData
-        meshPacket.decoded.data.typ = dataType
+        meshPacket.decoded.data.payload = data
+        meshPacket.decoded.data.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
         return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
@@ -242,22 +257,21 @@ class MeshInterface:
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
-        meshPacket = mesh_pb2.MeshPacket()
+        p = mesh_pb2.Position()
         if(latitude != 0.0):
-            meshPacket.decoded.position.latitude_i = int(latitude / 1e-7)
+            p.latitude_i = int(latitude / 1e-7)
 
         if(longitude != 0.0):
-            meshPacket.decoded.position.longitude_i = int(longitude / 1e-7)
+            p.longitude_i = int(longitude / 1e-7)
 
         if(altitude != 0):
-            meshPacket.decoded.position.altitude = int(altitude)
+            p.altitude = int(altitude)
 
         if timeSec == 0:
             timeSec = time.time()  # returns unix timestamp in seconds
-        meshPacket.decoded.position.time = int(timeSec)
+        p.time = int(timeSec)
 
-        meshPacket.decoded.want_response = wantResponse
-        return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        return self.sendData(p, destinationId, portNum=portnums_pb2.PortNum.POSITION_APP, wantAck=wantAck, wantResponse=wantResponse)
 
     def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
         &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast).
@@ -265,10 +279,14 @@ class MeshInterface:
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
+        self._waitConnected()
+
         toRadio = mesh_pb2.ToRadio()
         # FIXME add support for non broadcast addresses
 
-        if isinstance(destinationId, int):
+        if destinationId is None:
+            raise Exception(&#34;destinationId must not be None&#34;)
+        elif isinstance(destinationId, int):
             nodeNum = destinationId
         elif destinationId == BROADCAST_ADDR:
             nodeNum = BROADCAST_NUM
@@ -303,6 +321,7 @@ class MeshInterface:
         t = mesh_pb2.ToRadio()
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
+        logging.debug(&#34;Wrote config&#34;)
 
     def getMyNode(self):
         if self.myInfo is None:
@@ -374,6 +393,12 @@ class MeshInterface:
         if write:
             self.writeConfig()
 
+    def _waitConnected(self):
+        &#34;&#34;&#34;Block until the initial node db download is complete, or timeout
+        and raise an exception&#34;&#34;&#34;
+        if not self.isConnected.wait(5.0): # timeout after 5 seconds
+            raise Exception(&#34;Timed out waiting for connection completion&#34;)
+
     def _generatePacketId(self):
         &#34;&#34;&#34;Get a new unique packet ID&#34;&#34;&#34;
         if self.currentPacketId is None:
@@ -384,13 +409,13 @@ class MeshInterface:
 
     def _disconnected(self):
         &#34;&#34;&#34;Called by subclasses to tell clients this interface has disconnected&#34;&#34;&#34;
-        self.isConnected = False
+        self.isConnected.clear()
         pub.sendMessage(&#34;meshtastic.connection.lost&#34;, interface=self)
 
     def _connected(self):
         &#34;&#34;&#34;Called by this class to tell clients we are now fully connected to a node
         &#34;&#34;&#34;
-        self.isConnected = True
+        self.isConnected.set()
         pub.sendMessage(&#34;meshtastic.connection.established&#34;, interface=self)
 
     def _startConfig(self):
@@ -510,32 +535,29 @@ class MeshInterface:
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
         # asObj = DotMap(asDict)
         topic = &#34;meshtastic.receive&#34;  # Generic unknown packet type
-        if meshPacket.decoded.HasField(&#34;position&#34;):
-            topic = &#34;meshtastic.receive.position&#34;
-            p = asDict[&#34;decoded&#34;][&#34;position&#34;]
-            self._fixupPosition(p)
-            # update node DB as needed
-            self._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;position&#34;] = p
 
-        if meshPacket.decoded.HasField(&#34;user&#34;):
-            topic = &#34;meshtastic.receive.user&#34;
-            u = asDict[&#34;decoded&#34;][&#34;user&#34;]
-            # update node DB as needed
-            n = self._getOrCreateByNum(asDict[&#34;from&#34;])
-            n[&#34;user&#34;] = u
-            # We now have a node ID, make sure it is uptodate in that table
-            self.nodes[u[&#34;id&#34;]] = u
+        # Warn users if firmware doesn&#39;t use new portnum based data encodings
+        # But do not crash, because the lib will still basically work and ignore those packet types
+        if meshPacket.decoded.HasField(&#34;user&#34;) or meshPacket.decoded.HasField(&#34;position&#34;):
+            logging.error(&#34;The device firmware is too old to work with this version of the python library.  Please update firmware to 1.20 or later&#34;)
 
         if meshPacket.decoded.HasField(&#34;data&#34;):
-            topic = &#34;meshtastic.receive.data&#34;
 
-            # OPAQUE is the default protobuf typ value, and therefore if not set it will not be populated at all
+            # The default MessageToDict converts byte arrays into base64 strings.
+            # We don&#39;t want that - it messes up data payload.  So slam in the correct
+            # byte array.
+            asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;payload&#34;] = meshPacket.decoded.data.payload
+
+            # UNKNOWN_APP is the default protobuf pornum value, and therefore if not set it will not be populated at all
             # to make API usage easier, set it to prevent confusion
-            if not &#34;typ&#34; in asDict[&#34;decoded&#34;][&#34;data&#34;]:
-                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;typ&#34;] = &#34;OPAQUE&#34;
+            if not &#34;portnum&#34; in asDict[&#34;decoded&#34;][&#34;data&#34;]:
+                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;portnum&#34;] = portnums_pb2.PortNum.UNKNOWN_APP
+
+            portnum = asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;portnum&#34;]
+            topic = f&#34;meshtastic.receive.data.{portnum}&#34;
 
             # For text messages, we go ahead and decode the text to ascii for our users
-            if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;typ&#34;] == &#34;CLEAR_TEXT&#34;:
+            if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;portnum&#34;] == portnums_pb2.PortNum.TEXT_MESSAGE_APP:
                 topic = &#34;meshtastic.receive.text&#34;
 
                 # We don&#39;t throw if the utf8 is invalid in the text message.  Instead we just don&#39;t populate
@@ -549,6 +571,31 @@ class MeshInterface:
                 except Exception as ex:
                     logging.error(f&#34;Malformatted utf8 in text message: {ex}&#34;)
 
+            # decode position protobufs and update nodedb, provide decoded version as &#34;position&#34; in the published msg
+            if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;portnum&#34;] == portnums_pb2.PortNum.POSITION_APP:
+                topic = &#34;meshtastic.receive.position&#34;
+                pb = mesh_pb2.Position()
+                pb.ParseFromString(meshPacket.decoded.data.payload)
+                p = google.protobuf.json_format.MessageToDict(pb)
+                self._fixupPosition(p)
+                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;position&#34;] = p
+                # update node DB as needed
+                self._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;position&#34;] = p
+
+            # decode user protobufs and update nodedb, provide decoded version as &#34;position&#34; in the published msg
+            if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;portnum&#34;] == portnums_pb2.PortNum.NODEINFO_APP:
+                topic = &#34;meshtastic.receive.user&#34;
+                pb = mesh_pb2.User()
+                pb.ParseFromString(meshPacket.decoded.data.payload)
+                u = google.protobuf.json_format.MessageToDict(pb)
+                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;user&#34;] = u
+                # update node DB as needed
+                n = self._getOrCreateByNum(asDict[&#34;from&#34;])
+                n[&#34;user&#34;] = u
+                # We now have a node ID, make sure it is uptodate in that table
+                self.nodes[u[&#34;id&#34;]] = u
+
+        logging.debug(f&#34;Publishing topic {topic}&#34;)
         pub.sendMessage(topic, packet=asDict, interface=self)
 
 
@@ -617,6 +664,7 @@ class StreamInterface(MeshInterface):
         self._rxBuf = bytes()  # empty
         self._wantExit = False
 
+        # FIXME, figure out why daemon=True causes reader thread to exit too early
         self._rxThread = threading.Thread(target=self.__reader, args=())
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
@@ -637,6 +685,8 @@ class StreamInterface(MeshInterface):
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
+        if not self.noProto: # Wait for the db download if using the protocol
+            self._waitConnected()
 
     def _disconnected(self):
         &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
@@ -827,6 +877,18 @@ class TCPInterface(StreamInterface):
 <dd>
 <div class="desc"><p>Generated protocol buffer code.</p></div>
 </dd>
+<dt><code class="name"><a title="meshtastic.portnums_pb2" href="portnums_pb2.html">meshtastic.portnums_pb2</a></code></dt>
+<dd>
+<div class="desc"><p>Generated protocol buffer code.</p></div>
+</dd>
+<dt><code class="name"><a title="meshtastic.remote_hardware" href="remote_hardware.html">meshtastic.remote_hardware</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="meshtastic.remote_hardware_pb2" href="remote_hardware_pb2.html">meshtastic.remote_hardware_pb2</a></code></dt>
+<dd>
+<div class="desc"><p>Generated protocol buffer code.</p></div>
+</dd>
 <dt><code class="name"><a title="meshtastic.test" href="test.html">meshtastic.test</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -842,7 +904,8 @@ class TCPInterface(StreamInterface):
 <dl>
 <dt id="meshtastic.MY_CONFIG_ID"><code class="name">var <span class="ident">MY_CONFIG_ID</span></code></dt>
 <dd>
-<div class="desc"><p>The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand</p></div>
+<div class="desc"><p>The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand</p>
+<p>format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20</p></div>
 </dd>
 </dl>
 </section>
@@ -857,7 +920,9 @@ class TCPInterface(StreamInterface):
 </code></dt>
 <dd>
 <div class="desc"><p>A not quite ready - FIXME - BLE interface to devices</p>
-<p>Constructor</p></div>
+<p>Constructor</p>
+<p>Keyword Arguments:
+noProto &ndash; If True, don't try to run our protocol on the link - just be a dumb serial client.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -946,7 +1011,9 @@ class TCPInterface(StreamInterface):
 <p>isConnected
 nodes
 debugOut</p>
-<p>Constructor</p></div>
+<p>Constructor</p>
+<p>Keyword Arguments:
+noProto &ndash; If True, don't try to run our protocol on the link - just be a dumb serial client.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -962,10 +1029,15 @@ debugOut</p>
     &#34;&#34;&#34;
 
     def __init__(self, debugOut=None, noProto=False):
-        &#34;&#34;&#34;Constructor&#34;&#34;&#34;
+        &#34;&#34;&#34;Constructor
+
+        Keyword Arguments:
+            noProto -- If True, don&#39;t try to run our protocol on the link - just be a dumb serial client.
+        &#34;&#34;&#34;
         self.debugOut = debugOut
         self.nodes = None  # FIXME
-        self.isConnected = False
+        self.isConnected = threading.Event()
+        self.noProto = noProto
         if not noProto:
             self._startConfig()
 
@@ -987,25 +1059,34 @@ debugOut</p>
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
         return self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                             dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)
+                             portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP, wantAck=wantAck, wantResponse=wantResponse)
 
-    def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
+    def sendData(self, data, destinationId=BROADCAST_ADDR, portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;Send a data packet to some other node
 
         Keyword Arguments:
+            data -- the data to send, either as an array of bytes or as a protobuf (which will be automatically serialized to bytes)
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+            portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
+        if getattr(data, &#34;SerializeToString&#34;, None):
+            logging.debug(f&#34;Serializing protobuf as data: {data}&#34;)
+            data = data.SerializeToString()
+
+        if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
+            raise Exception(&#34;Data payload too big&#34;)
         meshPacket = mesh_pb2.MeshPacket()
-        meshPacket.decoded.data.payload = byteData
-        meshPacket.decoded.data.typ = dataType
+        meshPacket.decoded.data.payload = data
+        meshPacket.decoded.data.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
         return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
@@ -1020,22 +1101,21 @@ debugOut</p>
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
-        meshPacket = mesh_pb2.MeshPacket()
+        p = mesh_pb2.Position()
         if(latitude != 0.0):
-            meshPacket.decoded.position.latitude_i = int(latitude / 1e-7)
+            p.latitude_i = int(latitude / 1e-7)
 
         if(longitude != 0.0):
-            meshPacket.decoded.position.longitude_i = int(longitude / 1e-7)
+            p.longitude_i = int(longitude / 1e-7)
 
         if(altitude != 0):
-            meshPacket.decoded.position.altitude = int(altitude)
+            p.altitude = int(altitude)
 
         if timeSec == 0:
             timeSec = time.time()  # returns unix timestamp in seconds
-        meshPacket.decoded.position.time = int(timeSec)
+        p.time = int(timeSec)
 
-        meshPacket.decoded.want_response = wantResponse
-        return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        return self.sendData(p, destinationId, portNum=portnums_pb2.PortNum.POSITION_APP, wantAck=wantAck, wantResponse=wantResponse)
 
     def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
         &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast).
@@ -1043,10 +1123,14 @@ debugOut</p>
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
+        self._waitConnected()
+
         toRadio = mesh_pb2.ToRadio()
         # FIXME add support for non broadcast addresses
 
-        if isinstance(destinationId, int):
+        if destinationId is None:
+            raise Exception(&#34;destinationId must not be None&#34;)
+        elif isinstance(destinationId, int):
             nodeNum = destinationId
         elif destinationId == BROADCAST_ADDR:
             nodeNum = BROADCAST_NUM
@@ -1081,6 +1165,7 @@ debugOut</p>
         t = mesh_pb2.ToRadio()
         t.set_radio.CopyFrom(self.radioConfig)
         self._sendToRadio(t)
+        logging.debug(&#34;Wrote config&#34;)
 
     def getMyNode(self):
         if self.myInfo is None:
@@ -1152,6 +1237,12 @@ debugOut</p>
         if write:
             self.writeConfig()
 
+    def _waitConnected(self):
+        &#34;&#34;&#34;Block until the initial node db download is complete, or timeout
+        and raise an exception&#34;&#34;&#34;
+        if not self.isConnected.wait(5.0): # timeout after 5 seconds
+            raise Exception(&#34;Timed out waiting for connection completion&#34;)
+
     def _generatePacketId(self):
         &#34;&#34;&#34;Get a new unique packet ID&#34;&#34;&#34;
         if self.currentPacketId is None:
@@ -1162,13 +1253,13 @@ debugOut</p>
 
     def _disconnected(self):
         &#34;&#34;&#34;Called by subclasses to tell clients this interface has disconnected&#34;&#34;&#34;
-        self.isConnected = False
+        self.isConnected.clear()
         pub.sendMessage(&#34;meshtastic.connection.lost&#34;, interface=self)
 
     def _connected(self):
         &#34;&#34;&#34;Called by this class to tell clients we are now fully connected to a node
         &#34;&#34;&#34;
-        self.isConnected = True
+        self.isConnected.set()
         pub.sendMessage(&#34;meshtastic.connection.established&#34;, interface=self)
 
     def _startConfig(self):
@@ -1288,32 +1379,29 @@ debugOut</p>
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
         # asObj = DotMap(asDict)
         topic = &#34;meshtastic.receive&#34;  # Generic unknown packet type
-        if meshPacket.decoded.HasField(&#34;position&#34;):
-            topic = &#34;meshtastic.receive.position&#34;
-            p = asDict[&#34;decoded&#34;][&#34;position&#34;]
-            self._fixupPosition(p)
-            # update node DB as needed
-            self._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;position&#34;] = p
 
-        if meshPacket.decoded.HasField(&#34;user&#34;):
-            topic = &#34;meshtastic.receive.user&#34;
-            u = asDict[&#34;decoded&#34;][&#34;user&#34;]
-            # update node DB as needed
-            n = self._getOrCreateByNum(asDict[&#34;from&#34;])
-            n[&#34;user&#34;] = u
-            # We now have a node ID, make sure it is uptodate in that table
-            self.nodes[u[&#34;id&#34;]] = u
+        # Warn users if firmware doesn&#39;t use new portnum based data encodings
+        # But do not crash, because the lib will still basically work and ignore those packet types
+        if meshPacket.decoded.HasField(&#34;user&#34;) or meshPacket.decoded.HasField(&#34;position&#34;):
+            logging.error(&#34;The device firmware is too old to work with this version of the python library.  Please update firmware to 1.20 or later&#34;)
 
         if meshPacket.decoded.HasField(&#34;data&#34;):
-            topic = &#34;meshtastic.receive.data&#34;
 
-            # OPAQUE is the default protobuf typ value, and therefore if not set it will not be populated at all
+            # The default MessageToDict converts byte arrays into base64 strings.
+            # We don&#39;t want that - it messes up data payload.  So slam in the correct
+            # byte array.
+            asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;payload&#34;] = meshPacket.decoded.data.payload
+
+            # UNKNOWN_APP is the default protobuf pornum value, and therefore if not set it will not be populated at all
             # to make API usage easier, set it to prevent confusion
-            if not &#34;typ&#34; in asDict[&#34;decoded&#34;][&#34;data&#34;]:
-                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;typ&#34;] = &#34;OPAQUE&#34;
+            if not &#34;portnum&#34; in asDict[&#34;decoded&#34;][&#34;data&#34;]:
+                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;portnum&#34;] = portnums_pb2.PortNum.UNKNOWN_APP
+
+            portnum = asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;portnum&#34;]
+            topic = f&#34;meshtastic.receive.data.{portnum}&#34;
 
             # For text messages, we go ahead and decode the text to ascii for our users
-            if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;typ&#34;] == &#34;CLEAR_TEXT&#34;:
+            if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;portnum&#34;] == portnums_pb2.PortNum.TEXT_MESSAGE_APP:
                 topic = &#34;meshtastic.receive.text&#34;
 
                 # We don&#39;t throw if the utf8 is invalid in the text message.  Instead we just don&#39;t populate
@@ -1327,6 +1415,31 @@ debugOut</p>
                 except Exception as ex:
                     logging.error(f&#34;Malformatted utf8 in text message: {ex}&#34;)
 
+            # decode position protobufs and update nodedb, provide decoded version as &#34;position&#34; in the published msg
+            if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;portnum&#34;] == portnums_pb2.PortNum.POSITION_APP:
+                topic = &#34;meshtastic.receive.position&#34;
+                pb = mesh_pb2.Position()
+                pb.ParseFromString(meshPacket.decoded.data.payload)
+                p = google.protobuf.json_format.MessageToDict(pb)
+                self._fixupPosition(p)
+                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;position&#34;] = p
+                # update node DB as needed
+                self._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;position&#34;] = p
+
+            # decode user protobufs and update nodedb, provide decoded version as &#34;position&#34; in the published msg
+            if asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;portnum&#34;] == portnums_pb2.PortNum.NODEINFO_APP:
+                topic = &#34;meshtastic.receive.user&#34;
+                pb = mesh_pb2.User()
+                pb.ParseFromString(meshPacket.decoded.data.payload)
+                u = google.protobuf.json_format.MessageToDict(pb)
+                asDict[&#34;decoded&#34;][&#34;data&#34;][&#34;user&#34;] = u
+                # update node DB as needed
+                n = self._getOrCreateByNum(asDict[&#34;from&#34;])
+                n[&#34;user&#34;] = u
+                # We now have a node ID, make sure it is uptodate in that table
+                self.nodes[u[&#34;id&#34;]] = u
+
+        logging.debug(f&#34;Publishing topic {topic}&#34;)
         pub.sendMessage(topic, packet=asDict, interface=self)</code></pre>
 </details>
 <h3>Subclasses</h3>
@@ -1408,30 +1521,40 @@ def channelURL(self):
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendData"><code class="name flex">
-<span>def <span class="ident">sendData</span></span>(<span>self, byteData, destinationId='^all', dataType=0, wantAck=False, wantResponse=False)</span>
+<span>def <span class="ident">sendData</span></span>(<span>self, data, destinationId='^all', portNum=256, wantAck=False, wantResponse=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a data packet to some other node</p>
 <p>Keyword Arguments:
+data &ndash; the data to send, either as an array of bytes or as a protobuf (which will be automatically serialized to bytes)
 destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {BROADCAST_ADDR})
+portNum &ndash; the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
 wantAck &ndash; True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)</p>
 <p>Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sendData(self, byteData, destinationId=BROADCAST_ADDR, dataType=mesh_pb2.Data.OPAQUE, wantAck=False, wantResponse=False):
+<pre><code class="python">def sendData(self, data, destinationId=BROADCAST_ADDR, portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False, wantResponse=False):
     &#34;&#34;&#34;Send a data packet to some other node
 
     Keyword Arguments:
+        data -- the data to send, either as an array of bytes or as a protobuf (which will be automatically serialized to bytes)
         destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+        portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
         wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
     Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
     &#34;&#34;&#34;
+    if getattr(data, &#34;SerializeToString&#34;, None):
+        logging.debug(f&#34;Serializing protobuf as data: {data}&#34;)
+        data = data.SerializeToString()
+
+    if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
+        raise Exception(&#34;Data payload too big&#34;)
     meshPacket = mesh_pb2.MeshPacket()
-    meshPacket.decoded.data.payload = byteData
-    meshPacket.decoded.data.typ = dataType
+    meshPacket.decoded.data.payload = data
+    meshPacket.decoded.data.portnum = portNum
     meshPacket.decoded.want_response = wantResponse
     return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)</code></pre>
 </details>
@@ -1453,10 +1576,14 @@ You probably don't want this - use sendData instead.</p>
 
     Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
     &#34;&#34;&#34;
+    self._waitConnected()
+
     toRadio = mesh_pb2.ToRadio()
     # FIXME add support for non broadcast addresses
 
-    if isinstance(destinationId, int):
+    if destinationId is None:
+        raise Exception(&#34;destinationId must not be None&#34;)
+    elif isinstance(destinationId, int):
         nodeNum = destinationId
     elif destinationId == BROADCAST_ADDR:
         nodeNum = BROADCAST_NUM
@@ -1500,22 +1627,21 @@ the local position.</p>
 
     Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
     &#34;&#34;&#34;
-    meshPacket = mesh_pb2.MeshPacket()
+    p = mesh_pb2.Position()
     if(latitude != 0.0):
-        meshPacket.decoded.position.latitude_i = int(latitude / 1e-7)
+        p.latitude_i = int(latitude / 1e-7)
 
     if(longitude != 0.0):
-        meshPacket.decoded.position.longitude_i = int(longitude / 1e-7)
+        p.longitude_i = int(longitude / 1e-7)
 
     if(altitude != 0):
-        meshPacket.decoded.position.altitude = int(altitude)
+        p.altitude = int(altitude)
 
     if timeSec == 0:
         timeSec = time.time()  # returns unix timestamp in seconds
-    meshPacket.decoded.position.time = int(timeSec)
+    p.time = int(timeSec)
 
-    meshPacket.decoded.want_response = wantResponse
-    return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)</code></pre>
+    return self.sendData(p, destinationId, portNum=portnums_pb2.PortNum.POSITION_APP, wantAck=wantAck, wantResponse=wantResponse)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendText"><code class="name flex">
@@ -1527,6 +1653,7 @@ the local position.</p>
 <p>text {string} &ndash; The text to send</p>
 <p>Keyword Arguments:
 destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {BROADCAST_ADDR})
+portNum &ndash; the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
 wantAck &ndash; True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)</p>
 <p>Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.</p></div>
 <details class="source">
@@ -1541,12 +1668,13 @@ wantAck &ndash; True if you want the message sent in a reliable manner (with ret
 
     Keyword Arguments:
         destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
+        portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
         wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
 
     Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
     &#34;&#34;&#34;
     return self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
-                         dataType=mesh_pb2.Data.CLEAR_TEXT, wantAck=wantAck, wantResponse=wantResponse)</code></pre>
+                         portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP, wantAck=wantAck, wantResponse=wantResponse)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.setOwner"><code class="name flex">
@@ -1643,7 +1771,8 @@ wantAck &ndash; True if you want the message sent in a reliable manner (with ret
 
     t = mesh_pb2.ToRadio()
     t.set_radio.CopyFrom(self.radioConfig)
-    self._sendToRadio(t)</code></pre>
+    self._sendToRadio(t)
+    logging.debug(&#34;Wrote config&#34;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1778,6 +1907,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         self._rxBuf = bytes()  # empty
         self._wantExit = False
 
+        # FIXME, figure out why daemon=True causes reader thread to exit too early
         self._rxThread = threading.Thread(target=self.__reader, args=())
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
@@ -1798,6 +1928,8 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
+        if not self.noProto: # Wait for the db download if using the protocol
+            self._waitConnected()
 
     def _disconnected(self):
         &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
@@ -1937,7 +2069,9 @@ start the reading thread later.</p></div>
     self._writeBytes(bytes([START1, START1, START1, START1]))
     time.sleep(0.1)  # wait 100ms to give device time to start running
 
-    self._rxThread.start()</code></pre>
+    self._rxThread.start()
+    if not self.noProto: # Wait for the db download if using the protocol
+        self._waitConnected()</code></pre>
 </details>
 </dd>
 </dl>
@@ -2051,6 +2185,9 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <ul>
 <li><code><a title="meshtastic.ble" href="ble.html">meshtastic.ble</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2" href="mesh_pb2.html">meshtastic.mesh_pb2</a></code></li>
+<li><code><a title="meshtastic.portnums_pb2" href="portnums_pb2.html">meshtastic.portnums_pb2</a></code></li>
+<li><code><a title="meshtastic.remote_hardware" href="remote_hardware.html">meshtastic.remote_hardware</a></code></li>
+<li><code><a title="meshtastic.remote_hardware_pb2" href="remote_hardware_pb2.html">meshtastic.remote_hardware_pb2</a></code></li>
 <li><code><a title="meshtastic.test" href="test.html">meshtastic.test</a></code></li>
 <li><code><a title="meshtastic.util" href="util.html">meshtastic.util</a></code></li>
 </ul>

@@ -41,16 +41,18 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+from . import portnums_pb2 as portnums__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name=&#39;mesh.proto&#39;,
   package=&#39;&#39;,
   syntax=&#39;proto3&#39;,
-  serialized_options=b&#39;\n\023com.geeksville.meshB\nMeshProtos&#39;,
+  serialized_options=b&#39;\n\023com.geeksville.meshB\nMeshProtosH\003&#39;,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b&#39;\n\nmesh.proto\&#34;j\n\x08Position\x12\x12\n\nlatitude_i\x18\x07 \x01(\x11\x12\x13\n\x0blongitude_i\x18\x08 \x01(\x11\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x15\n\rbattery_level\x18\x04 \x01(\x05\x12\x0c\n\x04time\x18\t \x01(\x07\&#34;g\n\x04\x44\x61ta\x12\x17\n\x03typ\x18\x01 \x01(\x0e\x32\n.Data.Type\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\&#34;5\n\x04Type\x12\n\n\x06OPAQUE\x10\x00\x12\x0e\n\nCLEAR_TEXT\x10\x01\x12\x11\n\rCLEAR_READACK\x10\x02\&#34;J\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x0f\n\x07macaddr\x18\x04 \x01(\x0c\&#34;\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x02 \x03(\x05\&#34;\xd3\x02\n\tSubPacket\x12\x1d\n\x08position\x18\x01 \x01(\x0b\x32\t.PositionH\x00\x12\x15\n\x04\x64\x61ta\x18\x03 \x01(\x0b\x32\x05.DataH\x00\x12\x15\n\x04user\x18\x04 \x01(\x0b\x32\x05.UserH\x00\x12(\n\rroute_request\x18\x06 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&amp;\n\x0broute_reply\x18\x07 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12\&#34;\n\x0broute_error\x18\r \x01(\x0e\x32\x0b.RouteErrorH\x00\x12\x15\n\rwant_response\x18\x05 \x01(\x08\x12\x14\n\nsuccess_id\x18\n \x01(\rH\x01\x12\x11\n\x07\x66\x61il_id\x18\x0b \x01(\rH\x01\x12\x0c\n\x04\x64\x65st\x18\t \x01(\r\x12\x0e\n\x06source\x18\x0c \x01(\r\x12\x13\n\x0boriginal_id\x18\x02 \x01(\rB\t\n\x07payloadB\x05\n\x03\x61\x63k\&#34;\xb7\x01\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\r\x12\n\n\x02to\x18\x02 \x01(\r\x12\x1d\n\x07\x64\x65\x63oded\x18\x03 \x01(\x0b\x32\n.SubPacketH\x00\x12\x13\n\tencrypted\x18\x08 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\r\x12\x0f\n\x07rx_time\x18\t \x01(\x07\x12\x0e\n\x06rx_snr\x18\x07 \x01(\x02\x12\x11\n\thop_limit\x18\n \x01(\r\x12\x10\n\x08want_ack\x18\x0b \x01(\x08\x42\t\n\x07payload\&#34;\xa8\x02\n\x0f\x43hannelSettings\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x32\n\x0cmodem_config\x18\x03 \x01(\x0e\x32\x1c.ChannelSettings.ModemConfig\x12\x11\n\tbandwidth\x18\x06 \x01(\r\x12\x15\n\rspread_factor\x18\x07 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x08 \x01(\r\x12\x13\n\x0b\x63hannel_num\x18\t \x01(\r\x12\x0b\n\x03psk\x18\x04 \x01(\x0c\x12\x0c\n\x04name\x18\x05 \x01(\t\&#34;`\n\x0bModemConfig\x12\x12\n\x0e\x42w125Cr45Sf128\x10\x00\x12\x12\n\x0e\x42w500Cr45Sf128\x10\x01\x12\x14\n\x10\x42w31_25Cr48Sf512\x10\x02\x12\x13\n\x0f\x42w125Cr48Sf4096\x10\x03\&#34;\xe0\x05\n\x0bRadioConfig\x12\x31\n\x0bpreferences\x18\x01 \x01(\x0b\x32\x1c.RadioConfig.UserPreferences\x12*\n\x10\x63hannel_settings\x18\x02 \x01(\x0b\x32\x10.ChannelSettings\x1a\xf1\x04\n\x0fUserPreferences\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12\x1b\n\x13send_owner_interval\x18\x02 \x01(\r\x12\x1a\n\x12num_missed_to_fail\x18\x03 \x01(\r\x12\x1b\n\x13wait_bluetooth_secs\x18\x04 \x01(\r\x12\x16\n\x0escreen_on_secs\x18\x05 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x06 \x01(\r\x12\x1d\n\x15phone_sds_timeout_sec\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\x08 \x01(\r\x12\x10\n\x08sds_secs\x18\t \x01(\r\x12\x0f\n\x07ls_secs\x18\n \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0b \x01(\r\x12\x11\n\twifi_ssid\x18\x0c \x01(\t\x12\x15\n\rwifi_password\x18\r \x01(\t\x12\x14\n\x0cwifi_ap_mode\x18\x0e \x01(\x08\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\x12\x11\n\tis_router\x18% \x01(\x08\x12\x14\n\x0cis_low_power\x18&amp; \x01(\x08\x12\x15\n\rfactory_reset\x18\x64 \x01(\x08\x12(\n\x0elocation_share\x18  \x01(\x0e\x32\x10.LocationSharing\x12$\n\rgps_operation\x18! \x01(\x0e\x32\r.GpsOperation\x12\x1b\n\x13gps_update_interval\x18\&#34; \x01(\r\x12\x18\n\x10gps_attempt_time\x18$ \x01(\r\x12\x17\n\x0fignore_incoming\x18g \x03(\r\&#34;h\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x07 \x01(\x02\x12\x10\n\x08next_hop\x18\x05 \x01(\r\&#34;\xc5\x02\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x0f\n\x07has_gps\x18\x02 \x01(\x08\x12\x14\n\x0cnum_channels\x18\x03 \x01(\x05\x12\x0e\n\x06region\x18\x04 \x01(\t\x12\x10\n\x08hw_model\x18\x05 \x01(\t\x12\x18\n\x10\x66irmware_version\x18\x06 \x01(\t\x12\x12\n\nerror_code\x18\x07 \x01(\r\x12\x15\n\rerror_address\x18\x08 \x01(\r\x12\x13\n\x0b\x65rror_count\x18\t \x01(\r\x12\x16\n\x0epacket_id_bits\x18\n \x01(\r\x12\x19\n\x11\x63urrent_packet_id\x18\x0b \x01(\r\x12\x15\n\rnode_num_bits\x18\x0c \x01(\r\x12\x1c\n\x14message_timeout_msec\x18\r \x01(\r\x12\x17\n\x0fmin_app_version\x18\x0e \x01(\r\&#34;\xfd\x01\n\x0b\x44\x65viceState\x12\x1b\n\x05radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfig\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\&#34;\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08\&#34;\x1e\n\x0b\x44\x65\x62ugString\x12\x0f\n\x07message\x18\x01 \x01(\t\&#34;\xf9\x01\n\tFromRadio\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12\x1d\n\x05radio\x18\x06 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12$\n\x0c\x64\x65\x62ug_string\x18\x07 \x01(\x0b\x32\x0c.DebugStringH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x08 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\t \x01(\x08H\x00\x42\t\n\x07variant\&#34;\x8c\x01\n\x07ToRadio\x12\x1d\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x18\n\x0ewant_config_id\x18\x64 \x01(\rH\x00\x12!\n\tset_radio\x18\x65 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x66 \x01(\x0b\x32\x05.UserH\x00\x42\t\n\x07variant\&#34;f\n\x11ManufacturingData\x12\x12\n\nfradioFreq\x18\x01 \x01(\r\x12\x10\n\x08hw_model\x18\x02 \x01(\t\x12\x12\n\nhw_version\x18\x03 \x01(\t\x12\x17\n\x0fselftest_result\x18\x04 \x01(\x11*&gt;\n\nRouteError\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03*\x17\n\tConstants\x12\n\n\x06Unused\x10\x00*^\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U865\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08*U\n\x0cGpsOperation\x12\x0e\n\nGpsOpUnset\x10\x00\x12\x0f\n\x0bGpsOpMobile\x10\x02\x12\x11\n\rGpsOpTimeOnly\x10\x03\x12\x11\n\rGpsOpDisabled\x10\x04*@\n\x0fLocationSharing\x12\x0c\n\x08LocUnset\x10\x00\x12\x0e\n\nLocEnabled\x10\x01\x12\x0f\n\x0bLocDisabled\x10\x02\x42!\n\x13\x63om.geeksville.meshB\nMeshProtosb\x06proto3&#39;
-)
+  serialized_pb=b&#39;\n\nmesh.proto\x1a\x0eportnums.proto\&#34;j\n\x08Position\x12\x12\n\nlatitude_i\x18\x07 \x01(\x11\x12\x13\n\x0blongitude_i\x18\x08 \x01(\x11\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x15\n\rbattery_level\x18\x04 \x01(\x05\x12\x0c\n\x04time\x18\t \x01(\x07\&#34;2\n\x04\x44\x61ta\x12\x19\n\x07portnum\x18\x01 \x01(\x0e\x32\x08.PortNum\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\&#34;J\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x0f\n\x07macaddr\x18\x04 \x01(\x0c\&#34;\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x02 \x03(\x05\&#34;\xdb\x02\n\tSubPacket\x12!\n\x08position\x18\x01 \x01(\x0b\x32\t.PositionB\x02\x18\x01H\x00\x12\x15\n\x04\x64\x61ta\x18\x03 \x01(\x0b\x32\x05.DataH\x00\x12\x19\n\x04user\x18\x04 \x01(\x0b\x32\x05.UserB\x02\x18\x01H\x00\x12(\n\rroute_request\x18\x06 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&amp;\n\x0broute_reply\x18\x07 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12\&#34;\n\x0broute_error\x18\r \x01(\x0e\x32\x0b.RouteErrorH\x00\x12\x15\n\rwant_response\x18\x05 \x01(\x08\x12\x14\n\nsuccess_id\x18\n \x01(\rH\x01\x12\x11\n\x07\x66\x61il_id\x18\x0b \x01(\rH\x01\x12\x0c\n\x04\x64\x65st\x18\t \x01(\r\x12\x0e\n\x06source\x18\x0c \x01(\r\x12\x13\n\x0boriginal_id\x18\x02 \x01(\rB\t\n\x07payloadB\x05\n\x03\x61\x63k\&#34;\xb7\x01\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\r\x12\n\n\x02to\x18\x02 \x01(\r\x12\x1d\n\x07\x64\x65\x63oded\x18\x03 \x01(\x0b\x32\n.SubPacketH\x00\x12\x13\n\tencrypted\x18\x08 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\r\x12\x0f\n\x07rx_time\x18\t \x01(\x07\x12\x0e\n\x06rx_snr\x18\x07 \x01(\x02\x12\x11\n\thop_limit\x18\n \x01(\r\x12\x10\n\x08want_ack\x18\x0b \x01(\x08\x42\t\n\x07payload\&#34;\xac\x02\n\x0f\x43hannelSettings\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x36\n\x0cmodem_config\x18\x03 \x01(\x0e\x32\x1c.ChannelSettings.ModemConfigB\x02\x18\x01\x12\x11\n\tbandwidth\x18\x06 \x01(\r\x12\x15\n\rspread_factor\x18\x07 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x08 \x01(\r\x12\x13\n\x0b\x63hannel_num\x18\t \x01(\r\x12\x0b\n\x03psk\x18\x04 \x01(\x0c\x12\x0c\n\x04name\x18\x05 \x01(\t\&#34;`\n\x0bModemConfig\x12\x12\n\x0e\x42w125Cr45Sf128\x10\x00\x12\x12\n\x0e\x42w500Cr45Sf128\x10\x01\x12\x14\n\x10\x42w31_25Cr48Sf512\x10\x02\x12\x13\n\x0f\x42w125Cr48Sf4096\x10\x03\&#34;\x93\x06\n\x0bRadioConfig\x12\x31\n\x0bpreferences\x18\x01 \x01(\x0b\x32\x1c.RadioConfig.UserPreferences\x12*\n\x10\x63hannel_settings\x18\x02 \x01(\x0b\x32\x10.ChannelSettings\x1a\xa4\x05\n\x0fUserPreferences\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12\x1b\n\x13send_owner_interval\x18\x02 \x01(\r\x12\x1a\n\x12num_missed_to_fail\x18\x03 \x01(\r\x12\x1b\n\x13wait_bluetooth_secs\x18\x04 \x01(\r\x12\x16\n\x0escreen_on_secs\x18\x05 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x06 \x01(\r\x12\x1d\n\x15phone_sds_timeout_sec\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\x08 \x01(\r\x12\x10\n\x08sds_secs\x18\t \x01(\r\x12\x0f\n\x07ls_secs\x18\n \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0b \x01(\r\x12\x11\n\twifi_ssid\x18\x0c \x01(\t\x12\x15\n\rwifi_password\x18\r \x01(\t\x12\x14\n\x0cwifi_ap_mode\x18\x0e \x01(\x08\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\x12\x11\n\tis_router\x18% \x01(\x08\x12\x14\n\x0cis_low_power\x18&amp; \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\&#39; \x01(\x08\x12\x15\n\rfactory_reset\x18\x64 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x65 \x01(\x08\x12(\n\x0elocation_share\x18  \x01(\x0e\x32\x10.LocationSharing\x12$\n\rgps_operation\x18! \x01(\x0e\x32\r.GpsOperation\x12\x1b\n\x13gps_update_interval\x18\&#34; \x01(\r\x12\x18\n\x10gps_attempt_time\x18$ \x01(\r\x12\x17\n\x0fignore_incoming\x18g \x03(\r\&#34;h\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x07 \x01(\x02\x12\x10\n\x08next_hop\x18\x05 \x01(\r\&#34;\xc5\x02\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x0f\n\x07has_gps\x18\x02 \x01(\x08\x12\x14\n\x0cnum_channels\x18\x03 \x01(\x05\x12\x0e\n\x06region\x18\x04 \x01(\t\x12\x10\n\x08hw_model\x18\x05 \x01(\t\x12\x18\n\x10\x66irmware_version\x18\x06 \x01(\t\x12\x12\n\nerror_code\x18\x07 \x01(\r\x12\x15\n\rerror_address\x18\x08 \x01(\r\x12\x13\n\x0b\x65rror_count\x18\t \x01(\r\x12\x16\n\x0epacket_id_bits\x18\n \x01(\r\x12\x19\n\x11\x63urrent_packet_id\x18\x0b \x01(\r\x12\x15\n\rnode_num_bits\x18\x0c \x01(\r\x12\x1c\n\x14message_timeout_msec\x18\r \x01(\r\x12\x17\n\x0fmin_app_version\x18\x0e \x01(\r\&#34;\xfd\x01\n\x0b\x44\x65viceState\x12\x1b\n\x05radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfig\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\&#34;\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08\&#34;\x1e\n\x0b\x44\x65\x62ugString\x12\x0f\n\x07message\x18\x01 \x01(\t\&#34;\xf9\x01\n\tFromRadio\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12\x1d\n\x05radio\x18\x06 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12$\n\x0c\x64\x65\x62ug_string\x18\x07 \x01(\x0b\x32\x0c.DebugStringH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x08 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\t \x01(\x08H\x00\x42\t\n\x07variant\&#34;\x8c\x01\n\x07ToRadio\x12\x1d\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x18\n\x0ewant_config_id\x18\x64 \x01(\rH\x00\x12!\n\tset_radio\x18\x65 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x66 \x01(\x0b\x32\x05.UserH\x00\x42\t\n\x07variant*&gt;\n\nRouteError\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03*.\n\tConstants\x12\n\n\x06Unused\x10\x00\x12\x15\n\x10\x44\x41TA_PAYLOAD_LEN\x10\xf0\x01*^\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U865\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08*U\n\x0cGpsOperation\x12\x0e\n\nGpsOpUnset\x10\x00\x12\x0f\n\x0bGpsOpMobile\x10\x02\x12\x11\n\rGpsOpTimeOnly\x10\x03\x12\x11\n\rGpsOpDisabled\x10\x04*@\n\x0fLocationSharing\x12\x0c\n\x08LocUnset\x10\x00\x12\x0e\n\nLocEnabled\x10\x01\x12\x0f\n\x0bLocDisabled\x10\x02\x42#\n\x13\x63om.geeksville.meshB\nMeshProtosH\x03\x62\x06proto3&#39;
+  ,
+  dependencies=[portnums__pb2.DESCRIPTOR,])
 
 _ROUTEERROR = _descriptor.EnumDescriptor(
   name=&#39;RouteError&#39;,
@@ -82,8 +84,8 @@ _ROUTEERROR = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3123,
-  serialized_end=3185,
+  serialized_start=3045,
+  serialized_end=3107,
 )
 _sym_db.RegisterEnumDescriptor(_ROUTEERROR)
 
@@ -100,11 +102,16 @@ _CONSTANTS = _descriptor.EnumDescriptor(
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;DATA_PAYLOAD_LEN&#39;, index=1, number=240,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3187,
-  serialized_end=3210,
+  serialized_start=3109,
+  serialized_end=3155,
 )
 _sym_db.RegisterEnumDescriptor(_CONSTANTS)
 
@@ -164,8 +171,8 @@ _REGIONCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3212,
-  serialized_end=3306,
+  serialized_start=3157,
+  serialized_end=3251,
 )
 _sym_db.RegisterEnumDescriptor(_REGIONCODE)
 
@@ -200,8 +207,8 @@ _GPSOPERATION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3308,
-  serialized_end=3393,
+  serialized_start=3253,
+  serialized_end=3338,
 )
 _sym_db.RegisterEnumDescriptor(_GPSOPERATION)
 
@@ -231,8 +238,8 @@ _LOCATIONSHARING = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3395,
-  serialized_end=3459,
+  serialized_start=3340,
+  serialized_end=3404,
 )
 _sym_db.RegisterEnumDescriptor(_LOCATIONSHARING)
 
@@ -242,6 +249,7 @@ NO_ROUTE = 1
 GOT_NAK = 2
 TIMEOUT = 3
 Unused = 0
+DATA_PAYLOAD_LEN = 240
 Unset = 0
 US = 1
 EU433 = 2
@@ -259,36 +267,6 @@ LocUnset = 0
 LocEnabled = 1
 LocDisabled = 2
 
-
-_DATA_TYPE = _descriptor.EnumDescriptor(
-  name=&#39;Type&#39;,
-  full_name=&#39;Data.Type&#39;,
-  filename=None,
-  file=DESCRIPTOR,
-  create_key=_descriptor._internal_create_key,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name=&#39;OPAQUE&#39;, index=0, number=0,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-    _descriptor.EnumValueDescriptor(
-      name=&#39;CLEAR_TEXT&#39;, index=1, number=1,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-    _descriptor.EnumValueDescriptor(
-      name=&#39;CLEAR_READACK&#39;, index=2, number=2,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-  ],
-  containing_type=None,
-  serialized_options=None,
-  serialized_start=172,
-  serialized_end=225,
-)
-_sym_db.RegisterEnumDescriptor(_DATA_TYPE)
 
 _CHANNELSETTINGS_MODEMCONFIG = _descriptor.EnumDescriptor(
   name=&#39;ModemConfig&#39;,
@@ -320,8 +298,8 @@ _CHANNELSETTINGS_MODEMCONFIG = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1065,
-  serialized_end=1161,
+  serialized_start=1040,
+  serialized_end=1136,
 )
 _sym_db.RegisterEnumDescriptor(_CHANNELSETTINGS_MODEMCONFIG)
 
@@ -381,8 +359,8 @@ _POSITION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=14,
-  serialized_end=120,
+  serialized_start=30,
+  serialized_end=136,
 )
 
 
@@ -395,7 +373,7 @@ _DATA = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name=&#39;typ&#39;, full_name=&#39;Data.typ&#39;, index=0,
+      name=&#39;portnum&#39;, full_name=&#39;Data.portnum&#39;, index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -413,7 +391,6 @@ _DATA = _descriptor.Descriptor(
   ],
   nested_types=[],
   enum_types=[
-    _DATA_TYPE,
   ],
   serialized_options=None,
   is_extendable=False,
@@ -421,8 +398,8 @@ _DATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=122,
-  serialized_end=225,
+  serialized_start=138,
+  serialized_end=188,
 )
 
 
@@ -474,8 +451,8 @@ _USER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=227,
-  serialized_end=301,
+  serialized_start=190,
+  serialized_end=264,
 )
 
 
@@ -506,8 +483,8 @@ _ROUTEDISCOVERY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=303,
-  serialized_end=334,
+  serialized_start=266,
+  serialized_end=297,
 )
 
 
@@ -525,7 +502,7 @@ _SUBPACKET = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=b&#39;\030\001&#39;, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name=&#39;data&#39;, full_name=&#39;SubPacket.data&#39;, index=1,
       number=3, type=11, cpp_type=10, label=1,
@@ -539,7 +516,7 @@ _SUBPACKET = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=b&#39;\030\001&#39;, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name=&#39;route_request&#39;, full_name=&#39;SubPacket.route_request&#39;, index=3,
       number=6, type=11, cpp_type=10, label=1,
@@ -625,8 +602,8 @@ _SUBPACKET = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=337,
-  serialized_end=676,
+  serialized_start=300,
+  serialized_end=647,
 )
 
 
@@ -718,8 +695,8 @@ _MESHPACKET = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=679,
-  serialized_end=862,
+  serialized_start=650,
+  serialized_end=833,
 )
 
 
@@ -744,7 +721,7 @@ _CHANNELSETTINGS = _descriptor.Descriptor(
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=b&#39;\030\001&#39;, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name=&#39;bandwidth&#39;, full_name=&#39;ChannelSettings.bandwidth&#39;, index=2,
       number=6, type=13, cpp_type=3, label=1,
@@ -800,8 +777,8 @@ _CHANNELSETTINGS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=865,
-  serialized_end=1161,
+  serialized_start=836,
+  serialized_end=1136,
 )
 
 
@@ -933,42 +910,56 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name=&#39;factory_reset&#39;, full_name=&#39;RadioConfig.UserPreferences.factory_reset&#39;, index=17,
+      name=&#39;fixed_position&#39;, full_name=&#39;RadioConfig.UserPreferences.fixed_position&#39;, index=17,
+      number=39, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name=&#39;factory_reset&#39;, full_name=&#39;RadioConfig.UserPreferences.factory_reset&#39;, index=18,
       number=100, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name=&#39;location_share&#39;, full_name=&#39;RadioConfig.UserPreferences.location_share&#39;, index=18,
+      name=&#39;debug_log_enabled&#39;, full_name=&#39;RadioConfig.UserPreferences.debug_log_enabled&#39;, index=19,
+      number=101, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name=&#39;location_share&#39;, full_name=&#39;RadioConfig.UserPreferences.location_share&#39;, index=20,
       number=32, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name=&#39;gps_operation&#39;, full_name=&#39;RadioConfig.UserPreferences.gps_operation&#39;, index=19,
+      name=&#39;gps_operation&#39;, full_name=&#39;RadioConfig.UserPreferences.gps_operation&#39;, index=21,
       number=33, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name=&#39;gps_update_interval&#39;, full_name=&#39;RadioConfig.UserPreferences.gps_update_interval&#39;, index=20,
+      name=&#39;gps_update_interval&#39;, full_name=&#39;RadioConfig.UserPreferences.gps_update_interval&#39;, index=22,
       number=34, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name=&#39;gps_attempt_time&#39;, full_name=&#39;RadioConfig.UserPreferences.gps_attempt_time&#39;, index=21,
+      name=&#39;gps_attempt_time&#39;, full_name=&#39;RadioConfig.UserPreferences.gps_attempt_time&#39;, index=23,
       number=36, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name=&#39;ignore_incoming&#39;, full_name=&#39;RadioConfig.UserPreferences.ignore_incoming&#39;, index=22,
+      name=&#39;ignore_incoming&#39;, full_name=&#39;RadioConfig.UserPreferences.ignore_incoming&#39;, index=24,
       number=103, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -986,8 +977,8 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1275,
-  serialized_end=1900,
+  serialized_start=1250,
+  serialized_end=1926,
 )
 
 _RADIOCONFIG = _descriptor.Descriptor(
@@ -1024,8 +1015,8 @@ _RADIOCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1164,
-  serialized_end=1900,
+  serialized_start=1139,
+  serialized_end=1926,
 )
 
 
@@ -1084,8 +1075,8 @@ _NODEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1902,
-  serialized_end=2006,
+  serialized_start=1928,
+  serialized_end=2032,
 )
 
 
@@ -1207,8 +1198,8 @@ _MYNODEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2009,
-  serialized_end=2334,
+  serialized_start=2035,
+  serialized_end=2360,
 )
 
 
@@ -1295,8 +1286,8 @@ _DEVICESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2337,
-  serialized_end=2590,
+  serialized_start=2363,
+  serialized_end=2616,
 )
 
 
@@ -1327,8 +1318,8 @@ _DEBUGSTRING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2592,
-  serialized_end=2622,
+  serialized_start=2618,
+  serialized_end=2648,
 )
 
 
@@ -1413,8 +1404,8 @@ _FROMRADIO = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=2625,
-  serialized_end=2874,
+  serialized_start=2651,
+  serialized_end=2900,
 )
 
 
@@ -1471,65 +1462,11 @@ _TORADIO = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=2877,
-  serialized_end=3017,
+  serialized_start=2903,
+  serialized_end=3043,
 )
 
-
-_MANUFACTURINGDATA = _descriptor.Descriptor(
-  name=&#39;ManufacturingData&#39;,
-  full_name=&#39;ManufacturingData&#39;,
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name=&#39;fradioFreq&#39;, full_name=&#39;ManufacturingData.fradioFreq&#39;, index=0,
-      number=1, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name=&#39;hw_model&#39;, full_name=&#39;ManufacturingData.hw_model&#39;, index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b&#34;&#34;.decode(&#39;utf-8&#39;),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name=&#39;hw_version&#39;, full_name=&#39;ManufacturingData.hw_version&#39;, index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b&#34;&#34;.decode(&#39;utf-8&#39;),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name=&#39;selftest_result&#39;, full_name=&#39;ManufacturingData.selftest_result&#39;, index=3,
-      number=4, type=17, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax=&#39;proto3&#39;,
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=3019,
-  serialized_end=3121,
-)
-
-_DATA.fields_by_name[&#39;typ&#39;].enum_type = _DATA_TYPE
-_DATA_TYPE.containing_type = _DATA
+_DATA.fields_by_name[&#39;portnum&#39;].enum_type = portnums__pb2._PORTNUM
 _SUBPACKET.fields_by_name[&#39;position&#39;].message_type = _POSITION
 _SUBPACKET.fields_by_name[&#39;data&#39;].message_type = _DATA
 _SUBPACKET.fields_by_name[&#39;user&#39;].message_type = _USER
@@ -1638,7 +1575,6 @@ DESCRIPTOR.message_types_by_name[&#39;DeviceState&#39;] = _DEVICESTATE
 DESCRIPTOR.message_types_by_name[&#39;DebugString&#39;] = _DEBUGSTRING
 DESCRIPTOR.message_types_by_name[&#39;FromRadio&#39;] = _FROMRADIO
 DESCRIPTOR.message_types_by_name[&#39;ToRadio&#39;] = _TORADIO
-DESCRIPTOR.message_types_by_name[&#39;ManufacturingData&#39;] = _MANUFACTURINGDATA
 DESCRIPTOR.enum_types_by_name[&#39;RouteError&#39;] = _ROUTEERROR
 DESCRIPTOR.enum_types_by_name[&#39;Constants&#39;] = _CONSTANTS
 DESCRIPTOR.enum_types_by_name[&#39;RegionCode&#39;] = _REGIONCODE
@@ -1752,15 +1688,11 @@ ToRadio = _reflection.GeneratedProtocolMessageType(&#39;ToRadio&#39;, (_message.
   })
 _sym_db.RegisterMessage(ToRadio)
 
-ManufacturingData = _reflection.GeneratedProtocolMessageType(&#39;ManufacturingData&#39;, (_message.Message,), {
-  &#39;DESCRIPTOR&#39; : _MANUFACTURINGDATA,
-  &#39;__module__&#39; : &#39;mesh_pb2&#39;
-  # @@protoc_insertion_point(class_scope:ManufacturingData)
-  })
-_sym_db.RegisterMessage(ManufacturingData)
-
 
 DESCRIPTOR._options = None
+_SUBPACKET.fields_by_name[&#39;position&#39;]._options = None
+_SUBPACKET.fields_by_name[&#39;user&#39;]._options = None
+_CHANNELSETTINGS.fields_by_name[&#39;modem_config&#39;]._options = None
 # @@protoc_insertion_point(module_scope)</code></pre>
 </details>
 </section>
@@ -2468,19 +2400,7 @@ shown below.</p></div>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="meshtastic.mesh_pb2.Data.CLEAR_READACK"><code class="name">var <span class="ident">CLEAR_READACK</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.Data.CLEAR_TEXT"><code class="name">var <span class="ident">CLEAR_TEXT</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="meshtastic.mesh_pb2.Data.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.Data.OPAQUE"><code class="name">var <span class="ident">OPAQUE</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -2488,11 +2408,7 @@ shown below.</p></div>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.Data.TYP_FIELD_NUMBER"><code class="name">var <span class="ident">TYP_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.Data.Type"><code class="name">var <span class="ident">Type</span></code></dt>
+<dt id="meshtastic.mesh_pb2.Data.PORTNUM_FIELD_NUMBER"><code class="name">var <span class="ident">PORTNUM_FIELD_NUMBER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -2547,9 +2463,9 @@ shown below.</p></div>
   return self._fields.get(field, default_value)</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.mesh_pb2.Data.typ"><code class="name">var <span class="ident">typ</span></code></dt>
+<dt id="meshtastic.mesh_pb2.Data.portnum"><code class="name">var <span class="ident">portnum</span></code></dt>
 <dd>
-<div class="desc"><p>Getter for typ.</p></div>
+<div class="desc"><p>Getter for portnum.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -4985,597 +4901,6 @@ and propagates this to our listener iff this was a state change.</p></div>
 </details>
 </dd>
 <dt id="meshtastic.mesh_pb2.FromRadio.WhichOneof"><code class="name flex">
-<span>def <span class="ident">WhichOneof</span></span>(<span>self, oneof_name)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Returns the name of the currently set field inside a oneof, or None.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def WhichOneof(self, oneof_name):
-  &#34;&#34;&#34;Returns the name of the currently set field inside a oneof, or None.&#34;&#34;&#34;
-  try:
-    field = message_descriptor.oneofs_by_name[oneof_name]
-  except KeyError:
-    raise ValueError(
-        &#39;Protocol message has no oneof &#34;%s&#34; field.&#39; % oneof_name)
-
-  nested_field = self._oneofs.get(field, None)
-  if nested_field is not None and self.HasField(nested_field.name):
-    return nested_field.name
-  else:
-    return None</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData"><code class="flex name class">
-<span>class <span class="ident">ManufacturingData</span></span>
-<span>(</span><span>**kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Abstract base class for protocol messages.</p>
-<p>Protocol message classes are almost always generated by the protocol
-compiler.
-These generated types subclass Message and implement the methods
-shown below.</p></div>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>google.protobuf.message.Message</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.FRADIOFREQ_FIELD_NUMBER"><code class="name">var <span class="ident">FRADIOFREQ_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.HW_MODEL_FIELD_NUMBER"><code class="name">var <span class="ident">HW_MODEL_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.HW_VERSION_FIELD_NUMBER"><code class="name">var <span class="ident">HW_VERSION_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.SELFTEST_RESULT_FIELD_NUMBER"><code class="name">var <span class="ident">SELFTEST_RESULT_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-<h3>Static methods</h3>
-<dl>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.FromString"><code class="name flex">
-<span>def <span class="ident">FromString</span></span>(<span>s)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def FromString(s):
-  message = cls()
-  message.MergeFromString(s)
-  return message</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.RegisterExtension"><code class="name flex">
-<span>def <span class="ident">RegisterExtension</span></span>(<span>extension_handle)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def RegisterExtension(extension_handle):
-  extension_handle.containing_type = cls.DESCRIPTOR
-  # TODO(amauryfa): Use cls.MESSAGE_FACTORY.pool when available.
-  # pylint: disable=protected-access
-  cls.DESCRIPTOR.file.pool._AddExtensionDescriptor(extension_handle)
-  _AttachFieldHelpers(cls, extension_handle)</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Instance variables</h3>
-<dl>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.fradioFreq"><code class="name">var <span class="ident">fradioFreq</span></code></dt>
-<dd>
-<div class="desc"><p>Getter for fradioFreq.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getter(self):
-  # TODO(protobuf-team): This may be broken since there may not be
-  # default_value.  Combine with has_default_value somehow.
-  return self._fields.get(field, default_value)</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.hw_model"><code class="name">var <span class="ident">hw_model</span></code></dt>
-<dd>
-<div class="desc"><p>Getter for hw_model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getter(self):
-  # TODO(protobuf-team): This may be broken since there may not be
-  # default_value.  Combine with has_default_value somehow.
-  return self._fields.get(field, default_value)</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.hw_version"><code class="name">var <span class="ident">hw_version</span></code></dt>
-<dd>
-<div class="desc"><p>Getter for hw_version.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getter(self):
-  # TODO(protobuf-team): This may be broken since there may not be
-  # default_value.  Combine with has_default_value somehow.
-  return self._fields.get(field, default_value)</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.selftest_result"><code class="name">var <span class="ident">selftest_result</span></code></dt>
-<dd>
-<div class="desc"><p>Getter for selftest_result.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getter(self):
-  # TODO(protobuf-team): This may be broken since there may not be
-  # default_value.  Combine with has_default_value somehow.
-  return self._fields.get(field, default_value)</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.ByteSize"><code class="name flex">
-<span>def <span class="ident">ByteSize</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ByteSize(self):
-  if not self._cached_byte_size_dirty:
-    return self._cached_byte_size
-
-  size = 0
-  descriptor = self.DESCRIPTOR
-  if descriptor.GetOptions().map_entry:
-    # Fields of map entry should always be serialized.
-    size = descriptor.fields_by_name[&#39;key&#39;]._sizer(self.key)
-    size += descriptor.fields_by_name[&#39;value&#39;]._sizer(self.value)
-  else:
-    for field_descriptor, field_value in self.ListFields():
-      size += field_descriptor._sizer(field_value)
-    for tag_bytes, value_bytes in self._unknown_fields:
-      size += len(tag_bytes) + len(value_bytes)
-
-  self._cached_byte_size = size
-  self._cached_byte_size_dirty = False
-  self._listener_for_children.dirty = False
-  return size</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.Clear"><code class="name flex">
-<span>def <span class="ident">Clear</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def _Clear(self):
-  # Clear fields.
-  self._fields = {}
-  self._unknown_fields = ()
-  # pylint: disable=protected-access
-  if self._unknown_field_set is not None:
-    self._unknown_field_set._clear()
-    self._unknown_field_set = None
-
-  self._oneofs = {}
-  self._Modified()</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.ClearField"><code class="name flex">
-<span>def <span class="ident">ClearField</span></span>(<span>self, field_name)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ClearField(self, field_name):
-  try:
-    field = message_descriptor.fields_by_name[field_name]
-  except KeyError:
-    try:
-      field = message_descriptor.oneofs_by_name[field_name]
-      if field in self._oneofs:
-        field = self._oneofs[field]
-      else:
-        return
-    except KeyError:
-      raise ValueError(&#39;Protocol message %s has no &#34;%s&#34; field.&#39; %
-                       (message_descriptor.name, field_name))
-
-  if field in self._fields:
-    # To match the C++ implementation, we need to invalidate iterators
-    # for map fields when ClearField() happens.
-    if hasattr(self._fields[field], &#39;InvalidateIterators&#39;):
-      self._fields[field].InvalidateIterators()
-
-    # Note:  If the field is a sub-message, its listener will still point
-    #   at us.  That&#39;s fine, because the worst than can happen is that it
-    #   will call _Modified() and invalidate our byte size.  Big deal.
-    del self._fields[field]
-
-    if self._oneofs.get(field.containing_oneof, None) is field:
-      del self._oneofs[field.containing_oneof]
-
-  # Always call _Modified() -- even if nothing was changed, this is
-  # a mutating method, and thus calling it should cause the field to become
-  # present in the parent message.
-  self._Modified()</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.DiscardUnknownFields"><code class="name flex">
-<span>def <span class="ident">DiscardUnknownFields</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def _DiscardUnknownFields(self):
-  self._unknown_fields = []
-  self._unknown_field_set = None      # pylint: disable=protected-access
-  for field, value in self.ListFields():
-    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      if _IsMapField(field):
-        if _IsMessageMapField(field):
-          for key in value:
-            value[key].DiscardUnknownFields()
-      elif field.label == _FieldDescriptor.LABEL_REPEATED:
-        for sub_message in value:
-          sub_message.DiscardUnknownFields()
-      else:
-        value.DiscardUnknownFields()</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.FindInitializationErrors"><code class="name flex">
-<span>def <span class="ident">FindInitializationErrors</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Finds required fields which are not initialized.</p>
-<h2 id="returns">Returns</h2>
-<p>A list of strings.
-Each string is a path to an uninitialized field from
-the top-level message, e.g. "foo.bar[5].baz".</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def FindInitializationErrors(self):
-  &#34;&#34;&#34;Finds required fields which are not initialized.
-
-  Returns:
-    A list of strings.  Each string is a path to an uninitialized field from
-    the top-level message, e.g. &#34;foo.bar[5].baz&#34;.
-  &#34;&#34;&#34;
-
-  errors = []  # simplify things
-
-  for field in required_fields:
-    if not self.HasField(field.name):
-      errors.append(field.name)
-
-  for field, value in self.ListFields():
-    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      if field.is_extension:
-        name = &#39;(%s)&#39; % field.full_name
-      else:
-        name = field.name
-
-      if _IsMapField(field):
-        if _IsMessageMapField(field):
-          for key in value:
-            element = value[key]
-            prefix = &#39;%s[%s].&#39; % (name, key)
-            sub_errors = element.FindInitializationErrors()
-            errors += [prefix + error for error in sub_errors]
-        else:
-          # ScalarMaps can&#39;t have any initialization errors.
-          pass
-      elif field.label == _FieldDescriptor.LABEL_REPEATED:
-        for i in range(len(value)):
-          element = value[i]
-          prefix = &#39;%s[%d].&#39; % (name, i)
-          sub_errors = element.FindInitializationErrors()
-          errors += [prefix + error for error in sub_errors]
-      else:
-        prefix = name + &#39;.&#39;
-        sub_errors = value.FindInitializationErrors()
-        errors += [prefix + error for error in sub_errors]
-
-  return errors</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.HasField"><code class="name flex">
-<span>def <span class="ident">HasField</span></span>(<span>self, field_name)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def HasField(self, field_name):
-  try:
-    field = hassable_fields[field_name]
-  except KeyError:
-    raise ValueError(error_msg % (message_descriptor.full_name, field_name))
-
-  if isinstance(field, descriptor_mod.OneofDescriptor):
-    try:
-      return HasField(self, self._oneofs[field].name)
-    except KeyError:
-      return False
-  else:
-    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      value = self._fields.get(field)
-      return value is not None and value._is_present_in_parent
-    else:
-      return field in self._fields</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.IsInitialized"><code class="name flex">
-<span>def <span class="ident">IsInitialized</span></span>(<span>self, errors=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Checks if all required fields of a message are set.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>errors</code></strong></dt>
-<dd>A list which, if provided, will be populated with the field
-paths of all missing required fields.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>True iff the specified message has all required fields set.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def IsInitialized(self, errors=None):
-  &#34;&#34;&#34;Checks if all required fields of a message are set.
-
-  Args:
-    errors:  A list which, if provided, will be populated with the field
-             paths of all missing required fields.
-
-  Returns:
-    True iff the specified message has all required fields set.
-  &#34;&#34;&#34;
-
-  # Performance is critical so we avoid HasField() and ListFields().
-
-  for field in required_fields:
-    if (field not in self._fields or
-        (field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE and
-         not self._fields[field]._is_present_in_parent)):
-      if errors is not None:
-        errors.extend(self.FindInitializationErrors())
-      return False
-
-  for field, value in list(self._fields.items()):  # dict can change size!
-    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      if field.label == _FieldDescriptor.LABEL_REPEATED:
-        if (field.message_type.has_options and
-            field.message_type.GetOptions().map_entry):
-          continue
-        for element in value:
-          if not element.IsInitialized():
-            if errors is not None:
-              errors.extend(self.FindInitializationErrors())
-            return False
-      elif value._is_present_in_parent and not value.IsInitialized():
-        if errors is not None:
-          errors.extend(self.FindInitializationErrors())
-        return False
-
-  return True</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.ListFields"><code class="name flex">
-<span>def <span class="ident">ListFields</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ListFields(self):
-  all_fields = [item for item in self._fields.items() if _IsPresent(item)]
-  all_fields.sort(key = lambda item: item[0].number)
-  return all_fields</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.MergeFrom"><code class="name flex">
-<span>def <span class="ident">MergeFrom</span></span>(<span>self, msg)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def MergeFrom(self, msg):
-  if not isinstance(msg, cls):
-    raise TypeError(
-        &#39;Parameter to MergeFrom() must be instance of same class: &#39;
-        &#39;expected %s got %s.&#39; % (cls.__name__, msg.__class__.__name__))
-
-  assert msg is not self
-  self._Modified()
-
-  fields = self._fields
-
-  for field, value in msg._fields.items():
-    if field.label == LABEL_REPEATED:
-      field_value = fields.get(field)
-      if field_value is None:
-        # Construct a new object to represent this field.
-        field_value = field._default_constructor(self)
-        fields[field] = field_value
-      field_value.MergeFrom(value)
-    elif field.cpp_type == CPPTYPE_MESSAGE:
-      if value._is_present_in_parent:
-        field_value = fields.get(field)
-        if field_value is None:
-          # Construct a new object to represent this field.
-          field_value = field._default_constructor(self)
-          fields[field] = field_value
-        field_value.MergeFrom(value)
-    else:
-      self._fields[field] = value
-      if field.containing_oneof:
-        self._UpdateOneofState(field)
-
-  if msg._unknown_fields:
-    if not self._unknown_fields:
-      self._unknown_fields = []
-    self._unknown_fields.extend(msg._unknown_fields)
-    # pylint: disable=protected-access
-    if self._unknown_field_set is None:
-      self._unknown_field_set = containers.UnknownFieldSet()
-    self._unknown_field_set._extend(msg._unknown_field_set)</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.MergeFromString"><code class="name flex">
-<span>def <span class="ident">MergeFromString</span></span>(<span>self, serialized)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def MergeFromString(self, serialized):
-  if isinstance(serialized, memoryview) and six.PY2:
-    raise TypeError(
-        &#39;memoryview not supported in Python 2 with the pure Python proto &#39;
-        &#39;implementation: this is to maintain compatibility with the C++ &#39;
-        &#39;implementation&#39;)
-
-  serialized = memoryview(serialized)
-  length = len(serialized)
-  try:
-    if self._InternalParse(serialized, 0, length) != length:
-      # The only reason _InternalParse would return early is if it
-      # encountered an end-group tag.
-      raise message_mod.DecodeError(&#39;Unexpected end-group tag.&#39;)
-  except (IndexError, TypeError):
-    # Now ord(buf[p:p+1]) == ord(&#39;&#39;) gets TypeError.
-    raise message_mod.DecodeError(&#39;Truncated message.&#39;)
-  except struct.error as e:
-    raise message_mod.DecodeError(e)
-  return length   # Return this for legacy reasons.</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.SerializePartialToString"><code class="name flex">
-<span>def <span class="ident">SerializePartialToString</span></span>(<span>self, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def SerializePartialToString(self, **kwargs):
-  out = BytesIO()
-  self._InternalSerialize(out.write, **kwargs)
-  return out.getvalue()</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.SerializeToString"><code class="name flex">
-<span>def <span class="ident">SerializeToString</span></span>(<span>self, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def SerializeToString(self, **kwargs):
-  # Check if the message has all of its required fields set.
-  if not self.IsInitialized():
-    raise message_mod.EncodeError(
-        &#39;Message %s is missing required fields: %s&#39; % (
-        self.DESCRIPTOR.full_name, &#39;,&#39;.join(self.FindInitializationErrors())))
-  return self.SerializePartialToString(**kwargs)</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.SetInParent"><code class="name flex">
-<span>def <span class="ident">SetInParent</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Sets the _cached_byte_size_dirty bit to true,
-and propagates this to our listener iff this was a state change.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def Modified(self):
-  &#34;&#34;&#34;Sets the _cached_byte_size_dirty bit to true,
-  and propagates this to our listener iff this was a state change.
-  &#34;&#34;&#34;
-
-  # Note:  Some callers check _cached_byte_size_dirty before calling
-  #   _Modified() as an extra optimization.  So, if this method is ever
-  #   changed such that it does stuff even when _cached_byte_size_dirty is
-  #   already true, the callers need to be updated.
-  if not self._cached_byte_size_dirty:
-    self._cached_byte_size_dirty = True
-    self._listener_for_children.dirty = True
-    self._is_present_in_parent = True
-    self._listener.Modified()</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.UnknownFields"><code class="name flex">
-<span>def <span class="ident">UnknownFields</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def _UnknownFields(self):
-  if self._unknown_field_set is None:  # pylint: disable=protected-access
-    # pylint: disable=protected-access
-    self._unknown_field_set = containers.UnknownFieldSet()
-  return self._unknown_field_set    # pylint: disable=protected-access</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.mesh_pb2.ManufacturingData.WhichOneof"><code class="name flex">
 <span>def <span class="ident">WhichOneof</span></span>(<span>self, oneof_name)</span>
 </code></dt>
 <dd>
@@ -11472,8 +10797,6 @@ and propagates this to our listener iff this was a state change.</p></div>
 <h4><code><a title="meshtastic.mesh_pb2.Data" href="#meshtastic.mesh_pb2.Data">Data</a></code></h4>
 <ul class="">
 <li><code><a title="meshtastic.mesh_pb2.Data.ByteSize" href="#meshtastic.mesh_pb2.Data.ByteSize">ByteSize</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Data.CLEAR_READACK" href="#meshtastic.mesh_pb2.Data.CLEAR_READACK">CLEAR_READACK</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Data.CLEAR_TEXT" href="#meshtastic.mesh_pb2.Data.CLEAR_TEXT">CLEAR_TEXT</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.Clear" href="#meshtastic.mesh_pb2.Data.Clear">Clear</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.ClearField" href="#meshtastic.mesh_pb2.Data.ClearField">ClearField</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.DESCRIPTOR" href="#meshtastic.mesh_pb2.Data.DESCRIPTOR">DESCRIPTOR</a></code></li>
@@ -11485,18 +10808,16 @@ and propagates this to our listener iff this was a state change.</p></div>
 <li><code><a title="meshtastic.mesh_pb2.Data.ListFields" href="#meshtastic.mesh_pb2.Data.ListFields">ListFields</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.MergeFrom" href="#meshtastic.mesh_pb2.Data.MergeFrom">MergeFrom</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.MergeFromString" href="#meshtastic.mesh_pb2.Data.MergeFromString">MergeFromString</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Data.OPAQUE" href="#meshtastic.mesh_pb2.Data.OPAQUE">OPAQUE</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.PAYLOAD_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Data.PAYLOAD_FIELD_NUMBER">PAYLOAD_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Data.PORTNUM_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Data.PORTNUM_FIELD_NUMBER">PORTNUM_FIELD_NUMBER</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.RegisterExtension" href="#meshtastic.mesh_pb2.Data.RegisterExtension">RegisterExtension</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.SerializePartialToString" href="#meshtastic.mesh_pb2.Data.SerializePartialToString">SerializePartialToString</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.SerializeToString" href="#meshtastic.mesh_pb2.Data.SerializeToString">SerializeToString</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.SetInParent" href="#meshtastic.mesh_pb2.Data.SetInParent">SetInParent</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Data.TYP_FIELD_NUMBER" href="#meshtastic.mesh_pb2.Data.TYP_FIELD_NUMBER">TYP_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Data.Type" href="#meshtastic.mesh_pb2.Data.Type">Type</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.UnknownFields" href="#meshtastic.mesh_pb2.Data.UnknownFields">UnknownFields</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.WhichOneof" href="#meshtastic.mesh_pb2.Data.WhichOneof">WhichOneof</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.Data.payload" href="#meshtastic.mesh_pb2.Data.payload">payload</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.Data.typ" href="#meshtastic.mesh_pb2.Data.typ">typ</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.Data.portnum" href="#meshtastic.mesh_pb2.Data.portnum">portnum</a></code></li>
 </ul>
 </li>
 <li>
@@ -11602,37 +10923,6 @@ and propagates this to our listener iff this was a state change.</p></div>
 <li><code><a title="meshtastic.mesh_pb2.FromRadio.packet" href="#meshtastic.mesh_pb2.FromRadio.packet">packet</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.FromRadio.radio" href="#meshtastic.mesh_pb2.FromRadio.radio">radio</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.FromRadio.rebooted" href="#meshtastic.mesh_pb2.FromRadio.rebooted">rebooted</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="meshtastic.mesh_pb2.ManufacturingData" href="#meshtastic.mesh_pb2.ManufacturingData">ManufacturingData</a></code></h4>
-<ul class="">
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.ByteSize" href="#meshtastic.mesh_pb2.ManufacturingData.ByteSize">ByteSize</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.Clear" href="#meshtastic.mesh_pb2.ManufacturingData.Clear">Clear</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.ClearField" href="#meshtastic.mesh_pb2.ManufacturingData.ClearField">ClearField</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.DESCRIPTOR" href="#meshtastic.mesh_pb2.ManufacturingData.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.DiscardUnknownFields" href="#meshtastic.mesh_pb2.ManufacturingData.DiscardUnknownFields">DiscardUnknownFields</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.FRADIOFREQ_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ManufacturingData.FRADIOFREQ_FIELD_NUMBER">FRADIOFREQ_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.FindInitializationErrors" href="#meshtastic.mesh_pb2.ManufacturingData.FindInitializationErrors">FindInitializationErrors</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.FromString" href="#meshtastic.mesh_pb2.ManufacturingData.FromString">FromString</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.HW_MODEL_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ManufacturingData.HW_MODEL_FIELD_NUMBER">HW_MODEL_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.HW_VERSION_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ManufacturingData.HW_VERSION_FIELD_NUMBER">HW_VERSION_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.HasField" href="#meshtastic.mesh_pb2.ManufacturingData.HasField">HasField</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.IsInitialized" href="#meshtastic.mesh_pb2.ManufacturingData.IsInitialized">IsInitialized</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.ListFields" href="#meshtastic.mesh_pb2.ManufacturingData.ListFields">ListFields</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.MergeFrom" href="#meshtastic.mesh_pb2.ManufacturingData.MergeFrom">MergeFrom</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.MergeFromString" href="#meshtastic.mesh_pb2.ManufacturingData.MergeFromString">MergeFromString</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.RegisterExtension" href="#meshtastic.mesh_pb2.ManufacturingData.RegisterExtension">RegisterExtension</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.SELFTEST_RESULT_FIELD_NUMBER" href="#meshtastic.mesh_pb2.ManufacturingData.SELFTEST_RESULT_FIELD_NUMBER">SELFTEST_RESULT_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.SerializePartialToString" href="#meshtastic.mesh_pb2.ManufacturingData.SerializePartialToString">SerializePartialToString</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.SerializeToString" href="#meshtastic.mesh_pb2.ManufacturingData.SerializeToString">SerializeToString</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.SetInParent" href="#meshtastic.mesh_pb2.ManufacturingData.SetInParent">SetInParent</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.UnknownFields" href="#meshtastic.mesh_pb2.ManufacturingData.UnknownFields">UnknownFields</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.WhichOneof" href="#meshtastic.mesh_pb2.ManufacturingData.WhichOneof">WhichOneof</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.fradioFreq" href="#meshtastic.mesh_pb2.ManufacturingData.fradioFreq">fradioFreq</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.hw_model" href="#meshtastic.mesh_pb2.ManufacturingData.hw_model">hw_model</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.hw_version" href="#meshtastic.mesh_pb2.ManufacturingData.hw_version">hw_version</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.ManufacturingData.selftest_result" href="#meshtastic.mesh_pb2.ManufacturingData.selftest_result">selftest_result</a></code></li>
 </ul>
 </li>
 <li>
