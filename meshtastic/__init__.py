@@ -148,6 +148,7 @@ class MeshInterface:
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
         if getattr(data, "SerializeToString", None):
+            logging.debug(f"Serializing protobuf as data: {data}")
             data = data.SerializeToString()
 
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:

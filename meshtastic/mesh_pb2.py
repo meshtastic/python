@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\nMeshProtosH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\nmesh.proto\x1a\x0eportnums.proto\"j\n\x08Position\x12\x12\n\nlatitude_i\x18\x07 \x01(\x11\x12\x13\n\x0blongitude_i\x18\x08 \x01(\x11\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x15\n\rbattery_level\x18\x04 \x01(\x05\x12\x0c\n\x04time\x18\t \x01(\x07\"2\n\x04\x44\x61ta\x12\x19\n\x07portnum\x18\x01 \x01(\x0e\x32\x08.PortNum\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\"J\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x0f\n\x07macaddr\x18\x04 \x01(\x0c\"\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x02 \x03(\x05\"\xdb\x02\n\tSubPacket\x12!\n\x08position\x18\x01 \x01(\x0b\x32\t.PositionB\x02\x18\x01H\x00\x12\x15\n\x04\x64\x61ta\x18\x03 \x01(\x0b\x32\x05.DataH\x00\x12\x19\n\x04user\x18\x04 \x01(\x0b\x32\x05.UserB\x02\x18\x01H\x00\x12(\n\rroute_request\x18\x06 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&\n\x0broute_reply\x18\x07 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12\"\n\x0broute_error\x18\r \x01(\x0e\x32\x0b.RouteErrorH\x00\x12\x15\n\rwant_response\x18\x05 \x01(\x08\x12\x14\n\nsuccess_id\x18\n \x01(\rH\x01\x12\x11\n\x07\x66\x61il_id\x18\x0b \x01(\rH\x01\x12\x0c\n\x04\x64\x65st\x18\t \x01(\r\x12\x0e\n\x06source\x18\x0c \x01(\r\x12\x13\n\x0boriginal_id\x18\x02 \x01(\rB\t\n\x07payloadB\x05\n\x03\x61\x63k\"\xb7\x01\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\r\x12\n\n\x02to\x18\x02 \x01(\r\x12\x1d\n\x07\x64\x65\x63oded\x18\x03 \x01(\x0b\x32\n.SubPacketH\x00\x12\x13\n\tencrypted\x18\x08 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\r\x12\x0f\n\x07rx_time\x18\t \x01(\x07\x12\x0e\n\x06rx_snr\x18\x07 \x01(\x02\x12\x11\n\thop_limit\x18\n \x01(\r\x12\x10\n\x08want_ack\x18\x0b \x01(\x08\x42\t\n\x07payload\"\xac\x02\n\x0f\x43hannelSettings\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x36\n\x0cmodem_config\x18\x03 \x01(\x0e\x32\x1c.ChannelSettings.ModemConfigB\x02\x18\x01\x12\x11\n\tbandwidth\x18\x06 \x01(\r\x12\x15\n\rspread_factor\x18\x07 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x08 \x01(\r\x12\x13\n\x0b\x63hannel_num\x18\t \x01(\r\x12\x0b\n\x03psk\x18\x04 \x01(\x0c\x12\x0c\n\x04name\x18\x05 \x01(\t\"`\n\x0bModemConfig\x12\x12\n\x0e\x42w125Cr45Sf128\x10\x00\x12\x12\n\x0e\x42w500Cr45Sf128\x10\x01\x12\x14\n\x10\x42w31_25Cr48Sf512\x10\x02\x12\x13\n\x0f\x42w125Cr48Sf4096\x10\x03\"\xf8\x05\n\x0bRadioConfig\x12\x31\n\x0bpreferences\x18\x01 \x01(\x0b\x32\x1c.RadioConfig.UserPreferences\x12*\n\x10\x63hannel_settings\x18\x02 \x01(\x0b\x32\x10.ChannelSettings\x1a\x89\x05\n\x0fUserPreferences\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12\x1b\n\x13send_owner_interval\x18\x02 \x01(\r\x12\x1a\n\x12num_missed_to_fail\x18\x03 \x01(\r\x12\x1b\n\x13wait_bluetooth_secs\x18\x04 \x01(\r\x12\x16\n\x0escreen_on_secs\x18\x05 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x06 \x01(\r\x12\x1d\n\x15phone_sds_timeout_sec\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\x08 \x01(\r\x12\x10\n\x08sds_secs\x18\t \x01(\r\x12\x0f\n\x07ls_secs\x18\n \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0b \x01(\r\x12\x11\n\twifi_ssid\x18\x0c \x01(\t\x12\x15\n\rwifi_password\x18\r \x01(\t\x12\x14\n\x0cwifi_ap_mode\x18\x0e \x01(\x08\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\x12\x11\n\tis_router\x18% \x01(\x08\x12\x14\n\x0cis_low_power\x18& \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\' \x01(\x08\x12\x15\n\rfactory_reset\x18\x64 \x01(\x08\x12(\n\x0elocation_share\x18  \x01(\x0e\x32\x10.LocationSharing\x12$\n\rgps_operation\x18! \x01(\x0e\x32\r.GpsOperation\x12\x1b\n\x13gps_update_interval\x18\" \x01(\r\x12\x18\n\x10gps_attempt_time\x18$ \x01(\r\x12\x17\n\x0fignore_incoming\x18g \x03(\r\"h\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x07 \x01(\x02\x12\x10\n\x08next_hop\x18\x05 \x01(\r\"\xc5\x02\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x0f\n\x07has_gps\x18\x02 \x01(\x08\x12\x14\n\x0cnum_channels\x18\x03 \x01(\x05\x12\x0e\n\x06region\x18\x04 \x01(\t\x12\x10\n\x08hw_model\x18\x05 \x01(\t\x12\x18\n\x10\x66irmware_version\x18\x06 \x01(\t\x12\x12\n\nerror_code\x18\x07 \x01(\r\x12\x15\n\rerror_address\x18\x08 \x01(\r\x12\x13\n\x0b\x65rror_count\x18\t \x01(\r\x12\x16\n\x0epacket_id_bits\x18\n \x01(\r\x12\x19\n\x11\x63urrent_packet_id\x18\x0b \x01(\r\x12\x15\n\rnode_num_bits\x18\x0c \x01(\r\x12\x1c\n\x14message_timeout_msec\x18\r \x01(\r\x12\x17\n\x0fmin_app_version\x18\x0e \x01(\r\"\xfd\x01\n\x0b\x44\x65viceState\x12\x1b\n\x05radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfig\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\"\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08\"\x1e\n\x0b\x44\x65\x62ugString\x12\x0f\n\x07message\x18\x01 \x01(\t\"\xf9\x01\n\tFromRadio\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12\x1d\n\x05radio\x18\x06 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12$\n\x0c\x64\x65\x62ug_string\x18\x07 \x01(\x0b\x32\x0c.DebugStringH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x08 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\t \x01(\x08H\x00\x42\t\n\x07variant\"\x8c\x01\n\x07ToRadio\x12\x1d\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x18\n\x0ewant_config_id\x18\x64 \x01(\rH\x00\x12!\n\tset_radio\x18\x65 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x66 \x01(\x0b\x32\x05.UserH\x00\x42\t\n\x07variant*>\n\nRouteError\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03*.\n\tConstants\x12\n\n\x06Unused\x10\x00\x12\x15\n\x10\x44\x41TA_PAYLOAD_LEN\x10\xf0\x01*^\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U865\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08*U\n\x0cGpsOperation\x12\x0e\n\nGpsOpUnset\x10\x00\x12\x0f\n\x0bGpsOpMobile\x10\x02\x12\x11\n\rGpsOpTimeOnly\x10\x03\x12\x11\n\rGpsOpDisabled\x10\x04*@\n\x0fLocationSharing\x12\x0c\n\x08LocUnset\x10\x00\x12\x0e\n\nLocEnabled\x10\x01\x12\x0f\n\x0bLocDisabled\x10\x02\x42#\n\x13\x63om.geeksville.meshB\nMeshProtosH\x03\x62\x06proto3'
+  serialized_pb=b'\n\nmesh.proto\x1a\x0eportnums.proto\"j\n\x08Position\x12\x12\n\nlatitude_i\x18\x07 \x01(\x11\x12\x13\n\x0blongitude_i\x18\x08 \x01(\x11\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x15\n\rbattery_level\x18\x04 \x01(\x05\x12\x0c\n\x04time\x18\t \x01(\x07\"2\n\x04\x44\x61ta\x12\x19\n\x07portnum\x18\x01 \x01(\x0e\x32\x08.PortNum\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\"J\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x0f\n\x07macaddr\x18\x04 \x01(\x0c\"\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x02 \x03(\x05\"\xdb\x02\n\tSubPacket\x12!\n\x08position\x18\x01 \x01(\x0b\x32\t.PositionB\x02\x18\x01H\x00\x12\x15\n\x04\x64\x61ta\x18\x03 \x01(\x0b\x32\x05.DataH\x00\x12\x19\n\x04user\x18\x04 \x01(\x0b\x32\x05.UserB\x02\x18\x01H\x00\x12(\n\rroute_request\x18\x06 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&\n\x0broute_reply\x18\x07 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12\"\n\x0broute_error\x18\r \x01(\x0e\x32\x0b.RouteErrorH\x00\x12\x15\n\rwant_response\x18\x05 \x01(\x08\x12\x14\n\nsuccess_id\x18\n \x01(\rH\x01\x12\x11\n\x07\x66\x61il_id\x18\x0b \x01(\rH\x01\x12\x0c\n\x04\x64\x65st\x18\t \x01(\r\x12\x0e\n\x06source\x18\x0c \x01(\r\x12\x13\n\x0boriginal_id\x18\x02 \x01(\rB\t\n\x07payloadB\x05\n\x03\x61\x63k\"\xb7\x01\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\r\x12\n\n\x02to\x18\x02 \x01(\r\x12\x1d\n\x07\x64\x65\x63oded\x18\x03 \x01(\x0b\x32\n.SubPacketH\x00\x12\x13\n\tencrypted\x18\x08 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\r\x12\x0f\n\x07rx_time\x18\t \x01(\x07\x12\x0e\n\x06rx_snr\x18\x07 \x01(\x02\x12\x11\n\thop_limit\x18\n \x01(\r\x12\x10\n\x08want_ack\x18\x0b \x01(\x08\x42\t\n\x07payload\"\xac\x02\n\x0f\x43hannelSettings\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x36\n\x0cmodem_config\x18\x03 \x01(\x0e\x32\x1c.ChannelSettings.ModemConfigB\x02\x18\x01\x12\x11\n\tbandwidth\x18\x06 \x01(\r\x12\x15\n\rspread_factor\x18\x07 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x08 \x01(\r\x12\x13\n\x0b\x63hannel_num\x18\t \x01(\r\x12\x0b\n\x03psk\x18\x04 \x01(\x0c\x12\x0c\n\x04name\x18\x05 \x01(\t\"`\n\x0bModemConfig\x12\x12\n\x0e\x42w125Cr45Sf128\x10\x00\x12\x12\n\x0e\x42w500Cr45Sf128\x10\x01\x12\x14\n\x10\x42w31_25Cr48Sf512\x10\x02\x12\x13\n\x0f\x42w125Cr48Sf4096\x10\x03\"\x93\x06\n\x0bRadioConfig\x12\x31\n\x0bpreferences\x18\x01 \x01(\x0b\x32\x1c.RadioConfig.UserPreferences\x12*\n\x10\x63hannel_settings\x18\x02 \x01(\x0b\x32\x10.ChannelSettings\x1a\xa4\x05\n\x0fUserPreferences\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12\x1b\n\x13send_owner_interval\x18\x02 \x01(\r\x12\x1a\n\x12num_missed_to_fail\x18\x03 \x01(\r\x12\x1b\n\x13wait_bluetooth_secs\x18\x04 \x01(\r\x12\x16\n\x0escreen_on_secs\x18\x05 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x06 \x01(\r\x12\x1d\n\x15phone_sds_timeout_sec\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\x08 \x01(\r\x12\x10\n\x08sds_secs\x18\t \x01(\r\x12\x0f\n\x07ls_secs\x18\n \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0b \x01(\r\x12\x11\n\twifi_ssid\x18\x0c \x01(\t\x12\x15\n\rwifi_password\x18\r \x01(\t\x12\x14\n\x0cwifi_ap_mode\x18\x0e \x01(\x08\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\x12\x11\n\tis_router\x18% \x01(\x08\x12\x14\n\x0cis_low_power\x18& \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\' \x01(\x08\x12\x15\n\rfactory_reset\x18\x64 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x65 \x01(\x08\x12(\n\x0elocation_share\x18  \x01(\x0e\x32\x10.LocationSharing\x12$\n\rgps_operation\x18! \x01(\x0e\x32\r.GpsOperation\x12\x1b\n\x13gps_update_interval\x18\" \x01(\r\x12\x18\n\x10gps_attempt_time\x18$ \x01(\r\x12\x17\n\x0fignore_incoming\x18g \x03(\r\"h\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x07 \x01(\x02\x12\x10\n\x08next_hop\x18\x05 \x01(\r\"\xc5\x02\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x0f\n\x07has_gps\x18\x02 \x01(\x08\x12\x14\n\x0cnum_channels\x18\x03 \x01(\x05\x12\x0e\n\x06region\x18\x04 \x01(\t\x12\x10\n\x08hw_model\x18\x05 \x01(\t\x12\x18\n\x10\x66irmware_version\x18\x06 \x01(\t\x12\x12\n\nerror_code\x18\x07 \x01(\r\x12\x15\n\rerror_address\x18\x08 \x01(\r\x12\x13\n\x0b\x65rror_count\x18\t \x01(\r\x12\x16\n\x0epacket_id_bits\x18\n \x01(\r\x12\x19\n\x11\x63urrent_packet_id\x18\x0b \x01(\r\x12\x15\n\rnode_num_bits\x18\x0c \x01(\r\x12\x1c\n\x14message_timeout_msec\x18\r \x01(\r\x12\x17\n\x0fmin_app_version\x18\x0e \x01(\r\"\xfd\x01\n\x0b\x44\x65viceState\x12\x1b\n\x05radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfig\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\"\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08\"\x1e\n\x0b\x44\x65\x62ugString\x12\x0f\n\x07message\x18\x01 \x01(\t\"\xf9\x01\n\tFromRadio\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12\x1d\n\x05radio\x18\x06 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12$\n\x0c\x64\x65\x62ug_string\x18\x07 \x01(\x0b\x32\x0c.DebugStringH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x08 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\t \x01(\x08H\x00\x42\t\n\x07variant\"\x8c\x01\n\x07ToRadio\x12\x1d\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x18\n\x0ewant_config_id\x18\x64 \x01(\rH\x00\x12!\n\tset_radio\x18\x65 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x66 \x01(\x0b\x32\x05.UserH\x00\x42\t\n\x07variant*>\n\nRouteError\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03*.\n\tConstants\x12\n\n\x06Unused\x10\x00\x12\x15\n\x10\x44\x41TA_PAYLOAD_LEN\x10\xf0\x01*^\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U865\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08*U\n\x0cGpsOperation\x12\x0e\n\nGpsOpUnset\x10\x00\x12\x0f\n\x0bGpsOpMobile\x10\x02\x12\x11\n\rGpsOpTimeOnly\x10\x03\x12\x11\n\rGpsOpDisabled\x10\x04*@\n\x0fLocationSharing\x12\x0c\n\x08LocUnset\x10\x00\x12\x0e\n\nLocEnabled\x10\x01\x12\x0f\n\x0bLocDisabled\x10\x02\x42#\n\x13\x63om.geeksville.meshB\nMeshProtosH\x03\x62\x06proto3'
   ,
   dependencies=[portnums__pb2.DESCRIPTOR,])
 
@@ -55,8 +55,8 @@ _ROUTEERROR = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3018,
-  serialized_end=3080,
+  serialized_start=3045,
+  serialized_end=3107,
 )
 _sym_db.RegisterEnumDescriptor(_ROUTEERROR)
 
@@ -81,8 +81,8 @@ _CONSTANTS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3082,
-  serialized_end=3128,
+  serialized_start=3109,
+  serialized_end=3155,
 )
 _sym_db.RegisterEnumDescriptor(_CONSTANTS)
 
@@ -142,8 +142,8 @@ _REGIONCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3130,
-  serialized_end=3224,
+  serialized_start=3157,
+  serialized_end=3251,
 )
 _sym_db.RegisterEnumDescriptor(_REGIONCODE)
 
@@ -178,8 +178,8 @@ _GPSOPERATION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3226,
-  serialized_end=3311,
+  serialized_start=3253,
+  serialized_end=3338,
 )
 _sym_db.RegisterEnumDescriptor(_GPSOPERATION)
 
@@ -209,8 +209,8 @@ _LOCATIONSHARING = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3313,
-  serialized_end=3377,
+  serialized_start=3340,
+  serialized_end=3404,
 )
 _sym_db.RegisterEnumDescriptor(_LOCATIONSHARING)
 
@@ -895,35 +895,42 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='location_share', full_name='RadioConfig.UserPreferences.location_share', index=19,
+      name='debug_log_enabled', full_name='RadioConfig.UserPreferences.debug_log_enabled', index=19,
+      number=101, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='location_share', full_name='RadioConfig.UserPreferences.location_share', index=20,
       number=32, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='gps_operation', full_name='RadioConfig.UserPreferences.gps_operation', index=20,
+      name='gps_operation', full_name='RadioConfig.UserPreferences.gps_operation', index=21,
       number=33, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='gps_update_interval', full_name='RadioConfig.UserPreferences.gps_update_interval', index=21,
+      name='gps_update_interval', full_name='RadioConfig.UserPreferences.gps_update_interval', index=22,
       number=34, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='gps_attempt_time', full_name='RadioConfig.UserPreferences.gps_attempt_time', index=22,
+      name='gps_attempt_time', full_name='RadioConfig.UserPreferences.gps_attempt_time', index=23,
       number=36, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ignore_incoming', full_name='RadioConfig.UserPreferences.ignore_incoming', index=23,
+      name='ignore_incoming', full_name='RadioConfig.UserPreferences.ignore_incoming', index=24,
       number=103, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -942,7 +949,7 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1250,
-  serialized_end=1899,
+  serialized_end=1926,
 )
 
 _RADIOCONFIG = _descriptor.Descriptor(
@@ -980,7 +987,7 @@ _RADIOCONFIG = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1139,
-  serialized_end=1899,
+  serialized_end=1926,
 )
 
 
@@ -1039,8 +1046,8 @@ _NODEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1901,
-  serialized_end=2005,
+  serialized_start=1928,
+  serialized_end=2032,
 )
 
 
@@ -1162,8 +1169,8 @@ _MYNODEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2008,
-  serialized_end=2333,
+  serialized_start=2035,
+  serialized_end=2360,
 )
 
 
@@ -1250,8 +1257,8 @@ _DEVICESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2336,
-  serialized_end=2589,
+  serialized_start=2363,
+  serialized_end=2616,
 )
 
 
@@ -1282,8 +1289,8 @@ _DEBUGSTRING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2591,
-  serialized_end=2621,
+  serialized_start=2618,
+  serialized_end=2648,
 )
 
 
@@ -1368,8 +1375,8 @@ _FROMRADIO = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=2624,
-  serialized_end=2873,
+  serialized_start=2651,
+  serialized_end=2900,
 )
 
 
@@ -1426,8 +1433,8 @@ _TORADIO = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=2876,
-  serialized_end=3016,
+  serialized_start=2903,
+  serialized_end=3043,
 )
 
 _DATA.fields_by_name['portnum'].enum_type = portnums__pb2._PORTNUM
