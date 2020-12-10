@@ -155,6 +155,7 @@ def onConnected(interface):
             print("Setting device time/position")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.sendPosition(lat, lon, alt, time)
+            interface.writeConfig()
 
         if args.setowner:
             closeNow = True
