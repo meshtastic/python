@@ -453,7 +453,7 @@ class MeshInterface:
         # Warn users if firmware doesn't use new portnum based data encodings
         # But do not crash, because the lib will still basically work and ignore those packet types
         if meshPacket.decoded.HasField("user") or meshPacket.decoded.HasField("position"):
-            logging.warn("The device firmware is using the old position/user format. Recommend you update firmware to 1.1.20 or later")
+            logging.warn("Ignoring old position/user message. Recommend you update firmware to 1.1.20 or later")
 
         if meshPacket.decoded.HasField("data"):
 

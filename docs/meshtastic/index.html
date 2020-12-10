@@ -539,7 +539,7 @@ class MeshInterface:
         # Warn users if firmware doesn&#39;t use new portnum based data encodings
         # But do not crash, because the lib will still basically work and ignore those packet types
         if meshPacket.decoded.HasField(&#34;user&#34;) or meshPacket.decoded.HasField(&#34;position&#34;):
-            logging.error(&#34;The device firmware is too old to work with this version of the python library.  Please update firmware to 1.20 or later&#34;)
+            logging.warn(&#34;Ignoring old position/user message. Recommend you update firmware to 1.1.20 or later&#34;)
 
         if meshPacket.decoded.HasField(&#34;data&#34;):
 
@@ -1383,7 +1383,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         # Warn users if firmware doesn&#39;t use new portnum based data encodings
         # But do not crash, because the lib will still basically work and ignore those packet types
         if meshPacket.decoded.HasField(&#34;user&#34;) or meshPacket.decoded.HasField(&#34;position&#34;):
-            logging.error(&#34;The device firmware is too old to work with this version of the python library.  Please update firmware to 1.20 or later&#34;)
+            logging.warn(&#34;Ignoring old position/user message. Recommend you update firmware to 1.1.20 or later&#34;)
 
         if meshPacket.decoded.HasField(&#34;data&#34;):
 
