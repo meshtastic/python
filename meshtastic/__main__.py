@@ -163,7 +163,7 @@ def onConnected(interface):
             interface.setOwner(args.setowner)
 
         if args.sendtext:
-            closeNow = True
+            closeNow = False
             print(f"Sending text message {args.sendtext} to {args.destOrAll}")
             interface.sendText(args.sendtext, args.destOrAll,
                                wantAck=True)
