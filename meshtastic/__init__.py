@@ -614,6 +614,8 @@ class StreamInterface(MeshInterface):
         """Write an array of bytes to our stream and flush"""
         self.stream.write(b)
         self.stream.flush()
+        while self.stream.out_waiting != 0:
+            time.sleep(0.1) # It seems that on windows flush might return before all bytes actually sent?
 
     def _readBytes(self, len):
         """Read an array of bytes from our stream"""
