@@ -5,7 +5,7 @@ from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
 import logging
 import sys
 from pubsub import pub
-from . import mesh_pb2
+from . import mesh_pb2, portnums_pb2
 import google.protobuf.json_format
 import pyqrcode
 import traceback
@@ -124,10 +124,10 @@ def setRouter(interface, on):
 
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
-    global args
-    print("Connected to radio")
     closeNow = False  # Should we drop the connection after we finish?
     try:
+        global args
+        print("Connected to radio")
         prefs = interface.radioConfig.preferences
 
         if args.settime or args.setlat or args.setlon or args.setalt:
@@ -166,6 +166,12 @@ def onConnected(interface):
             closeNow = True
             print(f"Sending text message {args.sendtext} to {args.destOrAll}")
             interface.sendText(args.sendtext, args.destOrAll,
+                               wantAck=True)
+
+        if args.sendping:
+            print(f"Sending ping message {args.sendtext} to {args.destOrAll}")
+            payload = str.encode("test string")
+            interface.sendData(payload, args.destOrAll, portNum=portnums_pb2.PortNum.REPLY_APP,
                                wantAck=True, wantResponse=True)
 
         if args.gpiowrb or args.gpiord:
@@ -307,6 +313,12 @@ def main():
 
     parser.add_argument(
         "--sendtext", help="Send a text message")
+
+    parser.add_argument(
+        "--sendping", help="Send a ping message (which requests a reply)", action="store_true")
+
+    #parser.add_argument(
+    #    "--repeat", help="Normally the send commands send only one message, use this option to request repeated sends")
 
     parser.add_argument(
         "--reply", help="Reply to received messages",

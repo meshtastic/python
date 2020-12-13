@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\010PortnumsH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0eportnums.proto*\x93\x01\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x12\n\rIP_TUNNEL_APP\x10\x80\x08\x42!\n\x13\x63om.geeksville.meshB\x08PortnumsH\x03\x62\x06proto3'
+  serialized_pb=b'\n\x0eportnums.proto*\xa2\x01\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\r\n\tREPLY_APP\x10 \x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x12\n\rIP_TUNNEL_APP\x10\x80\x08\x42!\n\x13\x63om.geeksville.meshB\x08PortnumsH\x03\x62\x06proto3'
 )
 
 _PORTNUM = _descriptor.EnumDescriptor(
@@ -56,12 +56,17 @@ _PORTNUM = _descriptor.EnumDescriptor(
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='PRIVATE_APP', index=5, number=256,
+      name='REPLY_APP', index=5, number=32,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='IP_TUNNEL_APP', index=6, number=1024,
+      name='PRIVATE_APP', index=6, number=256,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='IP_TUNNEL_APP', index=7, number=1024,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
@@ -69,7 +74,7 @@ _PORTNUM = _descriptor.EnumDescriptor(
   containing_type=None,
   serialized_options=None,
   serialized_start=19,
-  serialized_end=166,
+  serialized_end=181,
 )
 _sym_db.RegisterEnumDescriptor(_PORTNUM)
 
@@ -79,6 +84,7 @@ TEXT_MESSAGE_APP = 1
 REMOTE_HARDWARE_APP = 2
 POSITION_APP = 3
 NODEINFO_APP = 4
+REPLY_APP = 32
 PRIVATE_APP = 256
 IP_TUNNEL_APP = 1024
 
