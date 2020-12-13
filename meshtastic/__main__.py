@@ -174,7 +174,7 @@ def onConnected(interface):
             interface.sendData(payload, args.destOrAll, portNum=portnums_pb2.PortNum.REPLY_APP,
                                wantAck=True, wantResponse=True)
 
-        if args.gpiowrb or args.gpiord:
+        if args.gpiowrb or args.gpiord or args.gpiowatch:
             rhc = remote_hardware.RemoteHardwareClient(interface)
 
             if args.gpiowrb:
@@ -190,6 +190,11 @@ def onConnected(interface):
                 bitmask = int(args.gpiord)
                 print(f"Reading GPIO mask 0x{bitmask:x} from {args.dest}")
                 rhc.readGPIOs(args.dest, bitmask)
+
+            if args.gpiowatch:
+                bitmask = int(args.gpiowatch)
+                print(f"Watching GPIO mask 0x{bitmask:x} from {args.dest}")
+                rhc.watchGPIOs(args.dest, bitmask)                
 
         if args.set or args.setstr or args.setchan or args.seturl or args.router != None:
             closeNow = True
@@ -329,6 +334,9 @@ def main():
 
     parser.add_argument(
         "--gpiord", help="Read from a GPIO mask")
+
+    parser.add_argument(
+        "--gpiowatch", help="Start watching a GPIO mask for changes")
 
     parser.add_argument(
         "--settime", help="Set the real time clock on the device", action="store_true")

@@ -44,3 +44,10 @@ class RemoteHardwareClient:
         r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
         r.gpio_mask = mask
         return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)
+
+    def watchGPIOs(self, nodeid, mask):
+        """Watch the specified bits from GPIO inputs on the device for changes"""
+        r = remote_hardware_pb2.HardwareMessage()
+        r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
+        r.gpio_mask = mask
+        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)        
