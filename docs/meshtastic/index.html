@@ -806,11 +806,11 @@ class SerialInterface(StreamInterface):
 
         # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
         self.stream.port = devPath
-        # OS-X seems to have a bug in its serial driver.  It ignores that we asked for no RTSCTS
+        # OS-X/Windows seems to have a bug in its serial driver.  It ignores that we asked for no RTSCTS
         # control and will always drive RTS either high or low (rather than letting the CP102 leave
         # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
         # sure it is driven low, so that the TBEAM won&#39;t reset
-        if platform.system() == &#39;Darwin&#39;:
+        if platform.system() != &#39;Linux&#39;:
             self.stream.rts = False
         self.stream.open()
 
@@ -820,7 +820,7 @@ class SerialInterface(StreamInterface):
     def _disconnected(self):
         &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
 
-        if platform.system() == &#39;Darwin&#39;:
+        if platform.system() != &#39;Linux&#39;:
             self.stream.rts = True  # Return RTS high, so that the reset button still works
 
         StreamInterface._disconnected(self)
@@ -1822,11 +1822,11 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 
         # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
         self.stream.port = devPath
-        # OS-X seems to have a bug in its serial driver.  It ignores that we asked for no RTSCTS
+        # OS-X/Windows seems to have a bug in its serial driver.  It ignores that we asked for no RTSCTS
         # control and will always drive RTS either high or low (rather than letting the CP102 leave
         # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
         # sure it is driven low, so that the TBEAM won&#39;t reset
-        if platform.system() == &#39;Darwin&#39;:
+        if platform.system() != &#39;Linux&#39;:
             self.stream.rts = False
         self.stream.open()
 
@@ -1836,7 +1836,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
     def _disconnected(self):
         &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
 
-        if platform.system() == &#39;Darwin&#39;:
+        if platform.system() != &#39;Linux&#39;:
             self.stream.rts = True  # Return RTS high, so that the reset button still works
 
         StreamInterface._disconnected(self)</code></pre>

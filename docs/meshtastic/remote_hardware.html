@@ -70,7 +70,14 @@ class RemoteHardwareClient:
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
         r.gpio_mask = mask
-        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)</code></pre>
+        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)
+
+    def watchGPIOs(self, nodeid, mask):
+        &#34;&#34;&#34;Watch the specified bits from GPIO inputs on the device for changes&#34;&#34;&#34;
+        r = remote_hardware_pb2.HardwareMessage()
+        r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
+        r.gpio_mask = mask
+        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)        </code></pre>
 </details>
 </section>
 <section>
@@ -152,7 +159,14 @@ code for how you can connect to your own custom meshtastic services</p>
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
         r.gpio_mask = mask
-        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)</code></pre>
+        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)
+
+    def watchGPIOs(self, nodeid, mask):
+        &#34;&#34;&#34;Watch the specified bits from GPIO inputs on the device for changes&#34;&#34;&#34;
+        r = remote_hardware_pb2.HardwareMessage()
+        r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
+        r.gpio_mask = mask
+        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)        </code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -171,6 +185,23 @@ code for how you can connect to your own custom meshtastic services</p>
     r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
     r.gpio_mask = mask
     return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.remote_hardware.RemoteHardwareClient.watchGPIOs"><code class="name flex">
+<span>def <span class="ident">watchGPIOs</span></span>(<span>self, nodeid, mask)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Watch the specified bits from GPIO inputs on the device for changes</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def watchGPIOs(self, nodeid, mask):
+    &#34;&#34;&#34;Watch the specified bits from GPIO inputs on the device for changes&#34;&#34;&#34;
+    r = remote_hardware_pb2.HardwareMessage()
+    r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
+    r.gpio_mask = mask
+    return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)        </code></pre>
 </details>
 </dd>
 <dt id="meshtastic.remote_hardware.RemoteHardwareClient.writeGPIOs"><code class="name flex">
@@ -223,6 +254,7 @@ are 1 will be changed</p></div>
 <h4><code><a title="meshtastic.remote_hardware.RemoteHardwareClient" href="#meshtastic.remote_hardware.RemoteHardwareClient">RemoteHardwareClient</a></code></h4>
 <ul class="">
 <li><code><a title="meshtastic.remote_hardware.RemoteHardwareClient.readGPIOs" href="#meshtastic.remote_hardware.RemoteHardwareClient.readGPIOs">readGPIOs</a></code></li>
+<li><code><a title="meshtastic.remote_hardware.RemoteHardwareClient.watchGPIOs" href="#meshtastic.remote_hardware.RemoteHardwareClient.watchGPIOs">watchGPIOs</a></code></li>
 <li><code><a title="meshtastic.remote_hardware.RemoteHardwareClient.writeGPIOs" href="#meshtastic.remote_hardware.RemoteHardwareClient.writeGPIOs">writeGPIOs</a></code></li>
 </ul>
 </li>
