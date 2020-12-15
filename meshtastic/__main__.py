@@ -11,6 +11,7 @@ import pyqrcode
 import traceback
 import codecs
 import base64
+import pkg_resources
 
 """The command line arguments"""
 args = None
@@ -389,6 +390,8 @@ def main():
                         action='store_false', help="Turns off router mode")
 
     parser.set_defaults(router=None)
+
+    parser.add_argument('--version', action='version', version=f"{pkg_resources.require('meshtastic')[0].version}")
 
     global args
     args = parser.parse_args()
