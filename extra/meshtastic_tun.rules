@@ -1,0 +1,4 @@
+# for userspace access to the TUN network interface by meshtastic.  Add your user to the netdev group.
+# gives access via /dev/net/tun permissions
+# install via sudo cp meshtastic_tun.rules /etc/udev/rules.d/
+KERNEL=="tun", GROUP="netdev", MODE="0660", OPTIONS+="static_node=net/tun"
