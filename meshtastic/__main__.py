@@ -196,7 +196,8 @@ def onConnected(interface):
                 print(f"Watching GPIO mask 0x{bitmask:x} from {args.dest}")
                 rhc.watchGPIOs(args.dest, bitmask)                
 
-        if args.set or args.setstr or args.setchan or args.seturl or args.router != None:
+        if args.set or args.setstr or args.setchan or args.setch_longslow or args.setch_shortfast \
+                    or args.seturl or args.router != None:
             closeNow = True
 
             def setPref(attributes, name, val):
@@ -215,6 +216,13 @@ def onConnected(interface):
                 except Exception as ex:
                     print(f"Can't set {name} due to {ex}")
 
+            def setSimpleChannel(modem_config):
+                """Set one of the simple modem_config only based channels"""
+                ch = mesh_pb2.ChannelSettings()
+                ch.modem_config = modem_config
+                ch.psk = bytes([1]) # Use default channel psk 1
+                interface.radioConfig.channel_settings.CopyFrom(ch)
+
             if args.router != None:
                 setRouter(interface, args.router)
 
@@ -226,6 +234,13 @@ def onConnected(interface):
             # Handle the string arguments
             for pref in (args.setstr or []):
                 setPref(prefs, pref[0], pref[1])
+
+            # handle the simple channel set commands
+            if args.setch_longslow:
+                setSimpleChannel(mesh_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
+
+            if args.setch_shortfast:
+                setSimpleChannel(mesh_pb2.ChannelSettings.ModemConfig.Bw500Cr45Sf128)
 
             # Handle the channel settings
             for pref in (args.setchan or []):
@@ -308,6 +323,12 @@ def main():
         "--setchan", help="Set a channel parameter", nargs=2, action='append')
 
     parser.add_argument(
+        "--setch-longslow", help="Change to the standard long-range (but slow) channel", action='store_true')
+
+    parser.add_argument(
+        "--setch-shortfast", help="Change to the standard fast (but short range) channel", action='store_true')
+
+    parser.add_argument(
         "--seturl", help="Set a channel URL", action="store")
 
     parser.add_argument(
@@ -379,7 +400,10 @@ def main():
         args.destOrAll = "^all"
 
     if not args.seriallog:
-        if args.info or args.set or args.seturl or args.setowner or args.setlat or args.setlon or args.settime or args.setstr or args.setchan or args.sendtext or args.router != None or args.qr:
+        if args.info or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
+                args.settime or \
+                args.setch_longslow or args.setch_shortfast or args.setstr or args.setchan or args.sendtext or \
+                args.router != None or args.qr:
             args.seriallog = "none"  # assume no debug output in this case
         else:
             args.seriallog = "stdout"  # default to stdout
