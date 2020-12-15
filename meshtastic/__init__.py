@@ -469,13 +469,10 @@ class MeshInterface:
 
             portnum = asDict["decoded"]["data"]["portnum"]
 
-            if isinstance(portnum, str):
-                portnum = portnums_pb2.PortNum.Value(portnum)
-
             topic = f"meshtastic.receive.data.{portnum}"
 
             # For text messages, we go ahead and decode the text to ascii for our users
-            if portnum == portnums_pb2.PortNum.TEXT_MESSAGE_APP:
+            if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.TEXT_MESSAGE_APP):
                 topic = "meshtastic.receive.text"
 
                 # We don't throw if the utf8 is invalid in the text message.  Instead we just don't populate
@@ -490,7 +487,7 @@ class MeshInterface:
                     logging.error(f"Malformatted utf8 in text message: {ex}")
 
             # decode position protobufs and update nodedb, provide decoded version as "position" in the published msg
-            if portnum == portnums_pb2.PortNum.POSITION_APP:
+            if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.POSITION_APP):
                 topic = "meshtastic.receive.position"
                 pb = mesh_pb2.Position()
                 pb.ParseFromString(meshPacket.decoded.data.payload)
@@ -501,7 +498,7 @@ class MeshInterface:
                 self._getOrCreateByNum(asDict["from"])["position"] = p
 
             # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
-            if portnum == portnums_pb2.PortNum.NODEINFO_APP:
+            if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.NODEINFO_APP):
                 topic = "meshtastic.receive.user"
                 pb = mesh_pb2.User()
                 pb.ParseFromString(meshPacket.decoded.data.payload)
