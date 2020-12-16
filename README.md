@@ -47,6 +47,17 @@ Or to configure an ESP32 to run as a Wifi access point:
 meshtastic --set wifi_ap_mode true --setstr wifi_ssid mywifissid --setstr wifi_password mywifipsw
 ```
 
+## FAQ/common problems
+
+This is a collection of common questions and answers from our friendly forum.
+
+### [Permission denied: ‘/dev/ttyUSB0’](https://meshtastic.discourse.group/t/question-on-permission-denied-dev-ttyusb0/590/3?u=geeksville)
+
+This indicates an OS permission problem for access by your user to the USB serial port.  Typically this is fixed by the following.
+```
+sudo usermod -a -G dialout <username>
+```
+
 ## Required device software version
 
 This API and tool both require that the device is running Meshtastic 0.6.0 or later.
