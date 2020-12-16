@@ -108,8 +108,7 @@ class MeshInterface:
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
-        if not noProto:
-            self._startConfig()
+        self._startConfig()
 
     def __enter__(self):
         return self
@@ -346,6 +345,13 @@ class MeshInterface:
 
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""
+        if self.noProto:
+            logging.warn(f"Not sending packet because protocol use is disabled by noProto")
+        else:
+            self._sendToRadioImpl(toRadio)
+
+    def _sendToRadioImpl(self, toRadio):
+        """Send a ToRadio protobuf to the device"""
         logging.error(f"Subclass must provide toradio: {toRadio}")
 
     def _handleFromRadio(self, fromRadioBytes):
@@ -540,7 +546,7 @@ class BLEInterface(MeshInterface):
 
         self.device.subscribe(FROMNUM_UUID, callback=handle_data)
 
-    def _sendToRadio(self, toRadio):
+    def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
         logging.debug(f"Sending: {toRadio}")
         b = toRadio.SerializeToString()
@@ -620,7 +626,7 @@ class StreamInterface(MeshInterface):
         """Read an array of bytes from our stream"""
         return self.stream.read(len)
 
-    def _sendToRadio(self, toRadio):
+    def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
         logging.debug(f"Sending: {toRadio}")
         b = toRadio.SerializeToString()
