@@ -194,8 +194,7 @@ class MeshInterface:
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
-        if not noProto:
-            self._startConfig()
+        self._startConfig()
 
     def __enter__(self):
         return self
@@ -431,6 +430,13 @@ class MeshInterface:
         self._sendToRadio(startConfig)
 
     def _sendToRadio(self, toRadio):
+        &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
+        if self.noProto:
+            logging.warn(f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
+        else:
+            self._sendToRadioImpl(toRadio)
+
+    def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
         logging.error(f&#34;Subclass must provide toradio: {toRadio}&#34;)
 
@@ -626,7 +632,7 @@ class BLEInterface(MeshInterface):
 
         self.device.subscribe(FROMNUM_UUID, callback=handle_data)
 
-    def _sendToRadio(self, toRadio):
+    def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
         logging.debug(f&#34;Sending: {toRadio}&#34;)
         b = toRadio.SerializeToString()
@@ -706,7 +712,7 @@ class StreamInterface(MeshInterface):
         &#34;&#34;&#34;Read an array of bytes from our stream&#34;&#34;&#34;
         return self.stream.read(len)
 
-    def _sendToRadio(self, toRadio):
+    def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
         logging.debug(f&#34;Sending: {toRadio}&#34;)
         b = toRadio.SerializeToString()
@@ -795,7 +801,7 @@ class SerialInterface(StreamInterface):
                 raise Exception(&#34;No Meshtastic devices detected&#34;)
             elif len(ports) &gt; 1:
                 raise Exception(
-                    f&#34;Multiple ports detected, you must specify a device, such as {ports[0].device}&#34;)
+                    f&#34;Multiple ports detected, you must specify a device, such as {ports[0]}&#34;)
             else:
                 devPath = ports[0]
 
@@ -811,8 +817,7 @@ class SerialInterface(StreamInterface):
         # control and will always drive RTS either high or low (rather than letting the CP102 leave
         # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
         # sure it is driven low, so that the TBEAM won&#39;t reset
-        if platform.system() != &#39;Linux&#39;:
-            self.stream.rts = False
+        self.stream.rts = False
         self.stream.open()
 
         StreamInterface.__init__(
@@ -820,9 +825,6 @@ class SerialInterface(StreamInterface):
 
     def _disconnected(self):
         &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
-
-        if platform.system() != &#39;Linux&#39;:
-            self.stream.rts = True  # Return RTS high, so that the reset button still works
 
         StreamInterface._disconnected(self)
 
@@ -948,7 +950,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
         self.device.subscribe(FROMNUM_UUID, callback=handle_data)
 
-    def _sendToRadio(self, toRadio):
+    def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
         logging.debug(f&#34;Sending: {toRadio}&#34;)
         b = toRadio.SerializeToString()
@@ -1039,8 +1041,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
-        if not noProto:
-            self._startConfig()
+        self._startConfig()
 
     def __enter__(self):
         return self
@@ -1276,6 +1277,13 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self._sendToRadio(startConfig)
 
     def _sendToRadio(self, toRadio):
+        &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
+        if self.noProto:
+            logging.warn(f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
+        else:
+            self._sendToRadioImpl(toRadio)
+
+    def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
         logging.error(f&#34;Subclass must provide toradio: {toRadio}&#34;)
 
@@ -1812,7 +1820,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
                 raise Exception(&#34;No Meshtastic devices detected&#34;)
             elif len(ports) &gt; 1:
                 raise Exception(
-                    f&#34;Multiple ports detected, you must specify a device, such as {ports[0].device}&#34;)
+                    f&#34;Multiple ports detected, you must specify a device, such as {ports[0]}&#34;)
             else:
                 devPath = ports[0]
 
@@ -1828,8 +1836,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         # control and will always drive RTS either high or low (rather than letting the CP102 leave
         # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
         # sure it is driven low, so that the TBEAM won&#39;t reset
-        if platform.system() != &#39;Linux&#39;:
-            self.stream.rts = False
+        self.stream.rts = False
         self.stream.open()
 
         StreamInterface.__init__(
@@ -1837,9 +1844,6 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 
     def _disconnected(self):
         &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
-
-        if platform.system() != &#39;Linux&#39;:
-            self.stream.rts = True  # Return RTS high, so that the reset button still works
 
         StreamInterface._disconnected(self)</code></pre>
 </details>
@@ -1950,7 +1954,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         &#34;&#34;&#34;Read an array of bytes from our stream&#34;&#34;&#34;
         return self.stream.read(len)
 
-    def _sendToRadio(self, toRadio):
+    def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
         logging.debug(f&#34;Sending: {toRadio}&#34;)
         b = toRadio.SerializeToString()
