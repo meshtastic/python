@@ -1,8 +1,13 @@
 # delete me eventually
-# pip install python-pytuntap
+# Note python-pytuntap was too buggy
+# using pip3 install pytap2
 # sudo ip tuntap del mode tun tun0
 
-from tuntap import TunTap,Packet
+# FIXME: set MTU correctly
+# select local ip address based on nodeid
+# print known node ids as IP addresses
+
+from pytap2 import TapDevice
 import logging
 from _thread import start_new_thread
 
@@ -13,6 +18,15 @@ udpBlacklist = {
     5353, # multicast DNS
 }
 
+"""A list of TCP services to block"""
+tcpBlacklist = {}
+
+"""A list of protocols we ignore"""
+protocolBlacklist = {
+    0x02, # IGMP
+	0x80, # Service-Specific Connection-Oriented Protocol in a Multilink and Connectionless Environment
+}
+
 def hexstr(barray):
     return ":".join('{:02x}'.format(x) for x in barray)
 
@@ -21,23 +35,18 @@ def readnet_u16(p, offset):
     return p[offset] * 256 + p[offset + 1]
 
 def readtest(tap):
-    while not tap.quitting:
+    while True:
         p = tap.read()
-        if not p:
-            continue
-        packet = Packet(data=p)
-        if not packet.get_version()==4: # only consider IPV4 for now
-            continue
 
         protocol = p[8 + 1]
         srcaddr = p[12:16]
         destaddr = p[16:20]
         subheader = 20
         ignore = False # Assume we will be forwarding the packet
-        if protocol == 0x02: # IGMP
+        if protocol in protocolBlacklist:
             ignore = True
-            logging.debug("Ignoring IGMP packet")
-        if protocol == 0x01: # ICMP
+            logging.debug(f"Ignoring blacklisted protocol 0x{protocol:02x}")
+        elif protocol == 0x01: # ICMP
             logging.warn("Generating fake ping reply")
             # reply to pings (swap src and dest but keep rest of packet unchanged)
             pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
@@ -49,8 +58,15 @@ def readtest(tap):
             if destport in udpBlacklist:
                 ignore = True
                 logging.debug(f"ignoring blacklisted UDP port {destport}")
+        elif protocol == 0x06: # TCP
+            srcport = readnet_u16(p, subheader)
+            destport = readnet_u16(p, subheader + 2)
+            logging.debug(f"tcp srcport={srcport}, destport={destport}")
+            if destport in tcpBlacklist:
+                ignore = True
+                logging.debug(f"ignoring blacklisted TCP port {destport}")
         else:
-            logging.warn(f"unexpected protocol 0x{protocol:02x}, srcadddr {hexstr(srcaddr)}")
+            logging.warning(f"unexpected protocol 0x{protocol:02x}, srcadddr {hexstr(srcaddr)}")
 
         if not ignore:
             logging.debug(f"Forwarding packet bytes={hexstr(p)}")
@@ -59,9 +75,10 @@ def readtest(tap):
 
 logging.basicConfig(level=logging.DEBUG)
 
-tun = TunTap(nic_type="Tun") # nic_name="tun0"
+tun = TapDevice(mtu=200)
 # tun.create()
-tun.config(ip="10.115.1.2",mask="255.255.0.0")
+tun.up()
+tun.ifconfig(address="10.115.1.2",netmask="255.255.0.0")
 
 start_new_thread(readtest,(tun,))
 input("press return key to quit!")
