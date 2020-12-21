@@ -37,6 +37,11 @@ def readtest(tap):
         if protocol == 0x02: # IGMP
             ignore = True
             logging.debug("Ignoring IGMP packet")
+        if protocol == 0x01: # ICMP
+            logging.warn("Generating fake ping reply")
+            # reply to pings (swap src and dest but keep rest of packet unchanged)
+            pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
+            tap.write(pingback)
         elif protocol == 0x11: # UDP
             srcport = readnet_u16(p, subheader)
             destport = readnet_u16(p, subheader + 2)
@@ -50,9 +55,7 @@ def readtest(tap):
         if not ignore:
             logging.debug(f"Forwarding packet bytes={hexstr(p)}")
 
-        # reply to pings
-        #pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
-        #tap.write(pingback)
+        
 
 logging.basicConfig(level=logging.DEBUG)
 
