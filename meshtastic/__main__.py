@@ -82,7 +82,12 @@ def setRouter(interface, on):
     prefs = interface.radioConfig.preferences
     if on:
         print("Setting router mode")
+
         prefs.is_router = True
+
+        # FIXME as of 1.1.24 of the device code, the following is all deprecated. After that release
+        # has been out a while, just set is_router and warn the user about deprecation
+        #         
         prefs.is_low_power = True
         prefs.gps_operation = mesh_pb2.GpsOpMobile
 

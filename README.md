@@ -35,6 +35,12 @@ Setting preference wait_bluetooth_secs to 28800
 Writing modified preferences to device...
 ```
 
+Or to set a node at a fixed position and never power up the GPS.
+
+```
+meshtastic --setlat 25.2 --setlon -16.8 --setalt 120
+```
+
 Or to configure an ESP32 based board to join a wifi network as a station (wifi support in the device code is coming soon):
 
 ```
