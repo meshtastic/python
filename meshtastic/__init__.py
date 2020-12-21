@@ -11,7 +11,7 @@ properties of SerialInterface:
 the device.
 - nodes - The database of received nodes.  Includes always up-to-date location and username information for each
 node in the mesh.  This is a read-only datastructure.
-- myNodeInfo - Contains read-only information about the local radio device (software version, hardware version, etc)
+- myInfo - Contains read-only information about the local radio device (software version, hardware version, etc)
 
 # Published PubSub topics
 
