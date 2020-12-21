@@ -47,6 +47,8 @@ Or to configure an ESP32 to run as a Wifi access point:
 meshtastic --set wifi_ap_mode true --setstr wifi_ssid mywifissid --setstr wifi_password mywifipsw
 ```
 
+For a full list of preferences which can be set (and their documentation) see [here](https://github.com/meshtastic/Meshtastic-protobufs/blob/master/docs/docs.md#.RadioConfig.UserPreferences).
+
 ## FAQ/common problems
 
 This is a collection of common questions and answers from our friendly forum.
