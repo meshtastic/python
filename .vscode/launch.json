@@ -21,6 +21,14 @@
       "args": ["--info"]
     },
     {
+      "name": "meshtastic tunnel",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--tunnel", "--debug"]
+    },
+    {
       "name": "meshtastic debug",
       "type": "python",
       "request": "launch",

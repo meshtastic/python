@@ -1,7 +1,7 @@
 #!python3
 
 import argparse
-from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
+from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware, tunnel
 import logging
 import sys
 from pubsub import pub
@@ -274,6 +274,11 @@ def onConnected(interface):
             print(f"Channel URL {interface.channelURL}")
             url = pyqrcode.create(interface.channelURL)
             print(url.terminal())
+
+        if args.tunnel:
+            closeNow = False # Even if others said we could close, stay open if the user asked for a tunnel
+            tunnel.Tunnel(interface)
+           
     except Exception as ex:
         print(ex)
 
@@ -394,6 +399,9 @@ def main():
     parser.add_argument('--unset-router', dest='router',
                         action='store_false', help="Turns off router mode")
 
+    parser.add_argument('--tunnel',
+                        action='store_true', help="Create a TUN tunnel device for forwarding IP packets over the mesh")
+
     parser.set_defaults(router=None)
 
     parser.add_argument('--version', action='version', version=f"{pkg_resources.require('meshtastic')[0].version}")
@@ -411,7 +419,7 @@ def main():
         if args.info or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
                 args.settime or \
                 args.setch_longslow or args.setch_shortfast or args.setstr or args.setchan or args.sendtext or \
-                args.router != None or args.qr:
+                args.tunnel or args.router != None or args.qr:
             args.seriallog = "none"  # assume no debug output in this case
         else:
             args.seriallog = "stdout"  # default to stdout

@@ -1,6 +1,7 @@
 # delete me eventually
 # Note python-pytuntap was too buggy
 # using pip3 install pytap2
+# make sure to "sudo setcap cap_net_admin+eip /usr/bin/python3.8" so python can access tun device without being root
 # sudo ip tuntap del mode tun tun0
 
 # FIXME: set MTU correctly
@@ -28,7 +29,12 @@ protocolBlacklist = {
 }
 
 def hexstr(barray):
+    """Print a string of hex digits"""
     return ":".join('{:02x}'.format(x) for x in barray)
+
+def ipstr(barray):
+    """Print a string of ip digits"""
+    return ".".join('{}'.format(x) for x in barray)
 
 def readnet_u16(p, offset):
     """Read big endian u16 (network byte order)"""
@@ -66,10 +72,10 @@ def readtest(tap):
                 ignore = True
                 logging.debug(f"ignoring blacklisted TCP port {destport}")
         else:
-            logging.warning(f"unexpected protocol 0x{protocol:02x}, srcadddr {hexstr(srcaddr)}")
+            logging.warning(f"unexpected protocol 0x{protocol:02x}, src={ipstr(srcaddr)}, dest={ipstr(destaddr)}")
 
         if not ignore:
-            logging.debug(f"Forwarding packet bytes={hexstr(p)}")
+            logging.debug(f"Forwarding packet bytelen={len(p)} src={ipstr(srcaddr)}, dest={ipstr(destaddr)}")
 
         
 
