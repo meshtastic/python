@@ -7,7 +7,6 @@
 # sudo bin/run.sh --port /dev/ttyUSB0 --tunnel --debug
 
 # FIXME: set MTU correctly
-# allow setting arbitary IP addresses
 
 from . import portnums_pb2
 from pubsub import pub
@@ -52,19 +51,22 @@ def onTunnelReceive(packet, interface):
     FIXME figure out how to do closures with methods in python"""
     tunnelInstance.onReceive(packet)
 
-
-subnetPrefix = "10.115"
-
 class Tunnel:
     """A TUN based IP tunnel over meshtastic"""
     
-    def __init__(self, iface):
+    def __init__(self, iface, subnet=None, netmask="255.255.0.0"):
         """
         Constructor
 
         iface is the already open MeshInterface instance
+        subnet is used to construct our network number (normally 10.115.x.x)
         """
+
+        if subnet is None:
+            subnet = "10.115"
+
         self.iface = iface
+        self.subnetPrefix = subnet
 
         global tunnelInstance
         tunnelInstance = self
@@ -83,7 +85,7 @@ class Tunnel:
         self.tun = TapDevice(name="mesh", mtu=200)
         # tun.create()
         self.tun.up()
-        self.tun.ifconfig(address=myAddr,netmask="255.255.0.0")
+        self.tun.ifconfig(address=myAddr,netmask=netmask)
         logging.debug(f"starting TUN reader, our IP address is {myAddr}")
         self._rxThread = threading.Thread(target=self.__tunReader, args=(), daemon=True)
         self._rxThread.start()
@@ -150,7 +152,7 @@ class Tunnel:
         return None
 
     def _nodeNumToIp(self, nodeNum):
-        return f"{subnetPrefix}.{(nodeNum >> 8) & 0xff}.{nodeNum & 0xff}"
+        return f"{self.subnetPrefix}.{(nodeNum >> 8) & 0xff}.{nodeNum & 0xff}"
 
     def sendPacket(self, destAddr, p):
         """Forward the provided IP packet into the mesh"""

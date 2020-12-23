@@ -277,7 +277,7 @@ def onConnected(interface):
 
         if args.tunnel:
             closeNow = False # Even if others said we could close, stay open if the user asked for a tunnel
-            tunnel.Tunnel(interface)
+            tunnel.Tunnel(interface, subnet=args.tunnel_net)
            
     except Exception as ex:
         print(ex)
@@ -401,6 +401,9 @@ def main():
 
     parser.add_argument('--tunnel',
                         action='store_true', help="Create a TUN tunnel device for forwarding IP packets over the mesh")
+
+    parser.add_argument(
+        "--subnet", dest='tunnel_net', help="Read from a GPIO mask", default=None)
 
     parser.set_defaults(router=None)
 
