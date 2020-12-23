@@ -19,7 +19,7 @@ args = None
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
-    print(f"Received: {packet}")
+    logging.debug(f"Received: {packet}")
 
     try:
         # Exit once we receive a reply

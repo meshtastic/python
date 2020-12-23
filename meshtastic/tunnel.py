@@ -3,11 +3,11 @@
 # using pip3 install pytap2
 # make sure to "sudo setcap cap_net_admin+eip /usr/bin/python3.8" so python can access tun device without being root
 # sudo ip tuntap del mode tun tun0
+# sudo bin/run.sh --port /dev/ttyUSB0 --setch-shortfast
+# sudo bin/run.sh --port /dev/ttyUSB0 --tunnel --debug
 
 # FIXME: set MTU correctly
-# select local ip address based on nodeid
-# print known node ids as IP addresses
-# change dev name to mesh
+# allow setting arbitary IP addresses
 
 from . import portnums_pb2
 from pubsub import pub
@@ -143,8 +143,10 @@ class Tunnel:
             return "^all"
 
         for node in self.iface.nodes.values():
-            if (node["num"] and 0xffff) == ipBits:
-                return node["id"]
+            nodeNum = node["num"] & 0xffff
+            logging.debug(f"Considering nodenum 0x{nodeNum:x} for ipBits 0x{ipBits:x}")
+            if (nodeNum) == ipBits:
+                return node["user"]["id"]
         return None
 
     def _nodeNumToIp(self, nodeNum):
