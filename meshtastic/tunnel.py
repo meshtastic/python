@@ -5,8 +5,9 @@
 # sudo ip tuntap del mode tun tun0
 # sudo bin/run.sh --port /dev/ttyUSB0 --setch-shortfast
 # sudo bin/run.sh --port /dev/ttyUSB0 --tunnel --debug
+# ssh -Y root@192.168.10.151 (or dietpi), default password p
 
-# FIXME: set MTU correctly
+# FIXME: use a more optimal MTU
 
 from . import portnums_pb2
 from pubsub import pub
@@ -82,8 +83,8 @@ class Tunnel:
             logging.info(f"Node { nodeId } has IP address { ip }")        
 
         logging.debug("creating TUN device")
+        # FIXME - figure out real max MTU, it should be 240 - the overhead bytes for SubPacket and Data
         self.tun = TapDevice(name="mesh", mtu=200)
-        # tun.create()
         self.tun.up()
         self.tun.ifconfig(address=myAddr,netmask=netmask)
         logging.debug(f"starting TUN reader, our IP address is {myAddr}")
