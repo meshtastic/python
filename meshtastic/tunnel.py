@@ -15,6 +15,9 @@ from pytap2 import TapDevice
 import logging
 import threading
 
+# fixme - find a way to move onTunnelReceive inside of the class
+tunnelInstance = None
+
 """A list of chatty UDP services we should never accidentally
 forward to our slow network"""
 udpBlacklist = {
@@ -43,15 +46,14 @@ def readnet_u16(p, offset):
     """Read big endian u16 (network byte order)"""
     return p[offset] * 256 + p[offset + 1]
 
-
-
 def onTunnelReceive(packet, interface):
     """Callback for received tunneled messages from mesh
     
     FIXME figure out how to do closures with methods in python"""
-    p = packet["decoded"]["data"]["payload"]
-    logging.debug(f"Received tunnel message")
+    tunnelInstance.onReceive(packet)
 
+
+subnetPrefix = "10.115"
 
 class Tunnel:
     """A TUN based IP tunnel over meshtastic"""
@@ -64,18 +66,35 @@ class Tunnel:
         """
         self.iface = iface
 
-        logging.info("Starting IP to mesh tunnel (you must be root for this pre-alpha feature to work)")
+        global tunnelInstance
+        tunnelInstance = self
+
+        logging.info("Starting IP to mesh tunnel (you must be root for this *pre-alpha* feature to work).  Mesh members:")
 
         pub.subscribe(onTunnelReceive, "meshtastic.receive.data.IP_TUNNEL_APP")
+        myAddr = self._nodeNumToIp(self.iface.myInfo.my_node_num)
+
+        for node in self.iface.nodes.values():
+            nodeId = node["user"]["id"]
+            ip = self._nodeNumToIp(node["num"])
+            logging.info(f"Node { nodeId } has IP address { ip }")        
 
         logging.debug("creating TUN device")
-        self.tun = TapDevice(mtu=200)
+        self.tun = TapDevice(name="mesh", mtu=200)
         # tun.create()
         self.tun.up()
-        self.tun.ifconfig(address="10.115.1.2",netmask="255.255.0.0")
-        logging.debug("starting TUN reader")
+        self.tun.ifconfig(address=myAddr,netmask="255.255.0.0")
+        logging.debug(f"starting TUN reader, our IP address is {myAddr}")
         self._rxThread = threading.Thread(target=self.__tunReader, args=(), daemon=True)
         self._rxThread.start()
+
+    def onReceive(self, packet):
+        p = packet["decoded"]["data"]["payload"]
+        if packet["from"] == self.iface.myInfo.my_node_num:
+            logging.debug("Ignoring message we sent")
+        else:
+            logging.debug(f"Received mesh tunnel message, forwarding to IP")
+            self.tun.write(p)
 
     def __tunReader(self):
         tap = self.tun
@@ -85,7 +104,7 @@ class Tunnel:
 
             protocol = p[8 + 1]
             srcaddr = p[12:16]
-            destaddr = p[16:20]
+            destAddr = p[16:20]
             subheader = 20
             ignore = False # Assume we will be forwarding the packet
             if protocol in protocolBlacklist:
@@ -111,10 +130,34 @@ class Tunnel:
                     ignore = True
                     logging.debug(f"ignoring blacklisted TCP port {destport}")
             else:
-                logging.warning(f"unexpected protocol 0x{protocol:02x}, src={ipstr(srcaddr)}, dest={ipstr(destaddr)}")
+                logging.warning(f"unexpected protocol 0x{protocol:02x}, src={ipstr(srcaddr)}, dest={ipstr(destAddr)}")
 
             if not ignore:
-                logging.debug(f"Forwarding packet bytelen={len(p)} src={ipstr(srcaddr)}, dest={ipstr(destaddr)}")
+                self.sendPacket(destAddr, p)
+
+    def _ipToNodeId(self, ipAddr):
+        # We only consider the last 16 bits of the nodenum for IP address matching
+        ipBits = ipAddr[2] * 256 + ipAddr[3]
+
+        if ipBits == 0xffff:
+            return "^all"
+
+        for node in self.iface.nodes.values():
+            if (node["num"] and 0xffff) == ipBits:
+                return node["id"]
+        return None
+
+    def _nodeNumToIp(self, nodeNum):
+        return f"{subnetPrefix}.{(nodeNum >> 8) & 0xff}.{nodeNum & 0xff}"
+
+    def sendPacket(self, destAddr, p):
+        """Forward the provided IP packet into the mesh"""
+        nodeId = self._ipToNodeId(destAddr)
+        if nodeId is not None:
+            logging.debug(f"Forwarding packet bytelen={len(p)} dest={ipstr(destAddr)}, destNode={nodeId}")
+            self.iface.sendData(p, nodeId, portnums_pb2.IP_TUNNEL_APP, wantAck = False)
+        else:
+            logging.warning(f"Dropping packet because no node found for destIP={ipstr(destAddr)}")
 
     def close(self):
         self.tun.close()

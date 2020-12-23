@@ -236,7 +236,7 @@ class MeshInterface:
         self._sendToRadio(t)
         logging.debug("Wrote config")
 
-    def getMyNode(self):
+    def getMyUser(self):
         if self.myInfo is None:
             return None
         myId = self.myInfo.my_node_num
@@ -247,13 +247,13 @@ class MeshInterface:
         return None
 
     def getLongName(self):
-        user = self.getMyNode()
+        user = self.getMyUser()
         if user is not None:
             return user.get('longName', None)
         return None
 
     def getShortName(self):
-        user = self.getMyNode()
+        user = self.getMyUser()
         if user is not None:
             return user.get('shortName', None)
         return None
