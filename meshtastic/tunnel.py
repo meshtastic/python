@@ -8,8 +8,8 @@
 # ssh -Y root@192.168.10.151 (or dietpi), default password p
 # ncat -e /bin/cat -k -u -l 1235 
 # ncat -u 10.115.64.152 1235
+# ping -c 1 -W 20 10.115.64.152
 
-# FIXME - we aren't seeing ping replys from the remote node - check device logs
 # FIXME: use a more optimal MTU
 
 from . import portnums_pb2
