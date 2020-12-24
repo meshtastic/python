@@ -34,7 +34,7 @@ the device.</li>
 Includes always up-to-date location and username information for each
 node in the mesh.
 This is a read-only datastructure.</li>
-<li>myNodeInfo - Contains read-only information about the local radio device (software version, hardware version, etc)</li>
+<li>myInfo - Contains read-only information about the local radio device (software version, hardware version, etc)</li>
 </ul>
 <h1 id="published-pubsub-topics">Published PubSub topics</h1>
 <p>We use a <a href="https://pypubsub.readthedocs.io/en/v4.0.3/">publish-subscribe</a> model to communicate asynchronous events.
@@ -97,7 +97,7 @@ properties of SerialInterface:
 the device.
 - nodes - The database of received nodes.  Includes always up-to-date location and username information for each
 node in the mesh.  This is a read-only datastructure.
-- myNodeInfo - Contains read-only information about the local radio device (software version, hardware version, etc)
+- myInfo - Contains read-only information about the local radio device (software version, hardware version, etc)
 
 # Published PubSub topics
 
@@ -322,7 +322,7 @@ class MeshInterface:
         self._sendToRadio(t)
         logging.debug(&#34;Wrote config&#34;)
 
-    def getMyNode(self):
+    def getMyUser(self):
         if self.myInfo is None:
             return None
         myId = self.myInfo.my_node_num
@@ -333,13 +333,13 @@ class MeshInterface:
         return None
 
     def getLongName(self):
-        user = self.getMyNode()
+        user = self.getMyUser()
         if user is not None:
             return user.get(&#39;longName&#39;, None)
         return None
 
     def getShortName(self):
-        user = self.getMyNode()
+        user = self.getMyUser()
         if user is not None:
             return user.get(&#39;shortName&#39;, None)
         return None
@@ -600,7 +600,7 @@ class MeshInterface:
                 n = self._getOrCreateByNum(asDict[&#34;from&#34;])
                 n[&#34;user&#34;] = u
                 # We now have a node ID, make sure it is uptodate in that table
-                self.nodes[u[&#34;id&#34;]] = u
+                self.nodes[u[&#34;id&#34;]] = n
 
         logging.debug(f&#34;Publishing topic {topic}&#34;)
         pub.sendMessage(topic, packet=asDict, interface=self)
@@ -817,7 +817,9 @@ class SerialInterface(StreamInterface):
         # control and will always drive RTS either high or low (rather than letting the CP102 leave
         # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
         # sure it is driven low, so that the TBEAM won&#39;t reset
-        self.stream.rts = False
+        # Linux does this properly, so don&#39;t apply this hack (because it makes the reset button not work)
+        if platform.system() != &#39;Linux&#39;:
+            self.stream.rts = False
         self.stream.open()
 
         StreamInterface.__init__(
@@ -893,6 +895,10 @@ class TCPInterface(StreamInterface):
 <div class="desc"><p>Generated protocol buffer code.</p></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.test" href="test.html">meshtastic.test</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="meshtastic.tunnel" href="tunnel.html">meshtastic.tunnel</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1169,7 +1175,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self._sendToRadio(t)
         logging.debug(&#34;Wrote config&#34;)
 
-    def getMyNode(self):
+    def getMyUser(self):
         if self.myInfo is None:
             return None
         myId = self.myInfo.my_node_num
@@ -1180,13 +1186,13 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         return None
 
     def getLongName(self):
-        user = self.getMyNode()
+        user = self.getMyUser()
         if user is not None:
             return user.get(&#39;longName&#39;, None)
         return None
 
     def getShortName(self):
-        user = self.getMyNode()
+        user = self.getMyUser()
         if user is not None:
             return user.get(&#39;shortName&#39;, None)
         return None
@@ -1447,7 +1453,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                 n = self._getOrCreateByNum(asDict[&#34;from&#34;])
                 n[&#34;user&#34;] = u
                 # We now have a node ID, make sure it is uptodate in that table
-                self.nodes[u[&#34;id&#34;]] = u
+                self.nodes[u[&#34;id&#34;]] = n
 
         logging.debug(f&#34;Publishing topic {topic}&#34;)
         pub.sendMessage(topic, packet=asDict, interface=self)</code></pre>
@@ -1488,14 +1494,14 @@ def channelURL(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def getLongName(self):
-    user = self.getMyNode()
+    user = self.getMyUser()
     if user is not None:
         return user.get(&#39;longName&#39;, None)
     return None</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.MeshInterface.getMyNode"><code class="name flex">
-<span>def <span class="ident">getMyNode</span></span>(<span>self)</span>
+<dt id="meshtastic.MeshInterface.getMyUser"><code class="name flex">
+<span>def <span class="ident">getMyUser</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1503,7 +1509,7 @@ def channelURL(self):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getMyNode(self):
+<pre><code class="python">def getMyUser(self):
     if self.myInfo is None:
         return None
     myId = self.myInfo.my_node_num
@@ -1524,7 +1530,7 @@ def channelURL(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def getShortName(self):
-    user = self.getMyNode()
+    user = self.getMyUser()
     if user is not None:
         return user.get(&#39;shortName&#39;, None)
     return None</code></pre>
@@ -1836,7 +1842,9 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         # control and will always drive RTS either high or low (rather than letting the CP102 leave
         # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
         # sure it is driven low, so that the TBEAM won&#39;t reset
-        self.stream.rts = False
+        # Linux does this properly, so don&#39;t apply this hack (because it makes the reset button not work)
+        if platform.system() != &#39;Linux&#39;:
+            self.stream.rts = False
         self.stream.open()
 
         StreamInterface.__init__(
@@ -2195,6 +2203,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <li><code><a title="meshtastic.remote_hardware" href="remote_hardware.html">meshtastic.remote_hardware</a></code></li>
 <li><code><a title="meshtastic.remote_hardware_pb2" href="remote_hardware_pb2.html">meshtastic.remote_hardware_pb2</a></code></li>
 <li><code><a title="meshtastic.test" href="test.html">meshtastic.test</a></code></li>
+<li><code><a title="meshtastic.tunnel" href="tunnel.html">meshtastic.tunnel</a></code></li>
 <li><code><a title="meshtastic.util" href="util.html">meshtastic.util</a></code></li>
 </ul>
 </li>
@@ -2216,7 +2225,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <ul class="two-column">
 <li><code><a title="meshtastic.MeshInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getLongName" href="#meshtastic.MeshInterface.getLongName">getLongName</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.getMyNode" href="#meshtastic.MeshInterface.getMyNode">getMyNode</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.getMyUser" href="#meshtastic.MeshInterface.getMyUser">getMyUser</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getShortName" href="#meshtastic.MeshInterface.getShortName">getShortName</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPacket" href="#meshtastic.MeshInterface.sendPacket">sendPacket</a></code></li>
