@@ -731,7 +731,9 @@ class SerialInterface(StreamInterface):
         # control and will always drive RTS either high or low (rather than letting the CP102 leave
         # it as an open-collector floating pin).  Since it is going to drive it anyways we want to make
         # sure it is driven low, so that the TBEAM won't reset
-        self.stream.rts = False
+        # Linux does this properly, so don't apply this hack (because it makes the reset button not work)
+        if platform.system() != 'Linux':
+            self.stream.rts = False
         self.stream.open()
 
         StreamInterface.__init__(
