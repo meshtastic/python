@@ -514,7 +514,7 @@ class MeshInterface:
                 n = self._getOrCreateByNum(asDict["from"])
                 n["user"] = u
                 # We now have a node ID, make sure it is uptodate in that table
-                self.nodes[u["id"]] = u
+                self.nodes[u["id"]] = n
 
         logging.debug(f"Publishing topic {topic}")
         pub.sendMessage(topic, packet=asDict, interface=self)
