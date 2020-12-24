@@ -1,17 +1,18 @@
 #!python3
 
-import argparse
-from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware, tunnel
-import logging
-import sys
+import argparse, platform, logging, sys, codecs, base64
+from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
 from pubsub import pub
 from . import mesh_pb2, portnums_pb2
 import google.protobuf.json_format
 import pyqrcode
 import traceback
-import codecs
-import base64
 import pkg_resources
+
+"""We only import the tunnel code if we are on a platform that can run it"""
+have_tunnel = platform.system() == 'Linux'
+if have_tunnel:
+    from . import tunnel
 
 """The command line arguments"""
 args = None
@@ -277,7 +278,7 @@ def onConnected(interface):
             url = pyqrcode.create(interface.channelURL)
             print(url.terminal())
 
-        if args.tunnel:
+        if args.tunnel and have_tunnel:
             closeNow = False # Even if others said we could close, stay open if the user asked for a tunnel
             tunnel.Tunnel(interface, subnet=args.tunnel_net)
            
@@ -442,11 +443,11 @@ def initParser():
     parser.add_argument('--unset-router', dest='router',
                         action='store_false', help="Turns off router mode")
 
-    parser.add_argument('--tunnel',
+    if have_tunnel:
+        parser.add_argument('--tunnel',
                         action='store_true', help="Create a TUN tunnel device for forwarding IP packets over the mesh")
-
-    parser.add_argument(
-        "--subnet", dest='tunnel_net', help="Read from a GPIO mask", default=None)
+        parser.add_argument(
+            "--subnet", dest='tunnel_net', help="Read from a GPIO mask", default=None)
 
     parser.set_defaults(router=None)
 
