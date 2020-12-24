@@ -98,9 +98,9 @@ class Tunnel:
     def onReceive(self, packet):
         p = packet["decoded"]["data"]["payload"]
         if packet["from"] == self.iface.myInfo.my_node_num:
-            logging.log("Ignoring message we sent")
+            logging.debug("Ignoring message we sent")
         else:
-            logging.debug(f"Received mesh tunnel message, forwarding to IP")
+            logging.debug(f"Received mesh tunnel message type={type(p)} len={len(p)}, forwarding to IP")
             self.tun.write(p)
 
     def __tunReader(self):
@@ -108,6 +108,7 @@ class Tunnel:
         logging.debug("TUN reader running")
         while True:
             p = tap.read()
+            #logging.debug(f"IP packet received on TUN interface, type={type(p)}")
 
             protocol = p[8 + 1]
             srcaddr = p[12:16]
@@ -118,7 +119,10 @@ class Tunnel:
                 ignore = True
                 logging.log(LOG_TRACE, f"Ignoring blacklisted protocol 0x{protocol:02x}")
             elif protocol == 0x01: # ICMP
-                logging.debug(f"forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}")
+                icmpType = p[20]
+                icmpCode = p[21]
+                checksum = p[22:24]
+                logging.debug(f"forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}, type={icmpType}, code={icmpCode}, checksum={checksum}")
                 # reply to pings (swap src and dest but keep rest of packet unchanged)
                 #pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
                 #tap.write(pingback)
