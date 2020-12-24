@@ -6,6 +6,8 @@
 # sudo bin/run.sh --port /dev/ttyUSB0 --setch-shortfast
 # sudo bin/run.sh --port /dev/ttyUSB0 --tunnel --debug
 # ssh -Y root@192.168.10.151 (or dietpi), default password p
+# ncat -e /bin/cat -k -u -l 1235 
+# ncat -u 10.115.64.152 1235
 
 # FIXME - we aren't seeing ping replys from the remote node - check device logs
 # FIXME: use a more optimal MTU
@@ -100,8 +102,50 @@ class Tunnel:
         if packet["from"] == self.iface.myInfo.my_node_num:
             logging.debug("Ignoring message we sent")
         else:
-            logging.debug(f"Received mesh tunnel message type={type(p)} len={len(p)}, forwarding to IP")
-            self.tun.write(p)
+            logging.debug(f"Received mesh tunnel message type={type(p)} len={len(p)}")
+            # we don't really need to check for filtering here (sender should have checked), but this provides
+            # useful debug printing on types of packets received
+            if not self._shouldFilterPacket(p):
+                self.tun.write(p)
+
+    def _shouldFilterPacket(self, p):
+        """Given a packet, decode it and return true if it should be ignored"""
+        protocol = p[8 + 1]
+        srcaddr = p[12:16]
+        destAddr = p[16:20]
+        subheader = 20
+        ignore = False # Assume we will be forwarding the packet
+        if protocol in protocolBlacklist:
+            ignore = True
+            logging.log(LOG_TRACE, f"Ignoring blacklisted protocol 0x{protocol:02x}")
+        elif protocol == 0x01: # ICMP
+            icmpType = p[20]
+            icmpCode = p[21]
+            checksum = p[22:24]
+            logging.debug(f"forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}, type={icmpType}, code={icmpCode}, checksum={checksum}")
+            # reply to pings (swap src and dest but keep rest of packet unchanged)
+            #pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
+            #tap.write(pingback)
+        elif protocol == 0x11: # UDP
+            srcport = readnet_u16(p, subheader)
+            destport = readnet_u16(p, subheader + 2)
+            if destport in udpBlacklist:
+                ignore = True
+                logging.log(LOG_TRACE, f"ignoring blacklisted UDP port {destport}")
+            else:
+                logging.debug(f"forwarding udp srcport={srcport}, destport={destport}")
+        elif protocol == 0x06: # TCP
+            srcport = readnet_u16(p, subheader)
+            destport = readnet_u16(p, subheader + 2)
+            if destport in tcpBlacklist:
+                ignore = True
+                logging.log(LOG_TRACE, f"ignoring blacklisted TCP port {destport}")
+            else:
+                logging.debug(f"forwarding tcp srcport={srcport}, destport={destport}")
+        else:
+            logging.warning(f"forwarding unexpected protocol 0x{protocol:02x}, src={ipstr(srcaddr)}, dest={ipstr(destAddr)}")
+
+        return ignore
 
     def __tunReader(self):
         tap = self.tun
@@ -109,43 +153,9 @@ class Tunnel:
         while True:
             p = tap.read()
             #logging.debug(f"IP packet received on TUN interface, type={type(p)}")
-
-            protocol = p[8 + 1]
-            srcaddr = p[12:16]
             destAddr = p[16:20]
-            subheader = 20
-            ignore = False # Assume we will be forwarding the packet
-            if protocol in protocolBlacklist:
-                ignore = True
-                logging.log(LOG_TRACE, f"Ignoring blacklisted protocol 0x{protocol:02x}")
-            elif protocol == 0x01: # ICMP
-                icmpType = p[20]
-                icmpCode = p[21]
-                checksum = p[22:24]
-                logging.debug(f"forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}, type={icmpType}, code={icmpCode}, checksum={checksum}")
-                # reply to pings (swap src and dest but keep rest of packet unchanged)
-                #pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
-                #tap.write(pingback)
-            elif protocol == 0x11: # UDP
-                srcport = readnet_u16(p, subheader)
-                destport = readnet_u16(p, subheader + 2)
-                if destport in udpBlacklist:
-                    ignore = True
-                    logging.log(LOG_TRACE, f"ignoring blacklisted UDP port {destport}")
-                else:
-                    logging.debug(f"udp srcport={srcport}, destport={destport}")
-            elif protocol == 0x06: # TCP
-                srcport = readnet_u16(p, subheader)
-                destport = readnet_u16(p, subheader + 2)
-                if destport in tcpBlacklist:
-                    ignore = True
-                    logging.log(LOG_TRACE, f"ignoring blacklisted TCP port {destport}")
-                else:
-                    logging.debug(f"tcp srcport={srcport}, destport={destport}")
-            else:
-                logging.warning(f"unexpected protocol 0x{protocol:02x}, src={ipstr(srcaddr)}, dest={ipstr(destAddr)}")
 
-            if not ignore:
+            if not self._shouldFilterPacket(p):
                 self.sendPacket(destAddr, p)
 
     def _ipToNodeId(self, ipAddr):
