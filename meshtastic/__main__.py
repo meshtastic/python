@@ -16,6 +16,8 @@ import pkg_resources
 """The command line arguments"""
 args = None
 
+"""The parser for arguments"""
+parser = argparse.ArgumentParser()
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -300,9 +302,50 @@ def subscribe():
     # pub.subscribe(onNode, "meshtastic.node")
 
 
-def main():
-    """Perform command line meshtastic operations"""
-    parser = argparse.ArgumentParser()
+def common():
+    """Shared code for all of our command line wrappers"""
+    global args
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+
+    # Some commands require dest to be set, so we now use destOrAll for more lenient commands
+    args.destOrAll = args.dest
+    if not args.destOrAll:
+        args.destOrAll = "^all"
+
+    if not args.seriallog:
+        if args.info or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
+                args.settime or \
+                args.setch_longslow or args.setch_shortfast or args.setstr or args.setchan or args.sendtext or \
+                args.tunnel or args.router != None or args.qr:
+            args.seriallog = "none"  # assume no debug output in this case
+        else:
+            args.seriallog = "stdout"  # default to stdout
+
+    if args.test:
+        test.testAll()
+    else:
+        if args.seriallog == "stdout":
+            logfile = sys.stdout
+        elif args.seriallog == "none":
+            args.seriallog = None
+            logging.debug("Not logging serial output")
+            logfile = None
+        else:
+            logging.info(f"Logging serial output to {args.seriallog}")
+            logfile = open(args.seriallog, 'w+', buffering=1)  # line buffering
+
+        subscribe()
+        if args.ble:
+            client = BLEInterface(args.ble, debugOut=logfile)
+        elif args.host:
+            client = TCPInterface(
+                args.host, debugOut=logfile, noProto=args.noproto)
+        else:
+            client = SerialInterface(
+                args.port, debugOut=logfile, noProto=args.noproto)
+
+def initParser():
+    global parser, args
 
     parser.add_argument(
         "--port",
@@ -409,47 +452,19 @@ def main():
 
     parser.add_argument('--version', action='version', version=f"{pkg_resources.require('meshtastic')[0].version}")
 
-    global args
     args = parser.parse_args()
-    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
-    # Some commands require dest to be set, so we now use destOrAll for more lenient commands
-    args.destOrAll = args.dest
-    if not args.destOrAll:
-        args.destOrAll = "^all"
+def main():
+    """Perform command line meshtastic operations"""
+    initParser()
+    common()
 
-    if not args.seriallog:
-        if args.info or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
-                args.settime or \
-                args.setch_longslow or args.setch_shortfast or args.setstr or args.setchan or args.sendtext or \
-                args.tunnel or args.router != None or args.qr:
-            args.seriallog = "none"  # assume no debug output in this case
-        else:
-            args.seriallog = "stdout"  # default to stdout
-
-    if args.test:
-        test.testAll()
-    else:
-        if args.seriallog == "stdout":
-            logfile = sys.stdout
-        elif args.seriallog == "none":
-            args.seriallog = None
-            logging.debug("Not logging serial output")
-            logfile = None
-        else:
-            logging.info(f"Logging serial output to {args.seriallog}")
-            logfile = open(args.seriallog, 'w+', buffering=1)  # line buffering
-
-        subscribe()
-        if args.ble:
-            client = BLEInterface(args.ble, debugOut=logfile)
-        elif args.host:
-            client = TCPInterface(
-                args.host, debugOut=logfile, noProto=args.noproto)
-        else:
-            client = SerialInterface(
-                args.port, debugOut=logfile, noProto=args.noproto)
-
+def tunnelMain():
+    """Run a meshtastic IP tunnel"""
+    global args
+    initParser()
+    args.tunnel = True
+    common()
 
 if __name__ == "__main__":
     main()
