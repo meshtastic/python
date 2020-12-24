@@ -7,6 +7,7 @@
 # sudo bin/run.sh --port /dev/ttyUSB0 --tunnel --debug
 # ssh -Y root@192.168.10.151 (or dietpi), default password p
 
+# FIXME - we aren't seeing ping replys from the remote node - check device logs
 # FIXME: use a more optimal MTU
 
 from . import portnums_pb2
@@ -14,6 +15,9 @@ from pubsub import pub
 from pytap2 import TapDevice
 import logging
 import threading
+
+# A new non standard log level that is lower level than DEBUG
+LOG_TRACE = 5
 
 # fixme - find a way to move onTunnelReceive inside of the class
 tunnelInstance = None
@@ -94,7 +98,7 @@ class Tunnel:
     def onReceive(self, packet):
         p = packet["decoded"]["data"]["payload"]
         if packet["from"] == self.iface.myInfo.my_node_num:
-            logging.debug("Ignoring message we sent")
+            logging.log("Ignoring message we sent")
         else:
             logging.debug(f"Received mesh tunnel message, forwarding to IP")
             self.tun.write(p)
@@ -112,26 +116,28 @@ class Tunnel:
             ignore = False # Assume we will be forwarding the packet
             if protocol in protocolBlacklist:
                 ignore = True
-                logging.debug(f"Ignoring blacklisted protocol 0x{protocol:02x}")
+                logging.log(LOG_TRACE, f"Ignoring blacklisted protocol 0x{protocol:02x}")
             elif protocol == 0x01: # ICMP
-                logging.debug("forwarding ICMP message")
+                logging.debug(f"forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}")
                 # reply to pings (swap src and dest but keep rest of packet unchanged)
                 #pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
                 #tap.write(pingback)
             elif protocol == 0x11: # UDP
                 srcport = readnet_u16(p, subheader)
                 destport = readnet_u16(p, subheader + 2)
-                logging.debug(f"udp srcport={srcport}, destport={destport}")
                 if destport in udpBlacklist:
                     ignore = True
-                    logging.debug(f"ignoring blacklisted UDP port {destport}")
+                    logging.log(LOG_TRACE, f"ignoring blacklisted UDP port {destport}")
+                else:
+                    logging.debug(f"udp srcport={srcport}, destport={destport}")
             elif protocol == 0x06: # TCP
                 srcport = readnet_u16(p, subheader)
                 destport = readnet_u16(p, subheader + 2)
-                logging.debug(f"tcp srcport={srcport}, destport={destport}")
                 if destport in tcpBlacklist:
                     ignore = True
-                    logging.debug(f"ignoring blacklisted TCP port {destport}")
+                    logging.log(LOG_TRACE, f"ignoring blacklisted TCP port {destport}")
+                else:
+                    logging.debug(f"tcp srcport={srcport}, destport={destport}")
             else:
                 logging.warning(f"unexpected protocol 0x{protocol:02x}, src={ipstr(srcaddr)}, dest={ipstr(destAddr)}")
 
@@ -147,7 +153,7 @@ class Tunnel:
 
         for node in self.iface.nodes.values():
             nodeNum = node["num"] & 0xffff
-            logging.debug(f"Considering nodenum 0x{nodeNum:x} for ipBits 0x{ipBits:x}")
+            # logging.debug(f"Considering nodenum 0x{nodeNum:x} for ipBits 0x{ipBits:x}")
             if (nodeNum) == ipBits:
                 return node["user"]["id"]
         return None
