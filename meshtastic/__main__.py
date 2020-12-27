@@ -317,7 +317,7 @@ def common():
         if args.info or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
                 args.settime or \
                 args.setch_longslow or args.setch_shortfast or args.setstr or args.setchan or args.sendtext or \
-                args.tunnel or args.router != None or args.qr:
+                args.router != None or args.qr:
             args.seriallog = "none"  # assume no debug output in this case
         else:
             args.seriallog = "stdout"  # default to stdout
