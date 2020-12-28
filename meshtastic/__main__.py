@@ -278,7 +278,7 @@ def onConnected(interface):
             url = pyqrcode.create(interface.channelURL)
             print(url.terminal())
 
-        if args.tunnel and have_tunnel:
+        if have_tunnel and args.tunnel :
             closeNow = False # Even if others said we could close, stay open if the user asked for a tunnel
             tunnel.Tunnel(interface, subnet=args.tunnel_net)
            
