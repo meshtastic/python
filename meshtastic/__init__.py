@@ -11,6 +11,7 @@ properties of SerialInterface:
 the device.
 - nodes - The database of received nodes.  Includes always up-to-date location and username information for each
 node in the mesh.  This is a read-only datastructure.
+- nodesByNum - like "nodes" but keyed by nodeNum instead of nodeId
 - myInfo - Contains read-only information about the local radio device (software version, hardware version, etc)
 
 # Published PubSub topics
@@ -236,14 +237,15 @@ class MeshInterface:
         self._sendToRadio(t)
         logging.debug("Wrote config")
 
-    def getMyUser(self):
+    def getMyNodeInfo(self):
         if self.myInfo is None:
             return None
-        myId = self.myInfo.my_node_num
-        for _, nodeDict in self.nodes.items():
-            if 'num' in nodeDict and nodeDict['num'] == myId:
-                if 'user' in nodeDict:
-                    return nodeDict['user']
+        return self.nodesByNum.get(self.myInfo.my_node_num)
+
+    def getMyUser(self):
+        nodeInfo = self.getMyNodeInfo()
+        if nodeInfo is not None:
+            return nodeInfo.get('user')
         return None
 
     def getLongName(self):
@@ -335,7 +337,7 @@ class MeshInterface:
         """Start device packets flowing"""
         self.myInfo = None
         self.nodes = {}  # nodes keyed by ID
-        self._nodesByNum = {}  # nodes keyed by nodenum
+        self.nodesByNum = {}  # nodes keyed by nodenum
         self.radioConfig = None
         self.currentPacketId = None
 
@@ -379,7 +381,7 @@ class MeshInterface:
                 self._fixupPosition(node["position"])
             except:
                 logging.debug("Node without position")
-            self._nodesByNum[node["num"]] = node
+            self.nodesByNum[node["num"]] = node
             if "user" in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node["user"]["id"]] = node
             pub.sendMessage("meshtastic.node.updated", node=node, interface=self)
@@ -420,7 +422,7 @@ class MeshInterface:
             return BROADCAST_ADDR
 
         try:
-            return self._nodesByNum[num]["user"]["id"]
+            return self.nodesByNum[num]["user"]["id"]
         except:
             logging.warn("Node not found for fromId")
             return None
@@ -430,11 +432,11 @@ class MeshInterface:
         if nodeNum == BROADCAST_NUM:
             raise Exception("Can not create/find nodenum by the broadcast num")
 
-        if nodeNum in self._nodesByNum:
-            return self._nodesByNum[nodeNum]
+        if nodeNum in self.nodesByNum:
+            return self.nodesByNum[nodeNum]
         else:
             n = {"num": nodeNum}  # Create a minimial node db entry
-            self._nodesByNum[nodeNum] = n
+            self.nodesByNum[nodeNum] = n
             return n
 
     def _handlePacketFromRadio(self, meshPacket):
