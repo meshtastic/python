@@ -15,7 +15,6 @@
 
 from . import portnums_pb2
 from pubsub import pub
-from pytap2 import TapDevice
 import logging, threading
 
 # A new non standard log level that is lower level than DEBUG
@@ -90,6 +89,7 @@ class Tunnel:
 
         logging.debug("creating TUN device")
         # FIXME - figure out real max MTU, it should be 240 - the overhead bytes for SubPacket and Data
+        from pytap2 import TapDevice
         self.tun = TapDevice(name="mesh", mtu=200)
         self.tun.up()
         self.tun.ifconfig(address=myAddr,netmask=netmask)

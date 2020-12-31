@@ -43,7 +43,6 @@
 
 from . import portnums_pb2
 from pubsub import pub
-from pytap2 import TapDevice
 import logging, threading
 
 # A new non standard log level that is lower level than DEBUG
@@ -118,6 +117,7 @@ class Tunnel:
 
         logging.debug(&#34;creating TUN device&#34;)
         # FIXME - figure out real max MTU, it should be 240 - the overhead bytes for SubPacket and Data
+        from pytap2 import TapDevice
         self.tun = TapDevice(name=&#34;mesh&#34;, mtu=200)
         self.tun.up()
         self.tun.ifconfig(address=myAddr,netmask=netmask)
@@ -348,6 +348,7 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
 
         logging.debug(&#34;creating TUN device&#34;)
         # FIXME - figure out real max MTU, it should be 240 - the overhead bytes for SubPacket and Data
+        from pytap2 import TapDevice
         self.tun = TapDevice(name=&#34;mesh&#34;, mtu=200)
         self.tun.up()
         self.tun.ifconfig(address=myAddr,netmask=netmask)

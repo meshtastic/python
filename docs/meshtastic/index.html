@@ -34,6 +34,7 @@ the device.</li>
 Includes always up-to-date location and username information for each
 node in the mesh.
 This is a read-only datastructure.</li>
+<li>nodesByNum - like "nodes" but keyed by nodeNum instead of nodeId</li>
 <li>myInfo - Contains read-only information about the local radio device (software version, hardware version, etc)</li>
 </ul>
 <h1 id="published-pubsub-topics">Published PubSub topics</h1>
@@ -97,6 +98,7 @@ properties of SerialInterface:
 the device.
 - nodes - The database of received nodes.  Includes always up-to-date location and username information for each
 node in the mesh.  This is a read-only datastructure.
+- nodesByNum - like &#34;nodes&#34; but keyed by nodeNum instead of nodeId
 - myInfo - Contains read-only information about the local radio device (software version, hardware version, etc)
 
 # Published PubSub topics
@@ -322,14 +324,15 @@ class MeshInterface:
         self._sendToRadio(t)
         logging.debug(&#34;Wrote config&#34;)
 
-    def getMyUser(self):
+    def getMyNodeInfo(self):
         if self.myInfo is None:
             return None
-        myId = self.myInfo.my_node_num
-        for _, nodeDict in self.nodes.items():
-            if &#39;num&#39; in nodeDict and nodeDict[&#39;num&#39;] == myId:
-                if &#39;user&#39; in nodeDict:
-                    return nodeDict[&#39;user&#39;]
+        return self.nodesByNum.get(self.myInfo.my_node_num)
+
+    def getMyUser(self):
+        nodeInfo = self.getMyNodeInfo()
+        if nodeInfo is not None:
+            return nodeInfo.get(&#39;user&#39;)
         return None
 
     def getLongName(self):
@@ -421,7 +424,7 @@ class MeshInterface:
         &#34;&#34;&#34;Start device packets flowing&#34;&#34;&#34;
         self.myInfo = None
         self.nodes = {}  # nodes keyed by ID
-        self._nodesByNum = {}  # nodes keyed by nodenum
+        self.nodesByNum = {}  # nodes keyed by nodenum
         self.radioConfig = None
         self.currentPacketId = None
 
@@ -465,7 +468,7 @@ class MeshInterface:
                 self._fixupPosition(node[&#34;position&#34;])
             except:
                 logging.debug(&#34;Node without position&#34;)
-            self._nodesByNum[node[&#34;num&#34;]] = node
+            self.nodesByNum[node[&#34;num&#34;]] = node
             if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
             pub.sendMessage(&#34;meshtastic.node.updated&#34;, node=node, interface=self)
@@ -506,7 +509,7 @@ class MeshInterface:
             return BROADCAST_ADDR
 
         try:
-            return self._nodesByNum[num][&#34;user&#34;][&#34;id&#34;]
+            return self.nodesByNum[num][&#34;user&#34;][&#34;id&#34;]
         except:
             logging.warn(&#34;Node not found for fromId&#34;)
             return None
@@ -516,11 +519,11 @@ class MeshInterface:
         if nodeNum == BROADCAST_NUM:
             raise Exception(&#34;Can not create/find nodenum by the broadcast num&#34;)
 
-        if nodeNum in self._nodesByNum:
-            return self._nodesByNum[nodeNum]
+        if nodeNum in self.nodesByNum:
+            return self.nodesByNum[nodeNum]
         else:
             n = {&#34;num&#34;: nodeNum}  # Create a minimial node db entry
-            self._nodesByNum[nodeNum] = n
+            self.nodesByNum[nodeNum] = n
             return n
 
     def _handlePacketFromRadio(self, meshPacket):
@@ -1175,14 +1178,15 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self._sendToRadio(t)
         logging.debug(&#34;Wrote config&#34;)
 
-    def getMyUser(self):
+    def getMyNodeInfo(self):
         if self.myInfo is None:
             return None
-        myId = self.myInfo.my_node_num
-        for _, nodeDict in self.nodes.items():
-            if &#39;num&#39; in nodeDict and nodeDict[&#39;num&#39;] == myId:
-                if &#39;user&#39; in nodeDict:
-                    return nodeDict[&#39;user&#39;]
+        return self.nodesByNum.get(self.myInfo.my_node_num)
+
+    def getMyUser(self):
+        nodeInfo = self.getMyNodeInfo()
+        if nodeInfo is not None:
+            return nodeInfo.get(&#39;user&#39;)
         return None
 
     def getLongName(self):
@@ -1274,7 +1278,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         &#34;&#34;&#34;Start device packets flowing&#34;&#34;&#34;
         self.myInfo = None
         self.nodes = {}  # nodes keyed by ID
-        self._nodesByNum = {}  # nodes keyed by nodenum
+        self.nodesByNum = {}  # nodes keyed by nodenum
         self.radioConfig = None
         self.currentPacketId = None
 
@@ -1318,7 +1322,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                 self._fixupPosition(node[&#34;position&#34;])
             except:
                 logging.debug(&#34;Node without position&#34;)
-            self._nodesByNum[node[&#34;num&#34;]] = node
+            self.nodesByNum[node[&#34;num&#34;]] = node
             if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
             pub.sendMessage(&#34;meshtastic.node.updated&#34;, node=node, interface=self)
@@ -1359,7 +1363,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             return BROADCAST_ADDR
 
         try:
-            return self._nodesByNum[num][&#34;user&#34;][&#34;id&#34;]
+            return self.nodesByNum[num][&#34;user&#34;][&#34;id&#34;]
         except:
             logging.warn(&#34;Node not found for fromId&#34;)
             return None
@@ -1369,11 +1373,11 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         if nodeNum == BROADCAST_NUM:
             raise Exception(&#34;Can not create/find nodenum by the broadcast num&#34;)
 
-        if nodeNum in self._nodesByNum:
-            return self._nodesByNum[nodeNum]
+        if nodeNum in self.nodesByNum:
+            return self.nodesByNum[nodeNum]
         else:
             n = {&#34;num&#34;: nodeNum}  # Create a minimial node db entry
-            self._nodesByNum[nodeNum] = n
+            self.nodesByNum[nodeNum] = n
             return n
 
     def _handlePacketFromRadio(self, meshPacket):
@@ -1500,6 +1504,21 @@ def channelURL(self):
     return None</code></pre>
 </details>
 </dd>
+<dt id="meshtastic.MeshInterface.getMyNodeInfo"><code class="name flex">
+<span>def <span class="ident">getMyNodeInfo</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getMyNodeInfo(self):
+    if self.myInfo is None:
+        return None
+    return self.nodesByNum.get(self.myInfo.my_node_num)</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.MeshInterface.getMyUser"><code class="name flex">
 <span>def <span class="ident">getMyUser</span></span>(<span>self)</span>
 </code></dt>
@@ -1510,13 +1529,9 @@ def channelURL(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def getMyUser(self):
-    if self.myInfo is None:
-        return None
-    myId = self.myInfo.my_node_num
-    for _, nodeDict in self.nodes.items():
-        if &#39;num&#39; in nodeDict and nodeDict[&#39;num&#39;] == myId:
-            if &#39;user&#39; in nodeDict:
-                return nodeDict[&#39;user&#39;]
+    nodeInfo = self.getMyNodeInfo()
+    if nodeInfo is not None:
+        return nodeInfo.get(&#39;user&#39;)
     return None</code></pre>
 </details>
 </dd>
@@ -2225,6 +2240,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <ul class="two-column">
 <li><code><a title="meshtastic.MeshInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getLongName" href="#meshtastic.MeshInterface.getLongName">getLongName</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.getMyNodeInfo" href="#meshtastic.MeshInterface.getMyNodeInfo">getMyNodeInfo</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getMyUser" href="#meshtastic.MeshInterface.getMyUser">getMyUser</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getShortName" href="#meshtastic.MeshInterface.getShortName">getShortName</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>

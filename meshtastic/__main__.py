@@ -11,8 +11,6 @@ import pkg_resources
 
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
-if have_tunnel:
-    from . import tunnel
 
 """The command line arguments"""
 args = None
@@ -279,6 +277,7 @@ def onConnected(interface):
             print(url.terminal())
 
         if have_tunnel and args.tunnel :
+            from . import tunnel
             closeNow = False # Even if others said we could close, stay open if the user asked for a tunnel
             tunnel.Tunnel(interface, subnet=args.tunnel_net)
            
