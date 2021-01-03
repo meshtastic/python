@@ -639,7 +639,7 @@ class StreamInterface(MeshInterface):
 
     def close(self):
         """Close a connection to the device"""
-        logging.debug("Closing serial stream")
+        logging.debug("Closing stream")
         # pyserial cancel_read doesn't seem to work, therefore we ask the reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
@@ -651,7 +651,9 @@ class StreamInterface(MeshInterface):
 
         try:
             while not self._wantExit:
+                # logging.debug("reading character")
                 b = self._readBytes(1)
+                # logging.debug("In reader loop")
                 if len(b) > 0:
                     # logging.debug(f"read returned {b}")
                     c = b[0]
@@ -692,8 +694,13 @@ class StreamInterface(MeshInterface):
                     # logging.debug(f"timeout")
                     pass
         except serial.SerialException as ex:
-            logging.warn(
-                f"Meshtastic serial port disconnected, disconnecting... {ex}")
+            if not self._wantExit: # We might intentionally get an exception during shutdown
+                logging.warn(f"Meshtastic serial port disconnected, disconnecting... {ex}")
+        except OSError as ex:
+            if not self._wantExit: # We might intentionally get an exception during shutdown
+                logging.error(f"Unexpected OSError, terminating meshtastic reader... {ex}")                
+        except Exception as ex:
+            logging.error(f"Unexpected exception, terminating meshtastic reader... {ex}")
         finally:
             logging.debug("reader is exiting")
             self._disconnected()
@@ -741,12 +748,6 @@ class SerialInterface(StreamInterface):
         StreamInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
 
-    def _disconnected(self):
-        """We override the superclass implementation to close our port"""
-
-        StreamInterface._disconnected(self)
-
-
 class TCPInterface(StreamInterface):
     """Interface class for meshtastic devices over a TCP link"""
 
@@ -770,13 +771,16 @@ class TCPInterface(StreamInterface):
         StreamInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
 
-    def _disconnected(self):
-        """We override the superclass implementation to close our port"""
-        StreamInterface._disconnected(self)
-
-        logging.debug("Closing our socket")
+    def close(self):
+        """Close a connection to the device"""
+        logging.debug("Closing TCP stream")
+        # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing 
+        # the socket here
+        self._wantExit = True        
         if not self.socket is None:
+            self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
+        StreamInterface.close(self)
 
     def _writeBytes(self, b):
         """Write an array of bytes to our stream and flush"""
