@@ -726,7 +726,7 @@ class StreamInterface(MeshInterface):
 
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
-        logging.debug(&#34;Closing serial stream&#34;)
+        logging.debug(&#34;Closing stream&#34;)
         # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
@@ -738,7 +738,9 @@ class StreamInterface(MeshInterface):
 
         try:
             while not self._wantExit:
+                # logging.debug(&#34;reading character&#34;)
                 b = self._readBytes(1)
+                # logging.debug(&#34;In reader loop&#34;)
                 if len(b) &gt; 0:
                     # logging.debug(f&#34;read returned {b}&#34;)
                     c = b[0]
@@ -779,8 +781,13 @@ class StreamInterface(MeshInterface):
                     # logging.debug(f&#34;timeout&#34;)
                     pass
         except serial.SerialException as ex:
-            logging.warn(
-                f&#34;Meshtastic serial port disconnected, disconnecting... {ex}&#34;)
+            if not self._wantExit: # We might intentionally get an exception during shutdown
+                logging.warn(f&#34;Meshtastic serial port disconnected, disconnecting... {ex}&#34;)
+        except OSError as ex:
+            if not self._wantExit: # We might intentionally get an exception during shutdown
+                logging.error(f&#34;Unexpected OSError, terminating meshtastic reader... {ex}&#34;)                
+        except Exception as ex:
+            logging.error(f&#34;Unexpected exception, terminating meshtastic reader... {ex}&#34;)
         finally:
             logging.debug(&#34;reader is exiting&#34;)
             self._disconnected()
@@ -828,12 +835,6 @@ class SerialInterface(StreamInterface):
         StreamInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
 
-    def _disconnected(self):
-        &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
-
-        StreamInterface._disconnected(self)
-
-
 class TCPInterface(StreamInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a TCP link&#34;&#34;&#34;
 
@@ -857,13 +858,16 @@ class TCPInterface(StreamInterface):
         StreamInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
 
-    def _disconnected(self):
-        &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
-        StreamInterface._disconnected(self)
-
-        logging.debug(&#34;Closing our socket&#34;)
+    def close(self):
+        &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
+        logging.debug(&#34;Closing TCP stream&#34;)
+        # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing 
+        # the socket here
+        self._wantExit = True        
         if not self.socket is None:
+            self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
+        StreamInterface.close(self)
 
     def _writeBytes(self, b):
         &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
@@ -1863,12 +1867,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         self.stream.open()
 
         StreamInterface.__init__(
-            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
-
-    def _disconnected(self):
-        &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
-
-        StreamInterface._disconnected(self)</code></pre>
+            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1988,7 +1987,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
-        logging.debug(&#34;Closing serial stream&#34;)
+        logging.debug(&#34;Closing stream&#34;)
         # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
@@ -2000,7 +1999,9 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 
         try:
             while not self._wantExit:
+                # logging.debug(&#34;reading character&#34;)
                 b = self._readBytes(1)
+                # logging.debug(&#34;In reader loop&#34;)
                 if len(b) &gt; 0:
                     # logging.debug(f&#34;read returned {b}&#34;)
                     c = b[0]
@@ -2041,8 +2042,13 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
                     # logging.debug(f&#34;timeout&#34;)
                     pass
         except serial.SerialException as ex:
-            logging.warn(
-                f&#34;Meshtastic serial port disconnected, disconnecting... {ex}&#34;)
+            if not self._wantExit: # We might intentionally get an exception during shutdown
+                logging.warn(f&#34;Meshtastic serial port disconnected, disconnecting... {ex}&#34;)
+        except OSError as ex:
+            if not self._wantExit: # We might intentionally get an exception during shutdown
+                logging.error(f&#34;Unexpected OSError, terminating meshtastic reader... {ex}&#34;)                
+        except Exception as ex:
+            logging.error(f&#34;Unexpected exception, terminating meshtastic reader... {ex}&#34;)
         finally:
             logging.debug(&#34;reader is exiting&#34;)
             self._disconnected()</code></pre>
@@ -2069,7 +2075,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 </summary>
 <pre><code class="python">def close(self):
     &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
-    logging.debug(&#34;Closing serial stream&#34;)
+    logging.debug(&#34;Closing stream&#34;)
     # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
     self._wantExit = True
     if self._rxThread != threading.current_thread():
@@ -2157,13 +2163,16 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
         StreamInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
 
-    def _disconnected(self):
-        &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
-        StreamInterface._disconnected(self)
-
-        logging.debug(&#34;Closing our socket&#34;)
+    def close(self):
+        &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
+        logging.debug(&#34;Closing TCP stream&#34;)
+        # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing 
+        # the socket here
+        self._wantExit = True        
         if not self.socket is None:
+            self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
+        StreamInterface.close(self)
 
     def _writeBytes(self, b):
         &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
