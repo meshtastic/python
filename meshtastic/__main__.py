@@ -49,6 +49,9 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):
     print(f"Connection changed: {topic.getName()}")
 
 
+trueTerms = {"t", "true", "yes"}
+falseTerms = {"f", "false", "no"}
+
 def fromStr(valstr):
     """try to parse as int, float or bool (and fallback to a string as last resort)
 
@@ -59,6 +62,10 @@ def fromStr(valstr):
     """
     if(valstr.startswith('0x')):
         val = bytes.fromhex(valstr[2:]) # if needed convert to string with asBytes.decode('utf-8')
+    elif valstr in trueTerms:
+        val = True
+    elif valstr in falseTerms:
+        val = False
     else:
         try:
             val = int(valstr)
@@ -66,14 +73,8 @@ def fromStr(valstr):
             try:
                 val = float(valstr)
             except ValueError:
-                trueTerms = {"t", "true", "yes"}
-                falseTerms = {"f", "false", "no"}
-                if valstr in trueTerms:
-                    val = True
-                elif valstr in falseTerms:
-                    val = False
-                else:
-                    val = valstr  # Try to treat the parameter as a string
+                val = valstr  # Not a float or an int, assume string
+
     return val
 
 
