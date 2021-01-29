@@ -52,25 +52,28 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):
 def fromStr(valstr):
     """try to parse as int, float or bool (and fallback to a string as last resort)
 
-    Returns: an int, bool, float or str
+    Returns: an int, bool, float, str or byte array (for strings of hex digits)
 
     Args:
         valstr (string): A user provided string
     """
-    try:
-        val = int(valstr)
-    except ValueError:
+    if(valstr.startswith('0x')):
+        val = bytes.fromhex(valstr[2:]) # if needed convert to string with asBytes.decode('utf-8')
+    else:
         try:
-            val = float(valstr)
+            val = int(valstr)
         except ValueError:
-            trueTerms = {"t", "true", "yes"}
-            falseTerms = {"f", "false", "no"}
-            if valstr in trueTerms:
-                val = True
-            elif valstr in falseTerms:
-                val = False
-            else:
-                val = valstr  # Try to treat the parameter as a string
+            try:
+                val = float(valstr)
+            except ValueError:
+                trueTerms = {"t", "true", "yes"}
+                falseTerms = {"f", "false", "no"}
+                if valstr in trueTerms:
+                    val = True
+                elif valstr in falseTerms:
+                    val = False
+                else:
+                    val = valstr  # Try to treat the parameter as a string
     return val
 
 
@@ -207,19 +210,18 @@ def onConnected(interface):
                     or args.seturl or args.router != None:
             closeNow = True
 
-            def setPref(attributes, name, val):
+            def setPref(attributes, name, valStr):
                 """Set a preferences value"""
-                print(f"Setting {name} to {val}")
+                val = fromStr(valStr)
                 try:
                     try:
                         setattr(attributes, name, val)
                     except TypeError as ex:
-                        # The setter didn't like our arg type - try again as a byte array (so we can convert strings to bytearray)
-                        if isinstance(val, str):
-                            setattr(attributes, name,
-                                    codecs.decode(val, "hex"))
-                        else:
-                            print(f"Incorrect type for {name} {ex}")
+                        # The setter didn't like our arg type guess try again as a string
+                        setattr(attributes, name, valStr)
+
+                    # succeeded!
+                    print(f"Set {name} to {valStr}")
                 except Exception as ex:
                     print(f"Can't set {name} due to {ex}")
 
@@ -236,7 +238,7 @@ def onConnected(interface):
             # Handle the int/float/bool arguments
             for pref in (args.set or []):
                 setPref(
-                    prefs, pref[0], fromStr(pref[1]))
+                    prefs, pref[0], pref[1])
 
             # Handle the string arguments
             for pref in (args.setstr or []):
@@ -252,7 +254,7 @@ def onConnected(interface):
             # Handle the channel settings
             for pref in (args.setchan or []):
                 setPref(interface.radioConfig.channel_settings,
-                        pref[0], fromStr(pref[1]))
+                        pref[0], pref[1])
 
             # Handle set URL
             if args.seturl:

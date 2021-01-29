@@ -39,6 +39,8 @@ To display a (partial) list of the available commands:
 meshtastic -h
 ```
 
+### Changing device settings
+
 You can also use this tool to set any of the device parameters which are stored in persistent storage. For instance, here's how to set the device
 to keep the bluetooth link alive for eight hours (any usage of the bluetooth protcol from your phone will reset this timer)
 
@@ -68,6 +70,24 @@ meshtastic --set wifi_ap_mode true --setstr wifi_ssid mywifissid --setstr wifi_p
 ```
 
 For a full list of preferences which can be set (and their documentation) see [here](https://github.com/meshtastic/Meshtastic-protobufs/blob/master/docs/docs.md#.RadioConfig.UserPreferences).
+
+### Changing channel settings
+
+The channel settings can be changed similiarly.  Either by using a standard (sharable) meshtastic URL or you can set partiular channel parameters (for advanced users).
+
+The URL is constructed automatically based off of the current channel settings. So if you want to customize a channel you could do something like:
+
+```
+meshtastic --setchan name mychan --setchan channel_num 4 --info
+```
+
+This will change some channel params and then show device info (which will include the current channel URL)
+
+You can even set the channel preshared key to a particular AES128 or AES256 sequence.
+
+```
+meshtastic --setchan psk 0x1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b --info
+```
 
 ## FAQ/common problems
 

@@ -29,6 +29,14 @@
       "args": ["--tunnel", "--debug"]
     },
     {
+      "name": "meshtastic set chan",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--setchan", "psk", "0x1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b", "--debug"]
+    },
+    {
       "name": "meshtastic debug",
       "type": "python",
       "request": "launch",

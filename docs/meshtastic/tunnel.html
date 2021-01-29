@@ -115,12 +115,12 @@ class Tunnel:
             ip = self._nodeNumToIp(node[&#34;num&#34;])
             logging.info(f&#34;Node { nodeId } has IP address { ip }&#34;)        
 
-        logging.debug(&#34;creating TUN device&#34;)
+        logging.debug(&#34;creating TUN device with MTU=200&#34;)
         # FIXME - figure out real max MTU, it should be 240 - the overhead bytes for SubPacket and Data
         from pytap2 import TapDevice
-        self.tun = TapDevice(name=&#34;mesh&#34;, mtu=200)
+        self.tun = TapDevice(name=&#34;mesh&#34;)
         self.tun.up()
-        self.tun.ifconfig(address=myAddr,netmask=netmask)
+        self.tun.ifconfig(address=myAddr,netmask=netmask,mtu=200)
         logging.debug(f&#34;starting TUN reader, our IP address is {myAddr}&#34;)
         self._rxThread = threading.Thread(target=self.__tunReader, args=(), daemon=True)
         self._rxThread.start()
@@ -346,12 +346,12 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
             ip = self._nodeNumToIp(node[&#34;num&#34;])
             logging.info(f&#34;Node { nodeId } has IP address { ip }&#34;)        
 
-        logging.debug(&#34;creating TUN device&#34;)
+        logging.debug(&#34;creating TUN device with MTU=200&#34;)
         # FIXME - figure out real max MTU, it should be 240 - the overhead bytes for SubPacket and Data
         from pytap2 import TapDevice
-        self.tun = TapDevice(name=&#34;mesh&#34;, mtu=200)
+        self.tun = TapDevice(name=&#34;mesh&#34;)
         self.tun.up()
-        self.tun.ifconfig(address=myAddr,netmask=netmask)
+        self.tun.ifconfig(address=myAddr,netmask=netmask,mtu=200)
         logging.debug(f&#34;starting TUN reader, our IP address is {myAddr}&#34;)
         self._rxThread = threading.Thread(target=self.__tunReader, args=(), daemon=True)
         self._rxThread.start()
