@@ -58,15 +58,7 @@ interface = meshtastic.SerialInterface()
 import socket
 import pygatt
 import google.protobuf.json_format
-import serial
-import threading
-import logging
-import time
-import sys
-import traceback
-import time
-import base64
-import platform
+import serial, threading, logging, sys, random, traceback, time, base64, platform
 from . import mesh_pb2, portnums_pb2, util
 from pubsub import pub
 from dotmap import DotMap
@@ -109,6 +101,8 @@ class MeshInterface:
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
+        random.seed() # FIXME, we should not clobber the random seedval here, instead tell user they must call it
+        self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
 
     def __enter__(self):
@@ -339,7 +333,6 @@ class MeshInterface:
         self.nodes = {}  # nodes keyed by ID
         self.nodesByNum = {}  # nodes keyed by nodenum
         self.radioConfig = None
-        self.currentPacketId = None
 
         startConfig = mesh_pb2.ToRadio()
         startConfig.want_config_id = MY_CONFIG_ID  # we don't use this value
@@ -371,8 +364,6 @@ class MeshInterface:
                 raise Exception(
                     "This device needs a newer python client, please \"pip install --upgrade meshtastic\"")
             # start assigning our packet IDs from the opposite side of where our local device is assigning them
-            self.currentPacketId = (
-                self.myInfo.current_packet_id + 0x80000000) & 0xffffffff
         elif fromRadio.HasField("radio"):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField("node_info"):

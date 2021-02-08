@@ -145,15 +145,7 @@ interface = meshtastic.SerialInterface()
 import socket
 import pygatt
 import google.protobuf.json_format
-import serial
-import threading
-import logging
-import time
-import sys
-import traceback
-import time
-import base64
-import platform
+import serial, threading, logging, sys, random, traceback, time, base64, platform
 from . import mesh_pb2, portnums_pb2, util
 from pubsub import pub
 from dotmap import DotMap
@@ -196,6 +188,8 @@ class MeshInterface:
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
+        random.seed() # FIXME, we should not clobber the random seedval here, instead tell user they must call it
+        self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
 
     def __enter__(self):
@@ -426,7 +420,6 @@ class MeshInterface:
         self.nodes = {}  # nodes keyed by ID
         self.nodesByNum = {}  # nodes keyed by nodenum
         self.radioConfig = None
-        self.currentPacketId = None
 
         startConfig = mesh_pb2.ToRadio()
         startConfig.want_config_id = MY_CONFIG_ID  # we don&#39;t use this value
@@ -458,8 +451,6 @@ class MeshInterface:
                 raise Exception(
                     &#34;This device needs a newer python client, please \&#34;pip install --upgrade meshtastic\&#34;&#34;)
             # start assigning our packet IDs from the opposite side of where our local device is assigning them
-            self.currentPacketId = (
-                self.myInfo.current_packet_id + 0x80000000) &amp; 0xffffffff
         elif fromRadio.HasField(&#34;radio&#34;):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField(&#34;node_info&#34;):
@@ -881,17 +872,25 @@ class TCPInterface(StreamInterface):
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
+<dt><code class="name"><a title="meshtastic.apponly_pb2" href="apponly_pb2.html">meshtastic.apponly_pb2</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="meshtastic.ble" href="ble.html">meshtastic.ble</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="meshtastic.deviceonly_pb2" href="deviceonly_pb2.html">meshtastic.deviceonly_pb2</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.mesh_pb2" href="mesh_pb2.html">meshtastic.mesh_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.portnums_pb2" href="portnums_pb2.html">meshtastic.portnums_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.remote_hardware" href="remote_hardware.html">meshtastic.remote_hardware</a></code></dt>
 <dd>
@@ -899,7 +898,7 @@ class TCPInterface(StreamInterface):
 </dd>
 <dt><code class="name"><a title="meshtastic.remote_hardware_pb2" href="remote_hardware_pb2.html">meshtastic.remote_hardware_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.test" href="test.html">meshtastic.test</a></code></dt>
 <dd>
@@ -1054,6 +1053,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
+        random.seed() # FIXME, we should not clobber the random seedval here, instead tell user they must call it
+        self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
 
     def __enter__(self):
@@ -1284,7 +1285,6 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self.nodes = {}  # nodes keyed by ID
         self.nodesByNum = {}  # nodes keyed by nodenum
         self.radioConfig = None
-        self.currentPacketId = None
 
         startConfig = mesh_pb2.ToRadio()
         startConfig.want_config_id = MY_CONFIG_ID  # we don&#39;t use this value
@@ -1316,8 +1316,6 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                 raise Exception(
                     &#34;This device needs a newer python client, please \&#34;pip install --upgrade meshtastic\&#34;&#34;)
             # start assigning our packet IDs from the opposite side of where our local device is assigning them
-            self.currentPacketId = (
-                self.myInfo.current_packet_id + 0x80000000) &amp; 0xffffffff
         elif fromRadio.HasField(&#34;radio&#34;):
             self.radioConfig = fromRadio.radio
         elif fromRadio.HasField(&#34;node_info&#34;):
@@ -2221,7 +2219,9 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
+<li><code><a title="meshtastic.apponly_pb2" href="apponly_pb2.html">meshtastic.apponly_pb2</a></code></li>
 <li><code><a title="meshtastic.ble" href="ble.html">meshtastic.ble</a></code></li>
+<li><code><a title="meshtastic.deviceonly_pb2" href="deviceonly_pb2.html">meshtastic.deviceonly_pb2</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2" href="mesh_pb2.html">meshtastic.mesh_pb2</a></code></li>
 <li><code><a title="meshtastic.portnums_pb2" href="portnums_pb2.html">meshtastic.portnums_pb2</a></code></li>
 <li><code><a title="meshtastic.remote_hardware" href="remote_hardware.html">meshtastic.remote_hardware</a></code></li>

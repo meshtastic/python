@@ -100,6 +100,10 @@ This indicates an OS permission problem for access by your user to the USB seria
 sudo usermod -a -G dialout <username>
 ```
 
-## Required device software version
+## A note to developers of this lib
 
-This API and tool both require that the device is running Meshtastic 0.6.0 or later.
+If you need to build a new release you'll need:
+```
+apt install pandoc
+sudo pip3 install markdown pandoc webencodings pyparsing
+```
