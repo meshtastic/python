@@ -20,10 +20,10 @@ testNumber = 0
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
-    print(f"From {interface.devPath}: {packet}")
+    print(f"From {interface.stream.port}: {packet}")
     p = DotMap(packet)
 
-    if p.decoded.data.typ == "CLEAR_TEXT":
+    if p.decoded.data.portnum == "TEXT_MESSAGE_APP":
         # We only care a about clear text packets
         receivedPackets.append(p)
 
@@ -78,8 +78,9 @@ def testThread(numTests=50):
         global testNumber
         testNumber = testNumber + 1
         isBroadcast = True
+        # asBinary=(i % 2 == 0)
         success = testSend(
-            interfaces[0], interfaces[1], isBroadcast, asBinary=(i % 2 == 0))
+            interfaces[0], interfaces[1], isBroadcast, asBinary = False)
         if not success:
             numFail = numFail + 1
             logging.error(
