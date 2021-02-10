@@ -114,7 +114,6 @@ def openDebugLog(portName):
     logging.info(f"Writing serial debugging to {debugname}")
     return open(debugname, 'w+', buffering=1)
 
-
 def testAll():
     """
     Run a series of tests using devices we can find.
@@ -134,3 +133,7 @@ def testAll():
 
     logging.info("Ports opened, starting test")
     testThread()
+
+    for i in interfaces:
+        i.close()
+    
