@@ -17,16 +17,19 @@ testsRunning = False
 
 testNumber = 0
 
+sendingInterface = None
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
-    print(f"From {interface.stream.port}: {packet}")
-    p = DotMap(packet)
+    if sendingInterface == interface:
+        print("Ignoring sending interface")
+    else:
+        print(f"From {interface.stream.port}: {packet}")
+        p = DotMap(packet)
 
-    if p.decoded.data.portnum == "TEXT_MESSAGE_APP":
-        # We only care a about clear text packets
-        receivedPackets.append(p)
-
+        if p.decoded.data.portnum == "TEXT_MESSAGE_APP":
+            # We only care a about clear text packets
+            receivedPackets.append(p)
 
 def onNode(node):
     """Callback invoked when the node DB changes"""
@@ -60,14 +63,19 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False):
         toNode = toInterface.myInfo.my_node_num
 
     logging.info(f"Sending test packet from {fromNode} to {toNode}")
-    wantAck = True
+    wantAck = False # Don't want any sort of reliaible sending
+    global sendingInterface
+    sendingInterface = fromInterface
     if not asBinary:
         fromInterface.sendText(f"Test {testNumber}", toNode, wantAck=wantAck)
     else:
         fromInterface.sendData((f"Binary {testNumber}").encode(
             "utf-8"), toNode, wantAck=wantAck)
-    time.sleep(45)
-    return (len(receivedPackets) >= 1)
+    for sec in range(45): # max of 45 secs before we timeout
+        time.sleep(1)
+        if (len(receivedPackets) >= 1):
+            return True
+    return False # Failed to send
 
 
 def testThread(numTests=50):
@@ -101,14 +109,6 @@ def onConnection(topic=pub.AUTO_TOPIC):
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
 
-    global testsRunning
-    global interfaces
-    if (all(iface.isConnected for iface in interfaces) and not testsRunning):
-        testsRunning = True
-        t = threading.Thread(target=testThread, args=())
-        t.start()
-
-
 def openDebugLog(portName):
     debugname = "log" + portName.replace("/", "_")
     logging.info(f"Writing serial debugging to {debugname}")
@@ -130,8 +130,7 @@ def testAll():
     pub.subscribe(onReceive, "meshtastic.receive")
     global interfaces
     interfaces = list(map(lambda port: SerialInterface(
-        port, debugOut=openDebugLog(port), connectNow=False), ports))
-    for i in interfaces:
-        i.connect()
+        port, debugOut=openDebugLog(port), connectNow=True), ports))
 
-    logging.info("Ports opened, waiting for device to complete connection")
+    logging.info("Ports opened, starting test")
+    testThread()
