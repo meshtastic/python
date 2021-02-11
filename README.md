@@ -107,3 +107,13 @@ If you need to build a new release you'll need:
 apt install pandoc
 sudo pip3 install markdown pandoc webencodings pyparsing
 ```
+
+## Mac OS Big Sur
+
+There is a problem with Big Sur and pyserial. The workaround is to install a newer version of pyserial:
+
+```
+pip3 install -U --pre pyserial
+```
+
+Afterwards you can use the meshatstic python client again on MacOS.
