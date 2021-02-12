@@ -143,11 +143,11 @@ def printNodes(nodes):
     tableData = []
     for node in nodes:
         #aux var to get not defined keys
-        lat=node['position'].get("latitude", "N/A")
-        lon=node['position'].get("longitude", "N/A")
-        alt=node['position'].get("altitude", "N/A")
-        batt=node['position'].get("batteryLevel", "N/A")
-        snr=node.get("snr", "N/A")
+        lat=str(node['position'].get("latitude", "N/A"))
+        lon=str(node['position'].get("longitude", "N/A"))
+        alt=str(node['position'].get("altitude", "N/A"))
+        batt=str(node['position'].get("batteryLevel", "N/A"))
+        snr=str(node.get("snr", "N/A"))
         tableData.append({"User":node['user']['longName'], 
                           "Position":"Lat:"+lat+",Lon:"+lon+",Alt:"+alt,
                           "Battery":batt, "SNR":snr})
