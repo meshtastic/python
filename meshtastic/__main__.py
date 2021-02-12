@@ -8,6 +8,7 @@ import google.protobuf.json_format
 import pyqrcode
 import traceback
 import pkg_resources
+from easy_table import EasyTable
 
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
@@ -132,6 +133,26 @@ def setRouter(interface, on):
         prefs.gps_attempt_time = 0
         prefs.gps_update_interval = 0
 
+def printNodes(nodes):
+    #Create the table and define the structure
+    table = EasyTable("Nodes")
+    table.setCorners("/", "\\", "\\", "/")
+    table.setOuterStructure("|", "-")
+    table.setInnerStructure("|", "-", "+")
+
+    tableData = []
+    for node in nodes:
+        #aux var to get not defined keys
+        lat=node['position'].get("latitude", "N/A")
+        lon=node['position'].get("longitude", "N/A")
+        alt=node['position'].get("altitude", "N/A")
+        batt=node['position'].get("batteryLevel", "N/A")
+        snr=node.get("snr", "N/A")
+        tableData.append({"User":node['user']['longName'], 
+                          "Position":"Lat:"+lat+",Lon:"+lon+",Alt:"+alt,
+                          "Battery":batt, "SNR":snr})
+    table.setData(tableData)
+    table.displayTable()
 
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
@@ -273,6 +294,10 @@ def onConnected(interface):
             for n in interface.nodes.values():
                 print(n)
 
+        if args.nodes:
+            closeNow = True
+            printNodes(interface.nodes.values())
+
         if args.qr:
             closeNow = True
             print(f"Channel URL {interface.channelURL}")
@@ -283,14 +308,13 @@ def onConnected(interface):
             from . import tunnel
             closeNow = False # Even if others said we could close, stay open if the user asked for a tunnel
             tunnel.Tunnel(interface, subnet=args.tunnel_net)
-           
+
     except Exception as ex:
         print(ex)
 
     # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
     if (not args.seriallog) and closeNow:
         interface.close()  # after running command then exit
-
 
 def onNode(node):
     """Callback invoked when the node DB changes"""
@@ -316,7 +340,7 @@ def common():
         args.destOrAll = "^all"
 
     if not args.seriallog:
-        if args.info or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
+        if args.info or args.nodes or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
                 args.settime or \
                 args.setch_longslow or args.setch_shortfast or args.setstr or args.setchan or args.sendtext or \
                 args.router != None or args.qr:
@@ -365,6 +389,9 @@ def initParser():
         help="Log device serial output to either 'stdout', 'none' or a filename to append to.  Defaults to stdout.")
 
     parser.add_argument("--info", help="Read and display the radio config information",
+                        action="store_true")
+
+    parser.add_argument("--nodes", help="Print Node List in a pretty formatted table", 
                         action="store_true")
 
     parser.add_argument("--qr", help="Display the QR code that corresponds to the current channel",
