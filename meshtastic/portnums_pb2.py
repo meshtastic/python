@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\010PortnumsH\003',
-  serialized_pb=b'\n\x0eportnums.proto*\xdd\x01\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\r\n\tREPLY_APP\x10 \x12\x11\n\rIP_TUNNEL_APP\x10!\x12\x0e\n\nSERIAL_APP\x10@\x12\x15\n\x11STORE_FORWARD_APP\x10\x41\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x13\n\x0e\x41TAK_FORWARDER\x10\x81\x02\x42!\n\x13\x63om.geeksville.meshB\x08PortnumsH\x03\x62\x06proto3'
+  serialized_pb=b'\n\x0eportnums.proto*\xf1\x01\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\r\n\tREPLY_APP\x10 \x12\x11\n\rIP_TUNNEL_APP\x10!\x12\x0e\n\nSERIAL_APP\x10@\x12\x15\n\x11STORE_FORWARD_APP\x10\x41\x12\x12\n\x0eRANGE_TEST_APP\x10\x42\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x13\n\x0e\x41TAK_FORWARDER\x10\x81\x02\x42!\n\x13\x63om.geeksville.meshB\x08PortnumsH\x03\x62\x06proto3'
 )
 
 _PORTNUM = _descriptor.EnumDescriptor(
@@ -65,18 +65,22 @@ _PORTNUM = _descriptor.EnumDescriptor(
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='PRIVATE_APP', index=9, number=256,
+      name='RANGE_TEST_APP', index=9, number=66,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='ATAK_FORWARDER', index=10, number=257,
+      name='PRIVATE_APP', index=10, number=256,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='ATAK_FORWARDER', index=11, number=257,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=19,
-  serialized_end=240,
+  serialized_end=260,
 )
 _sym_db.RegisterEnumDescriptor(_PORTNUM)
 
@@ -90,6 +94,7 @@ REPLY_APP = 32
 IP_TUNNEL_APP = 33
 SERIAL_APP = 64
 STORE_FORWARD_APP = 65
+RANGE_TEST_APP = 66
 PRIVATE_APP = 256
 ATAK_FORWARDER = 257
 

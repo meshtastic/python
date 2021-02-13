@@ -105,5 +105,5 @@ sudo usermod -a -G dialout <username>
 If you need to build a new release you'll need:
 ```
 apt install pandoc
-sudo pip3 install markdown pandoc webencodings pyparsing
+sudo pip3 install markdown pandoc webencodings pyparsing twine
 ```

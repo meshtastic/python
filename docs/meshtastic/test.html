@@ -123,7 +123,7 @@ def testThread(numTests=50):
                 f&#34;Test failed, expected packet not received ({numFail} failures so far)&#34;)
         else:
             numSuccess = numSuccess + 1
-            logging.info(f&#34;Test succeeded ({numSuccess} successes so far)&#34;)
+            logging.info(f&#34;Test succeeded ({numSuccess} successes ({numFail} failures) so far)&#34;)
 
         if numFail &gt;= 3:
             for i in interfaces:
@@ -375,7 +375,7 @@ toInterface {[type]} &ndash; [description]</p>
                 f&#34;Test failed, expected packet not received ({numFail} failures so far)&#34;)
         else:
             numSuccess = numSuccess + 1
-            logging.info(f&#34;Test succeeded ({numSuccess} successes so far)&#34;)
+            logging.info(f&#34;Test succeeded ({numSuccess} successes ({numFail} failures) so far)&#34;)
 
         if numFail &gt;= 3:
             for i in interfaces:

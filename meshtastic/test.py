@@ -95,7 +95,7 @@ def testThread(numTests=50):
                 f"Test failed, expected packet not received ({numFail} failures so far)")
         else:
             numSuccess = numSuccess + 1
-            logging.info(f"Test succeeded ({numSuccess} successes so far)")
+            logging.info(f"Test succeeded ({numSuccess} successes ({numFail} failures) so far)")
 
         if numFail >= 3:
             for i in interfaces:
