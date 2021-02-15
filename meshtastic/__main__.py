@@ -136,8 +136,8 @@ def setRouter(interface, on):
 
 
 #Returns formatted value
-def formatFloat(value, formatStr, default="N/A"):
-    return formatStr.format(value) if value else default
+def formatFloat(value, formatStr="{:.2f}", unit="", default="N/A"):
+    return formatStr.format(value)+unit if value else default
 
 #Returns Last Heard Time in human readable format
 def getLH(ts, default="N/A"):
@@ -155,13 +155,13 @@ def printNodes(nodes):
     for node in nodes:
         #aux var to get not defined keys
         LH= getLH(node['position'].get("time"))
-        lat=formatFloat(node['position'].get("latitude"), "{:.4f}",  "N/A")
-        lon=formatFloat(node['position'].get("longitude"), "{:.4f}", "N/A")
-        alt=formatFloat(node['position'].get("altitude"), "{:.2f}", "N/A")
-        batt=formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "N/A")
-        snr=formatFloat(node.get("snr"), "{:.2f}", "N/A")
+        lat=formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
+        lon=formatFloat(node['position'].get("longitude"), "{:.4f}", "°")
+        alt=formatFloat(node['position'].get("altitude"), "{:.0f}", " m")
+        batt=formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "%")
+        snr=formatFloat(node.get("snr"), "{:.2f}", " dB")
         tableData.append({"User":node['user']['longName'], 
-                          "Position":"Lat:"+lat+",Lon:"+lon+",Alt:"+alt,
+                          "Position":"Lat:"+lat+", Lon:"+lon+", Alt:"+alt,
                           "Battery":batt, "SNR":snr, "LastHeard":LH})
     table.setData(tableData)
     table.displayTable()
