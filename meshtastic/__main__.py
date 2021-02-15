@@ -8,6 +8,7 @@ import google.protobuf.json_format
 import pyqrcode
 import traceback
 import pkg_resources
+from datetime import datetime
 from easy_table import EasyTable
 
 """We only import the tunnel code if we are on a platform that can run it"""
@@ -156,7 +157,7 @@ def printNodes(nodes):
         LH= getLH(node['position'].get("time"))
         lat=formatFloat(node['position'].get("latitude"), "{:.4f}",  "N/A")
         lon=formatFloat(node['position'].get("longitude"), "{:.4f}", "N/A")
-        alt=formatFloat(node['position'].get("altitude"), "{:.4f}", "N/A")
+        alt=formatFloat(node['position'].get("altitude"), "{:.2f}", "N/A")
         batt=formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "N/A")
         snr=formatFloat(node.get("snr"), "{:.2f}", "N/A")
         tableData.append({"User":node['user']['longName'], 
