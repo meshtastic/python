@@ -8,6 +8,7 @@ import google.protobuf.json_format
 import pyqrcode
 import traceback
 import pkg_resources
+from datetime import datetime
 from easy_table import EasyTable
 
 """We only import the tunnel code if we are on a platform that can run it"""
@@ -133,6 +134,16 @@ def setRouter(interface, on):
         prefs.gps_attempt_time = 0
         prefs.gps_update_interval = 0
 
+
+#Returns formatted value
+def formatFloat(value, formatStr="{:.2f}", unit="", default="N/A"):
+    return formatStr.format(value)+unit if value else default
+
+#Returns Last Heard Time in human readable format
+def getLH(ts, default="N/A"):
+    return datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') if ts else default
+
+#Print Nodes
 def printNodes(nodes):
     #Create the table and define the structure
     table = EasyTable("Nodes")
@@ -143,14 +154,15 @@ def printNodes(nodes):
     tableData = []
     for node in nodes:
         #aux var to get not defined keys
-        lat=str(node['position'].get("latitude", "N/A"))
-        lon=str(node['position'].get("longitude", "N/A"))
-        alt=str(node['position'].get("altitude", "N/A"))
-        batt=str(node['position'].get("batteryLevel", "N/A"))
-        snr=str(node.get("snr", "N/A"))
+        LH= getLH(node['position'].get("time"))
+        lat=formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
+        lon=formatFloat(node['position'].get("longitude"), "{:.4f}", "°")
+        alt=formatFloat(node['position'].get("altitude"), "{:.0f}", " m")
+        batt=formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "%")
+        snr=formatFloat(node.get("snr"), "{:.2f}", " dB")
         tableData.append({"User":node['user']['longName'], 
-                          "Position":"Lat:"+lat+",Lon:"+lon+",Alt:"+alt,
-                          "Battery":batt, "SNR":snr})
+                          "Position":"Lat:"+lat+", Lon:"+lon+", Alt:"+alt,
+                          "Battery":batt, "SNR":snr, "LastHeard":LH})
     table.setData(tableData)
     table.displayTable()
 
