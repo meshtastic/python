@@ -161,7 +161,7 @@ def printNodes(nodes):
         batt=formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "%")
         snr=formatFloat(node.get("snr"), "{:.2f}", " dB")
         tableData.append({"User":node['user']['longName'], 
-                          "Position":"Lat:"+lat+", Lon:"+lon+", Alt:"+alt,
+                          "Position":lat+", "+lon+", "+alt,
                           "Battery":batt, "SNR":snr, "LastHeard":LH})
     table.setData(tableData)
     table.displayTable()
