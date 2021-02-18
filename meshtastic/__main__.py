@@ -9,6 +9,7 @@ import pyqrcode
 import traceback
 import pkg_resources
 from datetime import datetime
+import timeago
 from easy_table import EasyTable
 
 """We only import the tunnel code if we are on a platform that can run it"""
@@ -143,6 +144,10 @@ def formatFloat(value, formatStr="{:.2f}", unit="", default="N/A"):
 def getLH(ts, default="N/A"):
     return datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') if ts else default
 
+#Returns time ago for the last heard
+def getTimeAgo(ts, default="N/A"):
+    return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else default
+
 #Print Nodes
 def printNodes(nodes):
     #Create the table and define the structure
@@ -152,18 +157,26 @@ def printNodes(nodes):
     table.setInnerStructure("|", "-", "+")
 
     tableData = []
+    i = 1
     for node in nodes:
         #aux var to get not defined keys
-        LH= getLH(node['position'].get("time"))
         lat=formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
         lon=formatFloat(node['position'].get("longitude"), "{:.4f}", "°")
         alt=formatFloat(node['position'].get("altitude"), "{:.0f}", " m")
         batt=formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "%")
         snr=formatFloat(node.get("snr"), "{:.2f}", " dB")
-        tableData.append({"User":node['user']['longName'], 
+        LH= getLH(node['position'].get("time"))
+        timeAgo = getTimeAgo(node['position'].get("time"))
+        tableData.append({"N":i, "User":node['user']['longName'],
+                          "AKA":node['user']['shortName'], "ID":node['user']['id'],
                           "Position":lat+", "+lon+", "+alt,
-                          "Battery":batt, "SNR":snr, "LastHeard":LH})
-    table.setData(tableData)
+                          "Battery":batt, "SNR":snr,
+                          "LastHeard":LH, "Since":timeAgo})
+        i = i+1
+    Rows = sorted(tableData, key=lambda k: k['LastHeard'], reverse=True) 
+    RowsOk = sorted(Rows, key=lambda k:k ['LastHeard'].startswith("N/A")) 
+    table.setData(RowsOk)
+
     table.displayTable()
 
 def onConnected(interface):
