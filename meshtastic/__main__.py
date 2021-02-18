@@ -157,7 +157,6 @@ def printNodes(nodes):
     table.setInnerStructure("|", "-", "+")
 
     tableData = []
-    i = 1
     for node in nodes:
         #aux var to get not defined keys
         lat=formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
@@ -167,14 +166,16 @@ def printNodes(nodes):
         snr=formatFloat(node.get("snr"), "{:.2f}", " dB")
         LH= getLH(node['position'].get("time"))
         timeAgo = getTimeAgo(node['position'].get("time"))
-        tableData.append({"N":i, "User":node['user']['longName'],
+        tableData.append({"N":0, "User":node['user']['longName'],
                           "AKA":node['user']['shortName'], "ID":node['user']['id'],
                           "Position":lat+", "+lon+", "+alt,
                           "Battery":batt, "SNR":snr,
                           "LastHeard":LH, "Since":timeAgo})
-        i = i+1
+    
     Rows = sorted(tableData, key=lambda k: k['LastHeard'], reverse=True) 
     RowsOk = sorted(Rows, key=lambda k:k ['LastHeard'].startswith("N/A")) 
+    for i in range(1, len(RowsOk)):
+        RowsOk[i]['N'] = i
     table.setData(RowsOk)
 
     table.displayTable()
