@@ -149,7 +149,7 @@ def getTimeAgo(ts, default="N/A"):
     return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else default
 
 #Print Nodes
-def printNodes(nodes):
+def printNodes(nodes, myId):
     #Create the table and define the structure
     table = EasyTable("Nodes")
     table.setCorners("/", "\\", "\\", "/")
@@ -158,6 +158,8 @@ def printNodes(nodes):
 
     tableData = []
     for node in nodes:
+        if node['user']['id'] == myId:
+            continue
         #aux var to get not defined keys
         lat=formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
         lon=formatFloat(node['position'].get("longitude"), "{:.4f}", "°")
@@ -174,8 +176,8 @@ def printNodes(nodes):
     
     Rows = sorted(tableData, key=lambda k: k['LastHeard'], reverse=True) 
     RowsOk = sorted(Rows, key=lambda k:k ['LastHeard'].startswith("N/A")) 
-    for i in range(1, len(RowsOk)):
-        RowsOk[i]['N'] = i
+    for i in range(len(RowsOk)):
+        RowsOk[i]['N'] = i+1
     table.setData(RowsOk)
 
     table.displayTable()
@@ -322,7 +324,7 @@ def onConnected(interface):
 
         if args.nodes:
             closeNow = True
-            printNodes(interface.nodes.values())
+            printNodes(interface.nodes.values(), interface.getMyNodeInfo()['user']['id'])
 
         if args.qr:
             closeNow = True
