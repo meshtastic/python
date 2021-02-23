@@ -457,11 +457,6 @@ class MeshInterface:
         # asObj = DotMap(asDict)
         topic = "meshtastic.receive"  # Generic unknown packet type
 
-        # Warn users if firmware doesn't use new portnum based data encodings
-        # But do not crash, because the lib will still basically work and ignore those packet types
-        if meshPacket.decoded.HasField("user") or meshPacket.decoded.HasField("position"):
-            logging.warn("Ignoring old position/user message. Recommend you update firmware to 1.1.20 or later")
-
         # The default MessageToDict converts byte arrays into base64 strings.
         # We don't want that - it messes up data payload.  So slam in the correct
         # byte array.
