@@ -21,56 +21,10 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\nMeshProtosH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\nmesh.proto\x1a\x0eportnums.proto\"j\n\x08Position\x12\x12\n\nlatitude_i\x18\x07 \x01(\x11\x12\x13\n\x0blongitude_i\x18\x08 \x01(\x11\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x15\n\rbattery_level\x18\x04 \x01(\x05\x12\x0c\n\x04time\x18\t \x01(\x07\"2\n\x04\x44\x61ta\x12\x19\n\x07portnum\x18\x01 \x01(\x0e\x32\x08.PortNum\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\"J\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x0f\n\x07macaddr\x18\x04 \x01(\x0c\"\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x02 \x03(\x05\"\xeb\x02\n\tSubPacket\x12\x15\n\x04\x64\x61ta\x18\x03 \x01(\x0b\x32\x05.DataH\x00\x12(\n\rroute_request\x18\x06 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&\n\x0broute_reply\x18\x07 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12$\n\x0c\x65rror_reason\x18\r \x01(\x0e\x32\x0c.ErrorReasonH\x00\x12!\n\x08position\x18\x01 \x01(\x0b\x32\t.PositionB\x02\x18\x01H\x00\x12\x19\n\x04user\x18\x04 \x01(\x0b\x32\x05.UserB\x02\x18\x01H\x00\x12\x15\n\rwant_response\x18\x05 \x01(\x08\x12\x14\n\nsuccess_id\x18\n \x01(\rH\x01\x12\x11\n\x07\x66\x61il_id\x18\x0b \x01(\rH\x01\x12\x0c\n\x04\x64\x65st\x18\t \x01(\r\x12\x0e\n\x06source\x18\x0c \x01(\r\x12\x13\n\x0boriginal_id\x18\x02 \x01(\rB\x10\n\x0epayloadVariantB\x0c\n\nackVariant\"\xda\x02\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\r\x12\n\n\x02to\x18\x02 \x01(\r\x12\x15\n\rchannel_index\x18\x04 \x01(\r\x12\x1d\n\x07\x64\x65\x63oded\x18\x03 \x01(\x0b\x32\n.SubPacketH\x00\x12\x13\n\tencrypted\x18\x08 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\r\x12\x0f\n\x07rx_time\x18\t \x01(\x07\x12\x0e\n\x06rx_snr\x18\x07 \x01(\x02\x12\x11\n\thop_limit\x18\n \x01(\r\x12\x10\n\x08want_ack\x18\x0b \x01(\x08\x12&\n\x08priority\x18\x0c \x01(\x0e\x32\x14.MeshPacket.Priority\"[\n\x08Priority\x12\t\n\x05UNSET\x10\x00\x12\x07\n\x03MIN\x10\x01\x12\x0e\n\nBACKGROUND\x10\n\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10@\x12\x0c\n\x08RELIABLE\x10\x46\x12\x07\n\x03\x41\x43K\x10x\x12\x07\n\x03MAX\x10\x7f\x42\x10\n\x0epayloadVariant\"\xe6\x02\n\x0f\x43hannelSettings\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x32\n\x0cmodem_config\x18\x03 \x01(\x0e\x32\x1c.ChannelSettings.ModemConfig\x12\x11\n\tbandwidth\x18\x06 \x01(\r\x12\x15\n\rspread_factor\x18\x07 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x08 \x01(\r\x12\x13\n\x0b\x63hannel_num\x18\t \x01(\r\x12\x0b\n\x03psk\x18\x04 \x01(\x0c\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\n\n\x02id\x18\n \x01(\x07\x12\x16\n\x0euplink_enabled\x18\x10 \x01(\x08\x12\x18\n\x10\x64ownlink_enabled\x18\x11 \x01(\x08\"`\n\x0bModemConfig\x12\x12\n\x0e\x42w125Cr45Sf128\x10\x00\x12\x12\n\x0e\x42w500Cr45Sf128\x10\x01\x12\x14\n\x10\x42w31_25Cr48Sf512\x10\x02\x12\x13\n\x0f\x42w125Cr48Sf4096\x10\x03\"\x82\x0b\n\x0bRadioConfig\x12\x31\n\x0bpreferences\x18\x01 \x01(\x0b\x32\x1c.RadioConfig.UserPreferences\x12.\n\x10\x63hannel_settings\x18\x02 \x01(\x0b\x32\x10.ChannelSettingsB\x02\x18\x01\x1a\x8f\n\n\x0fUserPreferences\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12\x1b\n\x13send_owner_interval\x18\x02 \x01(\r\x12\x1b\n\x13wait_bluetooth_secs\x18\x04 \x01(\r\x12\x16\n\x0escreen_on_secs\x18\x05 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x06 \x01(\r\x12\x1d\n\x15phone_sds_timeout_sec\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\x08 \x01(\r\x12\x10\n\x08sds_secs\x18\t \x01(\r\x12\x0f\n\x07ls_secs\x18\n \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0b \x01(\r\x12\x11\n\twifi_ssid\x18\x0c \x01(\t\x12\x15\n\rwifi_password\x18\r \x01(\t\x12\x14\n\x0cwifi_ap_mode\x18\x0e \x01(\x08\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\x12&\n\x0e\x63harge_current\x18\x10 \x01(\x0e\x32\x0e.ChargeCurrent\x12\x11\n\tis_router\x18% \x01(\x08\x12\x14\n\x0cis_low_power\x18& \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\' \x01(\x08\x12\x15\n\rfactory_reset\x18\x64 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x65 \x01(\x08\x12(\n\x0elocation_share\x18  \x01(\x0e\x32\x10.LocationSharing\x12$\n\rgps_operation\x18! \x01(\x0e\x32\r.GpsOperation\x12\x1b\n\x13gps_update_interval\x18\" \x01(\r\x12\x18\n\x10gps_attempt_time\x18$ \x01(\r\x12\x17\n\x0fignore_incoming\x18g \x03(\r\x12\x1c\n\x14serialplugin_enabled\x18x \x01(\x08\x12\x19\n\x11serialplugin_echo\x18y \x01(\x08\x12\x18\n\x10serialplugin_rxd\x18z \x01(\r\x12\x18\n\x10serialplugin_txd\x18{ \x01(\r\x12\x1c\n\x14serialplugin_timeout\x18| \x01(\r\x12\x19\n\x11serialplugin_mode\x18} \x01(\r\x12\'\n\x1f\x65xt_notification_plugin_enabled\x18~ \x01(\x08\x12)\n!ext_notification_plugin_output_ms\x18\x7f \x01(\r\x12\'\n\x1e\x65xt_notification_plugin_output\x18\x80\x01 \x01(\r\x12\'\n\x1e\x65xt_notification_plugin_active\x18\x81\x01 \x01(\x08\x12.\n%ext_notification_plugin_alert_message\x18\x82\x01 \x01(\x08\x12+\n\"ext_notification_plugin_alert_bell\x18\x83\x01 \x01(\x08\x12\"\n\x19range_test_plugin_enabled\x18\x84\x01 \x01(\x08\x12!\n\x18range_test_plugin_sender\x18\x85\x01 \x01(\r\x12\x1f\n\x16range_test_plugin_save\x18\x86\x01 \x01(\x08\x12%\n\x1cstore_forward_plugin_enabled\x18\x88\x01 \x01(\x08\x12%\n\x1cstore_forward_plugin_records\x18\x89\x01 \x01(\r\"h\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x07 \x01(\x02\x12\x10\n\x08next_hop\x18\x05 \x01(\r\"\xe1\x02\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x0f\n\x07has_gps\x18\x02 \x01(\x08\x12\x14\n\x0cnum_channels\x18\x03 \x01(\x05\x12\x12\n\x06region\x18\x04 \x01(\tB\x02\x18\x01\x12\x10\n\x08hw_model\x18\x05 \x01(\t\x12\x18\n\x10\x66irmware_version\x18\x06 \x01(\t\x12&\n\nerror_code\x18\x07 \x01(\x0e\x32\x12.CriticalErrorCode\x12\x15\n\rerror_address\x18\x08 \x01(\r\x12\x13\n\x0b\x65rror_count\x18\t \x01(\r\x12\x16\n\x0epacket_id_bits\x18\n \x01(\r\x12\x1d\n\x11\x63urrent_packet_id\x18\x0b \x01(\rB\x02\x18\x01\x12\x15\n\rnode_num_bits\x18\x0c \x01(\r\x12\x1c\n\x14message_timeout_msec\x18\r \x01(\r\x12\x17\n\x0fmin_app_version\x18\x0e \x01(\r\"\xb5\x01\n\tLogRecord\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\x07\x12\x0e\n\x06source\x18\x03 \x01(\t\x12\x1f\n\x05level\x18\x04 \x01(\x0e\x32\x10.LogRecord.Level\"X\n\x05Level\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08\x43RITICAL\x10\x32\x12\t\n\x05\x45RROR\x10(\x12\x0b\n\x07WARNING\x10\x1e\x12\x08\n\x04INFO\x10\x14\x12\t\n\x05\x44\x45\x42UG\x10\n\x12\t\n\x05TRACE\x10\x05\"\xa1\x02\n\tFromRadio\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12\x1d\n\x05radio\x18\x06 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12 \n\nlog_record\x18\x07 \x01(\x0b\x32\n.LogRecordH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x08 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\t \x01(\x08H\x00\x12#\n\x07\x63hannel\x18\n \x01(\x0b\x32\x10.ChannelSettingsH\x00\x42\x10\n\x0epayloadVariant\"\xbc\x01\n\x07ToRadio\x12\x1d\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x18\n\x0ewant_config_id\x18\x64 \x01(\rH\x00\x12!\n\tset_radio\x18\x65 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x66 \x01(\x0b\x32\x05.UserH\x00\x12\'\n\x0bset_channel\x18g \x01(\x0b\x32\x10.ChannelSettingsH\x00\x42\x10\n\x0epayloadVariant*e\n\x0b\x45rrorReason\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03\x12\x10\n\x0cNO_INTERFACE\x10\x04\x12\x12\n\x0eMAX_RETRANSMIT\x10\x05*.\n\tConstants\x12\n\n\x06Unused\x10\x00\x12\x15\n\x10\x44\x41TA_PAYLOAD_LEN\x10\xf0\x01*^\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U865\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08*\xd1\x01\n\rChargeCurrent\x12\x0b\n\x07MAUnset\x10\x00\x12\t\n\x05MA100\x10\x01\x12\t\n\x05MA190\x10\x02\x12\t\n\x05MA280\x10\x03\x12\t\n\x05MA360\x10\x04\x12\t\n\x05MA450\x10\x05\x12\t\n\x05MA550\x10\x06\x12\t\n\x05MA630\x10\x07\x12\t\n\x05MA700\x10\x08\x12\t\n\x05MA780\x10\t\x12\t\n\x05MA880\x10\n\x12\t\n\x05MA960\x10\x0b\x12\n\n\x06MA1000\x10\x0c\x12\n\n\x06MA1080\x10\r\x12\n\n\x06MA1160\x10\x0e\x12\n\n\x06MA1240\x10\x0f\x12\n\n\x06MA1320\x10\x10*j\n\x0cGpsOperation\x12\x0e\n\nGpsOpUnset\x10\x00\x12\x13\n\x0fGpsOpStationary\x10\x01\x12\x0f\n\x0bGpsOpMobile\x10\x02\x12\x11\n\rGpsOpTimeOnly\x10\x03\x12\x11\n\rGpsOpDisabled\x10\x04*@\n\x0fLocationSharing\x12\x0c\n\x08LocUnset\x10\x00\x12\x0e\n\nLocEnabled\x10\x01\x12\x0f\n\x0bLocDisabled\x10\x02*\xaf\x01\n\x11\x43riticalErrorCode\x12\x08\n\x04None\x10\x00\x12\x0e\n\nTxWatchdog\x10\x01\x12\x12\n\x0eSleepEnterWait\x10\x02\x12\x0b\n\x07NoRadio\x10\x03\x12\x0f\n\x0bUnspecified\x10\x04\x12\x13\n\x0fUBloxInitFailed\x10\x05\x12\x0c\n\x08NoAXP192\x10\x06\x12\x17\n\x13InvalidRadioSetting\x10\x07\x12\x12\n\x0eTransmitFailed\x10\x08\x42#\n\x13\x63om.geeksville.meshB\nMeshProtosH\x03\x62\x06proto3'
+  serialized_pb=b'\n\nmesh.proto\x1a\x0eportnums.proto\"j\n\x08Position\x12\x12\n\nlatitude_i\x18\x01 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x02 \x01(\x0f\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x15\n\rbattery_level\x18\x04 \x01(\x05\x12\x0c\n\x04time\x18\t \x01(\x07\"J\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x0f\n\x07macaddr\x18\x04 \x01(\x0c\"\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x02 \x03(\x07\"\xcc\x02\n\x07Routing\x12(\n\rroute_request\x18\x01 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&\n\x0broute_reply\x18\x02 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&\n\x0c\x65rror_reason\x18\x03 \x01(\x0e\x32\x0e.Routing.ErrorH\x00\x12\x14\n\nsuccess_id\x18\x04 \x01(\x07H\x00\x12\x11\n\x07\x66\x61il_id\x18\x05 \x01(\x07H\x00\x12\x13\n\x0boriginal_id\x18\x06 \x01(\x07\"~\n\x05\x45rror\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03\x12\x10\n\x0cNO_INTERFACE\x10\x04\x12\x12\n\x0eMAX_RETRANSMIT\x10\x05\x12\x0e\n\nNO_CHANNEL\x10\x06\x12\r\n\tTOO_LARGE\x10\x07\x42\t\n\x07variant\"g\n\x04\x44\x61ta\x12\x19\n\x07portnum\x18\x01 \x01(\x0e\x32\x08.PortNum\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\x12\x15\n\rwant_response\x18\x03 \x01(\x08\x12\x0c\n\x04\x64\x65st\x18\x04 \x01(\x07\x12\x0e\n\x06source\x18\x05 \x01(\x07\"\xcf\x02\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x07\x12\n\n\x02to\x18\x02 \x01(\x07\x12\x0f\n\x07\x63hannel\x18\x03 \x01(\r\x12\x18\n\x07\x64\x65\x63oded\x18\x04 \x01(\x0b\x32\x05.DataH\x00\x12\x13\n\tencrypted\x18\x05 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\x07\x12\x0f\n\x07rx_time\x18\x07 \x01(\x07\x12\x0e\n\x06rx_snr\x18\x08 \x01(\x02\x12\x11\n\thop_limit\x18\t \x01(\r\x12\x10\n\x08want_ack\x18\n \x01(\x08\x12&\n\x08priority\x18\x0b \x01(\x0e\x32\x14.MeshPacket.Priority\"[\n\x08Priority\x12\t\n\x05UNSET\x10\x00\x12\x07\n\x03MIN\x10\x01\x12\x0e\n\nBACKGROUND\x10\n\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10@\x12\x0c\n\x08RELIABLE\x10\x46\x12\x07\n\x03\x41\x43K\x10x\x12\x07\n\x03MAX\x10\x7f\x42\x10\n\x0epayloadVariant\"\xe6\x02\n\x0f\x43hannelSettings\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x32\n\x0cmodem_config\x18\x03 \x01(\x0e\x32\x1c.ChannelSettings.ModemConfig\x12\x11\n\tbandwidth\x18\x06 \x01(\r\x12\x15\n\rspread_factor\x18\x07 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x08 \x01(\r\x12\x13\n\x0b\x63hannel_num\x18\t \x01(\r\x12\x0b\n\x03psk\x18\x04 \x01(\x0c\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\n\n\x02id\x18\n \x01(\x07\x12\x16\n\x0euplink_enabled\x18\x10 \x01(\x08\x12\x18\n\x10\x64ownlink_enabled\x18\x11 \x01(\x08\"`\n\x0bModemConfig\x12\x12\n\x0e\x42w125Cr45Sf128\x10\x00\x12\x12\n\x0e\x42w500Cr45Sf128\x10\x01\x12\x14\n\x10\x42w31_25Cr48Sf512\x10\x02\x12\x13\n\x0f\x42w125Cr48Sf4096\x10\x03\"\x8b\x01\n\x07\x43hannel\x12\r\n\x05index\x18\x01 \x01(\r\x12\"\n\x08settings\x18\x02 \x01(\x0b\x32\x10.ChannelSettings\x12\x1b\n\x04role\x18\x03 \x01(\x0e\x32\r.Channel.Role\"0\n\x04Role\x12\x0c\n\x08\x44ISABLED\x10\x00\x12\x0b\n\x07PRIMARY\x10\x01\x12\r\n\tSECONDARY\x10\x02\"\xd2\n\n\x0bRadioConfig\x12\x31\n\x0bpreferences\x18\x01 \x01(\x0b\x32\x1c.RadioConfig.UserPreferences\x1a\x8f\n\n\x0fUserPreferences\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12\x1b\n\x13send_owner_interval\x18\x02 \x01(\r\x12\x1b\n\x13wait_bluetooth_secs\x18\x04 \x01(\r\x12\x16\n\x0escreen_on_secs\x18\x05 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x06 \x01(\r\x12\x1d\n\x15phone_sds_timeout_sec\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\x08 \x01(\r\x12\x10\n\x08sds_secs\x18\t \x01(\r\x12\x0f\n\x07ls_secs\x18\n \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0b \x01(\r\x12\x11\n\twifi_ssid\x18\x0c \x01(\t\x12\x15\n\rwifi_password\x18\r \x01(\t\x12\x14\n\x0cwifi_ap_mode\x18\x0e \x01(\x08\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\x12&\n\x0e\x63harge_current\x18\x10 \x01(\x0e\x32\x0e.ChargeCurrent\x12\x11\n\tis_router\x18% \x01(\x08\x12\x14\n\x0cis_low_power\x18& \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\' \x01(\x08\x12\x15\n\rfactory_reset\x18\x64 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x65 \x01(\x08\x12(\n\x0elocation_share\x18  \x01(\x0e\x32\x10.LocationSharing\x12$\n\rgps_operation\x18! \x01(\x0e\x32\r.GpsOperation\x12\x1b\n\x13gps_update_interval\x18\" \x01(\r\x12\x18\n\x10gps_attempt_time\x18$ \x01(\r\x12\x17\n\x0fignore_incoming\x18g \x03(\r\x12\x1c\n\x14serialplugin_enabled\x18x \x01(\x08\x12\x19\n\x11serialplugin_echo\x18y \x01(\x08\x12\x18\n\x10serialplugin_rxd\x18z \x01(\r\x12\x18\n\x10serialplugin_txd\x18{ \x01(\r\x12\x1c\n\x14serialplugin_timeout\x18| \x01(\r\x12\x19\n\x11serialplugin_mode\x18} \x01(\r\x12\'\n\x1f\x65xt_notification_plugin_enabled\x18~ \x01(\x08\x12)\n!ext_notification_plugin_output_ms\x18\x7f \x01(\r\x12\'\n\x1e\x65xt_notification_plugin_output\x18\x80\x01 \x01(\r\x12\'\n\x1e\x65xt_notification_plugin_active\x18\x81\x01 \x01(\x08\x12.\n%ext_notification_plugin_alert_message\x18\x82\x01 \x01(\x08\x12+\n\"ext_notification_plugin_alert_bell\x18\x83\x01 \x01(\x08\x12\"\n\x19range_test_plugin_enabled\x18\x84\x01 \x01(\x08\x12!\n\x18range_test_plugin_sender\x18\x85\x01 \x01(\r\x12\x1f\n\x16range_test_plugin_save\x18\x86\x01 \x01(\x08\x12%\n\x1cstore_forward_plugin_enabled\x18\x88\x01 \x01(\x08\x12%\n\x1cstore_forward_plugin_records\x18\x89\x01 \x01(\r\"h\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x07 \x01(\x02\x12\x10\n\x08next_hop\x18\x05 \x01(\r\"\xa6\x02\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x0f\n\x07has_gps\x18\x02 \x01(\x08\x12\x11\n\tnum_bands\x18\x03 \x01(\r\x12\x14\n\x0cmax_channels\x18\x0f \x01(\r\x12\x12\n\x06region\x18\x04 \x01(\tB\x02\x18\x01\x12\x10\n\x08hw_model\x18\x05 \x01(\t\x12\x18\n\x10\x66irmware_version\x18\x06 \x01(\t\x12&\n\nerror_code\x18\x07 \x01(\x0e\x32\x12.CriticalErrorCode\x12\x15\n\rerror_address\x18\x08 \x01(\r\x12\x13\n\x0b\x65rror_count\x18\t \x01(\r\x12\x1c\n\x14message_timeout_msec\x18\r \x01(\r\x12\x17\n\x0fmin_app_version\x18\x0e \x01(\r\"\xb5\x01\n\tLogRecord\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\x07\x12\x0e\n\x06source\x18\x03 \x01(\t\x12\x1f\n\x05level\x18\x04 \x01(\x0e\x32\x10.LogRecord.Level\"X\n\x05Level\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08\x43RITICAL\x10\x32\x12\t\n\x05\x45RROR\x10(\x12\x0b\n\x07WARNING\x10\x1e\x12\x08\n\x04INFO\x10\x14\x12\t\n\x05\x44\x45\x42UG\x10\n\x12\t\n\x05TRACE\x10\x05\"\x9f\x02\n\tFromRadio\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x0b \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12\x1d\n\x05radio\x18\x06 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12 \n\nlog_record\x18\x07 \x01(\x0b\x32\n.LogRecordH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x08 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\t \x01(\x08H\x00\x12\x1b\n\x07\x63hannel\x18\n \x01(\x0b\x32\x08.ChannelH\x00\x42\x10\n\x0epayloadVariantJ\x04\x08\x02\x10\x03\"Z\n\x07ToRadio\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x18\n\x0ewant_config_id\x18\x64 \x01(\rH\x00\x42\x10\n\x0epayloadVariantJ\x04\x08\x01\x10\x02\"y\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x42\t\n\x07variant*.\n\tConstants\x12\n\n\x06Unused\x10\x00\x12\x15\n\x10\x44\x41TA_PAYLOAD_LEN\x10\xf0\x01*^\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U865\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08*\xd1\x01\n\rChargeCurrent\x12\x0b\n\x07MAUnset\x10\x00\x12\t\n\x05MA100\x10\x01\x12\t\n\x05MA190\x10\x02\x12\t\n\x05MA280\x10\x03\x12\t\n\x05MA360\x10\x04\x12\t\n\x05MA450\x10\x05\x12\t\n\x05MA550\x10\x06\x12\t\n\x05MA630\x10\x07\x12\t\n\x05MA700\x10\x08\x12\t\n\x05MA780\x10\t\x12\t\n\x05MA880\x10\n\x12\t\n\x05MA960\x10\x0b\x12\n\n\x06MA1000\x10\x0c\x12\n\n\x06MA1080\x10\r\x12\n\n\x06MA1160\x10\x0e\x12\n\n\x06MA1240\x10\x0f\x12\n\n\x06MA1320\x10\x10*j\n\x0cGpsOperation\x12\x0e\n\nGpsOpUnset\x10\x00\x12\x13\n\x0fGpsOpStationary\x10\x01\x12\x0f\n\x0bGpsOpMobile\x10\x02\x12\x11\n\rGpsOpTimeOnly\x10\x03\x12\x11\n\rGpsOpDisabled\x10\x04*@\n\x0fLocationSharing\x12\x0c\n\x08LocUnset\x10\x00\x12\x0e\n\nLocEnabled\x10\x01\x12\x0f\n\x0bLocDisabled\x10\x02*\xaf\x01\n\x11\x43riticalErrorCode\x12\x08\n\x04None\x10\x00\x12\x0e\n\nTxWatchdog\x10\x01\x12\x12\n\x0eSleepEnterWait\x10\x02\x12\x0b\n\x07NoRadio\x10\x03\x12\x0f\n\x0bUnspecified\x10\x04\x12\x13\n\x0fUBloxInitFailed\x10\x05\x12\x0c\n\x08NoAXP192\x10\x06\x12\x17\n\x13InvalidRadioSetting\x10\x07\x12\x12\n\x0eTransmitFailed\x10\x08\x42#\n\x13\x63om.geeksville.meshB\nMeshProtosH\x03\x62\x06proto3'
   ,
   dependencies=[portnums__pb2.DESCRIPTOR,])
 
-_ERRORREASON = _descriptor.EnumDescriptor(
-  name='ErrorReason',
-  full_name='ErrorReason',
-  filename=None,
-  file=DESCRIPTOR,
-  create_key=_descriptor._internal_create_key,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='NONE', index=0, number=0,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-    _descriptor.EnumValueDescriptor(
-      name='NO_ROUTE', index=1, number=1,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-    _descriptor.EnumValueDescriptor(
-      name='GOT_NAK', index=2, number=2,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-    _descriptor.EnumValueDescriptor(
-      name='TIMEOUT', index=3, number=3,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-    _descriptor.EnumValueDescriptor(
-      name='NO_INTERFACE', index=4, number=4,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-    _descriptor.EnumValueDescriptor(
-      name='MAX_RETRANSMIT', index=5, number=5,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-  ],
-  containing_type=None,
-  serialized_options=None,
-  serialized_start=3917,
-  serialized_end=4018,
-)
-_sym_db.RegisterEnumDescriptor(_ERRORREASON)
-
-ErrorReason = enum_type_wrapper.EnumTypeWrapper(_ERRORREASON)
 _CONSTANTS = _descriptor.EnumDescriptor(
   name='Constants',
   full_name='Constants',
@@ -91,8 +45,8 @@ _CONSTANTS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4020,
-  serialized_end=4066,
+  serialized_start=3985,
+  serialized_end=4031,
 )
 _sym_db.RegisterEnumDescriptor(_CONSTANTS)
 
@@ -152,8 +106,8 @@ _REGIONCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4068,
-  serialized_end=4162,
+  serialized_start=4033,
+  serialized_end=4127,
 )
 _sym_db.RegisterEnumDescriptor(_REGIONCODE)
 
@@ -253,8 +207,8 @@ _CHARGECURRENT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4165,
-  serialized_end=4374,
+  serialized_start=4130,
+  serialized_end=4339,
 )
 _sym_db.RegisterEnumDescriptor(_CHARGECURRENT)
 
@@ -294,8 +248,8 @@ _GPSOPERATION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4376,
-  serialized_end=4482,
+  serialized_start=4341,
+  serialized_end=4447,
 )
 _sym_db.RegisterEnumDescriptor(_GPSOPERATION)
 
@@ -325,8 +279,8 @@ _LOCATIONSHARING = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4484,
-  serialized_end=4548,
+  serialized_start=4449,
+  serialized_end=4513,
 )
 _sym_db.RegisterEnumDescriptor(_LOCATIONSHARING)
 
@@ -386,18 +340,12 @@ _CRITICALERRORCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4551,
-  serialized_end=4726,
+  serialized_start=4516,
+  serialized_end=4691,
 )
 _sym_db.RegisterEnumDescriptor(_CRITICALERRORCODE)
 
 CriticalErrorCode = enum_type_wrapper.EnumTypeWrapper(_CRITICALERRORCODE)
-NONE = 0
-NO_ROUTE = 1
-GOT_NAK = 2
-TIMEOUT = 3
-NO_INTERFACE = 4
-MAX_RETRANSMIT = 5
 Unused = 0
 DATA_PAYLOAD_LEN = 240
 Unset = 0
@@ -445,6 +393,61 @@ InvalidRadioSetting = 7
 TransmitFailed = 8
 
 
+_ROUTING_ERROR = _descriptor.EnumDescriptor(
+  name='Error',
+  full_name='Routing.Error',
+  filename=None,
+  file=DESCRIPTOR,
+  create_key=_descriptor._internal_create_key,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='NONE', index=0, number=0,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='NO_ROUTE', index=1, number=1,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='GOT_NAK', index=2, number=2,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='TIMEOUT', index=3, number=3,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='NO_INTERFACE', index=4, number=4,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='MAX_RETRANSMIT', index=5, number=5,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='NO_CHANNEL', index=6, number=6,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='TOO_LARGE', index=7, number=7,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=443,
+  serialized_end=569,
+)
+_sym_db.RegisterEnumDescriptor(_ROUTING_ERROR)
+
 _MESHPACKET_PRIORITY = _descriptor.EnumDescriptor(
   name='Priority',
   full_name='MeshPacket.Priority',
@@ -490,8 +493,8 @@ _MESHPACKET_PRIORITY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=903,
-  serialized_end=994,
+  serialized_start=914,
+  serialized_end=1005,
 )
 _sym_db.RegisterEnumDescriptor(_MESHPACKET_PRIORITY)
 
@@ -525,10 +528,40 @@ _CHANNELSETTINGS_MODEMCONFIG = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1277,
-  serialized_end=1373,
+  serialized_start=1288,
+  serialized_end=1384,
 )
 _sym_db.RegisterEnumDescriptor(_CHANNELSETTINGS_MODEMCONFIG)
+
+_CHANNEL_ROLE = _descriptor.EnumDescriptor(
+  name='Role',
+  full_name='Channel.Role',
+  filename=None,
+  file=DESCRIPTOR,
+  create_key=_descriptor._internal_create_key,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='DISABLED', index=0, number=0,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='PRIMARY', index=1, number=1,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='SECONDARY', index=2, number=2,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=1478,
+  serialized_end=1526,
+)
+_sym_db.RegisterEnumDescriptor(_CHANNEL_ROLE)
 
 _LOGRECORD_LEVEL = _descriptor.EnumDescriptor(
   name='Level',
@@ -575,8 +608,8 @@ _LOGRECORD_LEVEL = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3344,
-  serialized_end=3432,
+  serialized_start=3390,
+  serialized_end=3478,
 )
 _sym_db.RegisterEnumDescriptor(_LOGRECORD_LEVEL)
 
@@ -591,14 +624,14 @@ _POSITION = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='latitude_i', full_name='Position.latitude_i', index=0,
-      number=7, type=17, cpp_type=1, label=1,
+      number=1, type=15, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='longitude_i', full_name='Position.longitude_i', index=1,
-      number=8, type=17, cpp_type=1, label=1,
+      number=2, type=15, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -638,45 +671,6 @@ _POSITION = _descriptor.Descriptor(
   ],
   serialized_start=30,
   serialized_end=136,
-)
-
-
-_DATA = _descriptor.Descriptor(
-  name='Data',
-  full_name='Data',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='portnum', full_name='Data.portnum', index=0,
-      number=1, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='payload', full_name='Data.payload', index=1,
-      number=2, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=138,
-  serialized_end=188,
 )
 
 
@@ -728,8 +722,8 @@ _USER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=190,
-  serialized_end=264,
+  serialized_start=138,
+  serialized_end=212,
 )
 
 
@@ -743,7 +737,7 @@ _ROUTEDISCOVERY = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='route', full_name='RouteDiscovery.route', index=0,
-      number=2, type=5, cpp_type=1, label=3,
+      number=2, type=7, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -760,99 +754,123 @@ _ROUTEDISCOVERY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=266,
-  serialized_end=297,
+  serialized_start=214,
+  serialized_end=245,
 )
 
 
-_SUBPACKET = _descriptor.Descriptor(
-  name='SubPacket',
-  full_name='SubPacket',
+_ROUTING = _descriptor.Descriptor(
+  name='Routing',
+  full_name='Routing',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='data', full_name='SubPacket.data', index=0,
-      number=3, type=11, cpp_type=10, label=1,
+      name='route_request', full_name='Routing.route_request', index=0,
+      number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='route_request', full_name='SubPacket.route_request', index=1,
-      number=6, type=11, cpp_type=10, label=1,
+      name='route_reply', full_name='Routing.route_reply', index=1,
+      number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='route_reply', full_name='SubPacket.route_reply', index=2,
-      number=7, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='error_reason', full_name='SubPacket.error_reason', index=3,
-      number=13, type=14, cpp_type=8, label=1,
+      name='error_reason', full_name='Routing.error_reason', index=2,
+      number=3, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='position', full_name='SubPacket.position', index=4,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='success_id', full_name='Routing.success_id', index=3,
+      number=4, type=7, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=b'\030\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='user', full_name='SubPacket.user', index=5,
-      number=4, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='fail_id', full_name='Routing.fail_id', index=4,
+      number=5, type=7, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=b'\030\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='want_response', full_name='SubPacket.want_response', index=6,
-      number=5, type=8, cpp_type=7, label=1,
+      name='original_id', full_name='Routing.original_id', index=5,
+      number=6, type=7, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _ROUTING_ERROR,
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='variant', full_name='Routing.variant',
+      index=0, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+  ],
+  serialized_start=248,
+  serialized_end=580,
+)
+
+
+_DATA = _descriptor.Descriptor(
+  name='Data',
+  full_name='Data',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='portnum', full_name='Data.portnum', index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='payload', full_name='Data.payload', index=1,
+      number=2, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='want_response', full_name='Data.want_response', index=2,
+      number=3, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='success_id', full_name='SubPacket.success_id', index=7,
-      number=10, type=13, cpp_type=3, label=1,
+      name='dest', full_name='Data.dest', index=3,
+      number=4, type=7, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='fail_id', full_name='SubPacket.fail_id', index=8,
-      number=11, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='dest', full_name='SubPacket.dest', index=9,
-      number=9, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='source', full_name='SubPacket.source', index=10,
-      number=12, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='original_id', full_name='SubPacket.original_id', index=11,
-      number=2, type=13, cpp_type=3, label=1,
+      name='source', full_name='Data.source', index=4,
+      number=5, type=7, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -868,19 +886,9 @@ _SUBPACKET = _descriptor.Descriptor(
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
-    _descriptor.OneofDescriptor(
-      name='payloadVariant', full_name='SubPacket.payloadVariant',
-      index=0, containing_type=None,
-      create_key=_descriptor._internal_create_key,
-    fields=[]),
-    _descriptor.OneofDescriptor(
-      name='ackVariant', full_name='SubPacket.ackVariant',
-      index=1, containing_type=None,
-      create_key=_descriptor._internal_create_key,
-    fields=[]),
   ],
-  serialized_start=300,
-  serialized_end=663,
+  serialized_start=582,
+  serialized_end=685,
 )
 
 
@@ -894,77 +902,77 @@ _MESHPACKET = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='from', full_name='MeshPacket.from', index=0,
-      number=1, type=13, cpp_type=3, label=1,
+      number=1, type=7, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='to', full_name='MeshPacket.to', index=1,
-      number=2, type=13, cpp_type=3, label=1,
+      number=2, type=7, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='channel_index', full_name='MeshPacket.channel_index', index=2,
-      number=4, type=13, cpp_type=3, label=1,
+      name='channel', full_name='MeshPacket.channel', index=2,
+      number=3, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='decoded', full_name='MeshPacket.decoded', index=3,
-      number=3, type=11, cpp_type=10, label=1,
+      number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='encrypted', full_name='MeshPacket.encrypted', index=4,
-      number=8, type=12, cpp_type=9, label=1,
+      number=5, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='id', full_name='MeshPacket.id', index=5,
-      number=6, type=13, cpp_type=3, label=1,
+      number=6, type=7, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='rx_time', full_name='MeshPacket.rx_time', index=6,
-      number=9, type=7, cpp_type=3, label=1,
+      number=7, type=7, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='rx_snr', full_name='MeshPacket.rx_snr', index=7,
-      number=7, type=2, cpp_type=6, label=1,
+      number=8, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='hop_limit', full_name='MeshPacket.hop_limit', index=8,
-      number=10, type=13, cpp_type=3, label=1,
+      number=9, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='want_ack', full_name='MeshPacket.want_ack', index=9,
-      number=11, type=8, cpp_type=7, label=1,
+      number=10, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='priority', full_name='MeshPacket.priority', index=10,
-      number=12, type=14, cpp_type=8, label=1,
+      number=11, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -987,8 +995,8 @@ _MESHPACKET = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=666,
-  serialized_end=1012,
+  serialized_start=688,
+  serialized_end=1023,
 )
 
 
@@ -1090,8 +1098,55 @@ _CHANNELSETTINGS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1015,
-  serialized_end=1373,
+  serialized_start=1026,
+  serialized_end=1384,
+)
+
+
+_CHANNEL = _descriptor.Descriptor(
+  name='Channel',
+  full_name='Channel',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='index', full_name='Channel.index', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='settings', full_name='Channel.settings', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='role', full_name='Channel.role', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _CHANNEL_ROLE,
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1387,
+  serialized_end=1526,
 )
 
 
@@ -1409,8 +1464,8 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1491,
-  serialized_end=2786,
+  serialized_start=1596,
+  serialized_end=2891,
 )
 
 _RADIOCONFIG = _descriptor.Descriptor(
@@ -1428,13 +1483,6 @@ _RADIOCONFIG = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='channel_settings', full_name='RadioConfig.channel_settings', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\030\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -1447,8 +1495,8 @@ _RADIOCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1376,
-  serialized_end=2786,
+  serialized_start=1529,
+  serialized_end=2891,
 )
 
 
@@ -1507,8 +1555,8 @@ _NODEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2788,
-  serialized_end=2892,
+  serialized_start=2893,
+  serialized_end=2997,
 )
 
 
@@ -1535,84 +1583,70 @@ _MYNODEINFO = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='num_channels', full_name='MyNodeInfo.num_channels', index=2,
-      number=3, type=5, cpp_type=1, label=1,
+      name='num_bands', full_name='MyNodeInfo.num_bands', index=2,
+      number=3, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='region', full_name='MyNodeInfo.region', index=3,
+      name='max_channels', full_name='MyNodeInfo.max_channels', index=3,
+      number=15, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='region', full_name='MyNodeInfo.region', index=4,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=b'\030\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='hw_model', full_name='MyNodeInfo.hw_model', index=4,
+      name='hw_model', full_name='MyNodeInfo.hw_model', index=5,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='firmware_version', full_name='MyNodeInfo.firmware_version', index=5,
+      name='firmware_version', full_name='MyNodeInfo.firmware_version', index=6,
       number=6, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='error_code', full_name='MyNodeInfo.error_code', index=6,
+      name='error_code', full_name='MyNodeInfo.error_code', index=7,
       number=7, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='error_address', full_name='MyNodeInfo.error_address', index=7,
+      name='error_address', full_name='MyNodeInfo.error_address', index=8,
       number=8, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='error_count', full_name='MyNodeInfo.error_count', index=8,
+      name='error_count', full_name='MyNodeInfo.error_count', index=9,
       number=9, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='packet_id_bits', full_name='MyNodeInfo.packet_id_bits', index=9,
-      number=10, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='current_packet_id', full_name='MyNodeInfo.current_packet_id', index=10,
-      number=11, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\030\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='node_num_bits', full_name='MyNodeInfo.node_num_bits', index=11,
-      number=12, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='message_timeout_msec', full_name='MyNodeInfo.message_timeout_msec', index=12,
+      name='message_timeout_msec', full_name='MyNodeInfo.message_timeout_msec', index=10,
       number=13, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='min_app_version', full_name='MyNodeInfo.min_app_version', index=13,
+      name='min_app_version', full_name='MyNodeInfo.min_app_version', index=11,
       number=14, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -1630,8 +1664,8 @@ _MYNODEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2895,
-  serialized_end=3248,
+  serialized_start=3000,
+  serialized_end=3294,
 )
 
 
@@ -1684,8 +1718,8 @@ _LOGRECORD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3251,
-  serialized_end=3432,
+  serialized_start=3297,
+  serialized_end=3478,
 )
 
 
@@ -1706,7 +1740,7 @@ _FROMRADIO = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='packet', full_name='FromRadio.packet', index=1,
-      number=2, type=11, cpp_type=10, label=1,
+      number=11, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -1777,8 +1811,8 @@ _FROMRADIO = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=3435,
-  serialized_end=3724,
+  serialized_start=3481,
+  serialized_end=3768,
 )
 
 
@@ -1792,7 +1826,7 @@ _TORADIO = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='packet', full_name='ToRadio.packet', index=0,
-      number=1, type=11, cpp_type=10, label=1,
+      number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -1801,27 +1835,6 @@ _TORADIO = _descriptor.Descriptor(
       name='want_config_id', full_name='ToRadio.want_config_id', index=1,
       number=100, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='set_radio', full_name='ToRadio.set_radio', index=2,
-      number=101, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='set_owner', full_name='ToRadio.set_owner', index=3,
-      number=102, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='set_channel', full_name='ToRadio.set_channel', index=4,
-      number=103, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -1842,42 +1855,82 @@ _TORADIO = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=3727,
-  serialized_end=3915,
+  serialized_start=3770,
+  serialized_end=3860,
 )
 
+
+_ADMINMESSAGE = _descriptor.Descriptor(
+  name='AdminMessage',
+  full_name='AdminMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='set_radio', full_name='AdminMessage.set_radio', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='set_owner', full_name='AdminMessage.set_owner', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='set_channel', full_name='AdminMessage.set_channel', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='variant', full_name='AdminMessage.variant',
+      index=0, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+  ],
+  serialized_start=3862,
+  serialized_end=3983,
+)
+
+_ROUTING.fields_by_name['route_request'].message_type = _ROUTEDISCOVERY
+_ROUTING.fields_by_name['route_reply'].message_type = _ROUTEDISCOVERY
+_ROUTING.fields_by_name['error_reason'].enum_type = _ROUTING_ERROR
+_ROUTING_ERROR.containing_type = _ROUTING
+_ROUTING.oneofs_by_name['variant'].fields.append(
+  _ROUTING.fields_by_name['route_request'])
+_ROUTING.fields_by_name['route_request'].containing_oneof = _ROUTING.oneofs_by_name['variant']
+_ROUTING.oneofs_by_name['variant'].fields.append(
+  _ROUTING.fields_by_name['route_reply'])
+_ROUTING.fields_by_name['route_reply'].containing_oneof = _ROUTING.oneofs_by_name['variant']
+_ROUTING.oneofs_by_name['variant'].fields.append(
+  _ROUTING.fields_by_name['error_reason'])
+_ROUTING.fields_by_name['error_reason'].containing_oneof = _ROUTING.oneofs_by_name['variant']
+_ROUTING.oneofs_by_name['variant'].fields.append(
+  _ROUTING.fields_by_name['success_id'])
+_ROUTING.fields_by_name['success_id'].containing_oneof = _ROUTING.oneofs_by_name['variant']
+_ROUTING.oneofs_by_name['variant'].fields.append(
+  _ROUTING.fields_by_name['fail_id'])
+_ROUTING.fields_by_name['fail_id'].containing_oneof = _ROUTING.oneofs_by_name['variant']
 _DATA.fields_by_name['portnum'].enum_type = portnums__pb2._PORTNUM
-_SUBPACKET.fields_by_name['data'].message_type = _DATA
-_SUBPACKET.fields_by_name['route_request'].message_type = _ROUTEDISCOVERY
-_SUBPACKET.fields_by_name['route_reply'].message_type = _ROUTEDISCOVERY
-_SUBPACKET.fields_by_name['error_reason'].enum_type = _ERRORREASON
-_SUBPACKET.fields_by_name['position'].message_type = _POSITION
-_SUBPACKET.fields_by_name['user'].message_type = _USER
-_SUBPACKET.oneofs_by_name['payloadVariant'].fields.append(
-  _SUBPACKET.fields_by_name['data'])
-_SUBPACKET.fields_by_name['data'].containing_oneof = _SUBPACKET.oneofs_by_name['payloadVariant']
-_SUBPACKET.oneofs_by_name['payloadVariant'].fields.append(
-  _SUBPACKET.fields_by_name['route_request'])
-_SUBPACKET.fields_by_name['route_request'].containing_oneof = _SUBPACKET.oneofs_by_name['payloadVariant']
-_SUBPACKET.oneofs_by_name['payloadVariant'].fields.append(
-  _SUBPACKET.fields_by_name['route_reply'])
-_SUBPACKET.fields_by_name['route_reply'].containing_oneof = _SUBPACKET.oneofs_by_name['payloadVariant']
-_SUBPACKET.oneofs_by_name['payloadVariant'].fields.append(
-  _SUBPACKET.fields_by_name['error_reason'])
-_SUBPACKET.fields_by_name['error_reason'].containing_oneof = _SUBPACKET.oneofs_by_name['payloadVariant']
-_SUBPACKET.oneofs_by_name['payloadVariant'].fields.append(
-  _SUBPACKET.fields_by_name['position'])
-_SUBPACKET.fields_by_name['position'].containing_oneof = _SUBPACKET.oneofs_by_name['payloadVariant']
-_SUBPACKET.oneofs_by_name['payloadVariant'].fields.append(
-  _SUBPACKET.fields_by_name['user'])
-_SUBPACKET.fields_by_name['user'].containing_oneof = _SUBPACKET.oneofs_by_name['payloadVariant']
-_SUBPACKET.oneofs_by_name['ackVariant'].fields.append(
-  _SUBPACKET.fields_by_name['success_id'])
-_SUBPACKET.fields_by_name['success_id'].containing_oneof = _SUBPACKET.oneofs_by_name['ackVariant']
-_SUBPACKET.oneofs_by_name['ackVariant'].fields.append(
-  _SUBPACKET.fields_by_name['fail_id'])
-_SUBPACKET.fields_by_name['fail_id'].containing_oneof = _SUBPACKET.oneofs_by_name['ackVariant']
-_MESHPACKET.fields_by_name['decoded'].message_type = _SUBPACKET
+_MESHPACKET.fields_by_name['decoded'].message_type = _DATA
 _MESHPACKET.fields_by_name['priority'].enum_type = _MESHPACKET_PRIORITY
 _MESHPACKET_PRIORITY.containing_type = _MESHPACKET
 _MESHPACKET.oneofs_by_name['payloadVariant'].fields.append(
@@ -1888,13 +1941,15 @@ _MESHPACKET.oneofs_by_name['payloadVariant'].fields.append(
 _MESHPACKET.fields_by_name['encrypted'].containing_oneof = _MESHPACKET.oneofs_by_name['payloadVariant']
 _CHANNELSETTINGS.fields_by_name['modem_config'].enum_type = _CHANNELSETTINGS_MODEMCONFIG
 _CHANNELSETTINGS_MODEMCONFIG.containing_type = _CHANNELSETTINGS
+_CHANNEL.fields_by_name['settings'].message_type = _CHANNELSETTINGS
+_CHANNEL.fields_by_name['role'].enum_type = _CHANNEL_ROLE
+_CHANNEL_ROLE.containing_type = _CHANNEL
 _RADIOCONFIG_USERPREFERENCES.fields_by_name['region'].enum_type = _REGIONCODE
 _RADIOCONFIG_USERPREFERENCES.fields_by_name['charge_current'].enum_type = _CHARGECURRENT
 _RADIOCONFIG_USERPREFERENCES.fields_by_name['location_share'].enum_type = _LOCATIONSHARING
 _RADIOCONFIG_USERPREFERENCES.fields_by_name['gps_operation'].enum_type = _GPSOPERATION
 _RADIOCONFIG_USERPREFERENCES.containing_type = _RADIOCONFIG
 _RADIOCONFIG.fields_by_name['preferences'].message_type = _RADIOCONFIG_USERPREFERENCES
-_RADIOCONFIG.fields_by_name['channel_settings'].message_type = _CHANNELSETTINGS
 _NODEINFO.fields_by_name['user'].message_type = _USER
 _NODEINFO.fields_by_name['position'].message_type = _POSITION
 _MYNODEINFO.fields_by_name['error_code'].enum_type = _CRITICALERRORCODE
@@ -1905,7 +1960,7 @@ _FROMRADIO.fields_by_name['my_info'].message_type = _MYNODEINFO
 _FROMRADIO.fields_by_name['node_info'].message_type = _NODEINFO
 _FROMRADIO.fields_by_name['radio'].message_type = _RADIOCONFIG
 _FROMRADIO.fields_by_name['log_record'].message_type = _LOGRECORD
-_FROMRADIO.fields_by_name['channel'].message_type = _CHANNELSETTINGS
+_FROMRADIO.fields_by_name['channel'].message_type = _CHANNEL
 _FROMRADIO.oneofs_by_name['payloadVariant'].fields.append(
   _FROMRADIO.fields_by_name['packet'])
 _FROMRADIO.fields_by_name['packet'].containing_oneof = _FROMRADIO.oneofs_by_name['payloadVariant']
@@ -1931,38 +1986,39 @@ _FROMRADIO.oneofs_by_name['payloadVariant'].fields.append(
   _FROMRADIO.fields_by_name['channel'])
 _FROMRADIO.fields_by_name['channel'].containing_oneof = _FROMRADIO.oneofs_by_name['payloadVariant']
 _TORADIO.fields_by_name['packet'].message_type = _MESHPACKET
-_TORADIO.fields_by_name['set_radio'].message_type = _RADIOCONFIG
-_TORADIO.fields_by_name['set_owner'].message_type = _USER
-_TORADIO.fields_by_name['set_channel'].message_type = _CHANNELSETTINGS
 _TORADIO.oneofs_by_name['payloadVariant'].fields.append(
   _TORADIO.fields_by_name['packet'])
 _TORADIO.fields_by_name['packet'].containing_oneof = _TORADIO.oneofs_by_name['payloadVariant']
 _TORADIO.oneofs_by_name['payloadVariant'].fields.append(
   _TORADIO.fields_by_name['want_config_id'])
 _TORADIO.fields_by_name['want_config_id'].containing_oneof = _TORADIO.oneofs_by_name['payloadVariant']
-_TORADIO.oneofs_by_name['payloadVariant'].fields.append(
-  _TORADIO.fields_by_name['set_radio'])
-_TORADIO.fields_by_name['set_radio'].containing_oneof = _TORADIO.oneofs_by_name['payloadVariant']
-_TORADIO.oneofs_by_name['payloadVariant'].fields.append(
-  _TORADIO.fields_by_name['set_owner'])
-_TORADIO.fields_by_name['set_owner'].containing_oneof = _TORADIO.oneofs_by_name['payloadVariant']
-_TORADIO.oneofs_by_name['payloadVariant'].fields.append(
-  _TORADIO.fields_by_name['set_channel'])
-_TORADIO.fields_by_name['set_channel'].containing_oneof = _TORADIO.oneofs_by_name['payloadVariant']
+_ADMINMESSAGE.fields_by_name['set_radio'].message_type = _RADIOCONFIG
+_ADMINMESSAGE.fields_by_name['set_owner'].message_type = _USER
+_ADMINMESSAGE.fields_by_name['set_channel'].message_type = _CHANNEL
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['set_radio'])
+_ADMINMESSAGE.fields_by_name['set_radio'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['set_owner'])
+_ADMINMESSAGE.fields_by_name['set_owner'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['set_channel'])
+_ADMINMESSAGE.fields_by_name['set_channel'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
 DESCRIPTOR.message_types_by_name['Position'] = _POSITION
-DESCRIPTOR.message_types_by_name['Data'] = _DATA
 DESCRIPTOR.message_types_by_name['User'] = _USER
 DESCRIPTOR.message_types_by_name['RouteDiscovery'] = _ROUTEDISCOVERY
-DESCRIPTOR.message_types_by_name['SubPacket'] = _SUBPACKET
+DESCRIPTOR.message_types_by_name['Routing'] = _ROUTING
+DESCRIPTOR.message_types_by_name['Data'] = _DATA
 DESCRIPTOR.message_types_by_name['MeshPacket'] = _MESHPACKET
 DESCRIPTOR.message_types_by_name['ChannelSettings'] = _CHANNELSETTINGS
+DESCRIPTOR.message_types_by_name['Channel'] = _CHANNEL
 DESCRIPTOR.message_types_by_name['RadioConfig'] = _RADIOCONFIG
 DESCRIPTOR.message_types_by_name['NodeInfo'] = _NODEINFO
 DESCRIPTOR.message_types_by_name['MyNodeInfo'] = _MYNODEINFO
 DESCRIPTOR.message_types_by_name['LogRecord'] = _LOGRECORD
 DESCRIPTOR.message_types_by_name['FromRadio'] = _FROMRADIO
 DESCRIPTOR.message_types_by_name['ToRadio'] = _TORADIO
-DESCRIPTOR.enum_types_by_name['ErrorReason'] = _ERRORREASON
+DESCRIPTOR.message_types_by_name['AdminMessage'] = _ADMINMESSAGE
 DESCRIPTOR.enum_types_by_name['Constants'] = _CONSTANTS
 DESCRIPTOR.enum_types_by_name['RegionCode'] = _REGIONCODE
 DESCRIPTOR.enum_types_by_name['ChargeCurrent'] = _CHARGECURRENT
@@ -1978,13 +2034,6 @@ Position = _reflection.GeneratedProtocolMessageType('Position', (_message.Messag
   })
 _sym_db.RegisterMessage(Position)
 
-Data = _reflection.GeneratedProtocolMessageType('Data', (_message.Message,), {
-  'DESCRIPTOR' : _DATA,
-  '__module__' : 'mesh_pb2'
-  # @@protoc_insertion_point(class_scope:Data)
-  })
-_sym_db.RegisterMessage(Data)
-
 User = _reflection.GeneratedProtocolMessageType('User', (_message.Message,), {
   'DESCRIPTOR' : _USER,
   '__module__' : 'mesh_pb2'
@@ -1999,12 +2048,19 @@ RouteDiscovery = _reflection.GeneratedProtocolMessageType('RouteDiscovery', (_me
   })
 _sym_db.RegisterMessage(RouteDiscovery)
 
-SubPacket = _reflection.GeneratedProtocolMessageType('SubPacket', (_message.Message,), {
-  'DESCRIPTOR' : _SUBPACKET,
+Routing = _reflection.GeneratedProtocolMessageType('Routing', (_message.Message,), {
+  'DESCRIPTOR' : _ROUTING,
   '__module__' : 'mesh_pb2'
-  # @@protoc_insertion_point(class_scope:SubPacket)
+  # @@protoc_insertion_point(class_scope:Routing)
   })
-_sym_db.RegisterMessage(SubPacket)
+_sym_db.RegisterMessage(Routing)
+
+Data = _reflection.GeneratedProtocolMessageType('Data', (_message.Message,), {
+  'DESCRIPTOR' : _DATA,
+  '__module__' : 'mesh_pb2'
+  # @@protoc_insertion_point(class_scope:Data)
+  })
+_sym_db.RegisterMessage(Data)
 
 MeshPacket = _reflection.GeneratedProtocolMessageType('MeshPacket', (_message.Message,), {
   'DESCRIPTOR' : _MESHPACKET,
@@ -2019,6 +2075,13 @@ ChannelSettings = _reflection.GeneratedProtocolMessageType('ChannelSettings', (_
   # @@protoc_insertion_point(class_scope:ChannelSettings)
   })
 _sym_db.RegisterMessage(ChannelSettings)
+
+Channel = _reflection.GeneratedProtocolMessageType('Channel', (_message.Message,), {
+  'DESCRIPTOR' : _CHANNEL,
+  '__module__' : 'mesh_pb2'
+  # @@protoc_insertion_point(class_scope:Channel)
+  })
+_sym_db.RegisterMessage(Channel)
 
 RadioConfig = _reflection.GeneratedProtocolMessageType('RadioConfig', (_message.Message,), {
 
@@ -2070,11 +2133,14 @@ ToRadio = _reflection.GeneratedProtocolMessageType('ToRadio', (_message.Message,
   })
 _sym_db.RegisterMessage(ToRadio)
 
+AdminMessage = _reflection.GeneratedProtocolMessageType('AdminMessage', (_message.Message,), {
+  'DESCRIPTOR' : _ADMINMESSAGE,
+  '__module__' : 'mesh_pb2'
+  # @@protoc_insertion_point(class_scope:AdminMessage)
+  })
+_sym_db.RegisterMessage(AdminMessage)
+
 
 DESCRIPTOR._options = None
-_SUBPACKET.fields_by_name['position']._options = None
-_SUBPACKET.fields_by_name['user']._options = None
-_RADIOCONFIG.fields_by_name['channel_settings']._options = None
 _MYNODEINFO.fields_by_name['region']._options = None
-_MYNODEINFO.fields_by_name['current_packet_id']._options = None
 # @@protoc_insertion_point(module_scope)

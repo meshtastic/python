@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\007AppOnlyH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rapponly.proto\x1a\nmesh.proto\"V\n\x0fServiceEnvelope\x12\x1b\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacket\x12\x12\n\nchannel_id\x18\x02 \x01(\t\x12\x12\n\ngateway_id\x18\x03 \x01(\tB \n\x13\x63om.geeksville.meshB\x07\x41ppOnlyH\x03\x62\x06proto3'
+  serialized_pb=b'\n\rapponly.proto\x1a\nmesh.proto\"V\n\x0fServiceEnvelope\x12\x1b\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacket\x12\x12\n\nchannel_id\x18\x02 \x01(\t\x12\x12\n\ngateway_id\x18\x03 \x01(\t\"0\n\nChannelSet\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.ChannelSettingsB \n\x13\x63om.geeksville.meshB\x07\x41ppOnlyH\x03\x62\x06proto3'
   ,
   dependencies=[mesh__pb2.DESCRIPTOR,])
 
@@ -72,8 +72,42 @@ _SERVICEENVELOPE = _descriptor.Descriptor(
   serialized_end=115,
 )
 
+
+_CHANNELSET = _descriptor.Descriptor(
+  name='ChannelSet',
+  full_name='ChannelSet',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='settings', full_name='ChannelSet.settings', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=117,
+  serialized_end=165,
+)
+
 _SERVICEENVELOPE.fields_by_name['packet'].message_type = mesh__pb2._MESHPACKET
+_CHANNELSET.fields_by_name['settings'].message_type = mesh__pb2._CHANNELSETTINGS
 DESCRIPTOR.message_types_by_name['ServiceEnvelope'] = _SERVICEENVELOPE
+DESCRIPTOR.message_types_by_name['ChannelSet'] = _CHANNELSET
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 ServiceEnvelope = _reflection.GeneratedProtocolMessageType('ServiceEnvelope', (_message.Message,), {
@@ -82,6 +116,13 @@ ServiceEnvelope = _reflection.GeneratedProtocolMessageType('ServiceEnvelope', (_
   # @@protoc_insertion_point(class_scope:ServiceEnvelope)
   })
 _sym_db.RegisterMessage(ServiceEnvelope)
+
+ChannelSet = _reflection.GeneratedProtocolMessageType('ChannelSet', (_message.Message,), {
+  'DESCRIPTOR' : _CHANNELSET,
+  '__module__' : 'apponly_pb2'
+  # @@protoc_insertion_point(class_scope:ChannelSet)
+  })
+_sym_db.RegisterMessage(ChannelSet)
 
 
 DESCRIPTOR._options = None
