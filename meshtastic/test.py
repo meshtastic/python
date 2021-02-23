@@ -27,7 +27,7 @@ def onReceive(packet, interface):
         print(f"From {interface.stream.port}: {packet}")
         p = DotMap(packet)
 
-        if p.decoded.data.portnum == "TEXT_MESSAGE_APP":
+        if p.decoded.portnum == "TEXT_MESSAGE_APP":
             # We only care a about clear text packets
             receivedPackets.append(p)
 
