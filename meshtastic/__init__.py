@@ -79,7 +79,14 @@ MY_CONFIG_ID = 42
 
 format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 """
-OUR_APP_VERSION = 20120 
+OUR_APP_VERSION = 20200 
+
+def catchAndIgnore(reason, closure):
+    """Call a closure but if it throws an excpetion print it and continue"""
+    try:
+        closure()
+    except BaseException as ex:
+        logging.error(f"Exception thrown in {reason}: {ex}")
 
 class MeshInterface:
     """Interface class for meshtastic devices
@@ -149,8 +156,8 @@ class MeshInterface:
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
             raise Exception("Data payload too big")
         meshPacket = mesh_pb2.MeshPacket()
-        meshPacket.decoded.data.payload = data
-        meshPacket.decoded.data.portnum = portNum
+        meshPacket.decoded.payload = data
+        meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
         return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
 
@@ -319,13 +326,13 @@ class MeshInterface:
     def _disconnected(self):
         """Called by subclasses to tell clients this interface has disconnected"""
         self.isConnected.clear()
-        pub.sendMessage("meshtastic.connection.lost", interface=self)
+        catchAndIgnore("disconnection publish", lambda: pub.sendMessage("meshtastic.connection.lost", interface=self))
 
     def _connected(self):
         """Called by this class to tell clients we are now fully connected to a node
         """
         self.isConnected.set()
-        pub.sendMessage("meshtastic.connection.established", interface=self)
+        catchAndIgnore("connection publish", lambda: pub.sendMessage("meshtastic.connection.established", interface=self))
 
     def _startConfig(self):
         """Start device packets flowing"""
@@ -343,6 +350,7 @@ class MeshInterface:
         if self.noProto:
             logging.warn(f"Not sending packet because protocol use is disabled by noProto")
         else:
+            logging.debug(f"Sending toRadio: {toRadio}")
             self._sendToRadioImpl(toRadio)
 
     def _sendToRadioImpl(self, toRadio):
@@ -454,63 +462,61 @@ class MeshInterface:
         if meshPacket.decoded.HasField("user") or meshPacket.decoded.HasField("position"):
             logging.warn("Ignoring old position/user message. Recommend you update firmware to 1.1.20 or later")
 
-        if meshPacket.decoded.HasField("data"):
+        # The default MessageToDict converts byte arrays into base64 strings.
+        # We don't want that - it messes up data payload.  So slam in the correct
+        # byte array.
+        asDict["decoded"]["payload"] = meshPacket.decoded.payload
 
-            # The default MessageToDict converts byte arrays into base64 strings.
-            # We don't want that - it messes up data payload.  So slam in the correct
-            # byte array.
-            asDict["decoded"]["data"]["payload"] = meshPacket.decoded.data.payload
+        # UNKNOWN_APP is the default protobuf portnum value, and therefore if not set it will not be populated at all
+        # to make API usage easier, set it to prevent confusion
+        if not "portnum" in asDict["decoded"]:
+            asDict["decoded"]["portnum"] = portnums_pb2.PortNum.Name(portnums_pb2.PortNum.UNKNOWN_APP)
 
-            # UNKNOWN_APP is the default protobuf portnum value, and therefore if not set it will not be populated at all
-            # to make API usage easier, set it to prevent confusion
-            if not "portnum" in asDict["decoded"]["data"]:
-                asDict["decoded"]["data"]["portnum"] = portnums_pb2.PortNum.Name(portnums_pb2.PortNum.UNKNOWN_APP)
+        portnum = asDict["decoded"]["portnum"]
 
-            portnum = asDict["decoded"]["data"]["portnum"]
+        topic = f"meshtastic.receive.data.{portnum}"
 
-            topic = f"meshtastic.receive.data.{portnum}"
+        # For text messages, we go ahead and decode the text to ascii for our users
+        if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.TEXT_MESSAGE_APP):
+            topic = "meshtastic.receive.text"
 
-            # For text messages, we go ahead and decode the text to ascii for our users
-            if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.TEXT_MESSAGE_APP):
-                topic = "meshtastic.receive.text"
+            # We don't throw if the utf8 is invalid in the text message.  Instead we just don't populate
+            # the decoded.data.text and we log an error message.  This at least allows some delivery to
+            # the app and the app can deal with the missing decoded representation.
+            #
+            # Usually btw this problem is caused by apps sending binary data but setting the payload type to
+            # text.
+            try:
+                asDict["decoded"]["text"] = meshPacket.decoded.payload.decode("utf-8")
+            except Exception as ex:
+                logging.error(f"Malformatted utf8 in text message: {ex}")
 
-                # We don't throw if the utf8 is invalid in the text message.  Instead we just don't populate
-                # the decoded.data.text and we log an error message.  This at least allows some delivery to
-                # the app and the app can deal with the missing decoded representation.
-                #
-                # Usually btw this problem is caused by apps sending binary data but setting the payload type to
-                # text.
-                try:
-                    asDict["decoded"]["data"]["text"] = meshPacket.decoded.data.payload.decode("utf-8")
-                except Exception as ex:
-                    logging.error(f"Malformatted utf8 in text message: {ex}")
+        # decode position protobufs and update nodedb, provide decoded version as "position" in the published msg
+        if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.POSITION_APP):
+            topic = "meshtastic.receive.position"
+            pb = mesh_pb2.Position()
+            pb.ParseFromString(meshPacket.decoded.payload)
+            p = google.protobuf.json_format.MessageToDict(pb)
+            self._fixupPosition(p)
+            asDict["decoded"]["position"] = p
+            # update node DB as needed
+            self._getOrCreateByNum(asDict["from"])["position"] = p
 
-            # decode position protobufs and update nodedb, provide decoded version as "position" in the published msg
-            if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.POSITION_APP):
-                topic = "meshtastic.receive.position"
-                pb = mesh_pb2.Position()
-                pb.ParseFromString(meshPacket.decoded.data.payload)
-                p = google.protobuf.json_format.MessageToDict(pb)
-                self._fixupPosition(p)
-                asDict["decoded"]["data"]["position"] = p
-                # update node DB as needed
-                self._getOrCreateByNum(asDict["from"])["position"] = p
-
-            # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
-            if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.NODEINFO_APP):
-                topic = "meshtastic.receive.user"
-                pb = mesh_pb2.User()
-                pb.ParseFromString(meshPacket.decoded.data.payload)
-                u = google.protobuf.json_format.MessageToDict(pb)
-                asDict["decoded"]["data"]["user"] = u
-                # update node DB as needed
-                n = self._getOrCreateByNum(asDict["from"])
-                n["user"] = u
-                # We now have a node ID, make sure it is uptodate in that table
-                self.nodes[u["id"]] = n
+        # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
+        if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.NODEINFO_APP):
+            topic = "meshtastic.receive.user"
+            pb = mesh_pb2.User()
+            pb.ParseFromString(meshPacket.decoded.payload)
+            u = google.protobuf.json_format.MessageToDict(pb)
+            asDict["decoded"]["user"] = u
+            # update node DB as needed
+            n = self._getOrCreateByNum(asDict["from"])
+            n["user"] = u
+            # We now have a node ID, make sure it is uptodate in that table
+            self.nodes[u["id"]] = n
 
         logging.debug(f"Publishing topic {topic}")
-        pub.sendMessage(topic, packet=asDict, interface=self)
+        catchAndIgnore(f"publishing {topic}", lambda: pub.sendMessage(topic, packet=asDict, interface=self))
 
 
 # Our standard BLE characteristics
