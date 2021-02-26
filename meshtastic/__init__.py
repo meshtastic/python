@@ -67,7 +67,7 @@ import time
 import base64
 import platform
 import socket
-from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, util
+from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, util
 from .util import fixme, catchAndIgnore
 from pubsub import pub
 from dotmap import DotMap
@@ -103,10 +103,13 @@ class KnownProtocol(NamedTuple):
     # portnum: int, now a key
     protobufFactory: Callable
 
+"""Well known message payloads can register decoders for automatic protobuf parsing"""
 protocols = {
     portnums_pb2.PortNum.POSITION_APP: KnownProtocol("position", mesh_pb2.Position),
     portnums_pb2.PortNum.NODEINFO_APP: KnownProtocol("user", mesh_pb2.User),
-    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage)
+    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage),
+    portnums_pb2.PortNum.ENVIRONMENTAL_MEASUREMENT_APP: KnownProtocol("environmental", environmental_measurement_pb2.EnvironmentalMeasurement),
+    portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol("remotehw", remote_hardware_pb2.HardwareMessage)
 }
 
 class MeshInterface:
