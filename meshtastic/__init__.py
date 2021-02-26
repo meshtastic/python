@@ -55,11 +55,19 @@ interface = meshtastic.SerialInterface()
 
 """
 
-import socket
 import pygatt
 import google.protobuf.json_format
-import serial, threading, logging, sys, random, traceback, time, base64, platform
-from . import mesh_pb2, portnums_pb2, util
+import serial
+import threading
+import logging
+import sys
+import random
+import traceback
+import time
+import base64
+import platform
+import socket
+from . import mesh_pb2, portnums_pb2, apponly_pb2, util
 from pubsub import pub
 from dotmap import DotMap
 
@@ -79,7 +87,8 @@ MY_CONFIG_ID = 42
 
 format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 """
-OUR_APP_VERSION = 20200 
+OUR_APP_VERSION = 20200
+
 
 def catchAndIgnore(reason, closure):
     """Call a closure but if it throws an excpetion print it and continue"""
@@ -87,6 +96,7 @@ def catchAndIgnore(reason, closure):
         closure()
     except BaseException as ex:
         logging.error(f"Exception thrown in {reason}: {ex}")
+
 
 class MeshInterface:
     """Interface class for meshtastic devices
@@ -108,7 +118,7 @@ class MeshInterface:
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
-        random.seed() # FIXME, we should not clobber the random seedval here, instead tell user they must call it
+        random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
 
@@ -117,7 +127,8 @@ class MeshInterface:
 
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is not None and exc_value is not None:
-            logging.error(f'An exception of type {exc_type} with value {exc_value} has occurred')
+            logging.error(
+                f'An exception of type {exc_type} with value {exc_value} has occurred')
         if traceback is not None:
             logging.error(f'Traceback: {traceback}')
         self.close()
@@ -265,6 +276,7 @@ class MeshInterface:
         """Set device owner name"""
         nChars = 3
         minChars = 2
+        fixme("update for 1.2")
         if long_name is not None:
             long_name = long_name.strip()
             if short_name is None:
@@ -292,27 +304,30 @@ class MeshInterface:
     def channelURL(self):
         """The sharable URL that describes the current channel
         """
-        bytes = self.radioConfig.channel_settings.SerializeToString()
+        channelSet = apponly_pb2.ChannelSet()
+        fixme("fill channelSet from self.channels")
+        bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode('ascii')
         return f"https://www.meshtastic.org/c/#{s}"
 
-    def setURL(self, url, write=True):
+    def setURL(self, url):
         """Set mesh network URL"""
         if self.radioConfig == None:
             raise Exception("No RadioConfig has been read")
 
-        # URLs are of the form https://www.meshtastic.org/c/#{base64_channel_settings}
+        # URLs are of the form https://www.meshtastic.org/c/#{base64_channel_set}
         # Split on '/#' to find the base64 encoded channel settings
         splitURL = url.split("/#")
         decodedURL = base64.urlsafe_b64decode(splitURL[-1])
-        self.radioConfig.channel_settings.ParseFromString(decodedURL)
-        if write:
-            self.writeConfig()
+        channelSet = apponly_pb2.ChannelSet()
+        channelSet.ParseFromString(decodedURL)
+        fixme("set self.channels")
+        self.writeChannels()
 
     def _waitConnected(self):
         """Block until the initial node db download is complete, or timeout
         and raise an exception"""
-        if not self.isConnected.wait(5.0): # timeout after 5 seconds
+        if not self.isConnected.wait(5.0):  # timeout after 5 seconds
             raise Exception("Timed out waiting for connection completion")
 
     def _generatePacketId(self):
@@ -326,13 +341,15 @@ class MeshInterface:
     def _disconnected(self):
         """Called by subclasses to tell clients this interface has disconnected"""
         self.isConnected.clear()
-        catchAndIgnore("disconnection publish", lambda: pub.sendMessage("meshtastic.connection.lost", interface=self))
+        catchAndIgnore("disconnection publish", lambda: pub.sendMessage(
+            "meshtastic.connection.lost", interface=self))
 
     def _connected(self):
         """Called by this class to tell clients we are now fully connected to a node
         """
         self.isConnected.set()
-        catchAndIgnore("connection publish", lambda: pub.sendMessage("meshtastic.connection.established", interface=self))
+        catchAndIgnore("connection publish", lambda: pub.sendMessage(
+            "meshtastic.connection.established", interface=self))
 
     def _startConfig(self):
         """Start device packets flowing"""
@@ -348,7 +365,8 @@ class MeshInterface:
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""
         if self.noProto:
-            logging.warn(f"Not sending packet because protocol use is disabled by noProto")
+            logging.warn(
+                f"Not sending packet because protocol use is disabled by noProto")
         else:
             logging.debug(f"Sending toRadio: {toRadio}")
             self._sendToRadioImpl(toRadio)
@@ -356,6 +374,15 @@ class MeshInterface:
     def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
         logging.error(f"Subclass must provide toradio: {toRadio}")
+
+    def _handleConfigComplete(self):
+        """
+        Done with initial config messages, now send regular MeshPackets to ask for settings and channels
+        """
+        self._requestSettings()
+        self._requestChannels()
+        # FIXME, the following should only be called after we have settings and channels
+        self._connected()  # Tell everone else we are ready to go
 
     def _handleFromRadio(self, fromRadioBytes):
         """
@@ -383,10 +410,11 @@ class MeshInterface:
             self.nodesByNum[node["num"]] = node
             if "user" in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node["user"]["id"]] = node
-            pub.sendMessage("meshtastic.node.updated", node=node, interface=self)
+            pub.sendMessage("meshtastic.node.updated",
+                            node=node, interface=self)
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
-            self._connected()
+            self._handleConfigComplete()
         elif fromRadio.HasField("packet"):
             self._handlePacketFromRadio(fromRadio.packet)
         elif fromRadio.rebooted:
@@ -465,7 +493,8 @@ class MeshInterface:
         # UNKNOWN_APP is the default protobuf portnum value, and therefore if not set it will not be populated at all
         # to make API usage easier, set it to prevent confusion
         if not "portnum" in asDict["decoded"]:
-            asDict["decoded"]["portnum"] = portnums_pb2.PortNum.Name(portnums_pb2.PortNum.UNKNOWN_APP)
+            asDict["decoded"]["portnum"] = portnums_pb2.PortNum.Name(
+                portnums_pb2.PortNum.UNKNOWN_APP)
 
         portnum = asDict["decoded"]["portnum"]
 
@@ -482,7 +511,8 @@ class MeshInterface:
             # Usually btw this problem is caused by apps sending binary data but setting the payload type to
             # text.
             try:
-                asDict["decoded"]["text"] = meshPacket.decoded.payload.decode("utf-8")
+                asDict["decoded"]["text"] = meshPacket.decoded.payload.decode(
+                    "utf-8")
             except Exception as ex:
                 logging.error(f"Malformatted utf8 in text message: {ex}")
 
@@ -511,7 +541,8 @@ class MeshInterface:
             self.nodes[u["id"]] = n
 
         logging.debug(f"Publishing topic {topic}")
-        catchAndIgnore(f"publishing {topic}", lambda: pub.sendMessage(topic, packet=asDict, interface=self))
+        catchAndIgnore(f"publishing {topic}", lambda: pub.sendMessage(
+            topic, packet=asDict, interface=self))
 
 
 # Our standard BLE characteristics
@@ -600,7 +631,7 @@ class StreamInterface(MeshInterface):
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
-        if not self.noProto: # Wait for the db download if using the protocol
+        if not self.noProto:  # Wait for the db download if using the protocol
             self._waitConnected()
 
     def _disconnected(self):
@@ -686,13 +717,16 @@ class StreamInterface(MeshInterface):
                     # logging.debug(f"timeout")
                     pass
         except serial.SerialException as ex:
-            if not self._wantExit: # We might intentionally get an exception during shutdown
-                logging.warn(f"Meshtastic serial port disconnected, disconnecting... {ex}")
+            if not self._wantExit:  # We might intentionally get an exception during shutdown
+                logging.warn(
+                    f"Meshtastic serial port disconnected, disconnecting... {ex}")
         except OSError as ex:
-            if not self._wantExit: # We might intentionally get an exception during shutdown
-                logging.error(f"Unexpected OSError, terminating meshtastic reader... {ex}")                
+            if not self._wantExit:  # We might intentionally get an exception during shutdown
+                logging.error(
+                    f"Unexpected OSError, terminating meshtastic reader... {ex}")
         except Exception as ex:
-            logging.error(f"Unexpected exception, terminating meshtastic reader... {ex}")
+            logging.error(
+                f"Unexpected exception, terminating meshtastic reader... {ex}")
         finally:
             logging.debug("reader is exiting")
             self._disconnected()
@@ -740,6 +774,7 @@ class SerialInterface(StreamInterface):
         StreamInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
 
+
 class TCPInterface(StreamInterface):
     """Interface class for meshtastic devices over a TCP link"""
 
@@ -766,9 +801,9 @@ class TCPInterface(StreamInterface):
     def close(self):
         """Close a connection to the device"""
         logging.debug("Closing TCP stream")
-        # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing 
+        # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing
         # the socket here
-        self._wantExit = True        
+        self._wantExit = True
         if not self.socket is None:
             self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
