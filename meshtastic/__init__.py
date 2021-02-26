@@ -67,10 +67,11 @@ import time
 import base64
 import platform
 import socket
-from . import mesh_pb2, portnums_pb2, apponly_pb2, util
+from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, util
 from .util import fixme, catchAndIgnore
 from pubsub import pub
 from dotmap import DotMap
+from typing import *
 
 START1 = 0x94
 START2 = 0xc3
@@ -90,6 +91,23 @@ format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 """
 OUR_APP_VERSION = 20200
 
+class ResponseHandler(NamedTuple):
+    """A pending response callback, waiting for a response to one of our messages"""
+    # requestId: int - used only as a key
+    callback: Callable
+    # FIXME, add timestamp and age out old requests
+
+class KnownProtocol(NamedTuple):
+    """Used to automatically decode known protocol payloads"""
+    name: str
+    # portnum: int, now a key
+    protobufFactory: Callable
+
+protocols = {
+    portnums_pb2.PortNum.POSITION_APP: KnownProtocol("position", mesh_pb2.Position),
+    portnums_pb2.PortNum.NODEINFO_APP: KnownProtocol("user", mesh_pb2.User),
+    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage)
+}
 
 class MeshInterface:
     """Interface class for meshtastic devices
@@ -111,6 +129,7 @@ class MeshInterface:
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
+        self.responseHandlers = {} # A map from request ID to the handler
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
@@ -125,8 +144,12 @@ class MeshInterface:
         if traceback is not None:
             logging.error(f'Traceback: {traceback}')
         self.close()
-
-    def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
+    
+    def sendText(self, text: AnyStr,
+                 destinationId=BROADCAST_ADDR,
+                 wantAck=False,
+                 wantResponse=False,
+                 onResponse=None):
         """Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
         Arguments:
@@ -136,13 +159,20 @@ class MeshInterface:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
             portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
+            wantResponse -- True if you want the service on the other side to send an application layer response
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
         return self.sendData(text.encode("utf-8"), destinationId,
-                             portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP, wantAck=wantAck, wantResponse=wantResponse)
+                             portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
+                             wantAck=wantAck,
+                             wantResponse=wantResponse,
+                             onResponse=onResponse)
 
-    def sendData(self, data, destinationId=BROADCAST_ADDR, portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False, wantResponse=False):
+    def sendData(self, data, destinationId=BROADCAST_ADDR,
+                 portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
+                 wantResponse=False,
+                 onResponse=None):
         """Send a data packet to some other node
 
         Keyword Arguments:
@@ -150,6 +180,8 @@ class MeshInterface:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
             portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
+            wantResponse -- True if you want the service on the other side to send an application layer response
+            onResponse -- A closure of the form funct(packet), that will be called when a response packet arrives (or the transaction is NAKed due to non receipt)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
@@ -163,7 +195,11 @@ class MeshInterface:
         meshPacket.decoded.payload = data
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
-        return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+
+        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        if onResponse is not None:
+            self._addResponseHandler(p.id, onResponse)
+        return p
 
     def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         """
@@ -190,13 +226,22 @@ class MeshInterface:
             timeSec = time.time()  # returns unix timestamp in seconds
         p.time = int(timeSec)
 
-        return self.sendData(p, destinationId, portNum=portnums_pb2.PortNum.POSITION_APP, wantAck=wantAck, wantResponse=wantResponse)
+        return self.sendData(p, destinationId,
+                             portNum=portnums_pb2.PortNum.POSITION_APP,
+                             wantAck=wantAck,
+                             wantResponse=wantResponse)
 
-    def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
+    def _addResponseHandler(self, requestId, callback):
+        self.responseHandlers[requestId] = ResponseHandler(callback)
+
+    def _sendPacket(self, meshPacket,
+                    destinationId=BROADCAST_ADDR,
+                    wantAck=False):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead.
 
-        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        Returns the sent packet. The id field will be populated in this packet and 
+        can be used to track future message acks/naks.
         """
         self._waitConnected()
 
@@ -510,28 +555,29 @@ class MeshInterface:
                 logging.error(f"Malformatted utf8 in text message: {ex}")
 
         # decode position protobufs and update nodedb, provide decoded version as "position" in the published msg
-        if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.POSITION_APP):
-            topic = "meshtastic.receive.position"
-            pb = mesh_pb2.Position()
+        # move the following into a 'decoders' API that clients could register?
+        portNumInt = meshPacket.decoded.portnum # we want portnum as an int
+        handler = protocols.get(portNumInt)
+        p = None # The decoded protobuf as a dictionary (if we understand this message)
+        if handler is not None:
+            topic = f"meshtastic.receive.{handler.name}"
+            pb = handler.protobufFactory()
             pb.ParseFromString(meshPacket.decoded.payload)
             p = google.protobuf.json_format.MessageToDict(pb)
+            asDict["decoded"][handler.name] = p
+
+        if portNumInt == portnums_pb2.PortNum.POSITION_APP:
             self._fixupPosition(p)
-            asDict["decoded"]["position"] = p
             # update node DB as needed
             self._getOrCreateByNum(asDict["from"])["position"] = p
 
         # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
-        if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.NODEINFO_APP):
-            topic = "meshtastic.receive.user"
-            pb = mesh_pb2.User()
-            pb.ParseFromString(meshPacket.decoded.payload)
-            u = google.protobuf.json_format.MessageToDict(pb)
-            asDict["decoded"]["user"] = u
+        if portNumInt == portnums_pb2.PortNum.NODEINFO_APP:
             # update node DB as needed
             n = self._getOrCreateByNum(asDict["from"])
-            n["user"] = u
+            n["user"] = p
             # We now have a node ID, make sure it is uptodate in that table
-            self.nodes[u["id"]] = n
+            self.nodes[p["id"]] = n
 
         logging.debug(f"Publishing topic {topic}")
         catchAndIgnore(f"publishing {topic}", lambda: pub.sendMessage(
@@ -771,7 +817,7 @@ class SerialInterface(StreamInterface):
 class TCPInterface(StreamInterface):
     """Interface class for meshtastic devices over a TCP link"""
 
-    def __init__(self, hostname, debugOut=None, noProto=False, connectNow=True, portNumber=4403):
+    def __init__(self, hostname: AnyStr, debugOut=None, noProto=False, connectNow=True, portNumber=4403):
         """Constructor, opens a connection to a specified IP address/hostname
 
         Keyword Arguments:
