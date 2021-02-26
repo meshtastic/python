@@ -91,18 +91,22 @@ format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 """
 OUR_APP_VERSION = 20200
 
+
 class ResponseHandler(NamedTuple):
     """A pending response callback, waiting for a response to one of our messages"""
     # requestId: int - used only as a key
     callback: Callable
     # FIXME, add timestamp and age out old requests
 
+
 class KnownProtocol(NamedTuple):
     """Used to automatically decode known protocol payloads"""
     name: str
     # portnum: int, now a key
-    protobufFactory: Callable = None # If set, will be called to prase as a protocol buffer
-    onReceive: Callable = None # If set, invoked as onReceive(interface, packet)
+    # If set, will be called to prase as a protocol buffer
+    protobufFactory: Callable = None
+    # If set, invoked as onReceive(interface, packet)
+    onReceive: Callable = None
 
 
 class MeshInterface:
@@ -125,8 +129,8 @@ class MeshInterface:
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
-        self.myInfo = None # We don't have device info yet
-        self.responseHandlers = {} # A map from request ID to the handler
+        self.myInfo = None  # We don't have device info yet
+        self.responseHandlers = {}  # A map from request ID to the handler
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
@@ -141,7 +145,7 @@ class MeshInterface:
         if traceback is not None:
             logging.error(f'Traceback: {traceback}')
         self.close()
-    
+
     def sendText(self, text: AnyStr,
                  destinationId=BROADCAST_ADDR,
                  wantAck=False,
@@ -552,9 +556,10 @@ class MeshInterface:
 
         # decode position protobufs and update nodedb, provide decoded version as "position" in the published msg
         # move the following into a 'decoders' API that clients could register?
-        portNumInt = meshPacket.decoded.portnum # we want portnum as an int
+        portNumInt = meshPacket.decoded.portnum  # we want portnum as an int
         handler = protocols.get(portNumInt)
-        p = None # The decoded protobuf as a dictionary (if we understand this message)
+        # The decoded protobuf as a dictionary (if we understand this message)
+        p = None
         if handler is not None:
             topic = f"meshtastic.receive.{handler.name}"
 
@@ -573,7 +578,7 @@ class MeshInterface:
         # We ignore ACK packets, but send NAKs and data responses to the handlers
         requestId = asDict["decoded"].get("requestId")
         if requestId is not None:
-            pass
+            fixme("implment")
 
         logging.debug(f"Publishing topic {topic}")
         catchAndIgnore(f"publishing {topic}", lambda: pub.sendMessage(
@@ -867,12 +872,14 @@ def _onTextReceive(iface, asDict):
     except Exception as ex:
         logging.error(f"Malformatted utf8 in text message: {ex}")
 
+
 def _onPositionReceive(iface, asDict):
     """Special auto parsing for received messages"""
     p = asDict["decoded"]["position"]
     iface._fixupPosition(p)
     # update node DB as needed
     iface._getOrCreateByNum(asDict["from"])["position"] = p
+
 
 def _onNodeInfoReceive(iface, asDict):
     """Special auto parsing for received messages"""
@@ -893,5 +900,6 @@ protocols = {
     portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage),
     portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
     portnums_pb2.PortNum.ENVIRONMENTAL_MEASUREMENT_APP: KnownProtocol("environmental", environmental_measurement_pb2.EnvironmentalMeasurement),
-    portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol("remotehw", remote_hardware_pb2.HardwareMessage)
+    portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol(
+        "remotehw", remote_hardware_pb2.HardwareMessage)
 }

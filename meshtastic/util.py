@@ -18,6 +18,7 @@ def catchAndIgnore(reason, closure):
     except BaseException as ex:
         logging.error(f"Exception thrown in {reason}: {ex}")
 
+
 def findPorts():
     """Find all ports that might have meshtastic devices
 

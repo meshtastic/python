@@ -19,6 +19,7 @@ testNumber = 0
 
 sendingInterface = None
 
+
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
     if sendingInterface == interface:
@@ -30,6 +31,7 @@ def onReceive(packet, interface):
         if p.decoded.portnum == "TEXT_MESSAGE_APP":
             # We only care a about clear text packets
             receivedPackets.append(p)
+
 
 def onNode(node):
     """Callback invoked when the node DB changes"""
@@ -63,7 +65,7 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False):
         toNode = toInterface.myInfo.my_node_num
 
     logging.info(f"Sending test packet from {fromNode} to {toNode}")
-    wantAck = False # Don't want any sort of reliaible sending
+    wantAck = False  # Don't want any sort of reliaible sending
     global sendingInterface
     sendingInterface = fromInterface
     if not asBinary:
@@ -71,11 +73,11 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False):
     else:
         fromInterface.sendData((f"Binary {testNumber}").encode(
             "utf-8"), toNode, wantAck=wantAck)
-    for sec in range(45): # max of 45 secs before we timeout
+    for sec in range(45):  # max of 45 secs before we timeout
         time.sleep(1)
         if (len(receivedPackets) >= 1):
             return True
-    return False # Failed to send
+    return False  # Failed to send
 
 
 def testThread(numTests=50):
@@ -88,14 +90,15 @@ def testThread(numTests=50):
         isBroadcast = True
         # asBinary=(i % 2 == 0)
         success = testSend(
-            interfaces[0], interfaces[1], isBroadcast, asBinary = False)
+            interfaces[0], interfaces[1], isBroadcast, asBinary=False)
         if not success:
             numFail = numFail + 1
             logging.error(
                 f"Test failed, expected packet not received ({numFail} failures so far)")
         else:
             numSuccess = numSuccess + 1
-            logging.info(f"Test succeeded ({numSuccess} successes ({numFail} failures) so far)")
+            logging.info(
+                f"Test succeeded ({numSuccess} successes ({numFail} failures) so far)")
 
         if numFail >= 3:
             for i in interfaces:
@@ -109,10 +112,12 @@ def onConnection(topic=pub.AUTO_TOPIC):
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
 
+
 def openDebugLog(portName):
     debugname = "log" + portName.replace("/", "_")
     logging.info(f"Writing serial debugging to {debugname}")
     return open(debugname, 'w+', buffering=1)
+
 
 def testAll():
     """
@@ -136,4 +141,3 @@ def testAll():
 
     for i in interfaces:
         i.close()
-    
