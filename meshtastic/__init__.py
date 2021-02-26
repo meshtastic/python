@@ -125,6 +125,7 @@ class MeshInterface:
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
+        self.myInfo = None # We don't have device info yet
         self.responseHandlers = {} # A map from request ID to the handler
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
@@ -239,7 +240,10 @@ class MeshInterface:
         Returns the sent packet. The id field will be populated in this packet and 
         can be used to track future message acks/naks.
         """
-        self._waitConnected()
+
+        # We allow users to talk to the local node before we've completed the full connection flow...
+        if(self.myInfo is not None and destinationId != self.myInfo.my_node_num):
+            self._waitConnected()
 
         toRadio = mesh_pb2.ToRadio()
         # FIXME add support for non broadcast addresses
@@ -413,10 +417,22 @@ class MeshInterface:
         """
         Done with initial config messages, now send regular MeshPackets to ask for settings and channels
         """
-        # self._requestSettings()
+        self._requestSettings()
         # self._requestChannels()
         # FIXME, the following should only be called after we have settings and channels
         self._connected()  # Tell everone else we are ready to go
+
+    def _requestSettings(self):
+        """
+        Done with initial config messages, now send regular MeshPackets to ask for settings
+        """
+        p = admin_pb2.AdminMessage()
+        p.get_radio_request = True
+
+        return self.sendData(p, self.myInfo.my_node_num,
+                             portNum=portnums_pb2.PortNum.ADMIN_APP,
+                             wantAck=True,
+                             wantResponse=True)
 
     def _handleFromRadio(self, fromRadioBytes):
         """
@@ -552,6 +568,12 @@ class MeshInterface:
             # Call specialized onReceive if necessary
             if handler.onReceive is not None:
                 handler.onReceive(self, asDict)
+
+        # Is this message in response to a request, if so, look for a handler
+        # We ignore ACK packets, but send NAKs and data responses to the handlers
+        requestId = asDict["decoded"].get("requestId")
+        if requestId is not None:
+            pass
 
         logging.debug(f"Publishing topic {topic}")
         catchAndIgnore(f"publishing {topic}", lambda: pub.sendMessage(
@@ -869,6 +891,7 @@ protocols = {
     portnums_pb2.PortNum.POSITION_APP: KnownProtocol("position", mesh_pb2.Position, _onPositionReceive),
     portnums_pb2.PortNum.NODEINFO_APP: KnownProtocol("user", mesh_pb2.User, _onNodeInfoReceive),
     portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage),
+    portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
     portnums_pb2.PortNum.ENVIRONMENTAL_MEASUREMENT_APP: KnownProtocol("environmental", environmental_measurement_pb2.EnvironmentalMeasurement),
     portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol("remotehw", remote_hardware_pb2.HardwareMessage)
 }
