@@ -68,6 +68,7 @@ import base64
 import platform
 import socket
 from . import mesh_pb2, portnums_pb2, apponly_pb2, util
+from .util import fixme, catchAndIgnore
 from pubsub import pub
 from dotmap import DotMap
 
@@ -88,14 +89,6 @@ MY_CONFIG_ID = 42
 format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 """
 OUR_APP_VERSION = 20200
-
-
-def catchAndIgnore(reason, closure):
-    """Call a closure but if it throws an excpetion print it and continue"""
-    try:
-        closure()
-    except BaseException as ex:
-        logging.error(f"Exception thrown in {reason}: {ex}")
 
 
 class MeshInterface:
@@ -379,8 +372,8 @@ class MeshInterface:
         """
         Done with initial config messages, now send regular MeshPackets to ask for settings and channels
         """
-        self._requestSettings()
-        self._requestChannels()
+        # self._requestSettings()
+        # self._requestChannels()
         # FIXME, the following should only be called after we have settings and channels
         self._connected()  # Tell everone else we are ready to go
 

@@ -102,10 +102,10 @@ sudo usermod -a -G dialout <username>
 
 ## A note to developers of this lib
 
-We use the visual-studio-code default python formatting conventions.  So if you use that IDE you should be able to use "Format Document" and not generate unrelated diffs.  If you use some other editor, please don't change formatting on lines you haven't changed.
+We use the visual-studio-code default python formatting conventions (autopep8).  So if you use that IDE you should be able to use "Format Document" and not generate unrelated diffs.  If you use some other editor, please don't change formatting on lines you haven't changed.
 
 If you need to build a new release you'll need:
 ```
 apt install pandoc
-sudo pip3 install markdown pandoc webencodings pyparsing twine
+sudo pip3 install markdown pandoc webencodings pyparsing twine autopep8
 ```
