@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\010PortnumsH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0eportnums.proto*\xbe\x02\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\x0f\n\x0bROUTING_APP\x10\x05\x12\r\n\tADMIN_APP\x10\x06\x12\r\n\tREPLY_APP\x10 \x12\x11\n\rIP_TUNNEL_APP\x10!\x12\x0e\n\nSERIAL_APP\x10@\x12\x15\n\x11STORE_FORWARD_APP\x10\x41\x12\x12\n\x0eRANGE_TEST_APP\x10\x42\x12!\n\x1d\x45NVIRONMENTAL_MEASUREMENT_APP\x10\x43\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x13\n\x0e\x41TAK_FORWARDER\x10\x81\x02\x12\x08\n\x03MAX\x10\xff\x03\x42!\n\x13\x63om.geeksville.meshB\x08PortnumsH\x03\x62\x06proto3'
+  serialized_pb=b'\n\x0eportnums.proto*\xbe\x02\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\x0f\n\x0bROUTING_APP\x10\x05\x12\r\n\tADMIN_APP\x10\x06\x12\r\n\tREPLY_APP\x10 \x12\x11\n\rIP_TUNNEL_APP\x10!\x12!\n\x1d\x45NVIRONMENTAL_MEASUREMENT_APP\x10\"\x12\x0e\n\nSERIAL_APP\x10@\x12\x15\n\x11STORE_FORWARD_APP\x10\x41\x12\x12\n\x0eRANGE_TEST_APP\x10\x42\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x13\n\x0e\x41TAK_FORWARDER\x10\x81\x02\x12\x08\n\x03MAX\x10\xff\x03\x42!\n\x13\x63om.geeksville.meshB\x08PortnumsH\x03\x62\x06proto3'
 )
 
 _PORTNUM = _descriptor.EnumDescriptor(
@@ -76,22 +76,22 @@ _PORTNUM = _descriptor.EnumDescriptor(
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='SERIAL_APP', index=9, number=64,
+      name='ENVIRONMENTAL_MEASUREMENT_APP', index=9, number=34,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='STORE_FORWARD_APP', index=10, number=65,
+      name='SERIAL_APP', index=10, number=64,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='RANGE_TEST_APP', index=11, number=66,
+      name='STORE_FORWARD_APP', index=11, number=65,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='ENVIRONMENTAL_MEASUREMENT_APP', index=12, number=67,
+      name='RANGE_TEST_APP', index=12, number=66,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
@@ -128,10 +128,10 @@ ROUTING_APP = 5
 ADMIN_APP = 6
 REPLY_APP = 32
 IP_TUNNEL_APP = 33
+ENVIRONMENTAL_MEASUREMENT_APP = 34
 SERIAL_APP = 64
 STORE_FORWARD_APP = 65
 RANGE_TEST_APP = 66
-ENVIRONMENTAL_MEASUREMENT_APP = 67
 PRIVATE_APP = 256
 ATAK_FORWARDER = 257
 MAX = 511
