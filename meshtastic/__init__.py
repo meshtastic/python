@@ -250,7 +250,6 @@ class MeshInterface:
             self._waitConnected()
 
         toRadio = mesh_pb2.ToRadio()
-        # FIXME add support for non broadcast addresses
 
         if destinationId is None:
             raise Exception("destinationId must not be None")
@@ -318,7 +317,6 @@ class MeshInterface:
         """Set device owner name"""
         nChars = 3
         minChars = 2
-        fixme("update for 1.2")
         if long_name is not None:
             long_name = long_name.strip()
             if short_name is None:
@@ -332,15 +330,20 @@ class MeshInterface:
                     short_name = long_name[0] + long_name[1:].translate(trans)
                     if len(short_name) < nChars:
                         short_name = long_name[:nChars]
-        t = mesh_pb2.ToRadio()
+
+        p = admin_pb2.AdminMessage()
+
         if long_name is not None:
-            t.set_owner.long_name = long_name
+            p.set_owner.long_name = long_name
         if short_name is not None:
             short_name = short_name.strip()
             if len(short_name) > nChars:
                 short_name = short_name[:nChars]
-            t.set_owner.short_name = short_name
-        self._sendToRadio(t)
+            p.set_owner.short_name = short_name
+
+        return self.sendData(p, self.myInfo.my_node_num,
+                             portNum=portnums_pb2.PortNum.ADMIN_APP,
+                             wantAck=True)
 
     @property
     def channelURL(self):
@@ -349,7 +352,7 @@ class MeshInterface:
         # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
         for c in self.channels:
-            if c.role != mesh_pb2.Channel.Role.DISABLED:        
+            if c.role != mesh_pb2.Channel.Role.DISABLED:
                 channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode('ascii')
@@ -438,7 +441,7 @@ class MeshInterface:
 
         def onResponse(p):
             """A closure to handle the response packet"""
-            self.radioConfig =  p["decoded"]["admin"]["raw"].get_radio_response
+            self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
 
         return self.sendData(p, self.myInfo.my_node_num,
                              portNum=portnums_pb2.PortNum.ADMIN_APP,
@@ -564,7 +567,7 @@ class MeshInterface:
         asDict = google.protobuf.json_format.MessageToDict(meshPacket)
 
         # We normally decompose the payload into a dictionary so that the client
-        # doesn't need to understand protobufs.  But advanced clients might 
+        # doesn't need to understand protobufs.  But advanced clients might
         # want the raw protobuf, so we provide it in "raw"
         asDict["raw"] = meshPacket
 
