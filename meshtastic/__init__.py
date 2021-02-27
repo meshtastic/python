@@ -273,7 +273,7 @@ class MeshInterface:
         self._sendToRadio(toRadio)
         return meshPacket
 
-    def waitForConfig(self, sleep=.1, maxsecs=20, attrs=('myInfo', 'nodes', 'radioConfig')):
+    def waitForConfig(self, sleep=.1, maxsecs=20, attrs=('myInfo', 'nodes', 'radioConfig', 'channels')):
         """Block until radio config is received. Returns True if config has been received."""
         for _ in range(int(maxsecs/sleep)):
             if all(map(lambda a: getattr(self, a, None), attrs)):
@@ -399,6 +399,8 @@ class MeshInterface:
         self.nodes = {}  # nodes keyed by ID
         self.nodesByNum = {}  # nodes keyed by nodenum
         self.radioConfig = None
+        self.channels = None
+        self.partialChannels = []  # We keep our channels in a temp array until finished
 
         startConfig = mesh_pb2.ToRadio()
         startConfig.want_config_id = MY_CONFIG_ID  # we don't use this value
@@ -422,9 +424,7 @@ class MeshInterface:
         Done with initial config messages, now send regular MeshPackets to ask for settings and channels
         """
         self._requestSettings()
-        # self._requestChannels()
-        # FIXME, the following should only be called after we have settings and channels
-        self._connected()  # Tell everone else we are ready to go
+        self._requestChannel(0)
 
     def _requestSettings(self):
         """
@@ -433,10 +433,40 @@ class MeshInterface:
         p = admin_pb2.AdminMessage()
         p.get_radio_request = True
 
+        def onResponse(p):
+            """A closure to handle the response packet"""
+            self.radioConfig =  p["decoded"]["admin"]["raw"].get_radio_response
+
         return self.sendData(p, self.myInfo.my_node_num,
                              portNum=portnums_pb2.PortNum.ADMIN_APP,
                              wantAck=True,
-                             wantResponse=True)
+                             wantResponse=True,
+                             onResponse=onResponse)
+
+    def _requestChannel(self, channelNum: int):
+        """
+        Done with initial config messages, now send regular MeshPackets to ask for settings
+        """
+        p = admin_pb2.AdminMessage()
+        p.get_channel_request = channelNum + 1
+
+        def onResponse(p):
+            """A closure to handle the response packet"""
+            c = p["decoded"]["admin"]["raw"].get_channel_response
+            self.partialChannels.append(c)
+            if channelNum >= self.myInfo.max_channels - 1:
+                # Done with all channels
+                self.channels = self.partialChannels
+                # FIXME, the following should only be called after we have settings and channels
+                self._connected()  # Tell everone else we are ready to go
+            else:
+                self._requestChannel(channelNum + 1)
+
+        return self.sendData(p, self.myInfo.my_node_num,
+                             portNum=portnums_pb2.PortNum.ADMIN_APP,
+                             wantAck=True,
+                             wantResponse=True,
+                             onResponse=onResponse)
 
     def _handleFromRadio(self, fromRadioBytes):
         """
@@ -453,8 +483,6 @@ class MeshInterface:
                 raise Exception(
                     "This device needs a newer python client, please \"pip install --upgrade meshtastic\"")
             # start assigning our packet IDs from the opposite side of where our local device is assigning them
-        elif fromRadio.HasField("radio"):
-            self.radioConfig = fromRadio.radio
         elif fromRadio.HasField("node_info"):
             node = asDict["nodeInfo"]
             try:
@@ -531,6 +559,12 @@ class MeshInterface:
         """
 
         asDict = google.protobuf.json_format.MessageToDict(meshPacket)
+
+        # We normally decompose the payload into a dictionary so that the client
+        # doesn't need to understand protobufs.  But advanced clients might 
+        # want the raw protobuf, so we provide it in "raw"
+        asDict["raw"] = meshPacket
+
         # /add fromId and toId fields based on the node ID
         asDict["fromId"] = self._nodeNumToId(asDict["from"])
         asDict["toId"] = self._nodeNumToId(asDict["to"])
@@ -539,18 +573,19 @@ class MeshInterface:
         # asObj = DotMap(asDict)
         topic = "meshtastic.receive"  # Generic unknown packet type
 
+        decoded = asDict["decoded"]
         # The default MessageToDict converts byte arrays into base64 strings.
         # We don't want that - it messes up data payload.  So slam in the correct
         # byte array.
-        asDict["decoded"]["payload"] = meshPacket.decoded.payload
+        decoded["payload"] = meshPacket.decoded.payload
 
         # UNKNOWN_APP is the default protobuf portnum value, and therefore if not set it will not be populated at all
         # to make API usage easier, set it to prevent confusion
-        if not "portnum" in asDict["decoded"]:
-            asDict["decoded"]["portnum"] = portnums_pb2.PortNum.Name(
+        if not "portnum" in decoded:
+            decoded["portnum"] = portnums_pb2.PortNum.Name(
                 portnums_pb2.PortNum.UNKNOWN_APP)
 
-        portnum = asDict["decoded"]["portnum"]
+        portnum = decoded["portnum"]
 
         topic = f"meshtastic.receive.data.{portnum}"
 
@@ -569,16 +604,24 @@ class MeshInterface:
                 pb.ParseFromString(meshPacket.decoded.payload)
                 p = google.protobuf.json_format.MessageToDict(pb)
                 asDict["decoded"][handler.name] = p
+                # Also provide the protobuf raw
+                asDict["decoded"][handler.name]["raw"] = pb
 
             # Call specialized onReceive if necessary
             if handler.onReceive is not None:
                 handler.onReceive(self, asDict)
 
         # Is this message in response to a request, if so, look for a handler
-        # We ignore ACK packets, but send NAKs and data responses to the handlers
-        requestId = asDict["decoded"].get("requestId")
+        requestId = decoded.get("requestId")
         if requestId is not None:
-            fixme("implment")
+            # We ignore ACK packets, but send NAKs and data responses to the handlers
+            routing = decoded.get("routing")
+            isAck = routing is not None and ("errorReason" not in routing)
+            if not isAck:
+                # we keep the responseHandler in dict until we get a non ack
+                handler = self.responseHandlers.pop(requestId, None)
+                if handler is not None:
+                    handler.callback(asDict)
 
         logging.debug(f"Publishing topic {topic}")
         catchAndIgnore(f"publishing {topic}", lambda: pub.sendMessage(
