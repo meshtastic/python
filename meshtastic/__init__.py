@@ -67,7 +67,7 @@ import time
 import base64
 import platform
 import socket
-from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, util
+from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
 from .util import fixme, catchAndIgnore
 from pubsub import pub
 from dotmap import DotMap
@@ -352,25 +352,25 @@ class MeshInterface:
         # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
         for c in self.channels:
-            if c.role != mesh_pb2.Channel.Role.DISABLED:
+            if c.role != channel_pb2.Channel.Role.DISABLED:
                 channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode('ascii')
-        return f"https://www.meshtastic.org/c/#{s}"
+        return f"https://www.meshtastic.org/d/#{s}"
 
     def setURL(self, url):
         """Set mesh network URL"""
         if self.radioConfig == None:
             raise Exception("No RadioConfig has been read")
 
-        # URLs are of the form https://www.meshtastic.org/c/#{base64_channel_set}
+        # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
         # Split on '/#' to find the base64 encoded channel settings
         splitURL = url.split("/#")
         decodedURL = base64.urlsafe_b64decode(splitURL[-1])
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
-        fixme("set self.channels")
-        self.writeChannels()
+        fixme("set self.channels, see https://developers.google.com/protocol-buffers/docs/reference/python-generated?csw=1#repeated-fields")
+        self._writeChannels()
 
     def _waitConnected(self):
         """Block until the initial node db download is complete, or timeout

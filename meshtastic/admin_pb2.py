@@ -12,17 +12,19 @@ _sym_db = _symbol_database.Default()
 
 
 from . import mesh_pb2 as mesh__pb2
+from . import radioconfig_pb2 as radioconfig__pb2
+from . import channel_pb2 as channel__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='admin.proto',
   package='',
   syntax='proto3',
-  serialized_options=b'\n\023com.geeksville.meshB\005AdminH\003',
+  serialized_options=b'\n\023com.geeksville.meshB\013AdminProtosH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0b\x61\x64min.proto\x1a\nmesh.proto\"\x8b\x02\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x42\t\n\x07variantB\x1e\n\x13\x63om.geeksville.meshB\x05\x41\x64minH\x03\x62\x06proto3'
+  serialized_pb=b'\n\x0b\x61\x64min.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\x1a\rchannel.proto\"\x8b\x02\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x42\t\n\x07variantB$\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03\x62\x06proto3'
   ,
-  dependencies=[mesh__pb2.DESCRIPTOR,])
+  dependencies=[mesh__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,channel__pb2.DESCRIPTOR,])
 
 
 
@@ -101,15 +103,15 @@ _ADMINMESSAGE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=28,
-  serialized_end=295,
+  serialized_start=62,
+  serialized_end=329,
 )
 
-_ADMINMESSAGE.fields_by_name['set_radio'].message_type = mesh__pb2._RADIOCONFIG
+_ADMINMESSAGE.fields_by_name['set_radio'].message_type = radioconfig__pb2._RADIOCONFIG
 _ADMINMESSAGE.fields_by_name['set_owner'].message_type = mesh__pb2._USER
-_ADMINMESSAGE.fields_by_name['set_channel'].message_type = mesh__pb2._CHANNEL
-_ADMINMESSAGE.fields_by_name['get_radio_response'].message_type = mesh__pb2._RADIOCONFIG
-_ADMINMESSAGE.fields_by_name['get_channel_response'].message_type = mesh__pb2._CHANNEL
+_ADMINMESSAGE.fields_by_name['set_channel'].message_type = channel__pb2._CHANNEL
+_ADMINMESSAGE.fields_by_name['get_radio_response'].message_type = radioconfig__pb2._RADIOCONFIG
+_ADMINMESSAGE.fields_by_name['get_channel_response'].message_type = channel__pb2._CHANNEL
 _ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
   _ADMINMESSAGE.fields_by_name['set_radio'])
 _ADMINMESSAGE.fields_by_name['set_radio'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']

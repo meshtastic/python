@@ -8,7 +8,7 @@ import codecs
 import base64
 from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
 from pubsub import pub
-from . import mesh_pb2, portnums_pb2
+from . import mesh_pb2, portnums_pb2, channel_pb2
 import google.protobuf.json_format
 import pyqrcode
 import traceback
@@ -276,7 +276,7 @@ def onConnected(interface):
 
             def setSimpleChannel(modem_config):
                 """Set one of the simple modem_config only based channels"""
-                ch = mesh_pb2.ChannelSettings()
+                ch = channel_pb2.ChannelSettings()
                 ch.modem_config = modem_config
                 ch.psk = bytes([1])  # Use default channel psk 1
                 interface.radioConfig.channel_settings.CopyFrom(ch)
@@ -296,11 +296,11 @@ def onConnected(interface):
             # handle the simple channel set commands
             if args.setch_longslow:
                 setSimpleChannel(
-                    mesh_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
+                    channel_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
 
             if args.setch_shortfast:
                 setSimpleChannel(
-                    mesh_pb2.ChannelSettings.ModemConfig.Bw500Cr45Sf128)
+                    channel_pb2.ChannelSettings.ModemConfig.Bw500Cr45Sf128)
 
             # Handle the channel settings
             for pref in (args.setchan or []):
@@ -320,9 +320,9 @@ def onConnected(interface):
             print(interface.radioConfig)
             print("Channels:")
             for c in interface.channels:
-                if c.role != mesh_pb2.Channel.Role.DISABLED:
+                if c.role != channel_pb2.Channel.Role.DISABLED:
                     cStr = MessageToJson(c.settings).replace("\n", "")
-                    print(f"  {mesh_pb2.Channel.Role.Name(c.role)} {cStr}")
+                    print(f"  {channel_pb2.Channel.Role.Name(c.role)} {cStr}")
             print(f"\nChannel URL {interface.channelURL}")
             print("Nodes in mesh:")
             for n in interface.nodes.values():

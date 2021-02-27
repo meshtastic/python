@@ -12,17 +12,18 @@ _sym_db = _symbol_database.Default()
 
 
 from . import mesh_pb2 as mesh__pb2
+from . import channel_pb2 as channel__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='apponly.proto',
   package='',
   syntax='proto3',
-  serialized_options=b'\n\023com.geeksville.meshB\007AppOnlyH\003',
+  serialized_options=b'\n\023com.geeksville.meshB\rAppOnlyProtosH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rapponly.proto\x1a\nmesh.proto\"V\n\x0fServiceEnvelope\x12\x1b\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacket\x12\x12\n\nchannel_id\x18\x02 \x01(\t\x12\x12\n\ngateway_id\x18\x03 \x01(\t\"0\n\nChannelSet\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.ChannelSettingsB \n\x13\x63om.geeksville.meshB\x07\x41ppOnlyH\x03\x62\x06proto3'
+  serialized_pb=b'\n\rapponly.proto\x1a\nmesh.proto\x1a\rchannel.proto\"V\n\x0fServiceEnvelope\x12\x1b\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacket\x12\x12\n\nchannel_id\x18\x02 \x01(\t\x12\x12\n\ngateway_id\x18\x03 \x01(\t\"0\n\nChannelSet\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.ChannelSettingsB&\n\x13\x63om.geeksville.meshB\rAppOnlyProtosH\x03\x62\x06proto3'
   ,
-  dependencies=[mesh__pb2.DESCRIPTOR,])
+  dependencies=[mesh__pb2.DESCRIPTOR,channel__pb2.DESCRIPTOR,])
 
 
 
@@ -68,8 +69,8 @@ _SERVICEENVELOPE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=29,
-  serialized_end=115,
+  serialized_start=44,
+  serialized_end=130,
 )
 
 
@@ -100,12 +101,12 @@ _CHANNELSET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=117,
-  serialized_end=165,
+  serialized_start=132,
+  serialized_end=180,
 )
 
 _SERVICEENVELOPE.fields_by_name['packet'].message_type = mesh__pb2._MESHPACKET
-_CHANNELSET.fields_by_name['settings'].message_type = mesh__pb2._CHANNELSETTINGS
+_CHANNELSET.fields_by_name['settings'].message_type = channel__pb2._CHANNELSETTINGS
 DESCRIPTOR.message_types_by_name['ServiceEnvelope'] = _SERVICEENVELOPE
 DESCRIPTOR.message_types_by_name['ChannelSet'] = _CHANNELSET
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
