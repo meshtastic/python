@@ -346,8 +346,11 @@ class MeshInterface:
     def channelURL(self):
         """The sharable URL that describes the current channel
         """
+        # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
-        fixme("fill channelSet from self.channels")
+        for c in self.channels:
+            if c.role != mesh_pb2.Channel.Role.DISABLED:        
+                channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode('ascii')
         return f"https://www.meshtastic.org/c/#{s}"

@@ -15,6 +15,7 @@ import traceback
 import pkg_resources
 from datetime import datetime
 from easy_table import EasyTable
+from google.protobuf.json_format import MessageToJson
 
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
@@ -317,7 +318,12 @@ def onConnected(interface):
             closeNow = True
             print(interface.myInfo)
             print(interface.radioConfig)
-            print(f"Channel URL {interface.channelURL}")
+            print("Channels:")
+            for c in interface.channels:
+                if c.role != mesh_pb2.Channel.Role.DISABLED:
+                    cStr = MessageToJson(c.settings).replace("\n", "")
+                    print(f"  {mesh_pb2.Channel.Role.Name(c.role)} {cStr}")
+            print(f"\nChannel URL {interface.channelURL}")
             print("Nodes in mesh:")
             for n in interface.nodes.values():
                 print(n)
