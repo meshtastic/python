@@ -92,58 +92,6 @@ def fromStr(valstr):
 never = 0xffffffff
 oneday = 24 * 60 * 60
 
-
-def setRouter(interface, on):
-    """Turn router mode on or off"""
-    prefs = interface.radioConfig.preferences
-    if on:
-        print("Setting router mode")
-
-        prefs.is_router = True
-
-        # FIXME as of 1.1.24 of the device code, the following is all deprecated. After that release
-        # has been out a while, just set is_router and warn the user about deprecation
-        #
-        prefs.is_low_power = True
-        prefs.gps_operation = mesh_pb2.GpsOpMobile
-
-        # FIXME - after tuning, move these params into the on-device defaults based on is_router and is_low_power
-
-        # prefs.position_broadcast_secs = FIXME possibly broadcast only once an hr
-        prefs.wait_bluetooth_secs = 1  # Don't stay in bluetooth mode
-        prefs.screen_on_secs = 60  # default to only keep screen & bluetooth on for one minute
-        prefs.mesh_sds_timeout_secs = never
-        prefs.phone_sds_timeout_sec = never
-        # try to stay in light sleep one full day, then briefly wake and sleep again
-
-        prefs.ls_secs = oneday
-
-        # if a message wakes us from light sleep, stay awake for 10 secs in hopes of other processing
-        prefs.min_wake_secs = 10
-
-        # allow up to five minutes for each new GPS lock attempt
-        prefs.gps_attempt_time = 300
-
-        # get a new GPS position once per day
-        prefs.gps_update_interval = oneday
-
-    else:
-        print("Unsetting router mode")
-        prefs.is_router = False
-        prefs.is_low_power = False
-        prefs.gps_operation = mesh_pb2.GpsOpUnset
-
-        # Set defaults
-        prefs.wait_bluetooth_secs = 0
-        prefs.screen_on_secs = 0
-        prefs.mesh_sds_timeout_secs = 0
-        prefs.phone_sds_timeout_sec = 0
-        prefs.ls_secs = 0
-        prefs.min_wake_secs = 0
-        prefs.gps_attempt_time = 0
-        prefs.gps_update_interval = 0
-
-
 # Returns formatted value
 def formatFloat(value, formatStr="{:.2f}", unit="", default="N/A"):
     return formatStr.format(value)+unit if value else default
@@ -281,9 +229,6 @@ def onConnected(interface):
                 ch.psk = bytes([1])  # Use default channel psk 1
                 interface.radioConfig.channel_settings.CopyFrom(ch)
 
-            if args.router != None:
-                setRouter(interface, args.router)
-
             # Handle the int/float/bool arguments
             for pref in (args.set or []):
                 setPref(
@@ -379,12 +324,14 @@ def common():
         if args.info or args.nodes or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
                 args.settime or \
                 args.setch_longslow or args.setch_shortfast or args.setstr or args.setchan or args.sendtext or \
-                args.router != None or args.qr:
+                args.qr:
             args.seriallog = "none"  # assume no debug output in this case
         else:
             args.seriallog = "stdout"  # default to stdout
 
-    if args.test:
+    if args.router != None:
+        logging.error('--set-router has been deprecated. Use "--set router true" or "--set router false" instead')
+    elif args.test:
         test.testAll()
     else:
         if args.seriallog == "stdout":
@@ -505,9 +452,9 @@ def initParser():
                         action="store_true")
 
     parser.add_argument('--set-router', dest='router',
-                        action='store_true', help="Turns on router mode")
+                        action='store_true', help="Deprecated, use --set router true instead")
     parser.add_argument('--unset-router', dest='router',
-                        action='store_false', help="Turns off router mode")
+                        action='store_false', help="Deprecated, use --set router false instead")
 
     if have_tunnel:
         parser.add_argument('--tunnel',
