@@ -455,13 +455,17 @@ class MeshInterface:
         """
         p = admin_pb2.AdminMessage()
         p.get_channel_request = channelNum + 1
+        logging.debug(f"Requesting channel {channelNum}")
 
         def onResponse(p):
             """A closure to handle the response packet"""
             c = p["decoded"]["admin"]["raw"].get_channel_response
             self.partialChannels.append(c)
-            if channelNum >= self.myInfo.max_channels - 1:
-                # Done with all channels
+            logging.debug(f"Received channel {c}")
+            # for stress testing, download all channels
+            # if channelNum >= self.myInfo.max_channels - 1:
+            if c.role == channel_pb2.Channel.Role.DISABLED or channelNum >= self.myInfo.max_channels - 1:
+                # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
                 self.channels = self.partialChannels
                 # FIXME, the following should only be called after we have settings and channels
                 self._connected()  # Tell everone else we are ready to go
