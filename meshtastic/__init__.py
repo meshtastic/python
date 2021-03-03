@@ -131,6 +131,7 @@ class MeshInterface:
         self.noProto = noProto
         self.myInfo = None  # We don't have device info yet
         self.responseHandlers = {}  # A map from request ID to the handler
+        self.failure = None # If we've encountered a fatal exception it will be kept here
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
@@ -381,6 +382,10 @@ class MeshInterface:
         if not self.isConnected.wait(5.0):  # timeout after 5 seconds
             raise Exception("Timed out waiting for connection completion")
 
+        # If we failed while connecting, raise the connection to the client
+        if self.failure:
+            raise self.failure
+
     def _generatePacketId(self):
         """Get a new unique packet ID"""
         if self.currentPacketId is None:
@@ -492,10 +497,21 @@ class MeshInterface:
         logging.debug(f"Received: {asDict}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
+
+            failmsg = None
+            # Check for app too old
             if self.myInfo.min_app_version > OUR_APP_VERSION:
-                raise Exception(
-                    "This device needs a newer python client, please \"pip install --upgrade meshtastic\"")
-            # start assigning our packet IDs from the opposite side of where our local device is assigning them
+                failmsg = "This device needs a newer python client, please \"pip install --upgrade meshtastic\".  For more information see https://tinyurl.com/5bjsxu32"
+
+            # check for firmware too old
+            if self.myInfo.max_channels == 0:
+                failmsg = "This version of meshtastic-python requires device firmware version 1.2 or later. For more information see https://tinyurl.com/5bjsxu32"
+
+            if failmsg:
+                self.failure = Exception(failmsg)
+                self.isConnected.set() # let waitConnected return this exception
+                self.close()
+
         elif fromRadio.HasField("node_info"):
             node = asDict["nodeInfo"]
             try:
