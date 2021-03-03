@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\nDeviceOnlyH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x10\x64\x65viceonly.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\x1a\rchannel.proto\"\x99\x02\n\x0b\x44\x65viceState\x12\x1b\n\x05radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfig\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\"\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08\x12\x1a\n\x08\x63hannels\x18\x0c \x03(\x0b\x32\x08.ChannelB#\n\x13\x63om.geeksville.meshB\nDeviceOnlyH\x03\x62\x06proto3'
+  serialized_pb=b'\n\x10\x64\x65viceonly.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\x1a\rchannel.proto\"\x9f\x02\n\x0b\x44\x65viceState\x12\x1b\n\x05radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfig\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\"\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08\x12\x1a\n\x08\x63hannels\x18\r \x03(\x0b\x32\x08.ChannelJ\x04\x08\x0c\x10\rB#\n\x13\x63om.geeksville.meshB\nDeviceOnlyH\x03\x62\x06proto3'
   ,
   dependencies=[mesh__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,channel__pb2.DESCRIPTOR,])
 
@@ -102,7 +102,7 @@ _DEVICESTATE = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='channels', full_name='DeviceState.channels', index=9,
-      number=12, type=11, cpp_type=10, label=3,
+      number=13, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -120,7 +120,7 @@ _DEVICESTATE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=67,
-  serialized_end=348,
+  serialized_end=354,
 )
 
 _DEVICESTATE.fields_by_name['radio'].message_type = radioconfig__pb2._RADIOCONFIG
