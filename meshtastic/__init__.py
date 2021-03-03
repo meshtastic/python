@@ -285,9 +285,12 @@ class MeshInterface:
         if self.radioConfig == None:
             raise Exception("No RadioConfig has been read")
 
-        t = mesh_pb2.ToRadio()
-        t.set_radio.CopyFrom(self.radioConfig)
-        self._sendToRadio(t)
+        p = admin_pb2.AdminMessage()
+        p.set_radio.CopyFrom(self.radioConfig)
+
+        self.sendData(p, self.myInfo.my_node_num,
+                             portNum=portnums_pb2.PortNum.ADMIN_APP,
+                             wantAck=True)
         logging.debug("Wrote config")
 
     def getMyNodeInfo(self):
