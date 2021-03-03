@@ -47,6 +47,7 @@ testNumber = 0
 
 sendingInterface = None
 
+
 def onReceive(packet, interface):
     &#34;&#34;&#34;Callback invoked when a packet arrives&#34;&#34;&#34;
     if sendingInterface == interface:
@@ -55,9 +56,10 @@ def onReceive(packet, interface):
         print(f&#34;From {interface.stream.port}: {packet}&#34;)
         p = DotMap(packet)
 
-        if p.decoded.data.portnum == &#34;TEXT_MESSAGE_APP&#34;:
+        if p.decoded.portnum == &#34;TEXT_MESSAGE_APP&#34;:
             # We only care a about clear text packets
             receivedPackets.append(p)
+
 
 def onNode(node):
     &#34;&#34;&#34;Callback invoked when the node DB changes&#34;&#34;&#34;
@@ -91,7 +93,7 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False):
         toNode = toInterface.myInfo.my_node_num
 
     logging.info(f&#34;Sending test packet from {fromNode} to {toNode}&#34;)
-    wantAck = False # Don&#39;t want any sort of reliaible sending
+    wantAck = False  # Don&#39;t want any sort of reliaible sending
     global sendingInterface
     sendingInterface = fromInterface
     if not asBinary:
@@ -99,11 +101,11 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False):
     else:
         fromInterface.sendData((f&#34;Binary {testNumber}&#34;).encode(
             &#34;utf-8&#34;), toNode, wantAck=wantAck)
-    for sec in range(45): # max of 45 secs before we timeout
+    for sec in range(45):  # max of 45 secs before we timeout
         time.sleep(1)
         if (len(receivedPackets) &gt;= 1):
             return True
-    return False # Failed to send
+    return False  # Failed to send
 
 
 def testThread(numTests=50):
@@ -116,14 +118,15 @@ def testThread(numTests=50):
         isBroadcast = True
         # asBinary=(i % 2 == 0)
         success = testSend(
-            interfaces[0], interfaces[1], isBroadcast, asBinary = False)
+            interfaces[0], interfaces[1], isBroadcast, asBinary=False)
         if not success:
             numFail = numFail + 1
             logging.error(
                 f&#34;Test failed, expected packet not received ({numFail} failures so far)&#34;)
         else:
             numSuccess = numSuccess + 1
-            logging.info(f&#34;Test succeeded ({numSuccess} successes ({numFail} failures) so far)&#34;)
+            logging.info(
+                f&#34;Test succeeded ({numSuccess} successes ({numFail} failures) so far)&#34;)
 
         if numFail &gt;= 3:
             for i in interfaces:
@@ -137,10 +140,12 @@ def onConnection(topic=pub.AUTO_TOPIC):
     &#34;&#34;&#34;Callback invoked when we connect/disconnect from a radio&#34;&#34;&#34;
     print(f&#34;Connection changed: {topic.getName()}&#34;)
 
+
 def openDebugLog(portName):
     debugname = &#34;log&#34; + portName.replace(&#34;/&#34;, &#34;_&#34;)
     logging.info(f&#34;Writing serial debugging to {debugname}&#34;)
     return open(debugname, &#39;w+&#39;, buffering=1)
+
 
 def testAll():
     &#34;&#34;&#34;
@@ -163,8 +168,7 @@ def testAll():
     testThread()
 
     for i in interfaces:
-        i.close()
-    </code></pre>
+        i.close()</code></pre>
 </details>
 </section>
 <section>
@@ -226,7 +230,7 @@ def testAll():
         print(f&#34;From {interface.stream.port}: {packet}&#34;)
         p = DotMap(packet)
 
-        if p.decoded.data.portnum == &#34;TEXT_MESSAGE_APP&#34;:
+        if p.decoded.portnum == &#34;TEXT_MESSAGE_APP&#34;:
             # We only care a about clear text packets
             receivedPackets.append(p)</code></pre>
 </details>
@@ -334,7 +338,7 @@ toInterface {[type]} &ndash; [description]</p>
         toNode = toInterface.myInfo.my_node_num
 
     logging.info(f&#34;Sending test packet from {fromNode} to {toNode}&#34;)
-    wantAck = False # Don&#39;t want any sort of reliaible sending
+    wantAck = False  # Don&#39;t want any sort of reliaible sending
     global sendingInterface
     sendingInterface = fromInterface
     if not asBinary:
@@ -342,11 +346,11 @@ toInterface {[type]} &ndash; [description]</p>
     else:
         fromInterface.sendData((f&#34;Binary {testNumber}&#34;).encode(
             &#34;utf-8&#34;), toNode, wantAck=wantAck)
-    for sec in range(45): # max of 45 secs before we timeout
+    for sec in range(45):  # max of 45 secs before we timeout
         time.sleep(1)
         if (len(receivedPackets) &gt;= 1):
             return True
-    return False # Failed to send</code></pre>
+    return False  # Failed to send</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.test.testThread"><code class="name flex">
@@ -368,14 +372,15 @@ toInterface {[type]} &ndash; [description]</p>
         isBroadcast = True
         # asBinary=(i % 2 == 0)
         success = testSend(
-            interfaces[0], interfaces[1], isBroadcast, asBinary = False)
+            interfaces[0], interfaces[1], isBroadcast, asBinary=False)
         if not success:
             numFail = numFail + 1
             logging.error(
                 f&#34;Test failed, expected packet not received ({numFail} failures so far)&#34;)
         else:
             numSuccess = numSuccess + 1
-            logging.info(f&#34;Test succeeded ({numSuccess} successes ({numFail} failures) so far)&#34;)
+            logging.info(
+                f&#34;Test succeeded ({numSuccess} successes ({numFail} failures) so far)&#34;)
 
         if numFail &gt;= 3:
             for i in interfaces:
