@@ -28,6 +28,7 @@ parser = argparse.ArgumentParser()
 
 channelIndex = 0
 
+
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
     logging.debug(f"Received: {packet}")
@@ -94,6 +95,8 @@ never = 0xffffffff
 oneday = 24 * 60 * 60
 
 # Returns formatted value
+
+
 def formatFloat(value, formatStr="{:.2f}", unit="", default="N/A"):
     return formatStr.format(value)+unit if value else default
 
@@ -128,6 +131,7 @@ def printNodes(nodes):
     table.setData(tableData)
     table.displayTable()
 
+
 def setPref(attributes, name, valStr):
     """Set a channel or preferences value"""
     val = fromStr(valStr)
@@ -142,6 +146,7 @@ def setPref(attributes, name, valStr):
         print(f"Set {name} to {valStr}")
     except Exception as ex:
         print(f"Can't set {name} due to {ex}")
+
 
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
@@ -229,6 +234,10 @@ def onConnected(interface):
 
             print("Writing modified preferences to device")
             interface.writeConfig()
+
+        if args.seturl:
+            closeNow = True
+            interface.setURL(args.seturl)
 
         # handle changing channels
         if args.setchan or args.setch_longslow or args.setch_shortfast \
@@ -334,7 +343,8 @@ def common():
             args.seriallog = "stdout"  # default to stdout
 
     if args.router != None:
-        logging.error('--set-router has been deprecated. Use "--set router true" or "--set router false" instead')
+        logging.error(
+            '--set-router has been deprecated. Use "--set router true" or "--set router false" instead')
     elif args.test:
         test.testAll()
     else:

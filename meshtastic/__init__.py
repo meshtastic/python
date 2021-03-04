@@ -131,7 +131,7 @@ class MeshInterface:
         self.noProto = noProto
         self.myInfo = None  # We don't have device info yet
         self.responseHandlers = {}  # A map from request ID to the handler
-        self.failure = None # If we've encountered a fatal exception it will be kept here
+        self.failure = None  # If we've encountered a fatal exception it will be kept here
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
@@ -290,8 +290,8 @@ class MeshInterface:
         p.set_radio.CopyFrom(self.radioConfig)
 
         self.sendData(p, self.myInfo.my_node_num,
-                             portNum=portnums_pb2.PortNum.ADMIN_APP,
-                             wantAck=True)
+                      portNum=portnums_pb2.PortNum.ADMIN_APP,
+                      wantAck=True)
         logging.debug("Wrote config")
 
     def writeChannel(self, channelIndex):
@@ -301,9 +301,9 @@ class MeshInterface:
         p.set_channel.CopyFrom(self.channels[channelIndex])
 
         self.sendData(p, self.myInfo.my_node_num,
-                             portNum=portnums_pb2.PortNum.ADMIN_APP,
-                             wantAck=True)
-        logging.debug("Wrote channel {channelIndex}")        
+                      portNum=portnums_pb2.PortNum.ADMIN_APP,
+                      wantAck=True)
+        logging.debug("Wrote channel {channelIndex}")
 
     def getMyNodeInfo(self):
         if self.myInfo is None:
@@ -384,8 +384,16 @@ class MeshInterface:
         decodedURL = base64.urlsafe_b64decode(splitURL[-1])
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
-        fixme("set self.channels, see https://developers.google.com/protocol-buffers/docs/reference/python-generated?csw=1#repeated-fields")
-        self._writeChannels()
+
+        i = 0
+        for chs in channelSet.settings:
+            ch = channel_pb2.Channel()
+            ch.role = channel_pb2.Channel.Role.PRIMARY if i == 0 else channel_pb2.Channel.Role.SECONDARY
+            ch.index = i
+            ch.settings.CopyFrom(chs)
+            self.channels[ch.index] = ch
+            self.writeChannel(ch.index)
+            i = i + 1
 
     def _waitConnected(self):
         """Block until the initial node db download is complete, or timeout
@@ -520,7 +528,7 @@ class MeshInterface:
 
             if failmsg:
                 self.failure = Exception(failmsg)
-                self.isConnected.set() # let waitConnected return this exception
+                self.isConnected.set()  # let waitConnected return this exception
                 self.close()
 
         elif fromRadio.HasField("node_info"):
