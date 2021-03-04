@@ -26,6 +26,7 @@ args = None
 """The parser for arguments"""
 parser = argparse.ArgumentParser()
 
+channelIndex = 0
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -127,6 +128,20 @@ def printNodes(nodes):
     table.setData(tableData)
     table.displayTable()
 
+def setPref(attributes, name, valStr):
+    """Set a channel or preferences value"""
+    val = fromStr(valStr)
+    try:
+        try:
+            setattr(attributes, name, val)
+        except TypeError as ex:
+            # The setter didn't like our arg type guess try again as a string
+            setattr(attributes, name, valStr)
+
+        # succeeded!
+        print(f"Set {name} to {valStr}")
+    except Exception as ex:
+        print(f"Can't set {name} due to {ex}")
 
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
@@ -203,40 +218,34 @@ def onConnected(interface):
                 print(f"Watching GPIO mask 0x{bitmask:x} from {args.dest}")
                 rhc.watchGPIOs(args.dest, bitmask)
 
-        if args.set or args.setstr or args.setchan or args.setch_longslow or args.setch_shortfast \
-                or args.seturl or args.router != None:
+        # handle settings
+        if args.set:
             closeNow = True
 
-            def setPref(attributes, name, valStr):
-                """Set a preferences value"""
-                val = fromStr(valStr)
-                try:
-                    try:
-                        setattr(attributes, name, val)
-                    except TypeError as ex:
-                        # The setter didn't like our arg type guess try again as a string
-                        setattr(attributes, name, valStr)
-
-                    # succeeded!
-                    print(f"Set {name} to {valStr}")
-                except Exception as ex:
-                    print(f"Can't set {name} due to {ex}")
-
-            def setSimpleChannel(modem_config):
-                """Set one of the simple modem_config only based channels"""
-                ch = channel_pb2.ChannelSettings()
-                ch.modem_config = modem_config
-                ch.psk = bytes([1])  # Use default channel psk 1
-                interface.radioConfig.channel_settings.CopyFrom(ch)
-
             # Handle the int/float/bool arguments
-            for pref in (args.set or []):
+            for pref in args.set:
                 setPref(
                     prefs, pref[0], pref[1])
 
-            # Handle the string arguments
-            for pref in (args.setstr or []):
-                setPref(prefs, pref[0], pref[1])
+            print("Writing modified preferences to device")
+            interface.writeConfig()
+
+        # handle changing channels
+        if args.setchan or args.setch_longslow or args.setch_shortfast \
+                or args.seturl != None:
+            closeNow = True
+
+            ch = interface.channels[channelIndex]
+
+            def setSimpleChannel(modem_config):
+                """Set one of the simple modem_config only based channels"""
+
+                # Completely new channel settings
+                chs = channel_pb2.ChannelSettings()
+                chs.modem_config = modem_config
+                chs.psk = bytes([1])  # Use default channel psk 1
+
+                ch.settings.CopyFrom(chs)
 
             # handle the simple channel set commands
             if args.setch_longslow:
@@ -249,15 +258,10 @@ def onConnected(interface):
 
             # Handle the channel settings
             for pref in (args.setchan or []):
-                setPref(interface.radioConfig.channel_settings,
-                        pref[0], pref[1])
+                setPref(ch.settings, pref[0], pref[1])
 
-            # Handle set URL
-            if args.seturl:
-                interface.setURL(args.seturl, False)
-
-            print("Writing modified preferences to device")
-            interface.writeConfig()
+            print("Writing modified channels to device")
+            interface.writeChannel(channelIndex)
 
         if args.info:
             closeNow = True
@@ -323,7 +327,7 @@ def common():
     if not args.seriallog:
         if args.info or args.nodes or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
                 args.settime or \
-                args.setch_longslow or args.setch_shortfast or args.setstr or args.setchan or args.sendtext or \
+                args.setch_longslow or args.setch_shortfast or args.setchan or args.sendtext or \
                 args.qr:
             args.seriallog = "none"  # assume no debug output in this case
         else:
@@ -382,10 +386,7 @@ def initParser():
                         action="store_true")
 
     parser.add_argument(
-        "--set", help="Set a numeric preferences field", nargs=2, action='append')
-
-    parser.add_argument(
-        "--setstr", help="Set a string preferences field", nargs=2, action='append')
+        "--set", help="Set a preferences field", nargs=2, action='append')
 
     parser.add_argument(
         "--setchan", help="Set a channel parameter", nargs=2, action='append')

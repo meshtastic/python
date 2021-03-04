@@ -294,6 +294,17 @@ class MeshInterface:
                              wantAck=True)
         logging.debug("Wrote config")
 
+    def writeChannel(self, channelIndex):
+        """Write the current (edited) channel to the device"""
+
+        p = admin_pb2.AdminMessage()
+        p.set_channel.CopyFrom(self.channels[channelIndex])
+
+        self.sendData(p, self.myInfo.my_node_num,
+                             portNum=portnums_pb2.PortNum.ADMIN_APP,
+                             wantAck=True)
+        logging.debug("Wrote channel {channelIndex}")        
+
     def getMyNodeInfo(self):
         if self.myInfo is None:
             return None
