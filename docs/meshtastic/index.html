@@ -155,7 +155,7 @@ import base64
 import platform
 import socket
 from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
-from .util import fixme, catchAndIgnore
+from .util import fixme, catchAndIgnore, stripnl
 from pubsub import pub
 from dotmap import DotMap
 from typing import *
@@ -275,7 +275,7 @@ class MeshInterface:
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
         if getattr(data, &#34;SerializeToString&#34;, None):
-            logging.debug(f&#34;Serializing protobuf as data: {data}&#34;)
+            logging.debug(f&#34;Serializing protobuf as data: {stripnl(data)}&#34;)
             data = data.SerializeToString()
 
         if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
@@ -357,6 +357,7 @@ class MeshInterface:
             meshPacket.id = self._generatePacketId()
 
         toRadio.packet.CopyFrom(meshPacket)
+        #logging.debug(f&#34;Sending packet: {stripnl(meshPacket)}&#34;)
         self._sendToRadio(toRadio)
         return meshPacket
 
@@ -532,7 +533,7 @@ class MeshInterface:
             logging.warn(
                 f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
         else:
-            logging.debug(f&#34;Sending toRadio: {toRadio}&#34;)
+            #logging.debug(f&#34;Sending toRadio: {stripnl(toRadio)}&#34;)
             self._sendToRadioImpl(toRadio)
 
     def _sendToRadioImpl(self, toRadio):
@@ -575,16 +576,21 @@ class MeshInterface:
             &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
             c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
             self.partialChannels.append(c)
-            logging.debug(f&#34;Received channel {c}&#34;)
-            # for stress testing, download all channels
-            # if channelNum &gt;= self.myInfo.max_channels - 1:
-            if c.role == channel_pb2.Channel.Role.DISABLED or channelNum &gt;= self.myInfo.max_channels - 1:
-                # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
+            logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
+            index = c.index
+
+            # for stress testing, we can always download all channels
+            fastChannelDownload = True
+
+            # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
+            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+
+            if quitEarly or index &gt;= self.myInfo.max_channels - 1:
                 self.channels = self.partialChannels
                 # FIXME, the following should only be called after we have settings and channels
                 self._connected()  # Tell everone else we are ready to go
             else:
-                self._requestChannel(channelNum + 1)
+                self._requestChannel(index + 1)
 
         return self.sendData(p, self.myInfo.my_node_num,
                              portNum=portnums_pb2.PortNum.ADMIN_APP,
@@ -600,9 +606,9 @@ class MeshInterface:
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
-        logging.debug(f&#34;Received: {asDict}&#34;)
         if fromRadio.HasField(&#34;my_info&#34;):
             self.myInfo = fromRadio.my_info
+            logging.debug(f&#34;Received myinfo: {stripnl(fromRadio.my_info)}&#34;)
 
             failmsg = None
             # Check for app too old
@@ -624,6 +630,9 @@ class MeshInterface:
                 self._fixupPosition(node[&#34;position&#34;])
             except:
                 logging.debug(&#34;Node without position&#34;)
+
+            logging.debug(f&#34;Received nodeinfo: {node}&#34;)
+
             self.nodesByNum[node[&#34;num&#34;]] = node
             if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
@@ -700,6 +709,14 @@ class MeshInterface:
         # want the raw protobuf, so we provide it in &#34;raw&#34;
         asDict[&#34;raw&#34;] = meshPacket
 
+        # from might be missing if the nodenum was zero.
+        if not &#34;from&#34; in asDict:
+            asDict[&#34;from&#34;] = 0
+            logging.error(f&#34;Device returned a packet we sent, ignoring: {stripnl(asDict)}&#34;)
+            return
+        if not &#34;to&#34; in asDict:
+            asDict[&#34;to&#34;] = 0
+
         # /add fromId and toId fields based on the node ID
         asDict[&#34;fromId&#34;] = self._nodeNumToId(asDict[&#34;from&#34;])
         asDict[&#34;toId&#34;] = self._nodeNumToId(asDict[&#34;to&#34;])
@@ -758,7 +775,7 @@ class MeshInterface:
                 if handler is not None:
                     handler.callback(asDict)
 
-        logging.debug(f&#34;Publishing topic {topic}&#34;)
+        logging.debug(f&#34;Publishing {topic}: packet={stripnl(asDict)} &#34;)
         catchAndIgnore(f&#34;publishing {topic}&#34;, lambda: pub.sendMessage(
             topic, packet=asDict, interface=self))
 
@@ -791,7 +808,7 @@ class BLEInterface(MeshInterface):
 
     def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
-        logging.debug(f&#34;Sending: {toRadio}&#34;)
+        # logging.debug(f&#34;Sending: {stripnl(toRadio)}&#34;)
         b = toRadio.SerializeToString()
         self.device.char_write(TORADIO_UUID, b)
 
@@ -871,7 +888,7 @@ class StreamInterface(MeshInterface):
 
     def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
-        logging.debug(f&#34;Sending: {toRadio}&#34;)
+        logging.debug(f&#34;Sending: {stripnl(toRadio)}&#34;)
         b = toRadio.SerializeToString()
         bufLen = len(b)
         # We convert into a string, because the TCP code doesn&#39;t work with byte arrays
@@ -1194,7 +1211,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
     def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
-        logging.debug(f&#34;Sending: {toRadio}&#34;)
+        # logging.debug(f&#34;Sending: {stripnl(toRadio)}&#34;)
         b = toRadio.SerializeToString()
         self.device.char_write(TORADIO_UUID, b)
 
@@ -1381,7 +1398,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         &#34;&#34;&#34;
         if getattr(data, &#34;SerializeToString&#34;, None):
-            logging.debug(f&#34;Serializing protobuf as data: {data}&#34;)
+            logging.debug(f&#34;Serializing protobuf as data: {stripnl(data)}&#34;)
             data = data.SerializeToString()
 
         if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
@@ -1463,6 +1480,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             meshPacket.id = self._generatePacketId()
 
         toRadio.packet.CopyFrom(meshPacket)
+        #logging.debug(f&#34;Sending packet: {stripnl(meshPacket)}&#34;)
         self._sendToRadio(toRadio)
         return meshPacket
 
@@ -1638,7 +1656,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             logging.warn(
                 f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
         else:
-            logging.debug(f&#34;Sending toRadio: {toRadio}&#34;)
+            #logging.debug(f&#34;Sending toRadio: {stripnl(toRadio)}&#34;)
             self._sendToRadioImpl(toRadio)
 
     def _sendToRadioImpl(self, toRadio):
@@ -1681,16 +1699,21 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
             c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
             self.partialChannels.append(c)
-            logging.debug(f&#34;Received channel {c}&#34;)
-            # for stress testing, download all channels
-            # if channelNum &gt;= self.myInfo.max_channels - 1:
-            if c.role == channel_pb2.Channel.Role.DISABLED or channelNum &gt;= self.myInfo.max_channels - 1:
-                # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
+            logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
+            index = c.index
+
+            # for stress testing, we can always download all channels
+            fastChannelDownload = True
+
+            # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
+            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+
+            if quitEarly or index &gt;= self.myInfo.max_channels - 1:
                 self.channels = self.partialChannels
                 # FIXME, the following should only be called after we have settings and channels
                 self._connected()  # Tell everone else we are ready to go
             else:
-                self._requestChannel(channelNum + 1)
+                self._requestChannel(index + 1)
 
         return self.sendData(p, self.myInfo.my_node_num,
                              portNum=portnums_pb2.PortNum.ADMIN_APP,
@@ -1706,9 +1729,9 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
-        logging.debug(f&#34;Received: {asDict}&#34;)
         if fromRadio.HasField(&#34;my_info&#34;):
             self.myInfo = fromRadio.my_info
+            logging.debug(f&#34;Received myinfo: {stripnl(fromRadio.my_info)}&#34;)
 
             failmsg = None
             # Check for app too old
@@ -1730,6 +1753,9 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                 self._fixupPosition(node[&#34;position&#34;])
             except:
                 logging.debug(&#34;Node without position&#34;)
+
+            logging.debug(f&#34;Received nodeinfo: {node}&#34;)
+
             self.nodesByNum[node[&#34;num&#34;]] = node
             if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
@@ -1806,6 +1832,14 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         # want the raw protobuf, so we provide it in &#34;raw&#34;
         asDict[&#34;raw&#34;] = meshPacket
 
+        # from might be missing if the nodenum was zero.
+        if not &#34;from&#34; in asDict:
+            asDict[&#34;from&#34;] = 0
+            logging.error(f&#34;Device returned a packet we sent, ignoring: {stripnl(asDict)}&#34;)
+            return
+        if not &#34;to&#34; in asDict:
+            asDict[&#34;to&#34;] = 0
+
         # /add fromId and toId fields based on the node ID
         asDict[&#34;fromId&#34;] = self._nodeNumToId(asDict[&#34;from&#34;])
         asDict[&#34;toId&#34;] = self._nodeNumToId(asDict[&#34;to&#34;])
@@ -1864,7 +1898,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                 if handler is not None:
                     handler.callback(asDict)
 
-        logging.debug(f&#34;Publishing topic {topic}&#34;)
+        logging.debug(f&#34;Publishing {topic}: packet={stripnl(asDict)} &#34;)
         catchAndIgnore(f&#34;publishing {topic}&#34;, lambda: pub.sendMessage(
             topic, packet=asDict, interface=self))</code></pre>
 </details>
@@ -1996,7 +2030,7 @@ onResponse &ndash; A closure of the form funct(packet), that will be called when
     Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
     &#34;&#34;&#34;
     if getattr(data, &#34;SerializeToString&#34;, None):
-        logging.debug(f&#34;Serializing protobuf as data: {data}&#34;)
+        logging.debug(f&#34;Serializing protobuf as data: {stripnl(data)}&#34;)
         data = data.SerializeToString()
 
     if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
@@ -2429,7 +2463,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 
     def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
-        logging.debug(f&#34;Sending: {toRadio}&#34;)
+        logging.debug(f&#34;Sending: {stripnl(toRadio)}&#34;)
         b = toRadio.SerializeToString()
         bufLen = len(b)
         # We convert into a string, because the TCP code doesn&#39;t work with byte arrays

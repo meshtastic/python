@@ -34,6 +34,11 @@ import serial.tools.list_ports
 blacklistVids = dict.fromkeys([0x1366])
 
 
+def stripnl(s):
+    &#34;&#34;&#34;remove newlines from a string&#34;&#34;&#34;
+    return str(s).replace(&#34;\n&#34;, &#34; &#34;)
+
+
 def fixme(message):
     raise Exception(f&#34;FIXME: {message}&#34;)
 
@@ -127,6 +132,20 @@ class dotdict(dict):
     raise Exception(f&#34;FIXME: {message}&#34;)</code></pre>
 </details>
 </dd>
+<dt id="meshtastic.util.stripnl"><code class="name flex">
+<span>def <span class="ident">stripnl</span></span>(<span>s)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>remove newlines from a string</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stripnl(s):
+    &#34;&#34;&#34;remove newlines from a string&#34;&#34;&#34;
+    return str(s).replace(&#34;\n&#34;, &#34; &#34;)</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -172,6 +191,7 @@ class dotdict(dict):
 <li><code><a title="meshtastic.util.catchAndIgnore" href="#meshtastic.util.catchAndIgnore">catchAndIgnore</a></code></li>
 <li><code><a title="meshtastic.util.findPorts" href="#meshtastic.util.findPorts">findPorts</a></code></li>
 <li><code><a title="meshtastic.util.fixme" href="#meshtastic.util.fixme">fixme</a></code></li>
+<li><code><a title="meshtastic.util.stripnl" href="#meshtastic.util.stripnl">stripnl</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
