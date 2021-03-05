@@ -31,8 +31,6 @@ channelIndex = 0
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
-    logging.debug(f"Received: {packet}")
-
     try:
         d = packet.get('decoded')
 

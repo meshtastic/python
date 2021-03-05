@@ -68,7 +68,7 @@ import base64
 import platform
 import socket
 from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
-from .util import fixme, catchAndIgnore
+from .util import fixme, catchAndIgnore, stripnl
 from pubsub import pub
 from dotmap import DotMap
 from typing import *
@@ -188,7 +188,7 @@ class MeshInterface:
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
         if getattr(data, "SerializeToString", None):
-            logging.debug(f"Serializing protobuf as data: {data}")
+            logging.debug(f"Serializing protobuf as data: {stripnl(data)}")
             data = data.SerializeToString()
 
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
@@ -445,7 +445,7 @@ class MeshInterface:
             logging.warn(
                 f"Not sending packet because protocol use is disabled by noProto")
         else:
-            logging.debug(f"Sending toRadio: {toRadio}")
+            logging.debug(f"Sending toRadio: {stripnl(toRadio)}")
             self._sendToRadioImpl(toRadio)
 
     def _sendToRadioImpl(self, toRadio):
@@ -488,11 +488,15 @@ class MeshInterface:
             """A closure to handle the response packet"""
             c = p["decoded"]["admin"]["raw"].get_channel_response
             self.partialChannels.append(c)
-            logging.debug(f"Received channel {c}")
-            # for stress testing, download all channels
-            # if channelNum >= self.myInfo.max_channels - 1:
-            if c.role == channel_pb2.Channel.Role.DISABLED or channelNum >= self.myInfo.max_channels - 1:
-                # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
+            logging.debug(f"Received channel {stripnl(c)}")
+
+            # for stress testing, we can always download all channels
+            fastChannelDownload = False
+
+            # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
+            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+
+            if quitEarly or channelNum >= self.myInfo.max_channels - 1:
                 self.channels = self.partialChannels
                 # FIXME, the following should only be called after we have settings and channels
                 self._connected()  # Tell everone else we are ready to go
@@ -513,9 +517,9 @@ class MeshInterface:
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
-        logging.debug(f"Received: {asDict}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
+            logging.debug(f"Received myinfo: {fromRadio.my_info}")
 
             failmsg = None
             # Check for app too old
@@ -537,6 +541,9 @@ class MeshInterface:
                 self._fixupPosition(node["position"])
             except:
                 logging.debug("Node without position")
+
+            logging.debug(f"Received nodeinfo: {node}")
+
             self.nodesByNum[node["num"]] = node
             if "user" in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node["user"]["id"]] = node
@@ -671,7 +678,7 @@ class MeshInterface:
                 if handler is not None:
                     handler.callback(asDict)
 
-        logging.debug(f"Publishing topic {topic}")
+        logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         catchAndIgnore(f"publishing {topic}", lambda: pub.sendMessage(
             topic, packet=asDict, interface=self))
 

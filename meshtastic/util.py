@@ -7,6 +7,11 @@ import serial.tools.list_ports
 blacklistVids = dict.fromkeys([0x1366])
 
 
+def stripnl(s):
+    """remove newlines from a string"""
+    return str(s).replace("\n", " ")
+
+
 def fixme(message):
     raise Exception(f"FIXME: {message}")
 
