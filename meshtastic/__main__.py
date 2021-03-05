@@ -34,14 +34,16 @@ def onReceive(packet, interface):
     logging.debug(f"Received: {packet}")
 
     try:
+        d = packet.get('decoded')
+
         # Exit once we receive a reply
-        if args.sendtext and packet["to"] == interface.myInfo.my_node_num:
+        if args.sendtext and packet["to"] == interface.myInfo.my_node_num and d["portnum"] == portnums_pb2.PortNum.TEXT_MESSAGE_APP:
             interface.close()  # after running command then exit
 
         # Reply to every received message with some stats
         if args.reply:
-            if packet['decoded']['data'] is not None:
-                msg = packet['decoded']['data']['text']
+            msg = d.get('text')
+            if msg:
                 #shortName = packet['decoded']['data']['shortName']
                 rxSnr = packet['rxSnr']
                 hopLimit = packet['hopLimit']
