@@ -270,7 +270,7 @@ class MeshInterface:
             meshPacket.id = self._generatePacketId()
 
         toRadio.packet.CopyFrom(meshPacket)
-        logging.debug(f"Sending packet: {stripnl(meshPacket)}")
+        #logging.debug(f"Sending packet: {stripnl(meshPacket)}")
         self._sendToRadio(toRadio)
         return meshPacket
 
@@ -493,7 +493,7 @@ class MeshInterface:
             index = c.index
 
             # for stress testing, we can always download all channels
-            fastChannelDownload = False
+            fastChannelDownload = True
 
             # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
             quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
