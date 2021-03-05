@@ -372,7 +372,7 @@ class MeshInterface:
                 channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode('ascii')
-        return f"https://www.meshtastic.org/d/#{s}"
+        return f"https://www.meshtastic.org/d/#{s}".replace("=", "")
 
     def setURL(self, url):
         """Set mesh network URL"""
