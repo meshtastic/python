@@ -270,6 +270,7 @@ class MeshInterface:
             meshPacket.id = self._generatePacketId()
 
         toRadio.packet.CopyFrom(meshPacket)
+        logging.debug(f"Sending packet: {stripnl(meshPacket)}")
         self._sendToRadio(toRadio)
         return meshPacket
 
@@ -445,7 +446,7 @@ class MeshInterface:
             logging.warn(
                 f"Not sending packet because protocol use is disabled by noProto")
         else:
-            logging.debug(f"Sending toRadio: {stripnl(toRadio)}")
+            #logging.debug(f"Sending toRadio: {stripnl(toRadio)}")
             self._sendToRadioImpl(toRadio)
 
     def _sendToRadioImpl(self, toRadio):
@@ -489,6 +490,7 @@ class MeshInterface:
             c = p["decoded"]["admin"]["raw"].get_channel_response
             self.partialChannels.append(c)
             logging.debug(f"Received channel {stripnl(c)}")
+            index = c.index
 
             # for stress testing, we can always download all channels
             fastChannelDownload = False
@@ -496,12 +498,12 @@ class MeshInterface:
             # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
             quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
 
-            if quitEarly or channelNum >= self.myInfo.max_channels - 1:
+            if quitEarly or index >= self.myInfo.max_channels - 1:
                 self.channels = self.partialChannels
                 # FIXME, the following should only be called after we have settings and channels
                 self._connected()  # Tell everone else we are ready to go
             else:
-                self._requestChannel(channelNum + 1)
+                self._requestChannel(index + 1)
 
         return self.sendData(p, self.myInfo.my_node_num,
                              portNum=portnums_pb2.PortNum.ADMIN_APP,
@@ -711,7 +713,7 @@ class BLEInterface(MeshInterface):
 
     def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
-        logging.debug(f"Sending: {toRadio}")
+        # logging.debug(f"Sending: {stripnl(toRadio)}")
         b = toRadio.SerializeToString()
         self.device.char_write(TORADIO_UUID, b)
 
@@ -791,7 +793,7 @@ class StreamInterface(MeshInterface):
 
     def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
-        logging.debug(f"Sending: {toRadio}")
+        logging.debug(f"Sending: {stripnl(toRadio)}")
         b = toRadio.SerializeToString()
         bufLen = len(b)
         # We convert into a string, because the TCP code doesn't work with byte arrays
