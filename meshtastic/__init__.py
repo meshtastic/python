@@ -521,7 +521,7 @@ class MeshInterface:
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
-            logging.debug(f"Received myinfo: {fromRadio.my_info}")
+            logging.debug(f"Received myinfo: {stripnl(fromRadio.my_info)}")
 
             failmsg = None
             # Check for app too old
@@ -621,6 +621,14 @@ class MeshInterface:
         # doesn't need to understand protobufs.  But advanced clients might
         # want the raw protobuf, so we provide it in "raw"
         asDict["raw"] = meshPacket
+
+        # from might be missing if the nodenum was zero.
+        if not "from" in asDict:
+            asDict["from"] = 0
+            logging.error(f"Device returned a packet we sent, ignoring: {stripnl(asDict)}")
+            return
+        if not "to" in asDict:
+            asDict["to"] = 0
 
         # /add fromId and toId fields based on the node ID
         asDict["fromId"] = self._nodeNumToId(asDict["from"])
