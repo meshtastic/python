@@ -8,7 +8,7 @@ Installation is easily done through the Python package installer pip (note, you 
 
 - check that your computer has the required serial drivers installed, if not download them from [here](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers).
 - check that your computer has Python 3 installed.
-- check that your computer has “pip3” installed, if not follow [this guide](https://www.makeuseof.com/tag/install-pip-for-python/).
+- check that your computer has "pip3" installed, if not follow [this guide](https://www.makeuseof.com/tag/install-pip-for-python/).
 - check that pytap2 is installed by pip3. If not, install it:
 ```
 sudo pip3 install --upgrade pytap2
