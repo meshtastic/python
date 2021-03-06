@@ -164,6 +164,7 @@ START1 = 0x94
 START2 = 0xc3
 HEADER_LEN = 4
 MAX_TO_FROM_RADIO_SIZE = 512
+defaultHopLimit = 3
 
 BROADCAST_ADDR = &#34;^all&#34;  # A special ID that means broadcast
 
@@ -238,6 +239,7 @@ class MeshInterface:
                  destinationId=BROADCAST_ADDR,
                  wantAck=False,
                  wantResponse=False,
+                 hopLimit=defaultHopLimit,
                  onResponse=None):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
@@ -256,11 +258,13 @@ class MeshInterface:
                              portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
                              wantAck=wantAck,
                              wantResponse=wantResponse,
+                             hopLimit=hopLimit,
                              onResponse=onResponse)
 
     def sendData(self, data, destinationId=BROADCAST_ADDR,
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
                  wantResponse=False,
+                 hopLimit=defaultHopLimit,
                  onResponse=None):
         &#34;&#34;&#34;Send a data packet to some other node
 
@@ -280,12 +284,16 @@ class MeshInterface:
 
         if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
             raise Exception(&#34;Data payload too big&#34;)
+
+        if portNum == portnums_pb2.PortNum.UNKNOWN_APP: # we are now more strict wrt port numbers
+            raise Exception(&#34;A non-zero port number must be specified&#34;)
+
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.payload = data
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
 
-        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit)
         if onResponse is not None:
             self._addResponseHandler(p.id, onResponse)
         return p
@@ -325,7 +333,7 @@ class MeshInterface:
 
     def _sendPacket(self, meshPacket,
                     destinationId=BROADCAST_ADDR,
-                    wantAck=False):
+                    wantAck=False, hopLimit=defaultHopLimit):
         &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don&#39;t want this - use sendData instead.
 
@@ -350,6 +358,7 @@ class MeshInterface:
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
+        meshPacket.hop_limit = hopLimit
 
         # if the user hasn&#39;t set an ID for this packet (likely and recommended), we should pick a new unique ID
         # so the message can be tracked.
@@ -459,7 +468,7 @@ class MeshInterface:
                 channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
-        return f&#34;https://www.meshtastic.org/d/#{s}&#34;
+        return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)
 
     def setURL(self, url):
         &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
@@ -1062,8 +1071,8 @@ def _onTextReceive(iface, asDict):
     # Usually btw this problem is caused by apps sending binary data but setting the payload type to
     # text.
     try:
-        asDict[&#34;decoded&#34;][&#34;text&#34;] = meshPacket.decoded.payload.decode(
-            &#34;utf-8&#34;)
+        asBytes = asDict[&#34;decoded&#34;][&#34;payload&#34;]
+        asDict[&#34;decoded&#34;][&#34;text&#34;] = asBytes.decode(&#34;utf-8&#34;)
     except Exception as ex:
         logging.error(f&#34;Malformatted utf8 in text message: {ex}&#34;)
 
@@ -1361,6 +1370,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                  destinationId=BROADCAST_ADDR,
                  wantAck=False,
                  wantResponse=False,
+                 hopLimit=defaultHopLimit,
                  onResponse=None):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
@@ -1379,11 +1389,13 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                              portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
                              wantAck=wantAck,
                              wantResponse=wantResponse,
+                             hopLimit=hopLimit,
                              onResponse=onResponse)
 
     def sendData(self, data, destinationId=BROADCAST_ADDR,
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
                  wantResponse=False,
+                 hopLimit=defaultHopLimit,
                  onResponse=None):
         &#34;&#34;&#34;Send a data packet to some other node
 
@@ -1403,12 +1415,16 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
         if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
             raise Exception(&#34;Data payload too big&#34;)
+
+        if portNum == portnums_pb2.PortNum.UNKNOWN_APP: # we are now more strict wrt port numbers
+            raise Exception(&#34;A non-zero port number must be specified&#34;)
+
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.payload = data
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
 
-        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit)
         if onResponse is not None:
             self._addResponseHandler(p.id, onResponse)
         return p
@@ -1448,7 +1464,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
     def _sendPacket(self, meshPacket,
                     destinationId=BROADCAST_ADDR,
-                    wantAck=False):
+                    wantAck=False, hopLimit=defaultHopLimit):
         &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don&#39;t want this - use sendData instead.
 
@@ -1473,6 +1489,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
+        meshPacket.hop_limit = hopLimit
 
         # if the user hasn&#39;t set an ID for this packet (likely and recommended), we should pick a new unique ID
         # so the message can be tracked.
@@ -1582,7 +1599,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                 channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
-        return f&#34;https://www.meshtastic.org/d/#{s}&#34;
+        return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)
 
     def setURL(self, url):
         &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
@@ -1927,7 +1944,7 @@ def channelURL(self):
             channelSet.settings.append(c.settings)
     bytes = channelSet.SerializeToString()
     s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
-    return f&#34;https://www.meshtastic.org/d/#{s}&#34;</code></pre>
+    return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1997,7 +2014,7 @@ def channelURL(self):
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendData"><code class="name flex">
-<span>def <span class="ident">sendData</span></span>(<span>self, data, destinationId='^all', portNum=256, wantAck=False, wantResponse=False, onResponse=None)</span>
+<span>def <span class="ident">sendData</span></span>(<span>self, data, destinationId='^all', portNum=256, wantAck=False, wantResponse=False, hopLimit=3, onResponse=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a data packet to some other node</p>
@@ -2016,6 +2033,7 @@ onResponse &ndash; A closure of the form funct(packet), that will be called when
 <pre><code class="python">def sendData(self, data, destinationId=BROADCAST_ADDR,
              portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
              wantResponse=False,
+             hopLimit=defaultHopLimit,
              onResponse=None):
     &#34;&#34;&#34;Send a data packet to some other node
 
@@ -2035,12 +2053,16 @@ onResponse &ndash; A closure of the form funct(packet), that will be called when
 
     if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
         raise Exception(&#34;Data payload too big&#34;)
+
+    if portNum == portnums_pb2.PortNum.UNKNOWN_APP: # we are now more strict wrt port numbers
+        raise Exception(&#34;A non-zero port number must be specified&#34;)
+
     meshPacket = mesh_pb2.MeshPacket()
     meshPacket.decoded.payload = data
     meshPacket.decoded.portnum = portNum
     meshPacket.decoded.want_response = wantResponse
 
-    p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck)
+    p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit)
     if onResponse is not None:
         self._addResponseHandler(p.id, onResponse)
     return p</code></pre>
@@ -2091,7 +2113,7 @@ the local position.</p>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendText"><code class="name flex">
-<span>def <span class="ident">sendText</span></span>(<span>self, text: ~AnyStr, destinationId='^all', wantAck=False, wantResponse=False, onResponse=None)</span>
+<span>def <span class="ident">sendText</span></span>(<span>self, text: ~AnyStr, destinationId='^all', wantAck=False, wantResponse=False, hopLimit=3, onResponse=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a utf8 string to some other node, if the node has a display it will also be shown on the device.</p>
@@ -2111,6 +2133,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
              destinationId=BROADCAST_ADDR,
              wantAck=False,
              wantResponse=False,
+             hopLimit=defaultHopLimit,
              onResponse=None):
     &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
@@ -2129,6 +2152,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
                          portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
                          wantAck=wantAck,
                          wantResponse=wantResponse,
+                         hopLimit=hopLimit,
                          onResponse=onResponse)</code></pre>
 </details>
 </dd>

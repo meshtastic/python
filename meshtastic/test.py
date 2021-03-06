@@ -25,7 +25,7 @@ def onReceive(packet, interface):
     if sendingInterface == interface:
         print("Ignoring sending interface")
     else:
-        print(f"From {interface.stream.port}: {packet}")
+        # print(f"From {interface.stream.port}: {packet}")
         p = DotMap(packet)
 
         if p.decoded.portnum == "TEXT_MESSAGE_APP":

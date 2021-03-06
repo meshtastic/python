@@ -53,7 +53,7 @@ def onReceive(packet, interface):
     if sendingInterface == interface:
         print(&#34;Ignoring sending interface&#34;)
     else:
-        print(f&#34;From {interface.stream.port}: {packet}&#34;)
+        # print(f&#34;From {interface.stream.port}: {packet}&#34;)
         p = DotMap(packet)
 
         if p.decoded.portnum == &#34;TEXT_MESSAGE_APP&#34;:
@@ -227,7 +227,7 @@ def testAll():
     if sendingInterface == interface:
         print(&#34;Ignoring sending interface&#34;)
     else:
-        print(f&#34;From {interface.stream.port}: {packet}&#34;)
+        # print(f&#34;From {interface.stream.port}: {packet}&#34;)
         p = DotMap(packet)
 
         if p.decoded.portnum == &#34;TEXT_MESSAGE_APP&#34;:

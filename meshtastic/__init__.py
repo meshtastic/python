@@ -77,6 +77,7 @@ START1 = 0x94
 START2 = 0xc3
 HEADER_LEN = 4
 MAX_TO_FROM_RADIO_SIZE = 512
+defaultHopLimit = 3
 
 BROADCAST_ADDR = "^all"  # A special ID that means broadcast
 
@@ -151,6 +152,7 @@ class MeshInterface:
                  destinationId=BROADCAST_ADDR,
                  wantAck=False,
                  wantResponse=False,
+                 hopLimit=defaultHopLimit,
                  onResponse=None):
         """Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
@@ -169,11 +171,13 @@ class MeshInterface:
                              portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
                              wantAck=wantAck,
                              wantResponse=wantResponse,
+                             hopLimit=hopLimit,
                              onResponse=onResponse)
 
     def sendData(self, data, destinationId=BROADCAST_ADDR,
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
                  wantResponse=False,
+                 hopLimit=defaultHopLimit,
                  onResponse=None):
         """Send a data packet to some other node
 
@@ -193,12 +197,16 @@ class MeshInterface:
 
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
             raise Exception("Data payload too big")
+
+        if portNum == portnums_pb2.PortNum.UNKNOWN_APP: # we are now more strict wrt port numbers
+            raise Exception("A non-zero port number must be specified")
+
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.decoded.payload = data
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
 
-        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit)
         if onResponse is not None:
             self._addResponseHandler(p.id, onResponse)
         return p
@@ -238,7 +246,7 @@ class MeshInterface:
 
     def _sendPacket(self, meshPacket,
                     destinationId=BROADCAST_ADDR,
-                    wantAck=False):
+                    wantAck=False, hopLimit=defaultHopLimit):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead.
 
@@ -263,6 +271,7 @@ class MeshInterface:
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
+        meshPacket.hop_limit = hopLimit
 
         # if the user hasn't set an ID for this packet (likely and recommended), we should pick a new unique ID
         # so the message can be tracked.
@@ -975,8 +984,8 @@ def _onTextReceive(iface, asDict):
     # Usually btw this problem is caused by apps sending binary data but setting the payload type to
     # text.
     try:
-        asDict["decoded"]["text"] = meshPacket.decoded.payload.decode(
-            "utf-8")
+        asBytes = asDict["decoded"]["payload"]
+        asDict["decoded"]["text"] = asBytes.decode("utf-8")
     except Exception as ex:
         logging.error(f"Malformatted utf8 in text message: {ex}")
 
