@@ -9,6 +9,7 @@ import base64
 from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
 from pubsub import pub
 from . import mesh_pb2, portnums_pb2, channel_pb2
+from .util import stripnl
 import google.protobuf.json_format
 import pyqrcode
 import traceback
@@ -284,7 +285,7 @@ def onConnected(interface):
             print(f"\nChannel URL {interface.channelURL}")
             print("Nodes in mesh:")
             for n in interface.nodes.values():
-                print(n)
+                print(stripnl(n))
 
         if args.nodes:
             closeNow = True
