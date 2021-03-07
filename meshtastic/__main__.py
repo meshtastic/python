@@ -1,13 +1,22 @@
 #!python3
 
-import argparse, platform, logging, sys, codecs, base64
+import argparse
+import platform
+import logging
+import sys
+import codecs
+import base64
 from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
 from pubsub import pub
-from . import mesh_pb2, portnums_pb2
+from . import mesh_pb2, portnums_pb2, channel_pb2
+from .util import stripnl
 import google.protobuf.json_format
 import pyqrcode
 import traceback
 import pkg_resources
+from datetime import datetime
+from easy_table import EasyTable
+from google.protobuf.json_format import MessageToJson
 
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
@@ -18,19 +27,22 @@ args = None
 """The parser for arguments"""
 parser = argparse.ArgumentParser()
 
+channelIndex = 0
+
+
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
-    logging.debug(f"Received: {packet}")
-
     try:
+        d = packet.get('decoded')
+
         # Exit once we receive a reply
-        if args.sendtext and packet["to"] == interface.myInfo.my_node_num:
+        if args.sendtext and packet["to"] == interface.myInfo.my_node_num and d["portnum"] == portnums_pb2.PortNum.TEXT_MESSAGE_APP:
             interface.close()  # after running command then exit
 
         # Reply to every received message with some stats
         if args.reply:
-            if packet['decoded']['data'] is not None:
-                msg = packet['decoded']['data']['text']
+            msg = d.get('text')
+            if msg:
                 #shortName = packet['decoded']['data']['shortName']
                 rxSnr = packet['rxSnr']
                 hopLimit = packet['hopLimit']
@@ -52,6 +64,7 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):
 trueTerms = {"t", "true", "yes"}
 falseTerms = {"f", "false", "no"}
 
+
 def fromStr(valstr):
     """try to parse as int, float or bool (and fallback to a string as last resort)
 
@@ -61,7 +74,8 @@ def fromStr(valstr):
         valstr (string): A user provided string
     """
     if(valstr.startswith('0x')):
-        val = bytes.fromhex(valstr[2:]) # if needed convert to string with asBytes.decode('utf-8')
+        # if needed convert to string with asBytes.decode('utf-8')
+        val = bytes.fromhex(valstr[2:])
     elif valstr in trueTerms:
         val = True
     elif valstr in falseTerms:
@@ -81,56 +95,58 @@ def fromStr(valstr):
 never = 0xffffffff
 oneday = 24 * 60 * 60
 
+# Returns formatted value
 
-def setRouter(interface, on):
-    """Turn router mode on or off"""
-    prefs = interface.radioConfig.preferences
-    if on:
-        print("Setting router mode")
 
-        prefs.is_router = True
+def formatFloat(value, formatStr="{:.2f}", unit="", default="N/A"):
+    return formatStr.format(value)+unit if value else default
 
-        # FIXME as of 1.1.24 of the device code, the following is all deprecated. After that release
-        # has been out a while, just set is_router and warn the user about deprecation
-        #         
-        prefs.is_low_power = True
-        prefs.gps_operation = mesh_pb2.GpsOpMobile
+# Returns Last Heard Time in human readable format
 
-        # FIXME - after tuning, move these params into the on-device defaults based on is_router and is_low_power
 
-        # prefs.position_broadcast_secs = FIXME possibly broadcast only once an hr
-        prefs.wait_bluetooth_secs = 1  # Don't stay in bluetooth mode
-        prefs.screen_on_secs = 60  # default to only keep screen & bluetooth on for one minute
-        prefs.mesh_sds_timeout_secs = never
-        prefs.phone_sds_timeout_sec = never
-        # try to stay in light sleep one full day, then briefly wake and sleep again
+def getLH(ts, default="N/A"):
+    return datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') if ts else default
 
-        prefs.ls_secs = oneday
+# Print Nodes
 
-        # if a message wakes us from light sleep, stay awake for 10 secs in hopes of other processing
-        prefs.min_wake_secs = 10
 
-        # allow up to five minutes for each new GPS lock attempt
-        prefs.gps_attempt_time = 300
+def printNodes(nodes):
+    # Create the table and define the structure
+    table = EasyTable("Nodes")
+    table.setCorners("/", "\\", "\\", "/")
+    table.setOuterStructure("|", "-")
+    table.setInnerStructure("|", "-", "+")
 
-        # get a new GPS position once per day
-        prefs.gps_update_interval = oneday
+    tableData = []
+    for node in nodes:
+        # aux var to get not defined keys
+        LH = getLH(node['position'].get("time"))
+        lat = formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
+        lon = formatFloat(node['position'].get("longitude"), "{:.4f}", "°")
+        alt = formatFloat(node['position'].get("altitude"), "{:.0f}", " m")
+        batt = formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "%")
+        snr = formatFloat(node.get("snr"), "{:.2f}", " dB")
+        tableData.append({"User": node['user']['longName'],
+                          "Position": "Lat:"+lat+", Lon:"+lon+", Alt:"+alt,
+                          "Battery": batt, "SNR": snr, "LastHeard": LH})
+    table.setData(tableData)
+    table.displayTable()
 
-    else:
-        print("Unsetting router mode")
-        prefs.is_router = False
-        prefs.is_low_power = False
-        prefs.gps_operation = mesh_pb2.GpsOpUnset
 
-        # Set defaults
-        prefs.wait_bluetooth_secs = 0
-        prefs.screen_on_secs = 0
-        prefs.mesh_sds_timeout_secs = 0
-        prefs.phone_sds_timeout_sec = 0
-        prefs.ls_secs = 0
-        prefs.min_wake_secs = 0
-        prefs.gps_attempt_time = 0
-        prefs.gps_update_interval = 0
+def setPref(attributes, name, valStr):
+    """Set a channel or preferences value"""
+    val = fromStr(valStr)
+    try:
+        try:
+            setattr(attributes, name, val)
+        except TypeError as ex:
+            # The setter didn't like our arg type guess try again as a string
+            setattr(attributes, name, valStr)
+
+        # succeeded!
+        print(f"Set {name} to {valStr}")
+    except Exception as ex:
+        print(f"Can't set {name} due to {ex}")
 
 
 def onConnected(interface):
@@ -194,7 +210,8 @@ def onConnected(interface):
                 for wrpair in (args.gpiowrb or []):
                     bitmask |= 1 << int(wrpair[0])
                     bitval |= int(wrpair[1]) << int(wrpair[0])
-                print(f"Writing GPIO mask 0x{bitmask:x} with value 0x{bitval:x} to {args.dest}")
+                print(
+                    f"Writing GPIO mask 0x{bitmask:x} with value 0x{bitval:x} to {args.dest}")
                 rhc.writeGPIOs(args.dest, bitmask, bitval)
 
             if args.gpiord:
@@ -205,73 +222,74 @@ def onConnected(interface):
             if args.gpiowatch:
                 bitmask = int(args.gpiowatch)
                 print(f"Watching GPIO mask 0x{bitmask:x} from {args.dest}")
-                rhc.watchGPIOs(args.dest, bitmask)                
+                rhc.watchGPIOs(args.dest, bitmask)
 
-        if args.set or args.setstr or args.setchan or args.setch_longslow or args.setch_shortfast \
-                    or args.seturl or args.router != None:
+        # handle settings
+        if args.set:
             closeNow = True
 
-            def setPref(attributes, name, valStr):
-                """Set a preferences value"""
-                val = fromStr(valStr)
-                try:
-                    try:
-                        setattr(attributes, name, val)
-                    except TypeError as ex:
-                        # The setter didn't like our arg type guess try again as a string
-                        setattr(attributes, name, valStr)
-
-                    # succeeded!
-                    print(f"Set {name} to {valStr}")
-                except Exception as ex:
-                    print(f"Can't set {name} due to {ex}")
-
-            def setSimpleChannel(modem_config):
-                """Set one of the simple modem_config only based channels"""
-                ch = mesh_pb2.ChannelSettings()
-                ch.modem_config = modem_config
-                ch.psk = bytes([1]) # Use default channel psk 1
-                interface.radioConfig.channel_settings.CopyFrom(ch)
-
-            if args.router != None:
-                setRouter(interface, args.router)
-
             # Handle the int/float/bool arguments
-            for pref in (args.set or []):
+            for pref in args.set:
                 setPref(
                     prefs, pref[0], pref[1])
 
-            # Handle the string arguments
-            for pref in (args.setstr or []):
-                setPref(prefs, pref[0], pref[1])
+            print("Writing modified preferences to device")
+            interface.writeConfig()
+
+        if args.seturl:
+            closeNow = True
+            interface.setURL(args.seturl)
+
+        # handle changing channels
+        if args.setchan or args.setch_longslow or args.setch_shortfast \
+                or args.seturl != None:
+            closeNow = True
+
+            ch = interface.channels[channelIndex]
+
+            def setSimpleChannel(modem_config):
+                """Set one of the simple modem_config only based channels"""
+
+                # Completely new channel settings
+                chs = channel_pb2.ChannelSettings()
+                chs.modem_config = modem_config
+                chs.psk = bytes([1])  # Use default channel psk 1
+
+                ch.settings.CopyFrom(chs)
 
             # handle the simple channel set commands
             if args.setch_longslow:
-                setSimpleChannel(mesh_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
+                setSimpleChannel(
+                    channel_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
 
             if args.setch_shortfast:
-                setSimpleChannel(mesh_pb2.ChannelSettings.ModemConfig.Bw500Cr45Sf128)
+                setSimpleChannel(
+                    channel_pb2.ChannelSettings.ModemConfig.Bw500Cr45Sf128)
 
             # Handle the channel settings
             for pref in (args.setchan or []):
-                setPref(interface.radioConfig.channel_settings,
-                        pref[0], pref[1])
+                setPref(ch.settings, pref[0], pref[1])
 
-            # Handle set URL
-            if args.seturl:
-                interface.setURL(args.seturl, False)
-
-            print("Writing modified preferences to device")
-            interface.writeConfig()
+            print("Writing modified channels to device")
+            interface.writeChannel(channelIndex)
 
         if args.info:
             closeNow = True
             print(interface.myInfo)
             print(interface.radioConfig)
-            print(f"Channel URL {interface.channelURL}")
+            print("Channels:")
+            for c in interface.channels:
+                if c.role != channel_pb2.Channel.Role.DISABLED:
+                    cStr = MessageToJson(c.settings).replace("\n", "")
+                    print(f"  {channel_pb2.Channel.Role.Name(c.role)} {cStr}")
+            print(f"\nChannel URL {interface.channelURL}")
             print("Nodes in mesh:")
             for n in interface.nodes.values():
-                print(n)
+                print(stripnl(n))
+
+        if args.nodes:
+            closeNow = True
+            printNodes(interface.nodes.values())
 
         if args.qr:
             closeNow = True
@@ -279,11 +297,12 @@ def onConnected(interface):
             url = pyqrcode.create(interface.channelURL)
             print(url.terminal())
 
-        if have_tunnel and args.tunnel :
+        if have_tunnel and args.tunnel:
             from . import tunnel
-            closeNow = False # Even if others said we could close, stay open if the user asked for a tunnel
+            # Even if others said we could close, stay open if the user asked for a tunnel
+            closeNow = False
             tunnel.Tunnel(interface, subnet=args.tunnel_net)
-           
+
     except Exception as ex:
         print(ex)
 
@@ -316,15 +335,18 @@ def common():
         args.destOrAll = "^all"
 
     if not args.seriallog:
-        if args.info or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
+        if args.info or args.nodes or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
                 args.settime or \
-                args.setch_longslow or args.setch_shortfast or args.setstr or args.setchan or args.sendtext or \
-                args.router != None or args.qr:
+                args.setch_longslow or args.setch_shortfast or args.setchan or args.sendtext or \
+                args.qr:
             args.seriallog = "none"  # assume no debug output in this case
         else:
             args.seriallog = "stdout"  # default to stdout
 
-    if args.test:
+    if args.router != None:
+        logging.error(
+            '--set-router has been deprecated. Use "--set router true" or "--set router false" instead')
+    elif args.test:
         test.testAll()
     else:
         if args.seriallog == "stdout":
@@ -347,6 +369,7 @@ def common():
             client = SerialInterface(
                 args.port, debugOut=logfile, noProto=args.noproto)
 
+
 def initParser():
     global parser, args
 
@@ -367,14 +390,14 @@ def initParser():
     parser.add_argument("--info", help="Read and display the radio config information",
                         action="store_true")
 
+    parser.add_argument("--nodes", help="Print Node List in a pretty formatted table",
+                        action="store_true")
+
     parser.add_argument("--qr", help="Display the QR code that corresponds to the current channel",
                         action="store_true")
 
     parser.add_argument(
-        "--set", help="Set a numeric preferences field", nargs=2, action='append')
-
-    parser.add_argument(
-        "--setstr", help="Set a string preferences field", nargs=2, action='append')
+        "--set", help="Set a preferences field", nargs=2, action='append')
 
     parser.add_argument(
         "--setchan", help="Set a channel parameter", nargs=2, action='append')
@@ -400,7 +423,7 @@ def initParser():
     parser.add_argument(
         "--sendping", help="Send a ping message (which requests a reply)", action="store_true")
 
-    #parser.add_argument(
+    # parser.add_argument(
     #    "--repeat", help="Normally the send commands send only one message, use this option to request repeated sends")
 
     parser.add_argument(
@@ -441,26 +464,29 @@ def initParser():
                         action="store_true")
 
     parser.add_argument('--set-router', dest='router',
-                        action='store_true', help="Turns on router mode")
+                        action='store_true', help="Deprecated, use --set router true instead")
     parser.add_argument('--unset-router', dest='router',
-                        action='store_false', help="Turns off router mode")
+                        action='store_false', help="Deprecated, use --set router false instead")
 
     if have_tunnel:
         parser.add_argument('--tunnel',
-                        action='store_true', help="Create a TUN tunnel device for forwarding IP packets over the mesh")
+                            action='store_true', help="Create a TUN tunnel device for forwarding IP packets over the mesh")
         parser.add_argument(
             "--subnet", dest='tunnel_net', help="Read from a GPIO mask", default=None)
 
     parser.set_defaults(router=None)
 
-    parser.add_argument('--version', action='version', version=f"{pkg_resources.require('meshtastic')[0].version}")
+    parser.add_argument('--version', action='version',
+                        version=f"{pkg_resources.require('meshtastic')[0].version}")
 
     args = parser.parse_args()
+
 
 def main():
     """Perform command line meshtastic operations"""
     initParser()
     common()
+
 
 def tunnelMain():
     """Run a meshtastic IP tunnel"""
@@ -468,6 +494,7 @@ def tunnelMain():
     initParser()
     args.tunnel = True
     common()
+
 
 if __name__ == "__main__":
     main()

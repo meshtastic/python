@@ -34,7 +34,7 @@
 # sudo bin/run.sh --port /dev/ttyUSB0 --setch-shortfast
 # sudo bin/run.sh --port /dev/ttyUSB0 --tunnel --debug
 # ssh -Y root@192.168.10.151 (or dietpi), default password p
-# ncat -e /bin/cat -k -u -l 1235 
+# ncat -e /bin/cat -k -u -l 1235
 # ncat -u 10.115.64.152 1235
 # ping -c 1 -W 20 10.115.64.152
 # ping -i 30 -W 30 10.115.64.152
@@ -43,7 +43,8 @@
 
 from . import portnums_pb2
 from pubsub import pub
-import logging, threading
+import logging
+import threading
 
 # A new non standard log level that is lower level than DEBUG
 LOG_TRACE = 5
@@ -54,8 +55,8 @@ tunnelInstance = None
 &#34;&#34;&#34;A list of chatty UDP services we should never accidentally
 forward to our slow network&#34;&#34;&#34;
 udpBlacklist = {
-    1900, # SSDP
-    5353, # multicast DNS
+    1900,  # SSDP
+    5353,  # multicast DNS
 }
 
 &#34;&#34;&#34;A list of TCP services to block&#34;&#34;&#34;
@@ -63,31 +64,36 @@ tcpBlacklist = {}
 
 &#34;&#34;&#34;A list of protocols we ignore&#34;&#34;&#34;
 protocolBlacklist = {
-    0x02, # IGMP
-        0x80, # Service-Specific Connection-Oriented Protocol in a Multilink and Connectionless Environment
+    0x02,  # IGMP
+    0x80,  # Service-Specific Connection-Oriented Protocol in a Multilink and Connectionless Environment
 }
+
 
 def hexstr(barray):
     &#34;&#34;&#34;Print a string of hex digits&#34;&#34;&#34;
     return &#34;:&#34;.join(&#39;{:02x}&#39;.format(x) for x in barray)
 
+
 def ipstr(barray):
     &#34;&#34;&#34;Print a string of ip digits&#34;&#34;&#34;
     return &#34;.&#34;.join(&#39;{}&#39;.format(x) for x in barray)
+
 
 def readnet_u16(p, offset):
     &#34;&#34;&#34;Read big endian u16 (network byte order)&#34;&#34;&#34;
     return p[offset] * 256 + p[offset + 1]
 
+
 def onTunnelReceive(packet, interface):
     &#34;&#34;&#34;Callback for received tunneled messages from mesh
-    
+
     FIXME figure out how to do closures with methods in python&#34;&#34;&#34;
     tunnelInstance.onReceive(packet)
 
+
 class Tunnel:
     &#34;&#34;&#34;A TUN based IP tunnel over meshtastic&#34;&#34;&#34;
-    
+
     def __init__(self, iface, subnet=None, netmask=&#34;255.255.0.0&#34;):
         &#34;&#34;&#34;
         Constructor
@@ -105,7 +111,8 @@ class Tunnel:
         global tunnelInstance
         tunnelInstance = self
 
-        logging.info(&#34;Starting IP to mesh tunnel (you must be root for this *pre-alpha* feature to work).  Mesh members:&#34;)
+        logging.info(
+            &#34;Starting IP to mesh tunnel (you must be root for this *pre-alpha* feature to work).  Mesh members:&#34;)
 
         pub.subscribe(onTunnelReceive, &#34;meshtastic.receive.data.IP_TUNNEL_APP&#34;)
         myAddr = self._nodeNumToIp(self.iface.myInfo.my_node_num)
@@ -113,24 +120,26 @@ class Tunnel:
         for node in self.iface.nodes.values():
             nodeId = node[&#34;user&#34;][&#34;id&#34;]
             ip = self._nodeNumToIp(node[&#34;num&#34;])
-            logging.info(f&#34;Node { nodeId } has IP address { ip }&#34;)        
+            logging.info(f&#34;Node { nodeId } has IP address { ip }&#34;)
 
         logging.debug(&#34;creating TUN device with MTU=200&#34;)
         # FIXME - figure out real max MTU, it should be 240 - the overhead bytes for SubPacket and Data
         from pytap2 import TapDevice
         self.tun = TapDevice(name=&#34;mesh&#34;)
         self.tun.up()
-        self.tun.ifconfig(address=myAddr,netmask=netmask,mtu=200)
+        self.tun.ifconfig(address=myAddr, netmask=netmask, mtu=200)
         logging.debug(f&#34;starting TUN reader, our IP address is {myAddr}&#34;)
-        self._rxThread = threading.Thread(target=self.__tunReader, args=(), daemon=True)
+        self._rxThread = threading.Thread(
+            target=self.__tunReader, args=(), daemon=True)
         self._rxThread.start()
 
     def onReceive(self, packet):
-        p = packet[&#34;decoded&#34;][&#34;data&#34;][&#34;payload&#34;]
+        p = packet[&#34;decoded&#34;][&#34;payload&#34;]
         if packet[&#34;from&#34;] == self.iface.myInfo.my_node_num:
             logging.debug(&#34;Ignoring message we sent&#34;)
         else:
-            logging.debug(f&#34;Received mesh tunnel message type={type(p)} len={len(p)}&#34;)
+            logging.debug(
+                f&#34;Received mesh tunnel message type={type(p)} len={len(p)}&#34;)
             # we don&#39;t really need to check for filtering here (sender should have checked), but this provides
             # useful debug printing on types of packets received
             if not self._shouldFilterPacket(p):
@@ -142,36 +151,43 @@ class Tunnel:
         srcaddr = p[12:16]
         destAddr = p[16:20]
         subheader = 20
-        ignore = False # Assume we will be forwarding the packet
+        ignore = False  # Assume we will be forwarding the packet
         if protocol in protocolBlacklist:
             ignore = True
-            logging.log(LOG_TRACE, f&#34;Ignoring blacklisted protocol 0x{protocol:02x}&#34;)
-        elif protocol == 0x01: # ICMP
+            logging.log(
+                LOG_TRACE, f&#34;Ignoring blacklisted protocol 0x{protocol:02x}&#34;)
+        elif protocol == 0x01:  # ICMP
             icmpType = p[20]
             icmpCode = p[21]
             checksum = p[22:24]
-            logging.debug(f&#34;forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}, type={icmpType}, code={icmpCode}, checksum={checksum}&#34;)
+            logging.debug(
+                f&#34;forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}, type={icmpType}, code={icmpCode}, checksum={checksum}&#34;)
             # reply to pings (swap src and dest but keep rest of packet unchanged)
             #pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
-            #tap.write(pingback)
-        elif protocol == 0x11: # UDP
+            # tap.write(pingback)
+        elif protocol == 0x11:  # UDP
             srcport = readnet_u16(p, subheader)
             destport = readnet_u16(p, subheader + 2)
             if destport in udpBlacklist:
                 ignore = True
-                logging.log(LOG_TRACE, f&#34;ignoring blacklisted UDP port {destport}&#34;)
+                logging.log(
+                    LOG_TRACE, f&#34;ignoring blacklisted UDP port {destport}&#34;)
             else:
-                logging.debug(f&#34;forwarding udp srcport={srcport}, destport={destport}&#34;)
-        elif protocol == 0x06: # TCP
+                logging.debug(
+                    f&#34;forwarding udp srcport={srcport}, destport={destport}&#34;)
+        elif protocol == 0x06:  # TCP
             srcport = readnet_u16(p, subheader)
             destport = readnet_u16(p, subheader + 2)
             if destport in tcpBlacklist:
                 ignore = True
-                logging.log(LOG_TRACE, f&#34;ignoring blacklisted TCP port {destport}&#34;)
+                logging.log(
+                    LOG_TRACE, f&#34;ignoring blacklisted TCP port {destport}&#34;)
             else:
-                logging.debug(f&#34;forwarding tcp srcport={srcport}, destport={destport}&#34;)
+                logging.debug(
+                    f&#34;forwarding tcp srcport={srcport}, destport={destport}&#34;)
         else:
-            logging.warning(f&#34;forwarding unexpected protocol 0x{protocol:02x}, src={ipstr(srcaddr)}, dest={ipstr(destAddr)}&#34;)
+            logging.warning(
+                f&#34;forwarding unexpected protocol 0x{protocol:02x}, src={ipstr(srcaddr)}, dest={ipstr(destAddr)}&#34;)
 
         return ignore
 
@@ -207,10 +223,13 @@ class Tunnel:
         &#34;&#34;&#34;Forward the provided IP packet into the mesh&#34;&#34;&#34;
         nodeId = self._ipToNodeId(destAddr)
         if nodeId is not None:
-            logging.debug(f&#34;Forwarding packet bytelen={len(p)} dest={ipstr(destAddr)}, destNode={nodeId}&#34;)
-            self.iface.sendData(p, nodeId, portnums_pb2.IP_TUNNEL_APP, wantAck = False)
+            logging.debug(
+                f&#34;Forwarding packet bytelen={len(p)} dest={ipstr(destAddr)}, destNode={nodeId}&#34;)
+            self.iface.sendData(
+                p, nodeId, portnums_pb2.IP_TUNNEL_APP, wantAck=False)
         else:
-            logging.warning(f&#34;Dropping packet because no node found for destIP={ipstr(destAddr)}&#34;)
+            logging.warning(
+                f&#34;Dropping packet because no node found for destIP={ipstr(destAddr)}&#34;)
 
     def close(self):
         self.tun.close()</code></pre>
@@ -279,7 +298,7 @@ forward to our slow network</p></div>
 </summary>
 <pre><code class="python">def onTunnelReceive(packet, interface):
     &#34;&#34;&#34;Callback for received tunneled messages from mesh
-    
+
     FIXME figure out how to do closures with methods in python&#34;&#34;&#34;
     tunnelInstance.onReceive(packet)</code></pre>
 </details>
@@ -318,7 +337,7 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
 </summary>
 <pre><code class="python">class Tunnel:
     &#34;&#34;&#34;A TUN based IP tunnel over meshtastic&#34;&#34;&#34;
-    
+
     def __init__(self, iface, subnet=None, netmask=&#34;255.255.0.0&#34;):
         &#34;&#34;&#34;
         Constructor
@@ -336,7 +355,8 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
         global tunnelInstance
         tunnelInstance = self
 
-        logging.info(&#34;Starting IP to mesh tunnel (you must be root for this *pre-alpha* feature to work).  Mesh members:&#34;)
+        logging.info(
+            &#34;Starting IP to mesh tunnel (you must be root for this *pre-alpha* feature to work).  Mesh members:&#34;)
 
         pub.subscribe(onTunnelReceive, &#34;meshtastic.receive.data.IP_TUNNEL_APP&#34;)
         myAddr = self._nodeNumToIp(self.iface.myInfo.my_node_num)
@@ -344,24 +364,26 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
         for node in self.iface.nodes.values():
             nodeId = node[&#34;user&#34;][&#34;id&#34;]
             ip = self._nodeNumToIp(node[&#34;num&#34;])
-            logging.info(f&#34;Node { nodeId } has IP address { ip }&#34;)        
+            logging.info(f&#34;Node { nodeId } has IP address { ip }&#34;)
 
         logging.debug(&#34;creating TUN device with MTU=200&#34;)
         # FIXME - figure out real max MTU, it should be 240 - the overhead bytes for SubPacket and Data
         from pytap2 import TapDevice
         self.tun = TapDevice(name=&#34;mesh&#34;)
         self.tun.up()
-        self.tun.ifconfig(address=myAddr,netmask=netmask,mtu=200)
+        self.tun.ifconfig(address=myAddr, netmask=netmask, mtu=200)
         logging.debug(f&#34;starting TUN reader, our IP address is {myAddr}&#34;)
-        self._rxThread = threading.Thread(target=self.__tunReader, args=(), daemon=True)
+        self._rxThread = threading.Thread(
+            target=self.__tunReader, args=(), daemon=True)
         self._rxThread.start()
 
     def onReceive(self, packet):
-        p = packet[&#34;decoded&#34;][&#34;data&#34;][&#34;payload&#34;]
+        p = packet[&#34;decoded&#34;][&#34;payload&#34;]
         if packet[&#34;from&#34;] == self.iface.myInfo.my_node_num:
             logging.debug(&#34;Ignoring message we sent&#34;)
         else:
-            logging.debug(f&#34;Received mesh tunnel message type={type(p)} len={len(p)}&#34;)
+            logging.debug(
+                f&#34;Received mesh tunnel message type={type(p)} len={len(p)}&#34;)
             # we don&#39;t really need to check for filtering here (sender should have checked), but this provides
             # useful debug printing on types of packets received
             if not self._shouldFilterPacket(p):
@@ -373,36 +395,43 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
         srcaddr = p[12:16]
         destAddr = p[16:20]
         subheader = 20
-        ignore = False # Assume we will be forwarding the packet
+        ignore = False  # Assume we will be forwarding the packet
         if protocol in protocolBlacklist:
             ignore = True
-            logging.log(LOG_TRACE, f&#34;Ignoring blacklisted protocol 0x{protocol:02x}&#34;)
-        elif protocol == 0x01: # ICMP
+            logging.log(
+                LOG_TRACE, f&#34;Ignoring blacklisted protocol 0x{protocol:02x}&#34;)
+        elif protocol == 0x01:  # ICMP
             icmpType = p[20]
             icmpCode = p[21]
             checksum = p[22:24]
-            logging.debug(f&#34;forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}, type={icmpType}, code={icmpCode}, checksum={checksum}&#34;)
+            logging.debug(
+                f&#34;forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}, type={icmpType}, code={icmpCode}, checksum={checksum}&#34;)
             # reply to pings (swap src and dest but keep rest of packet unchanged)
             #pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
-            #tap.write(pingback)
-        elif protocol == 0x11: # UDP
+            # tap.write(pingback)
+        elif protocol == 0x11:  # UDP
             srcport = readnet_u16(p, subheader)
             destport = readnet_u16(p, subheader + 2)
             if destport in udpBlacklist:
                 ignore = True
-                logging.log(LOG_TRACE, f&#34;ignoring blacklisted UDP port {destport}&#34;)
+                logging.log(
+                    LOG_TRACE, f&#34;ignoring blacklisted UDP port {destport}&#34;)
             else:
-                logging.debug(f&#34;forwarding udp srcport={srcport}, destport={destport}&#34;)
-        elif protocol == 0x06: # TCP
+                logging.debug(
+                    f&#34;forwarding udp srcport={srcport}, destport={destport}&#34;)
+        elif protocol == 0x06:  # TCP
             srcport = readnet_u16(p, subheader)
             destport = readnet_u16(p, subheader + 2)
             if destport in tcpBlacklist:
                 ignore = True
-                logging.log(LOG_TRACE, f&#34;ignoring blacklisted TCP port {destport}&#34;)
+                logging.log(
+                    LOG_TRACE, f&#34;ignoring blacklisted TCP port {destport}&#34;)
             else:
-                logging.debug(f&#34;forwarding tcp srcport={srcport}, destport={destport}&#34;)
+                logging.debug(
+                    f&#34;forwarding tcp srcport={srcport}, destport={destport}&#34;)
         else:
-            logging.warning(f&#34;forwarding unexpected protocol 0x{protocol:02x}, src={ipstr(srcaddr)}, dest={ipstr(destAddr)}&#34;)
+            logging.warning(
+                f&#34;forwarding unexpected protocol 0x{protocol:02x}, src={ipstr(srcaddr)}, dest={ipstr(destAddr)}&#34;)
 
         return ignore
 
@@ -438,10 +467,13 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
         &#34;&#34;&#34;Forward the provided IP packet into the mesh&#34;&#34;&#34;
         nodeId = self._ipToNodeId(destAddr)
         if nodeId is not None:
-            logging.debug(f&#34;Forwarding packet bytelen={len(p)} dest={ipstr(destAddr)}, destNode={nodeId}&#34;)
-            self.iface.sendData(p, nodeId, portnums_pb2.IP_TUNNEL_APP, wantAck = False)
+            logging.debug(
+                f&#34;Forwarding packet bytelen={len(p)} dest={ipstr(destAddr)}, destNode={nodeId}&#34;)
+            self.iface.sendData(
+                p, nodeId, portnums_pb2.IP_TUNNEL_APP, wantAck=False)
         else:
-            logging.warning(f&#34;Dropping packet because no node found for destIP={ipstr(destAddr)}&#34;)
+            logging.warning(
+                f&#34;Dropping packet because no node found for destIP={ipstr(destAddr)}&#34;)
 
     def close(self):
         self.tun.close()</code></pre>
@@ -471,11 +503,12 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def onReceive(self, packet):
-    p = packet[&#34;decoded&#34;][&#34;data&#34;][&#34;payload&#34;]
+    p = packet[&#34;decoded&#34;][&#34;payload&#34;]
     if packet[&#34;from&#34;] == self.iface.myInfo.my_node_num:
         logging.debug(&#34;Ignoring message we sent&#34;)
     else:
-        logging.debug(f&#34;Received mesh tunnel message type={type(p)} len={len(p)}&#34;)
+        logging.debug(
+            f&#34;Received mesh tunnel message type={type(p)} len={len(p)}&#34;)
         # we don&#39;t really need to check for filtering here (sender should have checked), but this provides
         # useful debug printing on types of packets received
         if not self._shouldFilterPacket(p):
@@ -495,10 +528,13 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
     &#34;&#34;&#34;Forward the provided IP packet into the mesh&#34;&#34;&#34;
     nodeId = self._ipToNodeId(destAddr)
     if nodeId is not None:
-        logging.debug(f&#34;Forwarding packet bytelen={len(p)} dest={ipstr(destAddr)}, destNode={nodeId}&#34;)
-        self.iface.sendData(p, nodeId, portnums_pb2.IP_TUNNEL_APP, wantAck = False)
+        logging.debug(
+            f&#34;Forwarding packet bytelen={len(p)} dest={ipstr(destAddr)}, destNode={nodeId}&#34;)
+        self.iface.sendData(
+            p, nodeId, portnums_pb2.IP_TUNNEL_APP, wantAck=False)
     else:
-        logging.warning(f&#34;Dropping packet because no node found for destIP={ipstr(destAddr)}&#34;)</code></pre>
+        logging.warning(
+            f&#34;Dropping packet because no node found for destIP={ipstr(destAddr)}&#34;)</code></pre>
 </details>
 </dd>
 </dl>

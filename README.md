@@ -8,7 +8,7 @@ Installation is easily done through the Python package installer pip (note, you 
 
 - check that your computer has the required serial drivers installed, if not download them from [here](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers).
 - check that your computer has Python 3 installed.
-- check that your computer has “pip3” installed, if not follow [this guide](https://www.makeuseof.com/tag/install-pip-for-python/).
+- check that your computer has "pip3" installed, if not follow [this guide](https://www.makeuseof.com/tag/install-pip-for-python/).
 - check that pytap2 is installed by pip3. If not, install it:
 ```
 sudo pip3 install --upgrade pytap2
@@ -100,14 +100,6 @@ This indicates an OS permission problem for access by your user to the USB seria
 sudo usermod -a -G dialout <username>
 ```
 
-## A note to developers of this lib
-
-If you need to build a new release you'll need:
-```
-apt install pandoc
-sudo pip3 install markdown pandoc webencodings pyparsing
-```
-
 ## Mac OS Big Sur
 
 There is a problem with Big Sur and pyserial. The workaround is to install a newer version of pyserial:
@@ -117,3 +109,13 @@ pip3 install -U --pre pyserial
 ```
 
 Afterwards you can use the meshatstic python client again on MacOS.
+
+## A note to developers of this lib
+
+We use the visual-studio-code default python formatting conventions (autopep8).  So if you use that IDE you should be able to use "Format Document" and not generate unrelated diffs.  If you use some other editor, please don't change formatting on lines you haven't changed.
+
+If you need to build a new release you'll need:
+```
+apt install pandoc
+sudo pip3 install markdown pandoc webencodings pyparsing twine autopep8
+```

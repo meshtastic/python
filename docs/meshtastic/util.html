@@ -34,6 +34,23 @@ import serial.tools.list_ports
 blacklistVids = dict.fromkeys([0x1366])
 
 
+def stripnl(s):
+    &#34;&#34;&#34;remove newlines from a string&#34;&#34;&#34;
+    return str(s).replace(&#34;\n&#34;, &#34; &#34;)
+
+
+def fixme(message):
+    raise Exception(f&#34;FIXME: {message}&#34;)
+
+
+def catchAndIgnore(reason, closure):
+    &#34;&#34;&#34;Call a closure but if it throws an excpetion print it and continue&#34;&#34;&#34;
+    try:
+        closure()
+    except BaseException as ex:
+        logging.error(f&#34;Exception thrown in {reason}: {ex}&#34;)
+
+
 def findPorts():
     &#34;&#34;&#34;Find all ports that might have meshtastic devices
 
@@ -61,6 +78,23 @@ class dotdict(dict):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="meshtastic.util.catchAndIgnore"><code class="name flex">
+<span>def <span class="ident">catchAndIgnore</span></span>(<span>reason, closure)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call a closure but if it throws an excpetion print it and continue</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def catchAndIgnore(reason, closure):
+    &#34;&#34;&#34;Call a closure but if it throws an excpetion print it and continue&#34;&#34;&#34;
+    try:
+        closure()
+    except BaseException as ex:
+        logging.error(f&#34;Exception thrown in {reason}: {ex}&#34;)</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.util.findPorts"><code class="name flex">
 <span>def <span class="ident">findPorts</span></span>(<span>)</span>
 </code></dt>
@@ -83,6 +117,33 @@ class dotdict(dict):
                         serial.tools.list_ports.comports())))
     l.sort()
     return l</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.util.fixme"><code class="name flex">
+<span>def <span class="ident">fixme</span></span>(<span>message)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fixme(message):
+    raise Exception(f&#34;FIXME: {message}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.util.stripnl"><code class="name flex">
+<span>def <span class="ident">stripnl</span></span>(<span>s)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>remove newlines from a string</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stripnl(s):
+    &#34;&#34;&#34;remove newlines from a string&#34;&#34;&#34;
+    return str(s).replace(&#34;\n&#34;, &#34; &#34;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -127,7 +188,10 @@ class dotdict(dict):
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="meshtastic.util.catchAndIgnore" href="#meshtastic.util.catchAndIgnore">catchAndIgnore</a></code></li>
 <li><code><a title="meshtastic.util.findPorts" href="#meshtastic.util.findPorts">findPorts</a></code></li>
+<li><code><a title="meshtastic.util.fixme" href="#meshtastic.util.fixme">fixme</a></code></li>
+<li><code><a title="meshtastic.util.stripnl" href="#meshtastic.util.stripnl">stripnl</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
