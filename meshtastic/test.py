@@ -23,7 +23,8 @@ sendingInterface = None
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
     if sendingInterface == interface:
-        print("Ignoring sending interface")
+        pass 
+        # print("Ignoring sending interface")
     else:
         # print(f"From {interface.stream.port}: {packet}")
         p = DotMap(packet)
@@ -44,7 +45,7 @@ def subscribe():
     pub.subscribe(onNode, "meshtastic.node")
 
 
-def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False):
+def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False, wantAck=False):
     """
     Sends one test packet between two nodes and then returns success or failure
 
@@ -64,8 +65,7 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False):
     else:
         toNode = toInterface.myInfo.my_node_num
 
-    logging.info(f"Sending test packet from {fromNode} to {toNode}")
-    wantAck = False  # Don't want any sort of reliaible sending
+    logging.debug(f"Sending test wantAck={wantAck} packet from {fromNode} to {toNode}")
     global sendingInterface
     sendingInterface = fromInterface
     if not asBinary:
@@ -73,15 +73,15 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False):
     else:
         fromInterface.sendData((f"Binary {testNumber}").encode(
             "utf-8"), toNode, wantAck=wantAck)
-    for sec in range(45):  # max of 45 secs before we timeout
+    for sec in range(60):  # max of 60 secs before we timeout
         time.sleep(1)
         if (len(receivedPackets) >= 1):
             return True
     return False  # Failed to send
 
 
-def testThread(numTests=50):
-    logging.info("Found devices, starting tests...")
+def runTests(numTests=50, wantAck=False, maxFailures=0):
+    logging.info(f"Running {numTests} tests with wantAck={wantAck}")
     numFail = 0
     numSuccess = 0
     for i in range(numTests):
@@ -90,7 +90,7 @@ def testThread(numTests=50):
         isBroadcast = True
         # asBinary=(i % 2 == 0)
         success = testSend(
-            interfaces[0], interfaces[1], isBroadcast, asBinary=False)
+            interfaces[0], interfaces[1], isBroadcast, asBinary=False, wantAck=wantAck)
         if not success:
             numFail = numFail + 1
             logging.error(
@@ -98,14 +98,24 @@ def testThread(numTests=50):
         else:
             numSuccess = numSuccess + 1
             logging.info(
-                f"Test succeeded ({numSuccess} successes ({numFail} failures) so far)")
+                f"Test succeeded {numSuccess} successes {numFail} failures so far")
 
-        if numFail >= 3:
-            for i in interfaces:
-                i.close()
-            return
+        #if numFail >= 3:
+        #    for i in interfaces:
+        #        i.close()
+        #    return
 
         time.sleep(1)
+
+    if numFail > maxFailures:
+        logging.error("Too many failures! Test failed!")
+
+    return numFail
+
+def testThread(numTests=50):
+    logging.info("Found devices, starting tests...")
+    runTests(numTests, wantAck=True)
+    runTests(numTests, wantAck=False, maxFailures=5) # Allow a few dropped packets
 
 
 def onConnection(topic=pub.AUTO_TOPIC):
