@@ -100,6 +100,16 @@ This indicates an OS permission problem for access by your user to the USB seria
 sudo usermod -a -G dialout <username>
 ```
 
+## Mac OS Big Sur
+
+There is a problem with Big Sur and pyserial. The workaround is to install a newer version of pyserial:
+
+```
+pip3 install -U --pre pyserial
+```
+
+Afterwards you can use the meshatstic python client again on MacOS.
+
 ## A note to developers of this lib
 
 We use the visual-studio-code default python formatting conventions (autopep8).  So if you use that IDE you should be able to use "Format Document" and not generate unrelated diffs.  If you use some other editor, please don't change formatting on lines you haven't changed.
