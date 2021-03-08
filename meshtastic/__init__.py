@@ -55,18 +55,29 @@ interface = meshtastic.SerialInterface()
 
 """
 
-import socket
 import pygatt
 import google.protobuf.json_format
-import serial, threading, logging, sys, random, traceback, time, base64, platform
-from . import mesh_pb2, portnums_pb2, util
+import serial
+import threading
+import logging
+import sys
+import random
+import traceback
+import time
+import base64
+import platform
+import socket
+from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
+from .util import fixme, catchAndIgnore, stripnl
 from pubsub import pub
 from dotmap import DotMap
+from typing import *
 
 START1 = 0x94
 START2 = 0xc3
 HEADER_LEN = 4
 MAX_TO_FROM_RADIO_SIZE = 512
+defaultHopLimit = 3
 
 BROADCAST_ADDR = "^all"  # A special ID that means broadcast
 
@@ -79,7 +90,25 @@ MY_CONFIG_ID = 42
 
 format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 """
-OUR_APP_VERSION = 20120 
+OUR_APP_VERSION = 20200
+
+
+class ResponseHandler(NamedTuple):
+    """A pending response callback, waiting for a response to one of our messages"""
+    # requestId: int - used only as a key
+    callback: Callable
+    # FIXME, add timestamp and age out old requests
+
+
+class KnownProtocol(NamedTuple):
+    """Used to automatically decode known protocol payloads"""
+    name: str
+    # portnum: int, now a key
+    # If set, will be called to prase as a protocol buffer
+    protobufFactory: Callable = None
+    # If set, invoked as onReceive(interface, packet)
+    onReceive: Callable = None
+
 
 class MeshInterface:
     """Interface class for meshtastic devices
@@ -101,7 +130,10 @@ class MeshInterface:
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
-        random.seed() # FIXME, we should not clobber the random seedval here, instead tell user they must call it
+        self.myInfo = None  # We don't have device info yet
+        self.responseHandlers = {}  # A map from request ID to the handler
+        self.failure = None  # If we've encountered a fatal exception it will be kept here
+        random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
 
@@ -110,12 +142,18 @@ class MeshInterface:
 
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is not None and exc_value is not None:
-            logging.error(f'An exception of type {exc_type} with value {exc_value} has occurred')
+            logging.error(
+                f'An exception of type {exc_type} with value {exc_value} has occurred')
         if traceback is not None:
             logging.error(f'Traceback: {traceback}')
         self.close()
 
-    def sendText(self, text, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
+    def sendText(self, text: AnyStr,
+                 destinationId=BROADCAST_ADDR,
+                 wantAck=False,
+                 wantResponse=False,
+                 hopLimit=defaultHopLimit,
+                 onResponse=None):
         """Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
         Arguments:
@@ -125,13 +163,22 @@ class MeshInterface:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
             portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
+            wantResponse -- True if you want the service on the other side to send an application layer response
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
         return self.sendData(text.encode("utf-8"), destinationId,
-                             portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP, wantAck=wantAck, wantResponse=wantResponse)
+                             portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
+                             wantAck=wantAck,
+                             wantResponse=wantResponse,
+                             hopLimit=hopLimit,
+                             onResponse=onResponse)
 
-    def sendData(self, data, destinationId=BROADCAST_ADDR, portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False, wantResponse=False):
+    def sendData(self, data, destinationId=BROADCAST_ADDR,
+                 portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
+                 wantResponse=False,
+                 hopLimit=defaultHopLimit,
+                 onResponse=None):
         """Send a data packet to some other node
 
         Keyword Arguments:
@@ -139,20 +186,30 @@ class MeshInterface:
             destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
             portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
+            wantResponse -- True if you want the service on the other side to send an application layer response
+            onResponse -- A closure of the form funct(packet), that will be called when a response packet arrives (or the transaction is NAKed due to non receipt)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
         if getattr(data, "SerializeToString", None):
-            logging.debug(f"Serializing protobuf as data: {data}")
+            logging.debug(f"Serializing protobuf as data: {stripnl(data)}")
             data = data.SerializeToString()
 
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
             raise Exception("Data payload too big")
+
+        if portNum == portnums_pb2.PortNum.UNKNOWN_APP: # we are now more strict wrt port numbers
+            raise Exception("A non-zero port number must be specified")
+
         meshPacket = mesh_pb2.MeshPacket()
-        meshPacket.decoded.data.payload = data
-        meshPacket.decoded.data.portnum = portNum
+        meshPacket.decoded.payload = data
+        meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
-        return self.sendPacket(meshPacket, destinationId, wantAck=wantAck)
+
+        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit)
+        if onResponse is not None:
+            self._addResponseHandler(p.id, onResponse)
+        return p
 
     def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         """
@@ -179,18 +236,29 @@ class MeshInterface:
             timeSec = time.time()  # returns unix timestamp in seconds
         p.time = int(timeSec)
 
-        return self.sendData(p, destinationId, portNum=portnums_pb2.PortNum.POSITION_APP, wantAck=wantAck, wantResponse=wantResponse)
+        return self.sendData(p, destinationId,
+                             portNum=portnums_pb2.PortNum.POSITION_APP,
+                             wantAck=wantAck,
+                             wantResponse=wantResponse)
 
-    def sendPacket(self, meshPacket, destinationId=BROADCAST_ADDR, wantAck=False):
+    def _addResponseHandler(self, requestId, callback):
+        self.responseHandlers[requestId] = ResponseHandler(callback)
+
+    def _sendPacket(self, meshPacket,
+                    destinationId=BROADCAST_ADDR,
+                    wantAck=False, hopLimit=defaultHopLimit):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead.
 
-        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        Returns the sent packet. The id field will be populated in this packet and 
+        can be used to track future message acks/naks.
         """
-        self._waitConnected()
+
+        # We allow users to talk to the local node before we've completed the full connection flow...
+        if(self.myInfo is not None and destinationId != self.myInfo.my_node_num):
+            self._waitConnected()
 
         toRadio = mesh_pb2.ToRadio()
-        # FIXME add support for non broadcast addresses
 
         if destinationId is None:
             raise Exception("destinationId must not be None")
@@ -203,6 +271,7 @@ class MeshInterface:
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
+        meshPacket.hop_limit = hopLimit
 
         # if the user hasn't set an ID for this packet (likely and recommended), we should pick a new unique ID
         # so the message can be tracked.
@@ -210,10 +279,11 @@ class MeshInterface:
             meshPacket.id = self._generatePacketId()
 
         toRadio.packet.CopyFrom(meshPacket)
+        #logging.debug(f"Sending packet: {stripnl(meshPacket)}")
         self._sendToRadio(toRadio)
         return meshPacket
 
-    def waitForConfig(self, sleep=.1, maxsecs=20, attrs=('myInfo', 'nodes', 'radioConfig')):
+    def waitForConfig(self, sleep=.1, maxsecs=20, attrs=('myInfo', 'nodes', 'radioConfig', 'channels')):
         """Block until radio config is received. Returns True if config has been received."""
         for _ in range(int(maxsecs/sleep)):
             if all(map(lambda a: getattr(self, a, None), attrs)):
@@ -226,10 +296,24 @@ class MeshInterface:
         if self.radioConfig == None:
             raise Exception("No RadioConfig has been read")
 
-        t = mesh_pb2.ToRadio()
-        t.set_radio.CopyFrom(self.radioConfig)
-        self._sendToRadio(t)
+        p = admin_pb2.AdminMessage()
+        p.set_radio.CopyFrom(self.radioConfig)
+
+        self.sendData(p, self.myInfo.my_node_num,
+                      portNum=portnums_pb2.PortNum.ADMIN_APP,
+                      wantAck=True)
         logging.debug("Wrote config")
+
+    def writeChannel(self, channelIndex):
+        """Write the current (edited) channel to the device"""
+
+        p = admin_pb2.AdminMessage()
+        p.set_channel.CopyFrom(self.channels[channelIndex])
+
+        self.sendData(p, self.myInfo.my_node_num,
+                      portNum=portnums_pb2.PortNum.ADMIN_APP,
+                      wantAck=True)
+        logging.debug("Wrote channel {channelIndex}")
 
     def getMyNodeInfo(self):
         if self.myInfo is None:
@@ -271,42 +355,65 @@ class MeshInterface:
                     short_name = long_name[0] + long_name[1:].translate(trans)
                     if len(short_name) < nChars:
                         short_name = long_name[:nChars]
-        t = mesh_pb2.ToRadio()
+
+        p = admin_pb2.AdminMessage()
+
         if long_name is not None:
-            t.set_owner.long_name = long_name
+            p.set_owner.long_name = long_name
         if short_name is not None:
             short_name = short_name.strip()
             if len(short_name) > nChars:
                 short_name = short_name[:nChars]
-            t.set_owner.short_name = short_name
-        self._sendToRadio(t)
+            p.set_owner.short_name = short_name
+
+        return self.sendData(p, self.myInfo.my_node_num,
+                             portNum=portnums_pb2.PortNum.ADMIN_APP,
+                             wantAck=True)
 
     @property
     def channelURL(self):
         """The sharable URL that describes the current channel
         """
-        bytes = self.radioConfig.channel_settings.SerializeToString()
+        # Only keep the primary/secondary channels, assume primary is first
+        channelSet = apponly_pb2.ChannelSet()
+        for c in self.channels:
+            if c.role != channel_pb2.Channel.Role.DISABLED:
+                channelSet.settings.append(c.settings)
+        bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode('ascii')
-        return f"https://www.meshtastic.org/c/#{s}"
+        return f"https://www.meshtastic.org/d/#{s}".replace("=", "")
 
-    def setURL(self, url, write=True):
+    def setURL(self, url):
         """Set mesh network URL"""
         if self.radioConfig == None:
             raise Exception("No RadioConfig has been read")
 
-        # URLs are of the form https://www.meshtastic.org/c/#{base64_channel_settings}
+        # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
         # Split on '/#' to find the base64 encoded channel settings
         splitURL = url.split("/#")
         decodedURL = base64.urlsafe_b64decode(splitURL[-1])
-        self.radioConfig.channel_settings.ParseFromString(decodedURL)
-        if write:
-            self.writeConfig()
+        channelSet = apponly_pb2.ChannelSet()
+        channelSet.ParseFromString(decodedURL)
+
+        i = 0
+        for chs in channelSet.settings:
+            ch = channel_pb2.Channel()
+            ch.role = channel_pb2.Channel.Role.PRIMARY if i == 0 else channel_pb2.Channel.Role.SECONDARY
+            ch.index = i
+            ch.settings.CopyFrom(chs)
+            self.channels[ch.index] = ch
+            self.writeChannel(ch.index)
+            i = i + 1
 
     def _waitConnected(self):
         """Block until the initial node db download is complete, or timeout
         and raise an exception"""
-        if not self.isConnected.wait(5.0): # timeout after 5 seconds
+        if not self.isConnected.wait(5.0):  # timeout after 5 seconds
             raise Exception("Timed out waiting for connection completion")
+
+        # If we failed while connecting, raise the connection to the client
+        if self.failure:
+            raise self.failure
 
     def _generatePacketId(self):
         """Get a new unique packet ID"""
@@ -319,13 +426,15 @@ class MeshInterface:
     def _disconnected(self):
         """Called by subclasses to tell clients this interface has disconnected"""
         self.isConnected.clear()
-        pub.sendMessage("meshtastic.connection.lost", interface=self)
+        catchAndIgnore("disconnection publish", lambda: pub.sendMessage(
+            "meshtastic.connection.lost", interface=self))
 
     def _connected(self):
         """Called by this class to tell clients we are now fully connected to a node
         """
         self.isConnected.set()
-        pub.sendMessage("meshtastic.connection.established", interface=self)
+        catchAndIgnore("connection publish", lambda: pub.sendMessage(
+            "meshtastic.connection.established", interface=self))
 
     def _startConfig(self):
         """Start device packets flowing"""
@@ -333,6 +442,8 @@ class MeshInterface:
         self.nodes = {}  # nodes keyed by ID
         self.nodesByNum = {}  # nodes keyed by nodenum
         self.radioConfig = None
+        self.channels = None
+        self.partialChannels = []  # We keep our channels in a temp array until finished
 
         startConfig = mesh_pb2.ToRadio()
         startConfig.want_config_id = MY_CONFIG_ID  # we don't use this value
@@ -341,13 +452,73 @@ class MeshInterface:
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""
         if self.noProto:
-            logging.warn(f"Not sending packet because protocol use is disabled by noProto")
+            logging.warn(
+                f"Not sending packet because protocol use is disabled by noProto")
         else:
+            #logging.debug(f"Sending toRadio: {stripnl(toRadio)}")
             self._sendToRadioImpl(toRadio)
 
     def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
         logging.error(f"Subclass must provide toradio: {toRadio}")
+
+    def _handleConfigComplete(self):
+        """
+        Done with initial config messages, now send regular MeshPackets to ask for settings and channels
+        """
+        self._requestSettings()
+        self._requestChannel(0)
+
+    def _requestSettings(self):
+        """
+        Done with initial config messages, now send regular MeshPackets to ask for settings
+        """
+        p = admin_pb2.AdminMessage()
+        p.get_radio_request = True
+
+        def onResponse(p):
+            """A closure to handle the response packet"""
+            self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
+
+        return self.sendData(p, self.myInfo.my_node_num,
+                             portNum=portnums_pb2.PortNum.ADMIN_APP,
+                             wantAck=True,
+                             wantResponse=True,
+                             onResponse=onResponse)
+
+    def _requestChannel(self, channelNum: int):
+        """
+        Done with initial config messages, now send regular MeshPackets to ask for settings
+        """
+        p = admin_pb2.AdminMessage()
+        p.get_channel_request = channelNum + 1
+        logging.debug(f"Requesting channel {channelNum}")
+
+        def onResponse(p):
+            """A closure to handle the response packet"""
+            c = p["decoded"]["admin"]["raw"].get_channel_response
+            self.partialChannels.append(c)
+            logging.debug(f"Received channel {stripnl(c)}")
+            index = c.index
+
+            # for stress testing, we can always download all channels
+            fastChannelDownload = True
+
+            # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
+            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+
+            if quitEarly or index >= self.myInfo.max_channels - 1:
+                self.channels = self.partialChannels
+                # FIXME, the following should only be called after we have settings and channels
+                self._connected()  # Tell everone else we are ready to go
+            else:
+                self._requestChannel(index + 1)
+
+        return self.sendData(p, self.myInfo.my_node_num,
+                             portNum=portnums_pb2.PortNum.ADMIN_APP,
+                             wantAck=True,
+                             wantResponse=True,
+                             onResponse=onResponse)
 
     def _handleFromRadio(self, fromRadioBytes):
         """
@@ -357,28 +528,41 @@ class MeshInterface:
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
-        logging.debug(f"Received: {asDict}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
+            logging.debug(f"Received myinfo: {stripnl(fromRadio.my_info)}")
+
+            failmsg = None
+            # Check for app too old
             if self.myInfo.min_app_version > OUR_APP_VERSION:
-                raise Exception(
-                    "This device needs a newer python client, please \"pip install --upgrade meshtastic\"")
-            # start assigning our packet IDs from the opposite side of where our local device is assigning them
-        elif fromRadio.HasField("radio"):
-            self.radioConfig = fromRadio.radio
+                failmsg = "This device needs a newer python client, please \"pip install --upgrade meshtastic\".  For more information see https://tinyurl.com/5bjsxu32"
+
+            # check for firmware too old
+            if self.myInfo.max_channels == 0:
+                failmsg = "This version of meshtastic-python requires device firmware version 1.2 or later. For more information see https://tinyurl.com/5bjsxu32"
+
+            if failmsg:
+                self.failure = Exception(failmsg)
+                self.isConnected.set()  # let waitConnected return this exception
+                self.close()
+
         elif fromRadio.HasField("node_info"):
             node = asDict["nodeInfo"]
             try:
                 self._fixupPosition(node["position"])
             except:
                 logging.debug("Node without position")
+
+            logging.debug(f"Received nodeinfo: {node}")
+
             self.nodesByNum[node["num"]] = node
             if "user" in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node["user"]["id"]] = node
-            pub.sendMessage("meshtastic.node.updated", node=node, interface=self)
+            pub.sendMessage("meshtastic.node.updated",
+                            node=node, interface=self)
         elif fromRadio.config_complete_id == MY_CONFIG_ID:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
-            self._connected()
+            self._handleConfigComplete()
         elif fromRadio.HasField("packet"):
             self._handlePacketFromRadio(fromRadio.packet)
         elif fromRadio.rebooted:
@@ -441,6 +625,20 @@ class MeshInterface:
         """
 
         asDict = google.protobuf.json_format.MessageToDict(meshPacket)
+
+        # We normally decompose the payload into a dictionary so that the client
+        # doesn't need to understand protobufs.  But advanced clients might
+        # want the raw protobuf, so we provide it in "raw"
+        asDict["raw"] = meshPacket
+
+        # from might be missing if the nodenum was zero.
+        if not "from" in asDict:
+            asDict["from"] = 0
+            logging.error(f"Device returned a packet we sent, ignoring: {stripnl(asDict)}")
+            return
+        if not "to" in asDict:
+            asDict["to"] = 0
+
         # /add fromId and toId fields based on the node ID
         asDict["fromId"] = self._nodeNumToId(asDict["from"])
         asDict["toId"] = self._nodeNumToId(asDict["to"])
@@ -449,68 +647,59 @@ class MeshInterface:
         # asObj = DotMap(asDict)
         topic = "meshtastic.receive"  # Generic unknown packet type
 
-        # Warn users if firmware doesn't use new portnum based data encodings
-        # But do not crash, because the lib will still basically work and ignore those packet types
-        if meshPacket.decoded.HasField("user") or meshPacket.decoded.HasField("position"):
-            logging.warn("Ignoring old position/user message. Recommend you update firmware to 1.1.20 or later")
+        decoded = asDict["decoded"]
+        # The default MessageToDict converts byte arrays into base64 strings.
+        # We don't want that - it messes up data payload.  So slam in the correct
+        # byte array.
+        decoded["payload"] = meshPacket.decoded.payload
 
-        if meshPacket.decoded.HasField("data"):
+        # UNKNOWN_APP is the default protobuf portnum value, and therefore if not set it will not be populated at all
+        # to make API usage easier, set it to prevent confusion
+        if not "portnum" in decoded:
+            decoded["portnum"] = portnums_pb2.PortNum.Name(
+                portnums_pb2.PortNum.UNKNOWN_APP)
 
-            # The default MessageToDict converts byte arrays into base64 strings.
-            # We don't want that - it messes up data payload.  So slam in the correct
-            # byte array.
-            asDict["decoded"]["data"]["payload"] = meshPacket.decoded.data.payload
+        portnum = decoded["portnum"]
 
-            # UNKNOWN_APP is the default protobuf portnum value, and therefore if not set it will not be populated at all
-            # to make API usage easier, set it to prevent confusion
-            if not "portnum" in asDict["decoded"]["data"]:
-                asDict["decoded"]["data"]["portnum"] = portnums_pb2.PortNum.Name(portnums_pb2.PortNum.UNKNOWN_APP)
+        topic = f"meshtastic.receive.data.{portnum}"
 
-            portnum = asDict["decoded"]["data"]["portnum"]
+        # decode position protobufs and update nodedb, provide decoded version as "position" in the published msg
+        # move the following into a 'decoders' API that clients could register?
+        portNumInt = meshPacket.decoded.portnum  # we want portnum as an int
+        handler = protocols.get(portNumInt)
+        # The decoded protobuf as a dictionary (if we understand this message)
+        p = None
+        if handler is not None:
+            topic = f"meshtastic.receive.{handler.name}"
 
-            topic = f"meshtastic.receive.data.{portnum}"
-
-            # For text messages, we go ahead and decode the text to ascii for our users
-            if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.TEXT_MESSAGE_APP):
-                topic = "meshtastic.receive.text"
-
-                # We don't throw if the utf8 is invalid in the text message.  Instead we just don't populate
-                # the decoded.data.text and we log an error message.  This at least allows some delivery to
-                # the app and the app can deal with the missing decoded representation.
-                #
-                # Usually btw this problem is caused by apps sending binary data but setting the payload type to
-                # text.
-                try:
-                    asDict["decoded"]["data"]["text"] = meshPacket.decoded.data.payload.decode("utf-8")
-                except Exception as ex:
-                    logging.error(f"Malformatted utf8 in text message: {ex}")
-
-            # decode position protobufs and update nodedb, provide decoded version as "position" in the published msg
-            if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.POSITION_APP):
-                topic = "meshtastic.receive.position"
-                pb = mesh_pb2.Position()
-                pb.ParseFromString(meshPacket.decoded.data.payload)
+            # Convert to protobuf if possible
+            if handler.protobufFactory is not None:
+                pb = handler.protobufFactory()
+                pb.ParseFromString(meshPacket.decoded.payload)
                 p = google.protobuf.json_format.MessageToDict(pb)
-                self._fixupPosition(p)
-                asDict["decoded"]["data"]["position"] = p
-                # update node DB as needed
-                self._getOrCreateByNum(asDict["from"])["position"] = p
+                asDict["decoded"][handler.name] = p
+                # Also provide the protobuf raw
+                asDict["decoded"][handler.name]["raw"] = pb
 
-            # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
-            if portnum == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.NODEINFO_APP):
-                topic = "meshtastic.receive.user"
-                pb = mesh_pb2.User()
-                pb.ParseFromString(meshPacket.decoded.data.payload)
-                u = google.protobuf.json_format.MessageToDict(pb)
-                asDict["decoded"]["data"]["user"] = u
-                # update node DB as needed
-                n = self._getOrCreateByNum(asDict["from"])
-                n["user"] = u
-                # We now have a node ID, make sure it is uptodate in that table
-                self.nodes[u["id"]] = n
+            # Call specialized onReceive if necessary
+            if handler.onReceive is not None:
+                handler.onReceive(self, asDict)
 
-        logging.debug(f"Publishing topic {topic}")
-        pub.sendMessage(topic, packet=asDict, interface=self)
+        # Is this message in response to a request, if so, look for a handler
+        requestId = decoded.get("requestId")
+        if requestId is not None:
+            # We ignore ACK packets, but send NAKs and data responses to the handlers
+            routing = decoded.get("routing")
+            isAck = routing is not None and ("errorReason" not in routing)
+            if not isAck:
+                # we keep the responseHandler in dict until we get a non ack
+                handler = self.responseHandlers.pop(requestId, None)
+                if handler is not None:
+                    handler.callback(asDict)
+
+        logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
+        catchAndIgnore(f"publishing {topic}", lambda: pub.sendMessage(
+            topic, packet=asDict, interface=self))
 
 
 # Our standard BLE characteristics
@@ -541,7 +730,7 @@ class BLEInterface(MeshInterface):
 
     def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
-        logging.debug(f"Sending: {toRadio}")
+        # logging.debug(f"Sending: {stripnl(toRadio)}")
         b = toRadio.SerializeToString()
         self.device.char_write(TORADIO_UUID, b)
 
@@ -599,7 +788,7 @@ class StreamInterface(MeshInterface):
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
-        if not self.noProto: # Wait for the db download if using the protocol
+        if not self.noProto:  # Wait for the db download if using the protocol
             self._waitConnected()
 
     def _disconnected(self):
@@ -621,7 +810,7 @@ class StreamInterface(MeshInterface):
 
     def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
-        logging.debug(f"Sending: {toRadio}")
+        logging.debug(f"Sending: {stripnl(toRadio)}")
         b = toRadio.SerializeToString()
         bufLen = len(b)
         # We convert into a string, because the TCP code doesn't work with byte arrays
@@ -685,13 +874,16 @@ class StreamInterface(MeshInterface):
                     # logging.debug(f"timeout")
                     pass
         except serial.SerialException as ex:
-            if not self._wantExit: # We might intentionally get an exception during shutdown
-                logging.warn(f"Meshtastic serial port disconnected, disconnecting... {ex}")
+            if not self._wantExit:  # We might intentionally get an exception during shutdown
+                logging.warn(
+                    f"Meshtastic serial port disconnected, disconnecting... {ex}")
         except OSError as ex:
-            if not self._wantExit: # We might intentionally get an exception during shutdown
-                logging.error(f"Unexpected OSError, terminating meshtastic reader... {ex}")                
+            if not self._wantExit:  # We might intentionally get an exception during shutdown
+                logging.error(
+                    f"Unexpected OSError, terminating meshtastic reader... {ex}")
         except Exception as ex:
-            logging.error(f"Unexpected exception, terminating meshtastic reader... {ex}")
+            logging.error(
+                f"Unexpected exception, terminating meshtastic reader... {ex}")
         finally:
             logging.debug("reader is exiting")
             self._disconnected()
@@ -739,10 +931,11 @@ class SerialInterface(StreamInterface):
         StreamInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
 
+
 class TCPInterface(StreamInterface):
     """Interface class for meshtastic devices over a TCP link"""
 
-    def __init__(self, hostname, debugOut=None, noProto=False, connectNow=True, portNumber=4403):
+    def __init__(self, hostname: AnyStr, debugOut=None, noProto=False, connectNow=True, portNumber=4403):
         """Constructor, opens a connection to a specified IP address/hostname
 
         Keyword Arguments:
@@ -765,9 +958,9 @@ class TCPInterface(StreamInterface):
     def close(self):
         """Close a connection to the device"""
         logging.debug("Closing TCP stream")
-        # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing 
+        # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing
         # the socket here
-        self._wantExit = True        
+        self._wantExit = True
         if not self.socket is None:
             self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
@@ -780,3 +973,50 @@ class TCPInterface(StreamInterface):
     def _readBytes(self, len):
         """Read an array of bytes from our stream"""
         return self.socket.recv(len)
+
+
+def _onTextReceive(iface, asDict):
+    """Special text auto parsing for received messages"""
+    # We don't throw if the utf8 is invalid in the text message.  Instead we just don't populate
+    # the decoded.data.text and we log an error message.  This at least allows some delivery to
+    # the app and the app can deal with the missing decoded representation.
+    #
+    # Usually btw this problem is caused by apps sending binary data but setting the payload type to
+    # text.
+    try:
+        asBytes = asDict["decoded"]["payload"]
+        asDict["decoded"]["text"] = asBytes.decode("utf-8")
+    except Exception as ex:
+        logging.error(f"Malformatted utf8 in text message: {ex}")
+
+
+def _onPositionReceive(iface, asDict):
+    """Special auto parsing for received messages"""
+    p = asDict["decoded"]["position"]
+    iface._fixupPosition(p)
+    # update node DB as needed
+    iface._getOrCreateByNum(asDict["from"])["position"] = p
+
+
+def _onNodeInfoReceive(iface, asDict):
+    """Special auto parsing for received messages"""
+    p = asDict["decoded"]["user"]
+    # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
+    # update node DB as needed
+    n = iface._getOrCreateByNum(asDict["from"])
+    n["user"] = p
+    # We now have a node ID, make sure it is uptodate in that table
+    iface.nodes[p["id"]] = n
+
+
+"""Well known message payloads can register decoders for automatic protobuf parsing"""
+protocols = {
+    portnums_pb2.PortNum.TEXT_MESSAGE_APP: KnownProtocol("text", onReceive=_onTextReceive),
+    portnums_pb2.PortNum.POSITION_APP: KnownProtocol("position", mesh_pb2.Position, _onPositionReceive),
+    portnums_pb2.PortNum.NODEINFO_APP: KnownProtocol("user", mesh_pb2.User, _onNodeInfoReceive),
+    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage),
+    portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
+    portnums_pb2.PortNum.ENVIRONMENTAL_MEASUREMENT_APP: KnownProtocol("environmental", environmental_measurement_pb2.EnvironmentalMeasurement),
+    portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol(
+        "remotehw", remote_hardware_pb2.HardwareMessage)
+}
