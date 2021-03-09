@@ -359,7 +359,7 @@ def common():
 
     if args.router != None:
         logging.error(
-            '--set-router has been deprecated. Use "--set router true" or "--set router false" instead')
+            '--set-router has been deprecated. Use "--set is_router true" or "--set is_router false" instead')
     elif args.test:
         test.testAll()
     else:
