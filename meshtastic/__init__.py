@@ -775,6 +775,7 @@ class StreamInterface(MeshInterface):
         # Start the reader thread after superclass constructor completes init
         if connectNow:
             self.connect()
+            self.waitForConfig()
 
     def connect(self):
         """Connect to our radio
