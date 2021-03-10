@@ -388,7 +388,7 @@ def common():
             else:
                 client = SerialInterface(
                     args.port, debugOut=logfile, noProto=args.noproto)
-                    
+
         sys.exit(0)
 
 
@@ -407,7 +407,7 @@ def initParser():
 
     parser.add_argument(
         "--seriallog",
-        help="Log device serial output to either 'stdout', 'none' or a filename to append to.  Defaults to stdout.")
+        help="Log device serial output to either 'stdout', 'none' or a filename to append to.")
 
     parser.add_argument("--info", help="Read and display the radio config information",
                         action="store_true")
