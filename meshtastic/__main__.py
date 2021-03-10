@@ -345,45 +345,51 @@ def common():
     global args
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
-    # Some commands require dest to be set, so we now use destOrAll for more lenient commands
-    args.destOrAll = args.dest
-    if not args.destOrAll:
-        args.destOrAll = "^all"
-
-    if not args.seriallog:
-        if args.info or args.nodes or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
-                args.settime or \
-                args.setch_longslow or args.setch_shortfast or args.setchan or args.sendtext or \
-                args.qr:
-            args.seriallog = "none"  # assume no debug output in this case
-        else:
-            args.seriallog = "stdout"  # default to stdout
-
-    if args.router != None:
-        logging.error(
-            '--set-router has been deprecated. Use "--set is_router true" or "--set is_router false" instead')
-    elif args.test:
-        test.testAll()
+    if len(sys.argv)==1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
     else:
-        if args.seriallog == "stdout":
-            logfile = sys.stdout
-        elif args.seriallog == "none":
-            args.seriallog = None
-            logging.debug("Not logging serial output")
-            logfile = None
-        else:
-            logging.info(f"Logging serial output to {args.seriallog}")
-            logfile = open(args.seriallog, 'w+', buffering=1)  # line buffering
+        # Some commands require dest to be set, so we now use destOrAll for more lenient commands
+        args.destOrAll = args.dest
+        if not args.destOrAll:
+            args.destOrAll = "^all"
 
-        subscribe()
-        if args.ble:
-            client = BLEInterface(args.ble, debugOut=logfile)
-        elif args.host:
-            client = TCPInterface(
-                args.host, debugOut=logfile, noProto=args.noproto)
+        if not args.seriallog:
+            if args.info or args.nodes or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
+                    args.settime or \
+                    args.setch_longslow or args.setch_shortfast or args.setchan or args.sendtext or \
+                    args.qr:
+                args.seriallog = "none"  # assume no debug output in this case
+            else:
+                args.seriallog = "stdout"  # default to stdout
+
+        if args.router != None:
+            logging.error(
+                '--set-router has been deprecated. Use "--set is_router true" or "--set is_router false" instead')
+        elif args.test:
+            test.testAll()
         else:
-            client = SerialInterface(
-                args.port, debugOut=logfile, noProto=args.noproto)
+            if args.seriallog == "stdout":
+                logfile = sys.stdout
+            elif args.seriallog == "none":
+                args.seriallog = None
+                logging.debug("Not logging serial output")
+                logfile = None
+            else:
+                logging.info(f"Logging serial output to {args.seriallog}")
+                logfile = open(args.seriallog, 'w+', buffering=1)  # line buffering
+
+            subscribe()
+            if args.ble:
+                client = BLEInterface(args.ble, debugOut=logfile)
+            elif args.host:
+                client = TCPInterface(
+                    args.host, debugOut=logfile, noProto=args.noproto)
+            else:
+                client = SerialInterface(
+                    args.port, debugOut=logfile, noProto=args.noproto)
+                    
+        sys.exit(0)
 
 
 def initParser():

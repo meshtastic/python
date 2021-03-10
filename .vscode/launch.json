@@ -50,7 +50,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": ["--debug", "--setchan", "psk", "fish"]
+      "args": ["--debug", "--setchan", "psk", ""]
     },
     {
       "name": "meshtastic seturl",
