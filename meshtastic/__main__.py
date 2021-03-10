@@ -74,7 +74,9 @@ def fromStr(valstr):
     Args:
         valstr (string): A user provided string
     """
-    if(valstr.startswith('0x')):
+    if(len(valstr) == 0): # Treat an emptystring as an empty bytes
+        val = bytes()
+    elif(valstr.startswith('0x')):
         # if needed convert to string with asBytes.decode('utf-8')
         val = bytes.fromhex(valstr[2:])
     elif valstr in trueTerms:
