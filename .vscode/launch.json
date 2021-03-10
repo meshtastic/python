@@ -58,7 +58,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": ["--seturl", "https://www.meshtastic.org/c/#GAMiENTxuzogKQdZ8Lz_q89Oab8qB0RlZmF1bHQ="
+      "args": ["--seturl", "https://www.meshtastic.org/d/#CgIYAw"
       ]
     },
     {

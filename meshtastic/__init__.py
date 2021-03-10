@@ -391,7 +391,16 @@ class MeshInterface:
         # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
         # Split on '/#' to find the base64 encoded channel settings
         splitURL = url.split("/#")
-        decodedURL = base64.urlsafe_b64decode(splitURL[-1])
+        b64 = splitURL[-1]
+
+        # We normally strip padding to make for a shorter URL, but the python parser doesn't like
+        # that.  So add back any missing padding
+        # per https://stackoverflow.com/a/9807138
+        missing_padding = len(b64) % 4
+        if missing_padding:
+            b64 += '='* (4 - missing_padding)
+
+        decodedURL = base64.urlsafe_b64decode(b64)
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
 
