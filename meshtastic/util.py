@@ -2,6 +2,9 @@
 from collections import defaultdict
 import serial
 import serial.tools.list_ports
+from queue import Queue
+import threading
+import logging
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
@@ -42,3 +45,25 @@ class dotdict(dict):
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
+
+
+class DeferredExecution():
+    """A thread that accepts closures to run, and runs them as they are received"""
+
+    def __init__(self, name=None):
+        self.queue = Queue()
+        self.thread = threading.Thread(target=self._run, args=(), name=name)
+        self.thread.daemon = True
+        self.thread.start()
+
+    def queueWork(self, runnable):
+        self.queue.put(runnable)
+
+    def _run(self):
+        while True:
+            try:
+                o = self.queue.get()
+                o()
+            except Exception as ex:
+                logging.error(
+                    f"Unexpected exception in deferred execution {ex}")

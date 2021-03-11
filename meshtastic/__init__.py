@@ -68,7 +68,7 @@ import base64
 import platform
 import socket
 from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
-from .util import fixme, catchAndIgnore, stripnl
+from .util import fixme, catchAndIgnore, stripnl, DeferredExecution
 from pubsub import pub
 from dotmap import DotMap
 from typing import *
@@ -95,6 +95,7 @@ format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 """
 OUR_APP_VERSION = 20200
 
+publishingThread = DeferredExecution("publishing")
 
 class ResponseHandler(NamedTuple):
     """A pending response callback, waiting for a response to one of our messages"""
@@ -555,7 +556,7 @@ class MeshInterface:
     def _disconnected(self):
         """Called by subclasses to tell clients this interface has disconnected"""
         self.isConnected.clear()
-        catchAndIgnore("disconnection publish", lambda: pub.sendMessage(
+        publishingThread.queueWork(lambda: pub.sendMessage(
             "meshtastic.connection.lost", interface=self))
 
     def _connected(self):
@@ -566,7 +567,7 @@ class MeshInterface:
         # for the local interface
         if not self.isConnected.is_set():
             self.isConnected.set()
-            catchAndIgnore("connection publish", lambda: pub.sendMessage(
+            publishingThread.queueWork(lambda: pub.sendMessage(
                 "meshtastic.connection.established", interface=self))
 
     def _startConfig(self):
@@ -779,7 +780,7 @@ class MeshInterface:
                     handler.callback(asDict)
 
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
-        catchAndIgnore(f"publishing {topic}", lambda: pub.sendMessage(
+        publishingThread.queueWork(lambda: pub.sendMessage(
             topic, packet=asDict, interface=self))
 
 
@@ -825,7 +826,6 @@ class BLEInterface(MeshInterface):
             wasEmpty = len(b) == 0
             if not wasEmpty:
                 self._handleFromRadio(b)
-
 
 class StreamInterface(MeshInterface):
     """Interface class for meshtastic devices over a stream link (serial, TCP, etc)"""

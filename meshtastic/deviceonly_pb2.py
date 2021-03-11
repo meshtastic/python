@@ -12,8 +12,8 @@ _sym_db = _symbol_database.Default()
 
 
 from . import mesh_pb2 as mesh__pb2
-from . import radioconfig_pb2 as radioconfig__pb2
 from . import channel_pb2 as channel__pb2
+from . import radioconfig_pb2 as radioconfig__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -22,11 +22,74 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\nDeviceOnlyH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x10\x64\x65viceonly.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\x1a\rchannel.proto\"\x9f\x02\n\x0b\x44\x65viceState\x12\x1b\n\x05radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfig\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\"\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08\x12\x1a\n\x08\x63hannels\x18\r \x03(\x0b\x32\x08.ChannelJ\x04\x08\x0c\x10\rB#\n\x13\x63om.geeksville.meshB\nDeviceOnlyH\x03\x62\x06proto3'
+  serialized_pb=b'\n\x10\x64\x65viceonly.proto\x1a\nmesh.proto\x1a\rchannel.proto\x1a\x11radioconfig.proto\"\x80\x01\n\x11LegacyRadioConfig\x12\x39\n\x0bpreferences\x18\x01 \x01(\x0b\x32$.LegacyRadioConfig.LegacyPreferences\x1a\x30\n\x11LegacyPreferences\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\"\x8f\x02\n\x0b\x44\x65viceState\x12\'\n\x0blegacyRadio\x18\x01 \x01(\x0b\x32\x12.LegacyRadioConfig\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\"\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08J\x04\x08\x0c\x10\r\")\n\x0b\x43hannelFile\x12\x1a\n\x08\x63hannels\x18\x01 \x03(\x0b\x32\x08.ChannelB#\n\x13\x63om.geeksville.meshB\nDeviceOnlyH\x03\x62\x06proto3'
   ,
-  dependencies=[mesh__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,channel__pb2.DESCRIPTOR,])
+  dependencies=[mesh__pb2.DESCRIPTOR,channel__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,])
 
 
+
+
+_LEGACYRADIOCONFIG_LEGACYPREFERENCES = _descriptor.Descriptor(
+  name='LegacyPreferences',
+  full_name='LegacyRadioConfig.LegacyPreferences',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='region', full_name='LegacyRadioConfig.LegacyPreferences.region', index=0,
+      number=15, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=147,
+  serialized_end=195,
+)
+
+_LEGACYRADIOCONFIG = _descriptor.Descriptor(
+  name='LegacyRadioConfig',
+  full_name='LegacyRadioConfig',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='preferences', full_name='LegacyRadioConfig.preferences', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_LEGACYRADIOCONFIG_LEGACYPREFERENCES, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=67,
+  serialized_end=195,
+)
 
 
 _DEVICESTATE = _descriptor.Descriptor(
@@ -38,7 +101,7 @@ _DEVICESTATE = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='radio', full_name='DeviceState.radio', index=0,
+      name='legacyRadio', full_name='DeviceState.legacyRadio', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -100,9 +163,34 @@ _DEVICESTATE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=198,
+  serialized_end=469,
+)
+
+
+_CHANNELFILE = _descriptor.Descriptor(
+  name='ChannelFile',
+  full_name='ChannelFile',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
     _descriptor.FieldDescriptor(
-      name='channels', full_name='DeviceState.channels', index=9,
-      number=13, type=11, cpp_type=10, label=3,
+      name='channels', full_name='ChannelFile.channels', index=0,
+      number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -119,19 +207,39 @@ _DEVICESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=67,
-  serialized_end=354,
+  serialized_start=471,
+  serialized_end=512,
 )
 
-_DEVICESTATE.fields_by_name['radio'].message_type = radioconfig__pb2._RADIOCONFIG
+_LEGACYRADIOCONFIG_LEGACYPREFERENCES.fields_by_name['region'].enum_type = radioconfig__pb2._REGIONCODE
+_LEGACYRADIOCONFIG_LEGACYPREFERENCES.containing_type = _LEGACYRADIOCONFIG
+_LEGACYRADIOCONFIG.fields_by_name['preferences'].message_type = _LEGACYRADIOCONFIG_LEGACYPREFERENCES
+_DEVICESTATE.fields_by_name['legacyRadio'].message_type = _LEGACYRADIOCONFIG
 _DEVICESTATE.fields_by_name['my_node'].message_type = mesh__pb2._MYNODEINFO
 _DEVICESTATE.fields_by_name['owner'].message_type = mesh__pb2._USER
 _DEVICESTATE.fields_by_name['node_db'].message_type = mesh__pb2._NODEINFO
 _DEVICESTATE.fields_by_name['receive_queue'].message_type = mesh__pb2._MESHPACKET
 _DEVICESTATE.fields_by_name['rx_text_message'].message_type = mesh__pb2._MESHPACKET
-_DEVICESTATE.fields_by_name['channels'].message_type = channel__pb2._CHANNEL
+_CHANNELFILE.fields_by_name['channels'].message_type = channel__pb2._CHANNEL
+DESCRIPTOR.message_types_by_name['LegacyRadioConfig'] = _LEGACYRADIOCONFIG
 DESCRIPTOR.message_types_by_name['DeviceState'] = _DEVICESTATE
+DESCRIPTOR.message_types_by_name['ChannelFile'] = _CHANNELFILE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+LegacyRadioConfig = _reflection.GeneratedProtocolMessageType('LegacyRadioConfig', (_message.Message,), {
+
+  'LegacyPreferences' : _reflection.GeneratedProtocolMessageType('LegacyPreferences', (_message.Message,), {
+    'DESCRIPTOR' : _LEGACYRADIOCONFIG_LEGACYPREFERENCES,
+    '__module__' : 'deviceonly_pb2'
+    # @@protoc_insertion_point(class_scope:LegacyRadioConfig.LegacyPreferences)
+    })
+  ,
+  'DESCRIPTOR' : _LEGACYRADIOCONFIG,
+  '__module__' : 'deviceonly_pb2'
+  # @@protoc_insertion_point(class_scope:LegacyRadioConfig)
+  })
+_sym_db.RegisterMessage(LegacyRadioConfig)
+_sym_db.RegisterMessage(LegacyRadioConfig.LegacyPreferences)
 
 DeviceState = _reflection.GeneratedProtocolMessageType('DeviceState', (_message.Message,), {
   'DESCRIPTOR' : _DEVICESTATE,
@@ -139,6 +247,13 @@ DeviceState = _reflection.GeneratedProtocolMessageType('DeviceState', (_message.
   # @@protoc_insertion_point(class_scope:DeviceState)
   })
 _sym_db.RegisterMessage(DeviceState)
+
+ChannelFile = _reflection.GeneratedProtocolMessageType('ChannelFile', (_message.Message,), {
+  'DESCRIPTOR' : _CHANNELFILE,
+  '__module__' : 'deviceonly_pb2'
+  # @@protoc_insertion_point(class_scope:ChannelFile)
+  })
+_sym_db.RegisterMessage(ChannelFile)
 
 
 DESCRIPTOR._options = None

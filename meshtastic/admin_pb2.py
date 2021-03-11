@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\013AdminProtosH\003',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0b\x61\x64min.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\x1a\rchannel.proto\"\x8b\x02\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x42\t\n\x07variantB$\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03\x62\x06proto3'
+  serialized_pb=b'\n\x0b\x61\x64min.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\x1a\rchannel.proto\"\xc7\x02\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1d\n\x13\x63onfirm_set_channel\x18  \x01(\x08H\x00\x12\x1b\n\x11\x63onfirm_set_radio\x18! \x01(\x08H\x00\x42\t\n\x07variantB$\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03\x62\x06proto3'
   ,
   dependencies=[mesh__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,channel__pb2.DESCRIPTOR,])
 
@@ -86,6 +86,20 @@ _ADMINMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='confirm_set_channel', full_name='AdminMessage.confirm_set_channel', index=7,
+      number=32, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='confirm_set_radio', full_name='AdminMessage.confirm_set_radio', index=8,
+      number=33, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -104,7 +118,7 @@ _ADMINMESSAGE = _descriptor.Descriptor(
     fields=[]),
   ],
   serialized_start=62,
-  serialized_end=329,
+  serialized_end=389,
 )
 
 _ADMINMESSAGE.fields_by_name['set_radio'].message_type = radioconfig__pb2._RADIOCONFIG
@@ -133,6 +147,12 @@ _ADMINMESSAGE.fields_by_name['get_channel_request'].containing_oneof = _ADMINMES
 _ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
   _ADMINMESSAGE.fields_by_name['get_channel_response'])
 _ADMINMESSAGE.fields_by_name['get_channel_response'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['confirm_set_channel'])
+_ADMINMESSAGE.fields_by_name['confirm_set_channel'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['confirm_set_radio'])
+_ADMINMESSAGE.fields_by_name['confirm_set_radio'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
 DESCRIPTOR.message_types_by_name['AdminMessage'] = _ADMINMESSAGE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
