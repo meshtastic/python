@@ -253,7 +253,7 @@ def onConnected(interface):
                     prefs, pref[0], pref[1])
 
             print("Writing modified preferences to device")
-            interface.writeConfig()
+            interface.localNode.writeConfig()
 
         if args.seturl:
             closeNow = True
@@ -342,10 +342,13 @@ def common():
         parser.print_help(sys.stderr)
         sys.exit(1)
     else:
-        # Some commands require dest to be set, so we now use destOrAll for more lenient commands
-        args.destOrAll = args.dest
-        if not args.destOrAll:
+        # Some commands require dest to be set, so we now use destOrAll/destOrLocal for more lenient commands
+        if not args.dest:
             args.destOrAll = "^all"
+            args.destOrLocal = "^local"
+        else:
+            args.destOrAll = args.dest
+            args.destOrLocal = args.dest
 
         if not args.seriallog:
             if args.info or args.nodes or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
@@ -432,7 +435,7 @@ def initParser():
         "--setowner", help="Set device owner name", action="store")
 
     parser.add_argument(
-        "--dest", help="The destination node id for any sent commands, if not set '^all' is assumed", default=None)
+        "--dest", help="The destination node id for any sent commands, if not set '^all' or '^local' is assumed as appropriate", default=None)
 
     parser.add_argument(
         "--sendtext", help="Send a text message")

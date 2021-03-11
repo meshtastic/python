@@ -57,7 +57,16 @@ interface = meshtastic.SerialInterface()
 
 import pygatt
 import google.protobuf.json_format
-import serial, threading, logging, sys, random, traceback, time, base64, platform, socket
+import serial
+import threading
+import logging
+import sys
+import random
+import traceback
+import time
+import base64
+import platform
+import socket
 from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
 from .util import fixme, catchAndIgnore, stripnl
 from pubsub import pub
@@ -71,7 +80,11 @@ HEADER_LEN = 4
 MAX_TO_FROM_RADIO_SIZE = 512
 defaultHopLimit = 3
 
-BROADCAST_ADDR = "^all"  # A special ID that means broadcast
+"""A special ID that means broadcast"""
+BROADCAST_ADDR = "^all"
+
+"""A special ID that means the local node"""
+LOCAL_ADDR = "^local"
 
 # if using 8 bit nodenums this will be shortend on the target
 BROADCAST_NUM = 0xffffffff
@@ -126,7 +139,7 @@ class Node:
 
     def showInfo(self):
         """Show human readable description of our node"""
-        print(self.radioConfig)        
+        print(self.radioConfig)
         print("Channels:")
         for c in self.channels:
             if c.role != channel_pb2.Channel.Role.DISABLED:
@@ -254,9 +267,9 @@ class Node:
             """A closure to handle the response packet"""
             self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
 
-        return self._sendAdmin(p, 
-                             wantResponse=True,
-                             onResponse=onResponse)
+        return self._sendAdmin(p,
+                               wantResponse=True,
+                               onResponse=onResponse)
 
     def _requestChannel(self, channelNum: int):
         """
@@ -288,11 +301,11 @@ class Node:
                 self._requestChannel(index + 1)
 
         return self._sendAdmin(p,
-                             wantResponse=True,
-                             onResponse=onResponse)
+                               wantResponse=True,
+                               onResponse=onResponse)
 
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
-                             onResponse=None):
+                   onResponse=None):
         """Send an admin message to the specified node (or the local node if destNodeNum is zero)"""
 
         return self.iface.sendData(p, self.nodeNum,
@@ -468,6 +481,8 @@ class MeshInterface:
             nodeNum = destinationId
         elif destinationId == BROADCAST_ADDR:
             nodeNum = BROADCAST_NUM
+        elif destinationId == LOCAL_ADDR:
+            nodeNum = self.myInfo.my_node_num
         else:
             nodeNum = self.nodes[destinationId]['num']
 

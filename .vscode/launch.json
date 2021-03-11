@@ -18,7 +18,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": ["--info"]
+      "args": ["--info", "--debug"]
     },
     {
       "name": "meshtastic tunnel",
