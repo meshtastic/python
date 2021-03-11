@@ -17,7 +17,6 @@ import pkg_resources
 from datetime import datetime
 import timeago
 from easy_table import EasyTable
-from google.protobuf.json_format import MessageToJson
 
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
@@ -74,7 +73,7 @@ def fromStr(valstr):
     Args:
         valstr (string): A user provided string
     """
-    if(len(valstr) == 0): # Treat an emptystring as an empty bytes
+    if(len(valstr) == 0):  # Treat an emptystring as an empty bytes
         val = bytes()
     elif(valstr.startswith('0x')):
         # if needed convert to string with asBytes.decode('utf-8')
@@ -110,13 +109,17 @@ def formatFloat(value, formatStr="{:.2f}", unit="", default="N/A"):
 def getLH(ts, default="N/A"):
     return datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') if ts else default
 
-#Returns time ago for the last heard
+# Returns time ago for the last heard
+
+
 def getTimeAgo(ts, default="N/A"):
     return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else default
 
-#Print Nodes
+# Print Nodes
+
+
 def printNodes(nodes, myId):
-    #Create the table and define the structure
+    # Create the table and define the structure
     table = EasyTable("Nodes")
     table.setCorners("/", "\\", "\\", "/")
     table.setOuterStructure("|", "-")
@@ -126,22 +129,22 @@ def printNodes(nodes, myId):
     for node in nodes:
         if node['user']['id'] == myId:
             continue
-        #aux var to get not defined keys
-        lat=formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
-        lon=formatFloat(node['position'].get("longitude"), "{:.4f}", "°")
-        alt=formatFloat(node['position'].get("altitude"), "{:.0f}", " m")
-        batt=formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "%")
-        snr=formatFloat(node.get("snr"), "{:.2f}", " dB")
-        LH= getLH(node['position'].get("time"))
+        # aux var to get not defined keys
+        lat = formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
+        lon = formatFloat(node['position'].get("longitude"), "{:.4f}", "°")
+        alt = formatFloat(node['position'].get("altitude"), "{:.0f}", " m")
+        batt = formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "%")
+        snr = formatFloat(node.get("snr"), "{:.2f}", " dB")
+        LH = getLH(node['position'].get("time"))
         timeAgo = getTimeAgo(node['position'].get("time"))
-        tableData.append({"N":0, "User":node['user']['longName'],
-                          "AKA":node['user']['shortName'], "ID":node['user']['id'],
-                          "Position":lat+", "+lon+", "+alt,
-                          "Battery":batt, "SNR":snr,
-                          "LastHeard":LH, "Since":timeAgo})
-    
-    Rows = sorted(tableData, key=lambda k: k['LastHeard'], reverse=True) 
-    RowsOk = sorted(Rows, key=lambda k:k ['LastHeard'].startswith("N/A")) 
+        tableData.append({"N": 0, "User": node['user']['longName'],
+                          "AKA": node['user']['shortName'], "ID": node['user']['id'],
+                          "Position": lat+", "+lon+", "+alt,
+                          "Battery": batt, "SNR": snr,
+                          "LastHeard": LH, "Since": timeAgo})
+
+    Rows = sorted(tableData, key=lambda k: k['LastHeard'], reverse=True)
+    RowsOk = sorted(Rows, key=lambda k: k['LastHeard'].startswith("N/A"))
     for i in range(len(RowsOk)):
         RowsOk[i]['N'] = i+1
     table.setData(RowsOk)
@@ -171,7 +174,7 @@ def onConnected(interface):
     try:
         global args
         print("Connected to radio")
-        prefs = interface.radioConfig.preferences
+        prefs = interface.localNode.radioConfig.preferences
 
         if args.settime or args.setlat or args.setlon or args.setalt:
             closeNow = True
@@ -254,14 +257,13 @@ def onConnected(interface):
 
         if args.seturl:
             closeNow = True
-            interface.setURL(args.seturl)
+            interface.localNode.setURL(args.seturl)
 
         # handle changing channels
-        if args.setchan or args.setch_longslow or args.setch_shortfast \
-                or args.seturl != None:
+        if args.setchan or args.setch_longslow or args.setch_shortfast:
             closeNow = True
 
-            ch = interface.channels[channelIndex]
+            ch = interface.localNode.channels[channelIndex]
 
             def setSimpleChannel(modem_config):
                 """Set one of the simple modem_config only based channels"""
@@ -287,25 +289,16 @@ def onConnected(interface):
                 setPref(ch.settings, pref[0], pref[1])
 
             print("Writing modified channels to device")
-            interface.writeChannel(channelIndex)
+            interface.localNode.writeChannel(channelIndex)
 
         if args.info:
             closeNow = True
-            print(interface.myInfo)
-            print(interface.radioConfig)
-            print("Channels:")
-            for c in interface.channels:
-                if c.role != channel_pb2.Channel.Role.DISABLED:
-                    cStr = MessageToJson(c.settings).replace("\n", "")
-                    print(f"  {channel_pb2.Channel.Role.Name(c.role)} {cStr}")
-            print(f"\nChannel URL {interface.channelURL}")
-            print("Nodes in mesh:")
-            for n in interface.nodes.values():
-                print(stripnl(n))
+            interface.showInfo()
 
         if args.nodes:
             closeNow = True
-            printNodes(interface.nodes.values(), interface.getMyNodeInfo()['user']['id'])
+            printNodes(interface.nodes.values(),
+                       interface.getMyNodeInfo()['user']['id'])
 
         if args.qr:
             closeNow = True
@@ -345,7 +338,7 @@ def common():
     global args
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
-    if len(sys.argv)==1:
+    if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
     else:
@@ -377,7 +370,8 @@ def common():
                 logfile = None
             else:
                 logging.info(f"Logging serial output to {args.seriallog}")
-                logfile = open(args.seriallog, 'w+', buffering=1)  # line buffering
+                logfile = open(args.seriallog, 'w+',
+                               buffering=1)  # line buffering
 
             subscribe()
             if args.ble:
@@ -389,7 +383,8 @@ def common():
                 client = SerialInterface(
                     args.port, debugOut=logfile, noProto=args.noproto)
 
-        sys.exit(0)
+        # don't call exit, background threads might be running still
+        # sys.exit(0)
 
 
 def initParser():
