@@ -291,6 +291,16 @@ class MeshInterface:
             time.sleep(sleep)
         return False
 
+    def _sendAdmin(self, p: admin_pb2.AdminMessage, destNodeNum = 0):
+        """Send an admin message to the specified node (or the local node if destNodeNum is zero)"""
+
+        if destNodeNum == 0:
+            destNodeNum = self.myInfo.my_node_num
+
+        return self.sendData(p, destNodeNum,
+                      portNum=portnums_pb2.PortNum.ADMIN_APP,
+                      wantAck=True)
+
     def writeConfig(self):
         """Write the current (edited) radioConfig to the device"""
         if self.radioConfig == None:
@@ -299,9 +309,7 @@ class MeshInterface:
         p = admin_pb2.AdminMessage()
         p.set_radio.CopyFrom(self.radioConfig)
 
-        self.sendData(p, self.myInfo.my_node_num,
-                      portNum=portnums_pb2.PortNum.ADMIN_APP,
-                      wantAck=True)
+        self._sendAdmin(p)
         logging.debug("Wrote config")
 
     def writeChannel(self, channelIndex):
@@ -310,9 +318,7 @@ class MeshInterface:
         p = admin_pb2.AdminMessage()
         p.set_channel.CopyFrom(self.channels[channelIndex])
 
-        self.sendData(p, self.myInfo.my_node_num,
-                      portNum=portnums_pb2.PortNum.ADMIN_APP,
-                      wantAck=True)
+        self._sendAdmin(p)
         logging.debug("Wrote channel {channelIndex}")
 
     def getMyNodeInfo(self):
@@ -366,9 +372,7 @@ class MeshInterface:
                 short_name = short_name[:nChars]
             p.set_owner.short_name = short_name
 
-        return self.sendData(p, self.myInfo.my_node_num,
-                             portNum=portnums_pb2.PortNum.ADMIN_APP,
-                             wantAck=True)
+        return self._sendAdmin(p)
 
     @property
     def channelURL(self):
