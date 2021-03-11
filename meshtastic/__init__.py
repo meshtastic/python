@@ -89,8 +89,6 @@ LOCAL_ADDR = "^local"
 # if using 8 bit nodenums this will be shortend on the target
 BROADCAST_NUM = 0xffffffff
 
-MY_CONFIG_ID = 42
-
 """The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand
 
 format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
@@ -357,10 +355,19 @@ class MeshInterface:
     def showInfo(self):
         """Show human readable summary about this object"""
         print(self.myInfo)
-        self.localNode.showInfo()
         print("Nodes in mesh:")
         for n in self.nodes.values():
             print(stripnl(n))
+
+    def getNode(self, nodeId):
+        """Return a node object which contains device settings and channel info"""
+        if nodeId == LOCAL_ADDR:
+            return self.localNode
+        else:
+            n = Node(self, nodeId)
+            n.requestConfig()
+            n.waitForConfig()
+            return n
 
     def sendText(self, text: AnyStr,
                  destinationId=BROADCAST_ADDR,
@@ -569,7 +576,8 @@ class MeshInterface:
         self.nodesByNum = {}  # nodes keyed by nodenum
 
         startConfig = mesh_pb2.ToRadio()
-        startConfig.want_config_id = MY_CONFIG_ID  # we don't use this value
+        self.configId = random.randint(0, 0xffffffff)
+        startConfig.want_config_id = self.configId  
         self._sendToRadio(startConfig)
 
     def _sendToRadio(self, toRadio):
@@ -632,7 +640,7 @@ class MeshInterface:
                 self.nodes[node["user"]["id"]] = node
             pub.sendMessage("meshtastic.node.updated",
                             node=node, interface=self)
-        elif fromRadio.config_complete_id == MY_CONFIG_ID:
+        elif fromRadio.config_complete_id == self.configId:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             self._handleConfigComplete()
         elif fromRadio.HasField("packet"):

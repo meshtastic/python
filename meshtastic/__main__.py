@@ -174,7 +174,9 @@ def onConnected(interface):
     try:
         global args
         print("Connected to radio")
-        prefs = interface.localNode.radioConfig.preferences
+
+        def getNode():
+            return interface.getNode(args.destOrLocal)
 
         if args.settime or args.setlat or args.setlon or args.setalt:
             closeNow = True
@@ -183,6 +185,7 @@ def onConnected(interface):
             lat = 0.0
             lon = 0.0
             time = 0
+            prefs = interface.localNode.radioConfig.preferences
             if args.settime:
                 time = int(args.settime)
             if args.setalt:
@@ -201,7 +204,7 @@ def onConnected(interface):
             print("Setting device time/position")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.sendPosition(lat, lon, alt, time)
-            interface.writeConfig()
+            interface.localNode.writeConfig()
 
         if args.setowner:
             closeNow = True
@@ -246,6 +249,7 @@ def onConnected(interface):
         # handle settings
         if args.set:
             closeNow = True
+            prefs = getNode().radioConfig.preferences            
 
             # Handle the int/float/bool arguments
             for pref in args.set:
@@ -253,17 +257,17 @@ def onConnected(interface):
                     prefs, pref[0], pref[1])
 
             print("Writing modified preferences to device")
-            interface.localNode.writeConfig()
+            getNode().writeConfig()
 
         if args.seturl:
             closeNow = True
-            interface.localNode.setURL(args.seturl)
+            getNode().setURL(args.seturl)
 
         # handle changing channels
         if args.setchan or args.setch_longslow or args.setch_shortfast:
             closeNow = True
 
-            ch = interface.localNode.channels[channelIndex]
+            ch = getNode().channels[channelIndex]
 
             def setSimpleChannel(modem_config):
                 """Set one of the simple modem_config only based channels"""
@@ -289,11 +293,12 @@ def onConnected(interface):
                 setPref(ch.settings, pref[0], pref[1])
 
             print("Writing modified channels to device")
-            interface.localNode.writeChannel(channelIndex)
+            getNode().writeChannel(channelIndex)
 
         if args.info:
             closeNow = True
             interface.showInfo()
+            getNode().showInfo()
 
         if args.nodes:
             closeNow = True
