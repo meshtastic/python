@@ -478,7 +478,16 @@ class MeshInterface:
         # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
         # Split on &#39;/#&#39; to find the base64 encoded channel settings
         splitURL = url.split(&#34;/#&#34;)
-        decodedURL = base64.urlsafe_b64decode(splitURL[-1])
+        b64 = splitURL[-1]
+
+        # We normally strip padding to make for a shorter URL, but the python parser doesn&#39;t like
+        # that.  So add back any missing padding
+        # per https://stackoverflow.com/a/9807138
+        missing_padding = len(b64) % 4
+        if missing_padding:
+            b64 += &#39;=&#39;* (4 - missing_padding)
+
+        decodedURL = base64.urlsafe_b64decode(b64)
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
 
@@ -862,6 +871,7 @@ class StreamInterface(MeshInterface):
         # Start the reader thread after superclass constructor completes init
         if connectNow:
             self.connect()
+            self.waitForConfig()
 
     def connect(self):
         &#34;&#34;&#34;Connect to our radio
@@ -1609,7 +1619,16 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
         # Split on &#39;/#&#39; to find the base64 encoded channel settings
         splitURL = url.split(&#34;/#&#34;)
-        decodedURL = base64.urlsafe_b64decode(splitURL[-1])
+        b64 = splitURL[-1]
+
+        # We normally strip padding to make for a shorter URL, but the python parser doesn&#39;t like
+        # that.  So add back any missing padding
+        # per https://stackoverflow.com/a/9807138
+        missing_padding = len(b64) % 4
+        if missing_padding:
+            b64 += &#39;=&#39;* (4 - missing_padding)
+
+        decodedURL = base64.urlsafe_b64decode(b64)
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
 
@@ -2215,7 +2234,16 @@ wantResponse &ndash; True if you want the service on the other side to send an a
     # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
     # Split on &#39;/#&#39; to find the base64 encoded channel settings
     splitURL = url.split(&#34;/#&#34;)
-    decodedURL = base64.urlsafe_b64decode(splitURL[-1])
+    b64 = splitURL[-1]
+
+    # We normally strip padding to make for a shorter URL, but the python parser doesn&#39;t like
+    # that.  So add back any missing padding
+    # per https://stackoverflow.com/a/9807138
+    missing_padding = len(b64) % 4
+    if missing_padding:
+        b64 += &#39;=&#39;* (4 - missing_padding)
+
+    decodedURL = base64.urlsafe_b64decode(b64)
     channelSet = apponly_pb2.ChannelSet()
     channelSet.ParseFromString(decodedURL)
 
@@ -2452,6 +2480,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         # Start the reader thread after superclass constructor completes init
         if connectNow:
             self.connect()
+            self.waitForConfig()
 
     def connect(self):
         &#34;&#34;&#34;Connect to our radio
