@@ -367,7 +367,8 @@ class MeshInterface:
         else:
             n = Node(self, nodeId)
             n.requestConfig()
-            n.waitForConfig()
+            if not n.waitForConfig():
+                raise Exception("Timed out waiting for node config")
             return n
 
     def sendText(self, text: AnyStr,
@@ -494,6 +495,8 @@ class MeshInterface:
         else:
             nodeNum = self.nodes[destinationId]['num']
 
+        if nodeNum == -1:
+            raise Exception("Badbug")
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
         meshPacket.hop_limit = hopLimit
@@ -510,7 +513,9 @@ class MeshInterface:
 
     def waitForConfig(self):
         """Block until radio config is received. Returns True if config has been received."""
-        return self.localNode.waitForConfig() and waitForSet(self, attrs=('myInfo', 'nodes'))
+        success = waitForSet(self, attrs=('myInfo', 'nodes')) and self.localNode.waitForConfig()
+        if not success:
+            raise Exception("Timed out waiting for interface config")
 
     def getMyNodeInfo(self):
         if self.myInfo is None:
@@ -639,10 +644,11 @@ class MeshInterface:
             self.nodesByNum[node["num"]] = node
             if "user" in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node["user"]["id"]] = node
-            pub.sendMessage("meshtastic.node.updated",
-                            node=node, interface=self)
+            publishingThread.queueWork(lambda: pub.sendMessage("meshtastic.node.updated",
+                            node=node, interface=self))
         elif fromRadio.config_complete_id == self.configId:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
+            logging.debug(f"Config complete ID {self.configId}")
             self._handleConfigComplete()
         elif fromRadio.HasField("packet"):
             self._handlePacketFromRadio(fromRadio.packet)
@@ -680,7 +686,7 @@ class MeshInterface:
         try:
             return self.nodesByNum[num]["user"]["id"]
         except:
-            logging.warn("Node not found for fromId")
+            logging.warn(f"Node {num} not found for fromId")
             return None
 
     def _getOrCreateByNum(self, nodeNum):
@@ -722,8 +728,14 @@ class MeshInterface:
             asDict["to"] = 0
 
         # /add fromId and toId fields based on the node ID
-        asDict["fromId"] = self._nodeNumToId(asDict["from"])
-        asDict["toId"] = self._nodeNumToId(asDict["to"])
+        try:
+            asDict["fromId"] = self._nodeNumToId(asDict["from"])
+        except Exception as ex:
+            logging.warn(f"Not populating fromId {ex}")
+        try:            
+            asDict["toId"] = self._nodeNumToId(asDict["to"])
+        except Exception as ex:
+            logging.warn(f"Not populating toId {ex}")
 
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
         # asObj = DotMap(asDict)
