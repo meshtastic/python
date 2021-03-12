@@ -558,9 +558,9 @@ def initParser():
                         action="store_true")
 
     parser.add_argument('--set-router', dest='router',
-                        action='store_true', help="Deprecated, use --set router true instead")
+                        action='store_true', help="Deprecated, use --set is_router true instead")
     parser.add_argument('--unset-router', dest='router',
-                        action='store_false', help="Deprecated, use --set router false instead")
+                        action='store_false', help="Deprecated, use --set is_router false instead")
 
     if have_tunnel:
         parser.add_argument('--tunnel',
