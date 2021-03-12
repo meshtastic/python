@@ -267,6 +267,28 @@ class Node:
         self._sendAdmin(p)
         logging.debug(&#34;Wrote channel {channelIndex}&#34;)
 
+    def getChannelByName(self, name):
+        &#34;&#34;&#34;Try to find the named channel or return None&#34;&#34;&#34;
+        for c in (self.channels or []):
+            if c.settings and c.settings.name == name:
+                return c
+        return None
+
+    def getDisabledChannel(self):
+        &#34;&#34;&#34;Return the first channel that is disabled (i.e. available for some new use)&#34;&#34;&#34;
+        for c in self.channels:
+            if c.role == channel_pb2.Channel.Role.DISABLED:
+                return c
+        return None
+
+    def _getAdminChannelIndex(self):
+        &#34;&#34;&#34;Return the channel number of the admin channel, or 0 if no reserved channel&#34;&#34;&#34;
+        c = self.getChannelByName(&#34;admin&#34;)
+        if c:
+            return c.index
+        else:
+            return 0
+
     def setOwner(self, long_name, short_name=None):
         &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
         nChars = 3
@@ -382,6 +404,16 @@ class Node:
 
             if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
                 logging.debug(&#34;Finished downloading channels&#34;)
+
+                # Fill the rest of array with DISABLED channels
+                index += 1
+                while index &lt; self.iface.myInfo.max_channels:
+                    ch = channel_pb2.Channel()
+                    ch.role = channel_pb2.Channel.Role.DISABLED
+                    ch.index = index
+                    self.partialChannels.append(ch)
+                    index += 1
+
                 self.channels = self.partialChannels
                 # FIXME, the following should only be called after we have settings and channels
                 self.iface._connected()  # Tell everone else we are ready to go
@@ -400,7 +432,8 @@ class Node:
                                    portNum=portnums_pb2.PortNum.ADMIN_APP,
                                    wantAck=True,
                                    wantResponse=wantResponse,
-                                   onResponse=onResponse)
+                                   onResponse=onResponse,
+                                   channelIndex=self.iface.localNode._getAdminChannelIndex())
 
 
 class MeshInterface:
@@ -491,7 +524,8 @@ class MeshInterface:
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
                  wantResponse=False,
                  hopLimit=defaultHopLimit,
-                 onResponse=None):
+                 onResponse=None,
+                 channelIndex=0):
         &#34;&#34;&#34;Send a data packet to some other node
 
         Keyword Arguments:
@@ -515,6 +549,7 @@ class MeshInterface:
             raise Exception(&#34;A non-zero port number must be specified&#34;)
 
         meshPacket = mesh_pb2.MeshPacket()
+        meshPacket.channel = channelIndex
         meshPacket.decoded.payload = data
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
@@ -1544,7 +1579,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
                  wantResponse=False,
                  hopLimit=defaultHopLimit,
-                 onResponse=None):
+                 onResponse=None,
+                 channelIndex=0):
         &#34;&#34;&#34;Send a data packet to some other node
 
         Keyword Arguments:
@@ -1568,6 +1604,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             raise Exception(&#34;A non-zero port number must be specified&#34;)
 
         meshPacket = mesh_pb2.MeshPacket()
+        meshPacket.channel = channelIndex
         meshPacket.decoded.payload = data
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
@@ -2035,7 +2072,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendData"><code class="name flex">
-<span>def <span class="ident">sendData</span></span>(<span>self, data, destinationId='^all', portNum=256, wantAck=False, wantResponse=False, hopLimit=3, onResponse=None)</span>
+<span>def <span class="ident">sendData</span></span>(<span>self, data, destinationId='^all', portNum=256, wantAck=False, wantResponse=False, hopLimit=3, onResponse=None, channelIndex=0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a data packet to some other node</p>
@@ -2055,7 +2092,8 @@ onResponse &ndash; A closure of the form funct(packet), that will be called when
              portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
              wantResponse=False,
              hopLimit=defaultHopLimit,
-             onResponse=None):
+             onResponse=None,
+             channelIndex=0):
     &#34;&#34;&#34;Send a data packet to some other node
 
     Keyword Arguments:
@@ -2079,6 +2117,7 @@ onResponse &ndash; A closure of the form funct(packet), that will be called when
         raise Exception(&#34;A non-zero port number must be specified&#34;)
 
     meshPacket = mesh_pb2.MeshPacket()
+    meshPacket.channel = channelIndex
     meshPacket.decoded.payload = data
     meshPacket.decoded.portnum = portNum
     meshPacket.decoded.want_response = wantResponse
@@ -2282,6 +2321,28 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         self._sendAdmin(p)
         logging.debug(&#34;Wrote channel {channelIndex}&#34;)
 
+    def getChannelByName(self, name):
+        &#34;&#34;&#34;Try to find the named channel or return None&#34;&#34;&#34;
+        for c in (self.channels or []):
+            if c.settings and c.settings.name == name:
+                return c
+        return None
+
+    def getDisabledChannel(self):
+        &#34;&#34;&#34;Return the first channel that is disabled (i.e. available for some new use)&#34;&#34;&#34;
+        for c in self.channels:
+            if c.role == channel_pb2.Channel.Role.DISABLED:
+                return c
+        return None
+
+    def _getAdminChannelIndex(self):
+        &#34;&#34;&#34;Return the channel number of the admin channel, or 0 if no reserved channel&#34;&#34;&#34;
+        c = self.getChannelByName(&#34;admin&#34;)
+        if c:
+            return c.index
+        else:
+            return 0
+
     def setOwner(self, long_name, short_name=None):
         &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
         nChars = 3
@@ -2397,6 +2458,16 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 
             if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
                 logging.debug(&#34;Finished downloading channels&#34;)
+
+                # Fill the rest of array with DISABLED channels
+                index += 1
+                while index &lt; self.iface.myInfo.max_channels:
+                    ch = channel_pb2.Channel()
+                    ch.role = channel_pb2.Channel.Role.DISABLED
+                    ch.index = index
+                    self.partialChannels.append(ch)
+                    index += 1
+
                 self.channels = self.partialChannels
                 # FIXME, the following should only be called after we have settings and channels
                 self.iface._connected()  # Tell everone else we are ready to go
@@ -2415,7 +2486,8 @@ wantResponse &ndash; True if you want the service on the other side to send an a
                                    portNum=portnums_pb2.PortNum.ADMIN_APP,
                                    wantAck=True,
                                    wantResponse=wantResponse,
-                                   onResponse=onResponse)</code></pre>
+                                   onResponse=onResponse,
+                                   channelIndex=self.iface.localNode._getAdminChannelIndex())</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
@@ -2443,6 +2515,40 @@ def channelURL(self):
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="meshtastic.Node.getChannelByName"><code class="name flex">
+<span>def <span class="ident">getChannelByName</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Try to find the named channel or return None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getChannelByName(self, name):
+    &#34;&#34;&#34;Try to find the named channel or return None&#34;&#34;&#34;
+    for c in (self.channels or []):
+        if c.settings and c.settings.name == name:
+            return c
+    return None</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.Node.getDisabledChannel"><code class="name flex">
+<span>def <span class="ident">getDisabledChannel</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the first channel that is disabled (i.e. available for some new use)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getDisabledChannel(self):
+    &#34;&#34;&#34;Return the first channel that is disabled (i.e. available for some new use)&#34;&#34;&#34;
+    for c in self.channels:
+        if c.role == channel_pb2.Channel.Role.DISABLED:
+            return c
+    return None</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.Node.requestConfig"><code class="name flex">
 <span>def <span class="ident">requestConfig</span></span>(<span>self)</span>
 </code></dt>
@@ -3115,6 +3221,8 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <h4><code><a title="meshtastic.Node" href="#meshtastic.Node">Node</a></code></h4>
 <ul class="two-column">
 <li><code><a title="meshtastic.Node.channelURL" href="#meshtastic.Node.channelURL">channelURL</a></code></li>
+<li><code><a title="meshtastic.Node.getChannelByName" href="#meshtastic.Node.getChannelByName">getChannelByName</a></code></li>
+<li><code><a title="meshtastic.Node.getDisabledChannel" href="#meshtastic.Node.getDisabledChannel">getDisabledChannel</a></code></li>
 <li><code><a title="meshtastic.Node.requestConfig" href="#meshtastic.Node.requestConfig">requestConfig</a></code></li>
 <li><code><a title="meshtastic.Node.setOwner" href="#meshtastic.Node.setOwner">setOwner</a></code></li>
 <li><code><a title="meshtastic.Node.setURL" href="#meshtastic.Node.setURL">setURL</a></code></li>
