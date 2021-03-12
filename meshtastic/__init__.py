@@ -180,6 +180,28 @@ class Node:
         self._sendAdmin(p)
         logging.debug("Wrote channel {channelIndex}")
 
+    def getChannelByName(self, name):
+        """Try to find the named channel or return None"""
+        for c in (self.channels or []):
+            if c.settings and c.settings.name == name:
+                return c
+        return None
+
+    def getDisabledChannel(self):
+        """Return the first channel that is disabled (i.e. available for some new use)"""
+        for c in self.channels:
+            if c.role == channel_pb2.Channel.Role.DISABLED:
+                return c
+        return None
+
+    def _getAdminChannelIndex(self):
+        """Return the channel number of the admin channel, or 0 if no reserved channel"""
+        c = self.getChannelByName("admin")
+        if c:
+            return c.index
+        else:
+            return 0
+
     def setOwner(self, long_name, short_name=None):
         """Set device owner name"""
         nChars = 3
@@ -295,6 +317,16 @@ class Node:
 
             if quitEarly or index >= self.iface.myInfo.max_channels - 1:
                 logging.debug("Finished downloading channels")
+
+                # Fill the rest of array with DISABLED channels
+                index += 1
+                while index < self.iface.myInfo.max_channels:
+                    ch = channel_pb2.Channel()
+                    ch.role = channel_pb2.Channel.Role.DISABLED
+                    ch.index = index
+                    self.partialChannels.append(ch)
+                    index += 1
+
                 self.channels = self.partialChannels
                 # FIXME, the following should only be called after we have settings and channels
                 self.iface._connected()  # Tell everone else we are ready to go
@@ -313,7 +345,8 @@ class Node:
                                    portNum=portnums_pb2.PortNum.ADMIN_APP,
                                    wantAck=True,
                                    wantResponse=wantResponse,
-                                   onResponse=onResponse)
+                                   onResponse=onResponse,
+                                   channelIndex=self.iface.localNode._getAdminChannelIndex())
 
 
 class MeshInterface:
@@ -404,7 +437,8 @@ class MeshInterface:
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
                  wantResponse=False,
                  hopLimit=defaultHopLimit,
-                 onResponse=None):
+                 onResponse=None,
+                 channelIndex=0):
         """Send a data packet to some other node
 
         Keyword Arguments:
@@ -428,6 +462,7 @@ class MeshInterface:
             raise Exception("A non-zero port number must be specified")
 
         meshPacket = mesh_pb2.MeshPacket()
+        meshPacket.channel = channelIndex
         meshPacket.decoded.payload = data
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse

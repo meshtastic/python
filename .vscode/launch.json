@@ -13,12 +13,12 @@
       "args": ["--debug", "--ble", "--device", "24:62:AB:DD:DF:3A"]
     },
     {
-      "name": "meshtastic info",
+      "name": "meshtastic admin",
       "type": "python",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": ["--info", "--debug"]
+      "args": ["--debug", "--setch-longslow", "--port", "/dev/ttyUSB1"]
     },
     {
       "name": "meshtastic tunnel",
