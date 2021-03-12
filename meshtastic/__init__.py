@@ -503,8 +503,6 @@ class MeshInterface:
                 raise Exception(f"NodeId {destinationId} not found in DB")
             nodeNum = node['num']
 
-        if nodeNum == -1:
-            raise Exception("Badbug")
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
         meshPacket.hop_limit = hopLimit

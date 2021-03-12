@@ -155,10 +155,11 @@ import base64
 import platform
 import socket
 from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
-from .util import fixme, catchAndIgnore, stripnl
+from .util import fixme, catchAndIgnore, stripnl, DeferredExecution
 from pubsub import pub
 from dotmap import DotMap
 from typing import *
+from google.protobuf.json_format import MessageToJson
 
 START1 = 0x94
 START2 = 0xc3
@@ -166,12 +167,14 @@ HEADER_LEN = 4
 MAX_TO_FROM_RADIO_SIZE = 512
 defaultHopLimit = 3
 
-BROADCAST_ADDR = &#34;^all&#34;  # A special ID that means broadcast
+&#34;&#34;&#34;A special ID that means broadcast&#34;&#34;&#34;
+BROADCAST_ADDR = &#34;^all&#34;
+
+&#34;&#34;&#34;A special ID that means the local node&#34;&#34;&#34;
+LOCAL_ADDR = &#34;^local&#34;
 
 # if using 8 bit nodenums this will be shortend on the target
 BROADCAST_NUM = 0xffffffff
-
-MY_CONFIG_ID = 42
 
 &#34;&#34;&#34;The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand
 
@@ -179,6 +182,7 @@ format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 &#34;&#34;&#34;
 OUR_APP_VERSION = 20200
 
+publishingThread = DeferredExecution(&#34;publishing&#34;)
 
 class ResponseHandler(NamedTuple):
     &#34;&#34;&#34;A pending response callback, waiting for a response to one of our messages&#34;&#34;&#34;
@@ -195,6 +199,208 @@ class KnownProtocol(NamedTuple):
     protobufFactory: Callable = None
     # If set, invoked as onReceive(interface, packet)
     onReceive: Callable = None
+
+
+def waitForSet(target, sleep=.1, maxsecs=20, attrs=()):
+    &#34;&#34;&#34;Block until the specified attributes are set. Returns True if config has been received.&#34;&#34;&#34;
+    for _ in range(int(maxsecs/sleep)):
+        if all(map(lambda a: getattr(target, a, None), attrs)):
+            return True
+        time.sleep(sleep)
+    return False
+
+
+class Node:
+    &#34;&#34;&#34;A model of a (local or remote) node in the mesh
+
+    Includes methods for radioConfig and channels
+    &#34;&#34;&#34;
+
+    def __init__(self, iface, nodeNum):
+        &#34;&#34;&#34;Constructor&#34;&#34;&#34;
+        self.iface = iface
+        self.nodeNum = nodeNum
+        self.radioConfig = None
+        self.channels = None
+
+    def showInfo(self):
+        &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
+        print(self.radioConfig)
+        print(&#34;Channels:&#34;)
+        for c in self.channels:
+            if c.role != channel_pb2.Channel.Role.DISABLED:
+                cStr = MessageToJson(c.settings).replace(&#34;\n&#34;, &#34;&#34;)
+                print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} {cStr}&#34;)
+        print(f&#34;\nChannel URL {self.channelURL}&#34;)
+
+    def requestConfig(self):
+        &#34;&#34;&#34;
+        Send regular MeshPackets to ask for settings and channels
+        &#34;&#34;&#34;
+        self.radioConfig = None
+        self.channels = None
+        self.partialChannels = []  # We keep our channels in a temp array until finished
+
+        self._requestSettings()
+
+    def waitForConfig(self, maxsecs=20):
+        &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
+        return waitForSet(self, attrs=(&#39;radioConfig&#39;, &#39;channels&#39;), maxsecs=maxsecs)
+
+    def writeConfig(self):
+        &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
+        if self.radioConfig == None:
+            raise Exception(&#34;No RadioConfig has been read&#34;)
+
+        p = admin_pb2.AdminMessage()
+        p.set_radio.CopyFrom(self.radioConfig)
+
+        self._sendAdmin(p)
+        logging.debug(&#34;Wrote config&#34;)
+
+    def writeChannel(self, channelIndex):
+        &#34;&#34;&#34;Write the current (edited) channel to the device&#34;&#34;&#34;
+
+        p = admin_pb2.AdminMessage()
+        p.set_channel.CopyFrom(self.channels[channelIndex])
+
+        self._sendAdmin(p)
+        logging.debug(&#34;Wrote channel {channelIndex}&#34;)
+
+    def setOwner(self, long_name, short_name=None):
+        &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
+        nChars = 3
+        minChars = 2
+        if long_name is not None:
+            long_name = long_name.strip()
+            if short_name is None:
+                words = long_name.split()
+                if len(long_name) &lt;= nChars:
+                    short_name = long_name
+                elif len(words) &gt;= minChars:
+                    short_name = &#39;&#39;.join(map(lambda word: word[0], words))
+                else:
+                    trans = str.maketrans(dict.fromkeys(&#39;aeiouAEIOU&#39;))
+                    short_name = long_name[0] + long_name[1:].translate(trans)
+                    if len(short_name) &lt; nChars:
+                        short_name = long_name[:nChars]
+
+        p = admin_pb2.AdminMessage()
+
+        if long_name is not None:
+            p.set_owner.long_name = long_name
+        if short_name is not None:
+            short_name = short_name.strip()
+            if len(short_name) &gt; nChars:
+                short_name = short_name[:nChars]
+            p.set_owner.short_name = short_name
+
+        return self._sendAdmin(p)
+
+    @property
+    def channelURL(self):
+        &#34;&#34;&#34;The sharable URL that describes the current channel
+        &#34;&#34;&#34;
+        # Only keep the primary/secondary channels, assume primary is first
+        channelSet = apponly_pb2.ChannelSet()
+        for c in self.channels:
+            if c.role != channel_pb2.Channel.Role.DISABLED:
+                channelSet.settings.append(c.settings)
+        bytes = channelSet.SerializeToString()
+        s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
+        return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)
+
+    def setURL(self, url):
+        &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
+        if self.radioConfig == None:
+            raise Exception(&#34;No RadioConfig has been read&#34;)
+
+        # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
+        # Split on &#39;/#&#39; to find the base64 encoded channel settings
+        splitURL = url.split(&#34;/#&#34;)
+        b64 = splitURL[-1]
+
+        # We normally strip padding to make for a shorter URL, but the python parser doesn&#39;t like
+        # that.  So add back any missing padding
+        # per https://stackoverflow.com/a/9807138
+        missing_padding = len(b64) % 4
+        if missing_padding:
+            b64 += &#39;=&#39; * (4 - missing_padding)
+
+        decodedURL = base64.urlsafe_b64decode(b64)
+        channelSet = apponly_pb2.ChannelSet()
+        channelSet.ParseFromString(decodedURL)
+
+        i = 0
+        for chs in channelSet.settings:
+            ch = channel_pb2.Channel()
+            ch.role = channel_pb2.Channel.Role.PRIMARY if i == 0 else channel_pb2.Channel.Role.SECONDARY
+            ch.index = i
+            ch.settings.CopyFrom(chs)
+            self.channels[ch.index] = ch
+            self.writeChannel(ch.index)
+            i = i + 1
+
+    def _requestSettings(self):
+        &#34;&#34;&#34;
+        Done with initial config messages, now send regular MeshPackets to ask for settings
+        &#34;&#34;&#34;
+        p = admin_pb2.AdminMessage()
+        p.get_radio_request = True
+
+        def onResponse(p):
+            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
+            self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
+            logging.debug(&#34;Received radio config, now fetching channels...&#34;)
+            self._requestChannel(0) # now start fetching channels
+
+        return self._sendAdmin(p,
+                               wantResponse=True,
+                               onResponse=onResponse)
+
+    def _requestChannel(self, channelNum: int):
+        &#34;&#34;&#34;
+        Done with initial config messages, now send regular MeshPackets to ask for settings
+        &#34;&#34;&#34;
+        p = admin_pb2.AdminMessage()
+        p.get_channel_request = channelNum + 1
+        logging.debug(f&#34;Requesting channel {channelNum}&#34;)
+
+        def onResponse(p):
+            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
+            c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
+            self.partialChannels.append(c)
+            logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
+            index = c.index
+
+            # for stress testing, we can always download all channels
+            fastChannelDownload = True
+
+            # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
+            quitEarly = (
+                c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+
+            if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
+                logging.debug(&#34;Finished downloading channels&#34;)
+                self.channels = self.partialChannels
+                # FIXME, the following should only be called after we have settings and channels
+                self.iface._connected()  # Tell everone else we are ready to go
+            else:
+                self._requestChannel(index + 1)
+
+        return self._sendAdmin(p,
+                               wantResponse=True,
+                               onResponse=onResponse)
+
+    def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
+                   onResponse=None):
+        &#34;&#34;&#34;Send an admin message to the specified node (or the local node if destNodeNum is zero)&#34;&#34;&#34;
+
+        return self.iface.sendData(p, self.nodeNum,
+                                   portNum=portnums_pb2.PortNum.ADMIN_APP,
+                                   wantAck=True,
+                                   wantResponse=wantResponse,
+                                   onResponse=onResponse)
 
 
 class MeshInterface:
@@ -217,6 +423,7 @@ class MeshInterface:
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
+        self.localNode = Node(self, -1)  # We fixup nodenum later
         self.myInfo = None  # We don&#39;t have device info yet
         self.responseHandlers = {}  # A map from request ID to the handler
         self.failure = None  # If we&#39;ve encountered a fatal exception it will be kept here
@@ -234,6 +441,25 @@ class MeshInterface:
         if traceback is not None:
             logging.error(f&#39;Traceback: {traceback}&#39;)
         self.close()
+
+    def showInfo(self):
+        &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
+        print(self.myInfo)
+        print(&#34;Nodes in mesh:&#34;)
+        for n in self.nodes.values():
+            print(stripnl(n))
+
+    def getNode(self, nodeId):
+        &#34;&#34;&#34;Return a node object which contains device settings and channel info&#34;&#34;&#34;
+        if nodeId == LOCAL_ADDR:
+            return self.localNode
+        else:
+            logging.info(&#34;Requesting configuration from remote node (this could take a while)&#34;)
+            n = Node(self, nodeId)
+            n.requestConfig()
+            if not n.waitForConfig(maxsecs = 60):
+                raise Exception(&#34;Timed out waiting for node config&#34;)
+            return n
 
     def sendText(self, text: AnyStr,
                  destinationId=BROADCAST_ADDR,
@@ -285,7 +511,7 @@ class MeshInterface:
         if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
             raise Exception(&#34;Data payload too big&#34;)
 
-        if portNum == portnums_pb2.PortNum.UNKNOWN_APP: # we are now more strict wrt port numbers
+        if portNum == portnums_pb2.PortNum.UNKNOWN_APP:  # we are now more strict wrt port numbers
             raise Exception(&#34;A non-zero port number must be specified&#34;)
 
         meshPacket = mesh_pb2.MeshPacket()
@@ -293,7 +519,8 @@ class MeshInterface:
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
 
-        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit)
+        p = self._sendPacket(meshPacket, destinationId,
+                             wantAck=wantAck, hopLimit=hopLimit)
         if onResponse is not None:
             self._addResponseHandler(p.id, onResponse)
         return p
@@ -353,8 +580,15 @@ class MeshInterface:
             nodeNum = destinationId
         elif destinationId == BROADCAST_ADDR:
             nodeNum = BROADCAST_NUM
+        elif destinationId == LOCAL_ADDR:
+            nodeNum = self.myInfo.my_node_num
+        elif destinationId.startswith(&#34;!&#34;): # A simple hex style nodeid - we can parse this without needing the DB
+            nodeNum = int(destinationId[1:], 16)
         else:
-            nodeNum = self.nodes[destinationId][&#39;num&#39;]
+            node = self.nodes.get(destinationId)
+            if not node:
+                raise Exception(f&#34;NodeId {destinationId} not found in DB&#34;)
+            nodeNum = node[&#39;num&#39;]
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
@@ -370,37 +604,11 @@ class MeshInterface:
         self._sendToRadio(toRadio)
         return meshPacket
 
-    def waitForConfig(self, sleep=.1, maxsecs=20, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;, &#39;radioConfig&#39;, &#39;channels&#39;)):
+    def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-        for _ in range(int(maxsecs/sleep)):
-            if all(map(lambda a: getattr(self, a, None), attrs)):
-                return True
-            time.sleep(sleep)
-        return False
-
-    def writeConfig(self):
-        &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
-        if self.radioConfig == None:
-            raise Exception(&#34;No RadioConfig has been read&#34;)
-
-        p = admin_pb2.AdminMessage()
-        p.set_radio.CopyFrom(self.radioConfig)
-
-        self.sendData(p, self.myInfo.my_node_num,
-                      portNum=portnums_pb2.PortNum.ADMIN_APP,
-                      wantAck=True)
-        logging.debug(&#34;Wrote config&#34;)
-
-    def writeChannel(self, channelIndex):
-        &#34;&#34;&#34;Write the current (edited) channel to the device&#34;&#34;&#34;
-
-        p = admin_pb2.AdminMessage()
-        p.set_channel.CopyFrom(self.channels[channelIndex])
-
-        self.sendData(p, self.myInfo.my_node_num,
-                      portNum=portnums_pb2.PortNum.ADMIN_APP,
-                      wantAck=True)
-        logging.debug(&#34;Wrote channel {channelIndex}&#34;)
+        success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)) and self.localNode.waitForConfig()
+        if not success:
+            raise Exception(&#34;Timed out waiting for interface config&#34;)
 
     def getMyNodeInfo(self):
         if self.myInfo is None:
@@ -425,82 +633,6 @@ class MeshInterface:
             return user.get(&#39;shortName&#39;, None)
         return None
 
-    def setOwner(self, long_name, short_name=None):
-        &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
-        nChars = 3
-        minChars = 2
-        if long_name is not None:
-            long_name = long_name.strip()
-            if short_name is None:
-                words = long_name.split()
-                if len(long_name) &lt;= nChars:
-                    short_name = long_name
-                elif len(words) &gt;= minChars:
-                    short_name = &#39;&#39;.join(map(lambda word: word[0], words))
-                else:
-                    trans = str.maketrans(dict.fromkeys(&#39;aeiouAEIOU&#39;))
-                    short_name = long_name[0] + long_name[1:].translate(trans)
-                    if len(short_name) &lt; nChars:
-                        short_name = long_name[:nChars]
-
-        p = admin_pb2.AdminMessage()
-
-        if long_name is not None:
-            p.set_owner.long_name = long_name
-        if short_name is not None:
-            short_name = short_name.strip()
-            if len(short_name) &gt; nChars:
-                short_name = short_name[:nChars]
-            p.set_owner.short_name = short_name
-
-        return self.sendData(p, self.myInfo.my_node_num,
-                             portNum=portnums_pb2.PortNum.ADMIN_APP,
-                             wantAck=True)
-
-    @property
-    def channelURL(self):
-        &#34;&#34;&#34;The sharable URL that describes the current channel
-        &#34;&#34;&#34;
-        # Only keep the primary/secondary channels, assume primary is first
-        channelSet = apponly_pb2.ChannelSet()
-        for c in self.channels:
-            if c.role != channel_pb2.Channel.Role.DISABLED:
-                channelSet.settings.append(c.settings)
-        bytes = channelSet.SerializeToString()
-        s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
-        return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)
-
-    def setURL(self, url):
-        &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
-        if self.radioConfig == None:
-            raise Exception(&#34;No RadioConfig has been read&#34;)
-
-        # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
-        # Split on &#39;/#&#39; to find the base64 encoded channel settings
-        splitURL = url.split(&#34;/#&#34;)
-        b64 = splitURL[-1]
-
-        # We normally strip padding to make for a shorter URL, but the python parser doesn&#39;t like
-        # that.  So add back any missing padding
-        # per https://stackoverflow.com/a/9807138
-        missing_padding = len(b64) % 4
-        if missing_padding:
-            b64 += &#39;=&#39;* (4 - missing_padding)
-
-        decodedURL = base64.urlsafe_b64decode(b64)
-        channelSet = apponly_pb2.ChannelSet()
-        channelSet.ParseFromString(decodedURL)
-
-        i = 0
-        for chs in channelSet.settings:
-            ch = channel_pb2.Channel()
-            ch.role = channel_pb2.Channel.Role.PRIMARY if i == 0 else channel_pb2.Channel.Role.SECONDARY
-            ch.index = i
-            ch.settings.CopyFrom(chs)
-            self.channels[ch.index] = ch
-            self.writeChannel(ch.index)
-            i = i + 1
-
     def _waitConnected(self):
         &#34;&#34;&#34;Block until the initial node db download is complete, or timeout
         and raise an exception&#34;&#34;&#34;
@@ -522,27 +654,29 @@ class MeshInterface:
     def _disconnected(self):
         &#34;&#34;&#34;Called by subclasses to tell clients this interface has disconnected&#34;&#34;&#34;
         self.isConnected.clear()
-        catchAndIgnore(&#34;disconnection publish&#34;, lambda: pub.sendMessage(
+        publishingThread.queueWork(lambda: pub.sendMessage(
             &#34;meshtastic.connection.lost&#34;, interface=self))
 
     def _connected(self):
         &#34;&#34;&#34;Called by this class to tell clients we are now fully connected to a node
         &#34;&#34;&#34;
-        self.isConnected.set()
-        catchAndIgnore(&#34;connection publish&#34;, lambda: pub.sendMessage(
-            &#34;meshtastic.connection.established&#34;, interface=self))
+        # (because I&#39;m lazy) _connected might be called when remote Node
+        # objects complete their config reads, don&#39;t generate redundant isConnected
+        # for the local interface
+        if not self.isConnected.is_set():
+            self.isConnected.set()
+            publishingThread.queueWork(lambda: pub.sendMessage(
+                &#34;meshtastic.connection.established&#34;, interface=self))
 
     def _startConfig(self):
         &#34;&#34;&#34;Start device packets flowing&#34;&#34;&#34;
         self.myInfo = None
         self.nodes = {}  # nodes keyed by ID
         self.nodesByNum = {}  # nodes keyed by nodenum
-        self.radioConfig = None
-        self.channels = None
-        self.partialChannels = []  # We keep our channels in a temp array until finished
 
         startConfig = mesh_pb2.ToRadio()
-        startConfig.want_config_id = MY_CONFIG_ID  # we don&#39;t use this value
+        self.configId = random.randint(0, 0xffffffff)
+        startConfig.want_config_id = self.configId  
         self._sendToRadio(startConfig)
 
     def _sendToRadio(self, toRadio):
@@ -562,59 +696,7 @@ class MeshInterface:
         &#34;&#34;&#34;
         Done with initial config messages, now send regular MeshPackets to ask for settings and channels
         &#34;&#34;&#34;
-        self._requestSettings()
-        self._requestChannel(0)
-
-    def _requestSettings(self):
-        &#34;&#34;&#34;
-        Done with initial config messages, now send regular MeshPackets to ask for settings
-        &#34;&#34;&#34;
-        p = admin_pb2.AdminMessage()
-        p.get_radio_request = True
-
-        def onResponse(p):
-            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
-            self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
-
-        return self.sendData(p, self.myInfo.my_node_num,
-                             portNum=portnums_pb2.PortNum.ADMIN_APP,
-                             wantAck=True,
-                             wantResponse=True,
-                             onResponse=onResponse)
-
-    def _requestChannel(self, channelNum: int):
-        &#34;&#34;&#34;
-        Done with initial config messages, now send regular MeshPackets to ask for settings
-        &#34;&#34;&#34;
-        p = admin_pb2.AdminMessage()
-        p.get_channel_request = channelNum + 1
-        logging.debug(f&#34;Requesting channel {channelNum}&#34;)
-
-        def onResponse(p):
-            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
-            c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
-            self.partialChannels.append(c)
-            logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
-            index = c.index
-
-            # for stress testing, we can always download all channels
-            fastChannelDownload = True
-
-            # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
-            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
-
-            if quitEarly or index &gt;= self.myInfo.max_channels - 1:
-                self.channels = self.partialChannels
-                # FIXME, the following should only be called after we have settings and channels
-                self._connected()  # Tell everone else we are ready to go
-            else:
-                self._requestChannel(index + 1)
-
-        return self.sendData(p, self.myInfo.my_node_num,
-                             portNum=portnums_pb2.PortNum.ADMIN_APP,
-                             wantAck=True,
-                             wantResponse=True,
-                             onResponse=onResponse)
+        self.localNode.requestConfig()
 
     def _handleFromRadio(self, fromRadioBytes):
         &#34;&#34;&#34;
@@ -624,8 +706,10 @@ class MeshInterface:
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
+        # logging.debug(f&#34;Received from radio: {fromRadio}&#34;)
         if fromRadio.HasField(&#34;my_info&#34;):
             self.myInfo = fromRadio.my_info
+            self.localNode.nodeNum = self.myInfo.my_node_num
             logging.debug(f&#34;Received myinfo: {stripnl(fromRadio.my_info)}&#34;)
 
             failmsg = None
@@ -654,10 +738,11 @@ class MeshInterface:
             self.nodesByNum[node[&#34;num&#34;]] = node
             if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
-            pub.sendMessage(&#34;meshtastic.node.updated&#34;,
-                            node=node, interface=self)
-        elif fromRadio.config_complete_id == MY_CONFIG_ID:
+            publishingThread.queueWork(lambda: pub.sendMessage(&#34;meshtastic.node.updated&#34;,
+                            node=node, interface=self))
+        elif fromRadio.config_complete_id == self.configId:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
+            logging.debug(f&#34;Config complete ID {self.configId}&#34;)
             self._handleConfigComplete()
         elif fromRadio.HasField(&#34;packet&#34;):
             self._handlePacketFromRadio(fromRadio.packet)
@@ -695,7 +780,7 @@ class MeshInterface:
         try:
             return self.nodesByNum[num][&#34;user&#34;][&#34;id&#34;]
         except:
-            logging.warn(&#34;Node not found for fromId&#34;)
+            logging.debug(f&#34;Node {num} not found for fromId&#34;)
             return None
 
     def _getOrCreateByNum(self, nodeNum):
@@ -730,14 +815,21 @@ class MeshInterface:
         # from might be missing if the nodenum was zero.
         if not &#34;from&#34; in asDict:
             asDict[&#34;from&#34;] = 0
-            logging.error(f&#34;Device returned a packet we sent, ignoring: {stripnl(asDict)}&#34;)
+            logging.error(
+                f&#34;Device returned a packet we sent, ignoring: {stripnl(asDict)}&#34;)
             return
         if not &#34;to&#34; in asDict:
             asDict[&#34;to&#34;] = 0
 
         # /add fromId and toId fields based on the node ID
-        asDict[&#34;fromId&#34;] = self._nodeNumToId(asDict[&#34;from&#34;])
-        asDict[&#34;toId&#34;] = self._nodeNumToId(asDict[&#34;to&#34;])
+        try:
+            asDict[&#34;fromId&#34;] = self._nodeNumToId(asDict[&#34;from&#34;])
+        except Exception as ex:
+            logging.warn(f&#34;Not populating fromId {ex}&#34;)
+        try:            
+            asDict[&#34;toId&#34;] = self._nodeNumToId(asDict[&#34;to&#34;])
+        except Exception as ex:
+            logging.warn(f&#34;Not populating toId {ex}&#34;)
 
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
         # asObj = DotMap(asDict)
@@ -794,7 +886,7 @@ class MeshInterface:
                     handler.callback(asDict)
 
         logging.debug(f&#34;Publishing {topic}: packet={stripnl(asDict)} &#34;)
-        catchAndIgnore(f&#34;publishing {topic}&#34;, lambda: pub.sendMessage(
+        publishingThread.queueWork(lambda: pub.sendMessage(
             topic, packet=asDict, interface=self))
 
 
@@ -841,7 +933,6 @@ class BLEInterface(MeshInterface):
             if not wasEmpty:
                 self._handleFromRadio(b)
 
-
 class StreamInterface(MeshInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
 
@@ -871,7 +962,8 @@ class StreamInterface(MeshInterface):
         # Start the reader thread after superclass constructor completes init
         if connectNow:
             self.connect()
-            self.waitForConfig()
+            if not noProto:
+                self.waitForConfig()
 
     def connect(self):
         &#34;&#34;&#34;Connect to our radio
@@ -931,8 +1023,8 @@ class StreamInterface(MeshInterface):
                 # logging.debug(&#34;reading character&#34;)
                 b = self._readBytes(1)
                 # logging.debug(&#34;In reader loop&#34;)
+                # logging.debug(f&#34;read returned {b}&#34;)
                 if len(b) &gt; 0:
-                    # logging.debug(f&#34;read returned {b}&#34;)
                     c = b[0]
                     ptr = len(self._rxBuf)
 
@@ -1183,14 +1275,43 @@ protocols = {
 <section>
 <h2 class="section-title" id="header-variables">Global variables</h2>
 <dl>
-<dt id="meshtastic.MY_CONFIG_ID"><code class="name">var <span class="ident">MY_CONFIG_ID</span></code></dt>
+<dt id="meshtastic.BROADCAST_ADDR"><code class="name">var <span class="ident">BROADCAST_ADDR</span></code></dt>
+<dd>
+<div class="desc"><p>A special ID that means the local node</p></div>
+</dd>
+<dt id="meshtastic.BROADCAST_NUM"><code class="name">var <span class="ident">BROADCAST_NUM</span></code></dt>
 <dd>
 <div class="desc"><p>The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand</p>
 <p>format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20</p></div>
 </dd>
+<dt id="meshtastic.defaultHopLimit"><code class="name">var <span class="ident">defaultHopLimit</span></code></dt>
+<dd>
+<div class="desc"><p>A special ID that means broadcast</p></div>
+</dd>
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="meshtastic.waitForSet"><code class="name flex">
+<span>def <span class="ident">waitForSet</span></span>(<span>target, sleep=0.1, maxsecs=20, attrs=())</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Block until the specified attributes are set. Returns True if config has been received.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def waitForSet(target, sleep=.1, maxsecs=20, attrs=()):
+    &#34;&#34;&#34;Block until the specified attributes are set. Returns True if config has been received.&#34;&#34;&#34;
+    for _ in range(int(maxsecs/sleep)):
+        if all(map(lambda a: getattr(target, a, None), attrs)):
+            return True
+        time.sleep(sleep)
+    return False</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -1269,15 +1390,12 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 <ul class="hlist">
 <li><code><b><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></b></code>:
 <ul class="hlist">
-<li><code><a title="meshtastic.MeshInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.getNode" href="#meshtastic.MeshInterface.getNode">getNode</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.setOwner" href="#meshtastic.MeshInterface.setOwner">setOwner</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.setURL" href="#meshtastic.MeshInterface.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.showInfo" href="#meshtastic.MeshInterface.showInfo">showInfo</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.writeChannel" href="#meshtastic.MeshInterface.writeChannel">writeChannel</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1358,6 +1476,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
+        self.localNode = Node(self, -1)  # We fixup nodenum later
         self.myInfo = None  # We don&#39;t have device info yet
         self.responseHandlers = {}  # A map from request ID to the handler
         self.failure = None  # If we&#39;ve encountered a fatal exception it will be kept here
@@ -1375,6 +1494,25 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         if traceback is not None:
             logging.error(f&#39;Traceback: {traceback}&#39;)
         self.close()
+
+    def showInfo(self):
+        &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
+        print(self.myInfo)
+        print(&#34;Nodes in mesh:&#34;)
+        for n in self.nodes.values():
+            print(stripnl(n))
+
+    def getNode(self, nodeId):
+        &#34;&#34;&#34;Return a node object which contains device settings and channel info&#34;&#34;&#34;
+        if nodeId == LOCAL_ADDR:
+            return self.localNode
+        else:
+            logging.info(&#34;Requesting configuration from remote node (this could take a while)&#34;)
+            n = Node(self, nodeId)
+            n.requestConfig()
+            if not n.waitForConfig(maxsecs = 60):
+                raise Exception(&#34;Timed out waiting for node config&#34;)
+            return n
 
     def sendText(self, text: AnyStr,
                  destinationId=BROADCAST_ADDR,
@@ -1426,7 +1564,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
             raise Exception(&#34;Data payload too big&#34;)
 
-        if portNum == portnums_pb2.PortNum.UNKNOWN_APP: # we are now more strict wrt port numbers
+        if portNum == portnums_pb2.PortNum.UNKNOWN_APP:  # we are now more strict wrt port numbers
             raise Exception(&#34;A non-zero port number must be specified&#34;)
 
         meshPacket = mesh_pb2.MeshPacket()
@@ -1434,7 +1572,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
 
-        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit)
+        p = self._sendPacket(meshPacket, destinationId,
+                             wantAck=wantAck, hopLimit=hopLimit)
         if onResponse is not None:
             self._addResponseHandler(p.id, onResponse)
         return p
@@ -1494,8 +1633,15 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             nodeNum = destinationId
         elif destinationId == BROADCAST_ADDR:
             nodeNum = BROADCAST_NUM
+        elif destinationId == LOCAL_ADDR:
+            nodeNum = self.myInfo.my_node_num
+        elif destinationId.startswith(&#34;!&#34;): # A simple hex style nodeid - we can parse this without needing the DB
+            nodeNum = int(destinationId[1:], 16)
         else:
-            nodeNum = self.nodes[destinationId][&#39;num&#39;]
+            node = self.nodes.get(destinationId)
+            if not node:
+                raise Exception(f&#34;NodeId {destinationId} not found in DB&#34;)
+            nodeNum = node[&#39;num&#39;]
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
@@ -1511,37 +1657,11 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self._sendToRadio(toRadio)
         return meshPacket
 
-    def waitForConfig(self, sleep=.1, maxsecs=20, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;, &#39;radioConfig&#39;, &#39;channels&#39;)):
+    def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-        for _ in range(int(maxsecs/sleep)):
-            if all(map(lambda a: getattr(self, a, None), attrs)):
-                return True
-            time.sleep(sleep)
-        return False
-
-    def writeConfig(self):
-        &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
-        if self.radioConfig == None:
-            raise Exception(&#34;No RadioConfig has been read&#34;)
-
-        p = admin_pb2.AdminMessage()
-        p.set_radio.CopyFrom(self.radioConfig)
-
-        self.sendData(p, self.myInfo.my_node_num,
-                      portNum=portnums_pb2.PortNum.ADMIN_APP,
-                      wantAck=True)
-        logging.debug(&#34;Wrote config&#34;)
-
-    def writeChannel(self, channelIndex):
-        &#34;&#34;&#34;Write the current (edited) channel to the device&#34;&#34;&#34;
-
-        p = admin_pb2.AdminMessage()
-        p.set_channel.CopyFrom(self.channels[channelIndex])
-
-        self.sendData(p, self.myInfo.my_node_num,
-                      portNum=portnums_pb2.PortNum.ADMIN_APP,
-                      wantAck=True)
-        logging.debug(&#34;Wrote channel {channelIndex}&#34;)
+        success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)) and self.localNode.waitForConfig()
+        if not success:
+            raise Exception(&#34;Timed out waiting for interface config&#34;)
 
     def getMyNodeInfo(self):
         if self.myInfo is None:
@@ -1566,82 +1686,6 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             return user.get(&#39;shortName&#39;, None)
         return None
 
-    def setOwner(self, long_name, short_name=None):
-        &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
-        nChars = 3
-        minChars = 2
-        if long_name is not None:
-            long_name = long_name.strip()
-            if short_name is None:
-                words = long_name.split()
-                if len(long_name) &lt;= nChars:
-                    short_name = long_name
-                elif len(words) &gt;= minChars:
-                    short_name = &#39;&#39;.join(map(lambda word: word[0], words))
-                else:
-                    trans = str.maketrans(dict.fromkeys(&#39;aeiouAEIOU&#39;))
-                    short_name = long_name[0] + long_name[1:].translate(trans)
-                    if len(short_name) &lt; nChars:
-                        short_name = long_name[:nChars]
-
-        p = admin_pb2.AdminMessage()
-
-        if long_name is not None:
-            p.set_owner.long_name = long_name
-        if short_name is not None:
-            short_name = short_name.strip()
-            if len(short_name) &gt; nChars:
-                short_name = short_name[:nChars]
-            p.set_owner.short_name = short_name
-
-        return self.sendData(p, self.myInfo.my_node_num,
-                             portNum=portnums_pb2.PortNum.ADMIN_APP,
-                             wantAck=True)
-
-    @property
-    def channelURL(self):
-        &#34;&#34;&#34;The sharable URL that describes the current channel
-        &#34;&#34;&#34;
-        # Only keep the primary/secondary channels, assume primary is first
-        channelSet = apponly_pb2.ChannelSet()
-        for c in self.channels:
-            if c.role != channel_pb2.Channel.Role.DISABLED:
-                channelSet.settings.append(c.settings)
-        bytes = channelSet.SerializeToString()
-        s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
-        return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)
-
-    def setURL(self, url):
-        &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
-        if self.radioConfig == None:
-            raise Exception(&#34;No RadioConfig has been read&#34;)
-
-        # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
-        # Split on &#39;/#&#39; to find the base64 encoded channel settings
-        splitURL = url.split(&#34;/#&#34;)
-        b64 = splitURL[-1]
-
-        # We normally strip padding to make for a shorter URL, but the python parser doesn&#39;t like
-        # that.  So add back any missing padding
-        # per https://stackoverflow.com/a/9807138
-        missing_padding = len(b64) % 4
-        if missing_padding:
-            b64 += &#39;=&#39;* (4 - missing_padding)
-
-        decodedURL = base64.urlsafe_b64decode(b64)
-        channelSet = apponly_pb2.ChannelSet()
-        channelSet.ParseFromString(decodedURL)
-
-        i = 0
-        for chs in channelSet.settings:
-            ch = channel_pb2.Channel()
-            ch.role = channel_pb2.Channel.Role.PRIMARY if i == 0 else channel_pb2.Channel.Role.SECONDARY
-            ch.index = i
-            ch.settings.CopyFrom(chs)
-            self.channels[ch.index] = ch
-            self.writeChannel(ch.index)
-            i = i + 1
-
     def _waitConnected(self):
         &#34;&#34;&#34;Block until the initial node db download is complete, or timeout
         and raise an exception&#34;&#34;&#34;
@@ -1663,27 +1707,29 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
     def _disconnected(self):
         &#34;&#34;&#34;Called by subclasses to tell clients this interface has disconnected&#34;&#34;&#34;
         self.isConnected.clear()
-        catchAndIgnore(&#34;disconnection publish&#34;, lambda: pub.sendMessage(
+        publishingThread.queueWork(lambda: pub.sendMessage(
             &#34;meshtastic.connection.lost&#34;, interface=self))
 
     def _connected(self):
         &#34;&#34;&#34;Called by this class to tell clients we are now fully connected to a node
         &#34;&#34;&#34;
-        self.isConnected.set()
-        catchAndIgnore(&#34;connection publish&#34;, lambda: pub.sendMessage(
-            &#34;meshtastic.connection.established&#34;, interface=self))
+        # (because I&#39;m lazy) _connected might be called when remote Node
+        # objects complete their config reads, don&#39;t generate redundant isConnected
+        # for the local interface
+        if not self.isConnected.is_set():
+            self.isConnected.set()
+            publishingThread.queueWork(lambda: pub.sendMessage(
+                &#34;meshtastic.connection.established&#34;, interface=self))
 
     def _startConfig(self):
         &#34;&#34;&#34;Start device packets flowing&#34;&#34;&#34;
         self.myInfo = None
         self.nodes = {}  # nodes keyed by ID
         self.nodesByNum = {}  # nodes keyed by nodenum
-        self.radioConfig = None
-        self.channels = None
-        self.partialChannels = []  # We keep our channels in a temp array until finished
 
         startConfig = mesh_pb2.ToRadio()
-        startConfig.want_config_id = MY_CONFIG_ID  # we don&#39;t use this value
+        self.configId = random.randint(0, 0xffffffff)
+        startConfig.want_config_id = self.configId  
         self._sendToRadio(startConfig)
 
     def _sendToRadio(self, toRadio):
@@ -1703,59 +1749,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         &#34;&#34;&#34;
         Done with initial config messages, now send regular MeshPackets to ask for settings and channels
         &#34;&#34;&#34;
-        self._requestSettings()
-        self._requestChannel(0)
-
-    def _requestSettings(self):
-        &#34;&#34;&#34;
-        Done with initial config messages, now send regular MeshPackets to ask for settings
-        &#34;&#34;&#34;
-        p = admin_pb2.AdminMessage()
-        p.get_radio_request = True
-
-        def onResponse(p):
-            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
-            self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
-
-        return self.sendData(p, self.myInfo.my_node_num,
-                             portNum=portnums_pb2.PortNum.ADMIN_APP,
-                             wantAck=True,
-                             wantResponse=True,
-                             onResponse=onResponse)
-
-    def _requestChannel(self, channelNum: int):
-        &#34;&#34;&#34;
-        Done with initial config messages, now send regular MeshPackets to ask for settings
-        &#34;&#34;&#34;
-        p = admin_pb2.AdminMessage()
-        p.get_channel_request = channelNum + 1
-        logging.debug(f&#34;Requesting channel {channelNum}&#34;)
-
-        def onResponse(p):
-            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
-            c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
-            self.partialChannels.append(c)
-            logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
-            index = c.index
-
-            # for stress testing, we can always download all channels
-            fastChannelDownload = True
-
-            # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
-            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
-
-            if quitEarly or index &gt;= self.myInfo.max_channels - 1:
-                self.channels = self.partialChannels
-                # FIXME, the following should only be called after we have settings and channels
-                self._connected()  # Tell everone else we are ready to go
-            else:
-                self._requestChannel(index + 1)
-
-        return self.sendData(p, self.myInfo.my_node_num,
-                             portNum=portnums_pb2.PortNum.ADMIN_APP,
-                             wantAck=True,
-                             wantResponse=True,
-                             onResponse=onResponse)
+        self.localNode.requestConfig()
 
     def _handleFromRadio(self, fromRadioBytes):
         &#34;&#34;&#34;
@@ -1765,8 +1759,10 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
+        # logging.debug(f&#34;Received from radio: {fromRadio}&#34;)
         if fromRadio.HasField(&#34;my_info&#34;):
             self.myInfo = fromRadio.my_info
+            self.localNode.nodeNum = self.myInfo.my_node_num
             logging.debug(f&#34;Received myinfo: {stripnl(fromRadio.my_info)}&#34;)
 
             failmsg = None
@@ -1795,10 +1791,11 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             self.nodesByNum[node[&#34;num&#34;]] = node
             if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
-            pub.sendMessage(&#34;meshtastic.node.updated&#34;,
-                            node=node, interface=self)
-        elif fromRadio.config_complete_id == MY_CONFIG_ID:
+            publishingThread.queueWork(lambda: pub.sendMessage(&#34;meshtastic.node.updated&#34;,
+                            node=node, interface=self))
+        elif fromRadio.config_complete_id == self.configId:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
+            logging.debug(f&#34;Config complete ID {self.configId}&#34;)
             self._handleConfigComplete()
         elif fromRadio.HasField(&#34;packet&#34;):
             self._handlePacketFromRadio(fromRadio.packet)
@@ -1836,7 +1833,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         try:
             return self.nodesByNum[num][&#34;user&#34;][&#34;id&#34;]
         except:
-            logging.warn(&#34;Node not found for fromId&#34;)
+            logging.debug(f&#34;Node {num} not found for fromId&#34;)
             return None
 
     def _getOrCreateByNum(self, nodeNum):
@@ -1871,14 +1868,21 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         # from might be missing if the nodenum was zero.
         if not &#34;from&#34; in asDict:
             asDict[&#34;from&#34;] = 0
-            logging.error(f&#34;Device returned a packet we sent, ignoring: {stripnl(asDict)}&#34;)
+            logging.error(
+                f&#34;Device returned a packet we sent, ignoring: {stripnl(asDict)}&#34;)
             return
         if not &#34;to&#34; in asDict:
             asDict[&#34;to&#34;] = 0
 
         # /add fromId and toId fields based on the node ID
-        asDict[&#34;fromId&#34;] = self._nodeNumToId(asDict[&#34;from&#34;])
-        asDict[&#34;toId&#34;] = self._nodeNumToId(asDict[&#34;to&#34;])
+        try:
+            asDict[&#34;fromId&#34;] = self._nodeNumToId(asDict[&#34;from&#34;])
+        except Exception as ex:
+            logging.warn(f&#34;Not populating fromId {ex}&#34;)
+        try:            
+            asDict[&#34;toId&#34;] = self._nodeNumToId(asDict[&#34;to&#34;])
+        except Exception as ex:
+            logging.warn(f&#34;Not populating toId {ex}&#34;)
 
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
         # asObj = DotMap(asDict)
@@ -1935,7 +1939,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                     handler.callback(asDict)
 
         logging.debug(f&#34;Publishing {topic}: packet={stripnl(asDict)} &#34;)
-        catchAndIgnore(f&#34;publishing {topic}&#34;, lambda: pub.sendMessage(
+        publishingThread.queueWork(lambda: pub.sendMessage(
             topic, packet=asDict, interface=self))</code></pre>
 </details>
 <h3>Subclasses</h3>
@@ -1943,30 +1947,6 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 <li><a title="meshtastic.BLEInterface" href="#meshtastic.BLEInterface">BLEInterface</a></li>
 <li><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></li>
 </ul>
-<h3>Instance variables</h3>
-<dl>
-<dt id="meshtastic.MeshInterface.channelURL"><code class="name">var <span class="ident">channelURL</span></code></dt>
-<dd>
-<div class="desc"><p>The sharable URL that describes the current channel</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def channelURL(self):
-    &#34;&#34;&#34;The sharable URL that describes the current channel
-    &#34;&#34;&#34;
-    # Only keep the primary/secondary channels, assume primary is first
-    channelSet = apponly_pb2.ChannelSet()
-    for c in self.channels:
-        if c.role != channel_pb2.Channel.Role.DISABLED:
-            channelSet.settings.append(c.settings)
-    bytes = channelSet.SerializeToString()
-    s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
-    return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)</code></pre>
-</details>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="meshtastic.MeshInterface.getLongName"><code class="name flex">
@@ -2014,6 +1994,28 @@ def channelURL(self):
     if nodeInfo is not None:
         return nodeInfo.get(&#39;user&#39;)
     return None</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.MeshInterface.getNode"><code class="name flex">
+<span>def <span class="ident">getNode</span></span>(<span>self, nodeId)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a node object which contains device settings and channel info</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getNode(self, nodeId):
+    &#34;&#34;&#34;Return a node object which contains device settings and channel info&#34;&#34;&#34;
+    if nodeId == LOCAL_ADDR:
+        return self.localNode
+    else:
+        logging.info(&#34;Requesting configuration from remote node (this could take a while)&#34;)
+        n = Node(self, nodeId)
+        n.requestConfig()
+        if not n.waitForConfig(maxsecs = 60):
+            raise Exception(&#34;Timed out waiting for node config&#34;)
+        return n</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.getShortName"><code class="name flex">
@@ -2073,7 +2075,7 @@ onResponse &ndash; A closure of the form funct(packet), that will be called when
     if len(data) &gt; mesh_pb2.Constants.DATA_PAYLOAD_LEN:
         raise Exception(&#34;Data payload too big&#34;)
 
-    if portNum == portnums_pb2.PortNum.UNKNOWN_APP: # we are now more strict wrt port numbers
+    if portNum == portnums_pb2.PortNum.UNKNOWN_APP:  # we are now more strict wrt port numbers
         raise Exception(&#34;A non-zero port number must be specified&#34;)
 
     meshPacket = mesh_pb2.MeshPacket()
@@ -2081,7 +2083,8 @@ onResponse &ndash; A closure of the form funct(packet), that will be called when
     meshPacket.decoded.portnum = portNum
     meshPacket.decoded.want_response = wantResponse
 
-    p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit)
+    p = self._sendPacket(meshPacket, destinationId,
+                         wantAck=wantAck, hopLimit=hopLimit)
     if onResponse is not None:
         self._addResponseHandler(p.id, onResponse)
     return p</code></pre>
@@ -2175,7 +2178,292 @@ wantResponse &ndash; True if you want the service on the other side to send an a
                          onResponse=onResponse)</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.MeshInterface.setOwner"><code class="name flex">
+<dt id="meshtastic.MeshInterface.showInfo"><code class="name flex">
+<span>def <span class="ident">showInfo</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Show human readable summary about this object</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def showInfo(self):
+    &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
+    print(self.myInfo)
+    print(&#34;Nodes in mesh:&#34;)
+    for n in self.nodes.values():
+        print(stripnl(n))</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.MeshInterface.waitForConfig"><code class="name flex">
+<span>def <span class="ident">waitForConfig</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Block until radio config is received. Returns True if config has been received.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def waitForConfig(self):
+    &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
+    success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)) and self.localNode.waitForConfig()
+    if not success:
+        raise Exception(&#34;Timed out waiting for interface config&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.Node"><code class="flex name class">
+<span>class <span class="ident">Node</span></span>
+<span>(</span><span>iface, nodeNum)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A model of a (local or remote) node in the mesh</p>
+<p>Includes methods for radioConfig and channels</p>
+<p>Constructor</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Node:
+    &#34;&#34;&#34;A model of a (local or remote) node in the mesh
+
+    Includes methods for radioConfig and channels
+    &#34;&#34;&#34;
+
+    def __init__(self, iface, nodeNum):
+        &#34;&#34;&#34;Constructor&#34;&#34;&#34;
+        self.iface = iface
+        self.nodeNum = nodeNum
+        self.radioConfig = None
+        self.channels = None
+
+    def showInfo(self):
+        &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
+        print(self.radioConfig)
+        print(&#34;Channels:&#34;)
+        for c in self.channels:
+            if c.role != channel_pb2.Channel.Role.DISABLED:
+                cStr = MessageToJson(c.settings).replace(&#34;\n&#34;, &#34;&#34;)
+                print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} {cStr}&#34;)
+        print(f&#34;\nChannel URL {self.channelURL}&#34;)
+
+    def requestConfig(self):
+        &#34;&#34;&#34;
+        Send regular MeshPackets to ask for settings and channels
+        &#34;&#34;&#34;
+        self.radioConfig = None
+        self.channels = None
+        self.partialChannels = []  # We keep our channels in a temp array until finished
+
+        self._requestSettings()
+
+    def waitForConfig(self, maxsecs=20):
+        &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
+        return waitForSet(self, attrs=(&#39;radioConfig&#39;, &#39;channels&#39;), maxsecs=maxsecs)
+
+    def writeConfig(self):
+        &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
+        if self.radioConfig == None:
+            raise Exception(&#34;No RadioConfig has been read&#34;)
+
+        p = admin_pb2.AdminMessage()
+        p.set_radio.CopyFrom(self.radioConfig)
+
+        self._sendAdmin(p)
+        logging.debug(&#34;Wrote config&#34;)
+
+    def writeChannel(self, channelIndex):
+        &#34;&#34;&#34;Write the current (edited) channel to the device&#34;&#34;&#34;
+
+        p = admin_pb2.AdminMessage()
+        p.set_channel.CopyFrom(self.channels[channelIndex])
+
+        self._sendAdmin(p)
+        logging.debug(&#34;Wrote channel {channelIndex}&#34;)
+
+    def setOwner(self, long_name, short_name=None):
+        &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
+        nChars = 3
+        minChars = 2
+        if long_name is not None:
+            long_name = long_name.strip()
+            if short_name is None:
+                words = long_name.split()
+                if len(long_name) &lt;= nChars:
+                    short_name = long_name
+                elif len(words) &gt;= minChars:
+                    short_name = &#39;&#39;.join(map(lambda word: word[0], words))
+                else:
+                    trans = str.maketrans(dict.fromkeys(&#39;aeiouAEIOU&#39;))
+                    short_name = long_name[0] + long_name[1:].translate(trans)
+                    if len(short_name) &lt; nChars:
+                        short_name = long_name[:nChars]
+
+        p = admin_pb2.AdminMessage()
+
+        if long_name is not None:
+            p.set_owner.long_name = long_name
+        if short_name is not None:
+            short_name = short_name.strip()
+            if len(short_name) &gt; nChars:
+                short_name = short_name[:nChars]
+            p.set_owner.short_name = short_name
+
+        return self._sendAdmin(p)
+
+    @property
+    def channelURL(self):
+        &#34;&#34;&#34;The sharable URL that describes the current channel
+        &#34;&#34;&#34;
+        # Only keep the primary/secondary channels, assume primary is first
+        channelSet = apponly_pb2.ChannelSet()
+        for c in self.channels:
+            if c.role != channel_pb2.Channel.Role.DISABLED:
+                channelSet.settings.append(c.settings)
+        bytes = channelSet.SerializeToString()
+        s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
+        return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)
+
+    def setURL(self, url):
+        &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
+        if self.radioConfig == None:
+            raise Exception(&#34;No RadioConfig has been read&#34;)
+
+        # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
+        # Split on &#39;/#&#39; to find the base64 encoded channel settings
+        splitURL = url.split(&#34;/#&#34;)
+        b64 = splitURL[-1]
+
+        # We normally strip padding to make for a shorter URL, but the python parser doesn&#39;t like
+        # that.  So add back any missing padding
+        # per https://stackoverflow.com/a/9807138
+        missing_padding = len(b64) % 4
+        if missing_padding:
+            b64 += &#39;=&#39; * (4 - missing_padding)
+
+        decodedURL = base64.urlsafe_b64decode(b64)
+        channelSet = apponly_pb2.ChannelSet()
+        channelSet.ParseFromString(decodedURL)
+
+        i = 0
+        for chs in channelSet.settings:
+            ch = channel_pb2.Channel()
+            ch.role = channel_pb2.Channel.Role.PRIMARY if i == 0 else channel_pb2.Channel.Role.SECONDARY
+            ch.index = i
+            ch.settings.CopyFrom(chs)
+            self.channels[ch.index] = ch
+            self.writeChannel(ch.index)
+            i = i + 1
+
+    def _requestSettings(self):
+        &#34;&#34;&#34;
+        Done with initial config messages, now send regular MeshPackets to ask for settings
+        &#34;&#34;&#34;
+        p = admin_pb2.AdminMessage()
+        p.get_radio_request = True
+
+        def onResponse(p):
+            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
+            self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
+            logging.debug(&#34;Received radio config, now fetching channels...&#34;)
+            self._requestChannel(0) # now start fetching channels
+
+        return self._sendAdmin(p,
+                               wantResponse=True,
+                               onResponse=onResponse)
+
+    def _requestChannel(self, channelNum: int):
+        &#34;&#34;&#34;
+        Done with initial config messages, now send regular MeshPackets to ask for settings
+        &#34;&#34;&#34;
+        p = admin_pb2.AdminMessage()
+        p.get_channel_request = channelNum + 1
+        logging.debug(f&#34;Requesting channel {channelNum}&#34;)
+
+        def onResponse(p):
+            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
+            c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
+            self.partialChannels.append(c)
+            logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
+            index = c.index
+
+            # for stress testing, we can always download all channels
+            fastChannelDownload = True
+
+            # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
+            quitEarly = (
+                c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+
+            if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
+                logging.debug(&#34;Finished downloading channels&#34;)
+                self.channels = self.partialChannels
+                # FIXME, the following should only be called after we have settings and channels
+                self.iface._connected()  # Tell everone else we are ready to go
+            else:
+                self._requestChannel(index + 1)
+
+        return self._sendAdmin(p,
+                               wantResponse=True,
+                               onResponse=onResponse)
+
+    def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
+                   onResponse=None):
+        &#34;&#34;&#34;Send an admin message to the specified node (or the local node if destNodeNum is zero)&#34;&#34;&#34;
+
+        return self.iface.sendData(p, self.nodeNum,
+                                   portNum=portnums_pb2.PortNum.ADMIN_APP,
+                                   wantAck=True,
+                                   wantResponse=wantResponse,
+                                   onResponse=onResponse)</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.Node.channelURL"><code class="name">var <span class="ident">channelURL</span></code></dt>
+<dd>
+<div class="desc"><p>The sharable URL that describes the current channel</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def channelURL(self):
+    &#34;&#34;&#34;The sharable URL that describes the current channel
+    &#34;&#34;&#34;
+    # Only keep the primary/secondary channels, assume primary is first
+    channelSet = apponly_pb2.ChannelSet()
+    for c in self.channels:
+        if c.role != channel_pb2.Channel.Role.DISABLED:
+            channelSet.settings.append(c.settings)
+    bytes = channelSet.SerializeToString()
+    s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
+    return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.Node.requestConfig"><code class="name flex">
+<span>def <span class="ident">requestConfig</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send regular MeshPackets to ask for settings and channels</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def requestConfig(self):
+    &#34;&#34;&#34;
+    Send regular MeshPackets to ask for settings and channels
+    &#34;&#34;&#34;
+    self.radioConfig = None
+    self.channels = None
+    self.partialChannels = []  # We keep our channels in a temp array until finished
+
+    self._requestSettings()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.Node.setOwner"><code class="name flex">
 <span>def <span class="ident">setOwner</span></span>(<span>self, long_name, short_name=None)</span>
 </code></dt>
 <dd>
@@ -2212,12 +2500,10 @@ wantResponse &ndash; True if you want the service on the other side to send an a
             short_name = short_name[:nChars]
         p.set_owner.short_name = short_name
 
-    return self.sendData(p, self.myInfo.my_node_num,
-                         portNum=portnums_pb2.PortNum.ADMIN_APP,
-                         wantAck=True)</code></pre>
+    return self._sendAdmin(p)</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.MeshInterface.setURL"><code class="name flex">
+<dt id="meshtastic.Node.setURL"><code class="name flex">
 <span>def <span class="ident">setURL</span></span>(<span>self, url)</span>
 </code></dt>
 <dd>
@@ -2241,7 +2527,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
     # per https://stackoverflow.com/a/9807138
     missing_padding = len(b64) % 4
     if missing_padding:
-        b64 += &#39;=&#39;* (4 - missing_padding)
+        b64 += &#39;=&#39; * (4 - missing_padding)
 
     decodedURL = base64.urlsafe_b64decode(b64)
     channelSet = apponly_pb2.ChannelSet()
@@ -2258,8 +2544,28 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         i = i + 1</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.MeshInterface.waitForConfig"><code class="name flex">
-<span>def <span class="ident">waitForConfig</span></span>(<span>self, sleep=0.1, maxsecs=20, attrs=('myInfo', 'nodes', 'radioConfig', 'channels'))</span>
+<dt id="meshtastic.Node.showInfo"><code class="name flex">
+<span>def <span class="ident">showInfo</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Show human readable description of our node</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def showInfo(self):
+    &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
+    print(self.radioConfig)
+    print(&#34;Channels:&#34;)
+    for c in self.channels:
+        if c.role != channel_pb2.Channel.Role.DISABLED:
+            cStr = MessageToJson(c.settings).replace(&#34;\n&#34;, &#34;&#34;)
+            print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} {cStr}&#34;)
+    print(f&#34;\nChannel URL {self.channelURL}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.Node.waitForConfig"><code class="name flex">
+<span>def <span class="ident">waitForConfig</span></span>(<span>self, maxsecs=20)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Block until radio config is received. Returns True if config has been received.</p></div>
@@ -2267,16 +2573,12 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def waitForConfig(self, sleep=.1, maxsecs=20, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;, &#39;radioConfig&#39;, &#39;channels&#39;)):
+<pre><code class="python">def waitForConfig(self, maxsecs=20):
     &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-    for _ in range(int(maxsecs/sleep)):
-        if all(map(lambda a: getattr(self, a, None), attrs)):
-            return True
-        time.sleep(sleep)
-    return False</code></pre>
+    return waitForSet(self, attrs=(&#39;radioConfig&#39;, &#39;channels&#39;), maxsecs=maxsecs)</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.MeshInterface.writeChannel"><code class="name flex">
+<dt id="meshtastic.Node.writeChannel"><code class="name flex">
 <span>def <span class="ident">writeChannel</span></span>(<span>self, channelIndex)</span>
 </code></dt>
 <dd>
@@ -2291,13 +2593,11 @@ wantResponse &ndash; True if you want the service on the other side to send an a
     p = admin_pb2.AdminMessage()
     p.set_channel.CopyFrom(self.channels[channelIndex])
 
-    self.sendData(p, self.myInfo.my_node_num,
-                  portNum=portnums_pb2.PortNum.ADMIN_APP,
-                  wantAck=True)
+    self._sendAdmin(p)
     logging.debug(&#34;Wrote channel {channelIndex}&#34;)</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.MeshInterface.writeConfig"><code class="name flex">
+<dt id="meshtastic.Node.writeConfig"><code class="name flex">
 <span>def <span class="ident">writeConfig</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2314,9 +2614,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
     p = admin_pb2.AdminMessage()
     p.set_radio.CopyFrom(self.radioConfig)
 
-    self.sendData(p, self.myInfo.my_node_num,
-                  portNum=portnums_pb2.PortNum.ADMIN_APP,
-                  wantAck=True)
+    self._sendAdmin(p)
     logging.debug(&#34;Wrote config&#34;)</code></pre>
 </details>
 </dd>
@@ -2415,17 +2713,14 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <ul class="hlist">
 <li><code><b><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></b></code>:
 <ul class="hlist">
-<li><code><a title="meshtastic.StreamInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.close" href="#meshtastic.StreamInterface.close">close</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.connect" href="#meshtastic.StreamInterface.connect">connect</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.getNode" href="#meshtastic.MeshInterface.getNode">getNode</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
-<li><code><a title="meshtastic.StreamInterface.setOwner" href="#meshtastic.MeshInterface.setOwner">setOwner</a></code></li>
-<li><code><a title="meshtastic.StreamInterface.setURL" href="#meshtastic.MeshInterface.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.showInfo" href="#meshtastic.MeshInterface.showInfo">showInfo</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
-<li><code><a title="meshtastic.StreamInterface.writeChannel" href="#meshtastic.MeshInterface.writeChannel">writeChannel</a></code></li>
-<li><code><a title="meshtastic.StreamInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2480,7 +2775,8 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         # Start the reader thread after superclass constructor completes init
         if connectNow:
             self.connect()
-            self.waitForConfig()
+            if not noProto:
+                self.waitForConfig()
 
     def connect(self):
         &#34;&#34;&#34;Connect to our radio
@@ -2540,8 +2836,8 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
                 # logging.debug(&#34;reading character&#34;)
                 b = self._readBytes(1)
                 # logging.debug(&#34;In reader loop&#34;)
+                # logging.debug(f&#34;read returned {b}&#34;)
                 if len(b) &gt; 0:
-                    # logging.debug(f&#34;read returned {b}&#34;)
                     c = b[0]
                     ptr = len(self._rxBuf)
 
@@ -2655,15 +2951,12 @@ start the reading thread later.</p></div>
 <ul class="hlist">
 <li><code><b><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></b></code>:
 <ul class="hlist">
-<li><code><a title="meshtastic.MeshInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.getNode" href="#meshtastic.MeshInterface.getNode">getNode</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.setOwner" href="#meshtastic.MeshInterface.setOwner">setOwner</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.setURL" href="#meshtastic.MeshInterface.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.showInfo" href="#meshtastic.MeshInterface.showInfo">showInfo</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.writeChannel" href="#meshtastic.MeshInterface.writeChannel">writeChannel</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2732,17 +3025,14 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <ul class="hlist">
 <li><code><b><a title="meshtastic.StreamInterface" href="#meshtastic.StreamInterface">StreamInterface</a></b></code>:
 <ul class="hlist">
-<li><code><a title="meshtastic.StreamInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.close" href="#meshtastic.StreamInterface.close">close</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.connect" href="#meshtastic.StreamInterface.connect">connect</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.getNode" href="#meshtastic.MeshInterface.getNode">getNode</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
-<li><code><a title="meshtastic.StreamInterface.setOwner" href="#meshtastic.MeshInterface.setOwner">setOwner</a></code></li>
-<li><code><a title="meshtastic.StreamInterface.setURL" href="#meshtastic.MeshInterface.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.showInfo" href="#meshtastic.MeshInterface.showInfo">showInfo</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
-<li><code><a title="meshtastic.StreamInterface.writeChannel" href="#meshtastic.MeshInterface.writeChannel">writeChannel</a></code></li>
-<li><code><a title="meshtastic.StreamInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2780,7 +3070,14 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 </li>
 <li><h3><a href="#header-variables">Global variables</a></h3>
 <ul class="">
-<li><code><a title="meshtastic.MY_CONFIG_ID" href="#meshtastic.MY_CONFIG_ID">MY_CONFIG_ID</a></code></li>
+<li><code><a title="meshtastic.BROADCAST_ADDR" href="#meshtastic.BROADCAST_ADDR">BROADCAST_ADDR</a></code></li>
+<li><code><a title="meshtastic.BROADCAST_NUM" href="#meshtastic.BROADCAST_NUM">BROADCAST_NUM</a></code></li>
+<li><code><a title="meshtastic.defaultHopLimit" href="#meshtastic.defaultHopLimit">defaultHopLimit</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="meshtastic.waitForSet" href="#meshtastic.waitForSet">waitForSet</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
@@ -2802,19 +3099,29 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <li>
 <h4><code><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></code></h4>
 <ul class="two-column">
-<li><code><a title="meshtastic.MeshInterface.channelURL" href="#meshtastic.MeshInterface.channelURL">channelURL</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getLongName" href="#meshtastic.MeshInterface.getLongName">getLongName</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getMyNodeInfo" href="#meshtastic.MeshInterface.getMyNodeInfo">getMyNodeInfo</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getMyUser" href="#meshtastic.MeshInterface.getMyUser">getMyUser</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.getNode" href="#meshtastic.MeshInterface.getNode">getNode</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getShortName" href="#meshtastic.MeshInterface.getShortName">getShortName</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.setOwner" href="#meshtastic.MeshInterface.setOwner">setOwner</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.setURL" href="#meshtastic.MeshInterface.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.showInfo" href="#meshtastic.MeshInterface.showInfo">showInfo</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.writeChannel" href="#meshtastic.MeshInterface.writeChannel">writeChannel</a></code></li>
-<li><code><a title="meshtastic.MeshInterface.writeConfig" href="#meshtastic.MeshInterface.writeConfig">writeConfig</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.Node" href="#meshtastic.Node">Node</a></code></h4>
+<ul class="two-column">
+<li><code><a title="meshtastic.Node.channelURL" href="#meshtastic.Node.channelURL">channelURL</a></code></li>
+<li><code><a title="meshtastic.Node.requestConfig" href="#meshtastic.Node.requestConfig">requestConfig</a></code></li>
+<li><code><a title="meshtastic.Node.setOwner" href="#meshtastic.Node.setOwner">setOwner</a></code></li>
+<li><code><a title="meshtastic.Node.setURL" href="#meshtastic.Node.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.Node.showInfo" href="#meshtastic.Node.showInfo">showInfo</a></code></li>
+<li><code><a title="meshtastic.Node.waitForConfig" href="#meshtastic.Node.waitForConfig">waitForConfig</a></code></li>
+<li><code><a title="meshtastic.Node.writeChannel" href="#meshtastic.Node.writeChannel">writeChannel</a></code></li>
+<li><code><a title="meshtastic.Node.writeConfig" href="#meshtastic.Node.writeConfig">writeConfig</a></code></li>
 </ul>
 </li>
 <li>

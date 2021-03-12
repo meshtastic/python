@@ -51,7 +51,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax=&#39;proto3&#39;,
   serialized_options=b&#39;\n\023com.geeksville.meshB\013AdminProtosH\003&#39;,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b&#39;\n\x0b\x61\x64min.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\x1a\rchannel.proto\&#34;\x8b\x02\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x42\t\n\x07variantB$\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03\x62\x06proto3&#39;
+  serialized_pb=b&#39;\n\x0b\x61\x64min.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\x1a\rchannel.proto\&#34;\xc7\x02\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1d\n\x13\x63onfirm_set_channel\x18  \x01(\x08H\x00\x12\x1b\n\x11\x63onfirm_set_radio\x18! \x01(\x08H\x00\x42\t\n\x07variantB$\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03\x62\x06proto3&#39;
   ,
   dependencies=[mesh__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,channel__pb2.DESCRIPTOR,])
 
@@ -115,6 +115,20 @@ _ADMINMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name=&#39;confirm_set_channel&#39;, full_name=&#39;AdminMessage.confirm_set_channel&#39;, index=7,
+      number=32, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name=&#39;confirm_set_radio&#39;, full_name=&#39;AdminMessage.confirm_set_radio&#39;, index=8,
+      number=33, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -133,7 +147,7 @@ _ADMINMESSAGE = _descriptor.Descriptor(
     fields=[]),
   ],
   serialized_start=62,
-  serialized_end=329,
+  serialized_end=389,
 )
 
 _ADMINMESSAGE.fields_by_name[&#39;set_radio&#39;].message_type = radioconfig__pb2._RADIOCONFIG
@@ -162,6 +176,12 @@ _ADMINMESSAGE.fields_by_name[&#39;get_channel_request&#39;].containing_oneof = _
 _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
   _ADMINMESSAGE.fields_by_name[&#39;get_channel_response&#39;])
 _ADMINMESSAGE.fields_by_name[&#39;get_channel_response&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;confirm_set_channel&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;confirm_set_channel&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;confirm_set_radio&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;confirm_set_radio&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
 DESCRIPTOR.message_types_by_name[&#39;AdminMessage&#39;] = _ADMINMESSAGE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -206,6 +226,14 @@ DESCRIPTOR._options = None
 </dl>
 <h3>Instance variables</h3>
 <dl>
+<dt id="meshtastic.admin_pb2.AdminMessage.confirm_set_channel"><code class="name">var <span class="ident">confirm_set_channel</span></code></dt>
+<dd>
+<div class="desc"><p>Field AdminMessage.confirm_set_channel</p></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.confirm_set_radio"><code class="name">var <span class="ident">confirm_set_radio</span></code></dt>
+<dd>
+<div class="desc"><p>Field AdminMessage.confirm_set_radio</p></div>
+</dd>
 <dt id="meshtastic.admin_pb2.AdminMessage.get_channel_request"><code class="name">var <span class="ident">get_channel_request</span></code></dt>
 <dd>
 <div class="desc"><p>Field AdminMessage.get_channel_request</p></div>
@@ -256,6 +284,8 @@ DESCRIPTOR._options = None
 <h4><code><a title="meshtastic.admin_pb2.AdminMessage" href="#meshtastic.admin_pb2.AdminMessage">AdminMessage</a></code></h4>
 <ul class="">
 <li><code><a title="meshtastic.admin_pb2.AdminMessage.DESCRIPTOR" href="#meshtastic.admin_pb2.AdminMessage.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.confirm_set_channel" href="#meshtastic.admin_pb2.AdminMessage.confirm_set_channel">confirm_set_channel</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.confirm_set_radio" href="#meshtastic.admin_pb2.AdminMessage.confirm_set_radio">confirm_set_radio</a></code></li>
 <li><code><a title="meshtastic.admin_pb2.AdminMessage.get_channel_request" href="#meshtastic.admin_pb2.AdminMessage.get_channel_request">get_channel_request</a></code></li>
 <li><code><a title="meshtastic.admin_pb2.AdminMessage.get_channel_response" href="#meshtastic.admin_pb2.AdminMessage.get_channel_response">get_channel_response</a></code></li>
 <li><code><a title="meshtastic.admin_pb2.AdminMessage.get_radio_request" href="#meshtastic.admin_pb2.AdminMessage.get_radio_request">get_radio_request</a></code></li>

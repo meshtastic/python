@@ -29,6 +29,8 @@
 <pre><code class="python">from collections import defaultdict
 import serial
 import serial.tools.list_ports
+from queue import Queue
+import threading, sys, logging
 
 &#34;&#34;&#34;Some devices such as a seger jlink we never want to accidentally open&#34;&#34;&#34;
 blacklistVids = dict.fromkeys([0x1366])
@@ -68,7 +70,29 @@ class dotdict(dict):
     &#34;&#34;&#34;dot.notation access to dictionary attributes&#34;&#34;&#34;
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__</code></pre>
+    __delattr__ = dict.__delitem__
+
+
+class DeferredExecution():
+    &#34;&#34;&#34;A thread that accepts closures to run, and runs them as they are received&#34;&#34;&#34;
+
+    def __init__(self, name=None):
+        self.queue = Queue()
+        self.thread = threading.Thread(target=self._run, args=(), name=name)
+        self.thread.daemon = True
+        self.thread.start()
+
+    def queueWork(self, runnable):
+        self.queue.put(runnable)
+
+    def _run(self):
+        while True:
+            try:
+                o = self.queue.get()
+                o()
+            except:
+                logging.error(
+                    f&#34;Unexpected error in deferred execution {sys.exc_info()[0]}&#34;)</code></pre>
 </details>
 </section>
 <section>
@@ -151,6 +175,54 @@ class dotdict(dict):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="meshtastic.util.DeferredExecution"><code class="flex name class">
+<span>class <span class="ident">DeferredExecution</span></span>
+<span>(</span><span>name=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A thread that accepts closures to run, and runs them as they are received</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DeferredExecution():
+    &#34;&#34;&#34;A thread that accepts closures to run, and runs them as they are received&#34;&#34;&#34;
+
+    def __init__(self, name=None):
+        self.queue = Queue()
+        self.thread = threading.Thread(target=self._run, args=(), name=name)
+        self.thread.daemon = True
+        self.thread.start()
+
+    def queueWork(self, runnable):
+        self.queue.put(runnable)
+
+    def _run(self):
+        while True:
+            try:
+                o = self.queue.get()
+                o()
+            except:
+                logging.error(
+                    f&#34;Unexpected error in deferred execution {sys.exc_info()[0]}&#34;)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.util.DeferredExecution.queueWork"><code class="name flex">
+<span>def <span class="ident">queueWork</span></span>(<span>self, runnable)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def queueWork(self, runnable):
+    self.queue.put(runnable)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="meshtastic.util.dotdict"><code class="flex name class">
 <span>class <span class="ident">dotdict</span></span>
 <span>(</span><span>*args, **kwargs)</span>
@@ -196,6 +268,12 @@ class dotdict(dict):
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="meshtastic.util.DeferredExecution" href="#meshtastic.util.DeferredExecution">DeferredExecution</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.util.DeferredExecution.queueWork" href="#meshtastic.util.DeferredExecution.queueWork">queueWork</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="meshtastic.util.dotdict" href="#meshtastic.util.dotdict">dotdict</a></code></h4>
 </li>

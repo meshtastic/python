@@ -41,8 +41,8 @@ _sym_db = _symbol_database.Default()
 
 
 from . import mesh_pb2 as mesh__pb2
-from . import radioconfig_pb2 as radioconfig__pb2
 from . import channel_pb2 as channel__pb2
+from . import radioconfig_pb2 as radioconfig__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -51,11 +51,74 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax=&#39;proto3&#39;,
   serialized_options=b&#39;\n\023com.geeksville.meshB\nDeviceOnlyH\003&#39;,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b&#39;\n\x10\x64\x65viceonly.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\x1a\rchannel.proto\&#34;\x9f\x02\n\x0b\x44\x65viceState\x12\x1b\n\x05radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfig\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\&#34;\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08\x12\x1a\n\x08\x63hannels\x18\r \x03(\x0b\x32\x08.ChannelJ\x04\x08\x0c\x10\rB#\n\x13\x63om.geeksville.meshB\nDeviceOnlyH\x03\x62\x06proto3&#39;
+  serialized_pb=b&#39;\n\x10\x64\x65viceonly.proto\x1a\nmesh.proto\x1a\rchannel.proto\x1a\x11radioconfig.proto\&#34;\x80\x01\n\x11LegacyRadioConfig\x12\x39\n\x0bpreferences\x18\x01 \x01(\x0b\x32$.LegacyRadioConfig.LegacyPreferences\x1a\x30\n\x11LegacyPreferences\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\&#34;\x8f\x02\n\x0b\x44\x65viceState\x12\&#39;\n\x0blegacyRadio\x18\x01 \x01(\x0b\x32\x12.LegacyRadioConfig\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\&#34;\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08J\x04\x08\x0c\x10\r\&#34;)\n\x0b\x43hannelFile\x12\x1a\n\x08\x63hannels\x18\x01 \x03(\x0b\x32\x08.ChannelB#\n\x13\x63om.geeksville.meshB\nDeviceOnlyH\x03\x62\x06proto3&#39;
   ,
-  dependencies=[mesh__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,channel__pb2.DESCRIPTOR,])
+  dependencies=[mesh__pb2.DESCRIPTOR,channel__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,])
 
 
+
+
+_LEGACYRADIOCONFIG_LEGACYPREFERENCES = _descriptor.Descriptor(
+  name=&#39;LegacyPreferences&#39;,
+  full_name=&#39;LegacyRadioConfig.LegacyPreferences&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;region&#39;, full_name=&#39;LegacyRadioConfig.LegacyPreferences.region&#39;, index=0,
+      number=15, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=147,
+  serialized_end=195,
+)
+
+_LEGACYRADIOCONFIG = _descriptor.Descriptor(
+  name=&#39;LegacyRadioConfig&#39;,
+  full_name=&#39;LegacyRadioConfig&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;preferences&#39;, full_name=&#39;LegacyRadioConfig.preferences&#39;, index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_LEGACYRADIOCONFIG_LEGACYPREFERENCES, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=67,
+  serialized_end=195,
+)
 
 
 _DEVICESTATE = _descriptor.Descriptor(
@@ -67,7 +130,7 @@ _DEVICESTATE = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name=&#39;radio&#39;, full_name=&#39;DeviceState.radio&#39;, index=0,
+      name=&#39;legacyRadio&#39;, full_name=&#39;DeviceState.legacyRadio&#39;, index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -129,9 +192,34 @@ _DEVICESTATE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=198,
+  serialized_end=469,
+)
+
+
+_CHANNELFILE = _descriptor.Descriptor(
+  name=&#39;ChannelFile&#39;,
+  full_name=&#39;ChannelFile&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
     _descriptor.FieldDescriptor(
-      name=&#39;channels&#39;, full_name=&#39;DeviceState.channels&#39;, index=9,
-      number=13, type=11, cpp_type=10, label=3,
+      name=&#39;channels&#39;, full_name=&#39;ChannelFile.channels&#39;, index=0,
+      number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -148,19 +236,39 @@ _DEVICESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=67,
-  serialized_end=354,
+  serialized_start=471,
+  serialized_end=512,
 )
 
-_DEVICESTATE.fields_by_name[&#39;radio&#39;].message_type = radioconfig__pb2._RADIOCONFIG
+_LEGACYRADIOCONFIG_LEGACYPREFERENCES.fields_by_name[&#39;region&#39;].enum_type = radioconfig__pb2._REGIONCODE
+_LEGACYRADIOCONFIG_LEGACYPREFERENCES.containing_type = _LEGACYRADIOCONFIG
+_LEGACYRADIOCONFIG.fields_by_name[&#39;preferences&#39;].message_type = _LEGACYRADIOCONFIG_LEGACYPREFERENCES
+_DEVICESTATE.fields_by_name[&#39;legacyRadio&#39;].message_type = _LEGACYRADIOCONFIG
 _DEVICESTATE.fields_by_name[&#39;my_node&#39;].message_type = mesh__pb2._MYNODEINFO
 _DEVICESTATE.fields_by_name[&#39;owner&#39;].message_type = mesh__pb2._USER
 _DEVICESTATE.fields_by_name[&#39;node_db&#39;].message_type = mesh__pb2._NODEINFO
 _DEVICESTATE.fields_by_name[&#39;receive_queue&#39;].message_type = mesh__pb2._MESHPACKET
 _DEVICESTATE.fields_by_name[&#39;rx_text_message&#39;].message_type = mesh__pb2._MESHPACKET
-_DEVICESTATE.fields_by_name[&#39;channels&#39;].message_type = channel__pb2._CHANNEL
+_CHANNELFILE.fields_by_name[&#39;channels&#39;].message_type = channel__pb2._CHANNEL
+DESCRIPTOR.message_types_by_name[&#39;LegacyRadioConfig&#39;] = _LEGACYRADIOCONFIG
 DESCRIPTOR.message_types_by_name[&#39;DeviceState&#39;] = _DEVICESTATE
+DESCRIPTOR.message_types_by_name[&#39;ChannelFile&#39;] = _CHANNELFILE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+LegacyRadioConfig = _reflection.GeneratedProtocolMessageType(&#39;LegacyRadioConfig&#39;, (_message.Message,), {
+
+  &#39;LegacyPreferences&#39; : _reflection.GeneratedProtocolMessageType(&#39;LegacyPreferences&#39;, (_message.Message,), {
+    &#39;DESCRIPTOR&#39; : _LEGACYRADIOCONFIG_LEGACYPREFERENCES,
+    &#39;__module__&#39; : &#39;deviceonly_pb2&#39;
+    # @@protoc_insertion_point(class_scope:LegacyRadioConfig.LegacyPreferences)
+    })
+  ,
+  &#39;DESCRIPTOR&#39; : _LEGACYRADIOCONFIG,
+  &#39;__module__&#39; : &#39;deviceonly_pb2&#39;
+  # @@protoc_insertion_point(class_scope:LegacyRadioConfig)
+  })
+_sym_db.RegisterMessage(LegacyRadioConfig)
+_sym_db.RegisterMessage(LegacyRadioConfig.LegacyPreferences)
 
 DeviceState = _reflection.GeneratedProtocolMessageType(&#39;DeviceState&#39;, (_message.Message,), {
   &#39;DESCRIPTOR&#39; : _DEVICESTATE,
@@ -168,6 +276,13 @@ DeviceState = _reflection.GeneratedProtocolMessageType(&#39;DeviceState&#39;, (_
   # @@protoc_insertion_point(class_scope:DeviceState)
   })
 _sym_db.RegisterMessage(DeviceState)
+
+ChannelFile = _reflection.GeneratedProtocolMessageType(&#39;ChannelFile&#39;, (_message.Message,), {
+  &#39;DESCRIPTOR&#39; : _CHANNELFILE,
+  &#39;__module__&#39; : &#39;deviceonly_pb2&#39;
+  # @@protoc_insertion_point(class_scope:ChannelFile)
+  })
+_sym_db.RegisterMessage(ChannelFile)
 
 
 DESCRIPTOR._options = None
@@ -183,6 +298,32 @@ DESCRIPTOR._options = None
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="meshtastic.deviceonly_pb2.ChannelFile"><code class="flex name class">
+<span>class <span class="ident">ChannelFile</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.deviceonly_pb2.ChannelFile.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.deviceonly_pb2.ChannelFile.channels"><code class="name">var <span class="ident">channels</span></code></dt>
+<dd>
+<div class="desc"><p>Field ChannelFile.channels</p></div>
+</dd>
+</dl>
+</dd>
 <dt id="meshtastic.deviceonly_pb2.DeviceState"><code class="flex name class">
 <span>class <span class="ident">DeviceState</span></span>
 <span>(</span><span>*args, **kwargs)</span>
@@ -203,13 +344,13 @@ DESCRIPTOR._options = None
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="meshtastic.deviceonly_pb2.DeviceState.channels"><code class="name">var <span class="ident">channels</span></code></dt>
-<dd>
-<div class="desc"><p>Field DeviceState.channels</p></div>
-</dd>
 <dt id="meshtastic.deviceonly_pb2.DeviceState.did_gps_reset"><code class="name">var <span class="ident">did_gps_reset</span></code></dt>
 <dd>
 <div class="desc"><p>Field DeviceState.did_gps_reset</p></div>
+</dd>
+<dt id="meshtastic.deviceonly_pb2.DeviceState.legacyRadio"><code class="name">var <span class="ident">legacyRadio</span></code></dt>
+<dd>
+<div class="desc"><p>Field DeviceState.legacyRadio</p></div>
 </dd>
 <dt id="meshtastic.deviceonly_pb2.DeviceState.my_node"><code class="name">var <span class="ident">my_node</span></code></dt>
 <dd>
@@ -227,10 +368,6 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"><p>Field DeviceState.owner</p></div>
 </dd>
-<dt id="meshtastic.deviceonly_pb2.DeviceState.radio"><code class="name">var <span class="ident">radio</span></code></dt>
-<dd>
-<div class="desc"><p>Field DeviceState.radio</p></div>
-</dd>
 <dt id="meshtastic.deviceonly_pb2.DeviceState.receive_queue"><code class="name">var <span class="ident">receive_queue</span></code></dt>
 <dd>
 <div class="desc"><p>Field DeviceState.receive_queue</p></div>
@@ -242,6 +379,36 @@ DESCRIPTOR._options = None
 <dt id="meshtastic.deviceonly_pb2.DeviceState.version"><code class="name">var <span class="ident">version</span></code></dt>
 <dd>
 <div class="desc"><p>Field DeviceState.version</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="meshtastic.deviceonly_pb2.LegacyRadioConfig"><code class="flex name class">
+<span>class <span class="ident">LegacyRadioConfig</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.deviceonly_pb2.LegacyRadioConfig.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.deviceonly_pb2.LegacyRadioConfig.LegacyPreferences"><code class="name">var <span class="ident">LegacyPreferences</span></code></dt>
+<dd>
+<div class="desc"><p>A ProtocolMessage</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.deviceonly_pb2.LegacyRadioConfig.preferences"><code class="name">var <span class="ident">preferences</span></code></dt>
+<dd>
+<div class="desc"><p>Field LegacyRadioConfig.preferences</p></div>
 </dd>
 </dl>
 </dd>
@@ -262,19 +429,33 @@ DESCRIPTOR._options = None
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="meshtastic.deviceonly_pb2.ChannelFile" href="#meshtastic.deviceonly_pb2.ChannelFile">ChannelFile</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.deviceonly_pb2.ChannelFile.DESCRIPTOR" href="#meshtastic.deviceonly_pb2.ChannelFile.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.deviceonly_pb2.ChannelFile.channels" href="#meshtastic.deviceonly_pb2.ChannelFile.channels">channels</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="meshtastic.deviceonly_pb2.DeviceState" href="#meshtastic.deviceonly_pb2.DeviceState">DeviceState</a></code></h4>
 <ul class="two-column">
 <li><code><a title="meshtastic.deviceonly_pb2.DeviceState.DESCRIPTOR" href="#meshtastic.deviceonly_pb2.DeviceState.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.deviceonly_pb2.DeviceState.channels" href="#meshtastic.deviceonly_pb2.DeviceState.channels">channels</a></code></li>
 <li><code><a title="meshtastic.deviceonly_pb2.DeviceState.did_gps_reset" href="#meshtastic.deviceonly_pb2.DeviceState.did_gps_reset">did_gps_reset</a></code></li>
+<li><code><a title="meshtastic.deviceonly_pb2.DeviceState.legacyRadio" href="#meshtastic.deviceonly_pb2.DeviceState.legacyRadio">legacyRadio</a></code></li>
 <li><code><a title="meshtastic.deviceonly_pb2.DeviceState.my_node" href="#meshtastic.deviceonly_pb2.DeviceState.my_node">my_node</a></code></li>
 <li><code><a title="meshtastic.deviceonly_pb2.DeviceState.no_save" href="#meshtastic.deviceonly_pb2.DeviceState.no_save">no_save</a></code></li>
 <li><code><a title="meshtastic.deviceonly_pb2.DeviceState.node_db" href="#meshtastic.deviceonly_pb2.DeviceState.node_db">node_db</a></code></li>
 <li><code><a title="meshtastic.deviceonly_pb2.DeviceState.owner" href="#meshtastic.deviceonly_pb2.DeviceState.owner">owner</a></code></li>
-<li><code><a title="meshtastic.deviceonly_pb2.DeviceState.radio" href="#meshtastic.deviceonly_pb2.DeviceState.radio">radio</a></code></li>
 <li><code><a title="meshtastic.deviceonly_pb2.DeviceState.receive_queue" href="#meshtastic.deviceonly_pb2.DeviceState.receive_queue">receive_queue</a></code></li>
 <li><code><a title="meshtastic.deviceonly_pb2.DeviceState.rx_text_message" href="#meshtastic.deviceonly_pb2.DeviceState.rx_text_message">rx_text_message</a></code></li>
 <li><code><a title="meshtastic.deviceonly_pb2.DeviceState.version" href="#meshtastic.deviceonly_pb2.DeviceState.version">version</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="meshtastic.deviceonly_pb2.LegacyRadioConfig" href="#meshtastic.deviceonly_pb2.LegacyRadioConfig">LegacyRadioConfig</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.deviceonly_pb2.LegacyRadioConfig.DESCRIPTOR" href="#meshtastic.deviceonly_pb2.LegacyRadioConfig.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.deviceonly_pb2.LegacyRadioConfig.LegacyPreferences" href="#meshtastic.deviceonly_pb2.LegacyRadioConfig.LegacyPreferences">LegacyPreferences</a></code></li>
+<li><code><a title="meshtastic.deviceonly_pb2.LegacyRadioConfig.preferences" href="#meshtastic.deviceonly_pb2.LegacyRadioConfig.preferences">preferences</a></code></li>
 </ul>
 </li>
 </ul>
