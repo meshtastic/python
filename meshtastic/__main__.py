@@ -167,6 +167,7 @@ def setPref(attributes, name, valStr):
     except Exception as ex:
         print(f"Can't set {name} due to {ex}")
 
+targetNode = None
 
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
@@ -176,7 +177,11 @@ def onConnected(interface):
         print("Connected to radio")
 
         def getNode():
-            return interface.getNode(args.destOrLocal)
+            """This operation could be expensive, so we try to cache the results"""
+            global targetNode
+            if not targetNode:
+                targetNode = interface.getNode(args.destOrLocal)
+            return targetNode
 
         if args.settime or args.setlat or args.setlon or args.setalt:
             closeNow = True
@@ -249,7 +254,7 @@ def onConnected(interface):
         # handle settings
         if args.set:
             closeNow = True
-            prefs = getNode().radioConfig.preferences            
+            prefs = getNode().radioConfig.preferences
 
             # Handle the int/float/bool arguments
             for pref in args.set:
@@ -296,9 +301,11 @@ def onConnected(interface):
             getNode().writeChannel(channelIndex)
 
         if args.info:
-            closeNow = True
-            interface.showInfo()
+            if not args.destOrLocal:  # If we aren't trying to talk to our local node, don't show it
+                interface.showInfo()
+
             getNode().showInfo()
+            closeNow = True  # FIXME, for now we leave the link up while talking to remote nodes
 
         if args.nodes:
             closeNow = True
@@ -318,7 +325,7 @@ def onConnected(interface):
             tunnel.Tunnel(interface, subnet=args.tunnel_net)
 
     except Exception as ex:
-        print(ex)
+        print(f"Exception while handling connection: {ex}")
 
     # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
     if (not args.seriallog) and closeNow:
@@ -353,7 +360,7 @@ def common():
             args.destOrLocal = "^local"
         else:
             args.destOrAll = args.dest
-            args.destOrLocal = args.dest
+            args.destOrLocal = args.dest  # FIXME, temp hack for debugging remove
 
         if not args.seriallog:
             if args.info or args.nodes or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \

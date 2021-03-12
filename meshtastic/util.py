@@ -3,8 +3,7 @@ from collections import defaultdict
 import serial
 import serial.tools.list_ports
 from queue import Queue
-import threading
-import logging
+import threading, sys, logging
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
@@ -64,6 +63,6 @@ class DeferredExecution():
             try:
                 o = self.queue.get()
                 o()
-            except Exception as ex:
+            except:
                 logging.error(
-                    f"Unexpected exception in deferred execution {ex}")
+                    f"Unexpected error in deferred execution {sys.exc_info()[0]}")

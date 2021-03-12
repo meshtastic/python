@@ -367,6 +367,7 @@ class MeshInterface:
         if nodeId == LOCAL_ADDR:
             return self.localNode
         else:
+            logging.info("Requesting configuration from remote node (this could take a while)")
             n = Node(self, nodeId)
             n.requestConfig()
             if not n.waitForConfig(maxsecs = 60):
@@ -620,7 +621,7 @@ class MeshInterface:
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
-        logging.debug(f"Received from radio: {fromRadio}")
+        # logging.debug(f"Received from radio: {fromRadio}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
             self.localNode.nodeNum = self.myInfo.my_node_num
@@ -694,7 +695,7 @@ class MeshInterface:
         try:
             return self.nodesByNum[num]["user"]["id"]
         except:
-            logging.warn(f"Node {num} not found for fromId")
+            logging.debug(f"Node {num} not found for fromId")
             return None
 
     def _getOrCreateByNum(self, nodeNum):
@@ -937,8 +938,8 @@ class StreamInterface(MeshInterface):
                 # logging.debug("reading character")
                 b = self._readBytes(1)
                 # logging.debug("In reader loop")
+                # logging.debug(f"read returned {b}")
                 if len(b) > 0:
-                    # logging.debug(f"read returned {b}")
                     c = b[0]
                     ptr = len(self._rxBuf)
 
