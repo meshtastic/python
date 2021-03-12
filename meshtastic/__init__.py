@@ -155,11 +155,10 @@ class Node:
         self.partialChannels = []  # We keep our channels in a temp array until finished
 
         self._requestSettings()
-        self._requestChannel(0)
 
-    def waitForConfig(self):
+    def waitForConfig(self, maxsecs=20):
         """Block until radio config is received. Returns True if config has been received."""
-        return waitForSet(self, attrs=('radioConfig', 'channels'))
+        return waitForSet(self, attrs=('radioConfig', 'channels'), maxsecs=maxsecs)
 
     def writeConfig(self):
         """Write the current (edited) radioConfig to the device"""
@@ -265,6 +264,8 @@ class Node:
         def onResponse(p):
             """A closure to handle the response packet"""
             self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
+            logging.debug("Received radio config, now fetching channels...")
+            self._requestChannel(0) # now start fetching channels
 
         return self._sendAdmin(p,
                                wantResponse=True,
@@ -293,6 +294,7 @@ class Node:
                 c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
 
             if quitEarly or index >= self.iface.myInfo.max_channels - 1:
+                logging.debug("Finished downloading channels")
                 self.channels = self.partialChannels
                 # FIXME, the following should only be called after we have settings and channels
                 self.iface._connected()  # Tell everone else we are ready to go
@@ -367,7 +369,7 @@ class MeshInterface:
         else:
             n = Node(self, nodeId)
             n.requestConfig()
-            if not n.waitForConfig():
+            if not n.waitForConfig(maxsecs = 60):
                 raise Exception("Timed out waiting for node config")
             return n
 
@@ -492,8 +494,13 @@ class MeshInterface:
             nodeNum = BROADCAST_NUM
         elif destinationId == LOCAL_ADDR:
             nodeNum = self.myInfo.my_node_num
+        elif destinationId.startswith("!"): # A simple hex style nodeid - we can parse this without needing the DB
+            nodeNum = int(destinationId[1:], 16)
         else:
-            nodeNum = self.nodes[destinationId]['num']
+            node = self.nodes.get(destinationId)
+            if not node:
+                raise Exception(f"NodeId {destinationId} not found in DB")
+            nodeNum = node['num']
 
         if nodeNum == -1:
             raise Exception("Badbug")
@@ -613,6 +620,7 @@ class MeshInterface:
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
+        logging.debug(f"Received from radio: {fromRadio}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
             self.localNode.nodeNum = self.myInfo.my_node_num
@@ -868,7 +876,8 @@ class StreamInterface(MeshInterface):
         # Start the reader thread after superclass constructor completes init
         if connectNow:
             self.connect()
-            self.waitForConfig()
+            if not noProto:
+                self.waitForConfig()
 
     def connect(self):
         """Connect to our radio
