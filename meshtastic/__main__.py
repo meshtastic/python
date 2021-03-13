@@ -66,12 +66,16 @@ def genPSKS256():
 
 def fromPSK(valstr):
     """A special version of fromStr that assumes the user is trying to set a PSK.  
-    In that case we also allow "none" or "random" (to have python generate one)
+    In that case we also allow "none", "default" or "random" (to have python generate one), or simpleN
     """
     if valstr == "random":
         return genPSK256()
     elif valstr == "none":
-        return bytes()
+        return bytes([0])  # Use default channel psk 1
+    elif valstr == "default":
+        return bytes([1])  # Use default channel psk
+    elif valstr.startswith("simple"):
+        return bytes([int(valstr[6:])])  # Use one of the single byte encodings
     else:
         return fromStr(valstr)
 
@@ -221,10 +225,19 @@ def onConnected(interface):
             interface.sendPosition(lat, lon, alt, time)
             interface.localNode.writeConfig()
 
-        if args.setowner:
+        if args.set_owner:
             closeNow = True
-            print(f"Setting device owner to {args.setowner}")
-            interface.setOwner(args.setowner)
+            print(f"Setting device owner to {args.set_owner}")
+            getNode().setOwner(args.set_owner)
+
+        if args.set_ham:
+            closeNow = True
+            print(f"Setting HAM ID to {args.set_ham} and turning off encryption")
+            getNode().setOwner(args.set_ham)
+            ch = getNode().channels[0] # Must turn off crypt on primary channel
+            ch.settings.psk = fromPSK("none")
+            print(f"Writing modified channels to device")
+            getNode().writeChannel(0)
 
         if args.sendtext:
             closeNow = True
@@ -333,7 +346,7 @@ def onConnected(interface):
             # Handle the channel settings
             for pref in (args.setchan or []):
                 if pref[0] == "psk":
-                    setattr(ch.settings, pref[0], fromPSK(pref[1]))
+                    ch.settings.psk =fromPSK(pref[1])
                 else:
                     setPref(ch.settings, pref[0], pref[1])
                 enable = True # If we set any pref, assume the user wants to enable the channel
@@ -413,10 +426,10 @@ def common():
             args.destOrLocal = args.dest  # FIXME, temp hack for debugging remove
 
         if not args.seriallog:
-            if args.info or args.nodes or args.set or args.seturl or args.setowner or args.setlat or args.setlon or \
+            if args.info or args.nodes or args.set or args.seturl or args.set_owner or args.setlat or args.setlon or \
                     args.settime or \
                     args.setch_longslow or args.setch_shortfast or args.setchan or args.sendtext or \
-                    args.qr or args.ch_enable_admin:
+                    args.qr or args.ch_enable_admin or args.set_ham:
                 args.seriallog = "none"  # assume no debug output in this case
             else:
                 args.seriallog = "stdout"  # default to stdout
@@ -506,7 +519,10 @@ def initParser():
         "--ch-enable-admin", help="Assign a PSK to the admin channel, to allow remote adminstration", action="store_true")
 
     parser.add_argument(
-        "--setowner", help="Set device owner name", action="store")
+        "--set-owner", help="Set device owner name", action="store")
+
+    parser.add_argument(
+        "--set-ham", help="Set licensed HAM ID and turn off encryption", action="store")
 
     parser.add_argument(
         "--dest", help="The destination node id for any sent commands, if not set '^all' or '^local' is assumed as appropriate", default=None)
