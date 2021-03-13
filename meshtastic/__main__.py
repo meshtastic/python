@@ -71,7 +71,7 @@ def fromPSK(valstr):
     if valstr == "random":
         return genPSK256()
     elif valstr == "none":
-        return bytes([0])  # Use default channel psk 1
+        return bytes([0])  # Use the 'no encryption' PSK
     elif valstr == "default":
         return bytes([1])  # Use default channel psk
     elif valstr.startswith("simple"):

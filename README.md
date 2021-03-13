@@ -89,6 +89,23 @@ You can even set the channel preshared key to a particular AES128 or AES256 sequ
 meshtastic --setchan psk 0x1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b --info
 ```
 
+Use "--setchan psk none" to turn off encryption.  
+
+Use "--setchan psk random" will assign a new (high quality) random AES256 key to the primary channel (similar to what the Android app does when making new channels).
+
+Use "--setchan psk default" to restore the standard 'default' (minimally secure, because it is in the source code for anyone to read) AES128 key.
+
+## Ham radio support
+
+Meshtastic is designed to be used without a radio operator license.  If you do have a license you can set your operator ID and turn off encryption with:
+
+```
+meshtastic --port /dev/ttyUSB1 --set-ham KI1345
+Connected to radio
+Setting HAM ID to KI1345 and turning off encryption
+Writing modified channels to device
+```
+
 ## FAQ/common problems
 
 This is a collection of common questions and answers from our friendly forum.
