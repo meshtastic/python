@@ -251,26 +251,26 @@ def onConnected(interface):
             interface.sendData(payload, args.destOrAll, portNum=portnums_pb2.PortNum.REPLY_APP,
                                wantAck=True, wantResponse=True)
 
-        if args.gpiowrb or args.gpiord or args.gpiowatch:
+        if args.gpio_wrb or args.gpio_rd or args.gpio_watch:
             rhc = remote_hardware.RemoteHardwareClient(interface)
 
-            if args.gpiowrb:
+            if args.gpio_wrb:
                 bitmask = 0
                 bitval = 0
-                for wrpair in (args.gpiowrb or []):
+                for wrpair in (args.gpio_wrb or []):
                     bitmask |= 1 << int(wrpair[0])
                     bitval |= int(wrpair[1]) << int(wrpair[0])
                 print(
                     f"Writing GPIO mask 0x{bitmask:x} with value 0x{bitval:x} to {args.dest}")
                 rhc.writeGPIOs(args.dest, bitmask, bitval)
 
-            if args.gpiord:
-                bitmask = int(args.gpiord)
+            if args.gpio_rd:
+                bitmask = int(args.gpio_rd, 16)
                 print(f"Reading GPIO mask 0x{bitmask:x} from {args.dest}")
                 rhc.readGPIOs(args.dest, bitmask)
 
-            if args.gpiowatch:
-                bitmask = int(args.gpiowatch)
+            if args.gpio_watch:
+                bitmask = int(args.gpio_watch, 16)
                 print(f"Watching GPIO mask 0x{bitmask:x} from {args.dest}")
                 rhc.watchGPIOs(args.dest, bitmask)
 
@@ -293,19 +293,19 @@ def onConnected(interface):
 
         # handle changing channels
 
-        if args.ch_enable_admin:
+        if args.ch_add:
             closeNow = True
             n = getNode()
-            ch = n.getChannelByName("admin")
+            ch = n.getChannelByName(args.ch_add)
             if ch:
-                logging.error("This node already is configured for remote admin access - no changes.")
+                logging.error(f"This node already has a '{args.ch_add}' channel - no changes.")
             else:
                 ch = n.getDisabledChannel()
                 if not ch:
                     raise Exception("No free channels were found")
                 chs = channel_pb2.ChannelSettings()
                 chs.psk = genPSKS256()
-                chs.name = "admin"
+                chs.name = args.ch_add
                 ch.settings.CopyFrom(chs)
                 ch.role = channel_pb2.Channel.Role.SECONDARY 
                 print(f"Writing modified channels to device")
@@ -360,7 +360,7 @@ def onConnected(interface):
             getNode().writeChannel(channelIndex)
 
         if args.info:
-            if not args.destOrLocal:  # If we aren't trying to talk to our local node, don't show it
+            if not args.dest:  # If we aren't trying to talk to our local node, don't show it
                 interface.showInfo()
 
             getNode().showInfo()
@@ -429,7 +429,7 @@ def common():
             if args.info or args.nodes or args.set or args.seturl or args.set_owner or args.setlat or args.setlon or \
                     args.settime or \
                     args.setch_longslow or args.setch_shortfast or args.setchan or args.sendtext or \
-                    args.qr or args.ch_enable_admin or args.set_ham:
+                    args.qr or args.ch_add or args.set_ham:
                 args.seriallog = "none"  # assume no debug output in this case
             else:
                 args.seriallog = "stdout"  # default to stdout
@@ -510,13 +510,13 @@ def initParser():
         "--ch-index", help="Set the specified channel index", action="store")
 
     parser.add_argument(
+        "--ch-add", help="Add a secondary channel, you must specify a channel name", default=None)
+
+    parser.add_argument(
         "--ch-enable", help="Enable the specified channel", action="store_true", dest="ch_enable")
 
     parser.add_argument(
         "--ch-disable", help="Disable the specified channel", action="store_false", dest="ch_enable")
-
-    parser.add_argument(
-        "--ch-enable-admin", help="Assign a PSK to the admin channel, to allow remote adminstration", action="store_true")
 
     parser.add_argument(
         "--set-owner", help="Set device owner name", action="store")
@@ -541,13 +541,13 @@ def initParser():
         action="store_true")
 
     parser.add_argument(
-        "--gpiowrb", nargs=2, help="Set a particlar GPIO # to 1 or 0", action='append')
+        "--gpio-wrb", nargs=2, help="Set a particlar GPIO # to 1 or 0", action='append')
 
     parser.add_argument(
-        "--gpiord", help="Read from a GPIO mask")
+        "--gpio-rd", help="Read from a GPIO mask")
 
     parser.add_argument(
-        "--gpiowatch", help="Start watching a GPIO mask for changes")
+        "--gpio-watch", help="Start watching a GPIO mask for changes")
 
     parser.add_argument(
         "--settime", help="Set the real time clock on the device", action="store_true")
