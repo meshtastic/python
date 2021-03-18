@@ -1,6 +1,6 @@
 import logging
 from . import util
-from . import SerialInterface, BROADCAST_NUM
+from . import SerialInterface, TCPInterface, BROADCAST_NUM
 from pubsub import pub
 import time
 import sys
@@ -151,3 +151,22 @@ def testAll():
 
     for i in interfaces:
         i.close()
+
+def testSimulator():
+    """
+    Assume that someone has launched meshtastic-native as a simulated node.
+    Talk to that node over TCP, do some operations and if they are successful
+    exit the process with a success code, else exit with a non zero exit code.
+
+    Run with
+    python3 -c 'from meshtastic.test import testSimulator; testSimulator()'
+    """
+    logging.basicConfig(level=logging.DEBUG if False else logging.INFO)
+    logging.info("Connecting to simulator on localhost!")
+    iface = TCPInterface("localhost")
+    iface.showInfo()
+    iface.localNode.showInfo()
+    iface.localNode.exitSimulator()
+    iface.close()
+    logging.info("Integration test successful!")
+    sys.exit(0)

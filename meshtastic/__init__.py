@@ -293,6 +293,15 @@ class Node:
                                wantResponse=True,
                                onResponse=onResponse)
 
+    def exitSimulator(self):
+        """
+        Tell a simulator node to exit (this message is ignored for other nodes)
+        """
+        p = admin_pb2.AdminMessage()
+        p.exit_simulator = True
+
+        return self._sendAdmin(p)                               
+
     def _requestChannel(self, channelNum: int):
         """
         Done with initial config messages, now send regular MeshPackets to ask for settings
