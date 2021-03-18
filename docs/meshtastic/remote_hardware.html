@@ -29,13 +29,15 @@
 <pre><code class="python">from . import portnums_pb2, remote_hardware_pb2
 from pubsub import pub
 
+
 def onGPIOreceive(packet, interface):
     &#34;&#34;&#34;Callback for received GPIO responses
-    
+
     FIXME figure out how to do closures with methods in python&#34;&#34;&#34;
     pb = remote_hardware_pb2.HardwareMessage()
     pb.ParseFromString(packet[&#34;decoded&#34;][&#34;data&#34;][&#34;payload&#34;])
     print(f&#34;Received RemoteHardware typ={pb.typ}, gpio_value={pb.gpio_value}&#34;)
+
 
 class RemoteHardwareClient:
     &#34;&#34;&#34;
@@ -51,8 +53,17 @@ class RemoteHardwareClient:
         iface is the already open MeshInterface instance
         &#34;&#34;&#34;
         self.iface = iface
+        ch = iface.localNode.getChannelByName(&#34;gpio&#34;)
+        if not ch:
+            raise Exception(
+                &#34;No gpio channel found, please create before using this (secured) service&#34;)
+        self.channelIndex = ch.index
 
-        pub.subscribe(onGPIOreceive, &#34;meshtastic.receive.data.REMOTE_HARDWARE_APP&#34;)
+        pub.subscribe(
+            onGPIOreceive, &#34;meshtastic.receive.data.REMOTE_HARDWARE_APP&#34;)
+
+    def _sendHardware(self, nodeid, r):
+        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck=True, channelIndex=self.channelIndex)
 
     def writeGPIOs(self, nodeid, mask, vals):
         &#34;&#34;&#34;
@@ -63,21 +74,21 @@ class RemoteHardwareClient:
         r.typ = remote_hardware_pb2.HardwareMessage.Type.WRITE_GPIOS
         r.gpio_mask = mask
         r.gpio_value = vals
-        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)
+        return self._sendHardware(nodeid, r)
 
     def readGPIOs(self, nodeid, mask):
         &#34;&#34;&#34;Read the specified bits from GPIO inputs on the device&#34;&#34;&#34;
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
         r.gpio_mask = mask
-        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)
+        return self._sendHardware(nodeid, r)
 
     def watchGPIOs(self, nodeid, mask):
         &#34;&#34;&#34;Watch the specified bits from GPIO inputs on the device for changes&#34;&#34;&#34;
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
         r.gpio_mask = mask
-        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)        </code></pre>
+        return self._sendHardware(nodeid, r)</code></pre>
 </details>
 </section>
 <section>
@@ -99,7 +110,7 @@ class RemoteHardwareClient:
 </summary>
 <pre><code class="python">def onGPIOreceive(packet, interface):
     &#34;&#34;&#34;Callback for received GPIO responses
-    
+
     FIXME figure out how to do closures with methods in python&#34;&#34;&#34;
     pb = remote_hardware_pb2.HardwareMessage()
     pb.ParseFromString(packet[&#34;decoded&#34;][&#34;data&#34;][&#34;payload&#34;])
@@ -140,8 +151,17 @@ code for how you can connect to your own custom meshtastic services</p>
         iface is the already open MeshInterface instance
         &#34;&#34;&#34;
         self.iface = iface
+        ch = iface.localNode.getChannelByName(&#34;gpio&#34;)
+        if not ch:
+            raise Exception(
+                &#34;No gpio channel found, please create before using this (secured) service&#34;)
+        self.channelIndex = ch.index
 
-        pub.subscribe(onGPIOreceive, &#34;meshtastic.receive.data.REMOTE_HARDWARE_APP&#34;)
+        pub.subscribe(
+            onGPIOreceive, &#34;meshtastic.receive.data.REMOTE_HARDWARE_APP&#34;)
+
+    def _sendHardware(self, nodeid, r):
+        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck=True, channelIndex=self.channelIndex)
 
     def writeGPIOs(self, nodeid, mask, vals):
         &#34;&#34;&#34;
@@ -152,21 +172,21 @@ code for how you can connect to your own custom meshtastic services</p>
         r.typ = remote_hardware_pb2.HardwareMessage.Type.WRITE_GPIOS
         r.gpio_mask = mask
         r.gpio_value = vals
-        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)
+        return self._sendHardware(nodeid, r)
 
     def readGPIOs(self, nodeid, mask):
         &#34;&#34;&#34;Read the specified bits from GPIO inputs on the device&#34;&#34;&#34;
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
         r.gpio_mask = mask
-        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)
+        return self._sendHardware(nodeid, r)
 
     def watchGPIOs(self, nodeid, mask):
         &#34;&#34;&#34;Watch the specified bits from GPIO inputs on the device for changes&#34;&#34;&#34;
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
         r.gpio_mask = mask
-        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)        </code></pre>
+        return self._sendHardware(nodeid, r)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -184,7 +204,7 @@ code for how you can connect to your own custom meshtastic services</p>
     r = remote_hardware_pb2.HardwareMessage()
     r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
     r.gpio_mask = mask
-    return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)</code></pre>
+    return self._sendHardware(nodeid, r)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.remote_hardware.RemoteHardwareClient.watchGPIOs"><code class="name flex">
@@ -201,7 +221,7 @@ code for how you can connect to your own custom meshtastic services</p>
     r = remote_hardware_pb2.HardwareMessage()
     r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
     r.gpio_mask = mask
-    return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)        </code></pre>
+    return self._sendHardware(nodeid, r)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.remote_hardware.RemoteHardwareClient.writeGPIOs"><code class="name flex">
@@ -224,7 +244,7 @@ are 1 will be changed</p></div>
     r.typ = remote_hardware_pb2.HardwareMessage.Type.WRITE_GPIOS
     r.gpio_mask = mask
     r.gpio_value = vals
-    return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck = True)</code></pre>
+    return self._sendHardware(nodeid, r)</code></pre>
 </details>
 </dd>
 </dl>

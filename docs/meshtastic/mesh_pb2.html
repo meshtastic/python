@@ -50,10 +50,106 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax=&#39;proto3&#39;,
   serialized_options=b&#39;\n\023com.geeksville.meshB\nMeshProtosH\003&#39;,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b&#39;\n\nmesh.proto\x1a\x0eportnums.proto\&#34;v\n\x08Position\x12\x12\n\nlatitude_i\x18\x01 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x02 \x01(\x0f\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x15\n\rbattery_level\x18\x04 \x01(\x05\x12\x0c\n\x04time\x18\t \x01(\x07J\x04\x08\x07\x10\x08J\x04\x08\x08\x10\t\&#34;J\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x0f\n\x07macaddr\x18\x04 \x01(\x0c\&#34;\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x02 \x03(\x07\&#34;\xa0\x02\n\x07Routing\x12(\n\rroute_request\x18\x01 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&amp;\n\x0broute_reply\x18\x02 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&amp;\n\x0c\x65rror_reason\x18\x03 \x01(\x0e\x32\x0e.Routing.ErrorH\x00\&#34;\x8f\x01\n\x05\x45rror\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03\x12\x10\n\x0cNO_INTERFACE\x10\x04\x12\x12\n\x0eMAX_RETRANSMIT\x10\x05\x12\x0e\n\nNO_CHANNEL\x10\x06\x12\r\n\tTOO_LARGE\x10\x07\x12\x0f\n\x0bNO_RESPONSE\x10\x08\x42\t\n\x07variant\&#34;{\n\x04\x44\x61ta\x12\x19\n\x07portnum\x18\x01 \x01(\x0e\x32\x08.PortNum\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\x12\x15\n\rwant_response\x18\x03 \x01(\x08\x12\x0c\n\x04\x64\x65st\x18\x04 \x01(\x07\x12\x0e\n\x06source\x18\x05 \x01(\x07\x12\x12\n\nrequest_id\x18\x06 \x01(\x07\&#34;\xcf\x02\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x07\x12\n\n\x02to\x18\x02 \x01(\x07\x12\x0f\n\x07\x63hannel\x18\x03 \x01(\r\x12\x18\n\x07\x64\x65\x63oded\x18\x04 \x01(\x0b\x32\x05.DataH\x00\x12\x13\n\tencrypted\x18\x05 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\x07\x12\x0f\n\x07rx_time\x18\x07 \x01(\x07\x12\x0e\n\x06rx_snr\x18\x08 \x01(\x02\x12\x11\n\thop_limit\x18\n \x01(\r\x12\x10\n\x08want_ack\x18\x0b \x01(\x08\x12&amp;\n\x08priority\x18\x0c \x01(\x0e\x32\x14.MeshPacket.Priority\&#34;[\n\x08Priority\x12\t\n\x05UNSET\x10\x00\x12\x07\n\x03MIN\x10\x01\x12\x0e\n\nBACKGROUND\x10\n\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10@\x12\x0c\n\x08RELIABLE\x10\x46\x12\x07\n\x03\x41\x43K\x10x\x12\x07\n\x03MAX\x10\x7f\x42\x10\n\x0epayloadVariant\&#34;h\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x07 \x01(\x02\x12\x10\n\x08next_hop\x18\x05 \x01(\r\&#34;\xa6\x02\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x0f\n\x07has_gps\x18\x02 \x01(\x08\x12\x11\n\tnum_bands\x18\x03 \x01(\r\x12\x14\n\x0cmax_channels\x18\x0f \x01(\r\x12\x12\n\x06region\x18\x04 \x01(\tB\x02\x18\x01\x12\x10\n\x08hw_model\x18\x05 \x01(\t\x12\x18\n\x10\x66irmware_version\x18\x06 \x01(\t\x12&amp;\n\nerror_code\x18\x07 \x01(\x0e\x32\x12.CriticalErrorCode\x12\x15\n\rerror_address\x18\x08 \x01(\r\x12\x13\n\x0b\x65rror_count\x18\t \x01(\r\x12\x1c\n\x14message_timeout_msec\x18\r \x01(\r\x12\x17\n\x0fmin_app_version\x18\x0e \x01(\r\&#34;\xb5\x01\n\tLogRecord\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\x07\x12\x0e\n\x06source\x18\x03 \x01(\t\x12\x1f\n\x05level\x18\x04 \x01(\x0e\x32\x10.LogRecord.Level\&#34;X\n\x05Level\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08\x43RITICAL\x10\x32\x12\t\n\x05\x45RROR\x10(\x12\x0b\n\x07WARNING\x10\x1e\x12\x08\n\x04INFO\x10\x14\x12\t\n\x05\x44\x45\x42UG\x10\n\x12\t\n\x05TRACE\x10\x05\&#34;\xe9\x01\n\tFromRadio\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x0b \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12 \n\nlog_record\x18\x07 \x01(\x0b\x32\n.LogRecordH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x08 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\t \x01(\x08H\x00\x42\x10\n\x0epayloadVariantJ\x04\x08\x02\x10\x03J\x04\x08\x06\x10\x07\&#34;l\n\x07ToRadio\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x18\n\x0ewant_config_id\x18\x64 \x01(\rH\x00\x42\x10\n\x0epayloadVariantJ\x04\x08\x01\x10\x02J\x04\x08\x65\x10\x66J\x04\x08\x66\x10gJ\x04\x08g\x10h*.\n\tConstants\x12\n\n\x06Unused\x10\x00\x12\x15\n\x10\x44\x41TA_PAYLOAD_LEN\x10\xf0\x01*\xbd\x01\n\x11\x43riticalErrorCode\x12\x08\n\x04None\x10\x00\x12\x0e\n\nTxWatchdog\x10\x01\x12\x12\n\x0eSleepEnterWait\x10\x02\x12\x0b\n\x07NoRadio\x10\x03\x12\x0f\n\x0bUnspecified\x10\x04\x12\x13\n\x0fUBloxInitFailed\x10\x05\x12\x0c\n\x08NoAXP192\x10\x06\x12\x17\n\x13InvalidRadioSetting\x10\x07\x12\x12\n\x0eTransmitFailed\x10\x08\x12\x0c\n\x08\x42rownout\x10\tB#\n\x13\x63om.geeksville.meshB\nMeshProtosH\x03\x62\x06proto3&#39;
+  serialized_pb=b&#39;\n\nmesh.proto\x1a\x0eportnums.proto\&#34;v\n\x08Position\x12\x12\n\nlatitude_i\x18\x01 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x02 \x01(\x0f\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x15\n\rbattery_level\x18\x04 \x01(\x05\x12\x0c\n\x04time\x18\t \x01(\x07J\x04\x08\x07\x10\x08J\x04\x08\x08\x10\t\&#34;l\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x0f\n\x07macaddr\x18\x04 \x01(\x0c\x12 \n\x08hw_model\x18\x06 \x01(\x0e\x32\x0e.HardwareModel\&#34;\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x02 \x03(\x07\&#34;\xa0\x02\n\x07Routing\x12(\n\rroute_request\x18\x01 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&amp;\n\x0broute_reply\x18\x02 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&amp;\n\x0c\x65rror_reason\x18\x03 \x01(\x0e\x32\x0e.Routing.ErrorH\x00\&#34;\x8f\x01\n\x05\x45rror\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03\x12\x10\n\x0cNO_INTERFACE\x10\x04\x12\x12\n\x0eMAX_RETRANSMIT\x10\x05\x12\x0e\n\nNO_CHANNEL\x10\x06\x12\r\n\tTOO_LARGE\x10\x07\x12\x0f\n\x0bNO_RESPONSE\x10\x08\x42\t\n\x07variant\&#34;{\n\x04\x44\x61ta\x12\x19\n\x07portnum\x18\x01 \x01(\x0e\x32\x08.PortNum\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\x12\x15\n\rwant_response\x18\x03 \x01(\x08\x12\x0c\n\x04\x64\x65st\x18\x04 \x01(\x07\x12\x0e\n\x06source\x18\x05 \x01(\x07\x12\x12\n\nrequest_id\x18\x06 \x01(\x07\&#34;\xcf\x02\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x07\x12\n\n\x02to\x18\x02 \x01(\x07\x12\x0f\n\x07\x63hannel\x18\x03 \x01(\r\x12\x18\n\x07\x64\x65\x63oded\x18\x04 \x01(\x0b\x32\x05.DataH\x00\x12\x13\n\tencrypted\x18\x05 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\x07\x12\x0f\n\x07rx_time\x18\x07 \x01(\x07\x12\x0e\n\x06rx_snr\x18\x08 \x01(\x02\x12\x11\n\thop_limit\x18\n \x01(\r\x12\x10\n\x08want_ack\x18\x0b \x01(\x08\x12&amp;\n\x08priority\x18\x0c \x01(\x0e\x32\x14.MeshPacket.Priority\&#34;[\n\x08Priority\x12\t\n\x05UNSET\x10\x00\x12\x07\n\x03MIN\x10\x01\x12\x0e\n\nBACKGROUND\x10\n\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10@\x12\x0c\n\x08RELIABLE\x10\x46\x12\x07\n\x03\x41\x43K\x10x\x12\x07\n\x03MAX\x10\x7f\x42\x10\n\x0epayloadVariant\&#34;V\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x07 \x01(\x02\&#34;\xb5\x02\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x0f\n\x07has_gps\x18\x02 \x01(\x08\x12\x11\n\tnum_bands\x18\x03 \x01(\r\x12\x14\n\x0cmax_channels\x18\x0f \x01(\r\x12\x12\n\x06region\x18\x04 \x01(\tB\x02\x18\x01\x12\x1f\n\x13hw_model_deprecated\x18\x05 \x01(\tB\x02\x18\x01\x12\x18\n\x10\x66irmware_version\x18\x06 \x01(\t\x12&amp;\n\nerror_code\x18\x07 \x01(\x0e\x32\x12.CriticalErrorCode\x12\x15\n\rerror_address\x18\x08 \x01(\r\x12\x13\n\x0b\x65rror_count\x18\t \x01(\r\x12\x1c\n\x14message_timeout_msec\x18\r \x01(\r\x12\x17\n\x0fmin_app_version\x18\x0e \x01(\r\&#34;\xb5\x01\n\tLogRecord\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\x07\x12\x0e\n\x06source\x18\x03 \x01(\t\x12\x1f\n\x05level\x18\x04 \x01(\x0e\x32\x10.LogRecord.Level\&#34;X\n\x05Level\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08\x43RITICAL\x10\x32\x12\t\n\x05\x45RROR\x10(\x12\x0b\n\x07WARNING\x10\x1e\x12\x08\n\x04INFO\x10\x14\x12\t\n\x05\x44\x45\x42UG\x10\n\x12\t\n\x05TRACE\x10\x05\&#34;\xe9\x01\n\tFromRadio\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x0b \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12 \n\nlog_record\x18\x07 \x01(\x0b\x32\n.LogRecordH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x08 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\t \x01(\x08H\x00\x42\x10\n\x0epayloadVariantJ\x04\x08\x02\x10\x03J\x04\x08\x06\x10\x07\&#34;l\n\x07ToRadio\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x18\n\x0ewant_config_id\x18\x64 \x01(\rH\x00\x42\x10\n\x0epayloadVariantJ\x04\x08\x01\x10\x02J\x04\x08\x65\x10\x66J\x04\x08\x66\x10gJ\x04\x08g\x10h*\xfd\x01\n\rHardwareModel\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08TLORA_V2\x10\x01\x12\x0c\n\x08TLORA_V1\x10\x02\x12\x12\n\x0eTLORA_V2_1_1p6\x10\x03\x12\t\n\x05TBEAM\x10\x04\x12\n\n\x06HELTEC\x10\x05\x12\x0c\n\x08TBEAM0p7\x10\x06\x12\n\n\x06T_ECHO\x10\x07\x12\x10\n\x0cTLORA_V1_1p3\x10\x08\x12\x11\n\rLORA_RELAY_V1\x10 \x12\x0e\n\nNRF52840DK\x10!\x12\x07\n\x03PPR\x10\&#34;\x12\x0f\n\x0bGENIEBLOCKS\x10#\x12\x11\n\rNRF52_UNKNOWN\x10$\x12\r\n\tPORTDUINO\x10%\x12\x0f\n\x0b\x41NDROID_SIM\x10&amp;*.\n\tConstants\x12\n\n\x06Unused\x10\x00\x12\x15\n\x10\x44\x41TA_PAYLOAD_LEN\x10\xf0\x01*\xbd\x01\n\x11\x43riticalErrorCode\x12\x08\n\x04None\x10\x00\x12\x0e\n\nTxWatchdog\x10\x01\x12\x12\n\x0eSleepEnterWait\x10\x02\x12\x0b\n\x07NoRadio\x10\x03\x12\x0f\n\x0bUnspecified\x10\x04\x12\x13\n\x0fUBloxInitFailed\x10\x05\x12\x0c\n\x08NoAXP192\x10\x06\x12\x17\n\x13InvalidRadioSetting\x10\x07\x12\x12\n\x0eTransmitFailed\x10\x08\x12\x0c\n\x08\x42rownout\x10\tB#\n\x13\x63om.geeksville.meshB\nMeshProtosH\x03\x62\x06proto3&#39;
   ,
   dependencies=[portnums__pb2.DESCRIPTOR,])
 
+_HARDWAREMODEL = _descriptor.EnumDescriptor(
+  name=&#39;HardwareModel&#39;,
+  full_name=&#39;HardwareModel&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  create_key=_descriptor._internal_create_key,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name=&#39;UNSET&#39;, index=0, number=0,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;TLORA_V2&#39;, index=1, number=1,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;TLORA_V1&#39;, index=2, number=2,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;TLORA_V2_1_1p6&#39;, index=3, number=3,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;TBEAM&#39;, index=4, number=4,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;HELTEC&#39;, index=5, number=5,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;TBEAM0p7&#39;, index=6, number=6,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;T_ECHO&#39;, index=7, number=7,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;TLORA_V1_1p3&#39;, index=8, number=8,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;LORA_RELAY_V1&#39;, index=9, number=32,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;NRF52840DK&#39;, index=10, number=33,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;PPR&#39;, index=11, number=34,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;GENIEBLOCKS&#39;, index=12, number=35,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;NRF52_UNKNOWN&#39;, index=13, number=36,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;PORTDUINO&#39;, index=14, number=37,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;ANDROID_SIM&#39;, index=15, number=38,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=1978,
+  serialized_end=2231,
+)
+_sym_db.RegisterEnumDescriptor(_HARDWAREMODEL)
+
+HardwareModel = enum_type_wrapper.EnumTypeWrapper(_HARDWAREMODEL)
 _CONSTANTS = _descriptor.EnumDescriptor(
   name=&#39;Constants&#39;,
   full_name=&#39;Constants&#39;,
@@ -74,8 +170,8 @@ _CONSTANTS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1946,
-  serialized_end=1992,
+  serialized_start=2233,
+  serialized_end=2279,
 )
 _sym_db.RegisterEnumDescriptor(_CONSTANTS)
 
@@ -140,12 +236,28 @@ _CRITICALERRORCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1995,
-  serialized_end=2184,
+  serialized_start=2282,
+  serialized_end=2471,
 )
 _sym_db.RegisterEnumDescriptor(_CRITICALERRORCODE)
 
 CriticalErrorCode = enum_type_wrapper.EnumTypeWrapper(_CRITICALERRORCODE)
+UNSET = 0
+TLORA_V2 = 1
+TLORA_V1 = 2
+TLORA_V2_1_1p6 = 3
+TBEAM = 4
+HELTEC = 5
+TBEAM0p7 = 6
+T_ECHO = 7
+TLORA_V1_1p3 = 8
+LORA_RELAY_V1 = 32
+NRF52840DK = 33
+PPR = 34
+GENIEBLOCKS = 35
+NRF52_UNKNOWN = 36
+PORTDUINO = 37
+ANDROID_SIM = 38
 Unused = 0
 DATA_PAYLOAD_LEN = 240
 globals()[&#39;None&#39;] = 0
@@ -215,8 +327,8 @@ _ROUTING_ERROR = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=394,
-  serialized_end=537,
+  serialized_start=428,
+  serialized_end=571,
 )
 _sym_db.RegisterEnumDescriptor(_ROUTING_ERROR)
 
@@ -265,8 +377,8 @@ _MESHPACKET_PRIORITY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=902,
-  serialized_end=993,
+  serialized_start=936,
+  serialized_end=1027,
 )
 _sym_db.RegisterEnumDescriptor(_MESHPACKET_PRIORITY)
 
@@ -315,8 +427,8 @@ _LOGRECORD_LEVEL = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1510,
-  serialized_end=1598,
+  serialized_start=1541,
+  serialized_end=1629,
 )
 _sym_db.RegisterEnumDescriptor(_LOGRECORD_LEVEL)
 
@@ -417,6 +529,13 @@ _USER = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name=&#39;hw_model&#39;, full_name=&#39;User.hw_model&#39;, index=4,
+      number=6, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -430,7 +549,7 @@ _USER = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=150,
-  serialized_end=224,
+  serialized_end=258,
 )
 
 
@@ -461,8 +580,8 @@ _ROUTEDISCOVERY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=226,
-  serialized_end=257,
+  serialized_start=260,
+  serialized_end=291,
 )
 
 
@@ -513,8 +632,8 @@ _ROUTING = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=260,
-  serialized_end=548,
+  serialized_start=294,
+  serialized_end=582,
 )
 
 
@@ -580,8 +699,8 @@ _DATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=550,
-  serialized_end=673,
+  serialized_start=584,
+  serialized_end=707,
 )
 
 
@@ -688,8 +807,8 @@ _MESHPACKET = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=676,
-  serialized_end=1011,
+  serialized_start=710,
+  serialized_end=1045,
 )
 
 
@@ -729,13 +848,6 @@ _NODEINFO = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name=&#39;next_hop&#39;, full_name=&#39;NodeInfo.next_hop&#39;, index=4,
-      number=5, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -748,8 +860,8 @@ _NODEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1013,
-  serialized_end=1117,
+  serialized_start=1047,
+  serialized_end=1133,
 )
 
 
@@ -797,12 +909,12 @@ _MYNODEINFO = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=b&#39;\030\001&#39;, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name=&#39;hw_model&#39;, full_name=&#39;MyNodeInfo.hw_model&#39;, index=5,
+      name=&#39;hw_model_deprecated&#39;, full_name=&#39;MyNodeInfo.hw_model_deprecated&#39;, index=5,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b&#34;&#34;.decode(&#39;utf-8&#39;),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=b&#39;\030\001&#39;, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name=&#39;firmware_version&#39;, full_name=&#39;MyNodeInfo.firmware_version&#39;, index=6,
       number=6, type=9, cpp_type=9, label=1,
@@ -857,8 +969,8 @@ _MYNODEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1120,
-  serialized_end=1414,
+  serialized_start=1136,
+  serialized_end=1445,
 )
 
 
@@ -911,8 +1023,8 @@ _LOGRECORD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1417,
-  serialized_end=1598,
+  serialized_start=1448,
+  serialized_end=1629,
 )
 
 
@@ -990,8 +1102,8 @@ _FROMRADIO = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=1601,
-  serialized_end=1834,
+  serialized_start=1632,
+  serialized_end=1865,
 )
 
 
@@ -1034,10 +1146,11 @@ _TORADIO = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=1836,
-  serialized_end=1944,
+  serialized_start=1867,
+  serialized_end=1975,
 )
 
+_USER.fields_by_name[&#39;hw_model&#39;].enum_type = _HARDWAREMODEL
 _ROUTING.fields_by_name[&#39;route_request&#39;].message_type = _ROUTEDISCOVERY
 _ROUTING.fields_by_name[&#39;route_reply&#39;].message_type = _ROUTEDISCOVERY
 _ROUTING.fields_by_name[&#39;error_reason&#39;].enum_type = _ROUTING_ERROR
@@ -1106,6 +1219,7 @@ DESCRIPTOR.message_types_by_name[&#39;MyNodeInfo&#39;] = _MYNODEINFO
 DESCRIPTOR.message_types_by_name[&#39;LogRecord&#39;] = _LOGRECORD
 DESCRIPTOR.message_types_by_name[&#39;FromRadio&#39;] = _FROMRADIO
 DESCRIPTOR.message_types_by_name[&#39;ToRadio&#39;] = _TORADIO
+DESCRIPTOR.enum_types_by_name[&#39;HardwareModel&#39;] = _HARDWAREMODEL
 DESCRIPTOR.enum_types_by_name[&#39;Constants&#39;] = _CONSTANTS
 DESCRIPTOR.enum_types_by_name[&#39;CriticalErrorCode&#39;] = _CRITICALERRORCODE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -1190,6 +1304,7 @@ _sym_db.RegisterMessage(ToRadio)
 
 DESCRIPTOR._options = None
 _MYNODEINFO.fields_by_name[&#39;region&#39;]._options = None
+_MYNODEINFO.fields_by_name[&#39;hw_model_deprecated&#39;]._options = None
 # @@protoc_insertion_point(module_scope)</code></pre>
 </details>
 </section>
@@ -1506,9 +1621,9 @@ _MYNODEINFO.fields_by_name[&#39;region&#39;]._options = None
 <dd>
 <div class="desc"><p>Field MyNodeInfo.has_gps</p></div>
 </dd>
-<dt id="meshtastic.mesh_pb2.MyNodeInfo.hw_model"><code class="name">var <span class="ident">hw_model</span></code></dt>
+<dt id="meshtastic.mesh_pb2.MyNodeInfo.hw_model_deprecated"><code class="name">var <span class="ident">hw_model_deprecated</span></code></dt>
 <dd>
-<div class="desc"><p>Field MyNodeInfo.hw_model</p></div>
+<div class="desc"><p>Field MyNodeInfo.hw_model_deprecated</p></div>
 </dd>
 <dt id="meshtastic.mesh_pb2.MyNodeInfo.max_channels"><code class="name">var <span class="ident">max_channels</span></code></dt>
 <dd>
@@ -1556,10 +1671,6 @@ _MYNODEINFO.fields_by_name[&#39;region&#39;]._options = None
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="meshtastic.mesh_pb2.NodeInfo.next_hop"><code class="name">var <span class="ident">next_hop</span></code></dt>
-<dd>
-<div class="desc"><p>Field NodeInfo.next_hop</p></div>
-</dd>
 <dt id="meshtastic.mesh_pb2.NodeInfo.num"><code class="name">var <span class="ident">num</span></code></dt>
 <dd>
 <div class="desc"><p>Field NodeInfo.num</p></div>
@@ -1770,6 +1881,10 @@ _MYNODEINFO.fields_by_name[&#39;region&#39;]._options = None
 </dl>
 <h3>Instance variables</h3>
 <dl>
+<dt id="meshtastic.mesh_pb2.User.hw_model"><code class="name">var <span class="ident">hw_model</span></code></dt>
+<dd>
+<div class="desc"><p>Field User.hw_model</p></div>
+</dd>
 <dt id="meshtastic.mesh_pb2.User.id"><code class="name">var <span class="ident">id</span></code></dt>
 <dd>
 <div class="desc"><p>Field User.id</p></div>
@@ -1881,7 +1996,7 @@ _MYNODEINFO.fields_by_name[&#39;region&#39;]._options = None
 <li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.error_count" href="#meshtastic.mesh_pb2.MyNodeInfo.error_count">error_count</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.firmware_version" href="#meshtastic.mesh_pb2.MyNodeInfo.firmware_version">firmware_version</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.has_gps" href="#meshtastic.mesh_pb2.MyNodeInfo.has_gps">has_gps</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.hw_model" href="#meshtastic.mesh_pb2.MyNodeInfo.hw_model">hw_model</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.hw_model_deprecated" href="#meshtastic.mesh_pb2.MyNodeInfo.hw_model_deprecated">hw_model_deprecated</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.max_channels" href="#meshtastic.mesh_pb2.MyNodeInfo.max_channels">max_channels</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.message_timeout_msec" href="#meshtastic.mesh_pb2.MyNodeInfo.message_timeout_msec">message_timeout_msec</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.MyNodeInfo.min_app_version" href="#meshtastic.mesh_pb2.MyNodeInfo.min_app_version">min_app_version</a></code></li>
@@ -1892,9 +2007,8 @@ _MYNODEINFO.fields_by_name[&#39;region&#39;]._options = None
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.NodeInfo" href="#meshtastic.mesh_pb2.NodeInfo">NodeInfo</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="meshtastic.mesh_pb2.NodeInfo.DESCRIPTOR" href="#meshtastic.mesh_pb2.NodeInfo.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.mesh_pb2.NodeInfo.next_hop" href="#meshtastic.mesh_pb2.NodeInfo.next_hop">next_hop</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.NodeInfo.num" href="#meshtastic.mesh_pb2.NodeInfo.num">num</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.NodeInfo.position" href="#meshtastic.mesh_pb2.NodeInfo.position">position</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.NodeInfo.snr" href="#meshtastic.mesh_pb2.NodeInfo.snr">snr</a></code></li>
@@ -1948,8 +2062,9 @@ _MYNODEINFO.fields_by_name[&#39;region&#39;]._options = None
 </li>
 <li>
 <h4><code><a title="meshtastic.mesh_pb2.User" href="#meshtastic.mesh_pb2.User">User</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="meshtastic.mesh_pb2.User.DESCRIPTOR" href="#meshtastic.mesh_pb2.User.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.mesh_pb2.User.hw_model" href="#meshtastic.mesh_pb2.User.hw_model">hw_model</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.User.id" href="#meshtastic.mesh_pb2.User.id">id</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.User.long_name" href="#meshtastic.mesh_pb2.User.long_name">long_name</a></code></li>
 <li><code><a title="meshtastic.mesh_pb2.User.macaddr" href="#meshtastic.mesh_pb2.User.macaddr">macaddr</a></code></li>

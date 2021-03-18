@@ -380,6 +380,15 @@ class Node:
                                wantResponse=True,
                                onResponse=onResponse)
 
+    def exitSimulator(self):
+        &#34;&#34;&#34;
+        Tell a simulator node to exit (this message is ignored for other nodes)
+        &#34;&#34;&#34;
+        p = admin_pb2.AdminMessage()
+        p.exit_simulator = True
+
+        return self._sendAdmin(p)                               
+
     def _requestChannel(self, channelNum: int):
         &#34;&#34;&#34;
         Done with initial config messages, now send regular MeshPackets to ask for settings
@@ -2434,6 +2443,15 @@ wantResponse &ndash; True if you want the service on the other side to send an a
                                wantResponse=True,
                                onResponse=onResponse)
 
+    def exitSimulator(self):
+        &#34;&#34;&#34;
+        Tell a simulator node to exit (this message is ignored for other nodes)
+        &#34;&#34;&#34;
+        p = admin_pb2.AdminMessage()
+        p.exit_simulator = True
+
+        return self._sendAdmin(p)                               
+
     def _requestChannel(self, channelNum: int):
         &#34;&#34;&#34;
         Done with initial config messages, now send regular MeshPackets to ask for settings
@@ -2515,6 +2533,25 @@ def channelURL(self):
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="meshtastic.Node.exitSimulator"><code class="name flex">
+<span>def <span class="ident">exitSimulator</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Tell a simulator node to exit (this message is ignored for other nodes)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def exitSimulator(self):
+    &#34;&#34;&#34;
+    Tell a simulator node to exit (this message is ignored for other nodes)
+    &#34;&#34;&#34;
+    p = admin_pb2.AdminMessage()
+    p.exit_simulator = True
+
+    return self._sendAdmin(p)                               </code></pre>
+</details>
+</dd>
 <dt id="meshtastic.Node.getChannelByName"><code class="name flex">
 <span>def <span class="ident">getChannelByName</span></span>(<span>self, name)</span>
 </code></dt>
@@ -3221,6 +3258,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <h4><code><a title="meshtastic.Node" href="#meshtastic.Node">Node</a></code></h4>
 <ul class="two-column">
 <li><code><a title="meshtastic.Node.channelURL" href="#meshtastic.Node.channelURL">channelURL</a></code></li>
+<li><code><a title="meshtastic.Node.exitSimulator" href="#meshtastic.Node.exitSimulator">exitSimulator</a></code></li>
 <li><code><a title="meshtastic.Node.getChannelByName" href="#meshtastic.Node.getChannelByName">getChannelByName</a></code></li>
 <li><code><a title="meshtastic.Node.getDisabledChannel" href="#meshtastic.Node.getDisabledChannel">getDisabledChannel</a></code></li>
 <li><code><a title="meshtastic.Node.requestConfig" href="#meshtastic.Node.requestConfig">requestConfig</a></code></li>
