@@ -311,6 +311,12 @@ def onConnected(interface):
                 print(f"Writing modified channels to device")
                 n.writeChannel(ch.index)
 
+        if args.ch_del:
+            closeNow = True
+
+            print(f"Deleting channel {channelIndex}")
+            ch = getNode().deleteChannel(channelIndex)
+
         if args.setchan or args.setch_longslow or args.setch_shortfast:
             closeNow = True
 
@@ -429,7 +435,7 @@ def common():
             if args.info or args.nodes or args.set or args.seturl or args.set_owner or args.setlat or args.setlon or \
                     args.settime or \
                     args.setch_longslow or args.setch_shortfast or args.setchan or args.sendtext or \
-                    args.qr or args.ch_add or args.set_ham:
+                    args.qr or args.ch_add or args.ch_del or args.set_ham:
                 args.seriallog = "none"  # assume no debug output in this case
             else:
                 args.seriallog = "stdout"  # default to stdout
@@ -511,6 +517,9 @@ def initParser():
 
     parser.add_argument(
         "--ch-add", help="Add a secondary channel, you must specify a channel name", default=None)
+
+    parser.add_argument(
+        "--ch-del", help="Delete the ch-index channel", action='store_true')
 
     parser.add_argument(
         "--ch-enable", help="Enable the specified channel", action="store_true", dest="ch_enable")

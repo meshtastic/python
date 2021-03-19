@@ -171,14 +171,36 @@ class Node:
         self._sendAdmin(p)
         logging.debug("Wrote config")
 
-    def writeChannel(self, channelIndex):
+    def writeChannel(self, channelIndex, adminIndex = 0):
         """Write the current (edited) channel to the device"""
 
         p = admin_pb2.AdminMessage()
         p.set_channel.CopyFrom(self.channels[channelIndex])
 
-        self._sendAdmin(p)
+        self._sendAdmin(p, adminIndex=adminIndex)
         logging.debug("Wrote channel {channelIndex}")
+
+    def deleteChannel(self, channelIndex):
+        """Delete the specifed channelIndex and shift other channels up"""
+        ch = self.channels[channelIndex]
+        if ch.role != channel_pb2.Channel.Role.SECONDARY:
+            raise Exception("Only SECONDARY channels can be deleted")
+
+        # we are careful here because if we move the "admin" channel the channelIndex we need to use
+        # for sending admin channels will also change
+        adminIndex = self.iface.localNode._getAdminChannelIndex()
+
+        self.channels.pop(channelIndex)
+        self._fixupChannels() # expand back to 8 channels
+
+        index = channelIndex
+        while index < self.iface.myInfo.max_channels:
+            self.writeChannel(index, adminIndex=adminIndex)
+            index += 1
+
+            # if we are updating the local node, we might end up *moving* the admin channel index as we are writing
+            if (self.iface.localNode == self) and index >= adminIndex:
+                adminIndex = 0 # We've now passed the old location for admin index (and writen it), so we can start finding it by name again
 
     def getChannelByName(self, name):
         """Try to find the named channel or return None"""
@@ -302,6 +324,27 @@ class Node:
 
         return self._sendAdmin(p)                               
 
+    def _fixupChannels(self):
+        """Fixup indexes and add disabled channels as needed"""
+
+        # Add extra disabled channels as needed
+        for index, ch in enumerate(self.channels):
+            ch.index = index # fixup indexes
+
+        self._fillChannels()
+
+    def _fillChannels(self):
+        """Mark unused channels as disabled"""
+
+        # Add extra disabled channels as needed
+        index = len(self.channels)
+        while index < self.iface.myInfo.max_channels:
+            ch = channel_pb2.Channel()
+            ch.role = channel_pb2.Channel.Role.DISABLED
+            ch.index = index
+            self.channels.append(ch)
+            index += 1
+
     def _requestChannel(self, channelNum: int):
         """
         Done with initial config messages, now send regular MeshPackets to ask for settings
@@ -327,16 +370,9 @@ class Node:
             if quitEarly or index >= self.iface.myInfo.max_channels - 1:
                 logging.debug("Finished downloading channels")
 
-                # Fill the rest of array with DISABLED channels
-                index += 1
-                while index < self.iface.myInfo.max_channels:
-                    ch = channel_pb2.Channel()
-                    ch.role = channel_pb2.Channel.Role.DISABLED
-                    ch.index = index
-                    self.partialChannels.append(ch)
-                    index += 1
-
                 self.channels = self.partialChannels
+                self._fixupChannels()
+
                 # FIXME, the following should only be called after we have settings and channels
                 self.iface._connected()  # Tell everone else we are ready to go
             else:
@@ -347,15 +383,19 @@ class Node:
                                onResponse=onResponse)
 
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
-                   onResponse=None):
+                   onResponse=None, 
+                   adminIndex=0):
         """Send an admin message to the specified node (or the local node if destNodeNum is zero)"""
+
+        if adminIndex == 0: # unless a special channel index was used, we want to use the admin index
+            adminIndex = self.iface.localNode._getAdminChannelIndex()
 
         return self.iface.sendData(p, self.nodeNum,
                                    portNum=portnums_pb2.PortNum.ADMIN_APP,
                                    wantAck=True,
                                    wantResponse=wantResponse,
                                    onResponse=onResponse,
-                                   channelIndex=self.iface.localNode._getAdminChannelIndex())
+                                   channelIndex=adminIndex)
 
 
 class MeshInterface:
