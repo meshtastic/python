@@ -197,16 +197,14 @@ def onConnected(interface):
                 targetNode = interface.getNode(args.destOrLocal)
             return targetNode
 
-        if args.settime or args.setlat or args.setlon or args.setalt:
+        if args.setlat or args.setlon or args.setalt:
             closeNow = True
 
             alt = 0
             lat = 0.0
             lon = 0.0
-            time = 0
+            time = 0 # always set time, but based on the local clock
             prefs = interface.localNode.radioConfig.preferences
-            if args.settime:
-                time = int(args.settime)
             if args.setalt:
                 alt = int(args.setalt)
                 prefs.fixed_position = True
@@ -220,10 +218,13 @@ def onConnected(interface):
                 prefs.fixed_position = True
                 print(f"Fixing longitude at {lon} degrees")
 
-            print("Setting device time/position")
+            print("Setting device position")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.sendPosition(lat, lon, alt, time)
             interface.localNode.writeConfig()
+        elif not args.no_time:
+            # We normally provide a current time to the mesh when we connect
+            interface.sendPosition()
 
         if args.set_owner:
             closeNow = True
@@ -433,7 +434,6 @@ def common():
 
         if not args.seriallog:
             if args.info or args.nodes or args.set or args.seturl or args.set_owner or args.setlat or args.setlon or \
-                    args.settime or \
                     args.setch_longslow or args.setch_shortfast or args.setchan or args.sendtext or \
                     args.qr or args.ch_add or args.ch_del or args.set_ham:
                 args.seriallog = "none"  # assume no debug output in this case
@@ -559,7 +559,7 @@ def initParser():
         "--gpio-watch", help="Start watching a GPIO mask for changes")
 
     parser.add_argument(
-        "--settime", help="Set the real time clock on the device", action="store_true")
+        "--no-time", help="Suppress sending the current time to the mesh", action="store_true")
 
     parser.add_argument(
         "--setalt", help="Set device altitude (allows use without GPS)")
