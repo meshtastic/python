@@ -258,14 +258,36 @@ class Node:
         self._sendAdmin(p)
         logging.debug(&#34;Wrote config&#34;)
 
-    def writeChannel(self, channelIndex):
+    def writeChannel(self, channelIndex, adminIndex = 0):
         &#34;&#34;&#34;Write the current (edited) channel to the device&#34;&#34;&#34;
 
         p = admin_pb2.AdminMessage()
         p.set_channel.CopyFrom(self.channels[channelIndex])
 
-        self._sendAdmin(p)
+        self._sendAdmin(p, adminIndex=adminIndex)
         logging.debug(&#34;Wrote channel {channelIndex}&#34;)
+
+    def deleteChannel(self, channelIndex):
+        &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
+        ch = self.channels[channelIndex]
+        if ch.role != channel_pb2.Channel.Role.SECONDARY:
+            raise Exception(&#34;Only SECONDARY channels can be deleted&#34;)
+
+        # we are careful here because if we move the &#34;admin&#34; channel the channelIndex we need to use
+        # for sending admin channels will also change
+        adminIndex = self.iface.localNode._getAdminChannelIndex()
+
+        self.channels.pop(channelIndex)
+        self._fixupChannels() # expand back to 8 channels
+
+        index = channelIndex
+        while index &lt; self.iface.myInfo.max_channels:
+            self.writeChannel(index, adminIndex=adminIndex)
+            index += 1
+
+            # if we are updating the local node, we might end up *moving* the admin channel index as we are writing
+            if (self.iface.localNode == self) and index &gt;= adminIndex:
+                adminIndex = 0 # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again
 
     def getChannelByName(self, name):
         &#34;&#34;&#34;Try to find the named channel or return None&#34;&#34;&#34;
@@ -389,6 +411,27 @@ class Node:
 
         return self._sendAdmin(p)                               
 
+    def _fixupChannels(self):
+        &#34;&#34;&#34;Fixup indexes and add disabled channels as needed&#34;&#34;&#34;
+
+        # Add extra disabled channels as needed
+        for index, ch in enumerate(self.channels):
+            ch.index = index # fixup indexes
+
+        self._fillChannels()
+
+    def _fillChannels(self):
+        &#34;&#34;&#34;Mark unused channels as disabled&#34;&#34;&#34;
+
+        # Add extra disabled channels as needed
+        index = len(self.channels)
+        while index &lt; self.iface.myInfo.max_channels:
+            ch = channel_pb2.Channel()
+            ch.role = channel_pb2.Channel.Role.DISABLED
+            ch.index = index
+            self.channels.append(ch)
+            index += 1
+
     def _requestChannel(self, channelNum: int):
         &#34;&#34;&#34;
         Done with initial config messages, now send regular MeshPackets to ask for settings
@@ -414,16 +457,9 @@ class Node:
             if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
                 logging.debug(&#34;Finished downloading channels&#34;)
 
-                # Fill the rest of array with DISABLED channels
-                index += 1
-                while index &lt; self.iface.myInfo.max_channels:
-                    ch = channel_pb2.Channel()
-                    ch.role = channel_pb2.Channel.Role.DISABLED
-                    ch.index = index
-                    self.partialChannels.append(ch)
-                    index += 1
-
                 self.channels = self.partialChannels
+                self._fixupChannels()
+
                 # FIXME, the following should only be called after we have settings and channels
                 self.iface._connected()  # Tell everone else we are ready to go
             else:
@@ -434,15 +470,19 @@ class Node:
                                onResponse=onResponse)
 
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
-                   onResponse=None):
+                   onResponse=None, 
+                   adminIndex=0):
         &#34;&#34;&#34;Send an admin message to the specified node (or the local node if destNodeNum is zero)&#34;&#34;&#34;
+
+        if adminIndex == 0: # unless a special channel index was used, we want to use the admin index
+            adminIndex = self.iface.localNode._getAdminChannelIndex()
 
         return self.iface.sendData(p, self.nodeNum,
                                    portNum=portnums_pb2.PortNum.ADMIN_APP,
                                    wantAck=True,
                                    wantResponse=wantResponse,
                                    onResponse=onResponse,
-                                   channelIndex=self.iface.localNode._getAdminChannelIndex())
+                                   channelIndex=adminIndex)
 
 
 class MeshInterface:
@@ -2321,14 +2361,36 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         self._sendAdmin(p)
         logging.debug(&#34;Wrote config&#34;)
 
-    def writeChannel(self, channelIndex):
+    def writeChannel(self, channelIndex, adminIndex = 0):
         &#34;&#34;&#34;Write the current (edited) channel to the device&#34;&#34;&#34;
 
         p = admin_pb2.AdminMessage()
         p.set_channel.CopyFrom(self.channels[channelIndex])
 
-        self._sendAdmin(p)
+        self._sendAdmin(p, adminIndex=adminIndex)
         logging.debug(&#34;Wrote channel {channelIndex}&#34;)
+
+    def deleteChannel(self, channelIndex):
+        &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
+        ch = self.channels[channelIndex]
+        if ch.role != channel_pb2.Channel.Role.SECONDARY:
+            raise Exception(&#34;Only SECONDARY channels can be deleted&#34;)
+
+        # we are careful here because if we move the &#34;admin&#34; channel the channelIndex we need to use
+        # for sending admin channels will also change
+        adminIndex = self.iface.localNode._getAdminChannelIndex()
+
+        self.channels.pop(channelIndex)
+        self._fixupChannels() # expand back to 8 channels
+
+        index = channelIndex
+        while index &lt; self.iface.myInfo.max_channels:
+            self.writeChannel(index, adminIndex=adminIndex)
+            index += 1
+
+            # if we are updating the local node, we might end up *moving* the admin channel index as we are writing
+            if (self.iface.localNode == self) and index &gt;= adminIndex:
+                adminIndex = 0 # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again
 
     def getChannelByName(self, name):
         &#34;&#34;&#34;Try to find the named channel or return None&#34;&#34;&#34;
@@ -2452,6 +2514,27 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 
         return self._sendAdmin(p)                               
 
+    def _fixupChannels(self):
+        &#34;&#34;&#34;Fixup indexes and add disabled channels as needed&#34;&#34;&#34;
+
+        # Add extra disabled channels as needed
+        for index, ch in enumerate(self.channels):
+            ch.index = index # fixup indexes
+
+        self._fillChannels()
+
+    def _fillChannels(self):
+        &#34;&#34;&#34;Mark unused channels as disabled&#34;&#34;&#34;
+
+        # Add extra disabled channels as needed
+        index = len(self.channels)
+        while index &lt; self.iface.myInfo.max_channels:
+            ch = channel_pb2.Channel()
+            ch.role = channel_pb2.Channel.Role.DISABLED
+            ch.index = index
+            self.channels.append(ch)
+            index += 1
+
     def _requestChannel(self, channelNum: int):
         &#34;&#34;&#34;
         Done with initial config messages, now send regular MeshPackets to ask for settings
@@ -2477,16 +2560,9 @@ wantResponse &ndash; True if you want the service on the other side to send an a
             if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
                 logging.debug(&#34;Finished downloading channels&#34;)
 
-                # Fill the rest of array with DISABLED channels
-                index += 1
-                while index &lt; self.iface.myInfo.max_channels:
-                    ch = channel_pb2.Channel()
-                    ch.role = channel_pb2.Channel.Role.DISABLED
-                    ch.index = index
-                    self.partialChannels.append(ch)
-                    index += 1
-
                 self.channels = self.partialChannels
+                self._fixupChannels()
+
                 # FIXME, the following should only be called after we have settings and channels
                 self.iface._connected()  # Tell everone else we are ready to go
             else:
@@ -2497,15 +2573,19 @@ wantResponse &ndash; True if you want the service on the other side to send an a
                                onResponse=onResponse)
 
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
-                   onResponse=None):
+                   onResponse=None, 
+                   adminIndex=0):
         &#34;&#34;&#34;Send an admin message to the specified node (or the local node if destNodeNum is zero)&#34;&#34;&#34;
+
+        if adminIndex == 0: # unless a special channel index was used, we want to use the admin index
+            adminIndex = self.iface.localNode._getAdminChannelIndex()
 
         return self.iface.sendData(p, self.nodeNum,
                                    portNum=portnums_pb2.PortNum.ADMIN_APP,
                                    wantAck=True,
                                    wantResponse=wantResponse,
                                    onResponse=onResponse,
-                                   channelIndex=self.iface.localNode._getAdminChannelIndex())</code></pre>
+                                   channelIndex=adminIndex)</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
@@ -2533,6 +2613,38 @@ def channelURL(self):
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="meshtastic.Node.deleteChannel"><code class="name flex">
+<span>def <span class="ident">deleteChannel</span></span>(<span>self, channelIndex)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Delete the specifed channelIndex and shift other channels up</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def deleteChannel(self, channelIndex):
+    &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
+    ch = self.channels[channelIndex]
+    if ch.role != channel_pb2.Channel.Role.SECONDARY:
+        raise Exception(&#34;Only SECONDARY channels can be deleted&#34;)
+
+    # we are careful here because if we move the &#34;admin&#34; channel the channelIndex we need to use
+    # for sending admin channels will also change
+    adminIndex = self.iface.localNode._getAdminChannelIndex()
+
+    self.channels.pop(channelIndex)
+    self._fixupChannels() # expand back to 8 channels
+
+    index = channelIndex
+    while index &lt; self.iface.myInfo.max_channels:
+        self.writeChannel(index, adminIndex=adminIndex)
+        index += 1
+
+        # if we are updating the local node, we might end up *moving* the admin channel index as we are writing
+        if (self.iface.localNode == self) and index &gt;= adminIndex:
+            adminIndex = 0 # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.Node.exitSimulator"><code class="name flex">
 <span>def <span class="ident">exitSimulator</span></span>(<span>self)</span>
 </code></dt>
@@ -2722,7 +2834,7 @@ def channelURL(self):
 </details>
 </dd>
 <dt id="meshtastic.Node.writeChannel"><code class="name flex">
-<span>def <span class="ident">writeChannel</span></span>(<span>self, channelIndex)</span>
+<span>def <span class="ident">writeChannel</span></span>(<span>self, channelIndex, adminIndex=0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Write the current (edited) channel to the device</p></div>
@@ -2730,13 +2842,13 @@ def channelURL(self):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def writeChannel(self, channelIndex):
+<pre><code class="python">def writeChannel(self, channelIndex, adminIndex = 0):
     &#34;&#34;&#34;Write the current (edited) channel to the device&#34;&#34;&#34;
 
     p = admin_pb2.AdminMessage()
     p.set_channel.CopyFrom(self.channels[channelIndex])
 
-    self._sendAdmin(p)
+    self._sendAdmin(p, adminIndex=adminIndex)
     logging.debug(&#34;Wrote channel {channelIndex}&#34;)</code></pre>
 </details>
 </dd>
@@ -3258,6 +3370,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <h4><code><a title="meshtastic.Node" href="#meshtastic.Node">Node</a></code></h4>
 <ul class="two-column">
 <li><code><a title="meshtastic.Node.channelURL" href="#meshtastic.Node.channelURL">channelURL</a></code></li>
+<li><code><a title="meshtastic.Node.deleteChannel" href="#meshtastic.Node.deleteChannel">deleteChannel</a></code></li>
 <li><code><a title="meshtastic.Node.exitSimulator" href="#meshtastic.Node.exitSimulator">exitSimulator</a></code></li>
 <li><code><a title="meshtastic.Node.getChannelByName" href="#meshtastic.Node.getChannelByName">getChannelByName</a></code></li>
 <li><code><a title="meshtastic.Node.getDisabledChannel" href="#meshtastic.Node.getDisabledChannel">getDisabledChannel</a></code></li>
