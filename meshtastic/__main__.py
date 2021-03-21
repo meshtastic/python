@@ -318,14 +318,14 @@ def onConnected(interface):
             print(f"Deleting channel {channelIndex}")
             ch = getNode().deleteChannel(channelIndex)
 
-        if args.setchan or args.setch_longslow or args.setch_shortfast:
+        if args.ch_set or args.ch_longslow or args.ch_shortfast:
             closeNow = True
 
             ch = getNode().channels[channelIndex]
 
             enable = args.ch_enable # should we enable this channel?
 
-            if args.setch_longslow or args.setch_shortfast:
+            if args.ch_longslow or args.ch_shortfast:
                 if channelIndex != 0:
                     raise Exception("standard channel settings can only be applied to the PRIMARY channel")
 
@@ -342,16 +342,16 @@ def onConnected(interface):
                     ch.settings.CopyFrom(chs)
 
                 # handle the simple channel set commands
-                if args.setch_longslow:
+                if args.ch_longslow:
                     setSimpleChannel(
                         channel_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
 
-                if args.setch_shortfast:
+                if args.ch_shortfast:
                     setSimpleChannel(
                         channel_pb2.ChannelSettings.ModemConfig.Bw500Cr45Sf128)
 
             # Handle the channel settings
-            for pref in (args.setchan or []):
+            for pref in (args.ch_set or []):
                 if pref[0] == "psk":
                     ch.settings.psk =fromPSK(pref[1])
                 else:
@@ -367,11 +367,14 @@ def onConnected(interface):
             getNode().writeChannel(channelIndex)
 
         if args.info:
+            print("")
             if not args.dest:  # If we aren't trying to talk to our local node, don't show it
                 interface.showInfo()
 
+            print("")
             getNode().showInfo()
             closeNow = True  # FIXME, for now we leave the link up while talking to remote nodes
+            print("")
 
         if args.nodes:
             closeNow = True
@@ -380,9 +383,10 @@ def onConnected(interface):
 
         if args.qr:
             closeNow = True
-            print(f"Channel URL {interface.channelURL}")
-            url = pyqrcode.create(interface.channelURL)
-            print(url.terminal())
+            url = interface.localNode.getURL(includeAll = False)
+            print(f"Primary channel URL {url}")
+            qr = pyqrcode.create(url)
+            print(qr.terminal())
 
         if have_tunnel and args.tunnel:
             from . import tunnel
@@ -434,15 +438,17 @@ def common():
 
         if not args.seriallog:
             if args.info or args.nodes or args.set or args.seturl or args.set_owner or args.setlat or args.setlon or \
-                    args.setch_longslow or args.setch_shortfast or args.setchan or args.sendtext or \
+                    args.ch_longslow or args.ch_shortfast or args.ch_set or args.sendtext or \
                     args.qr or args.ch_add or args.ch_del or args.set_ham:
                 args.seriallog = "none"  # assume no debug output in this case
             else:
                 args.seriallog = "stdout"  # default to stdout
 
-        if args.router != None:
+        if args.deprecated != None:
             logging.error(
-                '--set-router has been deprecated. Use "--set is_router true" or "--set is_router false" instead')
+                'This option has been deprecated, see help below for the correct replacement...')
+            parser.print_help(sys.stderr)
+            sys.exit(1)
         elif args.test:
             test.testAll()
         else:
@@ -501,15 +507,6 @@ def initParser():
         "--set", help="Set a preferences field", nargs=2, action='append')
 
     parser.add_argument(
-        "--setchan", help="Set a channel parameter", nargs=2, action='append')
-
-    parser.add_argument(
-        "--setch-longslow", help="Change to the standard long-range (but slow) channel", action='store_true')
-
-    parser.add_argument(
-        "--setch-shortfast", help="Change to the standard fast (but short range) channel", action='store_true')
-
-    parser.add_argument(
         "--seturl", help="Set a channel URL", action="store")
 
     parser.add_argument(
@@ -526,6 +523,15 @@ def initParser():
 
     parser.add_argument(
         "--ch-disable", help="Disable the specified channel", action="store_false", dest="ch_enable")
+
+    parser.add_argument(
+        "--ch-set", help="Set a channel parameter", nargs=2, action='append')
+
+    parser.add_argument(
+        "--ch-longslow", help="Change to the standard long-range (but slow) channel", action='store_true')
+
+    parser.add_argument(
+        "--ch-shortfast", help="Change to the standard fast (but short range) channel", action='store_true')
 
     parser.add_argument(
         "--set-owner", help="Set device owner name", action="store")
@@ -582,10 +588,12 @@ def initParser():
     parser.add_argument("--noproto", help="Don't start the API, just function as a dumb serial terminal.",
                         action="store_true")
 
-    parser.add_argument('--set-router', dest='router',
-                        action='store_true', help="Deprecated, use --set is_router true instead")
-    parser.add_argument('--unset-router', dest='router',
-                        action='store_false', help="Deprecated, use --set is_router false instead")
+    parser.add_argument('--setchan', dest='deprecated',
+                        action='store_true', help='Deprecated, use "--ch-set param value" instead')
+    parser.add_argument('--set-router', dest='deprecated',
+                        action='store_true', help='Deprecated, use "--set is_router true" instead')
+    parser.add_argument('--unset-router', dest='deprecated',
+                        action='store_false', help='Deprecated, use "--set is_router false" instead')
 
     if have_tunnel:
         parser.add_argument('--tunnel',
@@ -593,7 +601,7 @@ def initParser():
         parser.add_argument(
             "--subnet", dest='tunnel_net', help="Read from a GPIO mask", default=None)
 
-    parser.set_defaults(router=None)
+    parser.set_defaults(deprecated=None)
 
     parser.add_argument('--version', action='version',
                         version=f"{pkg_resources.require('meshtastic')[0].version}")

@@ -136,15 +136,24 @@ class Node:
         self.radioConfig = None
         self.channels = None
 
-    def showInfo(self):
-        """Show human readable description of our node"""
-        print(self.radioConfig)
+    def showChannels(self):
+        """Show human readable description of our channels"""
         print("Channels:")
         for c in self.channels:
             if c.role != channel_pb2.Channel.Role.DISABLED:
-                cStr = MessageToJson(c.settings).replace("\n", "")
+                cStr = stripnl(MessageToJson(c.settings))
                 print(f"  {channel_pb2.Channel.Role.Name(c.role)} {cStr}")
-        print(f"\nChannel URL {self.channelURL}")
+        publicURL = self.getURL(includeAll = False)
+        adminURL = self.getURL(includeAll = True)
+        print(f"\nPrimary channel URL: {publicURL}")
+        if adminURL != publicURL:
+            print(f"Admin URL (includes all channels): {adminURL}")
+
+    def showInfo(self):
+        """Show human readable description of our node"""
+        print(f"Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n")
+        self.showChannels()
+
 
     def requestConfig(self):
         """
@@ -254,14 +263,13 @@ class Node:
 
         return self._sendAdmin(p)
 
-    @property
-    def channelURL(self):
+    def getURL(self, includeAll: bool = True):
         """The sharable URL that describes the current channel
         """
         # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
         for c in self.channels:
-            if c.role != channel_pb2.Channel.Role.DISABLED:
+            if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
                 channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode('ascii')
@@ -439,10 +447,10 @@ class MeshInterface:
 
     def showInfo(self):
         """Show human readable summary about this object"""
-        print(self.myInfo)
-        print("Nodes in mesh:")
+        print(f"My info: {stripnl(MessageToJson(self.myInfo))}")
+        print("\nNodes in mesh:")
         for n in self.nodes.values():
-            print(stripnl(n))
+            print("  " + stripnl(n))
 
     def getNode(self, nodeId):
         """Return a node object which contains device settings and channel info"""

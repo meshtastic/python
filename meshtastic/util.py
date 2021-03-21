@@ -10,8 +10,9 @@ blacklistVids = dict.fromkeys([0x1366])
 
 
 def stripnl(s):
-    """remove newlines from a string"""
-    return str(s).replace("\n", " ")
+    """remove newlines from a string (and remove extra whitespace)"""
+    s = str(s).replace("\n", " ")
+    return ' '.join(s.split())
 
 
 def fixme(message):
