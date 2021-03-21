@@ -390,6 +390,12 @@ def onConnected(interface):
             closeNow = False
             tunnel.Tunnel(interface, subnet=args.tunnel_net)
 
+        if args.http:
+            from . import http_server
+            # Even if others said we could close, stay open if the user asked for a http server
+            closeNow = False
+            http_server.SimpleHTTPRequestHandler(interface)
+
     except Exception as ex:
         print(f"Exception while handling connection: {ex}")
 
@@ -586,6 +592,9 @@ def initParser():
                         action='store_true', help="Deprecated, use --set is_router true instead")
     parser.add_argument('--unset-router', dest='router',
                         action='store_false', help="Deprecated, use --set is_router false instead")
+
+    parser.add_argument('--http-server',
+                        action='store_false', help="Expose API over http server")
 
     if have_tunnel:
         parser.add_argument('--tunnel',
