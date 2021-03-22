@@ -123,6 +123,21 @@ def waitForSet(target, sleep=.1, maxsecs=20, attrs=()):
     return False
 
 
+def pskToString(psk: bytes):
+    """Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string"""
+    if len(psk) == 0:
+        return "unencrypted"
+    elif len(psk) == 1: 
+        b = psk[0]
+        if b == 0:
+            return "unencrypted"
+        elif b == 1:
+            return "default"
+        else:
+            return f"simple{b - 1}"
+    else:
+        return "secret"
+
 class Node:
     """A model of a (local or remote) node in the mesh
 
@@ -142,12 +157,12 @@ class Node:
         for c in self.channels:
             if c.role != channel_pb2.Channel.Role.DISABLED:
                 cStr = stripnl(MessageToJson(c.settings))
-                print(f"  {channel_pb2.Channel.Role.Name(c.role)} {cStr}")
+                print(f"  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}")
         publicURL = self.getURL(includeAll = False)
         adminURL = self.getURL(includeAll = True)
         print(f"\nPrimary channel URL: {publicURL}")
         if adminURL != publicURL:
-            print(f"Admin URL (includes all channels): {adminURL}")
+            print(f"Complete URL (includes all channels): {adminURL}")
 
     def showInfo(self):
         """Show human readable description of our node"""
