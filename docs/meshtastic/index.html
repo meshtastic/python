@@ -210,6 +210,21 @@ def waitForSet(target, sleep=.1, maxsecs=20, attrs=()):
     return False
 
 
+def pskToString(psk: bytes):
+    &#34;&#34;&#34;Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string&#34;&#34;&#34;
+    if len(psk) == 0:
+        return &#34;unencrypted&#34;
+    elif len(psk) == 1: 
+        b = psk[0]
+        if b == 0:
+            return &#34;unencrypted&#34;
+        elif b == 1:
+            return &#34;default&#34;
+        else:
+            return f&#34;simple{b - 1}&#34;
+    else:
+        return &#34;secret&#34;
+
 class Node:
     &#34;&#34;&#34;A model of a (local or remote) node in the mesh
 
@@ -223,15 +238,24 @@ class Node:
         self.radioConfig = None
         self.channels = None
 
-    def showInfo(self):
-        &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
-        print(self.radioConfig)
+    def showChannels(self):
+        &#34;&#34;&#34;Show human readable description of our channels&#34;&#34;&#34;
         print(&#34;Channels:&#34;)
         for c in self.channels:
             if c.role != channel_pb2.Channel.Role.DISABLED:
-                cStr = MessageToJson(c.settings).replace(&#34;\n&#34;, &#34;&#34;)
-                print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} {cStr}&#34;)
-        print(f&#34;\nChannel URL {self.channelURL}&#34;)
+                cStr = stripnl(MessageToJson(c.settings))
+                print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
+        publicURL = self.getURL(includeAll = False)
+        adminURL = self.getURL(includeAll = True)
+        print(f&#34;\nPrimary channel URL: {publicURL}&#34;)
+        if adminURL != publicURL:
+            print(f&#34;Complete URL (includes all channels): {adminURL}&#34;)
+
+    def showInfo(self):
+        &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
+        print(f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
+        self.showChannels()
+
 
     def requestConfig(self):
         &#34;&#34;&#34;
@@ -341,14 +365,13 @@ class Node:
 
         return self._sendAdmin(p)
 
-    @property
-    def channelURL(self):
+    def getURL(self, includeAll: bool = True):
         &#34;&#34;&#34;The sharable URL that describes the current channel
         &#34;&#34;&#34;
         # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
         for c in self.channels:
-            if c.role != channel_pb2.Channel.Role.DISABLED:
+            if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
                 channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
@@ -526,10 +549,10 @@ class MeshInterface:
 
     def showInfo(self):
         &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
-        print(self.myInfo)
-        print(&#34;Nodes in mesh:&#34;)
+        print(f&#34;My info: {stripnl(MessageToJson(self.myInfo))}&#34;)
+        print(&#34;\nNodes in mesh:&#34;)
         for n in self.nodes.values():
-            print(stripnl(n))
+            print(&#34;  &#34; + stripnl(n))
 
     def getNode(self, nodeId):
         &#34;&#34;&#34;Return a node object which contains device settings and channel info&#34;&#34;&#34;
@@ -1377,6 +1400,31 @@ protocols = {
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="meshtastic.pskToString"><code class="name flex">
+<span>def <span class="ident">pskToString</span></span>(<span>psk: bytes)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pskToString(psk: bytes):
+    &#34;&#34;&#34;Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string&#34;&#34;&#34;
+    if len(psk) == 0:
+        return &#34;unencrypted&#34;
+    elif len(psk) == 1: 
+        b = psk[0]
+        if b == 0:
+            return &#34;unencrypted&#34;
+        elif b == 1:
+            return &#34;default&#34;
+        else:
+            return f&#34;simple{b - 1}&#34;
+    else:
+        return &#34;secret&#34;</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.waitForSet"><code class="name flex">
 <span>def <span class="ident">waitForSet</span></span>(<span>target, sleep=0.1, maxsecs=20, attrs=())</span>
 </code></dt>
@@ -1581,10 +1629,10 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
     def showInfo(self):
         &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
-        print(self.myInfo)
-        print(&#34;Nodes in mesh:&#34;)
+        print(f&#34;My info: {stripnl(MessageToJson(self.myInfo))}&#34;)
+        print(&#34;\nNodes in mesh:&#34;)
         for n in self.nodes.values():
-            print(stripnl(n))
+            print(&#34;  &#34; + stripnl(n))
 
     def getNode(self, nodeId):
         &#34;&#34;&#34;Return a node object which contains device settings and channel info&#34;&#34;&#34;
@@ -2277,10 +2325,10 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 </summary>
 <pre><code class="python">def showInfo(self):
     &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
-    print(self.myInfo)
-    print(&#34;Nodes in mesh:&#34;)
+    print(f&#34;My info: {stripnl(MessageToJson(self.myInfo))}&#34;)
+    print(&#34;\nNodes in mesh:&#34;)
     for n in self.nodes.values():
-        print(stripnl(n))</code></pre>
+        print(&#34;  &#34; + stripnl(n))</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.waitForConfig"><code class="name flex">
@@ -2326,15 +2374,24 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         self.radioConfig = None
         self.channels = None
 
-    def showInfo(self):
-        &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
-        print(self.radioConfig)
+    def showChannels(self):
+        &#34;&#34;&#34;Show human readable description of our channels&#34;&#34;&#34;
         print(&#34;Channels:&#34;)
         for c in self.channels:
             if c.role != channel_pb2.Channel.Role.DISABLED:
-                cStr = MessageToJson(c.settings).replace(&#34;\n&#34;, &#34;&#34;)
-                print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} {cStr}&#34;)
-        print(f&#34;\nChannel URL {self.channelURL}&#34;)
+                cStr = stripnl(MessageToJson(c.settings))
+                print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
+        publicURL = self.getURL(includeAll = False)
+        adminURL = self.getURL(includeAll = True)
+        print(f&#34;\nPrimary channel URL: {publicURL}&#34;)
+        if adminURL != publicURL:
+            print(f&#34;Complete URL (includes all channels): {adminURL}&#34;)
+
+    def showInfo(self):
+        &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
+        print(f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
+        self.showChannels()
+
 
     def requestConfig(self):
         &#34;&#34;&#34;
@@ -2444,14 +2501,13 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 
         return self._sendAdmin(p)
 
-    @property
-    def channelURL(self):
+    def getURL(self, includeAll: bool = True):
         &#34;&#34;&#34;The sharable URL that describes the current channel
         &#34;&#34;&#34;
         # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
         for c in self.channels:
-            if c.role != channel_pb2.Channel.Role.DISABLED:
+            if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
                 channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
@@ -2587,30 +2643,6 @@ wantResponse &ndash; True if you want the service on the other side to send an a
                                    onResponse=onResponse,
                                    channelIndex=adminIndex)</code></pre>
 </details>
-<h3>Instance variables</h3>
-<dl>
-<dt id="meshtastic.Node.channelURL"><code class="name">var <span class="ident">channelURL</span></code></dt>
-<dd>
-<div class="desc"><p>The sharable URL that describes the current channel</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def channelURL(self):
-    &#34;&#34;&#34;The sharable URL that describes the current channel
-    &#34;&#34;&#34;
-    # Only keep the primary/secondary channels, assume primary is first
-    channelSet = apponly_pb2.ChannelSet()
-    for c in self.channels:
-        if c.role != channel_pb2.Channel.Role.DISABLED:
-            channelSet.settings.append(c.settings)
-    bytes = channelSet.SerializeToString()
-    s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
-    return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)</code></pre>
-</details>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="meshtastic.Node.deleteChannel"><code class="name flex">
@@ -2696,6 +2728,28 @@ def channelURL(self):
         if c.role == channel_pb2.Channel.Role.DISABLED:
             return c
     return None</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.Node.getURL"><code class="name flex">
+<span>def <span class="ident">getURL</span></span>(<span>self, includeAll: bool = True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The sharable URL that describes the current channel</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getURL(self, includeAll: bool = True):
+    &#34;&#34;&#34;The sharable URL that describes the current channel
+    &#34;&#34;&#34;
+    # Only keep the primary/secondary channels, assume primary is first
+    channelSet = apponly_pb2.ChannelSet()
+    for c in self.channels:
+        if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
+            channelSet.settings.append(c.settings)
+    bytes = channelSet.SerializeToString()
+    s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
+    return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.Node.requestConfig"><code class="name flex">
@@ -2799,6 +2853,29 @@ def channelURL(self):
         i = i + 1</code></pre>
 </details>
 </dd>
+<dt id="meshtastic.Node.showChannels"><code class="name flex">
+<span>def <span class="ident">showChannels</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Show human readable description of our channels</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def showChannels(self):
+    &#34;&#34;&#34;Show human readable description of our channels&#34;&#34;&#34;
+    print(&#34;Channels:&#34;)
+    for c in self.channels:
+        if c.role != channel_pb2.Channel.Role.DISABLED:
+            cStr = stripnl(MessageToJson(c.settings))
+            print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
+    publicURL = self.getURL(includeAll = False)
+    adminURL = self.getURL(includeAll = True)
+    print(f&#34;\nPrimary channel URL: {publicURL}&#34;)
+    if adminURL != publicURL:
+        print(f&#34;Complete URL (includes all channels): {adminURL}&#34;)</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.Node.showInfo"><code class="name flex">
 <span>def <span class="ident">showInfo</span></span>(<span>self)</span>
 </code></dt>
@@ -2810,13 +2887,8 @@ def channelURL(self):
 </summary>
 <pre><code class="python">def showInfo(self):
     &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
-    print(self.radioConfig)
-    print(&#34;Channels:&#34;)
-    for c in self.channels:
-        if c.role != channel_pb2.Channel.Role.DISABLED:
-            cStr = MessageToJson(c.settings).replace(&#34;\n&#34;, &#34;&#34;)
-            print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} {cStr}&#34;)
-    print(f&#34;\nChannel URL {self.channelURL}&#34;)</code></pre>
+    print(f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
+    self.showChannels()</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.Node.waitForConfig"><code class="name flex">
@@ -3332,6 +3404,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="meshtastic.pskToString" href="#meshtastic.pskToString">pskToString</a></code></li>
 <li><code><a title="meshtastic.waitForSet" href="#meshtastic.waitForSet">waitForSet</a></code></li>
 </ul>
 </li>
@@ -3369,14 +3442,15 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <li>
 <h4><code><a title="meshtastic.Node" href="#meshtastic.Node">Node</a></code></h4>
 <ul class="two-column">
-<li><code><a title="meshtastic.Node.channelURL" href="#meshtastic.Node.channelURL">channelURL</a></code></li>
 <li><code><a title="meshtastic.Node.deleteChannel" href="#meshtastic.Node.deleteChannel">deleteChannel</a></code></li>
 <li><code><a title="meshtastic.Node.exitSimulator" href="#meshtastic.Node.exitSimulator">exitSimulator</a></code></li>
 <li><code><a title="meshtastic.Node.getChannelByName" href="#meshtastic.Node.getChannelByName">getChannelByName</a></code></li>
 <li><code><a title="meshtastic.Node.getDisabledChannel" href="#meshtastic.Node.getDisabledChannel">getDisabledChannel</a></code></li>
+<li><code><a title="meshtastic.Node.getURL" href="#meshtastic.Node.getURL">getURL</a></code></li>
 <li><code><a title="meshtastic.Node.requestConfig" href="#meshtastic.Node.requestConfig">requestConfig</a></code></li>
 <li><code><a title="meshtastic.Node.setOwner" href="#meshtastic.Node.setOwner">setOwner</a></code></li>
 <li><code><a title="meshtastic.Node.setURL" href="#meshtastic.Node.setURL">setURL</a></code></li>
+<li><code><a title="meshtastic.Node.showChannels" href="#meshtastic.Node.showChannels">showChannels</a></code></li>
 <li><code><a title="meshtastic.Node.showInfo" href="#meshtastic.Node.showInfo">showInfo</a></code></li>
 <li><code><a title="meshtastic.Node.waitForConfig" href="#meshtastic.Node.waitForConfig">waitForConfig</a></code></li>
 <li><code><a title="meshtastic.Node.writeChannel" href="#meshtastic.Node.writeChannel">writeChannel</a></code></li>

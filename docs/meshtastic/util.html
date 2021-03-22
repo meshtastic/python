@@ -37,8 +37,9 @@ blacklistVids = dict.fromkeys([0x1366])
 
 
 def stripnl(s):
-    &#34;&#34;&#34;remove newlines from a string&#34;&#34;&#34;
-    return str(s).replace(&#34;\n&#34;, &#34; &#34;)
+    &#34;&#34;&#34;remove newlines from a string (and remove extra whitespace)&#34;&#34;&#34;
+    s = str(s).replace(&#34;\n&#34;, &#34; &#34;)
+    return &#39; &#39;.join(s.split())
 
 
 def fixme(message):
@@ -160,14 +161,15 @@ class DeferredExecution():
 <span>def <span class="ident">stripnl</span></span>(<span>s)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>remove newlines from a string</p></div>
+<div class="desc"><p>remove newlines from a string (and remove extra whitespace)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def stripnl(s):
-    &#34;&#34;&#34;remove newlines from a string&#34;&#34;&#34;
-    return str(s).replace(&#34;\n&#34;, &#34; &#34;)</code></pre>
+    &#34;&#34;&#34;remove newlines from a string (and remove extra whitespace)&#34;&#34;&#34;
+    s = str(s).replace(&#34;\n&#34;, &#34; &#34;)
+    return &#39; &#39;.join(s.split())</code></pre>
 </details>
 </dd>
 </dl>
