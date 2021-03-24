@@ -289,7 +289,7 @@ class Node:
         p.set_channel.CopyFrom(self.channels[channelIndex])
 
         self._sendAdmin(p, adminIndex=adminIndex)
-        logging.debug(&#34;Wrote channel {channelIndex}&#34;)
+        logging.debug(f&#34;Wrote channel {channelIndex}&#34;)
 
     def deleteChannel(self, channelIndex):
         &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
@@ -2425,7 +2425,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         p.set_channel.CopyFrom(self.channels[channelIndex])
 
         self._sendAdmin(p, adminIndex=adminIndex)
-        logging.debug(&#34;Wrote channel {channelIndex}&#34;)
+        logging.debug(f&#34;Wrote channel {channelIndex}&#34;)
 
     def deleteChannel(self, channelIndex):
         &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
@@ -2921,7 +2921,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
     p.set_channel.CopyFrom(self.channels[channelIndex])
 
     self._sendAdmin(p, adminIndex=adminIndex)
-    logging.debug(&#34;Wrote channel {channelIndex}&#34;)</code></pre>
+    logging.debug(f&#34;Wrote channel {channelIndex}&#34;)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.Node.writeConfig"><code class="name flex">
