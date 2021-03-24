@@ -75,7 +75,7 @@ def fromPSK(valstr):
     elif valstr == "default":
         return bytes([1])  # Use default channel psk
     elif valstr.startswith("simple"):
-        return bytes([int(valstr[6:])])  # Use one of the single byte encodings
+        return bytes([int(valstr[6:]) + 1])  # Use one of the single byte encodings
     else:
         return fromStr(valstr)
 
