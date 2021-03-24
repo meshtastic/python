@@ -202,7 +202,7 @@ class Node:
         p.set_channel.CopyFrom(self.channels[channelIndex])
 
         self._sendAdmin(p, adminIndex=adminIndex)
-        logging.debug("Wrote channel {channelIndex}")
+        logging.debug(f"Wrote channel {channelIndex}")
 
     def deleteChannel(self, channelIndex):
         """Delete the specifed channelIndex and shift other channels up"""
