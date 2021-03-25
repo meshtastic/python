@@ -186,6 +186,7 @@ def setPref(attributes, name, valStr):
             val = e.number
         else:
             print(f"{name} doesn't have an enum called {val}, so you can not set it.")
+            print(f"Choices are:")
             for f in enumType.values:
                 print(f"  {f.name}")
             return
