@@ -449,6 +449,10 @@ class MeshInterface:
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
 
+    def close(self):
+        """Shutdown this interface"""
+        self._sendDisconnect()
+
     def __enter__(self):
         return self
 
@@ -656,7 +660,7 @@ class MeshInterface:
     def _waitConnected(self):
         """Block until the initial node db download is complete, or timeout
         and raise an exception"""
-        if not self.isConnected.wait(5.0):  # timeout after 5 seconds
+        if not self.isConnected.wait(10.0):  # timeout after 10 seconds
             raise Exception("Timed out waiting for connection completion")
 
         # If we failed while connecting, raise the connection to the client
@@ -698,6 +702,12 @@ class MeshInterface:
         self.configId = random.randint(0, 0xffffffff)
         startConfig.want_config_id = self.configId  
         self._sendToRadio(startConfig)
+
+    def _sendDisconnect(self):
+        """Tell device we are done using it"""
+        m = mesh_pb2.ToRadio()
+        m.disconnect = True
+        self._sendToRadio(m)
 
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""
@@ -943,6 +953,7 @@ class BLEInterface(MeshInterface):
         self.device.char_write(TORADIO_UUID, b)
 
     def close(self):
+        MeshInterface.close(self)        
         self.adapter.stop()
 
     def _readFromRadio(self):
@@ -1007,11 +1018,13 @@ class StreamInterface(MeshInterface):
         logging.debug("Closing our port")
         if not self.stream is None:
             self.stream.close()
+            self.stream = None
 
     def _writeBytes(self, b):
         """Write an array of bytes to our stream and flush"""
-        self.stream.write(b)
-        self.stream.flush()
+        if self.stream: # ignore writes when stream is closed
+            self.stream.write(b)
+            self.stream.flush()
 
     def _readBytes(self, len):
         """Read an array of bytes from our stream"""
@@ -1029,6 +1042,7 @@ class StreamInterface(MeshInterface):
     def close(self):
         """Close a connection to the device"""
         logging.debug("Closing stream")
+        MeshInterface.close(self)        
         # pyserial cancel_read doesn't seem to work, therefore we ask the reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
@@ -1167,13 +1181,13 @@ class TCPInterface(StreamInterface):
     def close(self):
         """Close a connection to the device"""
         logging.debug("Closing TCP stream")
+        StreamInterface.close(self)        
         # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing
         # the socket here
         self._wantExit = True
         if not self.socket is None:
             self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
-        StreamInterface.close(self)
 
     def _writeBytes(self, b):
         """Write an array of bytes to our stream and flush"""
