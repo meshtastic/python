@@ -168,25 +168,40 @@ def printNodes(nodes, myId):
 
 def setPref(attributes, name, valStr):
     """Set a channel or preferences value"""
-    val = fromStr(valStr)
 
     if not hasattr(attributes, name):
         print(f"{attributes.__class__.__name__} doesn't have an attribute called {name}, so you can not set it.")
         print(f"Choices are:")
         for f in attributes.DESCRIPTOR.fields:
             print(f"  {f.name}")
-    else:
-        try:
-            try:
-                setattr(attributes, name, val)
-            except TypeError as ex:
-                # The setter didn't like our arg type guess try again as a string
-                setattr(attributes, name, valStr)
+        return
 
-            # succeeded!
-            print(f"Set {name} to {valStr}")
-        except Exception as ex:
-            print(f"Can't set {name} due to {ex}")
+    val = fromStr(valStr)
+    objDesc = attributes.DESCRIPTOR
+    enumType = objDesc.fields_by_name[name].enum_type
+    if enumType and type(val) == str:
+        # We've failed so far to convert this string into an enum, try to find it by reflection
+        e = enumType.values_by_name.get(val)
+        if e:
+            val = e.number
+        else:
+            print(f"{name} doesn't have an enum called {val}, so you can not set it.")
+            for f in enumType.values:
+                print(f"  {f.name}")
+            return
+
+    # okay - try to read the value
+    try:
+        try:
+            setattr(attributes, name, val)
+        except TypeError as ex:
+            # The setter didn't like our arg type guess try again as a string
+            setattr(attributes, name, valStr)
+
+        # succeeded!
+        print(f"Set {name} to {valStr}")
+    except Exception as ex:
+        print(f"Can't set {name} due to {ex}")
 
 targetNode = None
 
