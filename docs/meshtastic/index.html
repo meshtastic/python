@@ -536,6 +536,10 @@ class MeshInterface:
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
 
+    def close(self):
+        &#34;&#34;&#34;Shutdown this interface&#34;&#34;&#34;
+        self._sendDisconnect()
+
     def __enter__(self):
         return self
 
@@ -743,7 +747,7 @@ class MeshInterface:
     def _waitConnected(self):
         &#34;&#34;&#34;Block until the initial node db download is complete, or timeout
         and raise an exception&#34;&#34;&#34;
-        if not self.isConnected.wait(5.0):  # timeout after 5 seconds
+        if not self.isConnected.wait(10.0):  # timeout after 10 seconds
             raise Exception(&#34;Timed out waiting for connection completion&#34;)
 
         # If we failed while connecting, raise the connection to the client
@@ -785,6 +789,12 @@ class MeshInterface:
         self.configId = random.randint(0, 0xffffffff)
         startConfig.want_config_id = self.configId  
         self._sendToRadio(startConfig)
+
+    def _sendDisconnect(self):
+        &#34;&#34;&#34;Tell device we are done using it&#34;&#34;&#34;
+        m = mesh_pb2.ToRadio()
+        m.disconnect = True
+        self._sendToRadio(m)
 
     def _sendToRadio(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
@@ -1030,6 +1040,7 @@ class BLEInterface(MeshInterface):
         self.device.char_write(TORADIO_UUID, b)
 
     def close(self):
+        MeshInterface.close(self)        
         self.adapter.stop()
 
     def _readFromRadio(self):
@@ -1094,11 +1105,13 @@ class StreamInterface(MeshInterface):
         logging.debug(&#34;Closing our port&#34;)
         if not self.stream is None:
             self.stream.close()
+            self.stream = None
 
     def _writeBytes(self, b):
         &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
-        self.stream.write(b)
-        self.stream.flush()
+        if self.stream: # ignore writes when stream is closed
+            self.stream.write(b)
+            self.stream.flush()
 
     def _readBytes(self, len):
         &#34;&#34;&#34;Read an array of bytes from our stream&#34;&#34;&#34;
@@ -1116,6 +1129,7 @@ class StreamInterface(MeshInterface):
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing stream&#34;)
+        MeshInterface.close(self)        
         # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
@@ -1254,13 +1268,13 @@ class TCPInterface(StreamInterface):
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing TCP stream&#34;)
+        StreamInterface.close(self)        
         # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing
         # the socket here
         self._wantExit = True
         if not self.socket is None:
             self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
-        StreamInterface.close(self)
 
     def _writeBytes(self, b):
         &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
@@ -1488,6 +1502,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self.device.char_write(TORADIO_UUID, b)
 
     def close(self):
+        MeshInterface.close(self)        
         self.adapter.stop()
 
     def _readFromRadio(self):
@@ -1502,26 +1517,11 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 <ul class="hlist">
 <li><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="meshtastic.BLEInterface.close"><code class="name flex">
-<span>def <span class="ident">close</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def close(self):
-    self.adapter.stop()</code></pre>
-</details>
-</dd>
-</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></b></code>:
 <ul class="hlist">
+<li><code><a title="meshtastic.MeshInterface.close" href="#meshtastic.MeshInterface.close">close</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getNode" href="#meshtastic.MeshInterface.getNode">getNode</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendData" href="#meshtastic.MeshInterface.sendData">sendData</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
@@ -1615,6 +1615,10 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
+
+    def close(self):
+        &#34;&#34;&#34;Shutdown this interface&#34;&#34;&#34;
+        self._sendDisconnect()
 
     def __enter__(self):
         return self
@@ -1823,7 +1827,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
     def _waitConnected(self):
         &#34;&#34;&#34;Block until the initial node db download is complete, or timeout
         and raise an exception&#34;&#34;&#34;
-        if not self.isConnected.wait(5.0):  # timeout after 5 seconds
+        if not self.isConnected.wait(10.0):  # timeout after 10 seconds
             raise Exception(&#34;Timed out waiting for connection completion&#34;)
 
         # If we failed while connecting, raise the connection to the client
@@ -1865,6 +1869,12 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self.configId = random.randint(0, 0xffffffff)
         startConfig.want_config_id = self.configId  
         self._sendToRadio(startConfig)
+
+    def _sendDisconnect(self):
+        &#34;&#34;&#34;Tell device we are done using it&#34;&#34;&#34;
+        m = mesh_pb2.ToRadio()
+        m.disconnect = True
+        self._sendToRadio(m)
 
     def _sendToRadio(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
@@ -2083,6 +2093,20 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="meshtastic.MeshInterface.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Shutdown this interface</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    &#34;&#34;&#34;Shutdown this interface&#34;&#34;&#34;
+    self._sendDisconnect()</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.MeshInterface.getLongName"><code class="name flex">
 <span>def <span class="ident">getLongName</span></span>(<span>self)</span>
 </code></dt>
@@ -3127,11 +3151,13 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         logging.debug(&#34;Closing our port&#34;)
         if not self.stream is None:
             self.stream.close()
+            self.stream = None
 
     def _writeBytes(self, b):
         &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
-        self.stream.write(b)
-        self.stream.flush()
+        if self.stream: # ignore writes when stream is closed
+            self.stream.write(b)
+            self.stream.flush()
 
     def _readBytes(self, len):
         &#34;&#34;&#34;Read an array of bytes from our stream&#34;&#34;&#34;
@@ -3149,6 +3175,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing stream&#34;)
+        MeshInterface.close(self)        
         # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
@@ -3240,6 +3267,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <pre><code class="python">def close(self):
     &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
     logging.debug(&#34;Closing stream&#34;)
+    MeshInterface.close(self)        
     # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
     self._wantExit = True
     if self._rxThread != threading.current_thread():
@@ -3327,13 +3355,13 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing TCP stream&#34;)
+        StreamInterface.close(self)        
         # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing
         # the socket here
         self._wantExit = True
         if not self.socket is None:
             self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
-        StreamInterface.close(self)
 
     def _writeBytes(self, b):
         &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
@@ -3412,9 +3440,6 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <ul>
 <li>
 <h4><code><a title="meshtastic.BLEInterface" href="#meshtastic.BLEInterface">BLEInterface</a></code></h4>
-<ul class="">
-<li><code><a title="meshtastic.BLEInterface.close" href="#meshtastic.BLEInterface.close">close</a></code></li>
-</ul>
 </li>
 <li>
 <h4><code><a title="meshtastic.KnownProtocol" href="#meshtastic.KnownProtocol">KnownProtocol</a></code></h4>
@@ -3427,6 +3452,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <li>
 <h4><code><a title="meshtastic.MeshInterface" href="#meshtastic.MeshInterface">MeshInterface</a></code></h4>
 <ul class="two-column">
+<li><code><a title="meshtastic.MeshInterface.close" href="#meshtastic.MeshInterface.close">close</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getLongName" href="#meshtastic.MeshInterface.getLongName">getLongName</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getMyNodeInfo" href="#meshtastic.MeshInterface.getMyNodeInfo">getMyNodeInfo</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.getMyUser" href="#meshtastic.MeshInterface.getMyUser">getMyUser</a></code></li>
