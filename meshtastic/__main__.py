@@ -169,16 +169,18 @@ def printNodes(nodes, myId):
 def setPref(attributes, name, valStr):
     """Set a channel or preferences value"""
 
-    if not hasattr(attributes, name):
+    objDesc = attributes.DESCRIPTOR
+    field = objDesc.fields_by_name.get(name)
+    if not field:
         print(f"{attributes.__class__.__name__} doesn't have an attribute called {name}, so you can not set it.")
         print(f"Choices are:")
-        for f in attributes.DESCRIPTOR.fields:
+        for f in objDesc.fields:
             print(f"  {f.name}")
         return
 
     val = fromStr(valStr)
-    objDesc = attributes.DESCRIPTOR
-    enumType = objDesc.fields_by_name[name].enum_type
+
+    enumType = field.enum_type
     if enumType and type(val) == str:
         # We've failed so far to convert this string into an enum, try to find it by reflection
         e = enumType.values_by_name.get(val)
