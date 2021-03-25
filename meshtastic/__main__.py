@@ -169,17 +169,24 @@ def printNodes(nodes, myId):
 def setPref(attributes, name, valStr):
     """Set a channel or preferences value"""
     val = fromStr(valStr)
-    try:
-        try:
-            setattr(attributes, name, val)
-        except TypeError as ex:
-            # The setter didn't like our arg type guess try again as a string
-            setattr(attributes, name, valStr)
 
-        # succeeded!
-        print(f"Set {name} to {valStr}")
-    except Exception as ex:
-        print(f"Can't set {name} due to {ex}")
+    if not hasattr(attributes, name):
+        print(f"{attributes.__class__.__name__} doesn't have an attribute called {name}, so you can not set it.")
+        print(f"Choices are:")
+        for f in attributes.DESCRIPTOR.fields:
+            print(f"  {f.name}")
+    else:
+        try:
+            try:
+                setattr(attributes, name, val)
+            except TypeError as ex:
+                # The setter didn't like our arg type guess try again as a string
+                setattr(attributes, name, valStr)
+
+            # succeeded!
+            print(f"Set {name} to {valStr}")
+        except Exception as ex:
+            print(f"Can't set {name} due to {ex}")
 
 targetNode = None
 
