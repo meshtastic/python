@@ -13,7 +13,7 @@ import traceback
 import pkg_resources
 from datetime import datetime
 import timeago
-from easy_table import EasyTable
+from tabulate import tabulate
 
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
@@ -131,14 +131,8 @@ def getTimeAgo(ts, default="N/A"):
 
 # Print Nodes
 
-
 def printNodes(nodes, myId):
     # Create the table and define the structure
-    table = EasyTable("Nodes")
-    table.setCorners("/", "\\", "\\", "/")
-    table.setOuterStructure("|", "-")
-    table.setInnerStructure("|", "-", "+")
-
     tableData = []
     for node in nodes:
         if node['user']['id'] == myId:
@@ -161,10 +155,8 @@ def printNodes(nodes, myId):
     RowsOk = sorted(Rows, key=lambda k: k['LastHeard'].startswith("N/A"))
     for i in range(len(RowsOk)):
         RowsOk[i]['N'] = i+1
-    table.setData(RowsOk)
 
-    table.displayTable()
-
+    print(tabulate(RowsOk, headers='keys', tablefmt='fancy_grid'))
 
 def setPref(attributes, name, valStr):
     """Set a channel or preferences value"""
