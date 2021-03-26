@@ -60,13 +60,13 @@ meshtastic --setlat 25.2 --setlon -16.8 --setalt 120
 Or to configure an ESP32 based board to join a wifi network as a station (wifi support in the device code is coming soon):
 
 ```
-meshtastic --set wifi_ap_mode false --setstr wifi_ssid mywifissid --setstr wifi_password mywifipsw
+meshtastic --set wifi_ap_mode false --set wifi_ssid mywifissid --set wifi_password mywifipsw
 ```
 
 Or to configure an ESP32 to run as a Wifi access point:
 
 ```
-meshtastic --set wifi_ap_mode true --setstr wifi_ssid mywifissid --setstr wifi_password mywifipsw
+meshtastic --set wifi_ap_mode true --set wifi_ssid mywifissid --set wifi_password mywifipsw
 ```
 
 For a full list of preferences which can be set (and their documentation) see [here](https://github.com/meshtastic/Meshtastic-protobufs/blob/master/docs/docs.md#.RadioConfig.UserPreferences).
