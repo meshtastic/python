@@ -151,7 +151,7 @@ def printNodes(nodes, myId):
         alt = formatFloat(node['position'].get("altitude"), "{:.0f}", " m")
         batt = formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "%")
         snr = formatFloat(node.get("snr"), "{:.2f}", " dB")
-        LH = getLH(node['position'].get("time"))
+        LH = getLH(node.get("lastHeard"))
         timeAgo = getTimeAgo(node['position'].get("time"))
         tableData.append({"N": 0, "User": node['user']['longName'],
                           "AKA": node['user']['shortName'], "ID": node['user']['id'],
