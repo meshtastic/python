@@ -3,7 +3,9 @@ from collections import defaultdict
 import serial
 import serial.tools.list_ports
 from queue import Queue
-import threading, sys, logging
+import threading
+import sys
+import logging
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])

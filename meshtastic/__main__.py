@@ -2,7 +2,11 @@
 
 import argparse
 import platform
-import logging, sys, codecs, base64, os
+import logging
+import sys
+import codecs
+import base64
+import os
 from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
 from pubsub import pub
 from . import mesh_pb2, portnums_pb2, channel_pb2
@@ -61,8 +65,10 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):
 trueTerms = {"t", "true", "yes"}
 falseTerms = {"f", "false", "no"}
 
+
 def genPSKS256():
     return os.urandom(32)
+
 
 def fromPSK(valstr):
     """A special version of fromStr that assumes the user is trying to set a PSK.  
@@ -75,9 +81,11 @@ def fromPSK(valstr):
     elif valstr == "default":
         return bytes([1])  # Use default channel psk
     elif valstr.startswith("simple"):
-        return bytes([int(valstr[6:]) + 1])  # Use one of the single byte encodings
+        # Use one of the single byte encodings
+        return bytes([int(valstr[6:]) + 1])
     else:
         return fromStr(valstr)
+
 
 def fromStr(valstr):
     """try to parse as int, float or bool (and fallback to a string as last resort)
@@ -206,7 +214,9 @@ def setPref(attributes, name, valStr):
     except Exception as ex:
         print(f"Can't set {name} due to {ex}")
 
+
 targetNode = None
+
 
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
@@ -228,7 +238,7 @@ def onConnected(interface):
             alt = 0
             lat = 0.0
             lon = 0.0
-            time = 0 # always set time, but based on the local clock
+            time = 0  # always set time, but based on the local clock
             prefs = interface.localNode.radioConfig.preferences
             if args.setalt:
                 alt = int(args.setalt)
@@ -258,12 +268,18 @@ def onConnected(interface):
 
         if args.set_ham:
             closeNow = True
-            print(f"Setting HAM ID to {args.set_ham} and turning off encryption")
+            print(
+                f"Setting HAM ID to {args.set_ham} and turning off encryption")
             getNode().setOwner(args.set_ham)
-            ch = getNode().channels[0] # Must turn off crypt on primary channel
+            # Must turn off crypt on primary channel
+            ch = getNode().channels[0]
             ch.settings.psk = fromPSK("none")
             print(f"Writing modified channels to device")
             getNode().writeChannel(0)
+
+        if args.reboot:
+            closeNow = True
+            getNode().reboot()
 
         if args.sendtext:
             closeNow = True
@@ -324,7 +340,8 @@ def onConnected(interface):
             n = getNode()
             ch = n.getChannelByName(args.ch_add)
             if ch:
-                logging.error(f"This node already has a '{args.ch_add}' channel - no changes.")
+                logging.error(
+                    f"This node already has a '{args.ch_add}' channel - no changes.")
             else:
                 ch = n.getDisabledChannel()
                 if not ch:
@@ -333,7 +350,7 @@ def onConnected(interface):
                 chs.psk = genPSKS256()
                 chs.name = args.ch_add
                 ch.settings.CopyFrom(chs)
-                ch.role = channel_pb2.Channel.Role.SECONDARY 
+                ch.role = channel_pb2.Channel.Role.SECONDARY
                 print(f"Writing modified channels to device")
                 n.writeChannel(ch.index)
 
@@ -348,13 +365,14 @@ def onConnected(interface):
 
             ch = getNode().channels[channelIndex]
 
-            enable = args.ch_enable # should we enable this channel?
+            enable = args.ch_enable  # should we enable this channel?
 
             if args.ch_longslow or args.ch_shortfast:
                 if channelIndex != 0:
-                    raise Exception("standard channel settings can only be applied to the PRIMARY channel")
+                    raise Exception(
+                        "standard channel settings can only be applied to the PRIMARY channel")
 
-                enable = True # force enable
+                enable = True  # force enable
 
                 def setSimpleChannel(modem_config):
                     """Set one of the simple modem_config only based channels"""
@@ -378,13 +396,14 @@ def onConnected(interface):
             # Handle the channel settings
             for pref in (args.ch_set or []):
                 if pref[0] == "psk":
-                    ch.settings.psk =fromPSK(pref[1])
+                    ch.settings.psk = fromPSK(pref[1])
                 else:
                     setPref(ch.settings, pref[0], pref[1])
-                enable = True # If we set any pref, assume the user wants to enable the channel
+                enable = True  # If we set any pref, assume the user wants to enable the channel
 
             if enable:
-                ch.role = channel_pb2.Channel.Role.PRIMARY if (channelIndex == 0) else channel_pb2.Channel.Role.SECONDARY 
+                ch.role = channel_pb2.Channel.Role.PRIMARY if (
+                    channelIndex == 0) else channel_pb2.Channel.Role.SECONDARY
             else:
                 ch.role = channel_pb2.Channel.Role.DISABLED
 
@@ -408,7 +427,7 @@ def onConnected(interface):
 
         if args.qr:
             closeNow = True
-            url = interface.localNode.getURL(includeAll = False)
+            url = interface.localNode.getURL(includeAll=False)
             print(f"Primary channel URL {url}")
             qr = pyqrcode.create(url)
             print(qr.terminal())
@@ -462,12 +481,9 @@ def common():
             args.destOrLocal = args.dest  # FIXME, temp hack for debugging remove
 
         if not args.seriallog:
-            if args.info or args.nodes or args.set or args.seturl or args.set_owner or args.setlat or args.setlon or \
-                    args.ch_longslow or args.ch_shortfast or args.ch_set or args.sendtext or \
-                    args.qr or args.ch_add or args.ch_del or args.set_ham:
-                args.seriallog = "none"  # assume no debug output in this case
-            else:
-                args.seriallog = "stdout"  # default to stdout
+            args.seriallog = "none"  # assume no debug output in this case
+        else:
+            args.seriallog = "stdout"  # default to stdout
 
         if args.deprecated != None:
             logging.error(
@@ -572,6 +588,9 @@ def initParser():
 
     parser.add_argument(
         "--sendping", help="Send a ping message (which requests a reply)", action="store_true")
+
+    parser.add_argument(
+        "--reboot", help="Tell the destination node to reboot", action="store_true")
 
     # parser.add_argument(
     #    "--repeat", help="Normally the send commands send only one message, use this option to request repeated sends")
