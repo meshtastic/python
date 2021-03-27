@@ -51,7 +51,7 @@ sendingInterface = None
 def onReceive(packet, interface):
     &#34;&#34;&#34;Callback invoked when a packet arrives&#34;&#34;&#34;
     if sendingInterface == interface:
-        pass 
+        pass
         # print(&#34;Ignoring sending interface&#34;)
     else:
         # print(f&#34;From {interface.stream.port}: {packet}&#34;)
@@ -93,7 +93,8 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False, want
     else:
         toNode = toInterface.myInfo.my_node_num
 
-    logging.debug(f&#34;Sending test wantAck={wantAck} packet from {fromNode} to {toNode}&#34;)
+    logging.debug(
+        f&#34;Sending test wantAck={wantAck} packet from {fromNode} to {toNode}&#34;)
     global sendingInterface
     sendingInterface = fromInterface
     if not asBinary:
@@ -128,7 +129,7 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
             logging.info(
                 f&#34;Test succeeded {numSuccess} successes {numFail} failures so far&#34;)
 
-        #if numFail &gt;= 3:
+        # if numFail &gt;= 3:
         #    for i in interfaces:
         #        i.close()
         #    return
@@ -140,10 +141,12 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
 
     return numFail
 
+
 def testThread(numTests=50):
     logging.info(&#34;Found devices, starting tests...&#34;)
     runTests(numTests, wantAck=True)
-    runTests(numTests, wantAck=False, maxFailures=5) # Allow a few dropped packets
+    # Allow a few dropped packets
+    runTests(numTests, wantAck=False, maxFailures=5)
 
 
 def onConnection(topic=pub.AUTO_TOPIC):
@@ -179,6 +182,7 @@ def testAll():
 
     for i in interfaces:
         i.close()
+
 
 def testSimulator():
     &#34;&#34;&#34;
@@ -254,7 +258,7 @@ def testSimulator():
 <pre><code class="python">def onReceive(packet, interface):
     &#34;&#34;&#34;Callback invoked when a packet arrives&#34;&#34;&#34;
     if sendingInterface == interface:
-        pass 
+        pass
         # print(&#34;Ignoring sending interface&#34;)
     else:
         # print(f&#34;From {interface.stream.port}: {packet}&#34;)
@@ -309,7 +313,7 @@ def testSimulator():
             logging.info(
                 f&#34;Test succeeded {numSuccess} successes {numFail} failures so far&#34;)
 
-        #if numFail &gt;= 3:
+        # if numFail &gt;= 3:
         #    for i in interfaces:
         #        i.close()
         #    return
@@ -409,7 +413,8 @@ toInterface {[type]} &ndash; [description]</p>
     else:
         toNode = toInterface.myInfo.my_node_num
 
-    logging.debug(f&#34;Sending test wantAck={wantAck} packet from {fromNode} to {toNode}&#34;)
+    logging.debug(
+        f&#34;Sending test wantAck={wantAck} packet from {fromNode} to {toNode}&#34;)
     global sendingInterface
     sendingInterface = fromInterface
     if not asBinary:
@@ -469,7 +474,8 @@ python3 -c 'from meshtastic.test import testSimulator; testSimulator()'</p></div
 <pre><code class="python">def testThread(numTests=50):
     logging.info(&#34;Found devices, starting tests...&#34;)
     runTests(numTests, wantAck=True)
-    runTests(numTests, wantAck=False, maxFailures=5) # Allow a few dropped packets</code></pre>
+    # Allow a few dropped packets
+    runTests(numTests, wantAck=False, maxFailures=5)</code></pre>
 </details>
 </dd>
 </dl>

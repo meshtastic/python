@@ -184,6 +184,7 @@ OUR_APP_VERSION = 20200
 
 publishingThread = DeferredExecution(&#34;publishing&#34;)
 
+
 class ResponseHandler(NamedTuple):
     &#34;&#34;&#34;A pending response callback, waiting for a response to one of our messages&#34;&#34;&#34;
     # requestId: int - used only as a key
@@ -214,7 +215,7 @@ def pskToString(psk: bytes):
     &#34;&#34;&#34;Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string&#34;&#34;&#34;
     if len(psk) == 0:
         return &#34;unencrypted&#34;
-    elif len(psk) == 1: 
+    elif len(psk) == 1:
         b = psk[0]
         if b == 0:
             return &#34;unencrypted&#34;
@@ -224,6 +225,7 @@ def pskToString(psk: bytes):
             return f&#34;simple{b - 1}&#34;
     else:
         return &#34;secret&#34;
+
 
 class Node:
     &#34;&#34;&#34;A model of a (local or remote) node in the mesh
@@ -244,18 +246,19 @@ class Node:
         for c in self.channels:
             if c.role != channel_pb2.Channel.Role.DISABLED:
                 cStr = stripnl(MessageToJson(c.settings))
-                print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
-        publicURL = self.getURL(includeAll = False)
-        adminURL = self.getURL(includeAll = True)
+                print(
+                    f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
+        publicURL = self.getURL(includeAll=False)
+        adminURL = self.getURL(includeAll=True)
         print(f&#34;\nPrimary channel URL: {publicURL}&#34;)
         if adminURL != publicURL:
             print(f&#34;Complete URL (includes all channels): {adminURL}&#34;)
 
     def showInfo(self):
         &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
-        print(f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
+        print(
+            f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
         self.showChannels()
-
 
     def requestConfig(self):
         &#34;&#34;&#34;
@@ -282,7 +285,7 @@ class Node:
         self._sendAdmin(p)
         logging.debug(&#34;Wrote config&#34;)
 
-    def writeChannel(self, channelIndex, adminIndex = 0):
+    def writeChannel(self, channelIndex, adminIndex=0):
         &#34;&#34;&#34;Write the current (edited) channel to the device&#34;&#34;&#34;
 
         p = admin_pb2.AdminMessage()
@@ -302,7 +305,7 @@ class Node:
         adminIndex = self.iface.localNode._getAdminChannelIndex()
 
         self.channels.pop(channelIndex)
-        self._fixupChannels() # expand back to 8 channels
+        self._fixupChannels()  # expand back to 8 channels
 
         index = channelIndex
         while index &lt; self.iface.myInfo.max_channels:
@@ -311,7 +314,8 @@ class Node:
 
             # if we are updating the local node, we might end up *moving* the admin channel index as we are writing
             if (self.iface.localNode == self) and index &gt;= adminIndex:
-                adminIndex = 0 # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again
+                # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again
+                adminIndex = 0
 
     def getChannelByName(self, name):
         &#34;&#34;&#34;Try to find the named channel or return None&#34;&#34;&#34;
@@ -419,7 +423,7 @@ class Node:
             &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
             self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
             logging.debug(&#34;Received radio config, now fetching channels...&#34;)
-            self._requestChannel(0) # now start fetching channels
+            self._requestChannel(0)  # now start fetching channels
 
         return self._sendAdmin(p,
                                wantResponse=True,
@@ -432,14 +436,24 @@ class Node:
         p = admin_pb2.AdminMessage()
         p.exit_simulator = True
 
-        return self._sendAdmin(p)                               
+        return self._sendAdmin(p)
+
+    def reboot(self, secs: int = 10):
+        &#34;&#34;&#34;
+        Tell the node to reboot
+        &#34;&#34;&#34;
+        p = admin_pb2.AdminMessage()
+        p.reboot_seconds = secs
+        logging.info(f&#34;Telling node to reboot in {secs} seconds&#34;)
+
+        return self._sendAdmin(p)
 
     def _fixupChannels(self):
         &#34;&#34;&#34;Fixup indexes and add disabled channels as needed&#34;&#34;&#34;
 
         # Add extra disabled channels as needed
         for index, ch in enumerate(self.channels):
-            ch.index = index # fixup indexes
+            ch.index = index  # fixup indexes
 
         self._fillChannels()
 
@@ -493,11 +507,11 @@ class Node:
                                onResponse=onResponse)
 
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
-                   onResponse=None, 
+                   onResponse=None,
                    adminIndex=0):
         &#34;&#34;&#34;Send an admin message to the specified node (or the local node if destNodeNum is zero)&#34;&#34;&#34;
 
-        if adminIndex == 0: # unless a special channel index was used, we want to use the admin index
+        if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
             adminIndex = self.iface.localNode._getAdminChannelIndex()
 
         return self.iface.sendData(p, self.nodeNum,
@@ -563,10 +577,11 @@ class MeshInterface:
         if nodeId == LOCAL_ADDR:
             return self.localNode
         else:
-            logging.info(&#34;Requesting configuration from remote node (this could take a while)&#34;)
+            logging.info(
+                &#34;Requesting configuration from remote node (this could take a while)&#34;)
             n = Node(self, nodeId)
             n.requestConfig()
-            if not n.waitForConfig(maxsecs = 60):
+            if not n.waitForConfig(maxsecs=60):
                 raise Exception(&#34;Timed out waiting for node config&#34;)
             return n
 
@@ -693,7 +708,8 @@ class MeshInterface:
             nodeNum = BROADCAST_NUM
         elif destinationId == LOCAL_ADDR:
             nodeNum = self.myInfo.my_node_num
-        elif destinationId.startswith(&#34;!&#34;): # A simple hex style nodeid - we can parse this without needing the DB
+        # A simple hex style nodeid - we can parse this without needing the DB
+        elif destinationId.startswith(&#34;!&#34;):
             nodeNum = int(destinationId[1:], 16)
         else:
             node = self.nodes.get(destinationId)
@@ -717,7 +733,8 @@ class MeshInterface:
 
     def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-        success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)) and self.localNode.waitForConfig()
+        success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
+                             ) and self.localNode.waitForConfig()
         if not success:
             raise Exception(&#34;Timed out waiting for interface config&#34;)
 
@@ -787,7 +804,7 @@ class MeshInterface:
 
         startConfig = mesh_pb2.ToRadio()
         self.configId = random.randint(0, 0xffffffff)
-        startConfig.want_config_id = self.configId  
+        startConfig.want_config_id = self.configId
         self._sendToRadio(startConfig)
 
     def _sendDisconnect(self):
@@ -856,7 +873,7 @@ class MeshInterface:
             if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
             publishingThread.queueWork(lambda: pub.sendMessage(&#34;meshtastic.node.updated&#34;,
-                            node=node, interface=self))
+                                                               node=node, interface=self))
         elif fromRadio.config_complete_id == self.configId:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             logging.debug(f&#34;Config complete ID {self.configId}&#34;)
@@ -943,7 +960,7 @@ class MeshInterface:
             asDict[&#34;fromId&#34;] = self._nodeNumToId(asDict[&#34;from&#34;])
         except Exception as ex:
             logging.warn(f&#34;Not populating fromId {ex}&#34;)
-        try:            
+        try:
             asDict[&#34;toId&#34;] = self._nodeNumToId(asDict[&#34;to&#34;])
         except Exception as ex:
             logging.warn(f&#34;Not populating toId {ex}&#34;)
@@ -1040,7 +1057,7 @@ class BLEInterface(MeshInterface):
         self.device.char_write(TORADIO_UUID, b)
 
     def close(self):
-        MeshInterface.close(self)        
+        MeshInterface.close(self)
         self.adapter.stop()
 
     def _readFromRadio(self):
@@ -1050,6 +1067,7 @@ class BLEInterface(MeshInterface):
             wasEmpty = len(b) == 0
             if not wasEmpty:
                 self._handleFromRadio(b)
+
 
 class StreamInterface(MeshInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a stream link (serial, TCP, etc)&#34;&#34;&#34;
@@ -1109,7 +1127,7 @@ class StreamInterface(MeshInterface):
 
     def _writeBytes(self, b):
         &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
-        if self.stream: # ignore writes when stream is closed
+        if self.stream:  # ignore writes when stream is closed
             self.stream.write(b)
             self.stream.flush()
 
@@ -1129,7 +1147,7 @@ class StreamInterface(MeshInterface):
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing stream&#34;)
-        MeshInterface.close(self)        
+        MeshInterface.close(self)
         # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
@@ -1268,7 +1286,7 @@ class TCPInterface(StreamInterface):
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing TCP stream&#34;)
-        StreamInterface.close(self)        
+        StreamInterface.close(self)
         # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing
         # the socket here
         self._wantExit = True
@@ -1427,7 +1445,7 @@ protocols = {
     &#34;&#34;&#34;Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string&#34;&#34;&#34;
     if len(psk) == 0:
         return &#34;unencrypted&#34;
-    elif len(psk) == 1: 
+    elif len(psk) == 1:
         b = psk[0]
         if b == 0:
             return &#34;unencrypted&#34;
@@ -1502,7 +1520,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self.device.char_write(TORADIO_UUID, b)
 
     def close(self):
-        MeshInterface.close(self)        
+        MeshInterface.close(self)
         self.adapter.stop()
 
     def _readFromRadio(self):
@@ -1643,10 +1661,11 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         if nodeId == LOCAL_ADDR:
             return self.localNode
         else:
-            logging.info(&#34;Requesting configuration from remote node (this could take a while)&#34;)
+            logging.info(
+                &#34;Requesting configuration from remote node (this could take a while)&#34;)
             n = Node(self, nodeId)
             n.requestConfig()
-            if not n.waitForConfig(maxsecs = 60):
+            if not n.waitForConfig(maxsecs=60):
                 raise Exception(&#34;Timed out waiting for node config&#34;)
             return n
 
@@ -1773,7 +1792,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             nodeNum = BROADCAST_NUM
         elif destinationId == LOCAL_ADDR:
             nodeNum = self.myInfo.my_node_num
-        elif destinationId.startswith(&#34;!&#34;): # A simple hex style nodeid - we can parse this without needing the DB
+        # A simple hex style nodeid - we can parse this without needing the DB
+        elif destinationId.startswith(&#34;!&#34;):
             nodeNum = int(destinationId[1:], 16)
         else:
             node = self.nodes.get(destinationId)
@@ -1797,7 +1817,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
     def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-        success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)) and self.localNode.waitForConfig()
+        success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
+                             ) and self.localNode.waitForConfig()
         if not success:
             raise Exception(&#34;Timed out waiting for interface config&#34;)
 
@@ -1867,7 +1888,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
         startConfig = mesh_pb2.ToRadio()
         self.configId = random.randint(0, 0xffffffff)
-        startConfig.want_config_id = self.configId  
+        startConfig.want_config_id = self.configId
         self._sendToRadio(startConfig)
 
     def _sendDisconnect(self):
@@ -1936,7 +1957,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
                 self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
             publishingThread.queueWork(lambda: pub.sendMessage(&#34;meshtastic.node.updated&#34;,
-                            node=node, interface=self))
+                                                               node=node, interface=self))
         elif fromRadio.config_complete_id == self.configId:
             # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
             logging.debug(f&#34;Config complete ID {self.configId}&#34;)
@@ -2023,7 +2044,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             asDict[&#34;fromId&#34;] = self._nodeNumToId(asDict[&#34;from&#34;])
         except Exception as ex:
             logging.warn(f&#34;Not populating fromId {ex}&#34;)
-        try:            
+        try:
             asDict[&#34;toId&#34;] = self._nodeNumToId(asDict[&#34;to&#34;])
         except Exception as ex:
             logging.warn(f&#34;Not populating toId {ex}&#34;)
@@ -2168,10 +2189,11 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
     if nodeId == LOCAL_ADDR:
         return self.localNode
     else:
-        logging.info(&#34;Requesting configuration from remote node (this could take a while)&#34;)
+        logging.info(
+            &#34;Requesting configuration from remote node (this could take a while)&#34;)
         n = Node(self, nodeId)
         n.requestConfig()
-        if not n.waitForConfig(maxsecs = 60):
+        if not n.waitForConfig(maxsecs=60):
             raise Exception(&#34;Timed out waiting for node config&#34;)
         return n</code></pre>
 </details>
@@ -2366,7 +2388,8 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 </summary>
 <pre><code class="python">def waitForConfig(self):
     &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-    success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)) and self.localNode.waitForConfig()
+    success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
+                         ) and self.localNode.waitForConfig()
     if not success:
         raise Exception(&#34;Timed out waiting for interface config&#34;)</code></pre>
 </details>
@@ -2404,18 +2427,19 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         for c in self.channels:
             if c.role != channel_pb2.Channel.Role.DISABLED:
                 cStr = stripnl(MessageToJson(c.settings))
-                print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
-        publicURL = self.getURL(includeAll = False)
-        adminURL = self.getURL(includeAll = True)
+                print(
+                    f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
+        publicURL = self.getURL(includeAll=False)
+        adminURL = self.getURL(includeAll=True)
         print(f&#34;\nPrimary channel URL: {publicURL}&#34;)
         if adminURL != publicURL:
             print(f&#34;Complete URL (includes all channels): {adminURL}&#34;)
 
     def showInfo(self):
         &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
-        print(f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
+        print(
+            f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
         self.showChannels()
-
 
     def requestConfig(self):
         &#34;&#34;&#34;
@@ -2442,7 +2466,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         self._sendAdmin(p)
         logging.debug(&#34;Wrote config&#34;)
 
-    def writeChannel(self, channelIndex, adminIndex = 0):
+    def writeChannel(self, channelIndex, adminIndex=0):
         &#34;&#34;&#34;Write the current (edited) channel to the device&#34;&#34;&#34;
 
         p = admin_pb2.AdminMessage()
@@ -2462,7 +2486,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         adminIndex = self.iface.localNode._getAdminChannelIndex()
 
         self.channels.pop(channelIndex)
-        self._fixupChannels() # expand back to 8 channels
+        self._fixupChannels()  # expand back to 8 channels
 
         index = channelIndex
         while index &lt; self.iface.myInfo.max_channels:
@@ -2471,7 +2495,8 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 
             # if we are updating the local node, we might end up *moving* the admin channel index as we are writing
             if (self.iface.localNode == self) and index &gt;= adminIndex:
-                adminIndex = 0 # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again
+                # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again
+                adminIndex = 0
 
     def getChannelByName(self, name):
         &#34;&#34;&#34;Try to find the named channel or return None&#34;&#34;&#34;
@@ -2579,7 +2604,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
             &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
             self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
             logging.debug(&#34;Received radio config, now fetching channels...&#34;)
-            self._requestChannel(0) # now start fetching channels
+            self._requestChannel(0)  # now start fetching channels
 
         return self._sendAdmin(p,
                                wantResponse=True,
@@ -2592,14 +2617,24 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         p = admin_pb2.AdminMessage()
         p.exit_simulator = True
 
-        return self._sendAdmin(p)                               
+        return self._sendAdmin(p)
+
+    def reboot(self, secs: int = 10):
+        &#34;&#34;&#34;
+        Tell the node to reboot
+        &#34;&#34;&#34;
+        p = admin_pb2.AdminMessage()
+        p.reboot_seconds = secs
+        logging.info(f&#34;Telling node to reboot in {secs} seconds&#34;)
+
+        return self._sendAdmin(p)
 
     def _fixupChannels(self):
         &#34;&#34;&#34;Fixup indexes and add disabled channels as needed&#34;&#34;&#34;
 
         # Add extra disabled channels as needed
         for index, ch in enumerate(self.channels):
-            ch.index = index # fixup indexes
+            ch.index = index  # fixup indexes
 
         self._fillChannels()
 
@@ -2653,11 +2688,11 @@ wantResponse &ndash; True if you want the service on the other side to send an a
                                onResponse=onResponse)
 
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
-                   onResponse=None, 
+                   onResponse=None,
                    adminIndex=0):
         &#34;&#34;&#34;Send an admin message to the specified node (or the local node if destNodeNum is zero)&#34;&#34;&#34;
 
-        if adminIndex == 0: # unless a special channel index was used, we want to use the admin index
+        if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
             adminIndex = self.iface.localNode._getAdminChannelIndex()
 
         return self.iface.sendData(p, self.nodeNum,
@@ -2689,7 +2724,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
     adminIndex = self.iface.localNode._getAdminChannelIndex()
 
     self.channels.pop(channelIndex)
-    self._fixupChannels() # expand back to 8 channels
+    self._fixupChannels()  # expand back to 8 channels
 
     index = channelIndex
     while index &lt; self.iface.myInfo.max_channels:
@@ -2698,7 +2733,8 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 
         # if we are updating the local node, we might end up *moving* the admin channel index as we are writing
         if (self.iface.localNode == self) and index &gt;= adminIndex:
-            adminIndex = 0 # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again</code></pre>
+            # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again
+            adminIndex = 0</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.Node.exitSimulator"><code class="name flex">
@@ -2717,7 +2753,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
     p = admin_pb2.AdminMessage()
     p.exit_simulator = True
 
-    return self._sendAdmin(p)                               </code></pre>
+    return self._sendAdmin(p)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.Node.getChannelByName"><code class="name flex">
@@ -2774,6 +2810,26 @@ wantResponse &ndash; True if you want the service on the other side to send an a
     bytes = channelSet.SerializeToString()
     s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
     return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.Node.reboot"><code class="name flex">
+<span>def <span class="ident">reboot</span></span>(<span>self, secs: int = 10)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Tell the node to reboot</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reboot(self, secs: int = 10):
+    &#34;&#34;&#34;
+    Tell the node to reboot
+    &#34;&#34;&#34;
+    p = admin_pb2.AdminMessage()
+    p.reboot_seconds = secs
+    logging.info(f&#34;Telling node to reboot in {secs} seconds&#34;)
+
+    return self._sendAdmin(p)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.Node.requestConfig"><code class="name flex">
@@ -2892,9 +2948,10 @@ wantResponse &ndash; True if you want the service on the other side to send an a
     for c in self.channels:
         if c.role != channel_pb2.Channel.Role.DISABLED:
             cStr = stripnl(MessageToJson(c.settings))
-            print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
-    publicURL = self.getURL(includeAll = False)
-    adminURL = self.getURL(includeAll = True)
+            print(
+                f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
+    publicURL = self.getURL(includeAll=False)
+    adminURL = self.getURL(includeAll=True)
     print(f&#34;\nPrimary channel URL: {publicURL}&#34;)
     if adminURL != publicURL:
         print(f&#34;Complete URL (includes all channels): {adminURL}&#34;)</code></pre>
@@ -2911,7 +2968,8 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 </summary>
 <pre><code class="python">def showInfo(self):
     &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
-    print(f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
+    print(
+        f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
     self.showChannels()</code></pre>
 </details>
 </dd>
@@ -2938,7 +2996,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def writeChannel(self, channelIndex, adminIndex = 0):
+<pre><code class="python">def writeChannel(self, channelIndex, adminIndex=0):
     &#34;&#34;&#34;Write the current (edited) channel to the device&#34;&#34;&#34;
 
     p = admin_pb2.AdminMessage()
@@ -3155,7 +3213,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 
     def _writeBytes(self, b):
         &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
-        if self.stream: # ignore writes when stream is closed
+        if self.stream:  # ignore writes when stream is closed
             self.stream.write(b)
             self.stream.flush()
 
@@ -3175,7 +3233,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing stream&#34;)
-        MeshInterface.close(self)        
+        MeshInterface.close(self)
         # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
@@ -3267,7 +3325,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <pre><code class="python">def close(self):
     &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
     logging.debug(&#34;Closing stream&#34;)
-    MeshInterface.close(self)        
+    MeshInterface.close(self)
     # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
     self._wantExit = True
     if self._rxThread != threading.current_thread():
@@ -3355,7 +3413,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing TCP stream&#34;)
-        StreamInterface.close(self)        
+        StreamInterface.close(self)
         # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing
         # the socket here
         self._wantExit = True
@@ -3473,6 +3531,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <li><code><a title="meshtastic.Node.getChannelByName" href="#meshtastic.Node.getChannelByName">getChannelByName</a></code></li>
 <li><code><a title="meshtastic.Node.getDisabledChannel" href="#meshtastic.Node.getDisabledChannel">getDisabledChannel</a></code></li>
 <li><code><a title="meshtastic.Node.getURL" href="#meshtastic.Node.getURL">getURL</a></code></li>
+<li><code><a title="meshtastic.Node.reboot" href="#meshtastic.Node.reboot">reboot</a></code></li>
 <li><code><a title="meshtastic.Node.requestConfig" href="#meshtastic.Node.requestConfig">requestConfig</a></code></li>
 <li><code><a title="meshtastic.Node.setOwner" href="#meshtastic.Node.setOwner">setOwner</a></code></li>
 <li><code><a title="meshtastic.Node.setURL" href="#meshtastic.Node.setURL">setURL</a></code></li>

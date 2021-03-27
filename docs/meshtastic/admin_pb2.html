@@ -51,7 +51,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax=&#39;proto3&#39;,
   serialized_options=b&#39;\n\023com.geeksville.meshB\013AdminProtosH\003&#39;,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b&#39;\n\x0b\x61\x64min.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\x1a\rchannel.proto\&#34;\xe1\x02\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1d\n\x13\x63onfirm_set_channel\x18  \x01(\x08H\x00\x12\x1b\n\x11\x63onfirm_set_radio\x18! \x01(\x08H\x00\x12\x18\n\x0e\x65xit_simulator\x18\&#34; \x01(\x08H\x00\x42\t\n\x07variantB$\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03\x62\x06proto3&#39;
+  serialized_pb=b&#39;\n\x0b\x61\x64min.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\x1a\rchannel.proto\&#34;\xfb\x02\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1d\n\x13\x63onfirm_set_channel\x18  \x01(\x08H\x00\x12\x1b\n\x11\x63onfirm_set_radio\x18! \x01(\x08H\x00\x12\x18\n\x0e\x65xit_simulator\x18\&#34; \x01(\x08H\x00\x12\x18\n\x0ereboot_seconds\x18# \x01(\x05H\x00\x42\t\n\x07variantB$\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03\x62\x06proto3&#39;
   ,
   dependencies=[mesh__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,channel__pb2.DESCRIPTOR,])
 
@@ -136,6 +136,13 @@ _ADMINMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name=&#39;reboot_seconds&#39;, full_name=&#39;AdminMessage.reboot_seconds&#39;, index=10,
+      number=35, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -154,7 +161,7 @@ _ADMINMESSAGE = _descriptor.Descriptor(
     fields=[]),
   ],
   serialized_start=62,
-  serialized_end=415,
+  serialized_end=441,
 )
 
 _ADMINMESSAGE.fields_by_name[&#39;set_radio&#39;].message_type = radioconfig__pb2._RADIOCONFIG
@@ -192,6 +199,9 @@ _ADMINMESSAGE.fields_by_name[&#39;confirm_set_radio&#39;].containing_oneof = _AD
 _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
   _ADMINMESSAGE.fields_by_name[&#39;exit_simulator&#39;])
 _ADMINMESSAGE.fields_by_name[&#39;exit_simulator&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;reboot_seconds&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;reboot_seconds&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
 DESCRIPTOR.message_types_by_name[&#39;AdminMessage&#39;] = _ADMINMESSAGE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -264,6 +274,10 @@ DESCRIPTOR._options = None
 <dd>
 <div class="desc"><p>Field AdminMessage.get_radio_response</p></div>
 </dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.reboot_seconds"><code class="name">var <span class="ident">reboot_seconds</span></code></dt>
+<dd>
+<div class="desc"><p>Field AdminMessage.reboot_seconds</p></div>
+</dd>
 <dt id="meshtastic.admin_pb2.AdminMessage.set_channel"><code class="name">var <span class="ident">set_channel</span></code></dt>
 <dd>
 <div class="desc"><p>Field AdminMessage.set_channel</p></div>
@@ -305,6 +319,7 @@ DESCRIPTOR._options = None
 <li><code><a title="meshtastic.admin_pb2.AdminMessage.get_channel_response" href="#meshtastic.admin_pb2.AdminMessage.get_channel_response">get_channel_response</a></code></li>
 <li><code><a title="meshtastic.admin_pb2.AdminMessage.get_radio_request" href="#meshtastic.admin_pb2.AdminMessage.get_radio_request">get_radio_request</a></code></li>
 <li><code><a title="meshtastic.admin_pb2.AdminMessage.get_radio_response" href="#meshtastic.admin_pb2.AdminMessage.get_radio_response">get_radio_response</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.reboot_seconds" href="#meshtastic.admin_pb2.AdminMessage.reboot_seconds">reboot_seconds</a></code></li>
 <li><code><a title="meshtastic.admin_pb2.AdminMessage.set_channel" href="#meshtastic.admin_pb2.AdminMessage.set_channel">set_channel</a></code></li>
 <li><code><a title="meshtastic.admin_pb2.AdminMessage.set_owner" href="#meshtastic.admin_pb2.AdminMessage.set_owner">set_owner</a></code></li>
 <li><code><a title="meshtastic.admin_pb2.AdminMessage.set_radio" href="#meshtastic.admin_pb2.AdminMessage.set_radio">set_radio</a></code></li>
