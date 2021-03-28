@@ -474,8 +474,6 @@ def common():
 
         if not args.seriallog:
             args.seriallog = "none"  # assume no debug output in this case
-        else:
-            args.seriallog = "stdout"  # default to stdout
 
         if args.deprecated != None:
             logging.error(
