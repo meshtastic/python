@@ -1204,7 +1204,10 @@ class TCPInterface(StreamInterface):
         # the socket here
         self._wantExit = True
         if not self.socket is None:
-            self.socket.shutdown(socket.SHUT_RDWR)
+            try:
+                self.socket.shutdown(socket.SHUT_RDWR)
+            except:
+                pass # Ignore errors in shutdown, because we might have a race with the server
             self.socket.close()
 
     def _writeBytes(self, b):
