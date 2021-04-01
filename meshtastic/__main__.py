@@ -146,10 +146,12 @@ def printNodes(nodes, myId):
         if node['user']['id'] == myId:
             continue
         # aux var to get not defined keys
-        lat = formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
-        lon = formatFloat(node['position'].get("longitude"), "{:.4f}", "°")
-        alt = formatFloat(node['position'].get("altitude"), "{:.0f}", " m")
-        batt = formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "%")
+        lat = lon = alt = batt = "N/A"
+        if node.get('position'):
+            lat = formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
+            lon = formatFloat(node['position'].get("longitude"), "{:.4f}", "°")
+            alt = formatFloat(node['position'].get("altitude"), "{:.0f}", " m")
+            batt = formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "%")
         snr = formatFloat(node.get("snr"), "{:.2f}", " dB")
         LH = getLH(node.get("lastHeard"))
         timeAgo = getTimeAgo(node.get("lastHeard"))
