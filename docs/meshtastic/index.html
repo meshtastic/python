@@ -202,13 +202,24 @@ class KnownProtocol(NamedTuple):
     onReceive: Callable = None
 
 
-def waitForSet(target, sleep=.1, maxsecs=20, attrs=()):
-    &#34;&#34;&#34;Block until the specified attributes are set. Returns True if config has been received.&#34;&#34;&#34;
-    for _ in range(int(maxsecs/sleep)):
-        if all(map(lambda a: getattr(target, a, None), attrs)):
-            return True
-        time.sleep(sleep)
-    return False
+class Timeout:
+    def __init__(self, maxSecs = 20):
+        self.expireTime = 0
+        self.sleepInterval = 0.1
+        self.expireTimeout = maxSecs
+
+    def reset(self):
+        &#34;&#34;&#34;Restart the waitForSet timer&#34;&#34;&#34;
+        self.expireTime = time.time() + self.expireTimeout
+
+    def waitForSet(self, target, attrs=()):
+        &#34;&#34;&#34;Block until the specified attributes are set. Returns True if config has been received.&#34;&#34;&#34;
+        self.reset()
+        while time.time() &lt; self.expireTime:
+            if all(map(lambda a: getattr(target, a, None), attrs)):
+                return True
+            time.sleep(self.sleepInterval)
+        return False
 
 
 def pskToString(psk: bytes):
@@ -239,6 +250,7 @@ class Node:
         self.nodeNum = nodeNum
         self.radioConfig = None
         self.channels = None
+        self._timeout = Timeout(maxSecs = 60)
 
     def showChannels(self):
         &#34;&#34;&#34;Show human readable description of our channels&#34;&#34;&#34;
@@ -270,9 +282,9 @@ class Node:
 
         self._requestSettings()
 
-    def waitForConfig(self, maxsecs=20):
+    def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-        return waitForSet(self, attrs=(&#39;radioConfig&#39;, &#39;channels&#39;), maxsecs=maxsecs)
+        return self._timeout.waitForSet(self, attrs=(&#39;radioConfig&#39;, &#39;channels&#39;))
 
     def writeConfig(self):
         &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
@@ -423,7 +435,13 @@ class Node:
             &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
             self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
             logging.debug(&#34;Received radio config, now fetching channels...&#34;)
+            self._timeout.reset() # We made foreward progress
             self._requestChannel(0)  # now start fetching channels
+
+        # Show progress message for super slow operations
+        if self != self.iface.localNode:
+            logging.info(
+                &#34;Requesting preferences from remote node (this could take a while)&#34;)
 
         return self._sendAdmin(p,
                                wantResponse=True,
@@ -475,12 +493,19 @@ class Node:
         &#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.get_channel_request = channelNum + 1
-        logging.debug(f&#34;Requesting channel {channelNum}&#34;)
+
+        # Show progress message for super slow operations
+        if self != self.iface.localNode:
+            logging.info(
+                f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
+        else:
+            logging.debug(f&#34;Requesting channel {channelNum}&#34;)
 
         def onResponse(p):
             &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
             c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
             self.partialChannels.append(c)
+            self._timeout.reset() # We made foreward progress            
             logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
             index = c.index
 
@@ -546,6 +571,7 @@ class MeshInterface:
         self.myInfo = None  # We don&#39;t have device info yet
         self.responseHandlers = {}  # A map from request ID to the handler
         self.failure = None  # If we&#39;ve encountered a fatal exception it will be kept here
+        self._timeout = Timeout()
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
@@ -577,11 +603,9 @@ class MeshInterface:
         if nodeId == LOCAL_ADDR:
             return self.localNode
         else:
-            logging.info(
-                &#34;Requesting configuration from remote node (this could take a while)&#34;)
             n = Node(self, nodeId)
             n.requestConfig()
-            if not n.waitForConfig(maxsecs=60):
+            if not n.waitForConfig():
                 raise Exception(&#34;Timed out waiting for node config&#34;)
             return n
 
@@ -733,7 +757,7 @@ class MeshInterface:
 
     def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-        success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
+        success = self._timeout.waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
                              ) and self.localNode.waitForConfig()
         if not success:
             raise Exception(&#34;Timed out waiting for interface config&#34;)
@@ -1460,24 +1484,6 @@ protocols = {
         return &#34;secret&#34;</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.waitForSet"><code class="name flex">
-<span>def <span class="ident">waitForSet</span></span>(<span>target, sleep=0.1, maxsecs=20, attrs=())</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Block until the specified attributes are set. Returns True if config has been received.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def waitForSet(target, sleep=.1, maxsecs=20, attrs=()):
-    &#34;&#34;&#34;Block until the specified attributes are set. Returns True if config has been received.&#34;&#34;&#34;
-    for _ in range(int(maxsecs/sleep)):
-        if all(map(lambda a: getattr(target, a, None), attrs)):
-            return True
-        time.sleep(sleep)
-    return False</code></pre>
-</details>
-</dd>
 </dl>
 </section>
 <section>
@@ -1633,6 +1639,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self.myInfo = None  # We don&#39;t have device info yet
         self.responseHandlers = {}  # A map from request ID to the handler
         self.failure = None  # If we&#39;ve encountered a fatal exception it will be kept here
+        self._timeout = Timeout()
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
@@ -1664,11 +1671,9 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         if nodeId == LOCAL_ADDR:
             return self.localNode
         else:
-            logging.info(
-                &#34;Requesting configuration from remote node (this could take a while)&#34;)
             n = Node(self, nodeId)
             n.requestConfig()
-            if not n.waitForConfig(maxsecs=60):
+            if not n.waitForConfig():
                 raise Exception(&#34;Timed out waiting for node config&#34;)
             return n
 
@@ -1820,7 +1825,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
     def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-        success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
+        success = self._timeout.waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
                              ) and self.localNode.waitForConfig()
         if not success:
             raise Exception(&#34;Timed out waiting for interface config&#34;)
@@ -2192,11 +2197,9 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
     if nodeId == LOCAL_ADDR:
         return self.localNode
     else:
-        logging.info(
-            &#34;Requesting configuration from remote node (this could take a while)&#34;)
         n = Node(self, nodeId)
         n.requestConfig()
-        if not n.waitForConfig(maxsecs=60):
+        if not n.waitForConfig():
             raise Exception(&#34;Timed out waiting for node config&#34;)
         return n</code></pre>
 </details>
@@ -2391,7 +2394,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 </summary>
 <pre><code class="python">def waitForConfig(self):
     &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-    success = waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
+    success = self._timeout.waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
                          ) and self.localNode.waitForConfig()
     if not success:
         raise Exception(&#34;Timed out waiting for interface config&#34;)</code></pre>
@@ -2423,6 +2426,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         self.nodeNum = nodeNum
         self.radioConfig = None
         self.channels = None
+        self._timeout = Timeout(maxSecs = 60)
 
     def showChannels(self):
         &#34;&#34;&#34;Show human readable description of our channels&#34;&#34;&#34;
@@ -2454,9 +2458,9 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 
         self._requestSettings()
 
-    def waitForConfig(self, maxsecs=20):
+    def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-        return waitForSet(self, attrs=(&#39;radioConfig&#39;, &#39;channels&#39;), maxsecs=maxsecs)
+        return self._timeout.waitForSet(self, attrs=(&#39;radioConfig&#39;, &#39;channels&#39;))
 
     def writeConfig(self):
         &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
@@ -2607,7 +2611,13 @@ wantResponse &ndash; True if you want the service on the other side to send an a
             &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
             self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
             logging.debug(&#34;Received radio config, now fetching channels...&#34;)
+            self._timeout.reset() # We made foreward progress
             self._requestChannel(0)  # now start fetching channels
+
+        # Show progress message for super slow operations
+        if self != self.iface.localNode:
+            logging.info(
+                &#34;Requesting preferences from remote node (this could take a while)&#34;)
 
         return self._sendAdmin(p,
                                wantResponse=True,
@@ -2659,12 +2669,19 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         &#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.get_channel_request = channelNum + 1
-        logging.debug(f&#34;Requesting channel {channelNum}&#34;)
+
+        # Show progress message for super slow operations
+        if self != self.iface.localNode:
+            logging.info(
+                f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
+        else:
+            logging.debug(f&#34;Requesting channel {channelNum}&#34;)
 
         def onResponse(p):
             &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
             c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
             self.partialChannels.append(c)
+            self._timeout.reset() # We made foreward progress            
             logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
             index = c.index
 
@@ -2977,7 +2994,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 </details>
 </dd>
 <dt id="meshtastic.Node.waitForConfig"><code class="name flex">
-<span>def <span class="ident">waitForConfig</span></span>(<span>self, maxsecs=20)</span>
+<span>def <span class="ident">waitForConfig</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Block until radio config is received. Returns True if config has been received.</p></div>
@@ -2985,9 +3002,9 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def waitForConfig(self, maxsecs=20):
+<pre><code class="python">def waitForConfig(self):
     &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-    return waitForSet(self, attrs=(&#39;radioConfig&#39;, &#39;channels&#39;), maxsecs=maxsecs)</code></pre>
+    return self._timeout.waitForSet(self, attrs=(&#39;radioConfig&#39;, &#39;channels&#39;))</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.Node.writeChannel"><code class="name flex">
@@ -3456,6 +3473,72 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 </li>
 </ul>
 </dd>
+<dt id="meshtastic.Timeout"><code class="flex name class">
+<span>class <span class="ident">Timeout</span></span>
+<span>(</span><span>maxSecs=20)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Timeout:
+    def __init__(self, maxSecs = 20):
+        self.expireTime = 0
+        self.sleepInterval = 0.1
+        self.expireTimeout = maxSecs
+
+    def reset(self):
+        &#34;&#34;&#34;Restart the waitForSet timer&#34;&#34;&#34;
+        self.expireTime = time.time() + self.expireTimeout
+
+    def waitForSet(self, target, attrs=()):
+        &#34;&#34;&#34;Block until the specified attributes are set. Returns True if config has been received.&#34;&#34;&#34;
+        self.reset()
+        while time.time() &lt; self.expireTime:
+            if all(map(lambda a: getattr(target, a, None), attrs)):
+                return True
+            time.sleep(self.sleepInterval)
+        return False</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.Timeout.reset"><code class="name flex">
+<span>def <span class="ident">reset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Restart the waitForSet timer</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reset(self):
+    &#34;&#34;&#34;Restart the waitForSet timer&#34;&#34;&#34;
+    self.expireTime = time.time() + self.expireTimeout</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.Timeout.waitForSet"><code class="name flex">
+<span>def <span class="ident">waitForSet</span></span>(<span>self, target, attrs=())</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Block until the specified attributes are set. Returns True if config has been received.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def waitForSet(self, target, attrs=()):
+    &#34;&#34;&#34;Block until the specified attributes are set. Returns True if config has been received.&#34;&#34;&#34;
+    self.reset()
+    while time.time() &lt; self.expireTime:
+        if all(map(lambda a: getattr(target, a, None), attrs)):
+            return True
+        time.sleep(self.sleepInterval)
+    return False</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 </dl>
 </section>
 </article>
@@ -3497,7 +3580,6 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="meshtastic.pskToString" href="#meshtastic.pskToString">pskToString</a></code></li>
-<li><code><a title="meshtastic.waitForSet" href="#meshtastic.waitForSet">waitForSet</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
@@ -3566,6 +3648,13 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 </li>
 <li>
 <h4><code><a title="meshtastic.TCPInterface" href="#meshtastic.TCPInterface">TCPInterface</a></code></h4>
+</li>
+<li>
+<h4><code><a title="meshtastic.Timeout" href="#meshtastic.Timeout">Timeout</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.Timeout.reset" href="#meshtastic.Timeout.reset">reset</a></code></li>
+<li><code><a title="meshtastic.Timeout.waitForSet" href="#meshtastic.Timeout.waitForSet">waitForSet</a></code></li>
+</ul>
 </li>
 </ul>
 </li>
