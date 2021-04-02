@@ -115,13 +115,24 @@ class KnownProtocol(NamedTuple):
     onReceive: Callable = None
 
 
-def waitForSet(target, sleep=.1, maxsecs=20, attrs=()):
-    """Block until the specified attributes are set. Returns True if config has been received."""
-    for _ in range(int(maxsecs/sleep)):
-        if all(map(lambda a: getattr(target, a, None), attrs)):
-            return True
-        time.sleep(sleep)
-    return False
+class Timeout:
+    def __init__(self, maxSecs = 20):
+        self.expireTime = 0
+        self.sleepInterval = 0.1
+        self.expireTimeout = maxSecs
+
+    def reset(self):
+        """Restart the waitForSet timer"""
+        self.expireTime = time.time() + self.expireTimeout
+
+    def waitForSet(self, target, attrs=()):
+        """Block until the specified attributes are set. Returns True if config has been received."""
+        self.reset()
+        while time.time() < self.expireTime:
+            if all(map(lambda a: getattr(target, a, None), attrs)):
+                return True
+            time.sleep(self.sleepInterval)
+        return False
 
 
 def pskToString(psk: bytes):
@@ -152,6 +163,7 @@ class Node:
         self.nodeNum = nodeNum
         self.radioConfig = None
         self.channels = None
+        self._timeout = Timeout(maxSecs = 60)
 
     def showChannels(self):
         """Show human readable description of our channels"""
@@ -183,9 +195,9 @@ class Node:
 
         self._requestSettings()
 
-    def waitForConfig(self, maxsecs=20):
+    def waitForConfig(self):
         """Block until radio config is received. Returns True if config has been received."""
-        return waitForSet(self, attrs=('radioConfig', 'channels'), maxsecs=maxsecs)
+        return self._timeout.waitForSet(self, attrs=('radioConfig', 'channels'))
 
     def writeConfig(self):
         """Write the current (edited) radioConfig to the device"""
@@ -336,6 +348,7 @@ class Node:
             """A closure to handle the response packet"""
             self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
             logging.debug("Received radio config, now fetching channels...")
+            self._timeout.reset() # We made foreward progress
             self._requestChannel(0)  # now start fetching channels
 
         # Show progress message for super slow operations
@@ -400,11 +413,12 @@ class Node:
                 f"Requesting channel {channelNum} info from remote node (this could take a while)")
         else:
             logging.debug(f"Requesting channel {channelNum}")
-            
+
         def onResponse(p):
             """A closure to handle the response packet"""
             c = p["decoded"]["admin"]["raw"].get_channel_response
             self.partialChannels.append(c)
+            self._timeout.reset() # We made foreward progress            
             logging.debug(f"Received channel {stripnl(c)}")
             index = c.index
 
@@ -470,6 +484,7 @@ class MeshInterface:
         self.myInfo = None  # We don't have device info yet
         self.responseHandlers = {}  # A map from request ID to the handler
         self.failure = None  # If we've encountered a fatal exception it will be kept here
+        self._timeout = Timeout()
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
@@ -503,7 +518,7 @@ class MeshInterface:
         else:
             n = Node(self, nodeId)
             n.requestConfig()
-            if not n.waitForConfig(maxsecs=120):
+            if not n.waitForConfig():
                 raise Exception("Timed out waiting for node config")
             return n
 
@@ -655,7 +670,7 @@ class MeshInterface:
 
     def waitForConfig(self):
         """Block until radio config is received. Returns True if config has been received."""
-        success = waitForSet(self, attrs=('myInfo', 'nodes')
+        success = self._timeout.waitForSet(self, attrs=('myInfo', 'nodes')
                              ) and self.localNode.waitForConfig()
         if not success:
             raise Exception("Timed out waiting for interface config")
