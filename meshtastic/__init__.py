@@ -338,6 +338,11 @@ class Node:
             logging.debug("Received radio config, now fetching channels...")
             self._requestChannel(0)  # now start fetching channels
 
+        # Show progress message for super slow operations
+        if self != self.iface.localNode:
+            logging.info(
+                "Requesting preferences from remote node (this could take a while)")
+
         return self._sendAdmin(p,
                                wantResponse=True,
                                onResponse=onResponse)
@@ -388,8 +393,14 @@ class Node:
         """
         p = admin_pb2.AdminMessage()
         p.get_channel_request = channelNum + 1
-        logging.debug(f"Requesting channel {channelNum}")
 
+        # Show progress message for super slow operations
+        if self != self.iface.localNode:
+            logging.info(
+                f"Requesting channel {channelNum} info from remote node (this could take a while)")
+        else:
+            logging.debug(f"Requesting channel {channelNum}")
+            
         def onResponse(p):
             """A closure to handle the response packet"""
             c = p["decoded"]["admin"]["raw"].get_channel_response
@@ -490,11 +501,9 @@ class MeshInterface:
         if nodeId == LOCAL_ADDR:
             return self.localNode
         else:
-            logging.info(
-                "Requesting configuration from remote node (this could take a while)")
             n = Node(self, nodeId)
             n.requestConfig()
-            if not n.waitForConfig(maxsecs=60):
+            if not n.waitForConfig(maxsecs=120):
                 raise Exception("Timed out waiting for node config")
             return n
 
