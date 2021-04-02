@@ -3,9 +3,7 @@ from collections import defaultdict
 import serial
 import serial.tools.list_ports
 from queue import Queue
-import threading
-import sys
-import logging
+import threading, sys, time, logging
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
@@ -47,6 +45,26 @@ class dotdict(dict):
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
+
+
+class Timeout:
+    def __init__(self, maxSecs=20):
+        self.expireTime = 0
+        self.sleepInterval = 0.1
+        self.expireTimeout = maxSecs
+
+    def reset(self):
+        """Restart the waitForSet timer"""
+        self.expireTime = time.time() + self.expireTimeout
+
+    def waitForSet(self, target, attrs=()):
+        """Block until the specified attributes are set. Returns True if config has been received."""
+        self.reset()
+        while time.time() < self.expireTime:
+            if all(map(lambda a: getattr(target, a, None), attrs)):
+                return True
+            time.sleep(self.sleepInterval)
+        return False
 
 
 class DeferredExecution():

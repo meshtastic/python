@@ -139,6 +139,7 @@ def getTimeAgo(ts, default="N/A"):
 
 # Print Nodes
 
+
 def printNodes(nodes, myId):
     # Create the table and define the structure
     tableData = []
@@ -151,7 +152,8 @@ def printNodes(nodes, myId):
             lat = formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
             lon = formatFloat(node['position'].get("longitude"), "{:.4f}", "°")
             alt = formatFloat(node['position'].get("altitude"), "{:.0f}", " m")
-            batt = formatFloat(node['position'].get("batteryLevel"), "{:.2f}", "%")
+            batt = formatFloat(node['position'].get(
+                "batteryLevel"), "{:.2f}", "%")
         snr = formatFloat(node.get("snr"), "{:.2f}", " dB")
         LH = getLH(node.get("lastHeard"))
         timeAgo = getTimeAgo(node.get("lastHeard"))
@@ -167,6 +169,7 @@ def printNodes(nodes, myId):
         RowsOk[i]['N'] = i+1
 
     print(tabulate(RowsOk, headers='keys', tablefmt='fancy_grid'))
+
 
 def setPref(attributes, name, valStr):
     """Set a channel or preferences value"""

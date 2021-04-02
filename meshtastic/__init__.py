@@ -68,7 +68,7 @@ import base64
 import platform
 import socket
 from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
-from .util import fixme, catchAndIgnore, stripnl, DeferredExecution
+from .util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
 from pubsub import pub
 from dotmap import DotMap
 from typing import *
@@ -115,26 +115,6 @@ class KnownProtocol(NamedTuple):
     onReceive: Callable = None
 
 
-class Timeout:
-    def __init__(self, maxSecs = 20):
-        self.expireTime = 0
-        self.sleepInterval = 0.1
-        self.expireTimeout = maxSecs
-
-    def reset(self):
-        """Restart the waitForSet timer"""
-        self.expireTime = time.time() + self.expireTimeout
-
-    def waitForSet(self, target, attrs=()):
-        """Block until the specified attributes are set. Returns True if config has been received."""
-        self.reset()
-        while time.time() < self.expireTime:
-            if all(map(lambda a: getattr(target, a, None), attrs)):
-                return True
-            time.sleep(self.sleepInterval)
-        return False
-
-
 def pskToString(psk: bytes):
     """Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string"""
     if len(psk) == 0:
@@ -163,7 +143,7 @@ class Node:
         self.nodeNum = nodeNum
         self.radioConfig = None
         self.channels = None
-        self._timeout = Timeout(maxSecs = 60)
+        self._timeout = Timeout(maxSecs=60)
 
     def showChannels(self):
         """Show human readable description of our channels"""
@@ -348,7 +328,7 @@ class Node:
             """A closure to handle the response packet"""
             self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
             logging.debug("Received radio config, now fetching channels...")
-            self._timeout.reset() # We made foreward progress
+            self._timeout.reset()  # We made foreward progress
             self._requestChannel(0)  # now start fetching channels
 
         # Show progress message for super slow operations
@@ -418,7 +398,7 @@ class Node:
             """A closure to handle the response packet"""
             c = p["decoded"]["admin"]["raw"].get_channel_response
             self.partialChannels.append(c)
-            self._timeout.reset() # We made foreward progress            
+            self._timeout.reset()  # We made foreward progress
             logging.debug(f"Received channel {stripnl(c)}")
             index = c.index
 
@@ -671,7 +651,7 @@ class MeshInterface:
     def waitForConfig(self):
         """Block until radio config is received. Returns True if config has been received."""
         success = self._timeout.waitForSet(self, attrs=('myInfo', 'nodes')
-                             ) and self.localNode.waitForConfig()
+                                           ) and self.localNode.waitForConfig()
         if not success:
             raise Exception("Timed out waiting for interface config")
 
@@ -1231,7 +1211,7 @@ class TCPInterface(StreamInterface):
             try:
                 self.socket.shutdown(socket.SHUT_RDWR)
             except:
-                pass # Ignore errors in shutdown, because we might have a race with the server
+                pass  # Ignore errors in shutdown, because we might have a race with the server
             self.socket.close()
 
     def _writeBytes(self, b):
