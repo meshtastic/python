@@ -627,8 +627,8 @@ def initParser():
     parser.add_argument("--noproto", help="Don't start the API, just function as a dumb serial terminal.",
                         action="store_true")
 
-    parser.add_argument('--setchan', dest='deprecated',
-                        action='store_true', help='Deprecated, use "--ch-set param value" instead')
+    parser.add_argument('--setchan', dest='deprecated', nargs=2, action='append',
+                        help='Deprecated, use "--ch-set param value" instead')
     parser.add_argument('--set-router', dest='deprecated',
                         action='store_true', help='Deprecated, use "--set is_router true" instead')
     parser.add_argument('--unset-router', dest='deprecated',
