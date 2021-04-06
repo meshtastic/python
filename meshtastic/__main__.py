@@ -44,7 +44,7 @@ def onReceive(packet, interface):
         if args.reply:
             msg = d.get('text')
             if msg:
-                #shortName = packet['decoded']['data']['shortName']
+                #shortName = packet['decoded']['shortName']
                 rxSnr = packet['rxSnr']
                 hopLimit = packet['hopLimit']
                 print(f"message: {msg}")
@@ -477,7 +477,7 @@ def common():
             args.destOrAll = args.dest
             args.destOrLocal = args.dest  # FIXME, temp hack for debugging remove
 
-        if not args.seriallog:
+        if not args.seriallog and not args.noproto:
             args.seriallog = "none"  # assume no debug output in this case
 
         if args.deprecated != None:
