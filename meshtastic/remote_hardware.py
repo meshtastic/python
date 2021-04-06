@@ -8,7 +8,7 @@ def onGPIOreceive(packet, interface):
 
     FIXME figure out how to do closures with methods in python"""
     pb = remote_hardware_pb2.HardwareMessage()
-    pb.ParseFromString(packet["decoded"]["data"]["payload"])
+    pb.ParseFromString(packet["decoded"]["payload"])
     print(f"Received RemoteHardware typ={pb.typ}, gpio_value={pb.gpio_value}")
 
 
