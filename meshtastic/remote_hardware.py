@@ -7,9 +7,8 @@ def onGPIOreceive(packet, interface):
     """Callback for received GPIO responses
 
     FIXME figure out how to do closures with methods in python"""
-    pb = remote_hardware_pb2.HardwareMessage()
-    pb.ParseFromString(packet["decoded"]["payload"])
-    print(f"Received RemoteHardware typ={pb.typ}, gpio_value={pb.gpio_value}")
+    hw = packet["decoded"]["remotehw"]
+    print(f'Received RemoteHardware typ={hw["typ"]}, gpio_value={hw["gpioValue"]}')
 
 
 class RemoteHardwareClient:
@@ -29,14 +28,18 @@ class RemoteHardwareClient:
         ch = iface.localNode.getChannelByName("gpio")
         if not ch:
             raise Exception(
-                "No gpio channel found, please create before using this (secured) service")
+                "No gpio channel found, please create on the sending and receive nodes to use this (secured) service (--ch-add gpio --info then --seturl)")
         self.channelIndex = ch.index
 
         pub.subscribe(
-            onGPIOreceive, "meshtastic.receive.data.REMOTE_HARDWARE_APP")
+            onGPIOreceive, "meshtastic.receive.remotehw")
 
-    def _sendHardware(self, nodeid, r):
-        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP, wantAck=True, channelIndex=self.channelIndex)
+    def _sendHardware(self, nodeid, r, wantResponse=False, onResponse=None):
+        if not nodeid:
+            raise Exception(
+                "You must set a destination node ID for this operation (use --dest \!xxxxxxxxx)")
+        return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP,
+                                   wantAck=True, channelIndex=self.channelIndex, wantResponse=wantResponse, onResponse=onResponse)
 
     def writeGPIOs(self, nodeid, mask, vals):
         """
@@ -49,12 +52,12 @@ class RemoteHardwareClient:
         r.gpio_value = vals
         return self._sendHardware(nodeid, r)
 
-    def readGPIOs(self, nodeid, mask):
+    def readGPIOs(self, nodeid, mask, onResponse = None):
         """Read the specified bits from GPIO inputs on the device"""
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
         r.gpio_mask = mask
-        return self._sendHardware(nodeid, r)
+        return self._sendHardware(nodeid, r, wantResponse=True, onResponse=onResponse)
 
     def watchGPIOs(self, nodeid, mask):
         """Watch the specified bits from GPIO inputs on the device for changes"""

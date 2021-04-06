@@ -302,11 +302,19 @@ def onConnected(interface):
                 print(
                     f"Writing GPIO mask 0x{bitmask:x} with value 0x{bitval:x} to {args.dest}")
                 rhc.writeGPIOs(args.dest, bitmask, bitval)
+                closeNow = True
 
             if args.gpio_rd:
                 bitmask = int(args.gpio_rd, 16)
                 print(f"Reading GPIO mask 0x{bitmask:x} from {args.dest}")
-                rhc.readGPIOs(args.dest, bitmask)
+
+                def onResponse(packet):
+                    """A closure to handle the response packet"""
+                    hw = packet["decoded"]["remotehw"]
+                    print(f'GPIO read response gpio_value={hw["gpioValue"]}')
+                    sys.exit(0) # Just force an exit (FIXME - ugly)
+
+                rhc.readGPIOs(args.dest, bitmask, onResponse)
 
             if args.gpio_watch:
                 bitmask = int(args.gpio_watch, 16)
@@ -435,13 +443,13 @@ def onConnected(interface):
             closeNow = False
             tunnel.Tunnel(interface, subnet=args.tunnel_net)
 
+        # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
+        if (not args.seriallog) and closeNow:
+            interface.close()  # after running command then exit
+
     except Exception as ex:
-        print(f"Exception while handling connection: {ex}")
-
-    # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
-    if (not args.seriallog) and closeNow:
-        interface.close()  # after running command then exit
-
+        print(f"Aborting due to: {ex}")
+        interface.close() # close the connection now, so that our app exits
 
 def onNode(node):
     """Callback invoked when the node DB changes"""
