@@ -267,7 +267,7 @@ def onConnected(interface):
             closeNow = True
             print(
                 f"Setting HAM ID to {args.set_ham} and turning off encryption")
-            getNode().setOwner(args.set_ham)
+            getNode().setOwner(args.set_ham, is_licensed = True)
             # Must turn off crypt on primary channel
             ch = getNode().channels[0]
             ch.settings.psk = fromPSK("none")

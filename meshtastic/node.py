@@ -205,7 +205,7 @@ class Node:
         else:
             return 0
 
-    def setOwner(self, long_name, short_name=None):
+    def setOwner(self, long_name, short_name=None, is_licensed=False):
         """Set device owner name"""
         nChars = 3
         minChars = 2
@@ -232,6 +232,7 @@ class Node:
             if len(short_name) > nChars:
                 short_name = short_name[:nChars]
             p.set_owner.short_name = short_name
+            p.set_owner.is_licensed = is_licensed
 
         return self._sendAdmin(p)
 
