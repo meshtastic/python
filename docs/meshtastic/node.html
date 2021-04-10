@@ -292,7 +292,7 @@ class Node:
         else:
             return 0
 
-    def setOwner(self, long_name, short_name=None):
+    def setOwner(self, long_name, short_name=None, is_licensed=False):
         &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
         nChars = 3
         minChars = 2
@@ -319,6 +319,7 @@ class Node:
             if len(short_name) &gt; nChars:
                 short_name = short_name[:nChars]
             p.set_owner.short_name = short_name
+            p.set_owner.is_licensed = is_licensed
 
         return self._sendAdmin(p)
 
@@ -650,7 +651,7 @@ class Node:
         else:
             return 0
 
-    def setOwner(self, long_name, short_name=None):
+    def setOwner(self, long_name, short_name=None, is_licensed=False):
         &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
         nChars = 3
         minChars = 2
@@ -677,6 +678,7 @@ class Node:
             if len(short_name) &gt; nChars:
                 short_name = short_name[:nChars]
             p.set_owner.short_name = short_name
+            p.set_owner.is_licensed = is_licensed
 
         return self._sendAdmin(p)
 
@@ -996,7 +998,7 @@ class Node:
 </details>
 </dd>
 <dt id="meshtastic.node.Node.setOwner"><code class="name flex">
-<span>def <span class="ident">setOwner</span></span>(<span>self, long_name, short_name=None)</span>
+<span>def <span class="ident">setOwner</span></span>(<span>self, long_name, short_name=None, is_licensed=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Set device owner name</p></div>
@@ -1004,7 +1006,7 @@ class Node:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def setOwner(self, long_name, short_name=None):
+<pre><code class="python">def setOwner(self, long_name, short_name=None, is_licensed=False):
     &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
     nChars = 3
     minChars = 2
@@ -1031,6 +1033,7 @@ class Node:
         if len(short_name) &gt; nChars:
             short_name = short_name[:nChars]
         p.set_owner.short_name = short_name
+        p.set_owner.is_licensed = is_licensed
 
     return self._sendAdmin(p)</code></pre>
 </details>

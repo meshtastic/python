@@ -485,8 +485,11 @@ def common():
             args.destOrAll = args.dest
             args.destOrLocal = args.dest  # FIXME, temp hack for debugging remove
 
-        if not args.seriallog and not args.noproto:
-            args.seriallog = "none"  # assume no debug output in this case
+        if not args.seriallog:
+            if args.noproto:
+                args.seriallog = "stdout" 
+            else:
+                args.seriallog = "none"  # assume no debug output in this case
 
         if args.deprecated != None:
             logging.error(
