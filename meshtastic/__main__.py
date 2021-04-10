@@ -15,9 +15,6 @@ import google.protobuf.json_format
 import pyqrcode
 import traceback
 import pkg_resources
-from datetime import datetime
-import timeago
-from tabulate import tabulate
 
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
@@ -118,57 +115,6 @@ def fromStr(valstr):
 
 never = 0xffffffff
 oneday = 24 * 60 * 60
-
-# Returns formatted value
-
-
-def formatFloat(value, formatStr="{:.2f}", unit="", default="N/A"):
-    return formatStr.format(value)+unit if value else default
-
-# Returns Last Heard Time in human readable format
-
-
-def getLH(ts, default="N/A"):
-    return datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') if ts else default
-
-# Returns time ago for the last heard
-
-
-def getTimeAgo(ts, default="N/A"):
-    return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else default
-
-# Print Nodes
-
-
-def printNodes(nodes, myId):
-    # Create the table and define the structure
-    tableData = []
-    for node in nodes:
-        if node['user']['id'] == myId:
-            continue
-        # aux var to get not defined keys
-        lat = lon = alt = batt = "N/A"
-        if node.get('position'):
-            lat = formatFloat(node['position'].get("latitude"), "{:.4f}", "°")
-            lon = formatFloat(node['position'].get("longitude"), "{:.4f}", "°")
-            alt = formatFloat(node['position'].get("altitude"), "{:.0f}", " m")
-            batt = formatFloat(node['position'].get(
-                "batteryLevel"), "{:.2f}", "%")
-        snr = formatFloat(node.get("snr"), "{:.2f}", " dB")
-        LH = getLH(node.get("lastHeard"))
-        timeAgo = getTimeAgo(node.get("lastHeard"))
-        tableData.append({"N": 0, "User": node['user']['longName'],
-                          "AKA": node['user']['shortName'], "ID": node['user']['id'],
-                          "Position": lat+", "+lon+", "+alt,
-                          "Battery": batt, "SNR": snr,
-                          "LastHeard": LH, "Since": timeAgo})
-
-    Rows = sorted(tableData, key=lambda k: k['LastHeard'], reverse=True)
-    RowsOk = sorted(Rows, key=lambda k: k['LastHeard'].startswith("N/A"))
-    for i in range(len(RowsOk)):
-        RowsOk[i]['N'] = i+1
-
-    print(tabulate(RowsOk, headers='keys', tablefmt='fancy_grid'))
 
 
 def setPref(attributes, name, valStr):
@@ -427,8 +373,7 @@ def onConnected(interface):
 
         if args.nodes:
             closeNow = True
-            printNodes(interface.nodes.values(),
-                       interface.getMyNodeInfo()['user']['id'])
+            interface.showNodes()
 
         if args.qr:
             closeNow = True
