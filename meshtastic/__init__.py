@@ -172,7 +172,7 @@ class MeshInterface:
         for n in self.nodes.values():
             print(f"  {stripnl(n)}", file=file)
 
-    def showNodes(self, file=sys.stdout):
+    def showNodes(self, includeSelf=True, file=sys.stdout):
         """Show table summary of nodes in mesh"""
         def formatFloat(value, precision=2, unit=''):
             return f'{value:.{precision}f}{unit}' if value else None
@@ -185,7 +185,7 @@ class MeshInterface:
 
         rows = []
         for node in self.nodes.values():
-            if node['num'] == self.localNode.nodeNum:
+            if not includeSelf and node['num'] == self.localNode.nodeNum:
                 continue
 
             row = { "N": 0 }
