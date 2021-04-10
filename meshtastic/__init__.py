@@ -163,16 +163,16 @@ class MeshInterface:
             logging.error(f'Traceback: {traceback}')
         self.close()
 
-    def showInfo(self):
+    def showInfo(self, file=sys.stdout):
         """Show human readable summary about this object"""
 
-        print(f"Owner: {self.getLongName()} ({self.getShortName()})")
-        print(f"\nMy info: {stripnl(MessageToJson(self.myInfo))}")
-        print("\nNodes in mesh:")
+        print(f"Owner: {self.getLongName()} ({self.getShortName()})", file=file)
+        print(f"\nMy info: {stripnl(MessageToJson(self.myInfo))}", file=file)
+        print("\nNodes in mesh:", file=file)
         for n in self.nodes.values():
-            print(f"  {stripnl(n)}")
+            print(f"  {stripnl(n)}", file=file)
 
-    def showNodes(self):
+    def showNodes(self, file=sys.stdout):
         """Show table summary of nodes in mesh"""
         def formatFloat(value, precision=2, unit=''):
             return f'{value:.{precision}f}{unit}' if value else None
@@ -221,7 +221,7 @@ class MeshInterface:
         for i, row in enumerate(rows):
             row['N'] = i+1
 
-        print(tabulate(rows, headers='keys', missingval='N/A', tablefmt='fancy_grid'))
+        print(tabulate(rows, headers='keys', missingval='N/A', tablefmt='fancy_grid'), file=file)
 
     def getNode(self, nodeId):
         """Return a node object which contains device settings and channel info"""
