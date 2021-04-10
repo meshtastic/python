@@ -162,10 +162,12 @@ class MeshInterface:
 
     def showInfo(self):
         """Show human readable summary about this object"""
-        print(f"My info: {stripnl(MessageToJson(self.myInfo))}")
+
+        print(f"Owner: {self.getLongName()} ({self.getShortName()})")
+        print(f"\nMy info: {stripnl(MessageToJson(self.myInfo))}")
         print("\nNodes in mesh:")
         for n in self.nodes.values():
-            print("  " + stripnl(n))
+            print(f"  {stripnl(n)}")
 
     def getNode(self, nodeId):
         """Return a node object which contains device settings and channel info"""
