@@ -67,11 +67,14 @@ import time
 import base64
 import platform
 import socket
+import timeago
 from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
 from .util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
 from .node import Node
 from pubsub import pub
 from dotmap import DotMap
+from datetime import datetime
+from tabulate import tabulate
 from typing import *
 from google.protobuf.json_format import MessageToJson
 
@@ -160,12 +163,65 @@ class MeshInterface:
             logging.error(f'Traceback: {traceback}')
         self.close()
 
-    def showInfo(self):
+    def showInfo(self, file=sys.stdout):
         """Show human readable summary about this object"""
-        print(f"My info: {stripnl(MessageToJson(self.myInfo))}")
-        print("\nNodes in mesh:")
+
+        print(f"Owner: {self.getLongName()} ({self.getShortName()})", file=file)
+        print(f"\nMy info: {stripnl(MessageToJson(self.myInfo))}", file=file)
+        print("\nNodes in mesh:", file=file)
         for n in self.nodes.values():
-            print("  " + stripnl(n))
+            print(f"  {stripnl(n)}", file=file)
+
+    def showNodes(self, includeSelf=True, file=sys.stdout):
+        """Show table summary of nodes in mesh"""
+        def formatFloat(value, precision=2, unit=''):
+            return f'{value:.{precision}f}{unit}' if value else None
+
+        def getLH(ts):
+            return datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') if ts else None
+
+        def getTimeAgo(ts):
+            return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else None
+
+        rows = []
+        for node in self.nodes.values():
+            if not includeSelf and node['num'] == self.localNode.nodeNum:
+                continue
+
+            row = { "N": 0 }
+
+            user = node.get('user')
+            if user:
+                row.update({
+                    "User": user['longName'],
+                    "AKA":  user['shortName'],
+                    "ID":   user['id'],
+                })
+
+            pos = node.get('position')
+            if pos:
+                row.update({
+                    "Latitude":  formatFloat(pos.get("latitude"),     4, "°"),
+                    "Longitude": formatFloat(pos.get("longitude"),    4, "°"),
+                    "Altitude":  formatFloat(pos.get("altitude"),     0, " m"),
+                    "Battery":   formatFloat(pos.get("batteryLevel"), 2, "%"),
+                })
+
+            row.update({
+                "SNR":       formatFloat(node.get("snr"), 2, " dB"),
+                "LastHeard": getLH(      node.get("lastHeard")),
+                "Since":     getTimeAgo( node.get("lastHeard")),
+            })
+
+            rows.append(row)
+
+        # Why doesn't this way work?
+        #rows.sort(key=lambda r: r.get('LastHeard', '0000'), reverse=True)
+        rows.sort(key=lambda r: r.get('LastHeard') or '0000', reverse=True)
+        for i, row in enumerate(rows):
+            row['N'] = i+1
+
+        print(tabulate(rows, headers='keys', missingval='N/A', tablefmt='fancy_grid'), file=file)
 
     def getNode(self, nodeId):
         """Return a node object which contains device settings and channel info"""
