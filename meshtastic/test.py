@@ -4,7 +4,7 @@ from . import SerialInterface, TCPInterface, BROADCAST_NUM
 from pubsub import pub
 import time
 import sys
-import threading
+import threading, traceback
 from dotmap import DotMap
 
 """The interfaces we are using for our tests"""
@@ -167,10 +167,15 @@ def testSimulator():
     """
     logging.basicConfig(level=logging.DEBUG if False else logging.INFO)
     logging.info("Connecting to simulator on localhost!")
-    iface = TCPInterface("localhost")
-    iface.showInfo()
-    iface.localNode.showInfo()
-    iface.localNode.exitSimulator()
-    iface.close()
-    logging.info("Integration test successful!")
-    sys.exit(0)
+    try:
+        iface = TCPInterface("localhost")
+        iface.showInfo()
+        iface.localNode.showInfo()
+        iface.localNode.exitSimulator()
+        iface.close()
+        logging.info("Integration test successful!")
+        sys.exit(0)
+    except:
+        print("Error while testing simulator:", sys.exc_info()[0])
+        traceback.print_exc()
+        sys.exit(1)
