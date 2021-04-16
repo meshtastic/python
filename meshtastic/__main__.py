@@ -405,7 +405,10 @@ def subscribe():
     """Subscribe to the topics the user probably wants to see, prints output to stdout"""
     pub.subscribe(onReceive, "meshtastic.receive")
     # pub.subscribe(onConnection, "meshtastic.connection")
-    pub.subscribe(onConnected, "meshtastic.connection.established")
+
+    # We now call onConnected from main
+    # pub.subscribe(onConnected, "meshtastic.connection.established")
+
     # pub.subscribe(onNode, "meshtastic.node")
 
 
@@ -464,6 +467,9 @@ def common():
             else:
                 client = SerialInterface(
                     args.port, debugOut=logfile, noProto=args.noproto)
+            
+            # We assume client is fully connected now
+            onConnected(client)
 
         # don't call exit, background threads might be running still
         # sys.exit(0)
