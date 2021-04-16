@@ -202,11 +202,11 @@ def testSimulator():
         iface.localNode.exitSimulator()
         iface.close()
         logging.info(&#34;Integration test successful!&#34;)
-        sys.exit(0)
     except:
         print(&#34;Error while testing simulator:&#34;, sys.exc_info()[0])
         traceback.print_exc()
-        sys.exit(1)</code></pre>
+        sys.exit(1)
+    sys.exit(0)</code></pre>
 </details>
 </section>
 <section>
@@ -465,11 +465,11 @@ python3 -c 'from meshtastic.test import testSimulator; testSimulator()'</p></div
         iface.localNode.exitSimulator()
         iface.close()
         logging.info(&#34;Integration test successful!&#34;)
-        sys.exit(0)
     except:
         print(&#34;Error while testing simulator:&#34;, sys.exc_info()[0])
         traceback.print_exc()
-        sys.exit(1)</code></pre>
+        sys.exit(1)
+    sys.exit(0)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.test.testThread"><code class="name flex">
