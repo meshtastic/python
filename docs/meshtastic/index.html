@@ -154,11 +154,14 @@ import time
 import base64
 import platform
 import socket
+import timeago
 from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
 from .util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
 from .node import Node
 from pubsub import pub
 from dotmap import DotMap
+from datetime import datetime
+from tabulate import tabulate
 from typing import *
 from google.protobuf.json_format import MessageToJson
 
@@ -247,12 +250,65 @@ class MeshInterface:
             logging.error(f&#39;Traceback: {traceback}&#39;)
         self.close()
 
-    def showInfo(self):
+    def showInfo(self, file=sys.stdout):
         &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
-        print(f&#34;My info: {stripnl(MessageToJson(self.myInfo))}&#34;)
-        print(&#34;\nNodes in mesh:&#34;)
+
+        print(f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
+        print(f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;, file=file)
+        print(&#34;\nNodes in mesh:&#34;, file=file)
         for n in self.nodes.values():
-            print(&#34;  &#34; + stripnl(n))
+            print(f&#34;  {stripnl(n)}&#34;, file=file)
+
+    def showNodes(self, includeSelf=True, file=sys.stdout):
+        &#34;&#34;&#34;Show table summary of nodes in mesh&#34;&#34;&#34;
+        def formatFloat(value, precision=2, unit=&#39;&#39;):
+            return f&#39;{value:.{precision}f}{unit}&#39; if value else None
+
+        def getLH(ts):
+            return datetime.fromtimestamp(ts).strftime(&#39;%Y-%m-%d %H:%M:%S&#39;) if ts else None
+
+        def getTimeAgo(ts):
+            return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else None
+
+        rows = []
+        for node in self.nodes.values():
+            if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
+                continue
+
+            row = { &#34;N&#34;: 0 }
+
+            user = node.get(&#39;user&#39;)
+            if user:
+                row.update({
+                    &#34;User&#34;: user[&#39;longName&#39;],
+                    &#34;AKA&#34;:  user[&#39;shortName&#39;],
+                    &#34;ID&#34;:   user[&#39;id&#39;],
+                })
+
+            pos = node.get(&#39;position&#39;)
+            if pos:
+                row.update({
+                    &#34;Latitude&#34;:  formatFloat(pos.get(&#34;latitude&#34;),     4, &#34;°&#34;),
+                    &#34;Longitude&#34;: formatFloat(pos.get(&#34;longitude&#34;),    4, &#34;°&#34;),
+                    &#34;Altitude&#34;:  formatFloat(pos.get(&#34;altitude&#34;),     0, &#34; m&#34;),
+                    &#34;Battery&#34;:   formatFloat(pos.get(&#34;batteryLevel&#34;), 2, &#34;%&#34;),
+                })
+
+            row.update({
+                &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
+                &#34;LastHeard&#34;: getLH(      node.get(&#34;lastHeard&#34;)),
+                &#34;Since&#34;:     getTimeAgo( node.get(&#34;lastHeard&#34;)),
+            })
+
+            rows.append(row)
+
+        # Why doesn&#39;t this way work?
+        #rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;, &#39;0000&#39;), reverse=True)
+        rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;) or &#39;0000&#39;, reverse=True)
+        for i, row in enumerate(rows):
+            row[&#39;N&#39;] = i+1
+
+        print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;, tablefmt=&#39;fancy_grid&#39;), file=file)
 
     def getNode(self, nodeId):
         &#34;&#34;&#34;Return a node object which contains device settings and channel info&#34;&#34;&#34;
@@ -771,7 +827,7 @@ class StreamInterface(MeshInterface):
         self._wantExit = False
 
         # FIXME, figure out why daemon=True causes reader thread to exit too early
-        self._rxThread = threading.Thread(target=self.__reader, args=())
+        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
@@ -1190,6 +1246,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.showInfo" href="#meshtastic.MeshInterface.showInfo">showInfo</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.showNodes" href="#meshtastic.MeshInterface.showNodes">showNodes</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
 </ul>
 </li>
@@ -1295,12 +1352,65 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             logging.error(f&#39;Traceback: {traceback}&#39;)
         self.close()
 
-    def showInfo(self):
+    def showInfo(self, file=sys.stdout):
         &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
-        print(f&#34;My info: {stripnl(MessageToJson(self.myInfo))}&#34;)
-        print(&#34;\nNodes in mesh:&#34;)
+
+        print(f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
+        print(f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;, file=file)
+        print(&#34;\nNodes in mesh:&#34;, file=file)
         for n in self.nodes.values():
-            print(&#34;  &#34; + stripnl(n))
+            print(f&#34;  {stripnl(n)}&#34;, file=file)
+
+    def showNodes(self, includeSelf=True, file=sys.stdout):
+        &#34;&#34;&#34;Show table summary of nodes in mesh&#34;&#34;&#34;
+        def formatFloat(value, precision=2, unit=&#39;&#39;):
+            return f&#39;{value:.{precision}f}{unit}&#39; if value else None
+
+        def getLH(ts):
+            return datetime.fromtimestamp(ts).strftime(&#39;%Y-%m-%d %H:%M:%S&#39;) if ts else None
+
+        def getTimeAgo(ts):
+            return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else None
+
+        rows = []
+        for node in self.nodes.values():
+            if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
+                continue
+
+            row = { &#34;N&#34;: 0 }
+
+            user = node.get(&#39;user&#39;)
+            if user:
+                row.update({
+                    &#34;User&#34;: user[&#39;longName&#39;],
+                    &#34;AKA&#34;:  user[&#39;shortName&#39;],
+                    &#34;ID&#34;:   user[&#39;id&#39;],
+                })
+
+            pos = node.get(&#39;position&#39;)
+            if pos:
+                row.update({
+                    &#34;Latitude&#34;:  formatFloat(pos.get(&#34;latitude&#34;),     4, &#34;°&#34;),
+                    &#34;Longitude&#34;: formatFloat(pos.get(&#34;longitude&#34;),    4, &#34;°&#34;),
+                    &#34;Altitude&#34;:  formatFloat(pos.get(&#34;altitude&#34;),     0, &#34; m&#34;),
+                    &#34;Battery&#34;:   formatFloat(pos.get(&#34;batteryLevel&#34;), 2, &#34;%&#34;),
+                })
+
+            row.update({
+                &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
+                &#34;LastHeard&#34;: getLH(      node.get(&#34;lastHeard&#34;)),
+                &#34;Since&#34;:     getTimeAgo( node.get(&#34;lastHeard&#34;)),
+            })
+
+            rows.append(row)
+
+        # Why doesn&#39;t this way work?
+        #rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;, &#39;0000&#39;), reverse=True)
+        rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;) or &#39;0000&#39;, reverse=True)
+        for i, row in enumerate(rows):
+            row[&#39;N&#39;] = i+1
+
+        print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;, tablefmt=&#39;fancy_grid&#39;), file=file)
 
     def getNode(self, nodeId):
         &#34;&#34;&#34;Return a node object which contains device settings and channel info&#34;&#34;&#34;
@@ -2003,7 +2113,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.showInfo"><code class="name flex">
-<span>def <span class="ident">showInfo</span></span>(<span>self)</span>
+<span>def <span class="ident">showInfo</span></span>(<span>self, file=sys.stdout)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Show human readable summary about this object</p></div>
@@ -2011,12 +2121,75 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def showInfo(self):
+<pre><code class="python">def showInfo(self, file=sys.stdout):
     &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
-    print(f&#34;My info: {stripnl(MessageToJson(self.myInfo))}&#34;)
-    print(&#34;\nNodes in mesh:&#34;)
+
+    print(f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
+    print(f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;, file=file)
+    print(&#34;\nNodes in mesh:&#34;, file=file)
     for n in self.nodes.values():
-        print(&#34;  &#34; + stripnl(n))</code></pre>
+        print(f&#34;  {stripnl(n)}&#34;, file=file)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.MeshInterface.showNodes"><code class="name flex">
+<span>def <span class="ident">showNodes</span></span>(<span>self, includeSelf=True, file=sys.stdout)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Show table summary of nodes in mesh</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def showNodes(self, includeSelf=True, file=sys.stdout):
+    &#34;&#34;&#34;Show table summary of nodes in mesh&#34;&#34;&#34;
+    def formatFloat(value, precision=2, unit=&#39;&#39;):
+        return f&#39;{value:.{precision}f}{unit}&#39; if value else None
+
+    def getLH(ts):
+        return datetime.fromtimestamp(ts).strftime(&#39;%Y-%m-%d %H:%M:%S&#39;) if ts else None
+
+    def getTimeAgo(ts):
+        return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else None
+
+    rows = []
+    for node in self.nodes.values():
+        if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
+            continue
+
+        row = { &#34;N&#34;: 0 }
+
+        user = node.get(&#39;user&#39;)
+        if user:
+            row.update({
+                &#34;User&#34;: user[&#39;longName&#39;],
+                &#34;AKA&#34;:  user[&#39;shortName&#39;],
+                &#34;ID&#34;:   user[&#39;id&#39;],
+            })
+
+        pos = node.get(&#39;position&#39;)
+        if pos:
+            row.update({
+                &#34;Latitude&#34;:  formatFloat(pos.get(&#34;latitude&#34;),     4, &#34;°&#34;),
+                &#34;Longitude&#34;: formatFloat(pos.get(&#34;longitude&#34;),    4, &#34;°&#34;),
+                &#34;Altitude&#34;:  formatFloat(pos.get(&#34;altitude&#34;),     0, &#34; m&#34;),
+                &#34;Battery&#34;:   formatFloat(pos.get(&#34;batteryLevel&#34;), 2, &#34;%&#34;),
+            })
+
+        row.update({
+            &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
+            &#34;LastHeard&#34;: getLH(      node.get(&#34;lastHeard&#34;)),
+            &#34;Since&#34;:     getTimeAgo( node.get(&#34;lastHeard&#34;)),
+        })
+
+        rows.append(row)
+
+    # Why doesn&#39;t this way work?
+    #rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;, &#39;0000&#39;), reverse=True)
+    rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;) or &#39;0000&#39;, reverse=True)
+    for i, row in enumerate(rows):
+        row[&#39;N&#39;] = i+1
+
+    print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;, tablefmt=&#39;fancy_grid&#39;), file=file)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.waitForConfig"><code class="name flex">
@@ -2138,6 +2311,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <li><code><a title="meshtastic.StreamInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.showInfo" href="#meshtastic.MeshInterface.showInfo">showInfo</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.showNodes" href="#meshtastic.MeshInterface.showNodes">showNodes</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
 </ul>
 </li>
@@ -2186,7 +2360,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         self._wantExit = False
 
         # FIXME, figure out why daemon=True causes reader thread to exit too early
-        self._rxThread = threading.Thread(target=self.__reader, args=())
+        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
@@ -2378,6 +2552,7 @@ start the reading thread later.</p></div>
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.showInfo" href="#meshtastic.MeshInterface.showInfo">showInfo</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.showNodes" href="#meshtastic.MeshInterface.showNodes">showNodes</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
 </ul>
 </li>
@@ -2457,6 +2632,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <li><code><a title="meshtastic.StreamInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.showInfo" href="#meshtastic.MeshInterface.showInfo">showInfo</a></code></li>
+<li><code><a title="meshtastic.StreamInterface.showNodes" href="#meshtastic.MeshInterface.showNodes">showNodes</a></code></li>
 <li><code><a title="meshtastic.StreamInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
 </ul>
 </li>
@@ -2528,6 +2704,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <li><code><a title="meshtastic.MeshInterface.sendPosition" href="#meshtastic.MeshInterface.sendPosition">sendPosition</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.sendText" href="#meshtastic.MeshInterface.sendText">sendText</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.showInfo" href="#meshtastic.MeshInterface.showInfo">showInfo</a></code></li>
+<li><code><a title="meshtastic.MeshInterface.showNodes" href="#meshtastic.MeshInterface.showNodes">showNodes</a></code></li>
 <li><code><a title="meshtastic.MeshInterface.waitForConfig" href="#meshtastic.MeshInterface.waitForConfig">waitForConfig</a></code></li>
 </ul>
 </li>

@@ -32,7 +32,7 @@ from . import SerialInterface, TCPInterface, BROADCAST_NUM
 from pubsub import pub
 import time
 import sys
-import threading
+import threading, traceback
 from dotmap import DotMap
 
 &#34;&#34;&#34;The interfaces we are using for our tests&#34;&#34;&#34;
@@ -195,13 +195,18 @@ def testSimulator():
     &#34;&#34;&#34;
     logging.basicConfig(level=logging.DEBUG if False else logging.INFO)
     logging.info(&#34;Connecting to simulator on localhost!&#34;)
-    iface = TCPInterface(&#34;localhost&#34;)
-    iface.showInfo()
-    iface.localNode.showInfo()
-    iface.localNode.exitSimulator()
-    iface.close()
-    logging.info(&#34;Integration test successful!&#34;)
-    sys.exit(0)</code></pre>
+    try:
+        iface = TCPInterface(&#34;localhost&#34;)
+        iface.showInfo()
+        iface.localNode.showInfo()
+        iface.localNode.exitSimulator()
+        iface.close()
+        logging.info(&#34;Integration test successful!&#34;)
+        sys.exit(0)
+    except:
+        print(&#34;Error while testing simulator:&#34;, sys.exc_info()[0])
+        traceback.print_exc()
+        sys.exit(1)</code></pre>
 </details>
 </section>
 <section>
@@ -453,13 +458,18 @@ python3 -c 'from meshtastic.test import testSimulator; testSimulator()'</p></div
     &#34;&#34;&#34;
     logging.basicConfig(level=logging.DEBUG if False else logging.INFO)
     logging.info(&#34;Connecting to simulator on localhost!&#34;)
-    iface = TCPInterface(&#34;localhost&#34;)
-    iface.showInfo()
-    iface.localNode.showInfo()
-    iface.localNode.exitSimulator()
-    iface.close()
-    logging.info(&#34;Integration test successful!&#34;)
-    sys.exit(0)</code></pre>
+    try:
+        iface = TCPInterface(&#34;localhost&#34;)
+        iface.showInfo()
+        iface.localNode.showInfo()
+        iface.localNode.exitSimulator()
+        iface.close()
+        logging.info(&#34;Integration test successful!&#34;)
+        sys.exit(0)
+    except:
+        print(&#34;Error while testing simulator:&#34;, sys.exc_info()[0])
+        traceback.print_exc()
+        sys.exit(1)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.test.testThread"><code class="name flex">
