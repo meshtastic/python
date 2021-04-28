@@ -5,6 +5,7 @@ import platform
 import logging
 import sys
 import codecs
+import time
 import base64
 import os
 from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
@@ -213,7 +214,7 @@ def onConnected(interface):
             closeNow = True
             print(
                 f"Setting HAM ID to {args.set_ham} and turning off encryption")
-            getNode().setOwner(args.set_ham, is_licensed = True)
+            getNode().setOwner(args.set_ham, is_licensed=True)
             # Must turn off crypt on primary channel
             ch = getNode().channels[0]
             ch.settings.psk = fromPSK("none")
@@ -258,7 +259,7 @@ def onConnected(interface):
                     """A closure to handle the response packet"""
                     hw = packet["decoded"]["remotehw"]
                     print(f'GPIO read response gpio_value={hw["gpioValue"]}')
-                    sys.exit(0) # Just force an exit (FIXME - ugly)
+                    sys.exit(0)  # Just force an exit (FIXME - ugly)
 
                 rhc.readGPIOs(args.dest, bitmask, onResponse)
 
@@ -394,7 +395,8 @@ def onConnected(interface):
 
     except Exception as ex:
         print(f"Aborting due to: {ex}")
-        interface.close() # close the connection now, so that our app exits
+        interface.close()  # close the connection now, so that our app exits
+
 
 def onNode(node):
     """Callback invoked when the node DB changes"""
@@ -435,7 +437,7 @@ def common():
 
         if not args.seriallog:
             if args.noproto:
-                args.seriallog = "stdout" 
+                args.seriallog = "stdout"
             else:
                 args.seriallog = "none"  # assume no debug output in this case
 
@@ -467,9 +469,13 @@ def common():
             else:
                 client = SerialInterface(
                     args.port, debugOut=logfile, noProto=args.noproto)
-            
+
             # We assume client is fully connected now
             onConnected(client)
+
+            if args.noproto:  # loop until someone presses ctrlc
+                while True:
+                    time.sleep(1000)
 
         # don't call exit, background threads might be running still
         # sys.exit(0)
