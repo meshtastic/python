@@ -144,12 +144,16 @@ class MeshInterface:
         self.responseHandlers = {}  # A map from request ID to the handler
         self.failure = None  # If we've encountered a fatal exception it will be kept here
         self._timeout = Timeout()
+        self.heartbeatTimer = None
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
         self._startConfig()
 
     def close(self):
         """Shutdown this interface"""
+        if self.heartbeatTimer:
+            self.heartbeatTimer.cancel()
+
         self._sendDisconnect()
 
     def __enter__(self):
@@ -434,6 +438,22 @@ class MeshInterface:
         publishingThread.queueWork(lambda: pub.sendMessage(
             "meshtastic.connection.lost", interface=self))
 
+    def _startHeartbeat(self):
+        """We need to send a heartbeat message to the device every X seconds"""
+        def callback():
+            self.heartbeatTimer = None
+            prefs = self.localNode.radioConfig.preferences
+            i = prefs.phone_timeout_secs / 2
+            logging.debug(f"Sending heartbeat, interval {i}")
+            if i != 0:
+                self.heartbeatTimer = threading.Timer(i, callback)
+                self.heartbeatTimer.start()
+                p = mesh_pb2.ToRadio()
+                self._sendToRadio(p)
+
+        callback() # run our periodic callback now, it will make another timer if necessary
+
+
     def _connected(self):
         """Called by this class to tell clients we are now fully connected to a node
         """
@@ -442,6 +462,7 @@ class MeshInterface:
         # for the local interface
         if not self.isConnected.is_set():
             self.isConnected.set()
+            self._startHeartbeat()
             publishingThread.queueWork(lambda: pub.sendMessage(
                 "meshtastic.connection.established", interface=self))
 
