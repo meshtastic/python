@@ -124,11 +124,11 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
         if not success:
             numFail = numFail + 1
             logging.error(
-                f&#34;Test failed, expected packet not received ({numFail} failures so far)&#34;)
+                f&#34;Test {testNumber} failed, expected packet not received ({numFail} failures so far)&#34;)
         else:
             numSuccess = numSuccess + 1
             logging.info(
-                f&#34;Test succeeded {numSuccess} successes {numFail} failures so far&#34;)
+                f&#34;Test {testNumber} succeeded {numSuccess} successes {numFail} failures so far&#34;)
 
         # if numFail &gt;= 3:
         #    for i in interfaces:
@@ -314,11 +314,11 @@ def testSimulator():
         if not success:
             numFail = numFail + 1
             logging.error(
-                f&#34;Test failed, expected packet not received ({numFail} failures so far)&#34;)
+                f&#34;Test {testNumber} failed, expected packet not received ({numFail} failures so far)&#34;)
         else:
             numSuccess = numSuccess + 1
             logging.info(
-                f&#34;Test succeeded {numSuccess} successes {numFail} failures so far&#34;)
+                f&#34;Test {testNumber} succeeded {numSuccess} successes {numFail} failures so far&#34;)
 
         # if numFail &gt;= 3:
         #    for i in interfaces:
