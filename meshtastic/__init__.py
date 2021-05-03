@@ -147,7 +147,6 @@ class MeshInterface:
         self.heartbeatTimer = None
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
-        self._startConfig()
 
     def close(self):
         """Shutdown this interface"""
@@ -510,7 +509,7 @@ class MeshInterface:
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
-        # logging.debug(f"Received from radio: {fromRadio}")
+        #logging.debug(f"Received from radio: {fromRadio}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
             self.localNode.nodeNum = self.myInfo.my_node_num
@@ -722,7 +721,7 @@ class BLEInterface(MeshInterface):
 
     def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
-        # logging.debug(f"Sending: {stripnl(toRadio)}")
+        #logging.debug(f"Sending: {stripnl(toRadio)}")
         b = toRadio.SerializeToString()
         self.device.char_write(TORADIO_UUID, b)
 
@@ -778,11 +777,16 @@ class StreamInterface(MeshInterface):
         start the reading thread later.
         """
 
-        # Send some bogus UART characters to force a sleeping device to wake
-        self._writeBytes(bytes([START1, START1, START1, START1]))
+        # Send some bogus UART characters to force a sleeping device to wake, and if the reading statemachine was parsing a bad packet make sure
+        # we write enought start bytes to force it to resync
+        p = bytearray([START1] * 32)
+        self._writeBytes(p)
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
+
+        self._startConfig()
+                
         if not self.noProto:  # Wait for the db download if using the protocol
             self._waitConnected()
 
@@ -852,15 +856,15 @@ class StreamInterface(MeshInterface):
                     elif ptr == 1:  # looking for START2
                         if c != START2:
                             self._rxBuf = empty  # failed to find start2
-                    elif ptr >= HEADER_LEN:  # we've at least got a header
+                    elif ptr >= HEADER_LEN - 1:  # we've at least got a header
                         # big endian length follos header
                         packetlen = (self._rxBuf[2] << 8) + self._rxBuf[3]
 
-                        if ptr == HEADER_LEN:  # we _just_ finished reading the header, validate length
+                        if ptr == HEADER_LEN - 1:  # we _just_ finished reading the header, validate length
                             if packetlen > MAX_TO_FROM_RADIO_SIZE:
                                 self._rxBuf = empty  # length ws out out bounds, restart
 
-                        if len(self._rxBuf) != 0 and ptr + 1 == packetlen + HEADER_LEN:
+                        if len(self._rxBuf) != 0 and ptr + 1 >= packetlen + HEADER_LEN:
                             try:
                                 self._handleFromRadio(self._rxBuf[HEADER_LEN:])
                             except Exception as ex:
