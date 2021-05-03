@@ -96,11 +96,11 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
         if not success:
             numFail = numFail + 1
             logging.error(
-                f"Test failed, expected packet not received ({numFail} failures so far)")
+                f"Test {testNumber} failed, expected packet not received ({numFail} failures so far)")
         else:
             numSuccess = numSuccess + 1
             logging.info(
-                f"Test succeeded {numSuccess} successes {numFail} failures so far")
+                f"Test {testNumber} succeeded {numSuccess} successes {numFail} failures so far")
 
         # if numFail >= 3:
         #    for i in interfaces:
