@@ -169,7 +169,8 @@ class MeshInterface:
     def showInfo(self, file=sys.stdout):
         """Show human readable summary about this object"""
 
-        print(f"Owner: {self.getLongName()} ({self.getShortName()})", file=file)
+        print(
+            f"Owner: {self.getLongName()} ({self.getShortName()})", file=file)
         print(f"\nMy info: {stripnl(MessageToJson(self.myInfo))}", file=file)
         print("\nNodes in mesh:", file=file)
         for n in self.nodes.values():
@@ -191,7 +192,7 @@ class MeshInterface:
             if not includeSelf and node['num'] == self.localNode.nodeNum:
                 continue
 
-            row = { "N": 0 }
+            row = {"N": 0}
 
             user = node.get('user')
             if user:
@@ -212,8 +213,8 @@ class MeshInterface:
 
             row.update({
                 "SNR":       formatFloat(node.get("snr"), 2, " dB"),
-                "LastHeard": getLH(      node.get("lastHeard")),
-                "Since":     getTimeAgo( node.get("lastHeard")),
+                "LastHeard": getLH(node.get("lastHeard")),
+                "Since":     getTimeAgo(node.get("lastHeard")),
             })
 
             rows.append(row)
@@ -224,7 +225,8 @@ class MeshInterface:
         for i, row in enumerate(rows):
             row['N'] = i+1
 
-        print(tabulate(rows, headers='keys', missingval='N/A', tablefmt='fancy_grid'), file=file)
+        print(tabulate(rows, headers='keys', missingval='N/A',
+                       tablefmt='fancy_grid'), file=file)
 
     def getNode(self, nodeId):
         """Return a node object which contains device settings and channel info"""
@@ -450,8 +452,7 @@ class MeshInterface:
                 p = mesh_pb2.ToRadio()
                 self._sendToRadio(p)
 
-        callback() # run our periodic callback now, it will make another timer if necessary
-
+        callback()  # run our periodic callback now, it will make another timer if necessary
 
     def _connected(self):
         """Called by this class to tell clients we are now fully connected to a node
@@ -760,7 +761,8 @@ class StreamInterface(MeshInterface):
         self._wantExit = False
 
         # FIXME, figure out why daemon=True causes reader thread to exit too early
-        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
+        self._rxThread = threading.Thread(
+            target=self.__reader, args=(), daemon=True)
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
@@ -786,7 +788,7 @@ class StreamInterface(MeshInterface):
         self._rxThread.start()
 
         self._startConfig()
-                
+
         if not self.noProto:  # Wait for the db download if using the protocol
             self._waitConnected()
 
