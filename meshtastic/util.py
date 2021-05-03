@@ -1,6 +1,6 @@
 
 from collections import defaultdict
-import serial
+import serial, traceback
 import serial.tools.list_ports
 from queue import Queue
 import threading, sys, time, logging
@@ -87,3 +87,4 @@ class DeferredExecution():
             except:
                 logging.error(
                     f"Unexpected error in deferred execution {sys.exc_info()[0]}")
+                print(traceback.format_exc())

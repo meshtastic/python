@@ -31,7 +31,8 @@ def onReceive(packet, interface):
 
         if p.decoded.portnum == "TEXT_MESSAGE_APP":
             # We only care a about clear text packets
-            receivedPackets.append(p)
+            if receivedPackets != None:
+                receivedPackets.append(p)
 
 
 def onNode(node):

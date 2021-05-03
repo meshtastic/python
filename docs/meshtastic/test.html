@@ -59,7 +59,8 @@ def onReceive(packet, interface):
 
         if p.decoded.portnum == &#34;TEXT_MESSAGE_APP&#34;:
             # We only care a about clear text packets
-            receivedPackets.append(p)
+            if receivedPackets != None:
+                receivedPackets.append(p)
 
 
 def onNode(node):
@@ -271,7 +272,8 @@ def testSimulator():
 
         if p.decoded.portnum == &#34;TEXT_MESSAGE_APP&#34;:
             # We only care a about clear text packets
-            receivedPackets.append(p)</code></pre>
+            if receivedPackets != None:
+                receivedPackets.append(p)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.test.openDebugLog"><code class="name flex">
