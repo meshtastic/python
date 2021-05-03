@@ -256,7 +256,8 @@ class MeshInterface:
     def showInfo(self, file=sys.stdout):
         &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
 
-        print(f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
+        print(
+            f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
         print(f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;, file=file)
         print(&#34;\nNodes in mesh:&#34;, file=file)
         for n in self.nodes.values():
@@ -278,7 +279,7 @@ class MeshInterface:
             if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
                 continue
 
-            row = { &#34;N&#34;: 0 }
+            row = {&#34;N&#34;: 0}
 
             user = node.get(&#39;user&#39;)
             if user:
@@ -299,8 +300,8 @@ class MeshInterface:
 
             row.update({
                 &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
-                &#34;LastHeard&#34;: getLH(      node.get(&#34;lastHeard&#34;)),
-                &#34;Since&#34;:     getTimeAgo( node.get(&#34;lastHeard&#34;)),
+                &#34;LastHeard&#34;: getLH(node.get(&#34;lastHeard&#34;)),
+                &#34;Since&#34;:     getTimeAgo(node.get(&#34;lastHeard&#34;)),
             })
 
             rows.append(row)
@@ -311,7 +312,8 @@ class MeshInterface:
         for i, row in enumerate(rows):
             row[&#39;N&#39;] = i+1
 
-        print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;, tablefmt=&#39;fancy_grid&#39;), file=file)
+        print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
+                       tablefmt=&#39;fancy_grid&#39;), file=file)
 
     def getNode(self, nodeId):
         &#34;&#34;&#34;Return a node object which contains device settings and channel info&#34;&#34;&#34;
@@ -537,8 +539,7 @@ class MeshInterface:
                 p = mesh_pb2.ToRadio()
                 self._sendToRadio(p)
 
-        callback() # run our periodic callback now, it will make another timer if necessary
-
+        callback()  # run our periodic callback now, it will make another timer if necessary
 
     def _connected(self):
         &#34;&#34;&#34;Called by this class to tell clients we are now fully connected to a node
@@ -847,7 +848,8 @@ class StreamInterface(MeshInterface):
         self._wantExit = False
 
         # FIXME, figure out why daemon=True causes reader thread to exit too early
-        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
+        self._rxThread = threading.Thread(
+            target=self.__reader, args=(), daemon=True)
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
@@ -865,15 +867,15 @@ class StreamInterface(MeshInterface):
         &#34;&#34;&#34;
 
         # Send some bogus UART characters to force a sleeping device to wake, and if the reading statemachine was parsing a bad packet make sure
-        # we write enought start bytes to force it to resync
-        p = bytearray([START1] * 32)
+        # we write enought start bytes to force it to resync (we don&#39;t use START1 because we want to ensure it is looking for START1)
+        p = bytearray([START2] * 32)
         self._writeBytes(p)
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
 
         self._startConfig()
-                
+
         if not self.noProto:  # Wait for the db download if using the protocol
             self._waitConnected()
 
@@ -1383,7 +1385,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
     def showInfo(self, file=sys.stdout):
         &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
 
-        print(f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
+        print(
+            f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
         print(f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;, file=file)
         print(&#34;\nNodes in mesh:&#34;, file=file)
         for n in self.nodes.values():
@@ -1405,7 +1408,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
                 continue
 
-            row = { &#34;N&#34;: 0 }
+            row = {&#34;N&#34;: 0}
 
             user = node.get(&#39;user&#39;)
             if user:
@@ -1426,8 +1429,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
             row.update({
                 &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
-                &#34;LastHeard&#34;: getLH(      node.get(&#34;lastHeard&#34;)),
-                &#34;Since&#34;:     getTimeAgo( node.get(&#34;lastHeard&#34;)),
+                &#34;LastHeard&#34;: getLH(node.get(&#34;lastHeard&#34;)),
+                &#34;Since&#34;:     getTimeAgo(node.get(&#34;lastHeard&#34;)),
             })
 
             rows.append(row)
@@ -1438,7 +1441,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         for i, row in enumerate(rows):
             row[&#39;N&#39;] = i+1
 
-        print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;, tablefmt=&#39;fancy_grid&#39;), file=file)
+        print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
+                       tablefmt=&#39;fancy_grid&#39;), file=file)
 
     def getNode(self, nodeId):
         &#34;&#34;&#34;Return a node object which contains device settings and channel info&#34;&#34;&#34;
@@ -1664,8 +1668,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                 p = mesh_pb2.ToRadio()
                 self._sendToRadio(p)
 
-        callback() # run our periodic callback now, it will make another timer if necessary
-
+        callback()  # run our periodic callback now, it will make another timer if necessary
 
     def _connected(self):
         &#34;&#34;&#34;Called by this class to tell clients we are now fully connected to a node
@@ -2172,7 +2175,8 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 <pre><code class="python">def showInfo(self, file=sys.stdout):
     &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
 
-    print(f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
+    print(
+        f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
     print(f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;, file=file)
     print(&#34;\nNodes in mesh:&#34;, file=file)
     for n in self.nodes.values():
@@ -2204,7 +2208,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
         if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
             continue
 
-        row = { &#34;N&#34;: 0 }
+        row = {&#34;N&#34;: 0}
 
         user = node.get(&#39;user&#39;)
         if user:
@@ -2225,8 +2229,8 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 
         row.update({
             &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
-            &#34;LastHeard&#34;: getLH(      node.get(&#34;lastHeard&#34;)),
-            &#34;Since&#34;:     getTimeAgo( node.get(&#34;lastHeard&#34;)),
+            &#34;LastHeard&#34;: getLH(node.get(&#34;lastHeard&#34;)),
+            &#34;Since&#34;:     getTimeAgo(node.get(&#34;lastHeard&#34;)),
         })
 
         rows.append(row)
@@ -2237,7 +2241,8 @@ wantResponse &ndash; True if you want the service on the other side to send an a
     for i, row in enumerate(rows):
         row[&#39;N&#39;] = i+1
 
-    print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;, tablefmt=&#39;fancy_grid&#39;), file=file)</code></pre>
+    print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
+                   tablefmt=&#39;fancy_grid&#39;), file=file)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.waitForConfig"><code class="name flex">
@@ -2408,7 +2413,8 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         self._wantExit = False
 
         # FIXME, figure out why daemon=True causes reader thread to exit too early
-        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
+        self._rxThread = threading.Thread(
+            target=self.__reader, args=(), daemon=True)
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
@@ -2426,15 +2432,15 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         &#34;&#34;&#34;
 
         # Send some bogus UART characters to force a sleeping device to wake, and if the reading statemachine was parsing a bad packet make sure
-        # we write enought start bytes to force it to resync
-        p = bytearray([START1] * 32)
+        # we write enought start bytes to force it to resync (we don&#39;t use START1 because we want to ensure it is looking for START1)
+        p = bytearray([START2] * 32)
         self._writeBytes(p)
         time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
 
         self._startConfig()
-                
+
         if not self.noProto:  # Wait for the db download if using the protocol
             self._waitConnected()
 
@@ -2587,15 +2593,15 @@ start the reading thread later.</p></div>
     &#34;&#34;&#34;
 
     # Send some bogus UART characters to force a sleeping device to wake, and if the reading statemachine was parsing a bad packet make sure
-    # we write enought start bytes to force it to resync
-    p = bytearray([START1] * 32)
+    # we write enought start bytes to force it to resync (we don&#39;t use START1 because we want to ensure it is looking for START1)
+    p = bytearray([START2] * 32)
     self._writeBytes(p)
     time.sleep(0.1)  # wait 100ms to give device time to start running
 
     self._rxThread.start()
 
     self._startConfig()
-            
+
     if not self.noProto:  # Wait for the db download if using the protocol
         self._waitConnected()</code></pre>
 </details>
