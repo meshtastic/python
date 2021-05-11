@@ -118,6 +118,32 @@ never = 0xffffffff
 oneday = 24 * 60 * 60
 
 
+def getPref(attributes, name):
+    """Get a channel or preferences value"""
+
+    objDesc = attributes.DESCRIPTOR
+    field = objDesc.fields_by_name.get(name)
+    if not field:
+        print(f"{attributes.__class__.__name__} doesn't have an attribute called {name}, so you can not get it.")
+        print(f"Choices are:")
+        for f in objDesc.fields:
+            print(f"  {f.name}")
+        return
+
+    # okay - try to read the value
+    try:
+        try:
+            val = getattr(attributes, name)
+        except TypeError as ex:
+            # The getter didn't like our arg type guess try again as a string
+            val = getattr(attributes, name)
+
+        # succeeded!
+        print(f"{name}: {str(val)}")
+    except Exception as ex:
+        print(f"Can't get {name} due to {ex}")
+
+
 def setPref(attributes, name, valStr):
     """Set a channel or preferences value"""
 
@@ -281,6 +307,7 @@ def onConnected(interface):
             print("Writing modified preferences to device")
             getNode().writeConfig()
 
+
         if args.seturl:
             closeNow = True
             getNode().setURL(args.seturl)
@@ -371,6 +398,17 @@ def onConnected(interface):
             getNode().showInfo()
             closeNow = True  # FIXME, for now we leave the link up while talking to remote nodes
             print("")
+
+        if args.get:
+            closeNow = True
+            prefs = getNode().radioConfig.preferences
+
+            # Handle the int/float/bool arguments
+            for pref in args.get:
+                getPref(
+                    prefs, pref[0])
+
+            print("Completed getting preferences")
 
         if args.nodes:
             closeNow = True
@@ -506,6 +544,9 @@ def initParser():
 
     parser.add_argument("--qr", help="Display the QR code that corresponds to the current channel",
                         action="store_true")
+
+    parser.add_argument(
+        "--get", help="Get a preferences field", nargs=1, action='append')
 
     parser.add_argument(
         "--set", help="Set a preferences field", nargs=2, action='append')
