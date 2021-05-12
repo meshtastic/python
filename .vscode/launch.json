@@ -93,5 +93,13 @@
       "justMyCode": true,
       "args": ["--debug", "--sendtext", "pytest"]
     }
+    {
+      "name": "meshtastic showNodes",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--nodes"]
+    }
   ]
 }

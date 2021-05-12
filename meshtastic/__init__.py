@@ -993,6 +993,7 @@ def _onTextReceive(iface, asDict):
         asDict["decoded"]["text"] = asBytes.decode("utf-8")
     except Exception as ex:
         logging.error(f"Malformatted utf8 in text message: {ex}")
+    _receiveInfoUpdate(iface, asDict)
 
 
 def _onPositionReceive(iface, asDict):
@@ -1012,6 +1013,14 @@ def _onNodeInfoReceive(iface, asDict):
     n["user"] = p
     # We now have a node ID, make sure it is uptodate in that table
     iface.nodes[p["id"]] = n
+    _receiveInfoUpdate(iface, asDict)
+
+
+def _receiveInfoUpdate(iface, asDict):
+    iface._getOrCreateByNum(asDict["from"])["lastReceived"] = asDict
+    iface._getOrCreateByNum(asDict["from"])["lastHeard"] = asDict.get("rxTime")
+    iface._getOrCreateByNum(asDict["from"])["snr"] = asDict.get("rxSnr")
+    iface._getOrCreateByNum(asDict["from"])["hopLimit"] = asDict.get("hopLimit")
 
 
 """Well known message payloads can register decoders for automatic protobuf parsing"""
