@@ -18,9 +18,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='apponly.proto',
   package='',
   syntax='proto3',
-  serialized_options=b'\n\023com.geeksville.meshB\rAppOnlyProtosH\003',
+  serialized_options=b'\n\023com.geeksville.meshB\rAppOnlyProtosH\003Z!github.com/meshtastic/gomeshproto',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rapponly.proto\x1a\rchannel.proto\"0\n\nChannelSet\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.ChannelSettingsB&\n\x13\x63om.geeksville.meshB\rAppOnlyProtosH\x03\x62\x06proto3'
+  serialized_pb=b'\n\rapponly.proto\x1a\rchannel.proto\"0\n\nChannelSet\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.ChannelSettingsBI\n\x13\x63om.geeksville.meshB\rAppOnlyProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
   ,
   dependencies=[channel__pb2.DESCRIPTOR,])
 

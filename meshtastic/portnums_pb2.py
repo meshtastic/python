@@ -18,9 +18,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='portnums.proto',
   package='',
   syntax='proto3',
-  serialized_options=b'\n\023com.geeksville.meshB\010PortnumsH\003',
+  serialized_options=b'\n\023com.geeksville.meshB\010PortnumsH\003Z!github.com/meshtastic/gomeshproto',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0eportnums.proto*\xbe\x02\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\x0f\n\x0bROUTING_APP\x10\x05\x12\r\n\tADMIN_APP\x10\x06\x12\r\n\tREPLY_APP\x10 \x12\x11\n\rIP_TUNNEL_APP\x10!\x12\x0e\n\nSERIAL_APP\x10@\x12\x15\n\x11STORE_FORWARD_APP\x10\x41\x12\x12\n\x0eRANGE_TEST_APP\x10\x42\x12!\n\x1d\x45NVIRONMENTAL_MEASUREMENT_APP\x10\x43\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x13\n\x0e\x41TAK_FORWARDER\x10\x81\x02\x12\x08\n\x03MAX\x10\xff\x03\x42!\n\x13\x63om.geeksville.meshB\x08PortnumsH\x03\x62\x06proto3'
+  serialized_pb=b'\n\x0eportnums.proto*\xbe\x02\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\x0f\n\x0bROUTING_APP\x10\x05\x12\r\n\tADMIN_APP\x10\x06\x12\r\n\tREPLY_APP\x10 \x12\x11\n\rIP_TUNNEL_APP\x10!\x12\x0e\n\nSERIAL_APP\x10@\x12\x15\n\x11STORE_FORWARD_APP\x10\x41\x12\x12\n\x0eRANGE_TEST_APP\x10\x42\x12!\n\x1d\x45NVIRONMENTAL_MEASUREMENT_APP\x10\x43\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x13\n\x0e\x41TAK_FORWARDER\x10\x81\x02\x12\x08\n\x03MAX\x10\xff\x03\x42\x44\n\x13\x63om.geeksville.meshB\x08PortnumsH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
 )
 
 _PORTNUM = _descriptor.EnumDescriptor(

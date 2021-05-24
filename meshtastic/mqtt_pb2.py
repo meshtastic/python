@@ -18,9 +18,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='mqtt.proto',
   package='',
   syntax='proto3',
-  serialized_options=b'\n\023com.geeksville.meshB\nMQTTProtosH\003',
+  serialized_options=b'\n\023com.geeksville.meshB\nMQTTProtosH\003Z!github.com/meshtastic/gomeshproto',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\nmqtt.proto\x1a\nmesh.proto\"V\n\x0fServiceEnvelope\x12\x1b\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacket\x12\x12\n\nchannel_id\x18\x02 \x01(\t\x12\x12\n\ngateway_id\x18\x03 \x01(\tB#\n\x13\x63om.geeksville.meshB\nMQTTProtosH\x03\x62\x06proto3'
+  serialized_pb=b'\n\nmqtt.proto\x1a\nmesh.proto\"V\n\x0fServiceEnvelope\x12\x1b\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacket\x12\x12\n\nchannel_id\x18\x02 \x01(\t\x12\x12\n\ngateway_id\x18\x03 \x01(\tBF\n\x13\x63om.geeksville.meshB\nMQTTProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
   ,
   dependencies=[mesh__pb2.DESCRIPTOR,])
 

@@ -17,9 +17,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='environmental_measurement.proto',
   package='',
   syntax='proto3',
-  serialized_options=None,
+  serialized_options=b'Z!github.com/meshtastic/gomeshproto',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1f\x65nvironmental_measurement.proto\"g\n\x18\x45nvironmentalMeasurement\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x12\x19\n\x11relative_humidity\x18\x02 \x01(\x02\x12\x1b\n\x13\x62\x61rometric_pressure\x18\x03 \x01(\x02\x62\x06proto3'
+  serialized_pb=b'\n\x1f\x65nvironmental_measurement.proto\"g\n\x18\x45nvironmentalMeasurement\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x12\x19\n\x11relative_humidity\x18\x02 \x01(\x02\x12\x1b\n\x13\x62\x61rometric_pressure\x18\x03 \x01(\x02\x42#Z!github.com/meshtastic/gomeshprotob\x06proto3'
 )
 
 
@@ -81,4 +81,5 @@ EnvironmentalMeasurement = _reflection.GeneratedProtocolMessageType('Environment
 _sym_db.RegisterMessage(EnvironmentalMeasurement)
 
 
+DESCRIPTOR._options = None
 # @@protoc_insertion_point(module_scope)
