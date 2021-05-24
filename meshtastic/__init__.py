@@ -919,7 +919,7 @@ class SerialInterface(StreamInterface):
 
         # Note: we provide None for port here, because we will be opening it later
         self.stream = serial.Serial(
-            None, 921600, exclusive=True, timeout=0.5)
+            None, 921600, exclusive=True, timeout=0.5, write_timeout=0)
 
         # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
         self.stream.port = devPath
