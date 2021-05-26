@@ -647,7 +647,7 @@ def initParser():
         parser.add_argument('--tunnel',
                             action='store_true', help="Create a TUN tunnel device for forwarding IP packets over the mesh")
         parser.add_argument(
-            "--subnet", dest='tunnel_net', help="Read from a GPIO mask", default=None)
+            "--subnet", dest='tunnel_net', help="Sets the local-end subnet address for the TUN IP bridge", default=None)
 
     parser.set_defaults(deprecated=None)
 
