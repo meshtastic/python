@@ -64,7 +64,7 @@ trueTerms = {"t", "true", "yes"}
 falseTerms = {"f", "false", "no"}
 
 
-def genPSKS256():
+def genPSK256():
     return os.urandom(32)
 
 
