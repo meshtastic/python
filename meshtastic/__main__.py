@@ -326,7 +326,7 @@ def onConnected(interface):
                 if not ch:
                     raise Exception("No free channels were found")
                 chs = channel_pb2.ChannelSettings()
-                chs.psk = genPSKS256()
+                chs.psk = genPSK256()
                 chs.name = args.ch_add
                 ch.settings.CopyFrom(chs)
                 ch.role = channel_pb2.Channel.Role.SECONDARY
