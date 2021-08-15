@@ -11,15 +11,19 @@ Installation is easily done through the Python package installer pip (note, you 
 - check that your computer has Python 3 installed.
 - check that your computer has "pip3" installed, if not follow [this guide](https://www.makeuseof.com/tag/install-pip-for-python/).
 - check that pytap2 is installed by pip3. If not, install it:
+
 ```
 sudo pip3 install --upgrade pytap2
 ```
+
 - install meshtastic:
+
 ```
 sudo pip3 install --upgrade meshtastic
 ```
 
 An example using Python 3 code to send a message to the mesh:
+
 ```
 import meshtastic
 interface = meshtastic.SerialInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
@@ -36,6 +40,7 @@ This pip package will also install a "meshtastic" command line executable, which
 NOTE: This command is not run inside of python, you run it from your operating system shell prompt directly.  If when you type "meshtastic" it doesn't find the command and you are using Windows: Check that the python "scripts" directory [is in your path](https://datatofish.com/add-python-to-windows-path/).
 
 To display a (partial) list of the available commands:
+
 ```
 meshtastic -h
 ```
@@ -79,7 +84,7 @@ The channel settings can be changed similiarly.  Either by using a standard (sha
 The URL is constructed automatically based off of the current channel settings. So if you want to customize a channel you could do something like:
 
 ```
-meshtastic --setchan name mychan --setchan channel_num 4 --info
+meshtastic --ch-set name mychan --ch-set channel_num 4 --info
 ```
 
 This will change some channel params and then show device info (which will include the current channel URL)
@@ -87,14 +92,20 @@ This will change some channel params and then show device info (which will inclu
 You can even set the channel preshared key to a particular AES128 or AES256 sequence.
 
 ```
-meshtastic --setchan psk 0x1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b --info
+meshtastic --ch-set psk 0x1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b --info
 ```
 
-Use "--setchan psk none" to turn off encryption.  
+Use "--ch-set psk none" to turn off encryption.  
 
-Use "--setchan psk random" will assign a new (high quality) random AES256 key to the primary channel (similar to what the Android app does when making new channels).
+Use "--ch-set psk random" will assign a new (high quality) random AES256 key to the primary channel (similar to what the Android app does when making new channels).
 
-Use "--setchan psk default" to restore the standard 'default' (minimally secure, because it is in the source code for anyone to read) AES128 key.
+Use "--ch-set psk default" to restore the standard 'default' (minimally secure, because it is in the source code for anyone to read) AES128 key.
+
+All "ch-set" commands will default to the primary channel at index 0, but can be applied to other channels with the "ch-index" parameter:
+
+```
+meshtastic --ch-index 1 --ch-set name mychan --ch-set channel_num 4 --info
+```
 
 ## Ham radio support
 
@@ -114,6 +125,7 @@ This is a collection of common questions and answers from our friendly forum.
 ### [Permission denied: ‘/dev/ttyUSB0’](https://meshtastic.discourse.group/t/question-on-permission-denied-dev-ttyusb0/590/3?u=geeksville)
 
 This indicates an OS permission problem for access by your user to the USB serial port.  Typically this is fixed by the following.
+
 ```
 sudo usermod -a -G dialout <username>
 ```
@@ -133,6 +145,7 @@ Afterwards you can use the meshatstic python client again on MacOS.
 We use the visual-studio-code default python formatting conventions (autopep8).  So if you use that IDE you should be able to use "Format Document" and not generate unrelated diffs.  If you use some other editor, please don't change formatting on lines you haven't changed.
 
 If you need to build a new release you'll need:
+
 ```
 apt install pandoc
 sudo pip3 install markdown pdoc3 webencodings pyparsing twine autopep8
