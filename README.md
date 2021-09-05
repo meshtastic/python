@@ -75,6 +75,12 @@ Or to configure an ESP32 to run as a Wifi access point:
 meshtastic --set wifi_ap_mode true --set wifi_ssid mywifissid --set wifi_password mywifipsw
 ```
 
+Once an a node is connected to a Wi-Fi network, you can use the `--host` option to access it instead of using the USB serial bridge:
+
+```
+meshtastic --host Meshtastic-0123.lan --info --nodes
+```
+
 For a full list of preferences which can be set (and their documentation) see [here](https://meshtastic.org/docs/developers/protobufs/api#radioconfiguserpreferences).
 
 ### Changing channel settings
@@ -127,8 +133,10 @@ This is a collection of common questions and answers from our friendly forum.
 This indicates an OS permission problem for access by your user to the USB serial port.  Typically this is fixed by the following.
 
 ```
-sudo usermod -a -G dialout <username>
+sudo usermod -a -G dialout $USER
 ```
+
+This adds the "dialout" group to your user.  You'll need to obtain a new login session (for example, by logging out and logging back in) for the group change (and thus permission change) to take effect.
 
 ## Mac OS Big Sur
 
