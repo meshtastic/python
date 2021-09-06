@@ -170,13 +170,15 @@ class MeshInterface:
 
     def showInfo(self, file=sys.stdout):
         """Show human readable summary about this object"""
-
-        print(
-            f"Owner: {self.getLongName()} ({self.getShortName()})", file=file)
-        print(f"\nMy info: {stripnl(MessageToJson(self.myInfo))}", file=file)
-        print("\nNodes in mesh:", file=file)
+        owner = f"Owner: {self.getLongName()} ({self.getShortName()})"
+        myinfo = f"\nMy info: {stripnl(MessageToJson(self.myInfo))}"
+        mesh = "\nNodes in mesh:"
+        nodes = ""
         for n in self.nodes.values():
-            print(f"  {stripnl(n)}", file=file)
+            nodes = nodes + f"  {stripnl(n)}"
+        infos = owner + myinfo + mesh + nodes
+        print(infos)
+        return infos
 
     def showNodes(self, includeSelf=True, file=sys.stdout):
         """Show table summary of nodes in mesh"""
@@ -227,8 +229,11 @@ class MeshInterface:
         for i, row in enumerate(rows):
             row['N'] = i+1
 
-        print(tabulate(rows, headers='keys', missingval='N/A',
-                       tablefmt='fancy_grid'), file=file)
+        table = tabulate(rows, headers='keys', missingval='N/A',
+                       tablefmt='fancy_grid')
+        print(table)
+        return table
+
 
     def getNode(self, nodeId):
         """Return a node object which contains device settings and channel info"""
