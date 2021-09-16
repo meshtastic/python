@@ -246,7 +246,8 @@ class MeshInterface:
                  wantAck=False,
                  wantResponse=False,
                  hopLimit=defaultHopLimit,
-                 onResponse=None):
+                 onResponse=None,
+                 channelIndex=0):
         """Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
         Arguments:
@@ -265,7 +266,8 @@ class MeshInterface:
                              wantAck=wantAck,
                              wantResponse=wantResponse,
                              hopLimit=hopLimit,
-                             onResponse=onResponse)
+                             onResponse=onResponse,
+                             channelIndex=channelIndex);
 
     def sendData(self, data, destinationId=BROADCAST_ADDR,
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
