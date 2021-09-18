@@ -37,7 +37,7 @@ For the rough notes/implementation plan see [TODO](https://github.com/meshtastic
 
 This pip package will also install a "meshtastic" command line executable, which displays packets sent over the network as JSON and lets you see serial debugging information from the meshtastic devices. The source code for this tool is also a good [example](https://github.com/meshtastic/Meshtastic-python/blob/master/meshtastic/__main__.py) of a 'complete' application that uses the meshtastic python API.
 
-NOTE: This command is not run inside of python, you run it from your operating system shell prompt directly.  If when you type "meshtastic" it doesn't find the command and you are using Windows: Check that the python "scripts" directory [is in your path](https://datatofish.com/add-python-to-windows-path/).
+NOTE: This command is not run inside of python; you run it from your operating system shell prompt directly.  If when you type "meshtastic" it doesn't find the command and you are using Windows: Check that the python "scripts" directory [is in your path](https://datatofish.com/add-python-to-windows-path/).
 
 To display a (partial) list of the available commands:
 
@@ -146,7 +146,7 @@ There is a problem with Big Sur and pyserial. The workaround is to install a new
 pip3 install -U --pre pyserial
 ```
 
-Afterwards you can use the meshatstic python client again on MacOS.
+Afterwards you can use the Meshtastic python client again on MacOS.
 
 ## A note to developers of this lib
 
