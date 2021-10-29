@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\021RadioConfigProtosH\003Z!github.com/meshtastic/gomeshproto',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x11radioconfig.proto\"\xb6\x10\n\x0bRadioConfig\x12\x31\n\x0bpreferences\x18\x01 \x01(\x0b\x32\x1c.RadioConfig.UserPreferences\x1a\xf3\x0f\n\x0fUserPreferences\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12\x1b\n\x13send_owner_interval\x18\x02 \x01(\r\x12\x1b\n\x13wait_bluetooth_secs\x18\x04 \x01(\r\x12\x16\n\x0escreen_on_secs\x18\x05 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x06 \x01(\r\x12\x1d\n\x15phone_sds_timeout_sec\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\x08 \x01(\r\x12\x10\n\x08sds_secs\x18\t \x01(\r\x12\x0f\n\x07ls_secs\x18\n \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0b \x01(\r\x12\x11\n\twifi_ssid\x18\x0c \x01(\t\x12\x15\n\rwifi_password\x18\r \x01(\t\x12\x14\n\x0cwifi_ap_mode\x18\x0e \x01(\x08\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\x12&\n\x0e\x63harge_current\x18\x10 \x01(\x0e\x32\x0e.ChargeCurrent\x12\x11\n\tis_router\x18% \x01(\x08\x12\x14\n\x0cis_low_power\x18& \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\' \x01(\x08\x12\x17\n\x0fserial_disabled\x18( \x01(\x08\x12(\n\x0elocation_share\x18  \x01(\x0e\x32\x10.LocationSharing\x12$\n\rgps_operation\x18! \x01(\x0e\x32\r.GpsOperation\x12\x1b\n\x13gps_update_interval\x18\" \x01(\r\x12\x18\n\x10gps_attempt_time\x18$ \x01(\r\x12\x18\n\x10\x66requency_offset\x18) \x01(\x02\x12\x13\n\x0bmqtt_server\x18* \x01(\t\x12\x15\n\rmqtt_disabled\x18+ \x01(\x08\x12(\n\ngps_format\x18, \x01(\x0e\x32\x14.GpsCoordinateFormat\x12\x15\n\rfactory_reset\x18\x64 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x65 \x01(\x08\x12\x17\n\x0fignore_incoming\x18g \x03(\r\x12\x1c\n\x14serialplugin_enabled\x18x \x01(\x08\x12\x19\n\x11serialplugin_echo\x18y \x01(\x08\x12\x18\n\x10serialplugin_rxd\x18z \x01(\r\x12\x18\n\x10serialplugin_txd\x18{ \x01(\r\x12\x1c\n\x14serialplugin_timeout\x18| \x01(\r\x12\x19\n\x11serialplugin_mode\x18} \x01(\r\x12\'\n\x1f\x65xt_notification_plugin_enabled\x18~ \x01(\x08\x12)\n!ext_notification_plugin_output_ms\x18\x7f \x01(\r\x12\'\n\x1e\x65xt_notification_plugin_output\x18\x80\x01 \x01(\r\x12\'\n\x1e\x65xt_notification_plugin_active\x18\x81\x01 \x01(\x08\x12.\n%ext_notification_plugin_alert_message\x18\x82\x01 \x01(\x08\x12+\n\"ext_notification_plugin_alert_bell\x18\x83\x01 \x01(\x08\x12\"\n\x19range_test_plugin_enabled\x18\x84\x01 \x01(\x08\x12!\n\x18range_test_plugin_sender\x18\x85\x01 \x01(\r\x12\x1f\n\x16range_test_plugin_save\x18\x86\x01 \x01(\x08\x12%\n\x1cstore_forward_plugin_enabled\x18\x94\x01 \x01(\x08\x12%\n\x1cstore_forward_plugin_records\x18\x89\x01 \x01(\r\x12=\n4environmental_measurement_plugin_measurement_enabled\x18\x8c\x01 \x01(\x08\x12\x38\n/environmental_measurement_plugin_screen_enabled\x18\x8d\x01 \x01(\x08\x12\x44\n;environmental_measurement_plugin_read_error_count_threshold\x18\x8e\x01 \x01(\r\x12\x39\n0environmental_measurement_plugin_update_interval\x18\x8f\x01 \x01(\r\x12;\n2environmental_measurement_plugin_recovery_interval\x18\x90\x01 \x01(\r\x12;\n2environmental_measurement_plugin_display_farenheit\x18\x91\x01 \x01(\x08\x12v\n,environmental_measurement_plugin_sensor_type\x18\x92\x01 \x01(\x0e\x32?.RadioConfig.UserPreferences.EnvironmentalMeasurementSensorType\x12\x34\n+environmental_measurement_plugin_sensor_pin\x18\x93\x01 \x01(\r\"/\n\"EnvironmentalMeasurementSensorType\x12\t\n\x05\x44HT11\x10\x00J\x06\x08\x88\x01\x10\x89\x01*f\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U865\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08\x12\x06\n\x02RU\x10\t*\xd1\x01\n\rChargeCurrent\x12\x0b\n\x07MAUnset\x10\x00\x12\t\n\x05MA100\x10\x01\x12\t\n\x05MA190\x10\x02\x12\t\n\x05MA280\x10\x03\x12\t\n\x05MA360\x10\x04\x12\t\n\x05MA450\x10\x05\x12\t\n\x05MA550\x10\x06\x12\t\n\x05MA630\x10\x07\x12\t\n\x05MA700\x10\x08\x12\t\n\x05MA780\x10\t\x12\t\n\x05MA880\x10\n\x12\t\n\x05MA960\x10\x0b\x12\n\n\x06MA1000\x10\x0c\x12\n\n\x06MA1080\x10\r\x12\n\n\x06MA1160\x10\x0e\x12\n\n\x06MA1240\x10\x0f\x12\n\n\x06MA1320\x10\x10*j\n\x0cGpsOperation\x12\x0e\n\nGpsOpUnset\x10\x00\x12\x13\n\x0fGpsOpStationary\x10\x01\x12\x0f\n\x0bGpsOpMobile\x10\x02\x12\x11\n\rGpsOpTimeOnly\x10\x03\x12\x11\n\rGpsOpDisabled\x10\x04*^\n\x13GpsCoordinateFormat\x12\x10\n\x0cGpsFormatDec\x10\x00\x12\x10\n\x0cGpsFormatDMS\x10\x01\x12\x10\n\x0cGpsFormatUTM\x10\x02\x12\x11\n\rGpsFormatMGRS\x10\x03*@\n\x0fLocationSharing\x12\x0c\n\x08LocUnset\x10\x00\x12\x0e\n\nLocEnabled\x10\x01\x12\x0f\n\x0bLocDisabled\x10\x02\x42M\n\x13\x63om.geeksville.meshB\x11RadioConfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\x11radioconfig.proto\"\x88\x11\n\x0bRadioConfig\x12\x31\n\x0bpreferences\x18\x01 \x01(\x0b\x32\x1c.RadioConfig.UserPreferences\x1a\xc5\x10\n\x0fUserPreferences\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12\x1b\n\x13send_owner_interval\x18\x02 \x01(\r\x12\x1b\n\x13wait_bluetooth_secs\x18\x04 \x01(\r\x12\x16\n\x0escreen_on_secs\x18\x05 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x06 \x01(\r\x12\x1d\n\x15phone_sds_timeout_sec\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\x08 \x01(\r\x12\x10\n\x08sds_secs\x18\t \x01(\r\x12\x0f\n\x07ls_secs\x18\n \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0b \x01(\r\x12\x11\n\twifi_ssid\x18\x0c \x01(\t\x12\x15\n\rwifi_password\x18\r \x01(\t\x12\x14\n\x0cwifi_ap_mode\x18\x0e \x01(\x08\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\x12&\n\x0e\x63harge_current\x18\x10 \x01(\x0e\x32\x0e.ChargeCurrent\x12\x11\n\tis_router\x18% \x01(\x08\x12\x14\n\x0cis_low_power\x18& \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\' \x01(\x08\x12\x17\n\x0fserial_disabled\x18( \x01(\x08\x12(\n\x0elocation_share\x18  \x01(\x0e\x32\x10.LocationSharing\x12$\n\rgps_operation\x18! \x01(\x0e\x32\r.GpsOperation\x12\x1b\n\x13gps_update_interval\x18\" \x01(\r\x12\x18\n\x10gps_attempt_time\x18$ \x01(\r\x12\x15\n\rgps_accept_2d\x18- \x01(\x08\x12\x13\n\x0bgps_max_dop\x18. \x01(\r\x12\x18\n\x10\x66requency_offset\x18) \x01(\x02\x12\x13\n\x0bmqtt_server\x18* \x01(\t\x12\x15\n\rmqtt_disabled\x18+ \x01(\x08\x12(\n\ngps_format\x18, \x01(\x0e\x32\x14.GpsCoordinateFormat\x12\x15\n\rfactory_reset\x18\x64 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x65 \x01(\x08\x12\x17\n\x0fignore_incoming\x18g \x03(\r\x12\x1c\n\x14serialplugin_enabled\x18x \x01(\x08\x12\x19\n\x11serialplugin_echo\x18y \x01(\x08\x12\x18\n\x10serialplugin_rxd\x18z \x01(\r\x12\x18\n\x10serialplugin_txd\x18{ \x01(\r\x12\x1c\n\x14serialplugin_timeout\x18| \x01(\r\x12\x19\n\x11serialplugin_mode\x18} \x01(\r\x12\'\n\x1f\x65xt_notification_plugin_enabled\x18~ \x01(\x08\x12)\n!ext_notification_plugin_output_ms\x18\x7f \x01(\r\x12\'\n\x1e\x65xt_notification_plugin_output\x18\x80\x01 \x01(\r\x12\'\n\x1e\x65xt_notification_plugin_active\x18\x81\x01 \x01(\x08\x12.\n%ext_notification_plugin_alert_message\x18\x82\x01 \x01(\x08\x12+\n\"ext_notification_plugin_alert_bell\x18\x83\x01 \x01(\x08\x12\"\n\x19range_test_plugin_enabled\x18\x84\x01 \x01(\x08\x12!\n\x18range_test_plugin_sender\x18\x85\x01 \x01(\r\x12\x1f\n\x16range_test_plugin_save\x18\x86\x01 \x01(\x08\x12%\n\x1cstore_forward_plugin_enabled\x18\x94\x01 \x01(\x08\x12%\n\x1cstore_forward_plugin_records\x18\x89\x01 \x01(\r\x12=\n4environmental_measurement_plugin_measurement_enabled\x18\x8c\x01 \x01(\x08\x12\x38\n/environmental_measurement_plugin_screen_enabled\x18\x8d\x01 \x01(\x08\x12\x44\n;environmental_measurement_plugin_read_error_count_threshold\x18\x8e\x01 \x01(\r\x12\x39\n0environmental_measurement_plugin_update_interval\x18\x8f\x01 \x01(\r\x12;\n2environmental_measurement_plugin_recovery_interval\x18\x90\x01 \x01(\r\x12;\n2environmental_measurement_plugin_display_farenheit\x18\x91\x01 \x01(\x08\x12v\n,environmental_measurement_plugin_sensor_type\x18\x92\x01 \x01(\x0e\x32?.RadioConfig.UserPreferences.EnvironmentalMeasurementSensorType\x12\x34\n+environmental_measurement_plugin_sensor_pin\x18\x93\x01 \x01(\r\x12\x17\n\x0eposition_flags\x18\x96\x01 \x01(\r\"<\n\"EnvironmentalMeasurementSensorType\x12\t\n\x05\x44HT11\x10\x00\x12\x0b\n\x07\x44S18B20\x10\x01J\x06\x08\x88\x01\x10\x89\x01*f\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U865\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08\x12\x06\n\x02RU\x10\t*\xd1\x01\n\rChargeCurrent\x12\x0b\n\x07MAUnset\x10\x00\x12\t\n\x05MA100\x10\x01\x12\t\n\x05MA190\x10\x02\x12\t\n\x05MA280\x10\x03\x12\t\n\x05MA360\x10\x04\x12\t\n\x05MA450\x10\x05\x12\t\n\x05MA550\x10\x06\x12\t\n\x05MA630\x10\x07\x12\t\n\x05MA700\x10\x08\x12\t\n\x05MA780\x10\t\x12\t\n\x05MA880\x10\n\x12\t\n\x05MA960\x10\x0b\x12\n\n\x06MA1000\x10\x0c\x12\n\n\x06MA1080\x10\r\x12\n\n\x06MA1160\x10\x0e\x12\n\n\x06MA1240\x10\x0f\x12\n\n\x06MA1320\x10\x10*j\n\x0cGpsOperation\x12\x0e\n\nGpsOpUnset\x10\x00\x12\x13\n\x0fGpsOpStationary\x10\x01\x12\x0f\n\x0bGpsOpMobile\x10\x02\x12\x11\n\rGpsOpTimeOnly\x10\x03\x12\x11\n\rGpsOpDisabled\x10\x04*\x83\x01\n\x13GpsCoordinateFormat\x12\x10\n\x0cGpsFormatDec\x10\x00\x12\x10\n\x0cGpsFormatDMS\x10\x01\x12\x10\n\x0cGpsFormatUTM\x10\x02\x12\x11\n\rGpsFormatMGRS\x10\x03\x12\x10\n\x0cGpsFormatOLC\x10\x04\x12\x11\n\rGpsFormatOSGR\x10\x05*@\n\x0fLocationSharing\x12\x0c\n\x08LocUnset\x10\x00\x12\x0e\n\nLocEnabled\x10\x01\x12\x0f\n\x0bLocDisabled\x10\x02*\xbc\x01\n\rPositionFlags\x12\x11\n\rPOS_UNDEFINED\x10\x00\x12\x10\n\x0cPOS_ALTITUDE\x10\x01\x12\x0f\n\x0bPOS_ALT_MSL\x10\x02\x12\x0f\n\x0bPOS_GEO_SEP\x10\x04\x12\x0b\n\x07POS_DOP\x10\x08\x12\r\n\tPOS_HVDOP\x10\x10\x12\x0f\n\x0bPOS_BATTERY\x10 \x12\x11\n\rPOS_SATINVIEW\x10@\x12\x10\n\x0bPOS_SEQ_NOS\x10\x80\x01\x12\x12\n\rPOS_TIMESTAMP\x10\x80\x02\x42M\n\x13\x63om.geeksville.meshB\x11RadioConfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
 )
 
 _REGIONCODE = _descriptor.EnumDescriptor(
@@ -83,8 +83,8 @@ _REGIONCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2126,
-  serialized_end=2228,
+  serialized_start=2208,
+  serialized_end=2310,
 )
 _sym_db.RegisterEnumDescriptor(_REGIONCODE)
 
@@ -184,8 +184,8 @@ _CHARGECURRENT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2231,
-  serialized_end=2440,
+  serialized_start=2313,
+  serialized_end=2522,
 )
 _sym_db.RegisterEnumDescriptor(_CHARGECURRENT)
 
@@ -225,8 +225,8 @@ _GPSOPERATION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2442,
-  serialized_end=2548,
+  serialized_start=2524,
+  serialized_end=2630,
 )
 _sym_db.RegisterEnumDescriptor(_GPSOPERATION)
 
@@ -258,11 +258,21 @@ _GPSCOORDINATEFORMAT = _descriptor.EnumDescriptor(
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='GpsFormatOLC', index=4, number=4,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='GpsFormatOSGR', index=5, number=5,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2550,
-  serialized_end=2644,
+  serialized_start=2633,
+  serialized_end=2764,
 )
 _sym_db.RegisterEnumDescriptor(_GPSCOORDINATEFORMAT)
 
@@ -292,12 +302,78 @@ _LOCATIONSHARING = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2646,
-  serialized_end=2710,
+  serialized_start=2766,
+  serialized_end=2830,
 )
 _sym_db.RegisterEnumDescriptor(_LOCATIONSHARING)
 
 LocationSharing = enum_type_wrapper.EnumTypeWrapper(_LOCATIONSHARING)
+_POSITIONFLAGS = _descriptor.EnumDescriptor(
+  name='PositionFlags',
+  full_name='PositionFlags',
+  filename=None,
+  file=DESCRIPTOR,
+  create_key=_descriptor._internal_create_key,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='POS_UNDEFINED', index=0, number=0,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='POS_ALTITUDE', index=1, number=1,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='POS_ALT_MSL', index=2, number=2,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='POS_GEO_SEP', index=3, number=4,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='POS_DOP', index=4, number=8,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='POS_HVDOP', index=5, number=16,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='POS_BATTERY', index=6, number=32,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='POS_SATINVIEW', index=7, number=64,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='POS_SEQ_NOS', index=8, number=128,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='POS_TIMESTAMP', index=9, number=256,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=2833,
+  serialized_end=3021,
+)
+_sym_db.RegisterEnumDescriptor(_POSITIONFLAGS)
+
+PositionFlags = enum_type_wrapper.EnumTypeWrapper(_POSITIONFLAGS)
 Unset = 0
 US = 1
 EU433 = 2
@@ -334,9 +410,21 @@ GpsFormatDec = 0
 GpsFormatDMS = 1
 GpsFormatUTM = 2
 GpsFormatMGRS = 3
+GpsFormatOLC = 4
+GpsFormatOSGR = 5
 LocUnset = 0
 LocEnabled = 1
 LocDisabled = 2
+POS_UNDEFINED = 0
+POS_ALTITUDE = 1
+POS_ALT_MSL = 2
+POS_GEO_SEP = 4
+POS_DOP = 8
+POS_HVDOP = 16
+POS_BATTERY = 32
+POS_SATINVIEW = 64
+POS_SEQ_NOS = 128
+POS_TIMESTAMP = 256
 
 
 _RADIOCONFIG_USERPREFERENCES_ENVIRONMENTALMEASUREMENTSENSORTYPE = _descriptor.EnumDescriptor(
@@ -351,11 +439,16 @@ _RADIOCONFIG_USERPREFERENCES_ENVIRONMENTALMEASUREMENTSENSORTYPE = _descriptor.En
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='DS18B20', index=1, number=1,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2069,
-  serialized_end=2116,
+  serialized_start=2138,
+  serialized_end=2198,
 )
 _sym_db.RegisterEnumDescriptor(_RADIOCONFIG_USERPREFERENCES_ENVIRONMENTALMEASUREMENTSENSORTYPE)
 
@@ -530,225 +623,246 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='frequency_offset', full_name='RadioConfig.UserPreferences.frequency_offset', index=23,
+      name='gps_accept_2d', full_name='RadioConfig.UserPreferences.gps_accept_2d', index=23,
+      number=45, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='gps_max_dop', full_name='RadioConfig.UserPreferences.gps_max_dop', index=24,
+      number=46, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='frequency_offset', full_name='RadioConfig.UserPreferences.frequency_offset', index=25,
       number=41, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='mqtt_server', full_name='RadioConfig.UserPreferences.mqtt_server', index=24,
+      name='mqtt_server', full_name='RadioConfig.UserPreferences.mqtt_server', index=26,
       number=42, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='mqtt_disabled', full_name='RadioConfig.UserPreferences.mqtt_disabled', index=25,
+      name='mqtt_disabled', full_name='RadioConfig.UserPreferences.mqtt_disabled', index=27,
       number=43, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='gps_format', full_name='RadioConfig.UserPreferences.gps_format', index=26,
+      name='gps_format', full_name='RadioConfig.UserPreferences.gps_format', index=28,
       number=44, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='factory_reset', full_name='RadioConfig.UserPreferences.factory_reset', index=27,
+      name='factory_reset', full_name='RadioConfig.UserPreferences.factory_reset', index=29,
       number=100, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='debug_log_enabled', full_name='RadioConfig.UserPreferences.debug_log_enabled', index=28,
+      name='debug_log_enabled', full_name='RadioConfig.UserPreferences.debug_log_enabled', index=30,
       number=101, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ignore_incoming', full_name='RadioConfig.UserPreferences.ignore_incoming', index=29,
+      name='ignore_incoming', full_name='RadioConfig.UserPreferences.ignore_incoming', index=31,
       number=103, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='serialplugin_enabled', full_name='RadioConfig.UserPreferences.serialplugin_enabled', index=30,
+      name='serialplugin_enabled', full_name='RadioConfig.UserPreferences.serialplugin_enabled', index=32,
       number=120, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='serialplugin_echo', full_name='RadioConfig.UserPreferences.serialplugin_echo', index=31,
+      name='serialplugin_echo', full_name='RadioConfig.UserPreferences.serialplugin_echo', index=33,
       number=121, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='serialplugin_rxd', full_name='RadioConfig.UserPreferences.serialplugin_rxd', index=32,
+      name='serialplugin_rxd', full_name='RadioConfig.UserPreferences.serialplugin_rxd', index=34,
       number=122, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='serialplugin_txd', full_name='RadioConfig.UserPreferences.serialplugin_txd', index=33,
+      name='serialplugin_txd', full_name='RadioConfig.UserPreferences.serialplugin_txd', index=35,
       number=123, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='serialplugin_timeout', full_name='RadioConfig.UserPreferences.serialplugin_timeout', index=34,
+      name='serialplugin_timeout', full_name='RadioConfig.UserPreferences.serialplugin_timeout', index=36,
       number=124, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='serialplugin_mode', full_name='RadioConfig.UserPreferences.serialplugin_mode', index=35,
+      name='serialplugin_mode', full_name='RadioConfig.UserPreferences.serialplugin_mode', index=37,
       number=125, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ext_notification_plugin_enabled', full_name='RadioConfig.UserPreferences.ext_notification_plugin_enabled', index=36,
+      name='ext_notification_plugin_enabled', full_name='RadioConfig.UserPreferences.ext_notification_plugin_enabled', index=38,
       number=126, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ext_notification_plugin_output_ms', full_name='RadioConfig.UserPreferences.ext_notification_plugin_output_ms', index=37,
+      name='ext_notification_plugin_output_ms', full_name='RadioConfig.UserPreferences.ext_notification_plugin_output_ms', index=39,
       number=127, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ext_notification_plugin_output', full_name='RadioConfig.UserPreferences.ext_notification_plugin_output', index=38,
+      name='ext_notification_plugin_output', full_name='RadioConfig.UserPreferences.ext_notification_plugin_output', index=40,
       number=128, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ext_notification_plugin_active', full_name='RadioConfig.UserPreferences.ext_notification_plugin_active', index=39,
+      name='ext_notification_plugin_active', full_name='RadioConfig.UserPreferences.ext_notification_plugin_active', index=41,
       number=129, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ext_notification_plugin_alert_message', full_name='RadioConfig.UserPreferences.ext_notification_plugin_alert_message', index=40,
+      name='ext_notification_plugin_alert_message', full_name='RadioConfig.UserPreferences.ext_notification_plugin_alert_message', index=42,
       number=130, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ext_notification_plugin_alert_bell', full_name='RadioConfig.UserPreferences.ext_notification_plugin_alert_bell', index=41,
+      name='ext_notification_plugin_alert_bell', full_name='RadioConfig.UserPreferences.ext_notification_plugin_alert_bell', index=43,
       number=131, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='range_test_plugin_enabled', full_name='RadioConfig.UserPreferences.range_test_plugin_enabled', index=42,
+      name='range_test_plugin_enabled', full_name='RadioConfig.UserPreferences.range_test_plugin_enabled', index=44,
       number=132, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='range_test_plugin_sender', full_name='RadioConfig.UserPreferences.range_test_plugin_sender', index=43,
+      name='range_test_plugin_sender', full_name='RadioConfig.UserPreferences.range_test_plugin_sender', index=45,
       number=133, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='range_test_plugin_save', full_name='RadioConfig.UserPreferences.range_test_plugin_save', index=44,
+      name='range_test_plugin_save', full_name='RadioConfig.UserPreferences.range_test_plugin_save', index=46,
       number=134, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='store_forward_plugin_enabled', full_name='RadioConfig.UserPreferences.store_forward_plugin_enabled', index=45,
+      name='store_forward_plugin_enabled', full_name='RadioConfig.UserPreferences.store_forward_plugin_enabled', index=47,
       number=148, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='store_forward_plugin_records', full_name='RadioConfig.UserPreferences.store_forward_plugin_records', index=46,
+      name='store_forward_plugin_records', full_name='RadioConfig.UserPreferences.store_forward_plugin_records', index=48,
       number=137, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='environmental_measurement_plugin_measurement_enabled', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_measurement_enabled', index=47,
+      name='environmental_measurement_plugin_measurement_enabled', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_measurement_enabled', index=49,
       number=140, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='environmental_measurement_plugin_screen_enabled', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_screen_enabled', index=48,
+      name='environmental_measurement_plugin_screen_enabled', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_screen_enabled', index=50,
       number=141, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='environmental_measurement_plugin_read_error_count_threshold', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_read_error_count_threshold', index=49,
+      name='environmental_measurement_plugin_read_error_count_threshold', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_read_error_count_threshold', index=51,
       number=142, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='environmental_measurement_plugin_update_interval', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_update_interval', index=50,
+      name='environmental_measurement_plugin_update_interval', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_update_interval', index=52,
       number=143, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='environmental_measurement_plugin_recovery_interval', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_recovery_interval', index=51,
+      name='environmental_measurement_plugin_recovery_interval', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_recovery_interval', index=53,
       number=144, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='environmental_measurement_plugin_display_farenheit', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_display_farenheit', index=52,
+      name='environmental_measurement_plugin_display_farenheit', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_display_farenheit', index=54,
       number=145, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='environmental_measurement_plugin_sensor_type', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_sensor_type', index=53,
+      name='environmental_measurement_plugin_sensor_type', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_sensor_type', index=55,
       number=146, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='environmental_measurement_plugin_sensor_pin', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_sensor_pin', index=54,
+      name='environmental_measurement_plugin_sensor_pin', full_name='RadioConfig.UserPreferences.environmental_measurement_plugin_sensor_pin', index=56,
       number=147, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='position_flags', full_name='RadioConfig.UserPreferences.position_flags', index=57,
+      number=150, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -767,7 +881,7 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=89,
-  serialized_end=2124,
+  serialized_end=2206,
 )
 
 _RADIOCONFIG = _descriptor.Descriptor(
@@ -798,7 +912,7 @@ _RADIOCONFIG = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=22,
-  serialized_end=2124,
+  serialized_end=2206,
 )
 
 _RADIOCONFIG_USERPREFERENCES.fields_by_name['region'].enum_type = _REGIONCODE
@@ -816,6 +930,7 @@ DESCRIPTOR.enum_types_by_name['ChargeCurrent'] = _CHARGECURRENT
 DESCRIPTOR.enum_types_by_name['GpsOperation'] = _GPSOPERATION
 DESCRIPTOR.enum_types_by_name['GpsCoordinateFormat'] = _GPSCOORDINATEFORMAT
 DESCRIPTOR.enum_types_by_name['LocationSharing'] = _LOCATIONSHARING
+DESCRIPTOR.enum_types_by_name['PositionFlags'] = _POSITIONFLAGS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 RadioConfig = _reflection.GeneratedProtocolMessageType('RadioConfig', (_message.Message,), {
