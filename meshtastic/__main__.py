@@ -511,7 +511,7 @@ def common():
             # We assume client is fully connected now
             onConnected(client)
 
-            if args.noproto or (args.tunnel and have_tunnel):  # loop until someone presses ctrlc
+            if args.noproto or (have_tunnel and args.tunnel):  # loop until someone presses ctrlc
                 while True:
                     time.sleep(1000)
 
