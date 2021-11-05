@@ -265,7 +265,6 @@ def onConnected(interface):
             prefs = getNode().radioConfig.preferences
 
             fieldNames = []
-            # for fName in radioconfig_pb2.PositionFlags.keys():
             for bit in radioconfig_pb2.PositionFlags.values():
                 if (prefs.position_flags & bit):
                     fieldNames.append(radioconfig_pb2.PositionFlags.Name(bit))
