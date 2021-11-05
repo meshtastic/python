@@ -11,6 +11,7 @@ import os
 from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
 from pubsub import pub
 from . import mesh_pb2, portnums_pb2, channel_pb2
+from . import radioconfig_pb2
 from .util import stripnl
 import google.protobuf.json_format
 import pyqrcode
@@ -235,6 +236,53 @@ def onConnected(interface):
             closeNow = True
             print(f"Setting device owner to {args.set_owner}")
             getNode().setOwner(args.set_owner)
+
+        if args.pos_fields:
+            # If --pos-fields invoked with args, set position fields
+            closeNow = True
+            prefs = getNode().radioConfig.preferences
+            allFields = 0
+
+            try:
+                for field in args.pos_fields:
+                    v_field = radioconfig_pb2.PositionFlags.Value(field)
+                    allFields |= v_field
+
+            except ValueError:
+                print("ERROR: supported position fields are:")
+                print(radioconfig_pb2.PositionFlags.keys())
+                print("If no fields are specified, will read and display current value.")
+
+            else:
+                print(f"Setting position fields to {allFields}")
+                setPref(prefs, 'position_flags', ('%d' % allFields))
+                print("Writing modified preferences to device")
+                getNode().writeConfig()
+
+        elif args.pos_fields is not None:
+            # If --pos-fields invoked without args, read and display current value
+            closeNow = True
+            prefs = getNode().radioConfig.preferences
+
+            fieldNames = []
+            # for fName in radioconfig_pb2.PositionFlags.keys():
+            for bit in radioconfig_pb2.PositionFlags.values():
+                if (prefs.position_flags & bit):
+                    fieldNames.append(radioconfig_pb2.PositionFlags.Name(bit))
+            print(' '.join(fieldNames))
+
+        if args.set_team:
+            closeNow = True
+            try:
+                v_team = mesh_pb2.Team.Value(args.set_team.upper())
+            except ValueError:
+                v_team = 0
+                print(f"ERROR: Team \'{args.set_team}\' not found.")
+                print("Try a team name from the list below, or CLEAR for unaffiliated:")
+                print(mesh_pb2.Team.keys())
+            else:
+                print(f"Setting team to {mesh_pb2.Team.Name(v_team)}")
+                getNode().setOwner(team=v_team)
 
         if args.set_ham:
             closeNow = True
@@ -582,6 +630,9 @@ def initParser():
         "--set-owner", help="Set device owner name", action="store")
 
     parser.add_argument(
+        "--set-team", help="Set team affiliation (? for options)", action="store")
+
+    parser.add_argument(
         "--set-ham", help="Set licensed HAM ID and turn off encryption", action="store")
 
     parser.add_argument(
@@ -623,6 +674,10 @@ def initParser():
 
     parser.add_argument(
         "--setlon", help="Set device longitude (allows use without GPS)")
+
+    parser.add_argument(
+        "--pos-fields", help="Specify position message fields (? for more info)",
+        nargs="*", action="store")
 
     parser.add_argument("--debug", help="Show API library debug log messages",
                         action="store_true")
