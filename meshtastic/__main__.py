@@ -315,6 +315,8 @@ def onConnected(interface):
         if args.ch_add:
             closeNow = True
             n = getNode()
+            if len(args.ch_add) > 10:
+                raise Exception("Channel name must be shorter. Channel not added.")
             ch = n.getChannelByName(args.ch_add)
             if ch:
                 logging.error(
