@@ -1,9 +1,13 @@
-
-from collections import defaultdict
-import serial, traceback
-import serial.tools.list_ports
+""" Utility functions.
+"""
+import traceback
 from queue import Queue
-import threading, sys, time, logging
+import sys
+import time
+import logging
+import threading
+import serial
+import serial.tools.list_ports
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
@@ -16,6 +20,7 @@ def stripnl(s):
 
 
 def fixme(message):
+    """raise an exception for things that needs to be fixed"""
     raise Exception(f"FIXME: {message}")
 
 
@@ -34,7 +39,7 @@ def findPorts():
         list -- a list of device paths
     """
     l = list(map(lambda port: port.device,
-                 filter(lambda port: port.vid != None and port.vid not in blacklistVids,
+                 filter(lambda port: port.vid is not None and port.vid not in blacklistVids,
                         serial.tools.list_ports.comports())))
     l.sort()
     return l
@@ -48,6 +53,7 @@ class dotdict(dict):
 
 
 class Timeout:
+    """Timeout class"""
     def __init__(self, maxSecs=20):
         self.expireTime = 0
         self.sleepInterval = 0.1
@@ -77,6 +83,7 @@ class DeferredExecution():
         self.thread.start()
 
     def queueWork(self, runnable):
+        """ Queue up the work"""
         self.queue.put(runnable)
 
     def _run(self):

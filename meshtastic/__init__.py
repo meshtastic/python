@@ -28,10 +28,10 @@ type of packet, you should subscribe to the full topic name.  If you want to see
 - meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
 
-We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for 
-that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet 
-you'll see the fields in the dictionary.  decoded.data.payload will contain the raw bytes that were sent.  If the packet was sent with 
-sendText, decoded.data.text will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for 
+We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for
+that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet
+you'll see the fields in the dictionary.  decoded.data.payload will contain the raw bytes that were sent.  If the packet was sent with
+sendText, decoded.data.text will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for
 unicode scripts they can be different.
 
 # Example Usage
@@ -55,30 +55,30 @@ interface = meshtastic.SerialInterface()
 
 """
 
-import pygatt
-import google.protobuf.json_format
-import serial
-import threading
+import base64
 import logging
-import sys
+import os
+import platform
 import random
+import socket
+import sys
+import stat
+import threading
 import traceback
 import time
-import base64
-import platform
-import socket
+from datetime import datetime
+from typing import *
+import serial
 import timeago
-import os
-import stat
-from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
-from .util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
-from .node import Node
+import google.protobuf.json_format
+import pygatt
 from pubsub import pub
 from dotmap import DotMap
-from datetime import datetime
 from tabulate import tabulate
-from typing import *
 from google.protobuf.json_format import MessageToJson
+from .util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
+from .node import Node
+from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
 
 START1 = 0x94
 START2 = 0xc3
@@ -272,7 +272,7 @@ class MeshInterface:
                              wantResponse=wantResponse,
                              hopLimit=hopLimit,
                              onResponse=onResponse,
-                             channelIndex=channelIndex);
+                             channelIndex=channelIndex)
 
     def sendData(self, data, destinationId=BROADCAST_ADDR,
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
@@ -288,7 +288,8 @@ class MeshInterface:
             portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
             wantResponse -- True if you want the service on the other side to send an application layer response
-            onResponse -- A closure of the form funct(packet), that will be called when a response packet arrives (or the transaction is NAKed due to non receipt)
+            onResponse -- A closure of the form funct(packet), that will be called when a response packet arrives
+                          (or the transaction is NAKed due to non receipt)
 
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
@@ -326,13 +327,13 @@ class MeshInterface:
         Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
         """
         p = mesh_pb2.Position()
-        if(latitude != 0.0):
+        if latitude != 0.0:
             p.latitude_i = int(latitude / 1e-7)
 
-        if(longitude != 0.0):
+        if longitude != 0.0:
             p.longitude_i = int(longitude / 1e-7)
 
-        if(altitude != 0):
+        if altitude != 0:
             p.altitude = int(altitude)
 
         if timeSec == 0:
@@ -353,7 +354,7 @@ class MeshInterface:
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead.
 
-        Returns the sent packet. The id field will be populated in this packet and 
+        Returns the sent packet. The id field will be populated in this packet and
         can be used to track future message acks/naks.
         """
 
@@ -402,23 +403,27 @@ class MeshInterface:
             raise Exception("Timed out waiting for interface config")
 
     def getMyNodeInfo(self):
+        """Get info about my node."""
         if self.myInfo is None:
             return None
         return self.nodesByNum.get(self.myInfo.my_node_num)
 
     def getMyUser(self):
+        """Get user"""
         nodeInfo = self.getMyNodeInfo()
         if nodeInfo is not None:
             return nodeInfo.get('user')
         return None
 
     def getLongName(self):
+        """Get long name"""
         user = self.getMyUser()
         if user is not None:
             return user.get('longName', None)
         return None
 
     def getShortName(self):
+        """Get short name"""
         user = self.getMyUser()
         if user is not None:
             return user.get('shortName', None)
@@ -752,7 +757,7 @@ class StreamInterface(MeshInterface):
     """Interface class for meshtastic devices over a stream link (serial, TCP, etc)"""
 
     def __init__(self, debugOut=None, noProto=False, connectNow=True):
-        """Constructor, opens a connection to self.stream 
+        """Constructor, opens a connection to self.stream
 
         Keyword Arguments:
             devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
@@ -932,7 +937,7 @@ class SerialInterface(StreamInterface):
 
         # rts=False Needed to prevent TBEAMs resetting on OSX, because rts is connected to reset
         self.stream.port = devPath
-        
+
         # HACK: If the platform driving the serial port is unable to leave the RTS pin in high-impedance
         # mode, set RTS to false so that the device platform won't be reset spuriously.
         # Linux does this properly, so don't apply this hack on Linux (because it makes the reset button not work).
@@ -942,30 +947,30 @@ class SerialInterface(StreamInterface):
 
         StreamInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
-    
+
     """true if platform driving the serial port is Windows Subsystem for Linux 1."""
     def _isWsl1(self):
-        # WSL1 identifies itself as Linux, but has a special char device at /dev/lxss for use with session control, 
-        # e.g. /init.  We should treat WSL1 as Windows for the RTS-driving hack because the underlying platfrom 
+        # WSL1 identifies itself as Linux, but has a special char device at /dev/lxss for use with session control,
+        # e.g. /init.  We should treat WSL1 as Windows for the RTS-driving hack because the underlying platfrom
         # serial driver for the CP21xx still exhibits the buggy behavior.
-        # WSL2 is not covered here, as it does not (as of 2021-May-25) support the appropriate functionality to 
+        # WSL2 is not covered here, as it does not (as of 2021-May-25) support the appropriate functionality to
         # share or pass-through serial ports.
         try:
             # Claims to be Linux, but has /dev/lxss; must be WSL 1
-            return platform.system() == 'Linux' and stat.S_ISCHR(os.stat('/dev/lxss').st_mode);
+            return platform.system() == 'Linux' and stat.S_ISCHR(os.stat('/dev/lxss').st_mode)
         except:
             # Couldn't stat /dev/lxss special device; not WSL1
-            return False;
-    
+            return False
+
     def _hostPlatformAlwaysDrivesUartRts(self):
         # OS-X/Windows seems to have a bug in its CP21xx serial drivers.  It ignores that we asked for no RTSCTS
         # control and will always drive RTS either high or low (rather than letting the CP102 leave
         # it as an open-collector floating pin).
-        # TODO: When WSL2 supports USB passthrough, this will get messier.  If/when WSL2 gets virtual serial 
-        # ports that "share" the Windows serial port (and thus the Windows drivers), this code will need to be 
+        # TODO: When WSL2 supports USB passthrough, this will get messier.  If/when WSL2 gets virtual serial
+        # ports that "share" the Windows serial port (and thus the Windows drivers), this code will need to be
         # updated to reflect that as well -- or if T-Beams get made with an alternate USB to UART bridge that has
         # a less buggy driver.
-        return platform.system() != 'Linux' or self._isWsl1();
+        return platform.system() != 'Linux' or self._isWsl1()
 
 class TCPInterface(StreamInterface):
     """Interface class for meshtastic devices over a TCP link"""

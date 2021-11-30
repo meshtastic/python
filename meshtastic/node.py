@@ -28,10 +28,10 @@ type of packet, you should subscribe to the full topic name.  If you want to see
 - meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
 
-We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for 
-that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet 
-you'll see the fields in the dictionary.  decoded.data.payload will contain the raw bytes that were sent.  If the packet was sent with 
-sendText, decoded.data.text will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for 
+We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for
+that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet
+you'll see the fields in the dictionary.  decoded.data.payload will contain the raw bytes that were sent.  If the packet was sent with
+sendText, decoded.data.text will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for
 unicode scripts they can be different.
 
 # Example Usage
@@ -55,24 +55,12 @@ interface = meshtastic.SerialInterface()
 
 """
 
-import pygatt
-import google.protobuf.json_format
-import serial
-import threading
 import logging
-import sys
-import random
-import traceback
-import time
 import base64
-import platform
-import socket
-from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
-from .util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
-from pubsub import pub
-from dotmap import DotMap
 from typing import *
 from google.protobuf.json_format import MessageToJson
+from . import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
+from .util import stripnl, Timeout
 
 
 
@@ -142,7 +130,7 @@ class Node:
 
     def writeConfig(self):
         """Write the current (edited) radioConfig to the device"""
-        if self.radioConfig == None:
+        if self.radioConfig is None:
             raise Exception("No RadioConfig has been read")
 
         p = admin_pb2.AdminMessage()
@@ -250,7 +238,7 @@ class Node:
 
     def setURL(self, url):
         """Set mesh network URL"""
-        if self.radioConfig == None:
+        if self.radioConfig is None:
             raise Exception("No RadioConfig has been read")
 
         # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
@@ -400,5 +388,3 @@ class Node:
                                    wantResponse=wantResponse,
                                    onResponse=onResponse,
                                    channelIndex=adminIndex)
-
-
