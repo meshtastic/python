@@ -4,3 +4,4 @@ dist
 *.egg-info
 log_*
 .eggs
+nanopb-0.4.4
