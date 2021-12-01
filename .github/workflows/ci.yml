@@ -24,4 +24,4 @@ jobs:
       - name: Run pylint
         run: pylint --exit-zero meshtastic
       - name: Run tests with pytest
-        run: pytest
+        run: pytest --cov=meshtastic
