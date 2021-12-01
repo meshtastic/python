@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>meshtastic API documentation</title>
 <meta name="description" content="an API for Meshtastic devices …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -257,13 +257,15 @@ class MeshInterface:
 
     def showInfo(self, file=sys.stdout):
         &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
-
-        print(
-            f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
-        print(f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;, file=file)
-        print(&#34;\nNodes in mesh:&#34;, file=file)
+        owner = f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;
+        myinfo = f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;
+        mesh = &#34;\nNodes in mesh:&#34;
+        nodes = &#34;&#34;
         for n in self.nodes.values():
-            print(f&#34;  {stripnl(n)}&#34;, file=file)
+            nodes = nodes + f&#34;  {stripnl(n)}&#34;
+        infos = owner + myinfo + mesh + nodes
+        print(infos)
+        return infos
 
     def showNodes(self, includeSelf=True, file=sys.stdout):
         &#34;&#34;&#34;Show table summary of nodes in mesh&#34;&#34;&#34;
@@ -314,8 +316,11 @@ class MeshInterface:
         for i, row in enumerate(rows):
             row[&#39;N&#39;] = i+1
 
-        print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
-                       tablefmt=&#39;fancy_grid&#39;), file=file)
+        table = tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
+                       tablefmt=&#39;fancy_grid&#39;)
+        print(table)
+        return table
+
 
     def getNode(self, nodeId):
         &#34;&#34;&#34;Return a node object which contains device settings and channel info&#34;&#34;&#34;
@@ -333,7 +338,8 @@ class MeshInterface:
                  wantAck=False,
                  wantResponse=False,
                  hopLimit=defaultHopLimit,
-                 onResponse=None):
+                 onResponse=None,
+                 channelIndex=0):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
         Arguments:
@@ -352,7 +358,8 @@ class MeshInterface:
                              wantAck=wantAck,
                              wantResponse=wantResponse,
                              hopLimit=hopLimit,
-                             onResponse=onResponse)
+                             onResponse=onResponse,
+                             channelIndex=channelIndex);
 
     def sendData(self, data, destinationId=BROADCAST_ADDR,
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
@@ -1154,11 +1161,11 @@ protocols = {
 <dl>
 <dt><code class="name"><a title="meshtastic.admin_pb2" href="admin_pb2.html">meshtastic.admin_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.apponly_pb2" href="apponly_pb2.html">meshtastic.apponly_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.ble" href="ble.html">meshtastic.ble</a></code></dt>
 <dd>
@@ -1166,23 +1173,23 @@ protocols = {
 </dd>
 <dt><code class="name"><a title="meshtastic.channel_pb2" href="channel_pb2.html">meshtastic.channel_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.deviceonly_pb2" href="deviceonly_pb2.html">meshtastic.deviceonly_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.environmental_measurement_pb2" href="environmental_measurement_pb2.html">meshtastic.environmental_measurement_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.mesh_pb2" href="mesh_pb2.html">meshtastic.mesh_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.mqtt_pb2" href="mqtt_pb2.html">meshtastic.mqtt_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.node" href="node.html">meshtastic.node</a></code></dt>
 <dd>
@@ -1190,11 +1197,11 @@ protocols = {
 </dd>
 <dt><code class="name"><a title="meshtastic.portnums_pb2" href="portnums_pb2.html">meshtastic.portnums_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.radioconfig_pb2" href="radioconfig_pb2.html">meshtastic.radioconfig_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.remote_hardware" href="remote_hardware.html">meshtastic.remote_hardware</a></code></dt>
 <dd>
@@ -1202,7 +1209,11 @@ protocols = {
 </dd>
 <dt><code class="name"><a title="meshtastic.remote_hardware_pb2" href="remote_hardware_pb2.html">meshtastic.remote_hardware_pb2</a></code></dt>
 <dd>
-<div class="desc"><p>Generated protocol buffer code.</p></div>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="meshtastic.storeforward_pb2" href="storeforward_pb2.html">meshtastic.storeforward_pb2</a></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="meshtastic.test" href="test.html">meshtastic.test</a></code></dt>
 <dd>
@@ -1417,13 +1428,15 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
     def showInfo(self, file=sys.stdout):
         &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
-
-        print(
-            f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
-        print(f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;, file=file)
-        print(&#34;\nNodes in mesh:&#34;, file=file)
+        owner = f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;
+        myinfo = f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;
+        mesh = &#34;\nNodes in mesh:&#34;
+        nodes = &#34;&#34;
         for n in self.nodes.values():
-            print(f&#34;  {stripnl(n)}&#34;, file=file)
+            nodes = nodes + f&#34;  {stripnl(n)}&#34;
+        infos = owner + myinfo + mesh + nodes
+        print(infos)
+        return infos
 
     def showNodes(self, includeSelf=True, file=sys.stdout):
         &#34;&#34;&#34;Show table summary of nodes in mesh&#34;&#34;&#34;
@@ -1474,8 +1487,11 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         for i, row in enumerate(rows):
             row[&#39;N&#39;] = i+1
 
-        print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
-                       tablefmt=&#39;fancy_grid&#39;), file=file)
+        table = tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
+                       tablefmt=&#39;fancy_grid&#39;)
+        print(table)
+        return table
+
 
     def getNode(self, nodeId):
         &#34;&#34;&#34;Return a node object which contains device settings and channel info&#34;&#34;&#34;
@@ -1493,7 +1509,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                  wantAck=False,
                  wantResponse=False,
                  hopLimit=defaultHopLimit,
-                 onResponse=None):
+                 onResponse=None,
+                 channelIndex=0):
         &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
         Arguments:
@@ -1512,7 +1529,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                              wantAck=wantAck,
                              wantResponse=wantResponse,
                              hopLimit=hopLimit,
-                             onResponse=onResponse)
+                             onResponse=onResponse,
+                             channelIndex=channelIndex);
 
     def sendData(self, data, destinationId=BROADCAST_ADDR,
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
@@ -2153,7 +2171,7 @@ the local position.</p>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.sendText"><code class="name flex">
-<span>def <span class="ident">sendText</span></span>(<span>self, text: ~AnyStr, destinationId='^all', wantAck=False, wantResponse=False, hopLimit=3, onResponse=None)</span>
+<span>def <span class="ident">sendText</span></span>(<span>self, text: ~AnyStr, destinationId='^all', wantAck=False, wantResponse=False, hopLimit=3, onResponse=None, channelIndex=0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send a utf8 string to some other node, if the node has a display it will also be shown on the device.</p>
@@ -2174,7 +2192,8 @@ wantResponse &ndash; True if you want the service on the other side to send an a
              wantAck=False,
              wantResponse=False,
              hopLimit=defaultHopLimit,
-             onResponse=None):
+             onResponse=None,
+             channelIndex=0):
     &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
 
     Arguments:
@@ -2193,7 +2212,8 @@ wantResponse &ndash; True if you want the service on the other side to send an a
                          wantAck=wantAck,
                          wantResponse=wantResponse,
                          hopLimit=hopLimit,
-                         onResponse=onResponse)</code></pre>
+                         onResponse=onResponse,
+                         channelIndex=channelIndex);</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.showInfo"><code class="name flex">
@@ -2207,13 +2227,15 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 </summary>
 <pre><code class="python">def showInfo(self, file=sys.stdout):
     &#34;&#34;&#34;Show human readable summary about this object&#34;&#34;&#34;
-
-    print(
-        f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;, file=file)
-    print(f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;, file=file)
-    print(&#34;\nNodes in mesh:&#34;, file=file)
+    owner = f&#34;Owner: {self.getLongName()} ({self.getShortName()})&#34;
+    myinfo = f&#34;\nMy info: {stripnl(MessageToJson(self.myInfo))}&#34;
+    mesh = &#34;\nNodes in mesh:&#34;
+    nodes = &#34;&#34;
     for n in self.nodes.values():
-        print(f&#34;  {stripnl(n)}&#34;, file=file)</code></pre>
+        nodes = nodes + f&#34;  {stripnl(n)}&#34;
+    infos = owner + myinfo + mesh + nodes
+    print(infos)
+    return infos</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.showNodes"><code class="name flex">
@@ -2274,8 +2296,10 @@ wantResponse &ndash; True if you want the service on the other side to send an a
     for i, row in enumerate(rows):
         row[&#39;N&#39;] = i+1
 
-    print(tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
-                   tablefmt=&#39;fancy_grid&#39;), file=file)</code></pre>
+    table = tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
+                   tablefmt=&#39;fancy_grid&#39;)
+    print(table)
+    return table</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.MeshInterface.waitForConfig"><code class="name flex">
@@ -2787,6 +2811,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <li><code><a title="meshtastic.radioconfig_pb2" href="radioconfig_pb2.html">meshtastic.radioconfig_pb2</a></code></li>
 <li><code><a title="meshtastic.remote_hardware" href="remote_hardware.html">meshtastic.remote_hardware</a></code></li>
 <li><code><a title="meshtastic.remote_hardware_pb2" href="remote_hardware_pb2.html">meshtastic.remote_hardware_pb2</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2" href="storeforward_pb2.html">meshtastic.storeforward_pb2</a></code></li>
 <li><code><a title="meshtastic.test" href="test.html">meshtastic.test</a></code></li>
 <li><code><a title="meshtastic.tunnel" href="tunnel.html">meshtastic.tunnel</a></code></li>
 <li><code><a title="meshtastic.util" href="util.html">meshtastic.util</a></code></li>
@@ -2854,7 +2879,7 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>
