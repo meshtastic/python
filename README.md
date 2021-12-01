@@ -156,10 +156,21 @@ If you need to build a new release you'll need:
 
 ```
 apt install pandoc
-sudo pip3 install markdown pdoc3 webencodings pyparsing twine autopep8 pylint
+sudo pip3 install markdown pdoc3 webencodings pyparsing twine autopep8 pylint pytest
 ```
 
 To lint, run:
 ```
 pylint meshtastic
 ```
+
+To test, first install this code locally, then run pytest:
+```
+pip3 install .
+pytest
+```
+Possible options for testing:
+* for more verbosity, add "-v" or even "-vv" like this: pytest -vv
+* to run just unit tests: pytest -munit
+* to run just integration tests: pytest -mint
+* if you want to add another classification of tests, then look in pytest.ini
