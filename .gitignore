@@ -6,3 +6,4 @@ log_*
 .eggs
 nanopb-0.4.4
 .*swp
+.coverage
