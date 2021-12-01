@@ -1,22 +1,18 @@
 #!python3
+""" Main Meshtastic
+"""
 
 import argparse
 import platform
 import logging
 import sys
-import codecs
 import time
-import base64
 import os
-from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
 from pubsub import pub
-from . import mesh_pb2, portnums_pb2, channel_pb2
-from . import radioconfig_pb2
-from .util import stripnl
-import google.protobuf.json_format
 import pyqrcode
-import traceback
 import pkg_resources
+from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
+from . import portnums_pb2, channel_pb2, mesh_pb2, radioconfig_pb2
 
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
@@ -66,11 +62,12 @@ falseTerms = {"f", "false", "no"}
 
 
 def genPSK256():
+    """Generate a random preshared key"""
     return os.urandom(32)
 
 
 def fromPSK(valstr):
-    """A special version of fromStr that assumes the user is trying to set a PSK.  
+    """A special version of fromStr that assumes the user is trying to set a PSK.
     In that case we also allow "none", "default" or "random" (to have python generate one), or simpleN
     """
     if valstr == "random":
@@ -94,9 +91,9 @@ def fromStr(valstr):
     Args:
         valstr (string): A user provided string
     """
-    if(len(valstr) == 0):  # Treat an emptystring as an empty bytes
+    if len(valstr) == 0:  # Treat an emptystring as an empty bytes
         val = bytes()
-    elif(valstr.startswith('0x')):
+    elif valstr.startswith('0x'):
         # if needed convert to string with asBytes.decode('utf-8')
         val = bytes.fromhex(valstr[2:])
     elif valstr in trueTerms:
@@ -135,7 +132,7 @@ def getPref(attributes, name):
     try:
         try:
             val = getattr(attributes, name)
-        except TypeError as ex:
+        except TypeError:
             # The getter didn't like our arg type guess try again as a string
             val = getattr(attributes, name)
 
@@ -176,7 +173,7 @@ def setPref(attributes, name, valStr):
     try:
         try:
             setattr(attributes, name, val)
-        except TypeError as ex:
+        except TypeError:
             # The setter didn't like our arg type guess try again as a string
             setattr(attributes, name, valStr)
 
@@ -354,7 +351,6 @@ def onConnected(interface):
             print("Writing modified preferences to device")
             getNode().writeConfig()
 
-
         if args.seturl:
             closeNow = True
             getNode().setURL(args.seturl)
@@ -364,6 +360,8 @@ def onConnected(interface):
         if args.ch_add:
             closeNow = True
             n = getNode()
+            if len(args.ch_add) > 10:
+                raise Exception("Channel name must be shorter. Channel not added.")
             ch = n.getChannelByName(args.ch_add)
             if ch:
                 logging.error(
@@ -526,7 +524,7 @@ def common():
             else:
                 args.seriallog = "none"  # assume no debug output in this case
 
-        if args.deprecated != None:
+        if args.deprecated is not None:
             logging.error(
                 'This option has been deprecated, see help below for the correct replacement...')
             parser.print_help(sys.stderr)
@@ -567,6 +565,7 @@ def common():
 
 
 def initParser():
+    """ Initialize the command line argument parsing."""
     global parser, args
 
     parser.add_argument(
