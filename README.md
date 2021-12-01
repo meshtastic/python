@@ -172,4 +172,5 @@ pytest
 Possible options for testing:
 * for more verbosity, add "-v" or even "-vv" like this: pytest -vv
 * to run just unit tests: pytest -munit
-* to run just integrstion tests: pytest -mint
+* to run just integration tests: pytest -mint
+* if you want to add another classification of tests, then look in pytest.ini
