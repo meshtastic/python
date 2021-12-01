@@ -161,6 +161,12 @@ apt install pandoc
 sudo pip3 install markdown pdoc3 webencodings pyparsing twine autopep8 pylint pytest
 ```
 
+For development, you will probably want to run:
+```
+pip3 install -r requirements.txt
+```
+
+
 To lint, run:
 ```
 pylint meshtastic
