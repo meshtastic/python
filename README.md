@@ -169,3 +169,7 @@ To test, first install this code locally, then run pytest:
 pip3 install .
 pytest
 ```
+Possible options for testing:
+* for more verbosity, add "-v" or even "-vv" like this: pytest -vv
+* to run just unit tests: pytest -munit
+* to run just integrstion tests: pytest -mint
