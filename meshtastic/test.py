@@ -1,11 +1,13 @@
+""" Testing
+"""
 import logging
-from . import util
-from . import SerialInterface, TCPInterface, BROADCAST_NUM
-from pubsub import pub
 import time
 import sys
-import threading, traceback
+import traceback
 from dotmap import DotMap
+from pubsub import pub
+from . import util
+from . import SerialInterface, TCPInterface, BROADCAST_NUM
 
 """The interfaces we are using for our tests"""
 interfaces = None
@@ -31,7 +33,7 @@ def onReceive(packet, interface):
 
         if p.decoded.portnum == "TEXT_MESSAGE_APP":
             # We only care a about clear text packets
-            if receivedPackets != None:
+            if receivedPackets is not None:
                 receivedPackets.append(p)
 
 
@@ -75,18 +77,19 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False, want
     else:
         fromInterface.sendData((f"Binary {testNumber}").encode(
             "utf-8"), toNode, wantAck=wantAck)
-    for sec in range(60):  # max of 60 secs before we timeout
+    for _ in range(60):  # max of 60 secs before we timeout
         time.sleep(1)
-        if (len(receivedPackets) >= 1):
+        if  len(receivedPackets) >= 1:
             return True
     return False  # Failed to send
 
 
 def runTests(numTests=50, wantAck=False, maxFailures=0):
+    """Run the tests."""
     logging.info(f"Running {numTests} tests with wantAck={wantAck}")
     numFail = 0
     numSuccess = 0
-    for i in range(numTests):
+    for _ in range(numTests):
         global testNumber
         testNumber = testNumber + 1
         isBroadcast = True
@@ -116,6 +119,7 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
 
 
 def testThread(numTests=50):
+    """Test thread"""
     logging.info("Found devices, starting tests...")
     runTests(numTests, wantAck=True)
     # Allow a few dropped packets
@@ -128,6 +132,7 @@ def onConnection(topic=pub.AUTO_TOPIC):
 
 
 def openDebugLog(portName):
+    """Open the debug log file"""
     debugname = "log" + portName.replace("/", "_")
     logging.info(f"Writing serial debugging to {debugname}")
     return open(debugname, 'w+', buffering=1)
@@ -141,7 +146,7 @@ def testAll():
         Exception: If not enough devices are found
     """
     ports = util.findPorts()
-    if (len(ports) < 2):
+    if len(ports) < 2:
         raise Exception("Must have at least two devices connected to USB")
 
     pub.subscribe(onConnection, "meshtastic.connection")

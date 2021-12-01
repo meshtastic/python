@@ -1,4 +1,5 @@
-# code for IP tunnel over a mesh
+""" Code for IP tunnel over a mesh
+
 # Note python-pytuntap was too buggy
 # using pip3 install pytap2
 # make sure to "sudo setcap cap_net_admin+eip /usr/bin/python3.8" so python can access tun device without being root
@@ -12,11 +13,12 @@
 # ping -i 30 -W 30 10.115.64.152
 
 # FIXME: use a more optimal MTU
+"""
 
-from . import portnums_pb2
-from pubsub import pub
 import logging
 import threading
+from pubsub import pub
+from . import portnums_pb2
 
 # A new non standard log level that is lower level than DEBUG
 LOG_TRACE = 5
