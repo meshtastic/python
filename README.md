@@ -156,10 +156,16 @@ If you need to build a new release you'll need:
 
 ```
 apt install pandoc
-sudo pip3 install markdown pdoc3 webencodings pyparsing twine autopep8 pylint
+sudo pip3 install markdown pdoc3 webencodings pyparsing twine autopep8 pylint pytest
 ```
 
 To lint, run:
 ```
 pylint meshtastic
+```
+
+To test, first install this code locally, then run pytest:
+```
+pip3 install .
+pytest
 ```
