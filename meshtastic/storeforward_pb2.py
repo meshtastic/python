@@ -18,14 +18,14 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\017StoreAndForwardH\003Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\x12storeforward.proto\"\x8d\x05\n\x16StoreAndForwardMessage\x12\x33\n\x02rr\x18\x01 \x01(\x0e\x32\'.StoreAndForwardMessage.RequestResponse\x12\x31\n\x05stats\x18\x02 \x01(\x0b\x32\".StoreAndForwardMessage.Statistics\x12\x30\n\x07history\x18\x03 \x01(\x0b\x32\x1f.StoreAndForwardMessage.History\x1a\xc6\x01\n\nStatistics\x12\x15\n\rMessagesTotal\x18\x01 \x01(\r\x12\x15\n\rMessagesSaved\x18\x02 \x01(\r\x12\x13\n\x0bMessagesMax\x18\x03 \x01(\r\x12\x0e\n\x06UpTime\x18\x04 \x01(\r\x12\x10\n\x08Requests\x18\x05 \x01(\r\x12\x17\n\x0fRequestsHistory\x18\x06 \x01(\r\x12\x11\n\tHeartbeat\x18\x07 \x01(\x08\x12\x11\n\tReturnMax\x18\x08 \x01(\r\x12\x14\n\x0cReturnWindow\x18\t \x01(\r\x1a\x32\n\x07History\x12\x17\n\x0fHistoryMessages\x18\x01 \x01(\r\x12\x0e\n\x06Window\x18\x02 \x01(\r\"\xdb\x01\n\x0fRequestResponse\x12\t\n\x05UNSET\x10\x00\x12\x10\n\x0cROUTER_ERROR\x10\x01\x12\x14\n\x10ROUTER_HEARTBEAT\x10\x02\x12\x0f\n\x0bROUTER_PING\x10\x03\x12\x0f\n\x0bROUTER_PONG\x10\x04\x12\x0f\n\x0bROUTER_BUSY\x10\x05\x12\x10\n\x0c\x43LIENT_ERROR\x10\x65\x12\x12\n\x0e\x43LIENT_HISTORY\x10\x66\x12\x10\n\x0c\x43LIENT_STATS\x10g\x12\x0f\n\x0b\x43LIENT_PING\x10h\x12\x0f\n\x0b\x43LIENT_PONG\x10i\x12\x08\n\x03MAX\x10\xff\x01\x42K\n\x13\x63om.geeksville.meshB\x0fStoreAndForwardH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\x12storeforward.proto\"\xe7\x04\n\x0fStoreAndForward\x12,\n\x02rr\x18\x01 \x01(\x0e\x32 .StoreAndForward.RequestResponse\x12*\n\x05stats\x18\x02 \x01(\x0b\x32\x1b.StoreAndForward.Statistics\x12)\n\x07history\x18\x03 \x01(\x0b\x32\x18.StoreAndForward.History\x1a\xc6\x01\n\nStatistics\x12\x15\n\rMessagesTotal\x18\x01 \x01(\r\x12\x15\n\rMessagesSaved\x18\x02 \x01(\r\x12\x13\n\x0bMessagesMax\x18\x03 \x01(\r\x12\x0e\n\x06UpTime\x18\x04 \x01(\r\x12\x10\n\x08Requests\x18\x05 \x01(\r\x12\x17\n\x0fRequestsHistory\x18\x06 \x01(\r\x12\x11\n\tHeartbeat\x18\x07 \x01(\x08\x12\x11\n\tReturnMax\x18\x08 \x01(\r\x12\x14\n\x0cReturnWindow\x18\t \x01(\r\x1a\x32\n\x07History\x12\x17\n\x0fHistoryMessages\x18\x01 \x01(\r\x12\x0e\n\x06Window\x18\x02 \x01(\r\"\xd1\x01\n\x0fRequestResponse\x12\t\n\x05UNSET\x10\x00\x12\x10\n\x0cROUTER_ERROR\x10\x01\x12\x14\n\x10ROUTER_HEARTBEAT\x10\x02\x12\x0f\n\x0bROUTER_PING\x10\x03\x12\x0f\n\x0bROUTER_PONG\x10\x04\x12\x0f\n\x0bROUTER_BUSY\x10\x05\x12\x10\n\x0c\x43LIENT_ERROR\x10\x65\x12\x12\n\x0e\x43LIENT_HISTORY\x10\x66\x12\x10\n\x0c\x43LIENT_STATS\x10g\x12\x0f\n\x0b\x43LIENT_PING\x10h\x12\x0f\n\x0b\x43LIENT_PONG\x10iBK\n\x13\x63om.geeksville.meshB\x0fStoreAndForwardH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
 )
 
 
 
-_STOREANDFORWARDMESSAGE_REQUESTRESPONSE = _descriptor.EnumDescriptor(
+_STOREANDFORWARD_REQUESTRESPONSE = _descriptor.EnumDescriptor(
   name='RequestResponse',
-  full_name='StoreAndForwardMessage.RequestResponse',
+  full_name='StoreAndForward.RequestResponse',
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -73,84 +73,80 @@ _STOREANDFORWARDMESSAGE_REQUESTRESPONSE = _descriptor.EnumDescriptor(
       name='CLIENT_PONG', index=10, number=105,
       serialized_options=None,
       type=None),
-    _descriptor.EnumValueDescriptor(
-      name='MAX', index=11, number=255,
-      serialized_options=None,
-      type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=457,
-  serialized_end=676,
+  serialized_start=429,
+  serialized_end=638,
 )
-_sym_db.RegisterEnumDescriptor(_STOREANDFORWARDMESSAGE_REQUESTRESPONSE)
+_sym_db.RegisterEnumDescriptor(_STOREANDFORWARD_REQUESTRESPONSE)
 
 
-_STOREANDFORWARDMESSAGE_STATISTICS = _descriptor.Descriptor(
+_STOREANDFORWARD_STATISTICS = _descriptor.Descriptor(
   name='Statistics',
-  full_name='StoreAndForwardMessage.Statistics',
+  full_name='StoreAndForward.Statistics',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='MessagesTotal', full_name='StoreAndForwardMessage.Statistics.MessagesTotal', index=0,
+      name='MessagesTotal', full_name='StoreAndForward.Statistics.MessagesTotal', index=0,
       number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='MessagesSaved', full_name='StoreAndForwardMessage.Statistics.MessagesSaved', index=1,
+      name='MessagesSaved', full_name='StoreAndForward.Statistics.MessagesSaved', index=1,
       number=2, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='MessagesMax', full_name='StoreAndForwardMessage.Statistics.MessagesMax', index=2,
+      name='MessagesMax', full_name='StoreAndForward.Statistics.MessagesMax', index=2,
       number=3, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='UpTime', full_name='StoreAndForwardMessage.Statistics.UpTime', index=3,
+      name='UpTime', full_name='StoreAndForward.Statistics.UpTime', index=3,
       number=4, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='Requests', full_name='StoreAndForwardMessage.Statistics.Requests', index=4,
+      name='Requests', full_name='StoreAndForward.Statistics.Requests', index=4,
       number=5, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='RequestsHistory', full_name='StoreAndForwardMessage.Statistics.RequestsHistory', index=5,
+      name='RequestsHistory', full_name='StoreAndForward.Statistics.RequestsHistory', index=5,
       number=6, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='Heartbeat', full_name='StoreAndForwardMessage.Statistics.Heartbeat', index=6,
+      name='Heartbeat', full_name='StoreAndForward.Statistics.Heartbeat', index=6,
       number=7, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ReturnMax', full_name='StoreAndForwardMessage.Statistics.ReturnMax', index=7,
+      name='ReturnMax', full_name='StoreAndForward.Statistics.ReturnMax', index=7,
       number=8, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ReturnWindow', full_name='StoreAndForwardMessage.Statistics.ReturnWindow', index=8,
+      name='ReturnWindow', full_name='StoreAndForward.Statistics.ReturnWindow', index=8,
       number=9, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -168,26 +164,26 @@ _STOREANDFORWARDMESSAGE_STATISTICS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=204,
-  serialized_end=402,
+  serialized_start=176,
+  serialized_end=374,
 )
 
-_STOREANDFORWARDMESSAGE_HISTORY = _descriptor.Descriptor(
+_STOREANDFORWARD_HISTORY = _descriptor.Descriptor(
   name='History',
-  full_name='StoreAndForwardMessage.History',
+  full_name='StoreAndForward.History',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='HistoryMessages', full_name='StoreAndForwardMessage.History.HistoryMessages', index=0,
+      name='HistoryMessages', full_name='StoreAndForward.History.HistoryMessages', index=0,
       number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='Window', full_name='StoreAndForwardMessage.History.Window', index=1,
+      name='Window', full_name='StoreAndForward.History.Window', index=1,
       number=2, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -205,33 +201,33 @@ _STOREANDFORWARDMESSAGE_HISTORY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=404,
-  serialized_end=454,
+  serialized_start=376,
+  serialized_end=426,
 )
 
-_STOREANDFORWARDMESSAGE = _descriptor.Descriptor(
-  name='StoreAndForwardMessage',
-  full_name='StoreAndForwardMessage',
+_STOREANDFORWARD = _descriptor.Descriptor(
+  name='StoreAndForward',
+  full_name='StoreAndForward',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='rr', full_name='StoreAndForwardMessage.rr', index=0,
+      name='rr', full_name='StoreAndForward.rr', index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='stats', full_name='StoreAndForwardMessage.stats', index=1,
+      name='stats', full_name='StoreAndForward.stats', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='history', full_name='StoreAndForwardMessage.history', index=2,
+      name='history', full_name='StoreAndForward.history', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -240,9 +236,9 @@ _STOREANDFORWARDMESSAGE = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_STOREANDFORWARDMESSAGE_STATISTICS, _STOREANDFORWARDMESSAGE_HISTORY, ],
+  nested_types=[_STOREANDFORWARD_STATISTICS, _STOREANDFORWARD_HISTORY, ],
   enum_types=[
-    _STOREANDFORWARDMESSAGE_REQUESTRESPONSE,
+    _STOREANDFORWARD_REQUESTRESPONSE,
   ],
   serialized_options=None,
   is_extendable=False,
@@ -251,40 +247,40 @@ _STOREANDFORWARDMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=23,
-  serialized_end=676,
+  serialized_end=638,
 )
 
-_STOREANDFORWARDMESSAGE_STATISTICS.containing_type = _STOREANDFORWARDMESSAGE
-_STOREANDFORWARDMESSAGE_HISTORY.containing_type = _STOREANDFORWARDMESSAGE
-_STOREANDFORWARDMESSAGE.fields_by_name['rr'].enum_type = _STOREANDFORWARDMESSAGE_REQUESTRESPONSE
-_STOREANDFORWARDMESSAGE.fields_by_name['stats'].message_type = _STOREANDFORWARDMESSAGE_STATISTICS
-_STOREANDFORWARDMESSAGE.fields_by_name['history'].message_type = _STOREANDFORWARDMESSAGE_HISTORY
-_STOREANDFORWARDMESSAGE_REQUESTRESPONSE.containing_type = _STOREANDFORWARDMESSAGE
-DESCRIPTOR.message_types_by_name['StoreAndForwardMessage'] = _STOREANDFORWARDMESSAGE
+_STOREANDFORWARD_STATISTICS.containing_type = _STOREANDFORWARD
+_STOREANDFORWARD_HISTORY.containing_type = _STOREANDFORWARD
+_STOREANDFORWARD.fields_by_name['rr'].enum_type = _STOREANDFORWARD_REQUESTRESPONSE
+_STOREANDFORWARD.fields_by_name['stats'].message_type = _STOREANDFORWARD_STATISTICS
+_STOREANDFORWARD.fields_by_name['history'].message_type = _STOREANDFORWARD_HISTORY
+_STOREANDFORWARD_REQUESTRESPONSE.containing_type = _STOREANDFORWARD
+DESCRIPTOR.message_types_by_name['StoreAndForward'] = _STOREANDFORWARD
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-StoreAndForwardMessage = _reflection.GeneratedProtocolMessageType('StoreAndForwardMessage', (_message.Message,), {
+StoreAndForward = _reflection.GeneratedProtocolMessageType('StoreAndForward', (_message.Message,), {
 
   'Statistics' : _reflection.GeneratedProtocolMessageType('Statistics', (_message.Message,), {
-    'DESCRIPTOR' : _STOREANDFORWARDMESSAGE_STATISTICS,
+    'DESCRIPTOR' : _STOREANDFORWARD_STATISTICS,
     '__module__' : 'storeforward_pb2'
-    # @@protoc_insertion_point(class_scope:StoreAndForwardMessage.Statistics)
+    # @@protoc_insertion_point(class_scope:StoreAndForward.Statistics)
     })
   ,
 
   'History' : _reflection.GeneratedProtocolMessageType('History', (_message.Message,), {
-    'DESCRIPTOR' : _STOREANDFORWARDMESSAGE_HISTORY,
+    'DESCRIPTOR' : _STOREANDFORWARD_HISTORY,
     '__module__' : 'storeforward_pb2'
-    # @@protoc_insertion_point(class_scope:StoreAndForwardMessage.History)
+    # @@protoc_insertion_point(class_scope:StoreAndForward.History)
     })
   ,
-  'DESCRIPTOR' : _STOREANDFORWARDMESSAGE,
+  'DESCRIPTOR' : _STOREANDFORWARD,
   '__module__' : 'storeforward_pb2'
-  # @@protoc_insertion_point(class_scope:StoreAndForwardMessage)
+  # @@protoc_insertion_point(class_scope:StoreAndForward)
   })
-_sym_db.RegisterMessage(StoreAndForwardMessage)
-_sym_db.RegisterMessage(StoreAndForwardMessage.Statistics)
-_sym_db.RegisterMessage(StoreAndForwardMessage.History)
+_sym_db.RegisterMessage(StoreAndForward)
+_sym_db.RegisterMessage(StoreAndForward.Statistics)
+_sym_db.RegisterMessage(StoreAndForward.History)
 
 
 DESCRIPTOR._options = None

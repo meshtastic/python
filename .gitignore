@@ -7,3 +7,4 @@ log_*
 nanopb-0.4.4
 .*swp
 .coverage
+*.py-E
