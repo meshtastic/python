@@ -37,6 +37,15 @@ def test_smoke1_info():
 
 
 @pytest.mark.smoke1
+def test_smoke1_debug():
+    """Test --debug"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --info --debug')
+    assert re.search(r'^Owner', out, re.MULTILINE)
+    assert re.search(r'^DEBUG:root', out, re.MULTILINE)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
 def test_smoke1_seriallog_to_file():
     """Test --seriallog to a file creates a file"""
     filename = 'tmpoutput.txt'
@@ -169,6 +178,51 @@ def test_smoke1_set_owner():
 
 
 @pytest.mark.smoke1
+def test_smoke1_set_team():
+    """Test --set-team """
+    # unset the team
+    return_value, out = subprocess.getstatusoutput('meshtastic --set-team CLEAR')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'^Setting team to CLEAR', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(1)
+    return_value, out = subprocess.getstatusoutput('meshtastic --set-team CYAN')
+    assert re.search(r'Setting team to CYAN', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(1)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.search(r'CYAN', out, re.MULTILINE)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
+def test_smoke1_ch_longslow_and_ch_shortfast():
+    """Test --ch-longslow and --ch-shortfast"""
+    # unset the team
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-longslow')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio (might reboot)
+    time.sleep(5)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.search(r'Bw125Cr48Sf4096', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(1)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-shortfast')
+    assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio (might reboot)
+    time.sleep(5)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.search(r'Bw500Cr45Sf128', out, re.MULTILINE)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
 def test_smoke1_ch_set_name():
     """Test --ch-set name"""
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
@@ -184,6 +238,34 @@ def test_smoke1_ch_set_name():
     time.sleep(1)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert re.search(r'MyChannel', out, re.MULTILINE)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
+def test_smoke1_ch_add_and_ch_del():
+    """Test --ch-add"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-add testing')
+    assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(1)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'SECONDARY', out, re.MULTILINE)
+    assert re.search(r'testing', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(1)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-index 1 --ch-del')
+    assert re.search(r'Deleting channel 1', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(4)
+    # make sure the secondar channel is not there
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert not re.search(r'SECONDARY', out, re.MULTILINE)
+    assert not re.search(r'testing', out, re.MULTILINE)
     assert return_value == 0
 
 
