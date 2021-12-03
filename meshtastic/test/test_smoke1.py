@@ -3,10 +3,13 @@ import re
 import subprocess
 import platform
 import time
+import os
 
 # Do not like using hard coded sleeps, but it probably makes
 # sense to pause for the radio at apprpriate times
 import pytest
+
+import meshtastic
 
 
 @pytest.mark.smoke1
@@ -34,11 +37,62 @@ def test_smoke1_info():
 
 
 @pytest.mark.smoke1
+def test_smoke1_seriallog_to_file():
+    """Test --seriallog to a file creates a file"""
+    filename = 'tmpoutput.txt'
+    if os.path.exists(f"{filename}"):
+        os.remove(f"{filename}")
+    return_value, out = subprocess.getstatusoutput(f'meshtastic --info --seriallog {filename}')
+    assert os.path.exists(f"{filename}")
+    assert return_value == 0
+    os.remove(f"{filename}")
+
+
+@pytest.mark.smoke1
+def test_smoke1_qr():
+    """Test --qr"""
+    filename = 'tmpqr'
+    if os.path.exists(f"{filename}"):
+        os.remove(f"{filename}")
+    return_value, out = subprocess.getstatusoutput(f'meshtastic --qr > {filename}')
+    assert os.path.exists(f"{filename}")
+    # not really testing that a valid qr code is created, just that the file size
+    # is reasonably big enough for a qr code
+    assert os.stat(f"{filename}").st_size > 20000
+    assert return_value == 0
+    os.remove(f"{filename}")
+
+
+@pytest.mark.smoke1
+def test_smoke1_nodes():
+    """Test --nodes"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --nodes')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'^│   N │ User', out, re.MULTILINE)
+    assert re.search(r'^│   1 │', out, re.MULTILINE)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
 def test_smoke1_send_hello():
     """Test --sendtext hello"""
     return_value, out = subprocess.getstatusoutput('meshtastic --sendtext hello')
     assert re.match(r'Connected to radio', out)
     assert re.search(r'^Sending text message hello to \^all', out, re.MULTILINE)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
+def test_smoke1_port():
+    """Test --port"""
+    # first, get the ports
+    ports = meshtastic.util.findPorts()
+    # hopefully there is just one
+    assert len(ports) == 1
+    port = ports[0]
+    return_value, out = subprocess.getstatusoutput(f'meshtastic --port {port} --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'^Owner', out, re.MULTILINE)
     assert return_value == 0
 
 
