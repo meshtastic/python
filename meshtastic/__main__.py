@@ -8,6 +8,7 @@ import logging
 import sys
 import time
 import os
+import yaml
 from pubsub import pub
 import pyqrcode
 import pkg_resources
@@ -351,6 +352,49 @@ def onConnected(interface):
             print("Writing modified preferences to device")
             getNode().writeConfig()
 
+        if args.configure:
+            with open(args.configure[0]) as file:
+                configuration = yaml.safe_load(file)
+                closeNow = True
+
+                if 'owner' in configuration:
+                    print(f"Setting device owner to {configuration['owner']}")
+                    getNode().setOwner(configuration['owner'])
+                    
+                if 'channel_url' in configuration:
+                    print("Setting channel url to", configuration['channel_url'])
+                    getNode().setURL(configuration['channel_url'])
+
+                if 'location' in configuration:
+                    alt = 0
+                    lat = 0.0
+                    lon = 0.0
+                    time = 0  # always set time, but based on the local clock
+                    prefs = interface.localNode.radioConfig.preferences
+
+                    if 'alt' in configuration['location']:
+                        alt = int(configuration['location']['alt'])
+                        prefs.fixed_position = True
+                        print(f"Fixing altitude at {alt} meters")
+                    if 'lat' in configuration['location']:
+                        lat = float(configuration['location']['lat'])
+                        prefs.fixed_position = True
+                        print(f"Fixing latitude at {lat} degrees")
+                    if 'lon' in configuration['location']:
+                        lon = float(configuration['location']['lon'])
+                        prefs.fixed_position = True
+                        print(f"Fixing longitude at {lon} degrees")
+                    print("Setting device position")
+                    interface.sendPosition(lat, lon, alt, time)
+                    interface.localNode.writeConfig()
+                    
+                if 'user_prefs' in configuration:
+                    prefs = getNode().radioConfig.preferences
+                    for pref in configuration['user_prefs']:
+                        setPref(prefs, pref, str(configuration['user_prefs'][pref]))
+                    print("Writing modified preferences to device")
+                    getNode().writeConfig()
+
         if args.seturl:
             closeNow = True
             getNode().setURL(args.seturl)
@@ -567,6 +611,11 @@ def common():
 def initParser():
     """ Initialize the command line argument parsing."""
     global parser, args
+
+    parser.add_argument(
+        "--configure",
+        help="Specify a path to a yaml(.yml) file containing the desired settings for the connected device.",
+        action='append')
 
     parser.add_argument(
         "--port",
