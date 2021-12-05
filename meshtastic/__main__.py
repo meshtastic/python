@@ -677,7 +677,7 @@ def initParser():
         "--set-owner", help="Set device owner name", action="store")
 
     parser.add_argument(
-        "--set-team", help="Set team affiliation (? for options)", action="store")
+        "--set-team", help="Set team affiliation (an invalid team will list valid values)", action="store")
 
     parser.add_argument(
         "--set-ham", help="Set licensed HAM ID and turn off encryption", action="store")

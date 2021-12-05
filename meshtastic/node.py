@@ -259,6 +259,9 @@ class Node:
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
 
+        if len(channelSet.settings) == 0:
+            raise Exception("There were no settings.")
+
         i = 0
         for chs in channelSet.settings:
             ch = channel_pb2.Channel()
