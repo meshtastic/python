@@ -126,6 +126,15 @@ Setting HAM ID to KI1345 and turning off encryption
 Writing modified channels to device
 ```
 
+## Changing multiple settings from a yaml file
+
+You can put parameters into a yaml file to update multiple values. See the example_config.yml.
+
+This is how you might call it:
+```
+meshtastic --configure example_config.yaml
+```
+
 ## FAQ/common problems
 
 This is a collection of common questions and answers from our friendly forum.
