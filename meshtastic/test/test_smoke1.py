@@ -322,6 +322,24 @@ def test_smoke1_seturl_invalid_url():
 
 
 @pytest.mark.smoke1
+def test_smoke1_configure():
+    """Test --configure"""
+    return_value, out = subprocess.getstatusoutput(f"meshtastic --configure example_config.yaml")
+    assert re.match(r'Connected to radio', out)
+    assert re.search('^Setting device owner to Bob TBeam', out, re.MULTILINE)
+    assert re.search('^Fixing altitude at 304 meters', out, re.MULTILINE)
+    assert re.search('^Fixing latitude at 35.8', out, re.MULTILINE)
+    assert re.search('^Fixing longitude at -93.8', out, re.MULTILINE)
+    assert re.search('^Setting device position', out, re.MULTILINE)
+    assert re.search('^Set region to 1', out, re.MULTILINE)
+    assert re.search('^Set is_always_powered to true', out, re.MULTILINE)
+    assert re.search('^Set send_owner_interval to 2', out, re.MULTILINE)
+    assert re.search('^Set screen_on_secs to 31536000', out, re.MULTILINE)
+    assert re.search('^Set wait_bluetooth_secs to 31536000', out, re.MULTILINE)
+    assert re.search('^Writing modified preferences to device', out, re.MULTILINE)
+
+
+@pytest.mark.smoke1
 def test_smoke1_factory_reset():
     """Test factory reset"""
     return_value, out = subprocess.getstatusoutput('meshtastic --set factory_reset true')
