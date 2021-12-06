@@ -128,7 +128,7 @@ Writing modified channels to device
 
 ## Changing multiple settings from a yaml file
 
-You can put parameters into a yaml file to update multiple values. See the example_config.yml.
+You can put parameters into a yaml file to update multiple values. See the [example_config.yaml](example_config.yaml).
 
 This is how you might call it:
 ```
