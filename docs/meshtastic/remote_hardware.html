@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>meshtastic.remote_hardware API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Remote hardware" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,14 @@
 <h1 class="title">Module <code>meshtastic.remote_hardware</code></h1>
 </header>
 <section id="section-intro">
+<p>Remote hardware</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from pubsub import pub
+<pre><code class="python">&#34;&#34;&#34; Remote hardware
+&#34;&#34;&#34;
+from pubsub import pub
 from . import portnums_pb2, remote_hardware_pb2
 
 
@@ -55,7 +58,8 @@ class RemoteHardwareClient:
         ch = iface.localNode.getChannelByName(&#34;gpio&#34;)
         if not ch:
             raise Exception(
-                &#34;No gpio channel found, please create on the sending and receive nodes to use this (secured) service (--ch-add gpio --info then --seturl)&#34;)
+                &#34;No gpio channel found, please create on the sending and receive nodes &#34;\
+                &#34;to use this (secured) service (--ch-add gpio --info then --seturl)&#34;)
         self.channelIndex = ch.index
 
         pub.subscribe(
@@ -63,6 +67,7 @@ class RemoteHardwareClient:
 
     def _sendHardware(self, nodeid, r, wantResponse=False, onResponse=None):
         if not nodeid:
+            # pylint: disable=W1401
             raise Exception(
                 &#34;You must set a destination node ID for this operation (use --dest \!xxxxxxxxx)&#34;)
         return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP,
@@ -156,7 +161,8 @@ code for how you can connect to your own custom meshtastic services</p>
         ch = iface.localNode.getChannelByName(&#34;gpio&#34;)
         if not ch:
             raise Exception(
-                &#34;No gpio channel found, please create on the sending and receive nodes to use this (secured) service (--ch-add gpio --info then --seturl)&#34;)
+                &#34;No gpio channel found, please create on the sending and receive nodes &#34;\
+                &#34;to use this (secured) service (--ch-add gpio --info then --seturl)&#34;)
         self.channelIndex = ch.index
 
         pub.subscribe(
@@ -164,6 +170,7 @@ code for how you can connect to your own custom meshtastic services</p>
 
     def _sendHardware(self, nodeid, r, wantResponse=False, onResponse=None):
         if not nodeid:
+            # pylint: disable=W1401
             raise Exception(
                 &#34;You must set a destination node ID for this operation (use --dest \!xxxxxxxxx)&#34;)
         return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP,

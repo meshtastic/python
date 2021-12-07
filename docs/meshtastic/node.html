@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>meshtastic.node API documentation</title>
-<meta name="description" content="an API for Meshtastic devices …" />
+<meta name="description" content="Node class" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,149 +22,19 @@
 <h1 class="title">Module <code>meshtastic.node</code></h1>
 </header>
 <section id="section-intro">
-<h1 id="an-api-for-meshtastic-devices">an API for Meshtastic devices</h1>
-<p>Primary class: SerialInterface
-Install with pip: "<a href="https://pypi.org/project/meshtastic/">pip3 install meshtastic</a>"
-Source code on <a href="https://github.com/meshtastic/Meshtastic-python">github</a></p>
-<p>properties of SerialInterface:</p>
-<ul>
-<li>radioConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to
-the device.</li>
-<li>nodes - The database of received nodes.
-Includes always up-to-date location and username information for each
-node in the mesh.
-This is a read-only datastructure.</li>
-<li>nodesByNum - like "nodes" but keyed by nodeNum instead of nodeId</li>
-<li>myInfo - Contains read-only information about the local radio device (software version, hardware version, etc)</li>
-</ul>
-<h1 id="published-pubsub-topics">Published PubSub topics</h1>
-<p>We use a <a href="https://pypubsub.readthedocs.io/en/v4.0.3/">publish-subscribe</a> model to communicate asynchronous events.
-Available
-topics:</p>
-<ul>
-<li>meshtastic.connection.established - published once we've successfully connected to the radio and downloaded the node DB</li>
-<li>meshtastic.connection.lost - published once we've lost our link to the radio</li>
-<li>meshtastic.receive.text(packet) - delivers a received packet as a dictionary, if you only care about a particular
-type of packet, you should subscribe to the full topic name.
-If you want to see all packets, simply subscribe to "meshtastic.receive".</li>
-<li>meshtastic.receive.position(packet)</li>
-<li>meshtastic.receive.user(packet)</li>
-<li>meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)</li>
-<li>meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc&hellip;)</li>
-</ul>
-<p>We receive position, user, or data packets from the mesh.
-You probably only care about meshtastic.receive.data.
-The first argument for
-that publish will be the packet.
-Text or binary data packets (from sendData or sendText) will both arrive this way.
-If you print packet
-you'll see the fields in the dictionary.
-decoded.data.payload will contain the raw bytes that were sent.
-If the packet was sent with
-sendText, decoded.data.text will <strong>also</strong> be populated with the decoded string.
-For ASCII these two strings will be the same, but for
-unicode scripts they can be different.</p>
-<h1 id="example-usage">Example Usage</h1>
-<pre><code>import meshtastic
-from pubsub import pub
-
-def onReceive(packet, interface): # called when a packet arrives
-    print(f&quot;Received: {packet}&quot;)
-
-def onConnection(interface, topic=pub.AUTO_TOPIC): # called when we (re)connect to the radio
-    # defaults to broadcast, specify a destination ID if you wish
-    interface.sendText(&quot;hello mesh&quot;)
-
-pub.subscribe(onReceive, &quot;meshtastic.receive&quot;)
-pub.subscribe(onConnection, &quot;meshtastic.connection.established&quot;)
-# By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
-interface = meshtastic.SerialInterface()
-
-</code></pre>
+<p>Node class</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;
-# an API for Meshtastic devices
-
-Primary class: SerialInterface
-Install with pip: &#34;[pip3 install meshtastic](https://pypi.org/project/meshtastic/)&#34;
-Source code on [github](https://github.com/meshtastic/Meshtastic-python)
-
-properties of SerialInterface:
-
-- radioConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to
-the device.
-- nodes - The database of received nodes.  Includes always up-to-date location and username information for each
-node in the mesh.  This is a read-only datastructure.
-- nodesByNum - like &#34;nodes&#34; but keyed by nodeNum instead of nodeId
-- myInfo - Contains read-only information about the local radio device (software version, hardware version, etc)
-
-# Published PubSub topics
-
-We use a [publish-subscribe](https://pypubsub.readthedocs.io/en/v4.0.3/) model to communicate asynchronous events.  Available
-topics:
-
-- meshtastic.connection.established - published once we&#39;ve successfully connected to the radio and downloaded the node DB
-- meshtastic.connection.lost - published once we&#39;ve lost our link to the radio
-- meshtastic.receive.text(packet) - delivers a received packet as a dictionary, if you only care about a particular
-type of packet, you should subscribe to the full topic name.  If you want to see all packets, simply subscribe to &#34;meshtastic.receive&#34;.
-- meshtastic.receive.position(packet)
-- meshtastic.receive.user(packet)
-- meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)
-- meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
-
-We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for
-that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet
-you&#39;ll see the fields in the dictionary.  decoded.data.payload will contain the raw bytes that were sent.  If the packet was sent with
-sendText, decoded.data.text will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for
-unicode scripts they can be different.
-
-# Example Usage
-```
-import meshtastic
-from pubsub import pub
-
-def onReceive(packet, interface): # called when a packet arrives
-    print(f&#34;Received: {packet}&#34;)
-
-def onConnection(interface, topic=pub.AUTO_TOPIC): # called when we (re)connect to the radio
-    # defaults to broadcast, specify a destination ID if you wish
-    interface.sendText(&#34;hello mesh&#34;)
-
-pub.subscribe(onReceive, &#34;meshtastic.receive&#34;)
-pub.subscribe(onConnection, &#34;meshtastic.connection.established&#34;)
-# By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
-interface = meshtastic.SerialInterface()
-
-```
-
+<pre><code class="python">&#34;&#34;&#34; Node class
 &#34;&#34;&#34;
 
 import logging
 import base64
-from typing import *
 from google.protobuf.json_format import MessageToJson
 from . import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
-from .util import stripnl, Timeout
-
-
-
-def pskToString(psk: bytes):
-    &#34;&#34;&#34;Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string&#34;&#34;&#34;
-    if len(psk) == 0:
-        return &#34;unencrypted&#34;
-    elif len(psk) == 1:
-        b = psk[0]
-        if b == 0:
-            return &#34;unencrypted&#34;
-        elif b == 1:
-            return &#34;default&#34;
-        else:
-            return f&#34;simple{b - 1}&#34;
-    else:
-        return &#34;secret&#34;
+from .util import pskToString, stripnl, Timeout, our_exit
 
 
 class Node:
@@ -184,11 +54,11 @@ class Node:
     def showChannels(self):
         &#34;&#34;&#34;Show human readable description of our channels&#34;&#34;&#34;
         print(&#34;Channels:&#34;)
-        for c in self.channels:
-            if c.role != channel_pb2.Channel.Role.DISABLED:
-                cStr = stripnl(MessageToJson(c.settings))
-                print(
-                    f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
+        if self.channels:
+            for c in self.channels:
+                if c.role != channel_pb2.Channel.Role.DISABLED:
+                    cStr = stripnl(MessageToJson(c.settings))
+                    print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
         print(f&#34;\nPrimary channel URL: {publicURL}&#34;)
@@ -197,8 +67,10 @@ class Node:
 
     def showInfo(self):
         &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
-        print(
-            f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
+        prefs = &#34;&#34;
+        if self.radioConfig and self.radioConfig.preferences:
+            prefs = stripnl(MessageToJson(self.radioConfig.preferences))
+        print(f&#34;Preferences: {prefs}\n&#34;)
         self.showChannels()
 
     def requestConfig(self):
@@ -218,7 +90,7 @@ class Node:
     def writeConfig(self):
         &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
         if self.radioConfig is None:
-            raise Exception(&#34;No RadioConfig has been read&#34;)
+            our_exit(&#34;Error: No RadioConfig has been read&#34;)
 
         p = admin_pb2.AdminMessage()
         p.set_radio.CopyFrom(self.radioConfig)
@@ -239,7 +111,7 @@ class Node:
         &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
         ch = self.channels[channelIndex]
         if ch.role != channel_pb2.Channel.Role.SECONDARY:
-            raise Exception(&#34;Only SECONDARY channels can be deleted&#34;)
+            our_exit(&#34;Warning: Only SECONDARY channels can be deleted&#34;)
 
         # we are careful here because if we move the &#34;admin&#34; channel the channelIndex we need to use
         # for sending admin channels will also change
@@ -318,9 +190,10 @@ class Node:
         &#34;&#34;&#34;
         # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
-        for c in self.channels:
-            if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
-                channelSet.settings.append(c.settings)
+        if self.channels:
+            for c in self.channels:
+                if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
+                    channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
         return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)
@@ -328,7 +201,7 @@ class Node:
     def setURL(self, url):
         &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
         if self.radioConfig is None:
-            raise Exception(&#34;No RadioConfig has been read&#34;)
+            our_exit(&#34;Warning: No RadioConfig has been read&#34;)
 
         # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
         # Split on &#39;/#&#39; to find the base64 encoded channel settings
@@ -347,7 +220,7 @@ class Node:
         channelSet.ParseFromString(decodedURL)
 
         if len(channelSet.settings) == 0:
-            raise Exception(&#34;There were no settings.&#34;)
+            our_exit(&#34;Warning: There were no settings.&#34;)
 
         i = 0
         for chs in channelSet.settings:
@@ -487,34 +360,6 @@ class Node:
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="meshtastic.node.pskToString"><code class="name flex">
-<span>def <span class="ident">pskToString</span></span>(<span>psk: bytes)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pskToString(psk: bytes):
-    &#34;&#34;&#34;Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string&#34;&#34;&#34;
-    if len(psk) == 0:
-        return &#34;unencrypted&#34;
-    elif len(psk) == 1:
-        b = psk[0]
-        if b == 0:
-            return &#34;unencrypted&#34;
-        elif b == 1:
-            return &#34;default&#34;
-        else:
-            return f&#34;simple{b - 1}&#34;
-    else:
-        return &#34;secret&#34;</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -548,11 +393,11 @@ class Node:
     def showChannels(self):
         &#34;&#34;&#34;Show human readable description of our channels&#34;&#34;&#34;
         print(&#34;Channels:&#34;)
-        for c in self.channels:
-            if c.role != channel_pb2.Channel.Role.DISABLED:
-                cStr = stripnl(MessageToJson(c.settings))
-                print(
-                    f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
+        if self.channels:
+            for c in self.channels:
+                if c.role != channel_pb2.Channel.Role.DISABLED:
+                    cStr = stripnl(MessageToJson(c.settings))
+                    print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
         print(f&#34;\nPrimary channel URL: {publicURL}&#34;)
@@ -561,8 +406,10 @@ class Node:
 
     def showInfo(self):
         &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
-        print(
-            f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
+        prefs = &#34;&#34;
+        if self.radioConfig and self.radioConfig.preferences:
+            prefs = stripnl(MessageToJson(self.radioConfig.preferences))
+        print(f&#34;Preferences: {prefs}\n&#34;)
         self.showChannels()
 
     def requestConfig(self):
@@ -582,7 +429,7 @@ class Node:
     def writeConfig(self):
         &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
         if self.radioConfig is None:
-            raise Exception(&#34;No RadioConfig has been read&#34;)
+            our_exit(&#34;Error: No RadioConfig has been read&#34;)
 
         p = admin_pb2.AdminMessage()
         p.set_radio.CopyFrom(self.radioConfig)
@@ -603,7 +450,7 @@ class Node:
         &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
         ch = self.channels[channelIndex]
         if ch.role != channel_pb2.Channel.Role.SECONDARY:
-            raise Exception(&#34;Only SECONDARY channels can be deleted&#34;)
+            our_exit(&#34;Warning: Only SECONDARY channels can be deleted&#34;)
 
         # we are careful here because if we move the &#34;admin&#34; channel the channelIndex we need to use
         # for sending admin channels will also change
@@ -682,9 +529,10 @@ class Node:
         &#34;&#34;&#34;
         # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
-        for c in self.channels:
-            if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
-                channelSet.settings.append(c.settings)
+        if self.channels:
+            for c in self.channels:
+                if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
+                    channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
         return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)
@@ -692,7 +540,7 @@ class Node:
     def setURL(self, url):
         &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
         if self.radioConfig is None:
-            raise Exception(&#34;No RadioConfig has been read&#34;)
+            our_exit(&#34;Warning: No RadioConfig has been read&#34;)
 
         # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
         # Split on &#39;/#&#39; to find the base64 encoded channel settings
@@ -711,7 +559,7 @@ class Node:
         channelSet.ParseFromString(decodedURL)
 
         if len(channelSet.settings) == 0:
-            raise Exception(&#34;There were no settings.&#34;)
+            our_exit(&#34;Warning: There were no settings.&#34;)
 
         i = 0
         for chs in channelSet.settings:
@@ -860,7 +708,7 @@ class Node:
     &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
     ch = self.channels[channelIndex]
     if ch.role != channel_pb2.Channel.Role.SECONDARY:
-        raise Exception(&#34;Only SECONDARY channels can be deleted&#34;)
+        our_exit(&#34;Warning: Only SECONDARY channels can be deleted&#34;)
 
     # we are careful here because if we move the &#34;admin&#34; channel the channelIndex we need to use
     # for sending admin channels will also change
@@ -947,9 +795,10 @@ class Node:
     &#34;&#34;&#34;
     # Only keep the primary/secondary channels, assume primary is first
     channelSet = apponly_pb2.ChannelSet()
-    for c in self.channels:
-        if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
-            channelSet.settings.append(c.settings)
+    if self.channels:
+        for c in self.channels:
+            if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
+                channelSet.settings.append(c.settings)
     bytes = channelSet.SerializeToString()
     s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
     return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)</code></pre>
@@ -1050,7 +899,7 @@ class Node:
 <pre><code class="python">def setURL(self, url):
     &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
     if self.radioConfig is None:
-        raise Exception(&#34;No RadioConfig has been read&#34;)
+        our_exit(&#34;Warning: No RadioConfig has been read&#34;)
 
     # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
     # Split on &#39;/#&#39; to find the base64 encoded channel settings
@@ -1069,7 +918,7 @@ class Node:
     channelSet.ParseFromString(decodedURL)
 
     if len(channelSet.settings) == 0:
-        raise Exception(&#34;There were no settings.&#34;)
+        our_exit(&#34;Warning: There were no settings.&#34;)
 
     i = 0
     for chs in channelSet.settings:
@@ -1094,11 +943,11 @@ class Node:
 <pre><code class="python">def showChannels(self):
     &#34;&#34;&#34;Show human readable description of our channels&#34;&#34;&#34;
     print(&#34;Channels:&#34;)
-    for c in self.channels:
-        if c.role != channel_pb2.Channel.Role.DISABLED:
-            cStr = stripnl(MessageToJson(c.settings))
-            print(
-                f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
+    if self.channels:
+        for c in self.channels:
+            if c.role != channel_pb2.Channel.Role.DISABLED:
+                cStr = stripnl(MessageToJson(c.settings))
+                print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
     publicURL = self.getURL(includeAll=False)
     adminURL = self.getURL(includeAll=True)
     print(f&#34;\nPrimary channel URL: {publicURL}&#34;)
@@ -1117,8 +966,10 @@ class Node:
 </summary>
 <pre><code class="python">def showInfo(self):
     &#34;&#34;&#34;Show human readable description of our node&#34;&#34;&#34;
-    print(
-        f&#34;Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n&#34;)
+    prefs = &#34;&#34;
+    if self.radioConfig and self.radioConfig.preferences:
+        prefs = stripnl(MessageToJson(self.radioConfig.preferences))
+    print(f&#34;Preferences: {prefs}\n&#34;)
     self.showChannels()</code></pre>
 </details>
 </dd>
@@ -1167,7 +1018,7 @@ class Node:
 <pre><code class="python">def writeConfig(self):
     &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
     if self.radioConfig is None:
-        raise Exception(&#34;No RadioConfig has been read&#34;)
+        our_exit(&#34;Error: No RadioConfig has been read&#34;)
 
     p = admin_pb2.AdminMessage()
     p.set_radio.CopyFrom(self.radioConfig)
@@ -1184,21 +1035,12 @@ class Node:
 <nav id="sidebar">
 <h1>Index</h1>
 <div class="toc">
-<ul>
-<li><a href="#an-api-for-meshtastic-devices">an API for Meshtastic devices</a></li>
-<li><a href="#published-pubsub-topics">Published PubSub topics</a></li>
-<li><a href="#example-usage">Example Usage</a></li>
-</ul>
+<ul></ul>
 </div>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="meshtastic" href="index.html">meshtastic</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="meshtastic.node.pskToString" href="#meshtastic.node.pskToString">pskToString</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

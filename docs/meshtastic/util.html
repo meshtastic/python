@@ -33,13 +33,31 @@ import traceback
 from queue import Queue
 import sys
 import time
+import platform
 import logging
 import threading
 import serial
 import serial.tools.list_ports
+import pkg_resources
 
 &#34;&#34;&#34;Some devices such as a seger jlink we never want to accidentally open&#34;&#34;&#34;
 blacklistVids = dict.fromkeys([0x1366])
+
+
+def pskToString(psk: bytes):
+    &#34;&#34;&#34;Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string&#34;&#34;&#34;
+    if len(psk) == 0:
+        return &#34;unencrypted&#34;
+    elif len(psk) == 1:
+        b = psk[0]
+        if b == 0:
+            return &#34;unencrypted&#34;
+        elif b == 1:
+            return &#34;default&#34;
+        else:
+            return f&#34;simple{b - 1}&#34;
+    else:
+        return &#34;secret&#34;
 
 
 def stripnl(s):
@@ -123,7 +141,34 @@ class DeferredExecution():
             except:
                 logging.error(
                     f&#34;Unexpected error in deferred execution {sys.exc_info()[0]}&#34;)
-                print(traceback.format_exc())</code></pre>
+                print(traceback.format_exc())
+
+
+def our_exit(message, return_value = 1):
+    &#34;&#34;&#34;Print the message and return a value.
+       return_value defaults to 1 (non-successful)
+    &#34;&#34;&#34;
+    print(message)
+    sys.exit(return_value)
+
+
+def support_info():
+    &#34;&#34;&#34;Print out info that is helping in support of the cli.&#34;&#34;&#34;
+    print(&#39;If having issues with meshtastic cli or python library&#39;)
+    print(&#39;or wish to make feature requests, visit:&#39;)
+    print(&#39;https://github.com/meshtastic/Meshtastic-python/issues&#39;)
+    print(&#39;When adding an issue, be sure to include the following info:&#39;)
+    print(&#39; System: {0}&#39;.format(platform.system()))
+    print(&#39;   Platform: {0}&#39;.format(platform.platform()))
+    print(&#39;   Release: {0}&#39;.format(platform.uname().release))
+    print(&#39;   Machine: {0}&#39;.format(platform.uname().machine))
+    print(&#39; meshtastic: v{0}&#39;.format(pkg_resources.require(&#39;meshtastic&#39;)[0].version))
+    print(&#39; Executable: {0}&#39;.format(sys.argv[0]))
+    print(&#39; Python: {0} {1} {2}&#39;.format(platform.python_version(),
+          platform.python_implementation(), platform.python_compiler()))
+    print(&#39;&#39;)
+    print(&#39;Please add the output from the command: meshtastic --info&#39;)
+    print(&#39;&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -188,6 +233,49 @@ class DeferredExecution():
     raise Exception(f&#34;FIXME: {message}&#34;)</code></pre>
 </details>
 </dd>
+<dt id="meshtastic.util.our_exit"><code class="name flex">
+<span>def <span class="ident">our_exit</span></span>(<span>message, return_value=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Print the message and return a value.
+return_value defaults to 1 (non-successful)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def our_exit(message, return_value = 1):
+    &#34;&#34;&#34;Print the message and return a value.
+       return_value defaults to 1 (non-successful)
+    &#34;&#34;&#34;
+    print(message)
+    sys.exit(return_value)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.util.pskToString"><code class="name flex">
+<span>def <span class="ident">pskToString</span></span>(<span>psk: bytes)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pskToString(psk: bytes):
+    &#34;&#34;&#34;Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string&#34;&#34;&#34;
+    if len(psk) == 0:
+        return &#34;unencrypted&#34;
+    elif len(psk) == 1:
+        b = psk[0]
+        if b == 0:
+            return &#34;unencrypted&#34;
+        elif b == 1:
+            return &#34;default&#34;
+        else:
+            return f&#34;simple{b - 1}&#34;
+    else:
+        return &#34;secret&#34;</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.util.stripnl"><code class="name flex">
 <span>def <span class="ident">stripnl</span></span>(<span>s)</span>
 </code></dt>
@@ -201,6 +289,34 @@ class DeferredExecution():
     &#34;&#34;&#34;remove newlines from a string (and remove extra whitespace)&#34;&#34;&#34;
     s = str(s).replace(&#34;\n&#34;, &#34; &#34;)
     return &#39; &#39;.join(s.split())</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.util.support_info"><code class="name flex">
+<span>def <span class="ident">support_info</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Print out info that is helping in support of the cli.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def support_info():
+    &#34;&#34;&#34;Print out info that is helping in support of the cli.&#34;&#34;&#34;
+    print(&#39;If having issues with meshtastic cli or python library&#39;)
+    print(&#39;or wish to make feature requests, visit:&#39;)
+    print(&#39;https://github.com/meshtastic/Meshtastic-python/issues&#39;)
+    print(&#39;When adding an issue, be sure to include the following info:&#39;)
+    print(&#39; System: {0}&#39;.format(platform.system()))
+    print(&#39;   Platform: {0}&#39;.format(platform.platform()))
+    print(&#39;   Release: {0}&#39;.format(platform.uname().release))
+    print(&#39;   Machine: {0}&#39;.format(platform.uname().machine))
+    print(&#39; meshtastic: v{0}&#39;.format(pkg_resources.require(&#39;meshtastic&#39;)[0].version))
+    print(&#39; Executable: {0}&#39;.format(sys.argv[0]))
+    print(&#39; Python: {0} {1} {2}&#39;.format(platform.python_version(),
+          platform.python_implementation(), platform.python_compiler()))
+    print(&#39;&#39;)
+    print(&#39;Please add the output from the command: meshtastic --info&#39;)
+    print(&#39;&#39;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -362,11 +478,14 @@ class DeferredExecution():
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="meshtastic.util.catchAndIgnore" href="#meshtastic.util.catchAndIgnore">catchAndIgnore</a></code></li>
 <li><code><a title="meshtastic.util.findPorts" href="#meshtastic.util.findPorts">findPorts</a></code></li>
 <li><code><a title="meshtastic.util.fixme" href="#meshtastic.util.fixme">fixme</a></code></li>
+<li><code><a title="meshtastic.util.our_exit" href="#meshtastic.util.our_exit">our_exit</a></code></li>
+<li><code><a title="meshtastic.util.pskToString" href="#meshtastic.util.pskToString">pskToString</a></code></li>
 <li><code><a title="meshtastic.util.stripnl" href="#meshtastic.util.stripnl">stripnl</a></code></li>
+<li><code><a title="meshtastic.util.support_info" href="#meshtastic.util.support_info">support_info</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
