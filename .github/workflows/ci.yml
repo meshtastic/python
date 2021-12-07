@@ -21,6 +21,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install .
+          meshtastic --version
       - name: Run pylint
         run: pylint --exit-zero meshtastic
       - name: Run tests with pytest
