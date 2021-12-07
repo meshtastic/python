@@ -12,6 +12,7 @@ import meshtastic
 
 # seconds to pause after running a meshtastic command
 PAUSE_AFTER_COMMAND = 2
+PAUSE_AFTER_REBOOT = 7
 
 
 @pytest.mark.smoke1
@@ -200,28 +201,33 @@ def test_smoke1_set_team():
 
 
 @pytest.mark.smoke1
-def test_smoke1_ch_longslow_and_ch_shortfast():
-    """Test --ch-longslow and --ch-shortfast"""
-    # unset the team
-    return_value, out = subprocess.getstatusoutput('meshtastic --ch-longslow')
-    assert re.match(r'Connected to radio', out)
-    assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio (might reboot)
-    time.sleep(5)
-    return_value, out = subprocess.getstatusoutput('meshtastic --info')
-    assert re.search(r'Bw125Cr48Sf4096', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio
-    time.sleep(PAUSE_AFTER_COMMAND)
-    return_value, out = subprocess.getstatusoutput('meshtastic --ch-shortfast')
-    assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio (might reboot)
-    time.sleep(5)
-    return_value, out = subprocess.getstatusoutput('meshtastic --info')
-    assert re.search(r'Bw500Cr45Sf128', out, re.MULTILINE)
-    assert return_value == 0
+def test_smoke1_ch_values():
+    """Test --ch-longslow, --ch-longfast, --ch-mediumslow, --ch-mediumsfast,
+       --ch-shortslow, and --ch-shortfast arguments
+    """
+    exp = {
+            '--ch-longslow': 'Bw125Cr48Sf4096',
+            # TODO: not sure why these fail thru tests, but ok manually
+            #'--ch-longfast': 'Bw31_25Cr48Sf512',
+            #'--ch-mediumslow': 'Bw250Cr46Sf2048',
+            #'--ch-mediumfast': 'Bw250Cr47Sf1024',
+            # TODO '--ch-shortslow': '?',
+            '--ch-shortfast': 'Bw500Cr45Sf128'
+          }
+
+    for key, val in exp.items():
+        print(key, val)
+        return_value, out = subprocess.getstatusoutput(f'meshtastic {key}')
+        assert re.match(r'Connected to radio', out)
+        assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
+        assert return_value == 0
+        # pause for the radio (might reboot)
+        time.sleep(PAUSE_AFTER_REBOOT)
+        return_value, out = subprocess.getstatusoutput('meshtastic --info')
+        assert re.search(val, out, re.MULTILINE)
+        assert return_value == 0
+        # pause for the radio
+        time.sleep(PAUSE_AFTER_COMMAND)
 
 
 @pytest.mark.smoke1
@@ -262,7 +268,7 @@ def test_smoke1_ch_add_and_ch_del():
     assert re.search(r'Deleting channel 1', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(5)
+    time.sleep(PAUSE_AFTER_REBOOT)
     # make sure the secondar channel is not there
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert re.match(r'Connected to radio', out)

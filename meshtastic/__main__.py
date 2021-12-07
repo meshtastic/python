@@ -438,7 +438,7 @@ def onConnected(interface):
 
             enable = args.ch_enable  # should we enable this channel?
 
-            if args.ch_longslow or args.ch_longfast or args.ch_mediumslow or args.ch_mediumfast or args.chshortslow or args.ch_shortfast:
+            if args.ch_longslow or args.ch_longfast or args.ch_mediumslow or args.ch_mediumfast or args.ch_shortslow or args.ch_shortfast:
                 if channelIndex != 0:
                     raise Exception(
                         "standard channel settings can only be applied to the PRIMARY channel")
@@ -687,22 +687,23 @@ def initParser():
         "--ch-set", help="Set a channel parameter", nargs=2, action='append')
 
     parser.add_argument(
-        "--ch-longslow", help="Change to the standard long-range (but slow) channel", action='store_true')
+        "--ch-longslow", help="Change to the long-range and slow channel", action='store_true')
 
     parser.add_argument(
-        "--ch-longfast", help="Change to the standard long-range (but fast) channel", action='store_true')
+        "--ch-longfast", help="Change to the long-range and fast channel", action='store_true')
 
     parser.add_argument(
-        "--ch-shortfast", help="Change to the short-range (but fast) channel", action='store_true')
+        "--ch-mediumslow", help="Change to the medium-range and slow channel", action='store_true')
 
     parser.add_argument(
-        "--ch-shortslow", help="Change to the short-range (but slow) channel", action='store_true')
+        "--ch-mediumfast", help="Change to the medium-range and fast channel", action='store_true')
 
     parser.add_argument(
-        "--ch-mediumslow", help="Change to the medium-range (but slow) channel", action='store_true')
+        "--ch-shortslow", help="Change to the short-range and slow channel", action='store_true')
 
     parser.add_argument(
-        "--ch-mediumfast", help="Change to the medium-range (but fast) channel", action='store_true')
+        "--ch-shortfast", help="Change to the short-range and fast channel", action='store_true')
+
 
     parser.add_argument(
         "--set-owner", help="Set device owner name", action="store")
