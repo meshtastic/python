@@ -24,12 +24,12 @@ jobs:
           python -m pip install --upgrade pip
           pip3 install -r requirements.txt
           pip3 install pdoc3 pygatt pandoc twine nanopb
-      - name: Generate docs
-        run: |
-          rm -f dist/*
-          set -e
-          bin/regen-docs.sh
-          pandoc --from=markdown --to=rst --output=README README.md
+#      - name: Generate docs
+#        run: |
+#          rm -f dist/*
+#          set -e
+#          bin/regen-docs.sh
+#          pandoc --from=markdown --to=rst --output=README README.md
       - name: Build
         run: |
           python3 setup.py sdist bdist_wheel
