@@ -38,6 +38,7 @@ class RemoteHardwareClient:
 
     def _sendHardware(self, nodeid, r, wantResponse=False, onResponse=None):
         if not nodeid:
+            # pylint: disable=W1401
             raise Exception(
                 "You must set a destination node ID for this operation (use --dest \!xxxxxxxxx)")
         return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP,

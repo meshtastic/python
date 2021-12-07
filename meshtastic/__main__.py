@@ -17,6 +17,7 @@ from .tcp_interface import TCPInterface
 from .ble_interface import BLEInterface
 from . import test, remote_hardware
 from . import portnums_pb2, channel_pb2, mesh_pb2, radioconfig_pb2
+from .util import support_info
 
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
@@ -195,6 +196,7 @@ def onConnected(interface):
     closeNow = False  # Should we drop the connection after we finish?
     try:
         global args
+
         print("Connected to radio")
 
         def getNode():
@@ -267,7 +269,7 @@ def onConnected(interface):
 
             fieldNames = []
             for bit in radioconfig_pb2.PositionFlags.values():
-                if (prefs.position_flags & bit):
+                if prefs.position_flags & bit:
                     fieldNames.append(radioconfig_pb2.PositionFlags.Name(bit))
             print(' '.join(fieldNames))
 
@@ -569,6 +571,11 @@ def common():
         parser.print_help(sys.stderr)
         sys.exit(1)
     else:
+        if args.support:
+            print("")
+            support_info()
+            sys.exit(0)
+
         if args.ch_index is not None:
             global channelIndex
             channelIndex = int(args.ch_index)
@@ -787,6 +794,9 @@ def initParser():
 
     parser.add_argument('--version', action='version',
                         version=f"{pkg_resources.require('meshtastic')[0].version}")
+
+    parser.add_argument(
+        "--support", action='store_true', help="Show support info (useful when troubleshooting an issue)")
 
     args = parser.parse_args()
 
