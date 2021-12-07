@@ -46,14 +46,14 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package=&#39;&#39;,
   syntax=&#39;proto3&#39;,
   serialized_options=b&#39;\n\023com.geeksville.meshB\017StoreAndForwardH\003Z!github.com/meshtastic/gomeshproto&#39;,
-  serialized_pb=b&#39;\n\x12storeforward.proto\&#34;\x8d\x05\n\x16StoreAndForwardMessage\x12\x33\n\x02rr\x18\x01 \x01(\x0e\x32\&#39;.StoreAndForwardMessage.RequestResponse\x12\x31\n\x05stats\x18\x02 \x01(\x0b\x32\&#34;.StoreAndForwardMessage.Statistics\x12\x30\n\x07history\x18\x03 \x01(\x0b\x32\x1f.StoreAndForwardMessage.History\x1a\xc6\x01\n\nStatistics\x12\x15\n\rMessagesTotal\x18\x01 \x01(\r\x12\x15\n\rMessagesSaved\x18\x02 \x01(\r\x12\x13\n\x0bMessagesMax\x18\x03 \x01(\r\x12\x0e\n\x06UpTime\x18\x04 \x01(\r\x12\x10\n\x08Requests\x18\x05 \x01(\r\x12\x17\n\x0fRequestsHistory\x18\x06 \x01(\r\x12\x11\n\tHeartbeat\x18\x07 \x01(\x08\x12\x11\n\tReturnMax\x18\x08 \x01(\r\x12\x14\n\x0cReturnWindow\x18\t \x01(\r\x1a\x32\n\x07History\x12\x17\n\x0fHistoryMessages\x18\x01 \x01(\r\x12\x0e\n\x06Window\x18\x02 \x01(\r\&#34;\xdb\x01\n\x0fRequestResponse\x12\t\n\x05UNSET\x10\x00\x12\x10\n\x0cROUTER_ERROR\x10\x01\x12\x14\n\x10ROUTER_HEARTBEAT\x10\x02\x12\x0f\n\x0bROUTER_PING\x10\x03\x12\x0f\n\x0bROUTER_PONG\x10\x04\x12\x0f\n\x0bROUTER_BUSY\x10\x05\x12\x10\n\x0c\x43LIENT_ERROR\x10\x65\x12\x12\n\x0e\x43LIENT_HISTORY\x10\x66\x12\x10\n\x0c\x43LIENT_STATS\x10g\x12\x0f\n\x0b\x43LIENT_PING\x10h\x12\x0f\n\x0b\x43LIENT_PONG\x10i\x12\x08\n\x03MAX\x10\xff\x01\x42K\n\x13\x63om.geeksville.meshB\x0fStoreAndForwardH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3&#39;
+  serialized_pb=b&#39;\n\x12storeforward.proto\&#34;\xe7\x04\n\x0fStoreAndForward\x12,\n\x02rr\x18\x01 \x01(\x0e\x32 .StoreAndForward.RequestResponse\x12*\n\x05stats\x18\x02 \x01(\x0b\x32\x1b.StoreAndForward.Statistics\x12)\n\x07history\x18\x03 \x01(\x0b\x32\x18.StoreAndForward.History\x1a\xc6\x01\n\nStatistics\x12\x15\n\rMessagesTotal\x18\x01 \x01(\r\x12\x15\n\rMessagesSaved\x18\x02 \x01(\r\x12\x13\n\x0bMessagesMax\x18\x03 \x01(\r\x12\x0e\n\x06UpTime\x18\x04 \x01(\r\x12\x10\n\x08Requests\x18\x05 \x01(\r\x12\x17\n\x0fRequestsHistory\x18\x06 \x01(\r\x12\x11\n\tHeartbeat\x18\x07 \x01(\x08\x12\x11\n\tReturnMax\x18\x08 \x01(\r\x12\x14\n\x0cReturnWindow\x18\t \x01(\r\x1a\x32\n\x07History\x12\x17\n\x0fHistoryMessages\x18\x01 \x01(\r\x12\x0e\n\x06Window\x18\x02 \x01(\r\&#34;\xd1\x01\n\x0fRequestResponse\x12\t\n\x05UNSET\x10\x00\x12\x10\n\x0cROUTER_ERROR\x10\x01\x12\x14\n\x10ROUTER_HEARTBEAT\x10\x02\x12\x0f\n\x0bROUTER_PING\x10\x03\x12\x0f\n\x0bROUTER_PONG\x10\x04\x12\x0f\n\x0bROUTER_BUSY\x10\x05\x12\x10\n\x0c\x43LIENT_ERROR\x10\x65\x12\x12\n\x0e\x43LIENT_HISTORY\x10\x66\x12\x10\n\x0c\x43LIENT_STATS\x10g\x12\x0f\n\x0b\x43LIENT_PING\x10h\x12\x0f\n\x0b\x43LIENT_PONG\x10iBK\n\x13\x63om.geeksville.meshB\x0fStoreAndForwardH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3&#39;
 )
 
 
 
-_STOREANDFORWARDMESSAGE_REQUESTRESPONSE = _descriptor.EnumDescriptor(
+_STOREANDFORWARD_REQUESTRESPONSE = _descriptor.EnumDescriptor(
   name=&#39;RequestResponse&#39;,
-  full_name=&#39;StoreAndForwardMessage.RequestResponse&#39;,
+  full_name=&#39;StoreAndForward.RequestResponse&#39;,
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -101,84 +101,80 @@ _STOREANDFORWARDMESSAGE_REQUESTRESPONSE = _descriptor.EnumDescriptor(
       name=&#39;CLIENT_PONG&#39;, index=10, number=105,
       serialized_options=None,
       type=None),
-    _descriptor.EnumValueDescriptor(
-      name=&#39;MAX&#39;, index=11, number=255,
-      serialized_options=None,
-      type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=457,
-  serialized_end=676,
+  serialized_start=429,
+  serialized_end=638,
 )
-_sym_db.RegisterEnumDescriptor(_STOREANDFORWARDMESSAGE_REQUESTRESPONSE)
+_sym_db.RegisterEnumDescriptor(_STOREANDFORWARD_REQUESTRESPONSE)
 
 
-_STOREANDFORWARDMESSAGE_STATISTICS = _descriptor.Descriptor(
+_STOREANDFORWARD_STATISTICS = _descriptor.Descriptor(
   name=&#39;Statistics&#39;,
-  full_name=&#39;StoreAndForwardMessage.Statistics&#39;,
+  full_name=&#39;StoreAndForward.Statistics&#39;,
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name=&#39;MessagesTotal&#39;, full_name=&#39;StoreAndForwardMessage.Statistics.MessagesTotal&#39;, index=0,
+      name=&#39;MessagesTotal&#39;, full_name=&#39;StoreAndForward.Statistics.MessagesTotal&#39;, index=0,
       number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name=&#39;MessagesSaved&#39;, full_name=&#39;StoreAndForwardMessage.Statistics.MessagesSaved&#39;, index=1,
+      name=&#39;MessagesSaved&#39;, full_name=&#39;StoreAndForward.Statistics.MessagesSaved&#39;, index=1,
       number=2, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name=&#39;MessagesMax&#39;, full_name=&#39;StoreAndForwardMessage.Statistics.MessagesMax&#39;, index=2,
+      name=&#39;MessagesMax&#39;, full_name=&#39;StoreAndForward.Statistics.MessagesMax&#39;, index=2,
       number=3, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name=&#39;UpTime&#39;, full_name=&#39;StoreAndForwardMessage.Statistics.UpTime&#39;, index=3,
+      name=&#39;UpTime&#39;, full_name=&#39;StoreAndForward.Statistics.UpTime&#39;, index=3,
       number=4, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name=&#39;Requests&#39;, full_name=&#39;StoreAndForwardMessage.Statistics.Requests&#39;, index=4,
+      name=&#39;Requests&#39;, full_name=&#39;StoreAndForward.Statistics.Requests&#39;, index=4,
       number=5, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name=&#39;RequestsHistory&#39;, full_name=&#39;StoreAndForwardMessage.Statistics.RequestsHistory&#39;, index=5,
+      name=&#39;RequestsHistory&#39;, full_name=&#39;StoreAndForward.Statistics.RequestsHistory&#39;, index=5,
       number=6, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name=&#39;Heartbeat&#39;, full_name=&#39;StoreAndForwardMessage.Statistics.Heartbeat&#39;, index=6,
+      name=&#39;Heartbeat&#39;, full_name=&#39;StoreAndForward.Statistics.Heartbeat&#39;, index=6,
       number=7, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name=&#39;ReturnMax&#39;, full_name=&#39;StoreAndForwardMessage.Statistics.ReturnMax&#39;, index=7,
+      name=&#39;ReturnMax&#39;, full_name=&#39;StoreAndForward.Statistics.ReturnMax&#39;, index=7,
       number=8, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name=&#39;ReturnWindow&#39;, full_name=&#39;StoreAndForwardMessage.Statistics.ReturnWindow&#39;, index=8,
+      name=&#39;ReturnWindow&#39;, full_name=&#39;StoreAndForward.Statistics.ReturnWindow&#39;, index=8,
       number=9, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -196,26 +192,26 @@ _STOREANDFORWARDMESSAGE_STATISTICS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=204,
-  serialized_end=402,
+  serialized_start=176,
+  serialized_end=374,
 )
 
-_STOREANDFORWARDMESSAGE_HISTORY = _descriptor.Descriptor(
+_STOREANDFORWARD_HISTORY = _descriptor.Descriptor(
   name=&#39;History&#39;,
-  full_name=&#39;StoreAndForwardMessage.History&#39;,
+  full_name=&#39;StoreAndForward.History&#39;,
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name=&#39;HistoryMessages&#39;, full_name=&#39;StoreAndForwardMessage.History.HistoryMessages&#39;, index=0,
+      name=&#39;HistoryMessages&#39;, full_name=&#39;StoreAndForward.History.HistoryMessages&#39;, index=0,
       number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name=&#39;Window&#39;, full_name=&#39;StoreAndForwardMessage.History.Window&#39;, index=1,
+      name=&#39;Window&#39;, full_name=&#39;StoreAndForward.History.Window&#39;, index=1,
       number=2, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -233,33 +229,33 @@ _STOREANDFORWARDMESSAGE_HISTORY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=404,
-  serialized_end=454,
+  serialized_start=376,
+  serialized_end=426,
 )
 
-_STOREANDFORWARDMESSAGE = _descriptor.Descriptor(
-  name=&#39;StoreAndForwardMessage&#39;,
-  full_name=&#39;StoreAndForwardMessage&#39;,
+_STOREANDFORWARD = _descriptor.Descriptor(
+  name=&#39;StoreAndForward&#39;,
+  full_name=&#39;StoreAndForward&#39;,
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name=&#39;rr&#39;, full_name=&#39;StoreAndForwardMessage.rr&#39;, index=0,
+      name=&#39;rr&#39;, full_name=&#39;StoreAndForward.rr&#39;, index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name=&#39;stats&#39;, full_name=&#39;StoreAndForwardMessage.stats&#39;, index=1,
+      name=&#39;stats&#39;, full_name=&#39;StoreAndForward.stats&#39;, index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name=&#39;history&#39;, full_name=&#39;StoreAndForwardMessage.history&#39;, index=2,
+      name=&#39;history&#39;, full_name=&#39;StoreAndForward.history&#39;, index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -268,9 +264,9 @@ _STOREANDFORWARDMESSAGE = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_STOREANDFORWARDMESSAGE_STATISTICS, _STOREANDFORWARDMESSAGE_HISTORY, ],
+  nested_types=[_STOREANDFORWARD_STATISTICS, _STOREANDFORWARD_HISTORY, ],
   enum_types=[
-    _STOREANDFORWARDMESSAGE_REQUESTRESPONSE,
+    _STOREANDFORWARD_REQUESTRESPONSE,
   ],
   serialized_options=None,
   is_extendable=False,
@@ -279,40 +275,40 @@ _STOREANDFORWARDMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=23,
-  serialized_end=676,
+  serialized_end=638,
 )
 
-_STOREANDFORWARDMESSAGE_STATISTICS.containing_type = _STOREANDFORWARDMESSAGE
-_STOREANDFORWARDMESSAGE_HISTORY.containing_type = _STOREANDFORWARDMESSAGE
-_STOREANDFORWARDMESSAGE.fields_by_name[&#39;rr&#39;].enum_type = _STOREANDFORWARDMESSAGE_REQUESTRESPONSE
-_STOREANDFORWARDMESSAGE.fields_by_name[&#39;stats&#39;].message_type = _STOREANDFORWARDMESSAGE_STATISTICS
-_STOREANDFORWARDMESSAGE.fields_by_name[&#39;history&#39;].message_type = _STOREANDFORWARDMESSAGE_HISTORY
-_STOREANDFORWARDMESSAGE_REQUESTRESPONSE.containing_type = _STOREANDFORWARDMESSAGE
-DESCRIPTOR.message_types_by_name[&#39;StoreAndForwardMessage&#39;] = _STOREANDFORWARDMESSAGE
+_STOREANDFORWARD_STATISTICS.containing_type = _STOREANDFORWARD
+_STOREANDFORWARD_HISTORY.containing_type = _STOREANDFORWARD
+_STOREANDFORWARD.fields_by_name[&#39;rr&#39;].enum_type = _STOREANDFORWARD_REQUESTRESPONSE
+_STOREANDFORWARD.fields_by_name[&#39;stats&#39;].message_type = _STOREANDFORWARD_STATISTICS
+_STOREANDFORWARD.fields_by_name[&#39;history&#39;].message_type = _STOREANDFORWARD_HISTORY
+_STOREANDFORWARD_REQUESTRESPONSE.containing_type = _STOREANDFORWARD
+DESCRIPTOR.message_types_by_name[&#39;StoreAndForward&#39;] = _STOREANDFORWARD
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-StoreAndForwardMessage = _reflection.GeneratedProtocolMessageType(&#39;StoreAndForwardMessage&#39;, (_message.Message,), {
+StoreAndForward = _reflection.GeneratedProtocolMessageType(&#39;StoreAndForward&#39;, (_message.Message,), {
 
   &#39;Statistics&#39; : _reflection.GeneratedProtocolMessageType(&#39;Statistics&#39;, (_message.Message,), {
-    &#39;DESCRIPTOR&#39; : _STOREANDFORWARDMESSAGE_STATISTICS,
+    &#39;DESCRIPTOR&#39; : _STOREANDFORWARD_STATISTICS,
     &#39;__module__&#39; : &#39;storeforward_pb2&#39;
-    # @@protoc_insertion_point(class_scope:StoreAndForwardMessage.Statistics)
+    # @@protoc_insertion_point(class_scope:StoreAndForward.Statistics)
     })
   ,
 
   &#39;History&#39; : _reflection.GeneratedProtocolMessageType(&#39;History&#39;, (_message.Message,), {
-    &#39;DESCRIPTOR&#39; : _STOREANDFORWARDMESSAGE_HISTORY,
+    &#39;DESCRIPTOR&#39; : _STOREANDFORWARD_HISTORY,
     &#39;__module__&#39; : &#39;storeforward_pb2&#39;
-    # @@protoc_insertion_point(class_scope:StoreAndForwardMessage.History)
+    # @@protoc_insertion_point(class_scope:StoreAndForward.History)
     })
   ,
-  &#39;DESCRIPTOR&#39; : _STOREANDFORWARDMESSAGE,
+  &#39;DESCRIPTOR&#39; : _STOREANDFORWARD,
   &#39;__module__&#39; : &#39;storeforward_pb2&#39;
-  # @@protoc_insertion_point(class_scope:StoreAndForwardMessage)
+  # @@protoc_insertion_point(class_scope:StoreAndForward)
   })
-_sym_db.RegisterMessage(StoreAndForwardMessage)
-_sym_db.RegisterMessage(StoreAndForwardMessage.Statistics)
-_sym_db.RegisterMessage(StoreAndForwardMessage.History)
+_sym_db.RegisterMessage(StoreAndForward)
+_sym_db.RegisterMessage(StoreAndForward.Statistics)
+_sym_db.RegisterMessage(StoreAndForward.History)
 
 
 DESCRIPTOR._options = None
@@ -328,8 +324,8 @@ DESCRIPTOR._options = None
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage"><code class="flex name class">
-<span>class <span class="ident">StoreAndForwardMessage</span></span>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward"><code class="flex name class">
+<span>class <span class="ident">StoreAndForward</span></span>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
@@ -344,35 +340,35 @@ shown below.</p></div>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_ERROR"><code class="name">var <span class="ident">CLIENT_ERROR</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.CLIENT_ERROR"><code class="name">var <span class="ident">CLIENT_ERROR</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_HISTORY"><code class="name">var <span class="ident">CLIENT_HISTORY</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.CLIENT_HISTORY"><code class="name">var <span class="ident">CLIENT_HISTORY</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_PING"><code class="name">var <span class="ident">CLIENT_PING</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.CLIENT_PING"><code class="name">var <span class="ident">CLIENT_PING</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_PONG"><code class="name">var <span class="ident">CLIENT_PONG</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.CLIENT_PONG"><code class="name">var <span class="ident">CLIENT_PONG</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_STATS"><code class="name">var <span class="ident">CLIENT_STATS</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.CLIENT_STATS"><code class="name">var <span class="ident">CLIENT_STATS</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.HISTORY_FIELD_NUMBER"><code class="name">var <span class="ident">HISTORY_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.HISTORY_FIELD_NUMBER"><code class="name">var <span class="ident">HISTORY_FIELD_NUMBER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.History"><code class="name">var <span class="ident">History</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.History"><code class="name">var <span class="ident">History</span></code></dt>
 <dd>
 <div class="desc"><p>Abstract base class for protocol messages.</p>
 <p>Protocol message classes are almost always generated by the protocol
@@ -380,43 +376,39 @@ compiler.
 These generated types subclass Message and implement the methods
 shown below.</p></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.MAX"><code class="name">var <span class="ident">MAX</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.ROUTER_BUSY"><code class="name">var <span class="ident">ROUTER_BUSY</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_BUSY"><code class="name">var <span class="ident">ROUTER_BUSY</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.ROUTER_ERROR"><code class="name">var <span class="ident">ROUTER_ERROR</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_ERROR"><code class="name">var <span class="ident">ROUTER_ERROR</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.ROUTER_HEARTBEAT"><code class="name">var <span class="ident">ROUTER_HEARTBEAT</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_HEARTBEAT"><code class="name">var <span class="ident">ROUTER_HEARTBEAT</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.ROUTER_PING"><code class="name">var <span class="ident">ROUTER_PING</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_PING"><code class="name">var <span class="ident">ROUTER_PING</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.ROUTER_PONG"><code class="name">var <span class="ident">ROUTER_PONG</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_PONG"><code class="name">var <span class="ident">ROUTER_PONG</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.RR_FIELD_NUMBER"><code class="name">var <span class="ident">RR_FIELD_NUMBER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.RR_FIELD_NUMBER"><code class="name">var <span class="ident">RR_FIELD_NUMBER</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.RequestResponse"><code class="name">var <span class="ident">RequestResponse</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.RequestResponse"><code class="name">var <span class="ident">RequestResponse</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.STATS_FIELD_NUMBER"><code class="name">var <span class="ident">STATS_FIELD_NUMBER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.STATS_FIELD_NUMBER"><code class="name">var <span class="ident">STATS_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.Statistics"><code class="name">var <span class="ident">Statistics</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.Statistics"><code class="name">var <span class="ident">Statistics</span></code></dt>
 <dd>
 <div class="desc"><p>Abstract base class for protocol messages.</p>
 <p>Protocol message classes are almost always generated by the protocol
@@ -424,14 +416,14 @@ compiler.
 These generated types subclass Message and implement the methods
 shown below.</p></div>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.UNSET"><code class="name">var <span class="ident">UNSET</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.UNSET"><code class="name">var <span class="ident">UNSET</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
 <dl>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.FromString"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.FromString"><code class="name flex">
 <span>def <span class="ident">FromString</span></span>(<span>s)</span>
 </code></dt>
 <dd>
@@ -446,7 +438,7 @@ shown below.</p></div>
   return message</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.RegisterExtension"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.RegisterExtension"><code class="name flex">
 <span>def <span class="ident">RegisterExtension</span></span>(<span>extension_handle)</span>
 </code></dt>
 <dd>
@@ -466,7 +458,7 @@ shown below.</p></div>
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.history"><code class="name">var <span class="ident">history</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.history"><code class="name">var <span class="ident">history</span></code></dt>
 <dd>
 <div class="desc"><p>Getter for history.</p></div>
 <details class="source">
@@ -489,7 +481,7 @@ shown below.</p></div>
   return field_value</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.rr"><code class="name">var <span class="ident">rr</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.rr"><code class="name">var <span class="ident">rr</span></code></dt>
 <dd>
 <div class="desc"><p>Getter for rr.</p></div>
 <details class="source">
@@ -502,7 +494,7 @@ shown below.</p></div>
   return self._fields.get(field, default_value)</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.stats"><code class="name">var <span class="ident">stats</span></code></dt>
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.stats"><code class="name">var <span class="ident">stats</span></code></dt>
 <dd>
 <div class="desc"><p>Getter for stats.</p></div>
 <details class="source">
@@ -528,7 +520,7 @@ shown below.</p></div>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.ByteSize"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.ByteSize"><code class="name flex">
 <span>def <span class="ident">ByteSize</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -559,7 +551,7 @@ shown below.</p></div>
   return size</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.Clear"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.Clear"><code class="name flex">
 <span>def <span class="ident">Clear</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -581,7 +573,7 @@ shown below.</p></div>
   self._Modified()</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.ClearField"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.ClearField"><code class="name flex">
 <span>def <span class="ident">ClearField</span></span>(<span>self, field_name)</span>
 </code></dt>
 <dd>
@@ -624,7 +616,7 @@ shown below.</p></div>
   self._Modified()</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.DiscardUnknownFields"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.DiscardUnknownFields"><code class="name flex">
 <span>def <span class="ident">DiscardUnknownFields</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -649,7 +641,7 @@ shown below.</p></div>
         value.DiscardUnknownFields()</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.FindInitializationErrors"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.FindInitializationErrors"><code class="name flex">
 <span>def <span class="ident">FindInitializationErrors</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -707,7 +699,7 @@ the top-level message, e.g. "foo.bar[5].baz".</p></div>
   return errors</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.HasField"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.HasField"><code class="name flex">
 <span>def <span class="ident">HasField</span></span>(<span>self, field_name)</span>
 </code></dt>
 <dd>
@@ -735,7 +727,7 @@ the top-level message, e.g. "foo.bar[5].baz".</p></div>
       return field in self._fields</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.IsInitialized"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.IsInitialized"><code class="name flex">
 <span>def <span class="ident">IsInitialized</span></span>(<span>self, errors=None)</span>
 </code></dt>
 <dd>
@@ -792,7 +784,7 @@ paths of all missing required fields.</dd>
   return True</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.ListFields"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.ListFields"><code class="name flex">
 <span>def <span class="ident">ListFields</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -807,7 +799,7 @@ paths of all missing required fields.</dd>
   return all_fields</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.MergeFrom"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.MergeFrom"><code class="name flex">
 <span>def <span class="ident">MergeFrom</span></span>(<span>self, msg)</span>
 </code></dt>
 <dd>
@@ -859,7 +851,7 @@ paths of all missing required fields.</dd>
     self._unknown_field_set._extend(msg._unknown_field_set)</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.MergeFromString"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.MergeFromString"><code class="name flex">
 <span>def <span class="ident">MergeFromString</span></span>(<span>self, serialized)</span>
 </code></dt>
 <dd>
@@ -884,7 +876,7 @@ paths of all missing required fields.</dd>
   return length   # Return this for legacy reasons.</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.SerializePartialToString"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.SerializePartialToString"><code class="name flex">
 <span>def <span class="ident">SerializePartialToString</span></span>(<span>self, **kwargs)</span>
 </code></dt>
 <dd>
@@ -899,7 +891,7 @@ paths of all missing required fields.</dd>
   return out.getvalue()</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.SerializeToString"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.SerializeToString"><code class="name flex">
 <span>def <span class="ident">SerializeToString</span></span>(<span>self, **kwargs)</span>
 </code></dt>
 <dd>
@@ -917,7 +909,7 @@ paths of all missing required fields.</dd>
   return self.SerializePartialToString(**kwargs)</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.SetInParent"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.SetInParent"><code class="name flex">
 <span>def <span class="ident">SetInParent</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -943,7 +935,7 @@ and propagates this to our listener iff this was a state change.</p></div>
     self._listener.Modified()</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.UnknownFields"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.UnknownFields"><code class="name flex">
 <span>def <span class="ident">UnknownFields</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -959,7 +951,7 @@ and propagates this to our listener iff this was a state change.</p></div>
   return self._unknown_field_set    # pylint: disable=protected-access</code></pre>
 </details>
 </dd>
-<dt id="meshtastic.storeforward_pb2.StoreAndForwardMessage.WhichOneof"><code class="name flex">
+<dt id="meshtastic.storeforward_pb2.StoreAndForward.WhichOneof"><code class="name flex">
 <span>def <span class="ident">WhichOneof</span></span>(<span>self, oneof_name)</span>
 </code></dt>
 <dd>
@@ -1002,47 +994,46 @@ and propagates this to our listener iff this was a state change.</p></div>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage">StoreAndForwardMessage</a></code></h4>
+<h4><code><a title="meshtastic.storeforward_pb2.StoreAndForward" href="#meshtastic.storeforward_pb2.StoreAndForward">StoreAndForward</a></code></h4>
 <ul class="">
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.ByteSize" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.ByteSize">ByteSize</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_ERROR" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_ERROR">CLIENT_ERROR</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_HISTORY" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_HISTORY">CLIENT_HISTORY</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_PING" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_PING">CLIENT_PING</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_PONG" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_PONG">CLIENT_PONG</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_STATS" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.CLIENT_STATS">CLIENT_STATS</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.Clear" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.Clear">Clear</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.ClearField" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.ClearField">ClearField</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.DESCRIPTOR" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.DESCRIPTOR">DESCRIPTOR</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.DiscardUnknownFields" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.DiscardUnknownFields">DiscardUnknownFields</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.FindInitializationErrors" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.FindInitializationErrors">FindInitializationErrors</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.FromString" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.FromString">FromString</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.HISTORY_FIELD_NUMBER" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.HISTORY_FIELD_NUMBER">HISTORY_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.HasField" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.HasField">HasField</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.History" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.History">History</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.IsInitialized" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.IsInitialized">IsInitialized</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.ListFields" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.ListFields">ListFields</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.MAX" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.MAX">MAX</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.MergeFrom" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.MergeFrom">MergeFrom</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.MergeFromString" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.MergeFromString">MergeFromString</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_BUSY" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_BUSY">ROUTER_BUSY</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_ERROR" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_ERROR">ROUTER_ERROR</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_HEARTBEAT" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_HEARTBEAT">ROUTER_HEARTBEAT</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_PING" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_PING">ROUTER_PING</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_PONG" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.ROUTER_PONG">ROUTER_PONG</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.RR_FIELD_NUMBER" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.RR_FIELD_NUMBER">RR_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.RegisterExtension" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.RegisterExtension">RegisterExtension</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.RequestResponse" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.RequestResponse">RequestResponse</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.STATS_FIELD_NUMBER" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.STATS_FIELD_NUMBER">STATS_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.SerializePartialToString" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.SerializePartialToString">SerializePartialToString</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.SerializeToString" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.SerializeToString">SerializeToString</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.SetInParent" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.SetInParent">SetInParent</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.Statistics" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.Statistics">Statistics</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.UNSET" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.UNSET">UNSET</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.UnknownFields" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.UnknownFields">UnknownFields</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.WhichOneof" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.WhichOneof">WhichOneof</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.history" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.history">history</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.rr" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.rr">rr</a></code></li>
-<li><code><a title="meshtastic.storeforward_pb2.StoreAndForwardMessage.stats" href="#meshtastic.storeforward_pb2.StoreAndForwardMessage.stats">stats</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.ByteSize" href="#meshtastic.storeforward_pb2.StoreAndForward.ByteSize">ByteSize</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.CLIENT_ERROR" href="#meshtastic.storeforward_pb2.StoreAndForward.CLIENT_ERROR">CLIENT_ERROR</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.CLIENT_HISTORY" href="#meshtastic.storeforward_pb2.StoreAndForward.CLIENT_HISTORY">CLIENT_HISTORY</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.CLIENT_PING" href="#meshtastic.storeforward_pb2.StoreAndForward.CLIENT_PING">CLIENT_PING</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.CLIENT_PONG" href="#meshtastic.storeforward_pb2.StoreAndForward.CLIENT_PONG">CLIENT_PONG</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.CLIENT_STATS" href="#meshtastic.storeforward_pb2.StoreAndForward.CLIENT_STATS">CLIENT_STATS</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.Clear" href="#meshtastic.storeforward_pb2.StoreAndForward.Clear">Clear</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.ClearField" href="#meshtastic.storeforward_pb2.StoreAndForward.ClearField">ClearField</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.DESCRIPTOR" href="#meshtastic.storeforward_pb2.StoreAndForward.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.DiscardUnknownFields" href="#meshtastic.storeforward_pb2.StoreAndForward.DiscardUnknownFields">DiscardUnknownFields</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.FindInitializationErrors" href="#meshtastic.storeforward_pb2.StoreAndForward.FindInitializationErrors">FindInitializationErrors</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.FromString" href="#meshtastic.storeforward_pb2.StoreAndForward.FromString">FromString</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.HISTORY_FIELD_NUMBER" href="#meshtastic.storeforward_pb2.StoreAndForward.HISTORY_FIELD_NUMBER">HISTORY_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.HasField" href="#meshtastic.storeforward_pb2.StoreAndForward.HasField">HasField</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.History" href="#meshtastic.storeforward_pb2.StoreAndForward.History">History</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.IsInitialized" href="#meshtastic.storeforward_pb2.StoreAndForward.IsInitialized">IsInitialized</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.ListFields" href="#meshtastic.storeforward_pb2.StoreAndForward.ListFields">ListFields</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.MergeFrom" href="#meshtastic.storeforward_pb2.StoreAndForward.MergeFrom">MergeFrom</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.MergeFromString" href="#meshtastic.storeforward_pb2.StoreAndForward.MergeFromString">MergeFromString</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.ROUTER_BUSY" href="#meshtastic.storeforward_pb2.StoreAndForward.ROUTER_BUSY">ROUTER_BUSY</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.ROUTER_ERROR" href="#meshtastic.storeforward_pb2.StoreAndForward.ROUTER_ERROR">ROUTER_ERROR</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.ROUTER_HEARTBEAT" href="#meshtastic.storeforward_pb2.StoreAndForward.ROUTER_HEARTBEAT">ROUTER_HEARTBEAT</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.ROUTER_PING" href="#meshtastic.storeforward_pb2.StoreAndForward.ROUTER_PING">ROUTER_PING</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.ROUTER_PONG" href="#meshtastic.storeforward_pb2.StoreAndForward.ROUTER_PONG">ROUTER_PONG</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.RR_FIELD_NUMBER" href="#meshtastic.storeforward_pb2.StoreAndForward.RR_FIELD_NUMBER">RR_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.RegisterExtension" href="#meshtastic.storeforward_pb2.StoreAndForward.RegisterExtension">RegisterExtension</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.RequestResponse" href="#meshtastic.storeforward_pb2.StoreAndForward.RequestResponse">RequestResponse</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.STATS_FIELD_NUMBER" href="#meshtastic.storeforward_pb2.StoreAndForward.STATS_FIELD_NUMBER">STATS_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.SerializePartialToString" href="#meshtastic.storeforward_pb2.StoreAndForward.SerializePartialToString">SerializePartialToString</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.SerializeToString" href="#meshtastic.storeforward_pb2.StoreAndForward.SerializeToString">SerializeToString</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.SetInParent" href="#meshtastic.storeforward_pb2.StoreAndForward.SetInParent">SetInParent</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.Statistics" href="#meshtastic.storeforward_pb2.StoreAndForward.Statistics">Statistics</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.UNSET" href="#meshtastic.storeforward_pb2.StoreAndForward.UNSET">UNSET</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.UnknownFields" href="#meshtastic.storeforward_pb2.StoreAndForward.UnknownFields">UnknownFields</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.WhichOneof" href="#meshtastic.storeforward_pb2.StoreAndForward.WhichOneof">WhichOneof</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.history" href="#meshtastic.storeforward_pb2.StoreAndForward.history">history</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.rr" href="#meshtastic.storeforward_pb2.StoreAndForward.rr">rr</a></code></li>
+<li><code><a title="meshtastic.storeforward_pb2.StoreAndForward.stats" href="#meshtastic.storeforward_pb2.StoreAndForward.stats">stats</a></code></li>
 </ul>
 </li>
 </ul>

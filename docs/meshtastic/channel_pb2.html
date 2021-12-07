@@ -46,7 +46,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package=&#39;&#39;,
   syntax=&#39;proto3&#39;,
   serialized_options=b&#39;\n\023com.geeksville.meshB\rChannelProtosH\003Z!github.com/meshtastic/gomeshproto&#39;,
-  serialized_pb=b&#39;\n\rchannel.proto\&#34;\xe6\x02\n\x0f\x43hannelSettings\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x32\n\x0cmodem_config\x18\x03 \x01(\x0e\x32\x1c.ChannelSettings.ModemConfig\x12\x11\n\tbandwidth\x18\x06 \x01(\r\x12\x15\n\rspread_factor\x18\x07 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x08 \x01(\r\x12\x13\n\x0b\x63hannel_num\x18\t \x01(\r\x12\x0b\n\x03psk\x18\x04 \x01(\x0c\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\n\n\x02id\x18\n \x01(\x07\x12\x16\n\x0euplink_enabled\x18\x10 \x01(\x08\x12\x18\n\x10\x64ownlink_enabled\x18\x11 \x01(\x08\&#34;`\n\x0bModemConfig\x12\x12\n\x0e\x42w125Cr45Sf128\x10\x00\x12\x12\n\x0e\x42w500Cr45Sf128\x10\x01\x12\x14\n\x10\x42w31_25Cr48Sf512\x10\x02\x12\x13\n\x0f\x42w125Cr48Sf4096\x10\x03\&#34;\x8b\x01\n\x07\x43hannel\x12\r\n\x05index\x18\x01 \x01(\x05\x12\&#34;\n\x08settings\x18\x02 \x01(\x0b\x32\x10.ChannelSettings\x12\x1b\n\x04role\x18\x03 \x01(\x0e\x32\r.Channel.Role\&#34;0\n\x04Role\x12\x0c\n\x08\x44ISABLED\x10\x00\x12\x0b\n\x07PRIMARY\x10\x01\x12\r\n\tSECONDARY\x10\x02\x42I\n\x13\x63om.geeksville.meshB\rChannelProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3&#39;
+  serialized_pb=b&#39;\n\rchannel.proto\&#34;\x91\x03\n\x0f\x43hannelSettings\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x32\n\x0cmodem_config\x18\x03 \x01(\x0e\x32\x1c.ChannelSettings.ModemConfig\x12\x11\n\tbandwidth\x18\x06 \x01(\r\x12\x15\n\rspread_factor\x18\x07 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x08 \x01(\r\x12\x13\n\x0b\x63hannel_num\x18\t \x01(\r\x12\x0b\n\x03psk\x18\x04 \x01(\x0c\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\n\n\x02id\x18\n \x01(\x07\x12\x16\n\x0euplink_enabled\x18\x10 \x01(\x08\x12\x18\n\x10\x64ownlink_enabled\x18\x11 \x01(\x08\&#34;\x8a\x01\n\x0bModemConfig\x12\x12\n\x0e\x42w125Cr45Sf128\x10\x00\x12\x12\n\x0e\x42w500Cr45Sf128\x10\x01\x12\x14\n\x10\x42w31_25Cr48Sf512\x10\x02\x12\x13\n\x0f\x42w125Cr48Sf4096\x10\x03\x12\x13\n\x0f\x42w250Cr46Sf2048\x10\x04\x12\x13\n\x0f\x42w250Cr47Sf1024\x10\x05\&#34;\x8b\x01\n\x07\x43hannel\x12\r\n\x05index\x18\x01 \x01(\x05\x12\&#34;\n\x08settings\x18\x02 \x01(\x0b\x32\x10.ChannelSettings\x12\x1b\n\x04role\x18\x03 \x01(\x0e\x32\r.Channel.Role\&#34;0\n\x04Role\x12\x0c\n\x08\x44ISABLED\x10\x00\x12\x0b\n\x07PRIMARY\x10\x01\x12\r\n\tSECONDARY\x10\x02\x42I\n\x13\x63om.geeksville.meshB\rChannelProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3&#39;
 )
 
 
@@ -73,11 +73,19 @@ _CHANNELSETTINGS_MODEMCONFIG = _descriptor.EnumDescriptor(
       name=&#39;Bw125Cr48Sf4096&#39;, index=3, number=3,
       serialized_options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;Bw250Cr46Sf2048&#39;, index=4, number=4,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name=&#39;Bw250Cr47Sf1024&#39;, index=5, number=5,
+      serialized_options=None,
+      type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=280,
-  serialized_end=376,
+  serialized_start=281,
+  serialized_end=419,
 )
 _sym_db.RegisterEnumDescriptor(_CHANNELSETTINGS_MODEMCONFIG)
 
@@ -102,8 +110,8 @@ _CHANNEL_ROLE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=470,
-  serialized_end=518,
+  serialized_start=513,
+  serialized_end=561,
 )
 _sym_db.RegisterEnumDescriptor(_CHANNEL_ROLE)
 
@@ -206,7 +214,7 @@ _CHANNELSETTINGS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=18,
-  serialized_end=376,
+  serialized_end=419,
 )
 
 
@@ -251,8 +259,8 @@ _CHANNEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=379,
-  serialized_end=518,
+  serialized_start=422,
+  serialized_end=561,
 )
 
 _CHANNELSETTINGS.fields_by_name[&#39;modem_config&#39;].enum_type = _CHANNELSETTINGS_MODEMCONFIG
@@ -912,6 +920,14 @@ shown below.</p></div>
 <div class="desc"></div>
 </dd>
 <dt id="meshtastic.channel_pb2.ChannelSettings.Bw125Cr48Sf4096"><code class="name">var <span class="ident">Bw125Cr48Sf4096</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.channel_pb2.ChannelSettings.Bw250Cr46Sf2048"><code class="name">var <span class="ident">Bw250Cr46Sf2048</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.channel_pb2.ChannelSettings.Bw250Cr47Sf1024"><code class="name">var <span class="ident">Bw250Cr47Sf1024</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1667,6 +1683,8 @@ and propagates this to our listener iff this was a state change.</p></div>
 <li><code><a title="meshtastic.channel_pb2.ChannelSettings.BANDWIDTH_FIELD_NUMBER" href="#meshtastic.channel_pb2.ChannelSettings.BANDWIDTH_FIELD_NUMBER">BANDWIDTH_FIELD_NUMBER</a></code></li>
 <li><code><a title="meshtastic.channel_pb2.ChannelSettings.Bw125Cr45Sf128" href="#meshtastic.channel_pb2.ChannelSettings.Bw125Cr45Sf128">Bw125Cr45Sf128</a></code></li>
 <li><code><a title="meshtastic.channel_pb2.ChannelSettings.Bw125Cr48Sf4096" href="#meshtastic.channel_pb2.ChannelSettings.Bw125Cr48Sf4096">Bw125Cr48Sf4096</a></code></li>
+<li><code><a title="meshtastic.channel_pb2.ChannelSettings.Bw250Cr46Sf2048" href="#meshtastic.channel_pb2.ChannelSettings.Bw250Cr46Sf2048">Bw250Cr46Sf2048</a></code></li>
+<li><code><a title="meshtastic.channel_pb2.ChannelSettings.Bw250Cr47Sf1024" href="#meshtastic.channel_pb2.ChannelSettings.Bw250Cr47Sf1024">Bw250Cr47Sf1024</a></code></li>
 <li><code><a title="meshtastic.channel_pb2.ChannelSettings.Bw31_25Cr48Sf512" href="#meshtastic.channel_pb2.ChannelSettings.Bw31_25Cr48Sf512">Bw31_25Cr48Sf512</a></code></li>
 <li><code><a title="meshtastic.channel_pb2.ChannelSettings.Bw500Cr45Sf128" href="#meshtastic.channel_pb2.ChannelSettings.Bw500Cr45Sf128">Bw500Cr45Sf128</a></code></li>
 <li><code><a title="meshtastic.channel_pb2.ChannelSettings.ByteSize" href="#meshtastic.channel_pb2.ChannelSettings.ByteSize">ByteSize</a></code></li>

@@ -26,8 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from . import portnums_pb2, remote_hardware_pb2
-from pubsub import pub
+<pre><code class="python">from pubsub import pub
+from . import portnums_pb2, remote_hardware_pb2
 
 
 def onGPIOreceive(packet, interface):
@@ -40,7 +40,7 @@ def onGPIOreceive(packet, interface):
 
 class RemoteHardwareClient:
     &#34;&#34;&#34;
-    This is the client code to control/monitor simple hardware built into the 
+    This is the client code to control/monitor simple hardware built into the
     meshtastic devices.  It is intended to be both a useful API/service and example
     code for how you can connect to your own custom meshtastic services
     &#34;&#34;&#34;
@@ -141,7 +141,7 @@ code for how you can connect to your own custom meshtastic services</p>
 </summary>
 <pre><code class="python">class RemoteHardwareClient:
     &#34;&#34;&#34;
-    This is the client code to control/monitor simple hardware built into the 
+    This is the client code to control/monitor simple hardware built into the
     meshtastic devices.  It is intended to be both a useful API/service and example
     code for how you can connect to your own custom meshtastic services
     &#34;&#34;&#34;

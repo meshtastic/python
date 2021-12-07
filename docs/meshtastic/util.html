@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>meshtastic.util API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Utility functions." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,15 +22,21 @@
 <h1 class="title">Module <code>meshtastic.util</code></h1>
 </header>
 <section id="section-intro">
+<p>Utility functions.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from collections import defaultdict
-import serial, traceback
-import serial.tools.list_ports
+<pre><code class="python">&#34;&#34;&#34; Utility functions.
+&#34;&#34;&#34;
+import traceback
 from queue import Queue
-import threading, sys, time, logging
+import sys
+import time
+import logging
+import threading
+import serial
+import serial.tools.list_ports
 
 &#34;&#34;&#34;Some devices such as a seger jlink we never want to accidentally open&#34;&#34;&#34;
 blacklistVids = dict.fromkeys([0x1366])
@@ -43,6 +49,7 @@ def stripnl(s):
 
 
 def fixme(message):
+    &#34;&#34;&#34;raise an exception for things that needs to be fixed&#34;&#34;&#34;
     raise Exception(f&#34;FIXME: {message}&#34;)
 
 
@@ -61,7 +68,7 @@ def findPorts():
         list -- a list of device paths
     &#34;&#34;&#34;
     l = list(map(lambda port: port.device,
-                 filter(lambda port: port.vid != None and port.vid not in blacklistVids,
+                 filter(lambda port: port.vid is not None and port.vid not in blacklistVids,
                         serial.tools.list_ports.comports())))
     l.sort()
     return l
@@ -75,6 +82,7 @@ class dotdict(dict):
 
 
 class Timeout:
+    &#34;&#34;&#34;Timeout class&#34;&#34;&#34;
     def __init__(self, maxSecs=20):
         self.expireTime = 0
         self.sleepInterval = 0.1
@@ -104,6 +112,7 @@ class DeferredExecution():
         self.thread.start()
 
     def queueWork(self, runnable):
+        &#34;&#34;&#34; Queue up the work&#34;&#34;&#34;
         self.queue.put(runnable)
 
     def _run(self):
@@ -159,7 +168,7 @@ class DeferredExecution():
         list -- a list of device paths
     &#34;&#34;&#34;
     l = list(map(lambda port: port.device,
-                 filter(lambda port: port.vid != None and port.vid not in blacklistVids,
+                 filter(lambda port: port.vid is not None and port.vid not in blacklistVids,
                         serial.tools.list_ports.comports())))
     l.sort()
     return l</code></pre>
@@ -169,12 +178,13 @@ class DeferredExecution():
 <span>def <span class="ident">fixme</span></span>(<span>message)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>raise an exception for things that needs to be fixed</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def fixme(message):
+    &#34;&#34;&#34;raise an exception for things that needs to be fixed&#34;&#34;&#34;
     raise Exception(f&#34;FIXME: {message}&#34;)</code></pre>
 </details>
 </dd>
@@ -218,6 +228,7 @@ class DeferredExecution():
         self.thread.start()
 
     def queueWork(self, runnable):
+        &#34;&#34;&#34; Queue up the work&#34;&#34;&#34;
         self.queue.put(runnable)
 
     def _run(self):
@@ -236,12 +247,13 @@ class DeferredExecution():
 <span>def <span class="ident">queueWork</span></span>(<span>self, runnable)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Queue up the work</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def queueWork(self, runnable):
+    &#34;&#34;&#34; Queue up the work&#34;&#34;&#34;
     self.queue.put(runnable)</code></pre>
 </details>
 </dd>
@@ -252,12 +264,13 @@ class DeferredExecution():
 <span>(</span><span>maxSecs=20)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Timeout class</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Timeout:
+    &#34;&#34;&#34;Timeout class&#34;&#34;&#34;
     def __init__(self, maxSecs=20):
         self.expireTime = 0
         self.sleepInterval = 0.1
