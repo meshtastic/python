@@ -1,5 +1,12 @@
 markdown
-pdoc3
+pyserial
+protobuf
+dotmap
+pexpect
+pyqrcode
+pygatt
+tabulate
+timeago
 webencodings
 pyparsing
 twine
@@ -8,3 +15,4 @@ pylint
 pytest
 pytest-cov
 pyyaml
+pytap2

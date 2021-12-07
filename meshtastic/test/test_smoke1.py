@@ -1,7 +1,6 @@
 """Meshtastic smoke tests with a single device"""
 import re
 import subprocess
-import platform
 import time
 import os
 
@@ -11,11 +10,15 @@ import pytest
 
 import meshtastic
 
+# seconds to pause after running a meshtastic command
+PAUSE_AFTER_COMMAND = 2
+PAUSE_AFTER_REBOOT = 7
+
 
 @pytest.mark.smoke1
 def test_smoke1_reboot():
     """Test reboot"""
-    return_value, out = subprocess.getstatusoutput('meshtastic --reboot')
+    return_value, _ = subprocess.getstatusoutput('meshtastic --reboot')
     assert return_value == 0
     # pause for the radio to reset (10 seconds for the pause, and a few more seconds to be back up)
     time.sleep(18)
@@ -51,7 +54,7 @@ def test_smoke1_seriallog_to_file():
     filename = 'tmpoutput.txt'
     if os.path.exists(f"{filename}"):
         os.remove(f"{filename}")
-    return_value, out = subprocess.getstatusoutput(f'meshtastic --info --seriallog {filename}')
+    return_value, _ = subprocess.getstatusoutput(f'meshtastic --info --seriallog {filename}')
     assert os.path.exists(f"{filename}")
     assert return_value == 0
     os.remove(f"{filename}")
@@ -63,7 +66,7 @@ def test_smoke1_qr():
     filename = 'tmpqr'
     if os.path.exists(f"{filename}"):
         os.remove(f"{filename}")
-    return_value, out = subprocess.getstatusoutput(f'meshtastic --qr > {filename}')
+    return_value, _ = subprocess.getstatusoutput(f'meshtastic --qr > {filename}')
     assert os.path.exists(f"{filename}")
     # not really testing that a valid qr code is created, just that the file size
     # is reasonably big enough for a qr code
@@ -113,7 +116,7 @@ def test_smoke1_set_is_router_true():
     assert re.search(r'^Set is_router to true', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --get is_router')
     assert re.search(r'^is_router: True', out, re.MULTILINE)
     assert return_value == 0
@@ -129,7 +132,7 @@ def test_smoke1_set_location_info():
     assert re.search(r'^Fixing longitude', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out2 = subprocess.getstatusoutput('meshtastic --info')
     assert re.search(r'1337', out2, re.MULTILINE)
     assert re.search(r'32.7767', out2, re.MULTILINE)
@@ -145,7 +148,7 @@ def test_smoke1_set_is_router_false():
     assert re.search(r'^Set is_router to false', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --get is_router')
     assert re.search(r'^is_router: False', out, re.MULTILINE)
     assert return_value == 0
@@ -160,18 +163,18 @@ def test_smoke1_set_owner():
     assert re.search(r'^Setting device owner to Bob', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert not re.search(r'Owner: Joe', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --set-owner Joe')
     assert re.match(r'Connected to radio', out)
     assert re.search(r'^Setting device owner to Joe', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert re.search(r'Owner: Joe', out, re.MULTILINE)
     assert return_value == 0
@@ -186,40 +189,45 @@ def test_smoke1_set_team():
     assert re.search(r'^Setting team to CLEAR', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --set-team CYAN')
     assert re.search(r'Setting team to CYAN', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert re.search(r'CYAN', out, re.MULTILINE)
     assert return_value == 0
 
 
 @pytest.mark.smoke1
-def test_smoke1_ch_longslow_and_ch_shortfast():
-    """Test --ch-longslow and --ch-shortfast"""
-    # unset the team
-    return_value, out = subprocess.getstatusoutput('meshtastic --ch-longslow')
-    assert re.match(r'Connected to radio', out)
-    assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio (might reboot)
-    time.sleep(5)
-    return_value, out = subprocess.getstatusoutput('meshtastic --info')
-    assert re.search(r'Bw125Cr48Sf4096', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio
-    time.sleep(1)
-    return_value, out = subprocess.getstatusoutput('meshtastic --ch-shortfast')
-    assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio (might reboot)
-    time.sleep(5)
-    return_value, out = subprocess.getstatusoutput('meshtastic --info')
-    assert re.search(r'Bw500Cr45Sf128', out, re.MULTILINE)
-    assert return_value == 0
+def test_smoke1_ch_values():
+    """Test --ch-longslow, --ch-longfast, --ch-mediumslow, --ch-mediumsfast,
+       --ch-shortslow, and --ch-shortfast arguments
+    """
+    exp = {
+            '--ch-longslow': 'Bw125Cr48Sf4096',
+            # TODO: not sure why these fail thru tests, but ok manually
+            #'--ch-longfast': 'Bw31_25Cr48Sf512',
+            #'--ch-mediumslow': 'Bw250Cr46Sf2048',
+            #'--ch-mediumfast': 'Bw250Cr47Sf1024',
+            # TODO '--ch-shortslow': '?',
+            '--ch-shortfast': 'Bw500Cr45Sf128'
+          }
+
+    for key, val in exp.items():
+        print(key, val)
+        return_value, out = subprocess.getstatusoutput(f'meshtastic {key}')
+        assert re.match(r'Connected to radio', out)
+        assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
+        assert return_value == 0
+        # pause for the radio (might reboot)
+        time.sleep(PAUSE_AFTER_REBOOT)
+        return_value, out = subprocess.getstatusoutput('meshtastic --info')
+        assert re.search(val, out, re.MULTILINE)
+        assert return_value == 0
+        # pause for the radio
+        time.sleep(PAUSE_AFTER_COMMAND)
 
 
 @pytest.mark.smoke1
@@ -229,13 +237,13 @@ def test_smoke1_ch_set_name():
     assert not re.search(r'MyChannel', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --ch-set name MyChannel')
     assert re.match(r'Connected to radio', out)
     assert re.search(r'^Set name to MyChannel', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert re.search(r'MyChannel', out, re.MULTILINE)
     assert return_value == 0
@@ -248,19 +256,19 @@ def test_smoke1_ch_add_and_ch_del():
     assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert re.match(r'Connected to radio', out)
     assert re.search(r'SECONDARY', out, re.MULTILINE)
     assert re.search(r'testing', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --ch-index 1 --ch-del')
     assert re.search(r'Deleting channel 1', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(4)
+    time.sleep(PAUSE_AFTER_REBOOT)
     # make sure the secondar channel is not there
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert re.match(r'Connected to radio', out)
@@ -276,13 +284,13 @@ def test_smoke1_ch_set_modem_config():
     assert not re.search(r'Bw31_25Cr48Sf512', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config Bw31_25Cr48Sf512')
     assert re.match(r'Connected to radio', out)
     assert re.search(r'^Set modem_config to Bw31_25Cr48Sf512', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert re.search(r'Bw31_25Cr48Sf512', out, re.MULTILINE)
     assert return_value == 0
@@ -295,7 +303,7 @@ def test_smoke1_seturl_default():
     return_value, out = subprocess.getstatusoutput('meshtastic --ch-set name foo')
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     # ensure we no longer have a default primary channel
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert not re.search('CgUYAyIBAQ', out, re.MULTILINE)
@@ -305,7 +313,7 @@ def test_smoke1_seturl_default():
     assert re.match(r'Connected to radio', out)
     assert return_value == 0
     # pause for the radio
-    time.sleep(1)
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert re.search('CgUYAyIBAQ', out, re.MULTILINE)
     assert return_value == 0
@@ -316,7 +324,7 @@ def test_smoke1_seturl_invalid_url():
     """Test --seturl with invalid url"""
     # Note: This url is no longer a valid url.
     url = "https://www.meshtastic.org/c/#GAMiENTxuzogKQdZ8Lz_q89Oab8qB0RlZmF1bHQ="
-    return_value, out = subprocess.getstatusoutput(f"meshtastic --seturl {url}")
+    _, out = subprocess.getstatusoutput(f"meshtastic --seturl {url}")
     assert re.match(r'Connected to radio', out)
     assert re.search('Aborting', out, re.MULTILINE)
 
@@ -324,7 +332,7 @@ def test_smoke1_seturl_invalid_url():
 @pytest.mark.smoke1
 def test_smoke1_configure():
     """Test --configure"""
-    return_value, out = subprocess.getstatusoutput(f"meshtastic --configure example_config.yaml")
+    _ , out = subprocess.getstatusoutput(f"meshtastic --configure example_config.yaml")
     assert re.match(r'Connected to radio', out)
     assert re.search('^Setting device owner to Bob TBeam', out, re.MULTILINE)
     assert re.search('^Fixing altitude at 304 meters', out, re.MULTILINE)

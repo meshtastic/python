@@ -60,24 +60,7 @@ import base64
 from typing import *
 from google.protobuf.json_format import MessageToJson
 from . import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
-from .util import stripnl, Timeout
-
-
-
-def pskToString(psk: bytes):
-    """Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string"""
-    if len(psk) == 0:
-        return "unencrypted"
-    elif len(psk) == 1:
-        b = psk[0]
-        if b == 0:
-            return "unencrypted"
-        elif b == 1:
-            return "default"
-        else:
-            return f"simple{b - 1}"
-    else:
-        return "secret"
+from .util import pskToString, stripnl, Timeout
 
 
 class Node:
@@ -97,11 +80,11 @@ class Node:
     def showChannels(self):
         """Show human readable description of our channels"""
         print("Channels:")
-        for c in self.channels:
-            if c.role != channel_pb2.Channel.Role.DISABLED:
-                cStr = stripnl(MessageToJson(c.settings))
-                print(
-                    f"  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}")
+        if self.channels:
+            for c in self.channels:
+                if c.role != channel_pb2.Channel.Role.DISABLED:
+                    cStr = stripnl(MessageToJson(c.settings))
+                    print(f"  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}")
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
         print(f"\nPrimary channel URL: {publicURL}")
@@ -110,8 +93,10 @@ class Node:
 
     def showInfo(self):
         """Show human readable description of our node"""
-        print(
-            f"Preferences: {stripnl(MessageToJson(self.radioConfig.preferences))}\n")
+        prefs = ""
+        if self.radioConfig and self.radioConfig.preferences:
+            prefs = stripnl(MessageToJson(self.radioConfig.preferences))
+        print(f"Preferences: {prefs}\n")
         self.showChannels()
 
     def requestConfig(self):
@@ -231,9 +216,10 @@ class Node:
         """
         # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
-        for c in self.channels:
-            if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
-                channelSet.settings.append(c.settings)
+        if self.channels:
+            for c in self.channels:
+                if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
+                    channelSet.settings.append(c.settings)
         bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(bytes).decode('ascii')
         return f"https://www.meshtastic.org/d/#{s}".replace("=", "")

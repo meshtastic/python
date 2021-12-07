@@ -7,7 +7,9 @@ import traceback
 from dotmap import DotMap
 from pubsub import pub
 from . import util
-from . import SerialInterface, TCPInterface, BROADCAST_NUM
+from .__init__ import BROADCAST_NUM
+from .serial_interface import SerialInterface
+from .tcp_interface import TCPInterface
 
 """The interfaces we are using for our tests"""
 interfaces = None
