@@ -1,3 +1,5 @@
+""" TCPInterface class for interfacing with http endpoint
+"""
 import logging
 import socket
 from typing import AnyStr
@@ -45,6 +47,6 @@ class TCPInterface(StreamInterface):
         """Write an array of bytes to our stream and flush"""
         self.socket.send(b)
 
-    def _readBytes(self, len):
+    def _readBytes(self, length):
         """Read an array of bytes from our stream"""
-        return self.socket.recv(len)
+        return self.socket.recv(length)

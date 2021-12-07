@@ -1,16 +1,14 @@
+""" Stream Interface base class
+"""
 import logging
 import threading
 import time
 import traceback
 import serial
-import timeago
-
-from tabulate import tabulate
 
 
 from .mesh_interface import MeshInterface
 from .util import stripnl
-from .__init__ import LOCAL_ADDR, BROADCAST_NUM
 
 
 START1 = 0x94
@@ -87,9 +85,9 @@ class StreamInterface(MeshInterface):
             self.stream.write(b)
             self.stream.flush()
 
-    def _readBytes(self, len):
+    def _readBytes(self, length):
         """Read an array of bytes from our stream"""
-        return self.stream.read(len)
+        return self.stream.read(length)
 
     def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
@@ -129,7 +127,7 @@ class StreamInterface(MeshInterface):
                     if ptr == 0:  # looking for START1
                         if c != START1:
                             self._rxBuf = empty  # failed to find start
-                            if self.debugOut != None:
+                            if self.debugOut is not None:
                                 try:
                                     self.debugOut.write(b.decode("utf-8"))
                                 except:

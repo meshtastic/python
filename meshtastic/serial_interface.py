@@ -1,8 +1,10 @@
+""" Serial interface class
+"""
 import logging
-import serial
 import platform
 import os
 import stat
+import serial
 
 from .stream_interface import StreamInterface
 from .util import findPorts

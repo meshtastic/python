@@ -1,17 +1,19 @@
+""" Mesh Interface class
+"""
 import sys
 import random
 import time
 import logging
-import timeago
 from typing import AnyStr
 import threading
+from datetime import datetime
+import timeago
 from tabulate import tabulate
 
 import google.protobuf.json_format
 
 from pubsub import pub
 from google.protobuf.json_format import MessageToJson
-from datetime import datetime
 
 
 from . import portnums_pb2, mesh_pb2
@@ -438,11 +440,13 @@ class MeshInterface:
             failmsg = None
             # Check for app too old
             if self.myInfo.min_app_version > OUR_APP_VERSION:
-                failmsg = "This device needs a newer python client, please \"pip install --upgrade meshtastic\".  For more information see https://tinyurl.com/5bjsxu32"
+                failmsg = "This device needs a newer python client, please \"pip install --upgrade meshtastic\".  "\
+                          "For more information see https://tinyurl.com/5bjsxu32"
 
             # check for firmware too old
             if self.myInfo.max_channels == 0:
-                failmsg = "This version of meshtastic-python requires device firmware version 1.2 or later. For more information see https://tinyurl.com/5bjsxu32"
+                failmsg = "This version of meshtastic-python requires device firmware version 1.2 or later. "\
+                          "For more information see https://tinyurl.com/5bjsxu32"
 
             if failmsg:
                 self.failure = Exception(failmsg)

@@ -171,4 +171,3 @@ protocols = {
     portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol(
         "remotehw", remote_hardware_pb2.HardwareMessage)
 }
-
