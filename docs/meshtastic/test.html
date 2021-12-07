@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>meshtastic.test API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Testing" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,18 +22,21 @@
 <h1 class="title">Module <code>meshtastic.test</code></h1>
 </header>
 <section id="section-intro">
+<p>Testing</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import logging
-from . import util
-from . import SerialInterface, TCPInterface, BROADCAST_NUM
-from pubsub import pub
+<pre><code class="python">&#34;&#34;&#34; Testing
+&#34;&#34;&#34;
+import logging
 import time
 import sys
-import threading, traceback
+import traceback
 from dotmap import DotMap
+from pubsub import pub
+from . import util
+from . import SerialInterface, TCPInterface, BROADCAST_NUM
 
 &#34;&#34;&#34;The interfaces we are using for our tests&#34;&#34;&#34;
 interfaces = None
@@ -59,7 +62,7 @@ def onReceive(packet, interface):
 
         if p.decoded.portnum == &#34;TEXT_MESSAGE_APP&#34;:
             # We only care a about clear text packets
-            if receivedPackets != None:
+            if receivedPackets is not None:
                 receivedPackets.append(p)
 
 
@@ -103,18 +106,19 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False, want
     else:
         fromInterface.sendData((f&#34;Binary {testNumber}&#34;).encode(
             &#34;utf-8&#34;), toNode, wantAck=wantAck)
-    for sec in range(60):  # max of 60 secs before we timeout
+    for _ in range(60):  # max of 60 secs before we timeout
         time.sleep(1)
-        if (len(receivedPackets) &gt;= 1):
+        if  len(receivedPackets) &gt;= 1:
             return True
     return False  # Failed to send
 
 
 def runTests(numTests=50, wantAck=False, maxFailures=0):
+    &#34;&#34;&#34;Run the tests.&#34;&#34;&#34;
     logging.info(f&#34;Running {numTests} tests with wantAck={wantAck}&#34;)
     numFail = 0
     numSuccess = 0
-    for i in range(numTests):
+    for _ in range(numTests):
         global testNumber
         testNumber = testNumber + 1
         isBroadcast = True
@@ -144,6 +148,7 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
 
 
 def testThread(numTests=50):
+    &#34;&#34;&#34;Test thread&#34;&#34;&#34;
     logging.info(&#34;Found devices, starting tests...&#34;)
     runTests(numTests, wantAck=True)
     # Allow a few dropped packets
@@ -156,6 +161,7 @@ def onConnection(topic=pub.AUTO_TOPIC):
 
 
 def openDebugLog(portName):
+    &#34;&#34;&#34;Open the debug log file&#34;&#34;&#34;
     debugname = &#34;log&#34; + portName.replace(&#34;/&#34;, &#34;_&#34;)
     logging.info(f&#34;Writing serial debugging to {debugname}&#34;)
     return open(debugname, &#39;w+&#39;, buffering=1)
@@ -169,7 +175,7 @@ def testAll():
         Exception: If not enough devices are found
     &#34;&#34;&#34;
     ports = util.findPorts()
-    if (len(ports) &lt; 2):
+    if len(ports) &lt; 2:
         raise Exception(&#34;Must have at least two devices connected to USB&#34;)
 
     pub.subscribe(onConnection, &#34;meshtastic.connection&#34;)
@@ -272,7 +278,7 @@ def testSimulator():
 
         if p.decoded.portnum == &#34;TEXT_MESSAGE_APP&#34;:
             # We only care a about clear text packets
-            if receivedPackets != None:
+            if receivedPackets is not None:
                 receivedPackets.append(p)</code></pre>
 </details>
 </dd>
@@ -280,12 +286,13 @@ def testSimulator():
 <span>def <span class="ident">openDebugLog</span></span>(<span>portName)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Open the debug log file</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def openDebugLog(portName):
+    &#34;&#34;&#34;Open the debug log file&#34;&#34;&#34;
     debugname = &#34;log&#34; + portName.replace(&#34;/&#34;, &#34;_&#34;)
     logging.info(f&#34;Writing serial debugging to {debugname}&#34;)
     return open(debugname, &#39;w+&#39;, buffering=1)</code></pre>
@@ -295,16 +302,17 @@ def testSimulator():
 <span>def <span class="ident">runTests</span></span>(<span>numTests=50, wantAck=False, maxFailures=0)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Run the tests.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def runTests(numTests=50, wantAck=False, maxFailures=0):
+    &#34;&#34;&#34;Run the tests.&#34;&#34;&#34;
     logging.info(f&#34;Running {numTests} tests with wantAck={wantAck}&#34;)
     numFail = 0
     numSuccess = 0
-    for i in range(numTests):
+    for _ in range(numTests):
         global testNumber
         testNumber = testNumber + 1
         isBroadcast = True
@@ -370,7 +378,7 @@ def testSimulator():
         Exception: If not enough devices are found
     &#34;&#34;&#34;
     ports = util.findPorts()
-    if (len(ports) &lt; 2):
+    if len(ports) &lt; 2:
         raise Exception(&#34;Must have at least two devices connected to USB&#34;)
 
     pub.subscribe(onConnection, &#34;meshtastic.connection&#34;)
@@ -429,9 +437,9 @@ toInterface {[type]} &ndash; [description]</p>
     else:
         fromInterface.sendData((f&#34;Binary {testNumber}&#34;).encode(
             &#34;utf-8&#34;), toNode, wantAck=wantAck)
-    for sec in range(60):  # max of 60 secs before we timeout
+    for _ in range(60):  # max of 60 secs before we timeout
         time.sleep(1)
-        if (len(receivedPackets) &gt;= 1):
+        if  len(receivedPackets) &gt;= 1:
             return True
     return False  # Failed to send</code></pre>
 </details>
@@ -478,12 +486,13 @@ python3 -c 'from meshtastic.test import testSimulator; testSimulator()'</p></div
 <span>def <span class="ident">testThread</span></span>(<span>numTests=50)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Test thread</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def testThread(numTests=50):
+    &#34;&#34;&#34;Test thread&#34;&#34;&#34;
     logging.info(&#34;Found devices, starting tests...&#34;)
     runTests(numTests, wantAck=True)
     # Allow a few dropped packets

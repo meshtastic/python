@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>meshtastic.tunnel API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Code for IP tunnel over a mesh …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,25 @@
 <h1 class="title">Module <code>meshtastic.tunnel</code></h1>
 </header>
 <section id="section-intro">
+<p>Code for IP tunnel over a mesh</p>
+<h1 id="note-python-pytuntap-was-too-buggy">Note python-pytuntap was too buggy</h1>
+<h1 id="using-pip3-install-pytap2">using pip3 install pytap2</h1>
+<h1 id="make-sure-to-sudo-setcap-cap_net_admineip-usrbinpython38-so-python-can-access-tun-device-without-being-root">make sure to "sudo setcap cap_net_admin+eip /usr/bin/python3.8" so python can access tun device without being root</h1>
+<h1 id="sudo-ip-tuntap-del-mode-tun-tun0">sudo ip tuntap del mode tun tun0</h1>
+<h1 id="sudo-binrunsh-port-devttyusb0-setch-shortfast">sudo bin/run.sh &ndash;port /dev/ttyUSB0 &ndash;setch-shortfast</h1>
+<h1 id="sudo-binrunsh-port-devttyusb0-tunnel-debug">sudo bin/run.sh &ndash;port /dev/ttyUSB0 &ndash;tunnel &ndash;debug</h1>
+<h1 id="ssh-y-root19216810151-or-dietpi-default-password-p">ssh -Y root@192.168.10.151 (or dietpi), default password p</h1>
+<h1 id="ncat-e-bincat-k-u-l-1235">ncat -e /bin/cat -k -u -l 1235</h1>
+<h1 id="ncat-u-1011564152-1235">ncat -u 10.115.64.152 1235</h1>
+<h1 id="ping-c-1-w-20-1011564152">ping -c 1 -W 20 10.115.64.152</h1>
+<h1 id="ping-i-30-w-30-1011564152">ping -i 30 -W 30 10.115.64.152</h1>
+<h1 id="fixme-use-a-more-optimal-mtu">FIXME: use a more optimal MTU</h1>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python"># code for IP tunnel over a mesh
+<pre><code class="python">&#34;&#34;&#34; Code for IP tunnel over a mesh
+
 # Note python-pytuntap was too buggy
 # using pip3 install pytap2
 # make sure to &#34;sudo setcap cap_net_admin+eip /usr/bin/python3.8&#34; so python can access tun device without being root
@@ -40,11 +54,12 @@
 # ping -i 30 -W 30 10.115.64.152
 
 # FIXME: use a more optimal MTU
+&#34;&#34;&#34;
 
-from . import portnums_pb2
-from pubsub import pub
 import logging
 import threading
+from pubsub import pub
+from . import portnums_pb2
 
 # A new non standard log level that is lower level than DEBUG
 LOG_TRACE = 5
@@ -545,7 +560,20 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
 <nav id="sidebar">
 <h1>Index</h1>
 <div class="toc">
-<ul></ul>
+<ul>
+<li><a href="#note-python-pytuntap-was-too-buggy">Note python-pytuntap was too buggy</a></li>
+<li><a href="#using-pip3-install-pytap2">using pip3 install pytap2</a></li>
+<li><a href="#make-sure-to-sudo-setcap-cap_net_admineip-usrbinpython38-so-python-can-access-tun-device-without-being-root">make sure to "sudo setcap cap_net_admin+eip /usr/bin/python3.8" so python can access tun device without being root</a></li>
+<li><a href="#sudo-ip-tuntap-del-mode-tun-tun0">sudo ip tuntap del mode tun tun0</a></li>
+<li><a href="#sudo-binrunsh-port-devttyusb0-setch-shortfast">sudo bin/run.sh &ndash;port /dev/ttyUSB0 &ndash;setch-shortfast</a></li>
+<li><a href="#sudo-binrunsh-port-devttyusb0-tunnel-debug">sudo bin/run.sh &ndash;port /dev/ttyUSB0 &ndash;tunnel &ndash;debug</a></li>
+<li><a href="#ssh-y-root19216810151-or-dietpi-default-password-p">ssh -Y root@192.168.10.151 (or dietpi), default password p</a></li>
+<li><a href="#ncat-e-bincat-k-u-l-1235">ncat -e /bin/cat -k -u -l 1235</a></li>
+<li><a href="#ncat-u-1011564152-1235">ncat -u 10.115.64.152 1235</a></li>
+<li><a href="#ping-c-1-w-20-1011564152">ping -c 1 -W 20 10.115.64.152</a></li>
+<li><a href="#ping-i-30-w-30-1011564152">ping -i 30 -W 30 10.115.64.152</a></li>
+<li><a href="#fixme-use-a-more-optimal-mtu">FIXME: use a more optimal MTU</a></li>
+</ul>
 </div>
 <ul id="index">
 <li><h3>Super-module</h3>

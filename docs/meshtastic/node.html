@@ -115,10 +115,10 @@ type of packet, you should subscribe to the full topic name.  If you want to see
 - meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
 
-We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for 
-that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet 
-you&#39;ll see the fields in the dictionary.  decoded.data.payload will contain the raw bytes that were sent.  If the packet was sent with 
-sendText, decoded.data.text will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for 
+We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for
+that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet
+you&#39;ll see the fields in the dictionary.  decoded.data.payload will contain the raw bytes that were sent.  If the packet was sent with
+sendText, decoded.data.text will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for
 unicode scripts they can be different.
 
 # Example Usage
@@ -142,24 +142,12 @@ interface = meshtastic.SerialInterface()
 
 &#34;&#34;&#34;
 
-import pygatt
-import google.protobuf.json_format
-import serial
-import threading
 import logging
-import sys
-import random
-import traceback
-import time
 import base64
-import platform
-import socket
-from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
-from .util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
-from pubsub import pub
-from dotmap import DotMap
 from typing import *
 from google.protobuf.json_format import MessageToJson
+from . import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
+from .util import stripnl, Timeout
 
 
 
@@ -229,7 +217,7 @@ class Node:
 
     def writeConfig(self):
         &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
-        if self.radioConfig == None:
+        if self.radioConfig is None:
             raise Exception(&#34;No RadioConfig has been read&#34;)
 
         p = admin_pb2.AdminMessage()
@@ -292,7 +280,7 @@ class Node:
         else:
             return 0
 
-    def setOwner(self, long_name, short_name=None, is_licensed=False):
+    def setOwner(self, long_name=None, short_name=None, is_licensed=False, team=None):
         &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
         nChars = 3
         minChars = 2
@@ -320,6 +308,8 @@ class Node:
                 short_name = short_name[:nChars]
             p.set_owner.short_name = short_name
             p.set_owner.is_licensed = is_licensed
+        if team is not None:
+            p.set_owner.team = team
 
         return self._sendAdmin(p)
 
@@ -337,7 +327,7 @@ class Node:
 
     def setURL(self, url):
         &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
-        if self.radioConfig == None:
+        if self.radioConfig is None:
             raise Exception(&#34;No RadioConfig has been read&#34;)
 
         # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
@@ -355,6 +345,9 @@ class Node:
         decodedURL = base64.urlsafe_b64decode(b64)
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
+
+        if len(channelSet.settings) == 0:
+            raise Exception(&#34;There were no settings.&#34;)
 
         i = 0
         for chs in channelSet.settings:
@@ -588,7 +581,7 @@ class Node:
 
     def writeConfig(self):
         &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
-        if self.radioConfig == None:
+        if self.radioConfig is None:
             raise Exception(&#34;No RadioConfig has been read&#34;)
 
         p = admin_pb2.AdminMessage()
@@ -651,7 +644,7 @@ class Node:
         else:
             return 0
 
-    def setOwner(self, long_name, short_name=None, is_licensed=False):
+    def setOwner(self, long_name=None, short_name=None, is_licensed=False, team=None):
         &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
         nChars = 3
         minChars = 2
@@ -679,6 +672,8 @@ class Node:
                 short_name = short_name[:nChars]
             p.set_owner.short_name = short_name
             p.set_owner.is_licensed = is_licensed
+        if team is not None:
+            p.set_owner.team = team
 
         return self._sendAdmin(p)
 
@@ -696,7 +691,7 @@ class Node:
 
     def setURL(self, url):
         &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
-        if self.radioConfig == None:
+        if self.radioConfig is None:
             raise Exception(&#34;No RadioConfig has been read&#34;)
 
         # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
@@ -714,6 +709,9 @@ class Node:
         decodedURL = base64.urlsafe_b64decode(b64)
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
+
+        if len(channelSet.settings) == 0:
+            raise Exception(&#34;There were no settings.&#34;)
 
         i = 0
         for chs in channelSet.settings:
@@ -998,7 +996,7 @@ class Node:
 </details>
 </dd>
 <dt id="meshtastic.node.Node.setOwner"><code class="name flex">
-<span>def <span class="ident">setOwner</span></span>(<span>self, long_name, short_name=None, is_licensed=False)</span>
+<span>def <span class="ident">setOwner</span></span>(<span>self, long_name=None, short_name=None, is_licensed=False, team=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Set device owner name</p></div>
@@ -1006,7 +1004,7 @@ class Node:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def setOwner(self, long_name, short_name=None, is_licensed=False):
+<pre><code class="python">def setOwner(self, long_name=None, short_name=None, is_licensed=False, team=None):
     &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
     nChars = 3
     minChars = 2
@@ -1034,6 +1032,8 @@ class Node:
             short_name = short_name[:nChars]
         p.set_owner.short_name = short_name
         p.set_owner.is_licensed = is_licensed
+    if team is not None:
+        p.set_owner.team = team
 
     return self._sendAdmin(p)</code></pre>
 </details>
@@ -1049,7 +1049,7 @@ class Node:
 </summary>
 <pre><code class="python">def setURL(self, url):
     &#34;&#34;&#34;Set mesh network URL&#34;&#34;&#34;
-    if self.radioConfig == None:
+    if self.radioConfig is None:
         raise Exception(&#34;No RadioConfig has been read&#34;)
 
     # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
@@ -1067,6 +1067,9 @@ class Node:
     decodedURL = base64.urlsafe_b64decode(b64)
     channelSet = apponly_pb2.ChannelSet()
     channelSet.ParseFromString(decodedURL)
+
+    if len(channelSet.settings) == 0:
+        raise Exception(&#34;There were no settings.&#34;)
 
     i = 0
     for chs in channelSet.settings:
@@ -1163,7 +1166,7 @@ class Node:
 </summary>
 <pre><code class="python">def writeConfig(self):
     &#34;&#34;&#34;Write the current (edited) radioConfig to the device&#34;&#34;&#34;
-    if self.radioConfig == None:
+    if self.radioConfig is None:
         raise Exception(&#34;No RadioConfig has been read&#34;)
 
     p = admin_pb2.AdminMessage()
