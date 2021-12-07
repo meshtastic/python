@@ -39,7 +39,6 @@ class StreamInterface(MeshInterface):
                 "StreamInterface is now abstract (to update existing code create SerialInterface instead)")
         self._rxBuf = bytes()  # empty
         self._wantExit = False
-        self.stream = None
 
         # FIXME, figure out why daemon=True causes reader thread to exit too early
         self._rxThread = threading.Thread(
