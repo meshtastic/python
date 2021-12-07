@@ -7,7 +7,7 @@ import stat
 import serial
 
 from .stream_interface import StreamInterface
-from .util import findPorts
+from .util import findPorts, our_exit
 
 class SerialInterface(StreamInterface):
     """Interface class for meshtastic devices over a serial link"""
@@ -23,11 +23,13 @@ class SerialInterface(StreamInterface):
 
         if devPath is None:
             ports = findPorts()
+            logging.debug(f"ports:{ports}")
             if len(ports) == 0:
-                raise Exception("No Meshtastic devices detected")
+                our_exit("Warning: No Meshtastic devices detected.")
             elif len(ports) > 1:
-                raise Exception(
-                    f"Multiple ports detected, you must specify a device, such as {ports[0]}")
+                message = "Warning: Multiple serial ports were detected so one serial port must be specified with the '--port'.\n"
+                message += f"  Ports detected:{ports}"
+                our_exit(message)
             else:
                 devPath = ports[0]
 

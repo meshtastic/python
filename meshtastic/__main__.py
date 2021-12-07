@@ -17,7 +17,7 @@ from .tcp_interface import TCPInterface
 from .ble_interface import BLEInterface
 from . import test, remote_hardware
 from . import portnums_pb2, channel_pb2, mesh_pb2, radioconfig_pb2
-from .util import support_info
+from .util import support_info, our_exit
 
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
@@ -410,7 +410,7 @@ def onConnected(interface):
             closeNow = True
             n = getNode()
             if len(args.ch_add) > 10:
-                raise Exception("Channel name must be shorter. Channel not added.")
+                our_exit("Warning: Channel name must be shorter. Channel not added.")
             ch = n.getChannelByName(args.ch_add)
             if ch:
                 logging.error(
@@ -418,7 +418,7 @@ def onConnected(interface):
             else:
                 ch = n.getDisabledChannel()
                 if not ch:
-                    raise Exception("No free channels were found")
+                    our_exit("Warning: No free channels were found")
                 chs = channel_pb2.ChannelSettings()
                 chs.psk = genPSK256()
                 chs.name = args.ch_add
@@ -442,8 +442,7 @@ def onConnected(interface):
 
             if args.ch_longslow or args.ch_longfast or args.ch_mediumslow or args.ch_mediumfast or args.ch_shortslow or args.ch_shortfast:
                 if channelIndex != 0:
-                    raise Exception(
-                        "standard channel settings can only be applied to the PRIMARY channel")
+                    our_exit("Warning: Standard channel settings can only be applied to the PRIMARY channel")
 
                 enable = True  # force enable
 
