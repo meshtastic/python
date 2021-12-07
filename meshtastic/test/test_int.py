@@ -27,3 +27,12 @@ def test_int_help():
     return_value, out = subprocess.getstatusoutput('meshtastic --help')
     assert re.match(r'usage: meshtastic ', out)
     assert return_value == 0
+
+
+@pytest.mark.int
+def test_int_support():
+    """Test '--support'."""
+    return_value, out = subprocess.getstatusoutput('meshtastic --support')
+    assert re.search(r'System', out)
+    assert re.search(r'Python', out)
+    assert return_value == 0
