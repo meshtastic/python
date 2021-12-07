@@ -1,7 +1,6 @@
 """Meshtastic smoke tests with a single device"""
 import re
 import subprocess
-import platform
 import time
 import os
 
@@ -18,7 +17,7 @@ PAUSE_AFTER_COMMAND = 2
 @pytest.mark.smoke1
 def test_smoke1_reboot():
     """Test reboot"""
-    return_value, out = subprocess.getstatusoutput('meshtastic --reboot')
+    return_value, _ = subprocess.getstatusoutput('meshtastic --reboot')
     assert return_value == 0
     # pause for the radio to reset (10 seconds for the pause, and a few more seconds to be back up)
     time.sleep(18)
@@ -54,7 +53,7 @@ def test_smoke1_seriallog_to_file():
     filename = 'tmpoutput.txt'
     if os.path.exists(f"{filename}"):
         os.remove(f"{filename}")
-    return_value, out = subprocess.getstatusoutput(f'meshtastic --info --seriallog {filename}')
+    return_value, _ = subprocess.getstatusoutput(f'meshtastic --info --seriallog {filename}')
     assert os.path.exists(f"{filename}")
     assert return_value == 0
     os.remove(f"{filename}")
@@ -66,7 +65,7 @@ def test_smoke1_qr():
     filename = 'tmpqr'
     if os.path.exists(f"{filename}"):
         os.remove(f"{filename}")
-    return_value, out = subprocess.getstatusoutput(f'meshtastic --qr > {filename}')
+    return_value, _ = subprocess.getstatusoutput(f'meshtastic --qr > {filename}')
     assert os.path.exists(f"{filename}")
     # not really testing that a valid qr code is created, just that the file size
     # is reasonably big enough for a qr code
@@ -319,7 +318,7 @@ def test_smoke1_seturl_invalid_url():
     """Test --seturl with invalid url"""
     # Note: This url is no longer a valid url.
     url = "https://www.meshtastic.org/c/#GAMiENTxuzogKQdZ8Lz_q89Oab8qB0RlZmF1bHQ="
-    return_value, out = subprocess.getstatusoutput(f"meshtastic --seturl {url}")
+    _, out = subprocess.getstatusoutput(f"meshtastic --seturl {url}")
     assert re.match(r'Connected to radio', out)
     assert re.search('Aborting', out, re.MULTILINE)
 
@@ -327,7 +326,7 @@ def test_smoke1_seturl_invalid_url():
 @pytest.mark.smoke1
 def test_smoke1_configure():
     """Test --configure"""
-    return_value, out = subprocess.getstatusoutput(f"meshtastic --configure example_config.yaml")
+    _ , out = subprocess.getstatusoutput(f"meshtastic --configure example_config.yaml")
     assert re.match(r'Connected to radio', out)
     assert re.search('^Setting device owner to Bob TBeam', out, re.MULTILINE)
     assert re.search('^Fixing altitude at 304 meters', out, re.MULTILINE)

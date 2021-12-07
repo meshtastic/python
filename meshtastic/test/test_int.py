@@ -1,7 +1,6 @@
 """Meshtastic integration tests"""
 import re
 import subprocess
-import platform
 
 import pytest
 

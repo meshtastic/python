@@ -1,7 +1,4 @@
 """Meshtastic unit tests for node.py"""
-import re
-import subprocess
-import platform
 
 import pytest
 

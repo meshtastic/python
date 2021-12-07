@@ -438,7 +438,7 @@ def onConnected(interface):
 
             enable = args.ch_enable  # should we enable this channel?
 
-            if or args.ch_longslow or args.ch_longsfast or args.ch_mediumslow or args.ch_mediumsfast or args.ch_shortslow or args.ch_shortfast:
+            if args.ch_longslow or args.ch_longsfast or args.ch_mediumslow or args.ch_mediumsfast or args.ch_shortslow or args.ch_shortfast:
                 if channelIndex != 0:
                     raise Exception(
                         "standard channel settings can only be applied to the PRIMARY channel")
