@@ -12,7 +12,10 @@ import yaml
 from pubsub import pub
 import pyqrcode
 import pkg_resources
-from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
+from .serial_interface import SerialInterface
+from .tcp_interface import TCPInterface
+from .ble_interface import BLEInterface
+from . import test, remote_hardware
 from . import portnums_pb2, channel_pb2, mesh_pb2, radioconfig_pb2
 
 """We only import the tunnel code if we are on a platform that can run it"""

@@ -1,11 +1,8 @@
 """Meshtastic unit tests for node.py"""
-import re
-import subprocess
-import platform
 
 import pytest
 
-from meshtastic.__init__ import MeshInterface
+from meshtastic.mesh_interface import MeshInterface
 
 
 @pytest.mark.unit

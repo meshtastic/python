@@ -5,8 +5,7 @@ import platform
 
 import pytest
 
-from meshtastic.node import pskToString
-from meshtastic.__init__ import MeshInterface
+from meshtastic.util import pskToString
 
 @pytest.mark.unit
 def test_pskToString_empty_string():
