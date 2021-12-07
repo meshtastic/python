@@ -431,14 +431,14 @@ def onConnected(interface):
             print(f"Deleting channel {channelIndex}")
             ch = getNode().deleteChannel(channelIndex)
 
-        if args.ch_set or args.ch_longslow or args.ch_longsfast or args.ch_mediumslow or args.ch_mediumsfast or args.ch_shortslow or args.ch_shortfast:
+        if args.ch_set or args.ch_longslow or args.ch_longfast or args.ch_mediumslow or args.ch_mediumfast or args.ch_shortslow or args.ch_shortfast:
             closeNow = True
 
             ch = getNode().channels[channelIndex]
 
             enable = args.ch_enable  # should we enable this channel?
 
-            if args.ch_longslow or args.ch_longsfast or args.ch_mediumslow or args.ch_mediumsfast or args.ch_shortslow or args.ch_shortfast:
+            if args.ch_longslow or args.ch_longfast or args.ch_mediumslow or args.ch_mediumfast or args.chshortslow or args.ch_shortfast:
                 if channelIndex != 0:
                     raise Exception(
                         "standard channel settings can only be applied to the PRIMARY channel")
@@ -460,7 +460,7 @@ def onConnected(interface):
                     setSimpleChannel(
                         channel_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
 
-                if args.ch_longsfast:
+                if args.ch_longfast:
                     setSimpleChannel(
                         channel_pb2.ChannelSettings.ModemConfig.Bw31_25Cr48Sf512)
 
@@ -468,7 +468,7 @@ def onConnected(interface):
                     setSimpleChannel(
                         channel_pb2.ChannelSettings.ModemConfig.Bw250Cr46Sf2048)
 
-                if args.ch_mediumsfast:
+                if args.ch_mediumfast:
                     setSimpleChannel(
                         channel_pb2.ChannelSettings.ModemConfig.Bw250Cr47Sf1024)
 
@@ -690,7 +690,19 @@ def initParser():
         "--ch-longslow", help="Change to the standard long-range (but slow) channel", action='store_true')
 
     parser.add_argument(
-        "--ch-shortfast", help="Change to the standard fast (but short range) channel", action='store_true')
+        "--ch-longfast", help="Change to the standard long-range (but fast) channel", action='store_true')
+
+    parser.add_argument(
+        "--ch-shortfast", help="Change to the short-range (but fast) channel", action='store_true')
+
+    parser.add_argument(
+        "--ch-shortslow", help="Change to the short-range (but slow) channel", action='store_true')
+
+    parser.add_argument(
+        "--ch-mediumslow", help="Change to the medium-range (but slow) channel", action='store_true')
+
+    parser.add_argument(
+        "--ch-mediumfast", help="Change to the medium-range (but fast) channel", action='store_true')
 
     parser.add_argument(
         "--set-owner", help="Set device owner name", action="store")
