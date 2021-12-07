@@ -363,7 +363,7 @@ def onConnected(interface):
                 if 'owner' in configuration:
                     print(f"Setting device owner to {configuration['owner']}")
                     getNode().setOwner(configuration['owner'])
-                    
+
                 if 'channel_url' in configuration:
                     print("Setting channel url to", configuration['channel_url'])
                     getNode().setURL(configuration['channel_url'])
@@ -390,7 +390,7 @@ def onConnected(interface):
                     print("Setting device position")
                     interface.sendPosition(lat, lon, alt, time)
                     interface.localNode.writeConfig()
-                    
+
                 if 'user_prefs' in configuration:
                     prefs = getNode().radioConfig.preferences
                     for pref in configuration['user_prefs']:
