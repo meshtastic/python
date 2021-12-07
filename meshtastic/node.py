@@ -5,7 +5,7 @@ import logging
 import base64
 from google.protobuf.json_format import MessageToJson
 from . import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
-from .util import pskToString, stripnl, Timeout
+from .util import pskToString, stripnl, Timeout, our_exit
 
 
 class Node:
@@ -61,7 +61,7 @@ class Node:
     def writeConfig(self):
         """Write the current (edited) radioConfig to the device"""
         if self.radioConfig is None:
-            raise Exception("No RadioConfig has been read")
+            our_exit("Error: No RadioConfig has been read")
 
         p = admin_pb2.AdminMessage()
         p.set_radio.CopyFrom(self.radioConfig)
@@ -82,7 +82,7 @@ class Node:
         """Delete the specifed channelIndex and shift other channels up"""
         ch = self.channels[channelIndex]
         if ch.role != channel_pb2.Channel.Role.SECONDARY:
-            raise Exception("Only SECONDARY channels can be deleted")
+            our_exit("Warning: Only SECONDARY channels can be deleted")
 
         # we are careful here because if we move the "admin" channel the channelIndex we need to use
         # for sending admin channels will also change
@@ -172,7 +172,7 @@ class Node:
     def setURL(self, url):
         """Set mesh network URL"""
         if self.radioConfig is None:
-            raise Exception("No RadioConfig has been read")
+            our_exit("Warning: No RadioConfig has been read")
 
         # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
         # Split on '/#' to find the base64 encoded channel settings
@@ -191,7 +191,7 @@ class Node:
         channelSet.ParseFromString(decodedURL)
 
         if len(channelSet.settings) == 0:
-            raise Exception("There were no settings.")
+            our_exit("Warning: There were no settings.")
 
         i = 0
         for chs in channelSet.settings:

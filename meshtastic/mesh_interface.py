@@ -17,7 +17,7 @@ from google.protobuf.json_format import MessageToJson
 
 
 from . import portnums_pb2, mesh_pb2
-from .util import stripnl, Timeout
+from .util import stripnl, Timeout, our_exit
 from .node import Node
 from .__init__ import LOCAL_ADDR, BROADCAST_NUM, BROADCAST_ADDR, ResponseHandler, publishingThread, OUR_APP_VERSION, protocols
 
@@ -150,7 +150,7 @@ class MeshInterface:
             n = Node(self, nodeId)
             n.requestConfig()
             if not n.waitForConfig():
-                raise Exception("Timed out waiting for node config")
+                our_exit("Error: Timed out waiting for node config")
             return n
 
     def sendText(self, text: AnyStr,
@@ -205,10 +205,10 @@ class MeshInterface:
             data = data.SerializeToString()
 
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
-            raise Exception("Data payload too big")
+            Exception("Data payload too big")
 
         if portNum == portnums_pb2.PortNum.UNKNOWN_APP:  # we are now more strict wrt port numbers
-            raise Exception("A non-zero port number must be specified")
+            our_exit("Warning: A non-zero port number must be specified")
 
         meshPacket = mesh_pb2.MeshPacket()
         meshPacket.channel = channelIndex
@@ -272,7 +272,7 @@ class MeshInterface:
         toRadio = mesh_pb2.ToRadio()
 
         if destinationId is None:
-            raise Exception("destinationId must not be None")
+            our_exit("Warning: destinationId must not be None")
         elif isinstance(destinationId, int):
             nodeNum = destinationId
         elif destinationId == BROADCAST_ADDR:
@@ -285,7 +285,7 @@ class MeshInterface:
         else:
             node = self.nodes.get(destinationId)
             if not node:
-                raise Exception(f"NodeId {destinationId} not found in DB")
+                our_exit(f"Warning: NodeId {destinationId} not found in DB")
             nodeNum = node['num']
 
         meshPacket.to = nodeNum

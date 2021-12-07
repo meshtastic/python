@@ -114,6 +114,15 @@ class DeferredExecution():
                     f"Unexpected error in deferred execution {sys.exc_info()[0]}")
                 print(traceback.format_exc())
 
+
+def our_exit(message, return_value = 1):
+    """Print the message and return a value.
+       return_value defaults to 1 (non-successful)
+    """
+    print(message)
+    sys.exit(return_value)
+
+
 def support_info():
     """Print out info that is helping in support of the cli."""
     print('If having issues with meshtastic cli or python library')
