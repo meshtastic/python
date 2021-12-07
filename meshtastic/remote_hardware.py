@@ -1,4 +1,5 @@
-
+""" Remote hardware
+"""
 from pubsub import pub
 from . import portnums_pb2, remote_hardware_pb2
 
@@ -28,7 +29,8 @@ class RemoteHardwareClient:
         ch = iface.localNode.getChannelByName("gpio")
         if not ch:
             raise Exception(
-                "No gpio channel found, please create on the sending and receive nodes to use this (secured) service (--ch-add gpio --info then --seturl)")
+                "No gpio channel found, please create on the sending and receive nodes "\
+                "to use this (secured) service (--ch-add gpio --info then --seturl)")
         self.channelIndex = ch.index
 
         pub.subscribe(

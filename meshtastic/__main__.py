@@ -12,7 +12,10 @@ import yaml
 from pubsub import pub
 import pyqrcode
 import pkg_resources
-from . import SerialInterface, TCPInterface, BLEInterface, test, remote_hardware
+from .serial_interface import SerialInterface
+from .tcp_interface import TCPInterface
+from .ble_interface import BLEInterface
+from . import test, remote_hardware
 from . import portnums_pb2, channel_pb2, mesh_pb2, radioconfig_pb2
 
 """We only import the tunnel code if we are on a platform that can run it"""
@@ -360,7 +363,7 @@ def onConnected(interface):
                 if 'owner' in configuration:
                     print(f"Setting device owner to {configuration['owner']}")
                     getNode().setOwner(configuration['owner'])
-                    
+
                 if 'channel_url' in configuration:
                     print("Setting channel url to", configuration['channel_url'])
                     getNode().setURL(configuration['channel_url'])
@@ -387,7 +390,7 @@ def onConnected(interface):
                     print("Setting device position")
                     interface.sendPosition(lat, lon, alt, time)
                     interface.localNode.writeConfig()
-                    
+
                 if 'user_prefs' in configuration:
                     prefs = getNode().radioConfig.preferences
                     for pref in configuration['user_prefs']:
@@ -428,14 +431,14 @@ def onConnected(interface):
             print(f"Deleting channel {channelIndex}")
             ch = getNode().deleteChannel(channelIndex)
 
-        if args.ch_set or args.ch_longslow or args.ch_longsfast or args.ch_mediumslow or args.ch_mediumsfast or args.ch_shortslow or args.ch_shortfast:
+        if args.ch_set or args.ch_longslow or args.ch_longfast or args.ch_mediumslow or args.ch_mediumfast or args.ch_shortslow or args.ch_shortfast:
             closeNow = True
 
             ch = getNode().channels[channelIndex]
 
             enable = args.ch_enable  # should we enable this channel?
 
-            if or args.ch_longslow or args.ch_longsfast or args.ch_mediumslow or args.ch_mediumsfast or args.ch_shortslow or args.ch_shortfast:
+            if args.ch_longslow or args.ch_longfast or args.ch_mediumslow or args.ch_mediumfast or args.ch_shortslow or args.ch_shortfast:
                 if channelIndex != 0:
                     raise Exception(
                         "standard channel settings can only be applied to the PRIMARY channel")
@@ -457,7 +460,7 @@ def onConnected(interface):
                     setSimpleChannel(
                         channel_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
 
-                if args.ch_longsfast:
+                if args.ch_longfast:
                     setSimpleChannel(
                         channel_pb2.ChannelSettings.ModemConfig.Bw31_25Cr48Sf512)
 
@@ -465,7 +468,7 @@ def onConnected(interface):
                     setSimpleChannel(
                         channel_pb2.ChannelSettings.ModemConfig.Bw250Cr46Sf2048)
 
-                if args.ch_mediumsfast:
+                if args.ch_mediumfast:
                     setSimpleChannel(
                         channel_pb2.ChannelSettings.ModemConfig.Bw250Cr47Sf1024)
 
@@ -684,10 +687,23 @@ def initParser():
         "--ch-set", help="Set a channel parameter", nargs=2, action='append')
 
     parser.add_argument(
-        "--ch-longslow", help="Change to the standard long-range (but slow) channel", action='store_true')
+        "--ch-longslow", help="Change to the long-range and slow channel", action='store_true')
 
     parser.add_argument(
-        "--ch-shortfast", help="Change to the standard fast (but short range) channel", action='store_true')
+        "--ch-longfast", help="Change to the long-range and fast channel", action='store_true')
+
+    parser.add_argument(
+        "--ch-mediumslow", help="Change to the medium-range and slow channel", action='store_true')
+
+    parser.add_argument(
+        "--ch-mediumfast", help="Change to the medium-range and fast channel", action='store_true')
+
+    parser.add_argument(
+        "--ch-shortslow", help="Change to the short-range and slow channel", action='store_true')
+
+    parser.add_argument(
+        "--ch-shortfast", help="Change to the short-range and fast channel", action='store_true')
+
 
     parser.add_argument(
         "--set-owner", help="Set device owner name", action="store")

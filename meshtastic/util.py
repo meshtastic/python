@@ -13,6 +13,22 @@ import serial.tools.list_ports
 blacklistVids = dict.fromkeys([0x1366])
 
 
+def pskToString(psk: bytes):
+    """Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string"""
+    if len(psk) == 0:
+        return "unencrypted"
+    elif len(psk) == 1:
+        b = psk[0]
+        if b == 0:
+            return "unencrypted"
+        elif b == 1:
+            return "default"
+        else:
+            return f"simple{b - 1}"
+    else:
+        return "secret"
+
+
 def stripnl(s):
     """remove newlines from a string (and remove extra whitespace)"""
     s = str(s).replace("\n", " ")
