@@ -171,11 +171,14 @@ class MeshInterface:
     def showInfo(self, file=sys.stdout):
         """Show human readable summary about this object"""
         owner = f"Owner: {self.getLongName()} ({self.getShortName()})"
-        myinfo = f"\nMy info: {stripnl(MessageToJson(self.myInfo))}"
+        myinfo = ''
+        if self.myInfo:
+            myinfo = f"\nMy info: {stripnl(MessageToJson(self.myInfo))}"
         mesh = "\nNodes in mesh:"
         nodes = ""
-        for n in self.nodes.values():
-            nodes = nodes + f"  {stripnl(n)}"
+        if self.nodes:
+            for n in self.nodes.values():
+                nodes = nodes + f"  {stripnl(n)}"
         infos = owner + myinfo + mesh + nodes
         print(infos)
         return infos
@@ -500,7 +503,7 @@ class MeshInterface:
     def _sendToRadio(self, toRadio):
         """Send a ToRadio protobuf to the device"""
         if self.noProto:
-            logging.warn(
+            logging.warning(
                 f"Not sending packet because protocol use is disabled by noProto")
         else:
             #logging.debug(f"Sending toRadio: {stripnl(toRadio)}")
@@ -643,11 +646,11 @@ class MeshInterface:
         try:
             asDict["fromId"] = self._nodeNumToId(asDict["from"])
         except Exception as ex:
-            logging.warn(f"Not populating fromId {ex}")
+            logging.warning(f"Not populating fromId {ex}")
         try:
             asDict["toId"] = self._nodeNumToId(asDict["to"])
         except Exception as ex:
-            logging.warn(f"Not populating toId {ex}")
+            logging.warning(f"Not populating toId {ex}")
 
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
         # asObj = DotMap(asDict)
@@ -893,7 +896,7 @@ class StreamInterface(MeshInterface):
                     pass
         except serial.SerialException as ex:
             if not self._wantExit:  # We might intentionally get an exception during shutdown
-                logging.warn(
+                logging.warning(
                     f"Meshtastic serial port disconnected, disconnecting... {ex}")
         except OSError as ex:
             if not self._wantExit:  # We might intentionally get an exception during shutdown

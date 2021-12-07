@@ -6,6 +6,7 @@ import platform
 import pytest
 
 from meshtastic.node import pskToString
+from meshtastic.__init__ import MeshInterface
 
 @pytest.mark.unit
 def test_pskToString_empty_string():
@@ -35,3 +36,12 @@ def test_pskToString_one_byte_non_zero_value():
 def test_pskToString_many_bytes():
     """Test pskToString many bytes"""
     assert pskToString(bytes([0x02, 0x01])) == 'secret'
+
+
+@pytest.mark.unit
+def test_MeshInterface():
+    """Test that we instantiate a MeshInterface"""
+    iface = MeshInterface(noProto=True)
+    iface.showInfo()
+    iface.localNode.showInfo()
+    iface.close()
