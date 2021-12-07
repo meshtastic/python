@@ -4,10 +4,12 @@ import traceback
 from queue import Queue
 import sys
 import time
+import platform
 import logging
 import threading
 import serial
 import serial.tools.list_ports
+import pkg_resources
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
@@ -111,3 +113,21 @@ class DeferredExecution():
                 logging.error(
                     f"Unexpected error in deferred execution {sys.exc_info()[0]}")
                 print(traceback.format_exc())
+
+def support_info():
+    """Print out info that is helping in support of the cli."""
+    print('If having issues with meshtastic cli or python library')
+    print('or wish to make feature requests, visit:')
+    print('https://github.com/meshtastic/Meshtastic-python/issues')
+    print('When adding an issue, be sure to include the following info:')
+    print(' System: {0}'.format(platform.system()))
+    print('   Platform: {0}'.format(platform.platform()))
+    print('   Release: {0}'.format(platform.uname().release))
+    print('   Machine: {0}'.format(platform.uname().machine))
+    print(' meshtastic: v{0}'.format(pkg_resources.require('meshtastic')[0].version))
+    print(' Executable: {0}'.format(sys.argv[0]))
+    print(' Python: {0} {1} {2}'.format(platform.python_version(),
+          platform.python_implementation(), platform.python_compiler()))
+    print('')
+    print('Please add the output from the command: meshtastic --info')
+    print('')
