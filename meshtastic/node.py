@@ -60,24 +60,7 @@ import base64
 from typing import *
 from google.protobuf.json_format import MessageToJson
 from . import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
-from .util import stripnl, Timeout
-
-
-
-def pskToString(psk: bytes):
-    """Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string"""
-    if len(psk) == 0:
-        return "unencrypted"
-    elif len(psk) == 1:
-        b = psk[0]
-        if b == 0:
-            return "unencrypted"
-        elif b == 1:
-            return "default"
-        else:
-            return f"simple{b - 1}"
-    else:
-        return "secret"
+from .util import pskToString, stripnl, Timeout
 
 
 class Node:
