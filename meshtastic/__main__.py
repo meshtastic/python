@@ -269,7 +269,7 @@ def onConnected(interface):
 
             fieldNames = []
             for bit in radioconfig_pb2.PositionFlags.values():
-                if (prefs.position_flags & bit):
+                if prefs.position_flags & bit:
                     fieldNames.append(radioconfig_pb2.PositionFlags.Name(bit))
             print(' '.join(fieldNames))
 
