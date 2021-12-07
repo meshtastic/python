@@ -428,14 +428,14 @@ def onConnected(interface):
             print(f"Deleting channel {channelIndex}")
             ch = getNode().deleteChannel(channelIndex)
 
-        if args.ch_set or args.ch_longslow or args.ch_shortfast:
+        if args.ch_set or args.ch_longslow or args.ch_longsfast or args.ch_mediumslow or args.ch_mediumsfast or args.ch_shortslow or args.ch_shortfast:
             closeNow = True
 
             ch = getNode().channels[channelIndex]
 
             enable = args.ch_enable  # should we enable this channel?
 
-            if args.ch_longslow or args.ch_shortfast:
+            if or args.ch_longslow or args.ch_longsfast or args.ch_mediumslow or args.ch_mediumsfast or args.ch_shortslow or args.ch_shortfast:
                 if channelIndex != 0:
                     raise Exception(
                         "standard channel settings can only be applied to the PRIMARY channel")
@@ -456,6 +456,22 @@ def onConnected(interface):
                 if args.ch_longslow:
                     setSimpleChannel(
                         channel_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
+
+                if args.ch_longsfast:
+                    setSimpleChannel(
+                        channel_pb2.ChannelSettings.ModemConfig.Bw31_25Cr48Sf512)
+
+                if args.ch_mediumslow:
+                    setSimpleChannel(
+                        channel_pb2.ChannelSettings.ModemConfig.Bw250Cr46Sf2048)
+
+                if args.ch_mediumsfast:
+                    setSimpleChannel(
+                        channel_pb2.ChannelSettings.ModemConfig.Bw250Cr47Sf1024)
+
+                if args.ch_shortslow:
+                    setSimpleChannel(
+                        channel_pb2.ChannelSettings.ModemConfig.Bw125Cr45Sf128)
 
                 if args.ch_shortfast:
                     setSimpleChannel(
