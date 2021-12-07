@@ -189,12 +189,12 @@ def test_smoke1_set_team():
     assert re.search(r'^Setting team to CLEAR', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(PAUSE_AFTER_COMMAND)
+    time.sleep(PAUSE_AFTER_REBOOT)
     return_value, out = subprocess.getstatusoutput('meshtastic --set-team CYAN')
     assert re.search(r'Setting team to CYAN', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
-    time.sleep(PAUSE_AFTER_COMMAND)
+    time.sleep(PAUSE_AFTER_REBOOT)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert re.search(r'CYAN', out, re.MULTILINE)
     assert return_value == 0
@@ -324,9 +324,10 @@ def test_smoke1_seturl_invalid_url():
     """Test --seturl with invalid url"""
     # Note: This url is no longer a valid url.
     url = "https://www.meshtastic.org/c/#GAMiENTxuzogKQdZ8Lz_q89Oab8qB0RlZmF1bHQ="
-    _, out = subprocess.getstatusoutput(f"meshtastic --seturl {url}")
+    return_value, out = subprocess.getstatusoutput(f"meshtastic --seturl {url}")
     assert re.match(r'Connected to radio', out)
-    assert re.search('Aborting', out, re.MULTILINE)
+    assert re.search('Warning: There were no settings', out, re.MULTILINE)
+    assert return_value == 1
 
 
 @pytest.mark.smoke1
