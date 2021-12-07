@@ -136,23 +136,18 @@ class Node:
     def deleteChannel(self, channelIndex):
         """Delete the specifed channelIndex and shift other channels up"""
         ch = self.channels[channelIndex]
-        print('ch:', ch, ' channelIndex:', channelIndex)
         if ch.role != channel_pb2.Channel.Role.SECONDARY:
             raise Exception("Only SECONDARY channels can be deleted")
 
         # we are careful here because if we move the "admin" channel the channelIndex we need to use
         # for sending admin channels will also change
         adminIndex = self.iface.localNode._getAdminChannelIndex()
-        print('adminIndex:', adminIndex)
 
         self.channels.pop(channelIndex)
-        print('channelIndex:', channelIndex)
         self._fixupChannels()  # expand back to 8 channels
 
         index = channelIndex
-        print('max_channels:', self.iface.myInfo.max_channels)
         while index < self.iface.myInfo.max_channels:
-            print('index:', index)
             self.writeChannel(index, adminIndex=adminIndex)
             index += 1
 

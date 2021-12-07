@@ -187,12 +187,45 @@ pip3 install .
 pytest
 ```
 Possible options for testing:
-* For more verbosity, add "-v" or even "-vv" like this: pytest -vv
-* To run just unit tests: pytest -munit
-* To run just integration tests: pytest -mint
-* To run a smoke test with only one device connected serially: pytest -msmoke1
-  CAUTION: Running smoke1 will reset values on the device.
-           Be sure to hit the button on the device to reset after the test is run.
-* To run a specific test: pytest -msmoke1 meshtastic/test/test_smoke1.py::test_smoke1_info
-* To add another classification of tests, then look in pytest.ini
-* To see the unit test code coverage: pytest --cov=meshtastic
+* For more verbosity, add "-v" or even "-vv" like this:
+
+```
+pytest -vv
+```
+
+* To run just unit tests:
+
+```
+pytest
+# or (more verbosely)
+pytest -m unit
+```
+
+* To run just integration tests:
+
+```
+pytest -m int
+```
+
+* To run the smoke test with only one device connected serially:
+
+```
+pytest -m smoke1
+```
+
+CAUTION: Running smoke1 will reset values on the device, including the region to 1 (US).
+Be sure to hit the reset button on the device after the test is completed.
+
+* To run a specific test:
+
+```
+pytest -msmoke1 meshtastic/test/test_smoke1.py::test_smoke1_info
+```
+
+* To add another classification of tests such as "unit" or "smoke1", see [pytest.ini](pytest.ini).
+
+* To see the unit test code coverage:
+
+```
+pytest --cov=meshtastic
+```
