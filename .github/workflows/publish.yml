@@ -9,6 +9,7 @@ on:
 
 jobs:
   build:
+# TODO: when working, try adding this
 #    if: startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     steps:
@@ -25,6 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip3 install -r requirements.txt
           pip3 install pdoc3 pygatt pandoc twine nanopb
+# TODO: gen docs
 #      - name: Generate docs
 #        run: |
 #          rm -f dist/*
