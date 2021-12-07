@@ -19,10 +19,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip3 install -r requirements.txt
       - name: Install meshtastic from local
         run: |
-          pip install -e .
+          pip3 install .
+          which meshtastic
           meshtastic --version
       - name: Run pylint
         run: pylint --exit-zero meshtastic
