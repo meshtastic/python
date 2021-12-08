@@ -35,6 +35,7 @@ jobs:
 #          bin/regen-docs.sh
 #          pandoc --from=markdown --to=rst --output=README README.md
 #
+#
       - name: Install pypa/build
         run: >-
           python -m
@@ -52,5 +53,5 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:
-          username: 9d28283a-af13-4a91-8a62-cd79d66695e0
+          user: 9d28283a-af13-4a91-8a62-cd79d66695e0
           password: ${{ secrets.PYPI_API_TOKEN }}
