@@ -373,6 +373,8 @@ def test_smoke1_seturl_invalid_url():
     assert re.match(r'Connected to radio', out)
     assert re.search('Warning: There were no settings', out, re.MULTILINE)
     assert return_value == 1
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
 
 
 @pytest.mark.smoke1
@@ -391,6 +393,8 @@ def test_smoke1_configure():
     assert re.search('^Set screen_on_secs to 31536000', out, re.MULTILINE)
     assert re.search('^Set wait_bluetooth_secs to 31536000', out, re.MULTILINE)
     assert re.search('^Writing modified preferences to device', out, re.MULTILINE)
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_REBOOT)
 
 
 @pytest.mark.smoke1

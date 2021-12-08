@@ -163,7 +163,8 @@ def setPref(attributes, name, valStr):
     val = fromStr(valStr)
 
     enumType = field.enum_type
-    if enumType and isinstance(val) == str:
+    # pylint: disable=C0123
+    if enumType and type(val) == str:
         # We've failed so far to convert this string into an enum, try to find it by reflection
         e = enumType.values_by_name.get(val)
         if e:
