@@ -19,5 +19,5 @@ def test_smoke2_test():
     return_value, out = subprocess.getstatusoutput('meshtastic --test')
     assert re.search(r'Writing serial debugging', out, re.MULTILINE)
     assert re.search(r'Ports opened', out, re.MULTILINE)
-    assert re.search(r'Running 50 tests', out, re.MULTILINE)
+    assert re.search(r'Running 5 tests', out, re.MULTILINE)
     assert return_value == 0
