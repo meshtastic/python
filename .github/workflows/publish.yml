@@ -49,7 +49,7 @@ jobs:
           --outdir dist/
           .
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: 665c780b-2521-40fd-958a-8905d1a731b0
           password: ${{ secrets.PYPI_API_TOKEN }}
