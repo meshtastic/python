@@ -220,6 +220,10 @@ Be sure to hit the reset button on the device after the test is completed.
 
 ```
 pytest -msmoke1 meshtastic/test/test_smoke1.py::test_smoke1_info
+# or to run a specific smoke2 test
+pytest -m smoke2 meshtastic/test/test_smoke2.py::test_smoke2_info
+# or to run a specific smoke_wifi test
+pytest -m smokewifi meshtastic/test/test_smoke_wifi.py::test_smokewifi_info
 ```
 
 * To add another classification of tests such as "unit" or "smoke1", see [pytest.ini](pytest.ini).

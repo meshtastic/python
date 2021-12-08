@@ -1,4 +1,4 @@
-"""Meshtastic smoke tests with a single device"""
+"""Meshtastic smoke tests with a single device via USB"""
 import re
 import subprocess
 import time
@@ -37,6 +37,25 @@ def test_smoke1_info():
     assert re.search(r'^  PRIMARY', out, re.MULTILINE)
     assert re.search(r'^Primary channel URL', out, re.MULTILINE)
     assert return_value == 0
+
+
+@pytest.mark.smoke1
+def test_smoke1_sendping():
+    """Test --sendping"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --sendping')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'^Sending ping message', out, re.MULTILINE)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
+def test_smoke1_test():
+    """Test --test
+       Note: Since only one device is connected, it will not do much.
+    """
+    return_value, out = subprocess.getstatusoutput('meshtastic --test')
+    assert re.search(r'^Warning: Must have at least two devices', out, re.MULTILINE)
+    assert return_value == 1
 
 
 @pytest.mark.smoke1

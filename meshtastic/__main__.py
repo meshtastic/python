@@ -599,7 +599,9 @@ def common():
             parser.print_help(sys.stderr)
             sys.exit(1)
         elif args.test:
-            test.testAll()
+            result = test.testAll()
+            if not result:
+                our_exit("Warning: Test was not successful.")
         else:
             if args.seriallog == "stdout":
                 logfile = sys.stdout

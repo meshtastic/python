@@ -1,4 +1,5 @@
-""" Testing
+""" With two radios connected serially, send and receive test
+    messages and report back if successful.
 """
 import logging
 import time
@@ -10,6 +11,7 @@ from . import util
 from .__init__ import BROADCAST_NUM
 from .serial_interface import SerialInterface
 from .tcp_interface import TCPInterface
+from .util import our_exit
 
 """The interfaces we are using for our tests"""
 interfaces = None
@@ -107,25 +109,23 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
             logging.info(
                 f"Test {testNumber} succeeded {numSuccess} successes {numFail} failures so far")
 
-        # if numFail >= 3:
-        #    for i in interfaces:
-        #        i.close()
-        #    return
-
         time.sleep(1)
 
     if numFail > maxFailures:
         logging.error("Too many failures! Test failed!")
+        return False
+    return True
 
-    return numFail
 
-
-def testThread(numTests=50):
+def testThread(numTests=5):
     """Test thread"""
     logging.info("Found devices, starting tests...")
-    runTests(numTests, wantAck=True)
-    # Allow a few dropped packets
-    runTests(numTests, wantAck=False, maxFailures=5)
+    result = runTests(numTests, wantAck=True)
+    if result:
+        # Run another test
+        # Allow a few dropped packets
+        result = runTests(numTests, wantAck=False, maxFailures=1)
+    return result
 
 
 def onConnection(topic=pub.AUTO_TOPIC):
@@ -143,13 +143,12 @@ def openDebugLog(portName):
 def testAll():
     """
     Run a series of tests using devices we can find.
+    This is called from the cli with the "--test" option.
 
-    Raises:
-        Exception: If not enough devices are found
     """
     ports = util.findPorts()
     if len(ports) < 2:
-        raise Exception("Must have at least two devices connected to USB")
+        our_exit("Warning: Must have at least two devices connected to USB.")
 
     pub.subscribe(onConnection, "meshtastic.connection")
     pub.subscribe(onReceive, "meshtastic.receive")
@@ -158,10 +157,12 @@ def testAll():
         port, debugOut=openDebugLog(port), connectNow=True), ports))
 
     logging.info("Ports opened, starting test")
-    testThread()
+    result = testThread()
 
     for i in interfaces:
         i.close()
+
+    return result
 
 
 def testSimulator():
