@@ -16,7 +16,7 @@ def test_smoke2_info():
 @pytest.mark.smoke2
 def test_smoke2_test():
     """Test --test"""
-    return_value, out = subprocess.getstatusoutput('meshtastic --test')
+    return_value, out = subprocess.getstatusoutput('meshtastic --test 5')
     assert re.search(r'Writing serial debugging', out, re.MULTILINE)
     assert re.search(r'Ports opened', out, re.MULTILINE)
     assert re.search(r'Running 5 tests', out, re.MULTILINE)

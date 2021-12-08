@@ -1,8 +1,20 @@
 """Meshtastic unit tests for node.py"""
 
+import re
+
 import pytest
 
-from meshtastic.util import pskToString, our_exit
+from meshtastic.util import fixme, stripnl, pskToString, our_exit, support_info
+
+
+@pytest.mark.unit
+def test_stripnl():
+    """Test stripnl"""
+    assert stripnl('') == ''
+    assert stripnl('a\n') == 'a'
+    assert stripnl(' a \n ') == 'a'
+    assert stripnl('a\nb') == 'a b'
+
 
 @pytest.mark.unit
 def test_pskToString_empty_string():
@@ -50,3 +62,23 @@ def test_our_exit_non_zero_return_value():
         our_exit("Error: Some message", 1)
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+def test_fixme():
+    """Test fixme"""
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        fixme("some exception")
+    assert pytest_wrapped_e.type == Exception
+
+
+@pytest.mark.unit
+def test_support_info(capsys):
+    """Test support_info"""
+    support_info()
+    out, err = capsys.readouterr()
+    assert re.search(r'System', out, re.MULTILINE)
+    assert re.search(r'Platform', out, re.MULTILINE)
+    assert re.search(r'Machine', out, re.MULTILINE)
+    assert re.search(r'Executable', out, re.MULTILINE)
+    assert err == ''
