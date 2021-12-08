@@ -49,6 +49,23 @@ def test_smoke1_sendping():
 
 
 @pytest.mark.smoke1
+def test_smoke1_pos_fields():
+    """Test --pos-fields (with some values POS_ALTITUDE POS_ALT_MSL POS_BATTERY)"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --pos-fields POS_ALTITUDE POS_ALT_MSL POS_BATTERY')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'^Setting position fields to 35', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --pos-fields')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'POS_ALTITUDE', out, re.MULTILINE)
+    assert re.search(r'POS_ALT_MSL', out, re.MULTILINE)
+    assert re.search(r'POS_BATTERY', out, re.MULTILINE)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
 def test_smoke1_test():
     """Test --test
        Note: Since only one device is connected, it will not do much.
@@ -365,6 +382,21 @@ def test_smoke1_configure():
     assert re.search('^Set screen_on_secs to 31536000', out, re.MULTILINE)
     assert re.search('^Set wait_bluetooth_secs to 31536000', out, re.MULTILINE)
     assert re.search('^Writing modified preferences to device', out, re.MULTILINE)
+
+
+@pytest.mark.smoke1
+def test_smoke1_set_ham():
+    """Test --set-ham
+       Note: Do a factory reset after this setting so it is very short-lived.
+    """
+    return_value, out = subprocess.getstatusoutput('meshtastic --set-ham KI1234')
+    assert re.search(r'Setting HAM ID', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_REBOOT)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.search(r'Owner: KI1234', out, re.MULTILINE)
+    assert return_value == 0
 
 
 @pytest.mark.smoke1

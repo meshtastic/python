@@ -763,7 +763,7 @@ def initParser():
         "--setlon", help="Set device longitude (allows use without GPS)")
 
     parser.add_argument(
-        "--pos-fields", help="Specify position message fields (? for more info)",
+        "--pos-fields", help="Specify position message fields. Use '0' for list of valid values. Can pass multiple values as a space separated list like this: '--pos-fields POS_ALTITUDE POS_ALT_MSL'",
         nargs="*", action="store")
 
     parser.add_argument("--debug", help="Show API library debug log messages",
