@@ -75,8 +75,11 @@ class StreamInterface(MeshInterface):
         MeshInterface._disconnected(self)
 
         logging.debug("Closing our port")
+        # pylint: disable=E0203
         if not self.stream is None:
+            # pylint: disable=E0203
             self.stream.close()
+            # pylint: disable=W0201
             self.stream = None
 
     def _writeBytes(self, b):

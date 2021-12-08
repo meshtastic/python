@@ -18,6 +18,9 @@
 import logging
 import threading
 from pubsub import pub
+
+from pytap2 import TapDevice
+
 from . import portnums_pb2
 
 # A new non standard log level that is lower level than DEBUG
@@ -98,7 +101,6 @@ class Tunnel:
 
         logging.debug("creating TUN device with MTU=200")
         # FIXME - figure out real max MTU, it should be 240 - the overhead bytes for SubPacket and Data
-        from pytap2 import TapDevice
         self.tun = TapDevice(name="mesh")
         self.tun.up()
         self.tun.ifconfig(address=myAddr, netmask=netmask, mtu=200)
@@ -108,6 +110,7 @@ class Tunnel:
         self._rxThread.start()
 
     def onReceive(self, packet):
+        """onReceive"""
         p = packet["decoded"]["payload"]
         if packet["from"] == self.iface.myInfo.my_node_num:
             logging.debug("Ignoring message we sent")
@@ -206,4 +209,5 @@ class Tunnel:
                 f"Dropping packet because no node found for destIP={ipstr(destAddr)}")
 
     def close(self):
+        """Close"""
         self.tun.close()

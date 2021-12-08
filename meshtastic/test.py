@@ -137,7 +137,7 @@ def openDebugLog(portName):
     """Open the debug log file"""
     debugname = "log" + portName.replace("/", "_")
     logging.info(f"Writing serial debugging to {debugname}")
-    return open(debugname, 'w+', buffering=1)
+    return open(debugname, 'w+', buffering=1, encoding='utf8')
 
 
 def testAll(numTests=50):
@@ -174,7 +174,7 @@ def testSimulator():
     Run with
     python3 -c 'from meshtastic.test import testSimulator; testSimulator()'
     """
-    logging.basicConfig(level=logging.DEBUG if False else logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logging.info("Connecting to simulator on localhost!")
     try:
         iface = TCPInterface("localhost")
