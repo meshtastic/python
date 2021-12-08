@@ -66,11 +66,20 @@ def test_smoke1_pos_fields():
 
 
 @pytest.mark.smoke1
-def test_smoke1_test():
+def test_smoke1_test_no_arg():
+    """Test --test
+       Note: Test without arg.
+    """
+    return_value, _ = subprocess.getstatusoutput('meshtastic --test')
+    assert return_value == 2
+
+
+@pytest.mark.smoke1
+def test_smoke1_test_with_arg_but_no_hardware():
     """Test --test
        Note: Since only one device is connected, it will not do much.
     """
-    return_value, out = subprocess.getstatusoutput('meshtastic --test')
+    return_value, out = subprocess.getstatusoutput('meshtastic --test 5')
     assert re.search(r'^Warning: Must have at least two devices', out, re.MULTILINE)
     assert return_value == 1
 
