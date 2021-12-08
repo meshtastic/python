@@ -53,6 +53,8 @@ class MeshInterface:
         self.heartbeatTimer = None
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
+        self.nodesByNum = None
+        self.configId = None
 
     def close(self):
         """Shutdown this interface"""
@@ -540,12 +542,12 @@ class MeshInterface:
         asDict["raw"] = meshPacket
 
         # from might be missing if the nodenum was zero.
-        if not "from" in asDict:
+        if "from" not in asDict:
             asDict["from"] = 0
             logging.error(
                 f"Device returned a packet we sent, ignoring: {stripnl(asDict)}")
             return
-        if not "to" in asDict:
+        if "to" not in asDict:
             asDict["to"] = 0
 
         # /add fromId and toId fields based on the node ID

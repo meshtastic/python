@@ -17,6 +17,7 @@ from .tcp_interface import TCPInterface
 from .ble_interface import BLEInterface
 from . import test, remote_hardware
 from . import portnums_pb2, channel_pb2, mesh_pb2, radioconfig_pb2
+from . import tunnel
 from .util import support_info, our_exit
 
 """We only import the tunnel code if we are on a platform that can run it"""
@@ -162,6 +163,7 @@ def setPref(attributes, name, valStr):
     val = fromStr(valStr)
 
     enumType = field.enum_type
+    # pylint: disable=C0123
     if enumType and type(val) == str:
         # We've failed so far to convert this string into an enum, try to find it by reflection
         e = enumType.values_by_name.get(val)
@@ -212,7 +214,7 @@ def onConnected(interface):
             alt = 0
             lat = 0.0
             lon = 0.0
-            time = 0  # always set time, but based on the local clock
+            timeval = 0  # always set time, but based on the local clock
             prefs = interface.localNode.radioConfig.preferences
             if args.setalt:
                 alt = int(args.setalt)
@@ -229,7 +231,7 @@ def onConnected(interface):
 
             print("Setting device position")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
-            interface.sendPosition(lat, lon, alt, time)
+            interface.sendPosition(lat, lon, alt, timeval)
             interface.localNode.writeConfig()
         elif not args.no_time:
             # We normally provide a current time to the mesh when we connect
@@ -358,7 +360,7 @@ def onConnected(interface):
             getNode().writeConfig()
 
         if args.configure:
-            with open(args.configure[0]) as file:
+            with open(args.configure[0], encoding='utf8') as file:
                 configuration = yaml.safe_load(file)
                 closeNow = True
 
@@ -374,7 +376,7 @@ def onConnected(interface):
                     alt = 0
                     lat = 0.0
                     lon = 0.0
-                    time = 0  # always set time, but based on the local clock
+                    timeval = 0  # always set time, but based on the local clock
                     prefs = interface.localNode.radioConfig.preferences
 
                     if 'alt' in configuration['location']:
@@ -390,7 +392,7 @@ def onConnected(interface):
                         prefs.fixed_position = True
                         print(f"Fixing longitude at {lon} degrees")
                     print("Setting device position")
-                    interface.sendPosition(lat, lon, alt, time)
+                    interface.sendPosition(lat, lon, alt, timeval)
                     interface.localNode.writeConfig()
 
                 if 'user_prefs' in configuration:
@@ -531,7 +533,6 @@ def onConnected(interface):
             print(qr.terminal())
 
         if have_tunnel and args.tunnel:
-            from . import tunnel
             # Even if others said we could close, stay open if the user asked for a tunnel
             closeNow = False
             tunnel.Tunnel(interface, subnet=args.tunnel_net)
@@ -598,8 +599,9 @@ def common():
                 'This option has been deprecated, see help below for the correct replacement...')
             parser.print_help(sys.stderr)
             sys.exit(1)
-        elif args.test:
-            result = test.testAll()
+        elif args.numTests:
+            numTests = int(args.numTests[0])
+            result = test.testAll(numTests)
             if not result:
                 our_exit("Warning: Test was not successful.")
         else:
@@ -611,8 +613,10 @@ def common():
                 logfile = None
             else:
                 logging.info(f"Logging serial output to {args.seriallog}")
+                # Note: using "line buffering"
+                # pylint: disable=R1732
                 logfile = open(args.seriallog, 'w+',
-                               buffering=1)  # line buffering
+                               buffering=1, encoding='utf8')
 
             subscribe()
             if args.ble:
@@ -763,14 +767,16 @@ def initParser():
         "--setlon", help="Set device longitude (allows use without GPS)")
 
     parser.add_argument(
-        "--pos-fields", help="Specify position message fields. Use '0' for list of valid values. Can pass multiple values as a space separated list like this: '--pos-fields POS_ALTITUDE POS_ALT_MSL'",
+        "--pos-fields", help="Specify position message fields. Use '0' for list of valid values. "\
+                             "Can pass multiple values as a space separated list like "\
+                             "this: '--pos-fields POS_ALTITUDE POS_ALT_MSL'",
         nargs="*", action="store")
 
     parser.add_argument("--debug", help="Show API library debug log messages",
                         action="store_true")
 
     parser.add_argument("--test", help="Run stress test against all connected Meshtastic devices",
-                        action="store_true")
+                        nargs=1, dest='numTests', action="store")
 
     parser.add_argument("--ble", help="BLE mac address to connect to (BLE is not yet supported for this tool)",
                         default=None)

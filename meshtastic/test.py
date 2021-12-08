@@ -117,7 +117,7 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
     return True
 
 
-def testThread(numTests=5):
+def testThread(numTests=50):
     """Test thread"""
     logging.info("Found devices, starting tests...")
     result = runTests(numTests, wantAck=True)
@@ -137,10 +137,10 @@ def openDebugLog(portName):
     """Open the debug log file"""
     debugname = "log" + portName.replace("/", "_")
     logging.info(f"Writing serial debugging to {debugname}")
-    return open(debugname, 'w+', buffering=1)
+    return open(debugname, 'w+', buffering=1, encoding='utf8')
 
 
-def testAll():
+def testAll(numTests=50):
     """
     Run a series of tests using devices we can find.
     This is called from the cli with the "--test" option.
@@ -157,7 +157,7 @@ def testAll():
         port, debugOut=openDebugLog(port), connectNow=True), ports))
 
     logging.info("Ports opened, starting test")
-    result = testThread()
+    result = testThread(numTests)
 
     for i in interfaces:
         i.close()
@@ -174,7 +174,7 @@ def testSimulator():
     Run with
     python3 -c 'from meshtastic.test import testSimulator; testSimulator()'
     """
-    logging.basicConfig(level=logging.DEBUG if False else logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logging.info("Connecting to simulator on localhost!")
     try:
         iface = TCPInterface("localhost")

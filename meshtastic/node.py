@@ -21,6 +21,7 @@ class Node:
         self.radioConfig = None
         self.channels = None
         self._timeout = Timeout(maxSecs=60)
+        self.partialChannels = None
 
     def showChannels(self):
         """Show human readable description of our channels"""
@@ -165,8 +166,8 @@ class Node:
             for c in self.channels:
                 if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
                     channelSet.settings.append(c.settings)
-        bytes = channelSet.SerializeToString()
-        s = base64.urlsafe_b64encode(bytes).decode('ascii')
+        some_bytes = channelSet.SerializeToString()
+        s = base64.urlsafe_b64encode(some_bytes).decode('ascii')
         return f"https://www.meshtastic.org/d/#{s}".replace("=", "")
 
     def setURL(self, url):
