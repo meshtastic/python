@@ -48,7 +48,8 @@ jobs:
           --sdist
           --wheel
           --outdir dist/
+          .
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:
-          password: ${{ secrets.pypi_api_token }}
+          password: ${{ secrets.PYPI_API_TOKEN }}
