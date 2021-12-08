@@ -48,9 +48,10 @@ jobs:
           --wheel
           --outdir dist/
           .
+          twine upload dist/*
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: 665c780b-2521-40fd-958a-8905d1a731b0
+          user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
           verbose: true
