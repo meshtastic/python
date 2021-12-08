@@ -207,7 +207,7 @@ pytest -m unit
 pytest -m int
 ```
 
-* To run the smoke test with only one device connected serially:
+* To run the smoke test with only one device connected serially (aka smoke1):
 
 ```
 pytest -m smoke1
@@ -216,10 +216,26 @@ pytest -m smoke1
 CAUTION: Running smoke1 will reset values on the device, including the region to 1 (US).
 Be sure to hit the reset button on the device after the test is completed.
 
+* To run the smoke test with only two device connected serially (aka smoke2):
+
+```
+pytest -m smoke2
+```
+
+* To run the wifi smoke test:
+
+```
+pytest -m smokewifi
+```
+
 * To run a specific test:
 
 ```
 pytest -msmoke1 meshtastic/test/test_smoke1.py::test_smoke1_info
+# or to run a specific smoke2 test
+pytest -m smoke2 meshtastic/test/test_smoke2.py::test_smoke2_info
+# or to run a specific smoke_wifi test
+pytest -m smokewifi meshtastic/test/test_smoke_wifi.py::test_smokewifi_info
 ```
 
 * To add another classification of tests such as "unit" or "smoke1", see [pytest.ini](pytest.ini).
