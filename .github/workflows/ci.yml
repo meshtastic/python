@@ -29,6 +29,6 @@ jobs:
           which meshtastic
           meshtastic --version
       - name: Run pylint
-        run: pylint --exit-zero meshtastic
+        run: pylint meshtastic
       - name: Run tests with pytest
         run: pytest --cov=meshtastic
