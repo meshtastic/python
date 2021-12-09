@@ -2,6 +2,7 @@
 """
 import traceback
 from queue import Queue
+import os
 import sys
 import time
 import platform
@@ -13,6 +14,55 @@ import pkg_resources
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
+
+
+def genPSK256():
+    """Generate a random preshared key"""
+    return os.urandom(32)
+
+
+def fromPSK(valstr):
+    """A special version of fromStr that assumes the user is trying to set a PSK.
+    In that case we also allow "none", "default" or "random" (to have python generate one), or simpleN
+    """
+    if valstr == "random":
+        return genPSK256()
+    elif valstr == "none":
+        return bytes([0])  # Use the 'no encryption' PSK
+    elif valstr == "default":
+        return bytes([1])  # Use default channel psk
+    elif valstr.startswith("simple"):
+        # Use one of the single byte encodings
+        return bytes([int(valstr[6:]) + 1])
+    else:
+        return fromStr(valstr)
+
+
+def fromStr(valstr):
+    """try to parse as int, float or bool (and fallback to a string as last resort)
+    Returns: an int, bool, float, str or byte array (for strings of hex digits)
+
+    Args:
+        valstr (string): A user provided string
+    """
+    if len(valstr) == 0:  # Treat an emptystring as an empty bytes
+        val = bytes()
+    elif valstr.startswith('0x'):
+        # if needed convert to string with asBytes.decode('utf-8')
+        val = bytes.fromhex(valstr[2:])
+    elif valstr.lower() in {"t", "true", "yes"}:
+        val = True
+    elif valstr.lower() in {"f", "false", "no"}:
+        val = False
+    else:
+        try:
+            val = int(valstr)
+        except ValueError:
+            try:
+                val = float(valstr)
+            except ValueError:
+                val = valstr  # Not a float or an int, assume string
+    return val
 
 
 def pskToString(psk: bytes):
