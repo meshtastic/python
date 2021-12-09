@@ -5,7 +5,7 @@ import re
 from unittest.mock import patch
 import pytest
 
-from meshtastic.tcp_interface import TCPInterface
+from ..tcp_interface import TCPInterface
 
 
 @pytest.mark.unit

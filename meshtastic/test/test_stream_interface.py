@@ -3,7 +3,7 @@
 
 import pytest
 
-from meshtastic.stream_interface import StreamInterface
+from ..stream_interface import StreamInterface
 
 
 @pytest.mark.unit

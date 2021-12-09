@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from meshtastic.mesh_interface import MeshInterface
+from ..mesh_interface import MeshInterface
 
 
 @pytest.mark.unit
