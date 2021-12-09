@@ -244,4 +244,6 @@ pytest -m smokewifi meshtastic/test/test_smoke_wifi.py::test_smokewifi_info
 
 ```
 pytest --cov=meshtastic
+# or if want html coverage report
+pytest --cov-report html --cov=meshtastic
 ```

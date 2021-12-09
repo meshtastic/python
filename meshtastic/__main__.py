@@ -23,17 +23,43 @@ from .util import support_info, our_exit
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
 
-"""The command line arguments"""
-args = None
-
-"""The parser for arguments"""
-parser = argparse.ArgumentParser()
-
 channelIndex = 0
+
+class Settings:
+    """Settings class is a Singleton."""
+    __instance = None
+    @staticmethod
+    def getInstance():
+        """Get an instance of the Settings class."""
+        if Settings.__instance is None:
+            Settings()
+        return Settings.__instance
+    def __init__(self):
+        """Constructor for the Settings CLass"""
+        if Settings.__instance is not None:
+            raise Exception("This class is a singleton")
+        else:
+            Settings.__instance = self
+        self.args = None
+        self.parser = None
+    def set_args(self, args):
+        """Set the args"""
+        self.args = args
+    def set_parser(self, parser):
+        """Set the parser"""
+        self.parser = parser
+    def get_args(self):
+        """Get args"""
+        return self.args
+    def get_parser(self):
+        """Get parser"""
+        return self.parser
 
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
+    settings = Settings.getInstance()
+    args = settings.get_args()
     try:
         d = packet.get('decoded')
 
@@ -197,7 +223,8 @@ def onConnected(interface):
     """Callback invoked when we connect to a radio"""
     closeNow = False  # Should we drop the connection after we finish?
     try:
-        global args
+        settings = Settings.getInstance()
+        args = settings.get_args()
 
         print("Connected to radio")
 
@@ -564,7 +591,9 @@ def subscribe():
 
 def common():
     """Shared code for all of our command line wrappers"""
-    global args
+    settings = Settings.getInstance()
+    args = settings.get_args()
+    parser = settings.get_parser()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
     if len(sys.argv) == 1:
@@ -641,7 +670,9 @@ def common():
 
 def initParser():
     """ Initialize the command line argument parsing."""
-    global parser, args
+    settings = Settings.getInstance()
+    parser = settings.get_parser()
+    args = settings.get_args()
 
     parser.add_argument(
         "--configure",
@@ -806,19 +837,28 @@ def initParser():
         "--support", action='store_true', help="Show support info (useful when troubleshooting an issue)")
 
     args = parser.parse_args()
+    settings.set_args(args)
+    settings.set_parser(parser)
 
 
 def main():
     """Perform command line meshtastic operations"""
+    settings = Settings.getInstance()
+    parser = argparse.ArgumentParser()
+    settings.set_parser(parser)
     initParser()
     common()
 
 
 def tunnelMain():
     """Run a meshtastic IP tunnel"""
-    global args
+    settings = Settings.getInstance()
+    parser = argparse.ArgumentParser()
+    settings.set_parser(parser)
     initParser()
+    args = settings.get_args()
     args.tunnel = True
+    settings.set_args(args)
     common()
 
 
