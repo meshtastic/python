@@ -1,4 +1,4 @@
-"""Meshtastic unit tests for node.py"""
+"""Meshtastic unit tests for mesh_interface.py"""
 
 import re
 
@@ -9,7 +9,7 @@ from meshtastic.mesh_interface import MeshInterface
 
 @pytest.mark.unit
 def test_MeshInterface(capsys):
-    """Test that we instantiate a MeshInterface"""
+    """Test that we can instantiate a MeshInterface"""
     iface = MeshInterface(noProto=True)
     iface.showInfo()
     iface.localNode.showInfo()

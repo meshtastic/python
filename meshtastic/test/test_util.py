@@ -1,4 +1,4 @@
-"""Meshtastic unit tests for node.py"""
+"""Meshtastic unit tests for util.py"""
 
 import re
 
