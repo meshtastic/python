@@ -23,8 +23,6 @@ from .globals import Globals
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
 
-channelIndex = 0
-
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -131,9 +129,6 @@ def setPref(attributes, name, valStr):
         print(f"Can't set {name} due to {ex}")
 
 
-targetNode = None
-
-
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
     closeNow = False  # Should we drop the connection after we finish?
@@ -145,9 +140,10 @@ def onConnected(interface):
 
         def getNode():
             """This operation could be expensive, so we try to cache the results"""
-            global targetNode
+            targetNode = our_globals.get_target_node()
             if not targetNode:
                 targetNode = interface.getNode(args.destOrLocal)
+                our_globals.set_target_node(targetNode)
             return targetNode
 
         if args.setlat or args.setlon or args.setalt:
@@ -374,12 +370,14 @@ def onConnected(interface):
         if args.ch_del:
             closeNow = True
 
+            channelIndex = our_globals.get_channel_index()
             print(f"Deleting channel {channelIndex}")
             ch = getNode().deleteChannel(channelIndex)
 
         if args.ch_set or args.ch_longslow or args.ch_longfast or args.ch_mediumslow or args.ch_mediumfast or args.ch_shortslow or args.ch_shortfast:
             closeNow = True
 
+            channelIndex = our_globals.get_channel_index()
             ch = getNode().channels[channelIndex]
 
             enable = args.ch_enable  # should we enable this channel?
@@ -521,8 +519,8 @@ def common():
             sys.exit(0)
 
         if args.ch_index is not None:
-            global channelIndex
             channelIndex = int(args.ch_index)
+            our_globals.set_channel_index(channelIndex)
 
         # Some commands require dest to be set, so we now use destOrAll/destOrLocal for more lenient commands
         if not args.dest:
