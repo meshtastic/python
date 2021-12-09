@@ -8,7 +8,7 @@ import os
 # sense to pause for the radio at apprpriate times
 import pytest
 
-import meshtastic
+from ..util import findPorts
 
 # seconds to pause after running a meshtastic command
 PAUSE_AFTER_COMMAND = 2
@@ -143,7 +143,7 @@ def test_smoke1_send_hello():
 def test_smoke1_port():
     """Test --port"""
     # first, get the ports
-    ports = meshtastic.util.findPorts()
+    ports = findPorts()
     # hopefully there is just one
     assert len(ports) == 1
     port = ports[0]
