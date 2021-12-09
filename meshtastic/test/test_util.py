@@ -4,7 +4,45 @@ import re
 
 import pytest
 
-from meshtastic.util import fixme, stripnl, pskToString, our_exit, support_info
+from meshtastic.util import fixme, stripnl, pskToString, our_exit, support_info, genPSK256, fromStr, fromPSK
+
+
+@pytest.mark.unit
+def test_genPSK256():
+    """Test genPSK256"""
+    assert genPSK256() != ''
+
+
+@pytest.mark.unit
+def test_fromStr():
+    """Test fromStr"""
+    assert fromStr('') == b''
+    assert fromStr('0x12') == b'\x12'
+    assert fromStr('t')
+    assert fromStr('T')
+    assert fromStr('true')
+    assert fromStr('True')
+    assert fromStr('yes')
+    assert fromStr('Yes')
+    assert fromStr('f') is False
+    assert fromStr('F') is False
+    assert fromStr('false') is False
+    assert fromStr('False') is False
+    assert fromStr('no') is False
+    assert fromStr('No') is False
+    assert fromStr('100.01') == 100.01
+    assert fromStr('123') == 123
+    assert fromStr('abc') == 'abc'
+
+
+@pytest.mark.unit
+def test_fromPSK():
+    """Test fromPSK"""
+    assert fromPSK('random') != ''
+    assert fromPSK('none') == b'\x00'
+    assert fromPSK('default') == b'\x01'
+    assert fromPSK('simple22') == b'\x17'
+    assert fromPSK('trash') == 'trash'
 
 
 @pytest.mark.unit

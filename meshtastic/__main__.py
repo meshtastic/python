@@ -7,7 +7,6 @@ import platform
 import logging
 import sys
 import time
-import os
 import yaml
 from pubsub import pub
 import pyqrcode
@@ -18,7 +17,7 @@ from .ble_interface import BLEInterface
 from . import test, remote_hardware
 from . import portnums_pb2, channel_pb2, mesh_pb2, radioconfig_pb2
 from . import tunnel
-from .util import support_info, our_exit
+from .util import support_info, our_exit, genPSK256, fromPSK, fromStr
 from .globals import Globals
 
 """We only import the tunnel code if we are on a platform that can run it"""
@@ -58,61 +57,6 @@ def onReceive(packet, interface):
 def onConnection(interface, topic=pub.AUTO_TOPIC):
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
-
-
-trueTerms = {"t", "true", "yes"}
-falseTerms = {"f", "false", "no"}
-
-
-def genPSK256():
-    """Generate a random preshared key"""
-    return os.urandom(32)
-
-
-def fromPSK(valstr):
-    """A special version of fromStr that assumes the user is trying to set a PSK.
-    In that case we also allow "none", "default" or "random" (to have python generate one), or simpleN
-    """
-    if valstr == "random":
-        return genPSK256()
-    elif valstr == "none":
-        return bytes([0])  # Use the 'no encryption' PSK
-    elif valstr == "default":
-        return bytes([1])  # Use default channel psk
-    elif valstr.startswith("simple"):
-        # Use one of the single byte encodings
-        return bytes([int(valstr[6:]) + 1])
-    else:
-        return fromStr(valstr)
-
-
-def fromStr(valstr):
-    """try to parse as int, float or bool (and fallback to a string as last resort)
-
-    Returns: an int, bool, float, str or byte array (for strings of hex digits)
-
-    Args:
-        valstr (string): A user provided string
-    """
-    if len(valstr) == 0:  # Treat an emptystring as an empty bytes
-        val = bytes()
-    elif valstr.startswith('0x'):
-        # if needed convert to string with asBytes.decode('utf-8')
-        val = bytes.fromhex(valstr[2:])
-    elif valstr in trueTerms:
-        val = True
-    elif valstr in falseTerms:
-        val = False
-    else:
-        try:
-            val = int(valstr)
-        except ValueError:
-            try:
-                val = float(valstr)
-            except ValueError:
-                val = valstr  # Not a float or an int, assume string
-
-    return val
 
 
 never = 0xffffffff

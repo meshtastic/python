@@ -10,7 +10,7 @@ from meshtastic.__main__ import initParser, Globals
 
 
 @pytest.mark.unit
-def test_main_no_args(capsys):
+def test_main_init_parser_no_args(capsys):
     """Test no arguments"""
     sys.argv = ['']
     args = sys.argv
@@ -25,7 +25,7 @@ def test_main_no_args(capsys):
 
 
 @pytest.mark.unit
-def test_main_version(capsys):
+def test_main_init_parser_version(capsys):
     """Test --version"""
     sys.argv = ['', '--version']
     args = sys.argv
