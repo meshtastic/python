@@ -6,30 +6,18 @@ import re
 
 import pytest
 
-from meshtastic.__main__ import initParser, Settings
+from meshtastic.__main__ import initParser, Globals
 
-
-"""The command line arguments"""
-#args = None
-
-"""The parser for arguments"""
-#parser = None
-
-#@pytest.fixture
-#def patched_env(monkeypatch):
-#    monkeypatch.args = None
-#    #monkeypatch.sys.argv = ['']
-#    monkeypatch.parser = None
 
 @pytest.mark.unit
 def test_main_no_args(capsys):
     """Test no arguments"""
     sys.argv = ['']
     args = sys.argv
-    settings = Settings.getInstance()
+    our_globals = Globals.getInstance()
     parser = argparse.ArgumentParser()
-    settings.set_parser(parser)
-    settings.set_args(args)
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
     initParser()
     out, err = capsys.readouterr()
     assert out == ''
@@ -43,9 +31,9 @@ def test_main_version(capsys):
     args = sys.argv
     parser = None
     parser = argparse.ArgumentParser()
-    settings = Settings.getInstance()
-    settings.set_parser(parser)
-    settings.set_args(args)
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         initParser()
     assert pytest_wrapped_e.type == SystemExit
