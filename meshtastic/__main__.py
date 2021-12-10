@@ -11,12 +11,14 @@ import yaml
 from pubsub import pub
 import pyqrcode
 import pkg_resources
+import meshtastic.util
+import meshtastic.test
+from meshtastic.serial_interface import SerialInterface
 from .serial_interface import SerialInterface
 from .tcp_interface import TCPInterface
 from .ble_interface import BLEInterface
-from . import test, remote_hardware
+from . import remote_hardware
 from . import portnums_pb2, channel_pb2, mesh_pb2, radioconfig_pb2
-from .util import support_info, our_exit, genPSK256, fromPSK, fromStr
 from .globals import Globals
 
 """We only import the tunnel code if we are on a platform that can run it"""
@@ -98,7 +100,7 @@ def setPref(attributes, name, valStr):
             print(f"  {f.name}")
         return
 
-    val = fromStr(valStr)
+    val = meshtastic.util.fromStr(valStr)
 
     enumType = field.enum_type
     # pylint: disable=C0123
@@ -232,7 +234,7 @@ def onConnected(interface):
             getNode().setOwner(args.set_ham, is_licensed=True)
             # Must turn off crypt on primary channel
             ch = getNode().channels[0]
-            ch.settings.psk = fromPSK("none")
+            ch.settings.psk = meshtastic.util.fromPSK("none")
             print(f"Writing modified channels to device")
             getNode().writeChannel(0)
 
@@ -349,7 +351,7 @@ def onConnected(interface):
             closeNow = True
             n = getNode()
             if len(args.ch_add) > 10:
-                our_exit("Warning: Channel name must be shorter. Channel not added.")
+                meshtastic.util.our_exit("Warning: Channel name must be shorter. Channel not added.")
             ch = n.getChannelByName(args.ch_add)
             if ch:
                 logging.error(
@@ -357,9 +359,9 @@ def onConnected(interface):
             else:
                 ch = n.getDisabledChannel()
                 if not ch:
-                    our_exit("Warning: No free channels were found")
+                    meshtastic.util.our_exit("Warning: No free channels were found")
                 chs = channel_pb2.ChannelSettings()
-                chs.psk = genPSK256()
+                chs.psk = meshtastic.util.genPSK256()
                 chs.name = args.ch_add
                 ch.settings.CopyFrom(chs)
                 ch.role = channel_pb2.Channel.Role.SECONDARY
@@ -383,7 +385,7 @@ def onConnected(interface):
 
             if args.ch_longslow or args.ch_longfast or args.ch_mediumslow or args.ch_mediumfast or args.ch_shortslow or args.ch_shortfast:
                 if channelIndex != 0:
-                    our_exit("Warning: Standard channel settings can only be applied to the PRIMARY channel")
+                    meshtastic.util.our_exit("Warning: Standard channel settings can only be applied to the PRIMARY channel")
 
                 enable = True  # force enable
 
@@ -425,7 +427,7 @@ def onConnected(interface):
             # Handle the channel settings
             for pref in (args.ch_set or []):
                 if pref[0] == "psk":
-                    ch.settings.psk = fromPSK(pref[1])
+                    ch.settings.psk = meshtastic.util.fromPSK(pref[1])
                 else:
                     setPref(ch.settings, pref[0], pref[1])
                 enable = True  # If we set any pref, assume the user wants to enable the channel
@@ -512,11 +514,11 @@ def common():
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
-        our_exit("", 1)
+        meshtastic.util.our_exit("", 1)
     else:
         if args.support:
-            support_info()
-            our_exit("", 0)
+            meshtastic.util.support_info()
+            meshtastic.util.our_exit("", 0)
 
         if args.ch_index is not None:
             channelIndex = int(args.ch_index)
@@ -540,11 +542,13 @@ def common():
             logging.error(
                 'This option has been deprecated, see help below for the correct replacement...')
             parser.print_help(sys.stderr)
-            our_exit('', 1)
+            meshtastic.util.our_exit('', 1)
         elif args.test:
-            result = test.testAll()
+            result = meshtastic.test.testAll()
             if not result:
-                our_exit("Warning: Test was not successful.")
+                meshtastic.util.our_exit("Warning: Test was not successful.")
+            else:
+                meshtastic.util.our_exit("Test was a success.", 0)
         else:
             if args.seriallog == "stdout":
                 logfile = sys.stdout

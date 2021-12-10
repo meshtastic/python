@@ -7,11 +7,11 @@ import sys
 import traceback
 from dotmap import DotMap
 from pubsub import pub
-from . import util
+import meshtastic.util
 from .__init__ import BROADCAST_NUM
 from .serial_interface import SerialInterface
 from .tcp_interface import TCPInterface
-from .util import our_exit
+
 
 """The interfaces we are using for our tests"""
 interfaces = None
@@ -146,9 +146,9 @@ def testAll(numTests=5):
     This is called from the cli with the "--test" option.
 
     """
-    ports = util.findPorts()
+    ports = meshtastic.util.findPorts()
     if len(ports) < 2:
-        our_exit("Warning: Must have at least two devices connected to USB.")
+        meshtastic.util.our_exit("Warning: Must have at least two devices connected to USB.")
 
     pub.subscribe(onConnection, "meshtastic.connection")
     pub.subscribe(onReceive, "meshtastic.receive")

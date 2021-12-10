@@ -1,2 +1,2 @@
 [run]
-omit = meshtastic/*_pb2.py,meshtastic/test.py,meshtastic/test/*.py
+omit = meshtastic/*_pb2.py,meshtastic/tests/*.py
