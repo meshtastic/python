@@ -4,7 +4,7 @@ import sys
 import argparse
 import re
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import pytest
 
 from meshtastic.__main__ import initParser, main, Globals
