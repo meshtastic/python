@@ -175,6 +175,7 @@ def our_exit(message, return_value = 1):
 
 def support_info():
     """Print out info that is helping in support of the cli."""
+    print('')
     print('If having issues with meshtastic cli or python library')
     print('or wish to make feature requests, visit:')
     print('https://github.com/meshtastic/Meshtastic-python/issues')
@@ -183,10 +184,11 @@ def support_info():
     print('   Platform: {0}'.format(platform.platform()))
     print('   Release: {0}'.format(platform.uname().release))
     print('   Machine: {0}'.format(platform.uname().machine))
+    print('   Encoding (stdin): {0}'.format(sys.stdin.encoding))
+    print('   Encoding (stdout): {0}'.format(sys.stdout.encoding))
     print(' meshtastic: v{0}'.format(pkg_resources.require('meshtastic')[0].version))
     print(' Executable: {0}'.format(sys.argv[0]))
     print(' Python: {0} {1} {2}'.format(platform.python_version(),
           platform.python_implementation(), platform.python_compiler()))
     print('')
     print('Please add the output from the command: meshtastic --info')
-    print('')

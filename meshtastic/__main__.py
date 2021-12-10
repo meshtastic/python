@@ -16,7 +16,6 @@ from .tcp_interface import TCPInterface
 from .ble_interface import BLEInterface
 from . import test, remote_hardware
 from . import portnums_pb2, channel_pb2, mesh_pb2, radioconfig_pb2
-from . import tunnel
 from .util import support_info, our_exit, genPSK256, fromPSK, fromStr
 from .globals import Globals
 
@@ -473,6 +472,8 @@ def onConnected(interface):
             print(qr.terminal())
 
         if have_tunnel and args.tunnel:
+            # pylint: disable=C0415
+            from . import tunnel
             # Even if others said we could close, stay open if the user asked for a tunnel
             closeNow = False
             tunnel.Tunnel(interface, subnet=args.tunnel_net)
@@ -511,12 +512,11 @@ def common():
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
-        sys.exit(1)
+        our_exit("", 1)
     else:
         if args.support:
-            print("")
             support_info()
-            sys.exit(0)
+            our_exit("", 0)
 
         if args.ch_index is not None:
             channelIndex = int(args.ch_index)
@@ -540,10 +540,9 @@ def common():
             logging.error(
                 'This option has been deprecated, see help below for the correct replacement...')
             parser.print_help(sys.stderr)
-            sys.exit(1)
-        elif args.numTests:
-            numTests = int(args.numTests[0])
-            result = test.testAll(numTests)
+            our_exit('', 1)
+        elif args.test:
+            result = test.testAll()
             if not result:
                 our_exit("Warning: Test was not successful.")
         else:
@@ -720,7 +719,7 @@ def initParser():
                         action="store_true")
 
     parser.add_argument("--test", help="Run stress test against all connected Meshtastic devices",
-                        nargs=1, dest='numTests', action="store")
+                        action="store_true")
 
     parser.add_argument("--ble", help="BLE mac address to connect to (BLE is not yet supported for this tool)",
                         default=None)

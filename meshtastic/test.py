@@ -140,7 +140,7 @@ def openDebugLog(portName):
     return open(debugname, 'w+', buffering=1, encoding='utf8')
 
 
-def testAll(numTests=50):
+def testAll(numTests=5):
     """
     Run a series of tests using devices we can find.
     This is called from the cli with the "--test" option.
