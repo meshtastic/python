@@ -13,6 +13,7 @@ import pyqrcode
 import pkg_resources
 import meshtastic.util
 import meshtastic.test
+from meshtastic.serial_interface import SerialInterface
 from .serial_interface import SerialInterface
 from .tcp_interface import TCPInterface
 from .ble_interface import BLEInterface
