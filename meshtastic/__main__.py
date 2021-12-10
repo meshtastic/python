@@ -619,7 +619,7 @@ def initParser():
                         action="store_true")
 
     parser.add_argument(
-        "--get", help="Get a preferences field", nargs=1, action='append')
+        "--get", help="Get a preferences field. Use an invalid field such as '0' to get a list of all fields.", nargs=1, action='append')
 
     parser.add_argument(
         "--set", help="Set a preferences field", nargs=2, action='append')

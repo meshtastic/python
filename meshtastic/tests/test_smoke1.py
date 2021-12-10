@@ -286,6 +286,33 @@ def test_smoke1_ch_set_name():
 
 
 @pytest.mark.smoke1
+def test_smoke1_ch_set_downlink_and_uplink():
+    """Test -ch-set downlink_enabled X and --ch-set uplink_enabled X"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set downlink_enabled false --ch-set uplink_enabled false')
+    assert re.match(r'Connected to radio', out)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert not re.search(r'uplinkEnabled', out, re.MULTILINE)
+    assert not re.search(r'downlinkEnabled', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set downlink_enabled true --ch-set uplink_enabled true')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'^Set downlink_enabled to true', out, re.MULTILINE)
+    assert re.search(r'^Set uplink_enabled to true', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.search(r'uplinkEnabled', out, re.MULTILINE)
+    assert re.search(r'downlinkEnabled', out, re.MULTILINE)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
 def test_smoke1_ch_add_and_ch_del():
     """Test --ch-add"""
     return_value, out = subprocess.getstatusoutput('meshtastic --ch-add testing')
@@ -400,6 +427,22 @@ def test_smoke1_set_ham():
     time.sleep(PAUSE_AFTER_REBOOT)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert re.search(r'Owner: KI1234', out, re.MULTILINE)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
+def test_smoke1_set_wifi_settings():
+    """Test --set wifi_ssid and --set wifi_password"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --set wifi_ssid "some_ssid" --set wifi_password "temp1234"')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'^Set wifi_ssid to some_ssid', out, re.MULTILINE)
+    assert re.search(r'^Set wifi_password to temp1234', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --get wifi_ssid --get wifi_password')
+    assert re.search(r'^wifi_ssid: some_ssid', out, re.MULTILINE)
+    assert re.search(r'^wifi_password: sekrit', out, re.MULTILINE)
     assert return_value == 0
 
 

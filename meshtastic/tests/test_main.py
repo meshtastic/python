@@ -103,7 +103,8 @@ def test_main_support(capsys):
 
 
 @pytest.mark.unit
-def test_main_ch_index_no_devices(capsys):
+@patch('meshtastic.util.findPorts', return_value=[])
+def test_main_ch_index_no_devices(patched_find_ports, capsys):
     """Test --ch-index 1"""
     sys.argv = ['', '--ch-index', '1']
     args = sys.argv
@@ -122,6 +123,7 @@ def test_main_ch_index_no_devices(capsys):
     out, err = capsys.readouterr()
     assert re.search(r'Warning: No Meshtastic devices detected', out, re.MULTILINE)
     assert err == ''
+    patched_find_ports.assert_called()
 
 
 @pytest.mark.unit
