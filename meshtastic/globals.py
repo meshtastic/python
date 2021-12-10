@@ -4,7 +4,8 @@
    This is not much better than using python's globals, but it allows
    us to better test meshtastic. Plus, there are some weird python
    global issues/gotcha that we can hopefully avoid by using this
-   class in stead.
+   class instead.
+
 """
 
 class Globals:
@@ -26,6 +27,8 @@ class Globals:
             Globals.__instance = self
         self.args = None
         self.parser = None
+        self.target_node = None
+        self.channel_index = 0
 
     def set_args(self, args):
         """Set the args"""
@@ -35,6 +38,14 @@ class Globals:
         """Set the parser"""
         self.parser = parser
 
+    def set_target_node(self, target_node):
+        """Set the target_node"""
+        self.target_node = target_node
+
+    def set_channel_index(self, channel_index):
+        """Set the channel_index"""
+        self.channel_index = channel_index
+
     def get_args(self):
         """Get args"""
         return self.args
@@ -42,3 +53,11 @@ class Globals:
     def get_parser(self):
         """Get parser"""
         return self.parser
+
+    def get_target_node(self):
+        """Get target_node"""
+        return self.target_node
+
+    def get_channel_index(self):
+        """Get channel_index"""
+        return self.channel_index
