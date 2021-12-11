@@ -28,7 +28,7 @@ class Globals:
         self.args = None
         self.parser = None
         self.target_node = None
-        self.channel_index = 0
+        self.channel_index = None
 
     def set_args(self, args):
         """Set the args"""
