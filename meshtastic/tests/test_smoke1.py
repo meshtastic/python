@@ -276,6 +276,12 @@ def test_smoke1_ch_set_name():
     time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --ch-set name MyChannel')
     assert re.match(r'Connected to radio', out)
+    assert re.search(r'Warning: Need to specify', out, re.MULTILINE)
+    assert return_value == 1
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set name MyChannel --ch-index 0')
+    assert re.match(r'Connected to radio', out)
     assert re.search(r'^Set name to MyChannel', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
@@ -290,6 +296,12 @@ def test_smoke1_ch_set_downlink_and_uplink():
     """Test -ch-set downlink_enabled X and --ch-set uplink_enabled X"""
     return_value, out = subprocess.getstatusoutput('meshtastic --ch-set downlink_enabled false --ch-set uplink_enabled false')
     assert re.match(r'Connected to radio', out)
+    assert re.search(r'Warning: Need to specify', out, re.MULTILINE)
+    assert return_value == 1
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set downlink_enabled false --ch-set uplink_enabled false --ch-index 0')
+    assert re.match(r'Connected to radio', out)
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
@@ -299,7 +311,7 @@ def test_smoke1_ch_set_downlink_and_uplink():
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
-    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set downlink_enabled true --ch-set uplink_enabled true')
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set downlink_enabled true --ch-set uplink_enabled true --ch-index 0')
     assert re.match(r'Connected to radio', out)
     assert re.search(r'^Set downlink_enabled to true', out, re.MULTILINE)
     assert re.search(r'^Set uplink_enabled to true', out, re.MULTILINE)
@@ -341,14 +353,219 @@ def test_smoke1_ch_add_and_ch_del():
 
 
 @pytest.mark.smoke1
+def test_smoke1_ch_enable_and_disable():
+    """Test --ch-enable and --ch-disable"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-add testing')
+    assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'SECONDARY', out, re.MULTILINE)
+    assert re.search(r'testing', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    # ensure they need to specify a --ch-index
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-disable')
+    assert return_value == 1
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-disable --ch-index 1')
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'DISABLED', out, re.MULTILINE)
+    assert re.search(r'testing', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-enable --ch-index 1')
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'SECONDARY', out, re.MULTILINE)
+    assert re.search(r'testing', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-del --ch-index 1')
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+
+
+@pytest.mark.smoke1
+def test_smoke1_ch_del_a_disabled_non_primary_channel():
+    """Test --ch-del will work on a disabled non-primary channel."""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-add testing')
+    assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'SECONDARY', out, re.MULTILINE)
+    assert re.search(r'testing', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    # ensure they need to specify a --ch-index
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-disable')
+    assert return_value == 1
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-del --ch-index 1')
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert not re.search(r'DISABLED', out, re.MULTILINE)
+    assert not re.search(r'SECONDARY', out, re.MULTILINE)
+    assert not re.search(r'testing', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+
+
+@pytest.mark.smoke1
+def test_smoke1_attempt_to_delete_primary_channel():
+    """Test that we cannot delete the PRIMARY channel."""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-del --ch-index 0')
+    assert re.search(r'Warning: Cannot delete primary channel', out, re.MULTILINE)
+    assert return_value == 1
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+
+
+@pytest.mark.smoke1
+def test_smoke1_attempt_to_disable_primary_channel():
+    """Test that we cannot disable the PRIMARY channel."""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-disable --ch-index 0')
+    assert re.search(r'Warning: Cannot enable', out, re.MULTILINE)
+    assert return_value == 1
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+
+
+@pytest.mark.smoke1
+def test_smoke1_attempt_to_enable_primary_channel():
+    """Test that we cannot enable the PRIMARY channel."""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-enable --ch-index 0')
+    assert re.search(r'Warning: Cannot enable', out, re.MULTILINE)
+    assert return_value == 1
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+
+
+@pytest.mark.smoke1
+def test_smoke1_ensure_ch_del_second_of_three_channels():
+    """Test that when we delete the 2nd of 3 channels, that it deletes the correct channel."""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-add testing1')
+    assert re.match(r'Connected to radio', out)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'SECONDARY', out, re.MULTILINE)
+    assert re.search(r'testing1', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-add testing2')
+    assert re.match(r'Connected to radio', out)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'testing2', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-del --ch-index 1')
+    assert re.match(r'Connected to radio', out)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'testing2', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-del --ch-index 1')
+    assert re.match(r'Connected to radio', out)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+
+
+@pytest.mark.smoke1
+def test_smoke1_ensure_ch_del_third_of_three_channels():
+    """Test that when we delete the 3rd of 3 channels, that it deletes the correct channel."""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-add testing1')
+    assert re.match(r'Connected to radio', out)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'SECONDARY', out, re.MULTILINE)
+    assert re.search(r'testing1', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-add testing2')
+    assert re.match(r'Connected to radio', out)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'testing2', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-del --ch-index 2')
+    assert re.match(r'Connected to radio', out)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'testing1', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-del --ch-index 1')
+    assert re.match(r'Connected to radio', out)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+
+
+@pytest.mark.smoke1
 def test_smoke1_ch_set_modem_config():
     """Test --ch-set modem_config"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config Bw31_25Cr48Sf512')
+    assert re.search(r'Warning: Need to specify', out, re.MULTILINE)
+    assert return_value == 1
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
     assert not re.search(r'Bw31_25Cr48Sf512', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
-    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config Bw31_25Cr48Sf512')
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config Bw31_25Cr48Sf512 --ch-index 0')
     assert re.match(r'Connected to radio', out)
     assert re.search(r'^Set modem_config to Bw31_25Cr48Sf512', out, re.MULTILINE)
     assert return_value == 0
@@ -363,7 +580,7 @@ def test_smoke1_ch_set_modem_config():
 def test_smoke1_seturl_default():
     """Test --seturl with default value"""
     # set some channel value so we no longer have a default channel
-    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set name foo')
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set name foo --ch-index 0')
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)

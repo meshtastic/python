@@ -372,22 +372,43 @@ def onConnected(interface):
             closeNow = True
 
             channelIndex = our_globals.get_channel_index()
-            print(f"Deleting channel {channelIndex}")
-            ch = getNode().deleteChannel(channelIndex)
+            if channelIndex is None:
+                meshtastic.util.our_exit("Warning: Need to specify '--ch-index' for '--ch-del'.", 1)
+            else:
+                if channelIndex == 0:
+                    meshtastic.util.our_exit("Warning: Cannot delete primary channel.", 1)
+                else:
+                    print(f"Deleting channel {channelIndex}")
+                    ch = getNode().deleteChannel(channelIndex)
 
-        if args.ch_set or args.ch_longslow or args.ch_longfast or args.ch_mediumslow or args.ch_mediumfast or args.ch_shortslow or args.ch_shortfast:
+        ch_changes = [args.ch_longslow, args.ch_longfast, args.ch_mediumslow, args.ch_mediumfast, args.ch_shortslow, args.ch_shortfast]
+        any_primary_channel_changes = any(x for x in ch_changes)
+        if args.ch_set or any_primary_channel_changes or args.ch_enable or args.ch_disable:
             closeNow = True
 
             channelIndex = our_globals.get_channel_index()
+            if channelIndex is None:
+                if any_primary_channel_changes:
+                    # we assume that they want the primary channel if they're setting range values
+                    channelIndex = 0
+                else:
+                    meshtastic.util.our_exit("Warning: Need to specify '--ch-index'.", 1)
             ch = getNode().channels[channelIndex]
 
-            enable = args.ch_enable  # should we enable this channel?
+            if any_primary_channel_changes or args.ch_enable or args.ch_disable:
 
-            if args.ch_longslow or args.ch_longfast or args.ch_mediumslow or args.ch_mediumfast or args.ch_shortslow or args.ch_shortfast:
+                if channelIndex == 0 and not any_primary_channel_changes:
+                    meshtastic.util.our_exit("Warning: Cannot enable/disable PRIMARY channel.")
+
                 if channelIndex != 0:
-                    meshtastic.util.our_exit("Warning: Standard channel settings can only be applied to the PRIMARY channel")
+                    if any_primary_channel_changes:
+                        meshtastic.util.our_exit("Warning: Standard channel settings can only be applied to the PRIMARY channel")
 
-                enable = True  # force enable
+                enable = True  # default to enable
+                if args.ch_enable:
+                    enable = True
+                if args.ch_disable:
+                    enable = False
 
                 def setSimpleChannel(modem_config):
                     """Set one of the simple modem_config only based channels"""
@@ -637,10 +658,11 @@ def initParser():
         "--ch-del", help="Delete the ch-index channel", action='store_true')
 
     parser.add_argument(
-        "--ch-enable", help="Enable the specified channel", action="store_true", dest="ch_enable")
+        "--ch-enable", help="Enable the specified channel", action="store_true", dest="ch_enable", default=False)
 
+    # Note: We are doing a double negative here (Do we want to disable? If ch_disable==True, then disable.)
     parser.add_argument(
-        "--ch-disable", help="Disable the specified channel", action="store_false", dest="ch_enable")
+        "--ch-disable", help="Disable the specified channel", action="store_true", dest="ch_disable", default=False)
 
     parser.add_argument(
         "--ch-set", help="Set a channel parameter", nargs=2, action='append')

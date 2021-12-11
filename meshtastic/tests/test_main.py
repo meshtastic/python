@@ -114,7 +114,7 @@ def test_main_ch_index_no_devices(patched_find_ports, capsys):
     our_globals.set_parser(parser)
     our_globals.set_args(args)
     assert our_globals.get_target_node() is None
-    assert our_globals.get_channel_index() == 0
+    assert our_globals.get_channel_index() is None
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
     assert our_globals.get_channel_index() == 1

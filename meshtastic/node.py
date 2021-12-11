@@ -28,8 +28,9 @@ class Node:
         print("Channels:")
         if self.channels:
             for c in self.channels:
-                if c.role != channel_pb2.Channel.Role.DISABLED:
-                    cStr = stripnl(MessageToJson(c.settings))
+                cStr = stripnl(MessageToJson(c.settings))
+                # only show if there is no psk (meaning disabled channel)
+                if c.settings.psk:
                     print(f"  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}")
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
@@ -82,7 +83,7 @@ class Node:
     def deleteChannel(self, channelIndex):
         """Delete the specifed channelIndex and shift other channels up"""
         ch = self.channels[channelIndex]
-        if ch.role != channel_pb2.Channel.Role.SECONDARY:
+        if ch.role not in (channel_pb2.Channel.Role.SECONDARY, channel_pb2.Channel.Role.DISABLED):
             our_exit("Warning: Only SECONDARY channels can be deleted")
 
         # we are careful here because if we move the "admin" channel the channelIndex we need to use
