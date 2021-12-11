@@ -83,7 +83,7 @@ class Node:
     def deleteChannel(self, channelIndex):
         """Delete the specifed channelIndex and shift other channels up"""
         ch = self.channels[channelIndex]
-        if ch.role != channel_pb2.Channel.Role.SECONDARY:
+        if ch.role not in (channel_pb2.Channel.Role.SECONDARY, channel_pb2.Channel.Role.DISABLED):
             our_exit("Warning: Only SECONDARY channels can be deleted")
 
         # we are careful here because if we move the "admin" channel the channelIndex we need to use
