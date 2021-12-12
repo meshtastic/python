@@ -12,9 +12,6 @@ bin/run.sh --set is_router false
 # TODO: This does not seem to work.
 echo setting channel
 bin/run.sh --seturl "https://www.meshtastic.org/c/#GAMiENTxuzogKQdZ8Lz_q89Oab8qB0RlZmF1bHQ="
-echo setting time
-# '--settime' seems to be deprecated
-#bin/run.sh --settime
 echo setting owner
 bin/run.sh --set-owner "Test Build"
 echo setting position
