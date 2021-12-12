@@ -5,7 +5,7 @@ import logging
 import base64
 from google.protobuf.json_format import MessageToJson
 from . import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
-from .util import pskToString, stripnl, Timeout, our_exit
+from .util import pskToString, stripnl, Timeout, our_exit, fromPSK
 
 
 class Node:
@@ -55,6 +55,12 @@ class Node:
         self.partialChannels = []  # We keep our channels in a temp array until finished
 
         self._requestSettings()
+
+    def turnOffEncryptionOnPrimaryChannel(self):
+        """Turn off encryption on primary channel."""
+        self.channels[0].settings.psk = fromPSK("none")
+        print("Writing modified channels to device")
+        self.writeChannel(0)
 
     def waitForConfig(self):
         """Block until radio config is received. Returns True if config has been received."""

@@ -4,11 +4,13 @@ import sys
 import argparse
 import re
 
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 import pytest
 
 from meshtastic.__main__ import initParser, main, Globals
-#from meshtastic.serial_interface import SerialInterface
+
+from ..serial_interface import SerialInterface
+from ..node import Node
 
 
 @pytest.mark.unit
@@ -202,31 +204,225 @@ def test_main_test_two_ports_fails(patched_find_ports, patched_test_all):
     assert pytest_wrapped_e.value.code == 1
     # TODO: why does this fail? patched_find_ports.assert_called()
     patched_test_all.assert_called()
-#
-#
-#@pytest.mark.unit
-#@patch('meshtastic.stream_interface.StreamInterface.__init__')
-#@patch('serial.Serial')
-#@patch('meshtastic.serial_interface.SerialInterface')
-#@patch('meshtastic.util.findPorts', return_value=['/dev/ttyFake1'])
-#def test_main_info_one_port(patched_find_ports, patched_serial_interface,
-#                            patched_serial_serial, patched_stream_interface_constructor):
-#    """Test --info one fake port"""
-#    iface = MagicMock()
-#    patched_serial_interface.return_value = iface
-#    astream = MagicMock()
-#    patched_serial_serial = astream
-#    siface = MagicMock()
-#    patched_stream_interface_constructor = siface
-#    sys.argv = ['', '--info']
-#    args = sys.argv
-#    parser = None
-#    parser = argparse.ArgumentParser()
-#    our_globals = Globals.getInstance()
-#    our_globals.set_parser(parser)
-#    our_globals.set_args(args)
-#    main()
-#    patched_find_ports.assert_called()
-#    patched_serial_interface.assert_called()
-#    patched_serial_serial.assert_called()
-#    patched_stream_interface_constructor
+
+
+@pytest.mark.unit
+def test_main_info(capsys):
+    """Test --info"""
+    sys.argv = ['', '--info']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_qr(capsys):
+    """Test --qr"""
+    sys.argv = ['', '--qr']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    iface = MagicMock(autospec=SerialInterface)
+    # TODO: could mock/check url
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Primary channel URL', out, re.MULTILINE)
+        # if a qr code is generated it will have lots of these
+        assert re.search(r'\[7m', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_nodes(capsys):
+    """Test --nodes"""
+    sys.argv = ['', '--nodes']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_showNodes():
+        print('inside mocked showNodes')
+    iface.showNodes.side_effect = mock_showNodes
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showNodes', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_set_owner_to_bob(capsys):
+    """Test --set-owner bob"""
+    sys.argv = ['', '--set-owner', 'bob']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Setting device owner to bob', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_set_ham_to_KI123(capsys):
+    """Test --set-ham KI123"""
+    sys.argv = ['', '--set-ham', 'KI123']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    mocked_node = MagicMock(autospec=Node)
+    def mock_turnOffEncryptionOnPrimaryChannel():
+        print('inside mocked turnOffEncryptionOnPrimaryChannel')
+    def mock_setOwner(name, is_licensed):
+        print('inside mocked setOwner')
+    mocked_node.turnOffEncryptionOnPrimaryChannel.side_effect = mock_turnOffEncryptionOnPrimaryChannel
+    mocked_node.setOwner.side_effect = mock_setOwner
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Setting HAM ID to KI123', out, re.MULTILINE)
+        assert re.search(r'inside mocked setOwner', out, re.MULTILINE)
+        assert re.search(r'inside mocked turnOffEncryptionOnPrimaryChannel', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_reboot(capsys):
+    """Test --reboot"""
+    sys.argv = ['', '--reboot']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    mocked_node = MagicMock(autospec=Node)
+    def mock_reboot():
+        print('inside mocked reboot')
+    mocked_node.reboot.side_effect = mock_reboot
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked reboot', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_sendtext(capsys):
+    """Test --sendtext"""
+    sys.argv = ['', '--sendtext', 'hello']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_sendText(text, dest, wantAck):
+        print('inside mocked sendText')
+    iface.sendText.side_effect = mock_sendText
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Sending text message', out, re.MULTILINE)
+        assert re.search(r'inside mocked sendText', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_sendping(capsys):
+    """Test --sendping"""
+    sys.argv = ['', '--sendping']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_sendData(payload, dest, portNum, wantAck, wantResponse):
+        print('inside mocked sendData')
+    iface.sendData.side_effect = mock_sendData
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Sending ping message', out, re.MULTILINE)
+        assert re.search(r'inside mocked sendData', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()

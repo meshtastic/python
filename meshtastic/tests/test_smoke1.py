@@ -49,6 +49,30 @@ def test_smoke1_sendping():
 
 
 @pytest.mark.smoke1
+def test_get_with_invalid_setting():
+    """Test '--get a_bad_setting'."""
+    return_value, out = subprocess.getstatusoutput('meshtastic --get a_bad_setting')
+    assert re.search(r'Choices in sorted order', out)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
+def test_set_with_invalid_setting():
+    """Test '--set a_bad_setting'."""
+    return_value, out = subprocess.getstatusoutput('meshtastic --set a_bad_setting foo')
+    assert re.search(r'Choices in sorted order', out)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
+def test_ch_set_with_invalid_settingpatch_find_ports():
+    """Test '--ch-set with a_bad_setting'."""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set invalid_setting foo --ch-index 0')
+    assert re.search(r'Choices in sorted order', out)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
 def test_smoke1_pos_fields():
     """Test --pos-fields (with some values POS_ALTITUDE POS_ALT_MSL POS_BATTERY)"""
     return_value, out = subprocess.getstatusoutput('meshtastic --pos-fields POS_ALTITUDE POS_ALT_MSL POS_BATTERY')
