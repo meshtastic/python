@@ -214,10 +214,16 @@ class Node:
 
         def onResponse(p):
             """A closure to handle the response packet"""
-            self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
-            logging.debug("Received radio config, now fetching channels...")
-            self._timeout.reset()  # We made foreward progress
-            self._requestChannel(0)  # now start fetching channels
+            errorFound = False
+            if 'routing' in p["decoded"]:
+                if p["decoded"]["routing"]["errorReason"] != "NONE":
+                    errorFound = True
+                    print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+            if errorFound is False:
+                self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
+                logging.debug("Received radio config, now fetching channels...")
+                self._timeout.reset()  # We made foreward progress
+                self._requestChannel(0)  # now start fetching channels
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
