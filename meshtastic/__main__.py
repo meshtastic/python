@@ -13,7 +13,6 @@ import pyqrcode
 import pkg_resources
 import meshtastic.util
 import meshtastic.test
-from meshtastic.serial_interface import SerialInterface
 from .serial_interface import SerialInterface
 from .tcp_interface import TCPInterface
 from .ble_interface import BLEInterface
@@ -68,10 +67,13 @@ def getPref(attributes, name):
     objDesc = attributes.DESCRIPTOR
     field = objDesc.fields_by_name.get(name)
     if not field:
-        print(f"{attributes.__class__.__name__} doesn't have an attribute called {name}, so you can not get it.")
-        print(f"Choices are:")
+        print(f"{attributes.__class__.__name__} does not have an attribute called {name}, so you can not get it.")
+        print(f"Choices in sorted order are:")
+        names = []
         for f in objDesc.fields:
-            print(f"  {f.name}")
+            names.append(f'{f.name}')
+        for temp_name in sorted(names):
+            print(f"    {temp_name}")
         return
 
     # okay - try to read the value
@@ -94,10 +96,13 @@ def setPref(attributes, name, valStr):
     objDesc = attributes.DESCRIPTOR
     field = objDesc.fields_by_name.get(name)
     if not field:
-        print(f"{attributes.__class__.__name__} doesn't have an attribute called {name}, so you can not set it.")
-        print(f"Choices are:")
+        print(f"{attributes.__class__.__name__} does not have an attribute called {name}, so you can not set it.")
+        print(f"Choices in sorted order are:")
+        names = []
         for f in objDesc.fields:
-            print(f"  {f.name}")
+            names.append(f'{f.name}')
+        for temp_name in sorted(names):
+            print(f"    {temp_name}")
         return
 
     val = meshtastic.util.fromStr(valStr)
@@ -110,10 +115,13 @@ def setPref(attributes, name, valStr):
         if e:
             val = e.number
         else:
-            print(f"{name} doesn't have an enum called {val}, so you can not set it.")
-            print(f"Choices are:")
+            print(f"{name} does not have an enum called {val}, so you can not set it.")
+            print(f"Choices in sorted order are:")
+            names = []
             for f in enumType.values:
-                print(f"  {f.name}")
+                names.append(f'{f.name}')
+            for temp_name in sorted(names):
+                print(f"    {temp_name}")
             return
 
     # okay - try to read the value

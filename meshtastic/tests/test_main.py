@@ -4,11 +4,13 @@ import sys
 import argparse
 import re
 
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 import pytest
 
 from meshtastic.__main__ import initParser, main, Globals
+
 #from meshtastic.serial_interface import SerialInterface
+from ..serial_interface import SerialInterface
 
 
 @pytest.mark.unit
@@ -202,31 +204,23 @@ def test_main_test_two_ports_fails(patched_find_ports, patched_test_all):
     assert pytest_wrapped_e.value.code == 1
     # TODO: why does this fail? patched_find_ports.assert_called()
     patched_test_all.assert_called()
-#
-#
-#@pytest.mark.unit
-#@patch('meshtastic.stream_interface.StreamInterface.__init__')
-#@patch('serial.Serial')
-#@patch('meshtastic.serial_interface.SerialInterface')
-#@patch('meshtastic.util.findPorts', return_value=['/dev/ttyFake1'])
-#def test_main_info_one_port(patched_find_ports, patched_serial_interface,
-#                            patched_serial_serial, patched_stream_interface_constructor):
-#    """Test --info one fake port"""
-#    iface = MagicMock()
-#    patched_serial_interface.return_value = iface
-#    astream = MagicMock()
-#    patched_serial_serial = astream
-#    siface = MagicMock()
-#    patched_stream_interface_constructor = siface
-#    sys.argv = ['', '--info']
-#    args = sys.argv
-#    parser = None
-#    parser = argparse.ArgumentParser()
-#    our_globals = Globals.getInstance()
-#    our_globals.set_parser(parser)
-#    our_globals.set_args(args)
-#    main()
-#    patched_find_ports.assert_called()
-#    patched_serial_interface.assert_called()
-#    patched_serial_serial.assert_called()
-#    patched_stream_interface_constructor
+
+
+@pytest.mark.unit
+def test_main_info(capsys):
+    """Test --info"""
+    sys.argv = ['', '--info']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert err == ''
