@@ -10,6 +10,7 @@ import pytest
 from meshtastic.__main__ import initParser, main, Globals
 
 from ..serial_interface import SerialInterface
+from ..node import Node
 
 
 @pytest.mark.unit
@@ -276,5 +277,63 @@ def test_main_nodes(capsys):
         print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'inside mocked showNodes', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_set_owner_to_bob(capsys):
+    """Test --set-owner bob"""
+    sys.argv = ['', '--set-owner', 'bob']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Setting device owner to bob', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_set_ham_to_KI123(capsys):
+    """Test --set-ham KI123"""
+    sys.argv = ['', '--set-ham', 'KI123']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    mocked_node = MagicMock(autospec=Node)
+    def mock_turnOffEncryptionOnPrimaryChannel():
+        print('inside mocked turnOffEncryptionOnPrimaryChannel')
+    def mock_setOwner(name, is_licensed):
+        print('inside mocked setOwner')
+    mocked_node.turnOffEncryptionOnPrimaryChannel.side_effect = mock_turnOffEncryptionOnPrimaryChannel
+    mocked_node.setOwner.side_effect = mock_setOwner
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Setting HAM ID to KI123', out, re.MULTILINE)
+        assert re.search(r'inside mocked setOwner', out, re.MULTILINE)
+        assert re.search(r'inside mocked turnOffEncryptionOnPrimaryChannel', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()

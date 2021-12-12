@@ -56,10 +56,6 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):
     print(f"Connection changed: {topic.getName()}")
 
 
-never = 0xffffffff
-oneday = 24 * 60 * 60
-
-
 def getPref(attributes, name):
     """Get a channel or preferences value"""
 
@@ -236,14 +232,10 @@ def onConnected(interface):
 
         if args.set_ham:
             closeNow = True
-            print(
-                f"Setting HAM ID to {args.set_ham} and turning off encryption")
+            print(f"Setting HAM ID to {args.set_ham} and turning off encryption")
             getNode().setOwner(args.set_ham, is_licensed=True)
-            # Must turn off crypt on primary channel
-            ch = getNode().channels[0]
-            ch.settings.psk = meshtastic.util.fromPSK("none")
-            print(f"Writing modified channels to device")
-            getNode().writeChannel(0)
+            # Must turn off encryption on primary channel
+            getNode().turnOffEncryptionOnPrimaryChannel()
 
         if args.reboot:
             closeNow = True
