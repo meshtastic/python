@@ -13,7 +13,6 @@ import pyqrcode
 import pkg_resources
 import meshtastic.util
 import meshtastic.test
-from .serial_interface import SerialInterface
 from .tcp_interface import TCPInterface
 from .ble_interface import BLEInterface
 from . import remote_hardware
@@ -599,7 +598,7 @@ def common():
                 client = TCPInterface(
                     args.host, debugOut=logfile, noProto=args.noproto)
             else:
-                client = SerialInterface(
+                client = meshtastic.serial_interface.SerialInterface(
                     args.port, debugOut=logfile, noProto=args.noproto)
 
             # We assume client is fully connected now
