@@ -16,7 +16,7 @@ import meshtastic.test
 from .tcp_interface import TCPInterface
 from .ble_interface import BLEInterface
 from . import remote_hardware
-from . import portnums_pb2, channel_pb2, mesh_pb2, radioconfig_pb2
+from . import portnums_pb2, channel_pb2, radioconfig_pb2
 from .globals import Globals
 
 """We only import the tunnel code if we are on a platform that can run it"""
@@ -219,14 +219,14 @@ def onConnected(interface):
         if args.set_team:
             closeNow = True
             try:
-                v_team = mesh_pb2.Team.Value(args.set_team.upper())
+                v_team = meshtastic.mesh_pb2.Team.Value(args.set_team.upper())
             except ValueError:
                 v_team = 0
                 print(f"ERROR: Team \'{args.set_team}\' not found.")
-                print("Try a team name from the list below, or CLEAR for unaffiliated:")
-                print(mesh_pb2.Team.keys())
+                print("Try a team name from the sorted list below, or use 'CLEAR' for unaffiliated:")
+                print(sorted(meshtastic.mesh_pb2.Team.keys()))
             else:
-                print(f"Setting team to {mesh_pb2.Team.Name(v_team)}")
+                print(f"Setting team to {meshtastic.mesh_pb2.Team.Name(v_team)}")
                 getNode().setOwner(team=v_team)
 
         if args.set_ham:
