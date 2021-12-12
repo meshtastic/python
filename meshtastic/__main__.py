@@ -485,8 +485,7 @@ def onConnected(interface):
 
             # Handle the int/float/bool arguments
             for pref in args.get:
-                getPref(
-                    prefs, pref[0])
+                getPref(prefs, pref[0])
 
             print("Completed getting preferences")
 

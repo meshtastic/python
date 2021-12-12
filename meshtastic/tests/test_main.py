@@ -9,7 +9,6 @@ import pytest
 
 from meshtastic.__main__ import initParser, main, Globals
 
-#from meshtastic.serial_interface import SerialInterface
 from ..serial_interface import SerialInterface
 
 
@@ -217,10 +216,65 @@ def test_main_info(capsys):
     our_globals.set_parser(parser)
     our_globals.set_args(args)
     iface = MagicMock(autospec=SerialInterface)
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
         print('out:', out)
         print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
         assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_qr(capsys):
+    """Test --qr"""
+    sys.argv = ['', '--qr']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    iface = MagicMock(autospec=SerialInterface)
+    # TODO: could mock/check url
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Primary channel URL', out, re.MULTILINE)
+        # if a qr code is generated it will have lots of these
+        assert re.search(r'\[7m', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_nodes(capsys):
+    """Test --nodes"""
+    sys.argv = ['', '--nodes']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_showNodes():
+        print('inside mocked showNodes')
+    iface.showNodes.side_effect = mock_showNodes
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showNodes', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
