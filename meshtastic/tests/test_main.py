@@ -426,3 +426,114 @@ def test_main_sendping(capsys):
         assert re.search(r'inside mocked sendData', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_setlat(capsys):
+    """Test --sendlat"""
+    sys.argv = ['', '--setlat', '37.5']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    mocked_node = MagicMock(autospec=Node)
+    def mock_writeConfig():
+        print('inside mocked writeConfig')
+    mocked_node.writeConfig.side_effect = mock_writeConfig
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_sendPosition(lat, lon, alt):
+        print('inside mocked sendPosition')
+    iface.sendPosition.side_effect = mock_sendPosition
+    iface.localNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Fixing latitude', out, re.MULTILINE)
+        assert re.search(r'Setting device position', out, re.MULTILINE)
+        assert re.search(r'inside mocked sendPosition', out, re.MULTILINE)
+        # TODO: Why does this not work? assert re.search(r'inside mocked writeConfig', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_setlon(capsys):
+    """Test --setlon"""
+    sys.argv = ['', '--setlon', '-122.1']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    mocked_node = MagicMock(autospec=Node)
+    def mock_writeConfig():
+        print('inside mocked writeConfig')
+    mocked_node.writeConfig.side_effect = mock_writeConfig
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_sendPosition(lat, lon, alt):
+        print('inside mocked sendPosition')
+    iface.sendPosition.side_effect = mock_sendPosition
+    iface.localNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Fixing longitude', out, re.MULTILINE)
+        assert re.search(r'Setting device position', out, re.MULTILINE)
+        assert re.search(r'inside mocked sendPosition', out, re.MULTILINE)
+        # TODO: Why does this not work? assert re.search(r'inside mocked writeConfig', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_setalt(capsys):
+    """Test --setalt"""
+    sys.argv = ['', '--setalt', '51']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    mocked_node = MagicMock(autospec=Node)
+    def mock_writeConfig():
+        print('inside mocked writeConfig')
+    mocked_node.writeConfig.side_effect = mock_writeConfig
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_sendPosition(lat, lon, alt):
+        print('inside mocked sendPosition')
+    iface.sendPosition.side_effect = mock_sendPosition
+    iface.localNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Fixing altitude', out, re.MULTILINE)
+        assert re.search(r'Setting device position', out, re.MULTILINE)
+        assert re.search(r'inside mocked sendPosition', out, re.MULTILINE)
+        # TODO: Why does this not work? assert re.search(r'inside mocked writeConfig', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()

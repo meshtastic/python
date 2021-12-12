@@ -156,7 +156,6 @@ def onConnected(interface):
             alt = 0
             lat = 0.0
             lon = 0.0
-            timeval = 0  # always set time, but based on the local clock
             prefs = interface.localNode.radioConfig.preferences
             if args.setalt:
                 alt = int(args.setalt)
@@ -173,7 +172,7 @@ def onConnected(interface):
 
             print("Setting device position")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
-            interface.sendPosition(lat, lon, alt, timeval)
+            interface.sendPosition(lat, lon, alt)
             interface.localNode.writeConfig()
         elif not args.no_time:
             # We normally provide a current time to the mesh when we connect
@@ -314,7 +313,6 @@ def onConnected(interface):
                     alt = 0
                     lat = 0.0
                     lon = 0.0
-                    timeval = 0  # always set time, but based on the local clock
                     prefs = interface.localNode.radioConfig.preferences
 
                     if 'alt' in configuration['location']:
@@ -330,7 +328,7 @@ def onConnected(interface):
                         prefs.fixed_position = True
                         print(f"Fixing longitude at {lon} degrees")
                     print("Setting device position")
-                    interface.sendPosition(lat, lon, alt, timeval)
+                    interface.sendPosition(lat, lon, alt)
                     interface.localNode.writeConfig()
 
                 if 'user_prefs' in configuration:
