@@ -690,3 +690,40 @@ def test_main_set_with_invalid(capsys):
         assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_configure(capsys):
+    """Test --configure with valid file"""
+    sys.argv = ['', '--configure', 'example_config.yaml']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+
+    mocked_user_prefs = MagicMock(autospec=RadioConfig.UserPreferences)
+    mocked_user_prefs.phone_timeout_secs.return_value = 900
+    mocked_user_prefs.ls_secs.return_value = 300
+
+    mocked_node = MagicMock(autospec=Node)
+    mocked_node.radioConfig.preferences = ( mocked_user_prefs )
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Setting device owner', out, re.MULTILINE)
+        assert re.search(r'Setting channel url', out, re.MULTILINE)
+        assert re.search(r'Fixing altitude', out, re.MULTILINE)
+        assert re.search(r'Fixing latitude', out, re.MULTILINE)
+        assert re.search(r'Fixing longitude', out, re.MULTILINE)
+        assert re.search(r'Writing modified preferences', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
