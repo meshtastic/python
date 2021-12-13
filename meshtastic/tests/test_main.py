@@ -604,3 +604,24 @@ def test_main_set_team_invalid(capsys):
             assert err == ''
             mo.assert_called()
             mm.Value.assert_called()
+
+
+@pytest.mark.unit
+def test_main_seturl(capsys):
+    """Test --seturl (url used below is what is generated after a factory_reset)"""
+    sys.argv = ['', '--seturl', 'https://www.meshtastic.org/d/#CgUYAyIBAQ']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
