@@ -16,12 +16,12 @@ import meshtastic.test
 from .tcp_interface import TCPInterface
 from .ble_interface import BLEInterface
 from . import remote_hardware
-from . import portnums_pb2, channel_pb2, mesh_pb2, radioconfig_pb2
+from . import portnums_pb2, channel_pb2, radioconfig_pb2
 from .globals import Globals
+
 
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
-
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -156,7 +156,6 @@ def onConnected(interface):
             alt = 0
             lat = 0.0
             lon = 0.0
-            timeval = 0  # always set time, but based on the local clock
             prefs = interface.localNode.radioConfig.preferences
             if args.setalt:
                 alt = int(args.setalt)
@@ -173,7 +172,7 @@ def onConnected(interface):
 
             print("Setting device position")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
-            interface.sendPosition(lat, lon, alt, timeval)
+            interface.sendPosition(lat, lon, alt)
             interface.localNode.writeConfig()
         elif not args.no_time:
             # We normally provide a current time to the mesh when we connect
@@ -220,14 +219,14 @@ def onConnected(interface):
         if args.set_team:
             closeNow = True
             try:
-                v_team = mesh_pb2.Team.Value(args.set_team.upper())
+                v_team = meshtastic.mesh_pb2.Team.Value(args.set_team.upper())
             except ValueError:
                 v_team = 0
                 print(f"ERROR: Team \'{args.set_team}\' not found.")
-                print("Try a team name from the list below, or CLEAR for unaffiliated:")
-                print(mesh_pb2.Team.keys())
+                print("Try a team name from the sorted list below, or use 'CLEAR' for unaffiliated:")
+                print(sorted(meshtastic.mesh_pb2.Team.keys()))
             else:
-                print(f"Setting team to {mesh_pb2.Team.Name(v_team)}")
+                print(f"Setting team to {meshtastic.mesh_pb2.Team.Name(v_team)}")
                 getNode().setOwner(team=v_team)
 
         if args.set_ham:
@@ -291,8 +290,7 @@ def onConnected(interface):
 
             # Handle the int/float/bool arguments
             for pref in args.set:
-                setPref(
-                    prefs, pref[0], pref[1])
+                setPref(prefs, pref[0], pref[1])
 
             print("Writing modified preferences to device")
             getNode().writeConfig()
@@ -314,7 +312,6 @@ def onConnected(interface):
                     alt = 0
                     lat = 0.0
                     lon = 0.0
-                    timeval = 0  # always set time, but based on the local clock
                     prefs = interface.localNode.radioConfig.preferences
 
                     if 'alt' in configuration['location']:
@@ -330,7 +327,7 @@ def onConnected(interface):
                         prefs.fixed_position = True
                         print(f"Fixing longitude at {lon} degrees")
                     print("Setting device position")
-                    interface.sendPosition(lat, lon, alt, timeval)
+                    interface.sendPosition(lat, lon, alt)
                     interface.localNode.writeConfig()
 
                 if 'user_prefs' in configuration:
@@ -348,14 +345,14 @@ def onConnected(interface):
 
         if args.ch_add:
             closeNow = True
-            n = getNode()
             if len(args.ch_add) > 10:
                 meshtastic.util.our_exit("Warning: Channel name must be shorter. Channel not added.")
+            n = getNode()
             ch = n.getChannelByName(args.ch_add)
             if ch:
-                logging.error(
-                    f"This node already has a '{args.ch_add}' channel - no changes.")
+                meshtastic.util.our_exit(f"Warning: This node already has a '{args.ch_add}' channel. No changes were made.")
             else:
+                # get the first channel that is disabled (i.e., available)
                 ch = n.getDisabledChannel()
                 if not ch:
                     meshtastic.util.our_exit("Warning: No free channels were found")
@@ -421,28 +418,22 @@ def onConnected(interface):
 
                 # handle the simple channel set commands
                 if args.ch_longslow:
-                    setSimpleChannel(
-                        channel_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
 
                 if args.ch_longfast:
-                    setSimpleChannel(
-                        channel_pb2.ChannelSettings.ModemConfig.Bw31_25Cr48Sf512)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw31_25Cr48Sf512)
 
                 if args.ch_mediumslow:
-                    setSimpleChannel(
-                        channel_pb2.ChannelSettings.ModemConfig.Bw250Cr46Sf2048)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw250Cr46Sf2048)
 
                 if args.ch_mediumfast:
-                    setSimpleChannel(
-                        channel_pb2.ChannelSettings.ModemConfig.Bw250Cr47Sf1024)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw250Cr47Sf1024)
 
                 if args.ch_shortslow:
-                    setSimpleChannel(
-                        channel_pb2.ChannelSettings.ModemConfig.Bw125Cr45Sf128)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw125Cr45Sf128)
 
                 if args.ch_shortfast:
-                    setSimpleChannel(
-                        channel_pb2.ChannelSettings.ModemConfig.Bw500Cr45Sf128)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw500Cr45Sf128)
 
             # Handle the channel settings
             for pref in (args.ch_set or []):
@@ -734,7 +725,7 @@ def initParser():
         "--setlon", help="Set device longitude (allows use without GPS)")
 
     parser.add_argument(
-        "--pos-fields", help="Specify position message fields. Use '0' for list of valid values. "\
+        "--pos-fields", help="Specify fields to send when sending a position. Use no argument for a list of valid values. "\
                              "Can pass multiple values as a space separated list like "\
                              "this: '--pos-fields POS_ALTITUDE POS_ALT_MSL'",
         nargs="*", action="store")

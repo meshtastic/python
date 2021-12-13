@@ -30,6 +30,13 @@ class Globals:
         self.target_node = None
         self.channel_index = None
 
+    def reset(self):
+        """Reset all of our globals. If you add a member, add it to this method, too."""
+        self.args = None
+        self.parser = None
+        self.target_node = None
+        self.channel_index = None
+
     def set_args(self, args):
         """Set the args"""
         self.args = args
