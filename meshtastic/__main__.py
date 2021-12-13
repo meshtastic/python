@@ -345,15 +345,16 @@ def onConnected(interface):
 
         if args.ch_add:
             closeNow = True
-            n = getNode()
             if len(args.ch_add) > 10:
                 meshtastic.util.our_exit("Warning: Channel name must be shorter. Channel not added.")
+            n = getNode()
             ch = n.getChannelByName(args.ch_add)
             if ch:
-                logging.error(
-                    f"This node already has a '{args.ch_add}' channel - no changes.")
+                meshtastic.util.our_exit(f"Warning: This node already has a '{args.ch_add}' channel. No changes were made.")
             else:
+                # get the first channel that is disabled (i.e., available)
                 ch = n.getDisabledChannel()
+                print('mike ch:', ch)
                 if not ch:
                     meshtastic.util.our_exit("Warning: No free channels were found")
                 chs = channel_pb2.ChannelSettings()

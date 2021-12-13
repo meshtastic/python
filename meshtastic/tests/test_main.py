@@ -12,6 +12,7 @@ from meshtastic.__main__ import initParser, main, Globals
 from ..serial_interface import SerialInterface
 from ..node import Node
 from ..radioconfig_pb2 import RadioConfig
+from ..channel_pb2 import Channel
 
 
 @pytest.mark.unit
@@ -725,5 +726,149 @@ def test_main_configure(capsys):
         assert re.search(r'Fixing latitude', out, re.MULTILINE)
         assert re.search(r'Fixing longitude', out, re.MULTILINE)
         assert re.search(r'Writing modified preferences', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_add_valid(capsys):
+    """Test --ch-add with valid channel name, and that channel name does not already exist"""
+    sys.argv = ['', '--ch-add', 'testing']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    mocked_channel = MagicMock(autospec=Channel)
+    # TODO: figure out how to get it to print the channel name instead of MagicMock
+
+    mocked_node = MagicMock(autospec=Node)
+    # set it up so we do not already have a channel named this
+    mocked_node.getChannelByName.return_value = False
+    # set it up so we have free channels
+    mocked_node.getDisabledChannel.return_value = mocked_channel
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_add_invalid_name_too_long(capsys):
+    """Test --ch-add with invalid channel name, name too long"""
+    sys.argv = ['', '--ch-add', 'testingtestingtesting']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    mocked_channel = MagicMock(autospec=Channel)
+    # TODO: figure out how to get it to print the channel name instead of MagicMock
+
+    mocked_node = MagicMock(autospec=Node)
+    # set it up so we do not already have a channel named this
+    mocked_node.getChannelByName.return_value = False
+    # set it up so we have free channels
+    mocked_node.getDisabledChannel.return_value = mocked_channel
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Warning: Channel name must be shorter', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_add_but_name_already_exists(capsys):
+    """Test --ch-add with a channel name that already exists"""
+    sys.argv = ['', '--ch-add', 'testing']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    mocked_channel = MagicMock(autospec=Channel)
+    # TODO: figure out how to get it to print the channel name instead of MagicMock
+
+    mocked_node = MagicMock(autospec=Node)
+    # set it up so we do not already have a channel named this
+    mocked_node.getChannelByName.return_value = True
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Warning: This node already has', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_add_but_no_more_channels(capsys):
+    """Test --ch-add with but there are no more channels"""
+    sys.argv = ['', '--ch-add', 'testing']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    mocked_node = MagicMock(autospec=Node)
+    # set it up so we do not already have a channel named this
+    mocked_node.getChannelByName.return_value = False
+    # set it up so we have free channels
+    mocked_node.getDisabledChannel.return_value = None
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Warning: No free channels were found', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
