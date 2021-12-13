@@ -785,3 +785,151 @@ def test_main_ch_del_primary_channel(capsys, reset_globals):
         assert re.search(r'Warning: Cannot delete primary channel', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_enable_valid_secondary_channel(capsys, reset_globals):
+    """Test --ch-enable with --ch-index"""
+    sys.argv = ['', '--ch-enable', '--ch-index', '1']
+    Globals.getInstance().set_args(sys.argv)
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Writing modified channels', out, re.MULTILINE)
+        assert err == ''
+        assert Globals.getInstance().get_channel_index() == 1
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_disable_valid_secondary_channel(capsys, reset_globals):
+    """Test --ch-disable with --ch-index"""
+    sys.argv = ['', '--ch-disable', '--ch-index', '1']
+    Globals.getInstance().set_args(sys.argv)
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Writing modified channels', out, re.MULTILINE)
+        assert err == ''
+        assert Globals.getInstance().get_channel_index() == 1
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_enable_without_a_ch_index(capsys, reset_globals):
+    """Test --ch-enable without --ch-index"""
+    sys.argv = ['', '--ch-enable']
+    Globals.getInstance().set_args(sys.argv)
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Warning: Need to specify', out, re.MULTILINE)
+        assert err == ''
+        assert Globals.getInstance().get_channel_index() is None
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_enable_primary_channel(capsys, reset_globals):
+    """Test --ch-enable with --ch-index = 0"""
+    sys.argv = ['', '--ch-enable', '--ch-index', '0']
+    Globals.getInstance().set_args(sys.argv)
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Warning: Cannot enable/disable PRIMARY', out, re.MULTILINE)
+        assert err == ''
+        assert Globals.getInstance().get_channel_index() == 0
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_range_options(capsys, reset_globals):
+    """Test changing the various range options."""
+    range_options = ['--ch-longslow', '--ch-longfast', '--ch-mediumslow',
+                     '--ch-mediumfast', '--ch-shortslow', '--ch-shortfast']
+    for range_option in range_options:
+        sys.argv = ['', f"{range_option}" ]
+        Globals.getInstance().set_args(sys.argv)
+
+        mocked_node = MagicMock(autospec=Node)
+
+        iface = MagicMock(autospec=SerialInterface)
+        iface.getNode.return_value = mocked_node
+
+        with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+            main()
+            out, err = capsys.readouterr()
+            print('out:', out)
+            print('err:', err)
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'Writing modified channels', out, re.MULTILINE)
+            assert err == ''
+            mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_longsfast_on_non_primary_channel(capsys, reset_globals):
+    """Test --ch-longfast --ch-index 1"""
+    sys.argv = ['', '--ch-longfast', '--ch-index', '1']
+    Globals.getInstance().set_args(sys.argv)
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Warning: Standard channel settings', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
