@@ -815,9 +815,6 @@ def test_main_ch_add_but_name_already_exists(capsys):
     our_globals.set_args(args)
     our_globals.set_target_node(None)
 
-    mocked_channel = MagicMock(autospec=Channel)
-    # TODO: figure out how to get it to print the channel name instead of MagicMock
-
     mocked_node = MagicMock(autospec=Node)
     # set it up so we do not already have a channel named this
     mocked_node.getChannelByName.return_value = True
@@ -870,5 +867,97 @@ def test_main_ch_add_but_no_more_channels(capsys):
         print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Warning: No free channels were found', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_del(capsys):
+    """Test --ch-del with valid secondary channel to be deleted"""
+    sys.argv = ['', '--ch-del', '--ch-index', '1']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Deleting channel', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_del_no_ch_index_specified(capsys):
+    """Test --ch-del without a valid ch-index"""
+    sys.argv = ['', '--ch-del']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+    our_globals.set_channel_index(None)
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Warning: Need to specify', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_del_primary_channel(capsys):
+    """Test --ch-del on ch-index=0"""
+    sys.argv = ['', '--ch-del', '--ch-index', '0']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+    our_globals.set_target_node(None)
+    our_globals.set_channel_index(1)
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Warning: Cannot delete primary channel', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()

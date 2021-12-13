@@ -354,7 +354,6 @@ def onConnected(interface):
             else:
                 # get the first channel that is disabled (i.e., available)
                 ch = n.getDisabledChannel()
-                print('mike ch:', ch)
                 if not ch:
                     meshtastic.util.our_exit("Warning: No free channels were found")
                 chs = channel_pb2.ChannelSettings()
