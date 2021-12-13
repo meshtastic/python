@@ -19,9 +19,9 @@ from . import remote_hardware
 from . import portnums_pb2, channel_pb2, radioconfig_pb2
 from .globals import Globals
 
+
 """We only import the tunnel code if we are on a platform that can run it"""
 have_tunnel = platform.system() == 'Linux'
-
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -290,8 +290,7 @@ def onConnected(interface):
 
             # Handle the int/float/bool arguments
             for pref in args.set:
-                setPref(
-                    prefs, pref[0], pref[1])
+                setPref(prefs, pref[0], pref[1])
 
             print("Writing modified preferences to device")
             getNode().writeConfig()

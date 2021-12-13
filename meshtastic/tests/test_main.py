@@ -11,6 +11,7 @@ from meshtastic.__main__ import initParser, main, Globals
 
 from ..serial_interface import SerialInterface
 from ..node import Node
+from ..radioconfig_pb2 import RadioConfig
 
 
 @pytest.mark.unit
@@ -623,5 +624,37 @@ def test_main_seturl(capsys):
         print('out:', out)
         print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_set_valid(capsys):
+    """Test --set with valid field"""
+    sys.argv = ['', '--set', 'wifi_ssid', 'foo']
+    args = sys.argv
+    parser = None
+    parser = argparse.ArgumentParser()
+    our_globals = Globals.getInstance()
+    our_globals.set_parser(parser)
+    our_globals.set_args(args)
+
+    mocked_user_prefs = MagicMock(autospec=RadioConfig.UserPreferences)
+    mocked_user_prefs.phone_timeout_secs.return_value = 900
+    mocked_user_prefs.ls_secs.return_value = 300
+
+    mocked_node = MagicMock(autospec=Node)
+    mocked_node.radioConfig.preferences = ( mocked_user_prefs )
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        print('out:', out)
+        print('err:', err)
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Set wifi_ssid to foo', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
