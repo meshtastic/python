@@ -1,7 +1,6 @@
 """Meshtastic unit tests for __main__.py"""
 
 import sys
-import argparse
 import re
 
 from unittest.mock import patch, MagicMock
@@ -16,14 +15,10 @@ from ..channel_pb2 import Channel
 
 
 @pytest.mark.unit
-def test_main_init_parser_no_args(capsys):
+def test_main_init_parser_no_args(capsys, reset_globals):
     """Test no arguments"""
     sys.argv = ['']
-    args = sys.argv
-    our_globals = Globals.getInstance()
-    parser = argparse.ArgumentParser()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
     initParser()
     out, err = capsys.readouterr()
     assert out == ''
@@ -31,15 +26,11 @@ def test_main_init_parser_no_args(capsys):
 
 
 @pytest.mark.unit
-def test_main_init_parser_version(capsys):
+def test_main_init_parser_version(capsys, reset_globals):
     """Test --version"""
     sys.argv = ['', '--version']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
+
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         initParser()
     assert pytest_wrapped_e.type == SystemExit
@@ -50,15 +41,11 @@ def test_main_init_parser_version(capsys):
 
 
 @pytest.mark.unit
-def test_main_main_version(capsys):
+def test_main_main_version(capsys, reset_globals):
     """Test --version"""
     sys.argv = ['', '--version']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
+
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
     assert pytest_wrapped_e.type == SystemExit
@@ -69,15 +56,11 @@ def test_main_main_version(capsys):
 
 
 @pytest.mark.unit
-def test_main_main_no_args():
+def test_main_main_no_args(reset_globals):
     """Test with no args"""
     sys.argv = ['']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
+
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
     assert pytest_wrapped_e.type == SystemExit
@@ -85,15 +68,11 @@ def test_main_main_no_args():
 
 
 @pytest.mark.unit
-def test_main_support(capsys):
+def test_main_support(capsys, reset_globals):
     """Test --support"""
     sys.argv = ['', '--support']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
+
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
     assert pytest_wrapped_e.type == SystemExit
@@ -108,20 +87,14 @@ def test_main_support(capsys):
 
 @pytest.mark.unit
 @patch('meshtastic.util.findPorts', return_value=[])
-def test_main_ch_index_no_devices(patched_find_ports, capsys):
+def test_main_ch_index_no_devices(patched_find_ports, capsys, reset_globals):
     """Test --ch-index 1"""
     sys.argv = ['', '--ch-index', '1']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    assert our_globals.get_target_node() is None
-    assert our_globals.get_channel_index() is None
+    Globals.getInstance().set_args(sys.argv)
+
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
-    assert our_globals.get_channel_index() == 1
+    assert Globals.getInstance().get_channel_index() == 1
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()
@@ -132,16 +105,12 @@ def test_main_ch_index_no_devices(patched_find_ports, capsys):
 
 @pytest.mark.unit
 @patch('meshtastic.util.findPorts', return_value=[])
-def test_main_test_no_ports(patched_find_ports):
+def test_main_test_no_ports(patched_find_ports, reset_globals):
     """Test --test with no hardware"""
     sys.argv = ['', '--test']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    assert our_globals.get_target_node() is None
+    Globals.getInstance().set_args(sys.argv)
+
+    assert Globals.getInstance().get_target_node() is None
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
     assert pytest_wrapped_e.type == SystemExit
@@ -151,16 +120,12 @@ def test_main_test_no_ports(patched_find_ports):
 
 @pytest.mark.unit
 @patch('meshtastic.util.findPorts', return_value=['/dev/ttyFake1'])
-def test_main_test_one_port(patched_find_ports):
+def test_main_test_one_port(patched_find_ports, reset_globals):
     """Test --test with one fake port"""
     sys.argv = ['', '--test']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    assert our_globals.get_target_node() is None
+    Globals.getInstance().set_args(sys.argv)
+
+    assert Globals.getInstance().get_target_node() is None
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
     assert pytest_wrapped_e.type == SystemExit
@@ -171,15 +136,11 @@ def test_main_test_one_port(patched_find_ports):
 @pytest.mark.unit
 @patch('meshtastic.test.testAll', return_value=True)
 @patch('meshtastic.util.findPorts', return_value=['/dev/ttyFake1', '/dev/ttyFake2'])
-def test_main_test_two_ports_success(patched_find_ports, patched_test_all):
+def test_main_test_two_ports_success(patched_find_ports, patched_test_all, reset_globals):
     """Test --test two fake ports and testAll() is a simulated success"""
     sys.argv = ['', '--test']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
+
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
     assert pytest_wrapped_e.type == SystemExit
@@ -191,15 +152,11 @@ def test_main_test_two_ports_success(patched_find_ports, patched_test_all):
 @pytest.mark.unit
 @patch('meshtastic.test.testAll', return_value=False)
 @patch('meshtastic.util.findPorts', return_value=['/dev/ttyFake1', '/dev/ttyFake2'])
-def test_main_test_two_ports_fails(patched_find_ports, patched_test_all):
+def test_main_test_two_ports_fails(patched_find_ports, patched_test_all, reset_globals):
     """Test --test two fake ports and testAll() is a simulated failure"""
     sys.argv = ['', '--test']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
+
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
     assert pytest_wrapped_e.type == SystemExit
@@ -209,15 +166,11 @@ def test_main_test_two_ports_fails(patched_find_ports, patched_test_all):
 
 
 @pytest.mark.unit
-def test_main_info(capsys):
+def test_main_info(capsys, reset_globals):
     """Test --info"""
     sys.argv = ['', '--info']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
+
     iface = MagicMock(autospec=SerialInterface)
     def mock_showInfo():
         print('inside mocked showInfo')
@@ -234,15 +187,11 @@ def test_main_info(capsys):
 
 
 @pytest.mark.unit
-def test_main_qr(capsys):
+def test_main_qr(capsys, reset_globals):
     """Test --qr"""
     sys.argv = ['', '--qr']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
+
     iface = MagicMock(autospec=SerialInterface)
     # TODO: could mock/check url
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
@@ -259,15 +208,11 @@ def test_main_qr(capsys):
 
 
 @pytest.mark.unit
-def test_main_nodes(capsys):
+def test_main_nodes(capsys, reset_globals):
     """Test --nodes"""
     sys.argv = ['', '--nodes']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
+
     iface = MagicMock(autospec=SerialInterface)
     def mock_showNodes():
         print('inside mocked showNodes')
@@ -284,15 +229,11 @@ def test_main_nodes(capsys):
 
 
 @pytest.mark.unit
-def test_main_set_owner_to_bob(capsys):
+def test_main_set_owner_to_bob(capsys, reset_globals):
     """Test --set-owner bob"""
     sys.argv = ['', '--set-owner', 'bob']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
+
     iface = MagicMock(autospec=SerialInterface)
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
@@ -306,16 +247,10 @@ def test_main_set_owner_to_bob(capsys):
 
 
 @pytest.mark.unit
-def test_main_set_ham_to_KI123(capsys):
+def test_main_set_ham_to_KI123(capsys, reset_globals):
     """Test --set-ham KI123"""
     sys.argv = ['', '--set-ham', 'KI123']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_node = MagicMock(autospec=Node)
     def mock_turnOffEncryptionOnPrimaryChannel():
@@ -342,16 +277,10 @@ def test_main_set_ham_to_KI123(capsys):
 
 
 @pytest.mark.unit
-def test_main_reboot(capsys):
+def test_main_reboot(capsys, reset_globals):
     """Test --reboot"""
     sys.argv = ['', '--reboot']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_node = MagicMock(autospec=Node)
     def mock_reboot():
@@ -373,16 +302,10 @@ def test_main_reboot(capsys):
 
 
 @pytest.mark.unit
-def test_main_sendtext(capsys):
+def test_main_sendtext(capsys, reset_globals):
     """Test --sendtext"""
     sys.argv = ['', '--sendtext', 'hello']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
     def mock_sendText(text, dest, wantAck):
@@ -402,16 +325,10 @@ def test_main_sendtext(capsys):
 
 
 @pytest.mark.unit
-def test_main_sendping(capsys):
+def test_main_sendping(capsys, reset_globals):
     """Test --sendping"""
     sys.argv = ['', '--sendping']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
     def mock_sendData(payload, dest, portNum, wantAck, wantResponse):
@@ -431,16 +348,10 @@ def test_main_sendping(capsys):
 
 
 @pytest.mark.unit
-def test_main_setlat(capsys):
+def test_main_setlat(capsys, reset_globals):
     """Test --sendlat"""
     sys.argv = ['', '--setlat', '37.5']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_node = MagicMock(autospec=Node)
     def mock_writeConfig():
@@ -468,16 +379,10 @@ def test_main_setlat(capsys):
 
 
 @pytest.mark.unit
-def test_main_setlon(capsys):
+def test_main_setlon(capsys, reset_globals):
     """Test --setlon"""
     sys.argv = ['', '--setlon', '-122.1']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_node = MagicMock(autospec=Node)
     def mock_writeConfig():
@@ -505,16 +410,10 @@ def test_main_setlon(capsys):
 
 
 @pytest.mark.unit
-def test_main_setalt(capsys):
+def test_main_setalt(capsys, reset_globals):
     """Test --setalt"""
     sys.argv = ['', '--setalt', '51']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_node = MagicMock(autospec=Node)
     def mock_writeConfig():
@@ -542,16 +441,10 @@ def test_main_setalt(capsys):
 
 
 @pytest.mark.unit
-def test_main_set_team_valid(capsys):
+def test_main_set_team_valid(capsys, reset_globals):
     """Test --set-team"""
     sys.argv = ['', '--set-team', 'CYAN']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_node = MagicMock(autospec=Node)
     def mock_setOwner(team):
@@ -578,16 +471,10 @@ def test_main_set_team_valid(capsys):
 
 
 @pytest.mark.unit
-def test_main_set_team_invalid(capsys):
+def test_main_set_team_invalid(capsys, reset_globals):
     """Test --set-team using an invalid team name"""
     sys.argv = ['', '--set-team', 'NOTCYAN']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
 
@@ -609,15 +496,11 @@ def test_main_set_team_invalid(capsys):
 
 
 @pytest.mark.unit
-def test_main_seturl(capsys):
+def test_main_seturl(capsys, reset_globals):
     """Test --seturl (url used below is what is generated after a factory_reset)"""
     sys.argv = ['', '--seturl', 'https://www.meshtastic.org/d/#CgUYAyIBAQ']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
+
     iface = MagicMock(autospec=SerialInterface)
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
@@ -630,15 +513,10 @@ def test_main_seturl(capsys):
 
 
 @pytest.mark.unit
-def test_main_set_valid(capsys):
+def test_main_set_valid(capsys, reset_globals):
     """Test --set with valid field"""
     sys.argv = ['', '--set', 'wifi_ssid', 'foo']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_user_prefs = MagicMock(autospec=RadioConfig.UserPreferences)
     mocked_user_prefs.phone_timeout_secs.return_value = 900
@@ -662,16 +540,10 @@ def test_main_set_valid(capsys):
 
 
 @pytest.mark.unit
-def test_main_set_with_invalid(capsys):
+def test_main_set_with_invalid(capsys, reset_globals):
     """Test --set with invalid field"""
     sys.argv = ['', '--set', 'foo', 'foo']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_user_prefs = MagicMock()
     mocked_user_prefs.DESCRIPTOR.fields_by_name.get.return_value = None
@@ -694,15 +566,10 @@ def test_main_set_with_invalid(capsys):
 
 
 @pytest.mark.unit
-def test_main_configure(capsys):
+def test_main_configure(capsys, reset_globals):
     """Test --configure with valid file"""
     sys.argv = ['', '--configure', 'example_config.yaml']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_user_prefs = MagicMock(autospec=RadioConfig.UserPreferences)
     mocked_user_prefs.phone_timeout_secs.return_value = 900
@@ -731,16 +598,10 @@ def test_main_configure(capsys):
 
 
 @pytest.mark.unit
-def test_main_ch_add_valid(capsys):
+def test_main_ch_add_valid(capsys, reset_globals):
     """Test --ch-add with valid channel name, and that channel name does not already exist"""
     sys.argv = ['', '--ch-add', 'testing']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_channel = MagicMock(autospec=Channel)
     # TODO: figure out how to get it to print the channel name instead of MagicMock
@@ -766,16 +627,10 @@ def test_main_ch_add_valid(capsys):
 
 
 @pytest.mark.unit
-def test_main_ch_add_invalid_name_too_long(capsys):
+def test_main_ch_add_invalid_name_too_long(capsys, reset_globals):
     """Test --ch-add with invalid channel name, name too long"""
     sys.argv = ['', '--ch-add', 'testingtestingtesting']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_channel = MagicMock(autospec=Channel)
     # TODO: figure out how to get it to print the channel name instead of MagicMock
@@ -804,16 +659,10 @@ def test_main_ch_add_invalid_name_too_long(capsys):
 
 
 @pytest.mark.unit
-def test_main_ch_add_but_name_already_exists(capsys):
+def test_main_ch_add_but_name_already_exists(capsys, reset_globals):
     """Test --ch-add with a channel name that already exists"""
     sys.argv = ['', '--ch-add', 'testing']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_node = MagicMock(autospec=Node)
     # set it up so we do not already have a channel named this
@@ -837,16 +686,10 @@ def test_main_ch_add_but_name_already_exists(capsys):
 
 
 @pytest.mark.unit
-def test_main_ch_add_but_no_more_channels(capsys):
+def test_main_ch_add_but_no_more_channels(capsys, reset_globals):
     """Test --ch-add with but there are no more channels"""
     sys.argv = ['', '--ch-add', 'testing']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_node = MagicMock(autospec=Node)
     # set it up so we do not already have a channel named this
@@ -872,16 +715,10 @@ def test_main_ch_add_but_no_more_channels(capsys):
 
 
 @pytest.mark.unit
-def test_main_ch_del(capsys):
+def test_main_ch_del(capsys, reset_globals):
     """Test --ch-del with valid secondary channel to be deleted"""
     sys.argv = ['', '--ch-del', '--ch-index', '1']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_node = MagicMock(autospec=Node)
 
@@ -900,17 +737,10 @@ def test_main_ch_del(capsys):
 
 
 @pytest.mark.unit
-def test_main_ch_del_no_ch_index_specified(capsys):
+def test_main_ch_del_no_ch_index_specified(capsys, reset_globals):
     """Test --ch-del without a valid ch-index"""
     sys.argv = ['', '--ch-del']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
-    our_globals.set_channel_index(None)
+    Globals.getInstance().set_args(sys.argv)
 
     mocked_node = MagicMock(autospec=Node)
 
@@ -932,17 +762,11 @@ def test_main_ch_del_no_ch_index_specified(capsys):
 
 
 @pytest.mark.unit
-def test_main_ch_del_primary_channel(capsys):
+def test_main_ch_del_primary_channel(capsys, reset_globals):
     """Test --ch-del on ch-index=0"""
     sys.argv = ['', '--ch-del', '--ch-index', '0']
-    args = sys.argv
-    parser = None
-    parser = argparse.ArgumentParser()
-    our_globals = Globals.getInstance()
-    our_globals.set_parser(parser)
-    our_globals.set_args(args)
-    our_globals.set_target_node(None)
-    our_globals.set_channel_index(1)
+    Globals.getInstance().set_args(sys.argv)
+    Globals.getInstance().set_channel_index(1)
 
     mocked_node = MagicMock(autospec=Node)
 
