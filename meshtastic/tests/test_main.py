@@ -1,16 +1,16 @@
 """Meshtastic unit tests for __main__.py"""
 
 import sys
+import os
 import re
 
 from unittest.mock import patch, MagicMock
 import pytest
 
 from meshtastic.__main__ import initParser, main, Globals
-
+import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
 from ..node import Node
-from ..radioconfig_pb2 import RadioConfig
 from ..channel_pb2 import Channel
 
 
@@ -178,12 +178,77 @@ def test_main_info(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_no_proto(capsys, reset_globals):
+    """Test --noproto (using --info for output)"""
+    sys.argv = ['', '--info', '--noproto']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+
+    # Override the time.sleep so there is no loop
+    def my_sleep(amount):
+        sys.exit(0)
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
+        with patch('time.sleep', side_effect=my_sleep):
+            with pytest.raises(SystemExit) as pytest_wrapped_e:
+                main()
+            assert pytest_wrapped_e.type == SystemExit
+            assert pytest_wrapped_e.value.code == 0
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+            assert err == ''
+
+
+@pytest.mark.unit
+def test_main_info_with_seriallog_stdout(capsys, reset_globals):
+    """Test --info"""
+    sys.argv = ['', '--info', '--seriallog', 'stdout']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_info_with_seriallog_output_txt(capsys, reset_globals):
+    """Test --info"""
+    sys.argv = ['', '--info', '--seriallog', 'output.txt']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+    # do some cleanup
+    os.remove('output.txt')
 
 
 @pytest.mark.unit
@@ -197,8 +262,6 @@ def test_main_qr(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Primary channel URL', out, re.MULTILINE)
         # if a qr code is generated it will have lots of these
@@ -220,8 +283,6 @@ def test_main_nodes(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'inside mocked showNodes', out, re.MULTILINE)
         assert err == ''
@@ -238,8 +299,6 @@ def test_main_set_owner_to_bob(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Setting device owner to bob', out, re.MULTILINE)
         assert err == ''
@@ -266,8 +325,6 @@ def test_main_set_ham_to_KI123(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Setting HAM ID to KI123', out, re.MULTILINE)
         assert re.search(r'inside mocked setOwner', out, re.MULTILINE)
@@ -293,8 +350,6 @@ def test_main_reboot(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'inside mocked reboot', out, re.MULTILINE)
         assert err == ''
@@ -315,8 +370,6 @@ def test_main_sendtext(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Sending text message', out, re.MULTILINE)
         assert re.search(r'inside mocked sendText', out, re.MULTILINE)
@@ -338,8 +391,6 @@ def test_main_sendping(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Sending ping message', out, re.MULTILINE)
         assert re.search(r'inside mocked sendData', out, re.MULTILINE)
@@ -367,8 +418,6 @@ def test_main_setlat(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Fixing latitude', out, re.MULTILINE)
         assert re.search(r'Setting device position', out, re.MULTILINE)
@@ -398,8 +447,6 @@ def test_main_setlon(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Fixing longitude', out, re.MULTILINE)
         assert re.search(r'Setting device position', out, re.MULTILINE)
@@ -429,8 +476,6 @@ def test_main_setalt(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Fixing altitude', out, re.MULTILINE)
         assert re.search(r'Setting device position', out, re.MULTILINE)
@@ -460,8 +505,6 @@ def test_main_set_team_valid(capsys, reset_globals):
             mm.Value.return_value = 'FAKEVAL'
             main()
             out, err = capsys.readouterr()
-            print('out:', out)
-            print('err:', err)
             assert re.search(r'Connected to radio', out, re.MULTILINE)
             assert re.search(r'Setting team to', out, re.MULTILINE)
             assert err == ''
@@ -486,8 +529,6 @@ def test_main_set_team_invalid(capsys, reset_globals):
             mm.Value.side_effect = throw_an_exception
             main()
             out, err = capsys.readouterr()
-            print('out:', out)
-            print('err:', err)
             assert re.search(r'Connected to radio', out, re.MULTILINE)
             assert re.search(r'ERROR: Team', out, re.MULTILINE)
             assert err == ''
@@ -505,8 +546,6 @@ def test_main_seturl(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
@@ -518,12 +557,7 @@ def test_main_set_valid(capsys, reset_globals):
     sys.argv = ['', '--set', 'wifi_ssid', 'foo']
     Globals.getInstance().set_args(sys.argv)
 
-    mocked_user_prefs = MagicMock(autospec=RadioConfig.UserPreferences)
-    mocked_user_prefs.phone_timeout_secs.return_value = 900
-    mocked_user_prefs.ls_secs.return_value = 300
-
     mocked_node = MagicMock(autospec=Node)
-    mocked_node.radioConfig.preferences = ( mocked_user_prefs )
 
     iface = MagicMock(autospec=SerialInterface)
     iface.getNode.return_value = mocked_node
@@ -531,8 +565,6 @@ def test_main_set_valid(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Set wifi_ssid to foo', out, re.MULTILINE)
         assert err == ''
@@ -557,26 +589,20 @@ def test_main_set_with_invalid(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
 
 
+# TODO: write some negative --configure tests
 @pytest.mark.unit
 def test_main_configure(capsys, reset_globals):
     """Test --configure with valid file"""
     sys.argv = ['', '--configure', 'example_config.yaml']
     Globals.getInstance().set_args(sys.argv)
 
-    mocked_user_prefs = MagicMock(autospec=RadioConfig.UserPreferences)
-    mocked_user_prefs.phone_timeout_secs.return_value = 900
-    mocked_user_prefs.ls_secs.return_value = 300
-
     mocked_node = MagicMock(autospec=Node)
-    mocked_node.radioConfig.preferences = ( mocked_user_prefs )
 
     iface = MagicMock(autospec=SerialInterface)
     iface.getNode.return_value = mocked_node
@@ -584,8 +610,6 @@ def test_main_configure(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Setting device owner', out, re.MULTILINE)
         assert re.search(r'Setting channel url', out, re.MULTILINE)
@@ -618,8 +642,6 @@ def test_main_ch_add_valid(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
         assert err == ''
@@ -650,8 +672,6 @@ def test_main_ch_add_invalid_name_too_long(capsys, reset_globals):
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Warning: Channel name must be shorter', out, re.MULTILINE)
         assert err == ''
@@ -677,8 +697,6 @@ def test_main_ch_add_but_name_already_exists(capsys, reset_globals):
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Warning: This node already has', out, re.MULTILINE)
         assert err == ''
@@ -706,8 +724,6 @@ def test_main_ch_add_but_no_more_channels(capsys, reset_globals):
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Warning: No free channels were found', out, re.MULTILINE)
         assert err == ''
@@ -728,8 +744,6 @@ def test_main_ch_del(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Deleting channel', out, re.MULTILINE)
         assert err == ''
@@ -753,8 +767,6 @@ def test_main_ch_del_no_ch_index_specified(capsys, reset_globals):
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Warning: Need to specify', out, re.MULTILINE)
         assert err == ''
@@ -779,8 +791,6 @@ def test_main_ch_del_primary_channel(capsys, reset_globals):
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Warning: Cannot delete primary channel', out, re.MULTILINE)
         assert err == ''
@@ -801,8 +811,6 @@ def test_main_ch_enable_valid_secondary_channel(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Writing modified channels', out, re.MULTILINE)
         assert err == ''
@@ -824,8 +832,6 @@ def test_main_ch_disable_valid_secondary_channel(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Writing modified channels', out, re.MULTILINE)
         assert err == ''
@@ -850,8 +856,6 @@ def test_main_ch_enable_without_a_ch_index(capsys, reset_globals):
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Warning: Need to specify', out, re.MULTILINE)
         assert err == ''
@@ -876,8 +880,6 @@ def test_main_ch_enable_primary_channel(capsys, reset_globals):
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Warning: Cannot enable/disable PRIMARY', out, re.MULTILINE)
         assert err == ''
@@ -902,8 +904,6 @@ def test_main_ch_range_options(capsys, reset_globals):
         with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
             main()
             out, err = capsys.readouterr()
-            print('out:', out)
-            print('err:', err)
             assert re.search(r'Connected to radio', out, re.MULTILINE)
             assert re.search(r'Writing modified channels', out, re.MULTILINE)
             assert err == ''
@@ -927,9 +927,182 @@ def test_main_ch_longsfast_on_non_primary_channel(capsys, reset_globals):
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
-        print('out:', out)
-        print('err:', err)
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Warning: Standard channel settings', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
+
+
+# PositionFlags:
+# Misc info that might be helpful (this info will grow stale, just
+# a snapshot of the values.) The radioconfig_pb2.PositionFlags.Name and bit values are:
+# POS_UNDEFINED 0
+# POS_ALTITUDE 1
+# POS_ALT_MSL 2
+# POS_GEO_SEP 4
+# POS_DOP 8
+# POS_HVDOP 16
+# POS_BATTERY 32
+# POS_SATINVIEW 64
+# POS_SEQ_NOS 128
+# POS_TIMESTAMP 256
+
+@pytest.mark.unit
+def test_main_pos_fields_no_args(capsys, reset_globals):
+    """Test --pos-fields no args (which shows settings)"""
+    sys.argv = ['', '--pos-fields']
+    Globals.getInstance().set_args(sys.argv)
+
+    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
+
+    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
+            # kind of cheating here, we are setting up the node
+            mocked_node = MagicMock(autospec=Node)
+            anode = mocked_node()
+            anode.radioConfig.preferences.position_flags = 35
+            Globals.getInstance().set_target_node(anode)
+
+            mrc.values.return_value = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256]
+            # Note: When you use side_effect and a list, each call will use a value from the front of the list then
+            # remove that value from the list. If there are three values in the list, we expect it to be called
+            # three times.
+            mrc.Name.side_effect = [ 'POS_ALTITUDE', 'POS_ALT_MSL', 'POS_BATTERY' ]
+
+            main()
+
+            mrc.Name.assert_called()
+            mrc.values.assert_called()
+            mo.assert_called()
+
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'POS_ALTITUDE POS_ALT_MSL POS_BATTERY', out, re.MULTILINE)
+            assert err == ''
+
+
+@pytest.mark.unit
+def test_main_pos_fields_arg_of_zero(capsys, reset_globals):
+    """Test --pos-fields an arg of 0 (which shows list)"""
+    sys.argv = ['', '--pos-fields', '0']
+    Globals.getInstance().set_args(sys.argv)
+
+    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
+
+    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
+
+            def throw_value_error_exception(exc):
+                raise ValueError()
+            mrc.Value.side_effect = throw_value_error_exception
+            mrc.keys.return_value = [ 'POS_UNDEFINED', 'POS_ALTITUDE', 'POS_ALT_MSL',
+                                      'POS_GEO_SEP', 'POS_DOP', 'POS_HVDOP', 'POS_BATTERY',
+                                      'POS_SATINVIEW', 'POS_SEQ_NOS', 'POS_TIMESTAMP']
+
+            main()
+
+            mrc.Value.assert_called()
+            mrc.keys.assert_called()
+            mo.assert_called()
+
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'ERROR: supported position fields are:', out, re.MULTILINE)
+            assert re.search(r"['POS_UNDEFINED', 'POS_ALTITUDE', 'POS_ALT_MSL', 'POS_GEO_SEP',"\
+                              "'POS_DOP', 'POS_HVDOP', 'POS_BATTERY', 'POS_SATINVIEW', 'POS_SEQ_NOS',"\
+                              "'POS_TIMESTAMP']", out, re.MULTILINE)
+            assert err == ''
+
+
+@pytest.mark.unit
+def test_main_pos_fields_valid_values(capsys, reset_globals):
+    """Test --pos-fields with valid values"""
+    sys.argv = ['', '--pos-fields', 'POS_GEO_SEP', 'POS_ALT_MSL']
+    Globals.getInstance().set_args(sys.argv)
+
+    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
+
+    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
+
+            mrc.Value.side_effect = [ 4, 2 ]
+
+            main()
+
+            mrc.Value.assert_called()
+            mo.assert_called()
+
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'Setting position fields to 6', out, re.MULTILINE)
+            assert re.search(r'Set position_flags to 6', out, re.MULTILINE)
+            assert re.search(r'Writing modified preferences to device', out, re.MULTILINE)
+            assert err == ''
+
+
+@pytest.mark.unit
+def test_main_get_with_valid_values(capsys, reset_globals):
+    """Test --get with valid values (with string, number, boolean)"""
+    sys.argv = ['', '--get', 'ls_secs', '--get', 'wifi_ssid', '--get', 'fixed_position']
+    Globals.getInstance().set_args(sys.argv)
+
+    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+
+        # kind of cheating here, we are setting up the node
+        mocked_node = MagicMock(autospec=Node)
+        anode = mocked_node()
+        anode.radioConfig.preferences.wifi_ssid = 'foo'
+        anode.radioConfig.preferences.ls_secs = 300
+        anode.radioConfig.preferences.fixed_position = False
+        Globals.getInstance().set_target_node(anode)
+
+        main()
+
+        mo.assert_called()
+
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'ls_secs: 300', out, re.MULTILINE)
+        assert re.search(r'wifi_ssid: foo', out, re.MULTILINE)
+        assert re.search(r'fixed_position: False', out, re.MULTILINE)
+        assert err == ''
+
+
+@pytest.mark.unit
+def test_main_get_with_invalid(capsys, reset_globals):
+    """Test --get with invalid field"""
+    sys.argv = ['', '--get', 'foo']
+    Globals.getInstance().set_args(sys.argv)
+
+    mocked_user_prefs = MagicMock()
+    mocked_user_prefs.DESCRIPTOR.fields_by_name.get.return_value = None
+
+    mocked_node = MagicMock(autospec=Node)
+    mocked_node.radioConfig.preferences = ( mocked_user_prefs )
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
+        assert re.search(r'Choices in sorted order are', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_setchan(capsys, reset_globals):
+    """Test --setchan (deprecated)"""
+    sys.argv = ['', '--setchan', 'a', 'b']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
