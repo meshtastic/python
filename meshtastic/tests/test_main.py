@@ -7,7 +7,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from meshtastic.__main__ import initParser, main, Globals
-
+import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
 from ..node import Node
 from ..radioconfig_pb2 import RadioConfig
@@ -533,6 +533,7 @@ def test_main_set_with_invalid(capsys, reset_globals):
         mo.assert_called()
 
 
+# TODO: write some negative --configure tests
 @pytest.mark.unit
 def test_main_configure(capsys, reset_globals):
     """Test --configure with valid file"""
@@ -873,3 +874,56 @@ def test_main_ch_longsfast_on_non_primary_channel(capsys, reset_globals):
         assert re.search(r'Warning: Standard channel settings', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
+
+
+# TODO: pos_fields: no args
+# TODO: pos_fields: invalid arg of '0' to show list
+# TODO: pos_fields: set valid number (35)
+# TODO: pos_fields: set invalid number (3000?)
+
+# PositionFlags:
+# Misc info that might be helpful (this info will grow stale, just
+# a snapshot of the values.) The radioconfig_pb2.PositionFlags.Name and bit values are:
+# POS_UNDEFINED 0
+# POS_ALTITUDE 1
+# POS_ALT_MSL 2
+# POS_GEO_SEP 4
+# POS_DOP 8
+# POS_HVDOP 16
+# POS_BATTERY 32
+# POS_SATINVIEW 64
+# POS_SEQ_NOS 128
+# POS_TIMESTAMP 256
+
+@pytest.mark.unit
+def test_main_pos_fields_no_args(capsys, reset_globals):
+    """Test --pos-fields no args (which shows settings)"""
+    sys.argv = ['', '--pos-fields']
+    Globals.getInstance().set_args(sys.argv)
+
+    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
+
+    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
+            # kind of cheating here, we are setting up the node
+            mocked_node = MagicMock(autospec=Node)
+            anode = mocked_node()
+            anode.radioConfig.preferences.position_flags = 35
+            Globals.getInstance().set_target_node(anode)
+
+            mrc.values.return_value = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256]
+            # Note: When you use side_effect and a list, each call will use a value from the front of the list then
+            # remove that value from the list. If there are three values in the list, we expect it to be called
+            # three times.
+            mrc.Name.side_effect = [ 'POS_ALTITUDE', 'POS_ALT_MSL', 'POS_BATTERY' ]
+
+            main()
+
+            mrc.Name.assert_called()
+            mrc.values.assert_called()
+            mo.assert_called()
+
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'POS_ALTITUDE POS_ALT_MSL POS_BATTERY', out, re.MULTILINE)
+            assert err == ''
