@@ -970,3 +970,56 @@ def test_main_pos_fields_valid_values(capsys, reset_globals):
             assert re.search(r'Set position_flags to 6', out, re.MULTILINE)
             assert re.search(r'Writing modified preferences to device', out, re.MULTILINE)
             assert err == ''
+
+
+@pytest.mark.unit
+def test_main_get_with_valid_values(capsys, reset_globals):
+    """Test --get with valid values (with string, number, boolean)"""
+    sys.argv = ['', '--get', 'ls_secs', '--get', 'wifi_ssid', '--get', 'fixed_position']
+    Globals.getInstance().set_args(sys.argv)
+
+    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+
+        # kind of cheating here, we are setting up the node
+        mocked_node = MagicMock(autospec=Node)
+        anode = mocked_node()
+        anode.radioConfig.preferences.wifi_ssid = 'foo'
+        anode.radioConfig.preferences.ls_secs = 300
+        anode.radioConfig.preferences.fixed_position = False
+        Globals.getInstance().set_target_node(anode)
+
+        main()
+
+        mo.assert_called()
+
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'ls_secs: 300', out, re.MULTILINE)
+        assert re.search(r'wifi_ssid: foo', out, re.MULTILINE)
+        assert re.search(r'fixed_position: False', out, re.MULTILINE)
+        assert err == ''
+
+
+@pytest.mark.unit
+def test_main_get_with_invalid(capsys, reset_globals):
+    """Test --get with invalid field"""
+    sys.argv = ['', '--get', 'foo']
+    Globals.getInstance().set_args(sys.argv)
+
+    mocked_user_prefs = MagicMock()
+    mocked_user_prefs.DESCRIPTOR.fields_by_name.get.return_value = None
+
+    mocked_node = MagicMock(autospec=Node)
+    mocked_node.radioConfig.preferences = ( mocked_user_prefs )
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
+        assert re.search(r'Choices in sorted order are', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
