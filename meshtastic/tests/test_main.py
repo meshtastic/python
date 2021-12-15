@@ -876,11 +876,6 @@ def test_main_ch_longsfast_on_non_primary_channel(capsys, reset_globals):
         mo.assert_called()
 
 
-# TODO: pos_fields: no args
-# TODO: pos_fields: invalid arg of '0' to show list
-# TODO: pos_fields: set valid number (35)
-# TODO: pos_fields: set invalid number (3000?)
-
 # PositionFlags:
 # Misc info that might be helpful (this info will grow stale, just
 # a snapshot of the values.) The radioconfig_pb2.PositionFlags.Name and bit values are:
@@ -926,4 +921,63 @@ def test_main_pos_fields_no_args(capsys, reset_globals):
             out, err = capsys.readouterr()
             assert re.search(r'Connected to radio', out, re.MULTILINE)
             assert re.search(r'POS_ALTITUDE POS_ALT_MSL POS_BATTERY', out, re.MULTILINE)
+            assert err == ''
+
+
+@pytest.mark.unit
+def test_main_pos_fields_arg_of_zero(capsys, reset_globals):
+    """Test --pos-fields an arg of 0 (which shows list)"""
+    sys.argv = ['', '--pos-fields', '0']
+    Globals.getInstance().set_args(sys.argv)
+
+    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
+
+    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
+
+            def throw_value_error_exception(exc):
+                raise ValueError()
+            mrc.Value.side_effect = throw_value_error_exception
+            mrc.keys.return_value = [ 'POS_UNDEFINED', 'POS_ALTITUDE', 'POS_ALT_MSL',
+                                      'POS_GEO_SEP', 'POS_DOP', 'POS_HVDOP', 'POS_BATTERY',
+                                      'POS_SATINVIEW', 'POS_SEQ_NOS', 'POS_TIMESTAMP']
+
+            main()
+
+            mrc.Value.assert_called()
+            mrc.keys.assert_called()
+            mo.assert_called()
+
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'ERROR: supported position fields are:', out, re.MULTILINE)
+            assert re.search(r"['POS_UNDEFINED', 'POS_ALTITUDE', 'POS_ALT_MSL', 'POS_GEO_SEP',"\
+                              "'POS_DOP', 'POS_HVDOP', 'POS_BATTERY', 'POS_SATINVIEW', 'POS_SEQ_NOS',"\
+                              "'POS_TIMESTAMP']", out, re.MULTILINE)
+            assert err == ''
+
+
+@pytest.mark.unit
+def test_main_pos_fields_valid_values(capsys, reset_globals):
+    """Test --pos-fields with valid values"""
+    sys.argv = ['', '--pos-fields', 'POS_GEO_SEP', 'POS_ALT_MSL']
+    Globals.getInstance().set_args(sys.argv)
+
+    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
+
+    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
+
+            mrc.Value.side_effect = [ 4, 2 ]
+
+            main()
+
+            mrc.Value.assert_called()
+            mo.assert_called()
+
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'Setting position fields to 6', out, re.MULTILINE)
+            assert re.search(r'Set position_flags to 6', out, re.MULTILINE)
+            assert re.search(r'Writing modified preferences to device', out, re.MULTILINE)
             assert err == ''
