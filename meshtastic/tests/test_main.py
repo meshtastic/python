@@ -10,7 +10,6 @@ from meshtastic.__main__ import initParser, main, Globals
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
 from ..node import Node
-from ..radioconfig_pb2 import RadioConfig
 from ..channel_pb2 import Channel
 
 
@@ -490,12 +489,7 @@ def test_main_set_valid(capsys, reset_globals):
     sys.argv = ['', '--set', 'wifi_ssid', 'foo']
     Globals.getInstance().set_args(sys.argv)
 
-    mocked_user_prefs = MagicMock(autospec=RadioConfig.UserPreferences)
-    mocked_user_prefs.phone_timeout_secs.return_value = 900
-    mocked_user_prefs.ls_secs.return_value = 300
-
     mocked_node = MagicMock(autospec=Node)
-    mocked_node.radioConfig.preferences = ( mocked_user_prefs )
 
     iface = MagicMock(autospec=SerialInterface)
     iface.getNode.return_value = mocked_node
@@ -540,12 +534,7 @@ def test_main_configure(capsys, reset_globals):
     sys.argv = ['', '--configure', 'example_config.yaml']
     Globals.getInstance().set_args(sys.argv)
 
-    mocked_user_prefs = MagicMock(autospec=RadioConfig.UserPreferences)
-    mocked_user_prefs.phone_timeout_secs.return_value = 900
-    mocked_user_prefs.ls_secs.return_value = 300
-
     mocked_node = MagicMock(autospec=Node)
-    mocked_node.radioConfig.preferences = ( mocked_user_prefs )
 
     iface = MagicMock(autospec=SerialInterface)
     iface.getNode.return_value = mocked_node
