@@ -1,6 +1,7 @@
 """Meshtastic unit tests for __main__.py"""
 
 import sys
+import os
 import re
 
 from unittest.mock import patch, MagicMock
@@ -181,6 +182,73 @@ def test_main_info(capsys, reset_globals):
         assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_no_proto(capsys, reset_globals):
+    """Test --noproto (using --info for output)"""
+    sys.argv = ['', '--info', '--noproto']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+
+    # Override the time.sleep so there is no loop
+    def my_sleep(amount):
+        sys.exit(0)
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
+        with patch('time.sleep', side_effect=my_sleep):
+            with pytest.raises(SystemExit) as pytest_wrapped_e:
+                main()
+            assert pytest_wrapped_e.type == SystemExit
+            assert pytest_wrapped_e.value.code == 0
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+            assert err == ''
+
+
+@pytest.mark.unit
+def test_main_info_with_seriallog_stdout(capsys, reset_globals):
+    """Test --info"""
+    sys.argv = ['', '--info', '--seriallog', 'stdout']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_info_with_seriallog_output_txt(capsys, reset_globals):
+    """Test --info"""
+    sys.argv = ['', '--info', '--seriallog', 'output.txt']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+    # do some cleanup
+    os.remove('output.txt')
 
 
 @pytest.mark.unit
@@ -1023,3 +1091,18 @@ def test_main_get_with_invalid(capsys, reset_globals):
         assert re.search(r'Choices in sorted order are', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_setchan(capsys, reset_globals):
+    """Test --setchan (deprecated)"""
+    sys.argv = ['', '--setchan', 'a', 'b']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
