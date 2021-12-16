@@ -10,6 +10,8 @@ import pytest
 from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
+from ..tcp_interface import TCPInterface
+from ..ble_interface import BLEInterface
 from ..node import Node
 from ..channel_pb2 import Channel
 
@@ -176,6 +178,44 @@ def test_main_info(capsys, reset_globals):
         print('inside mocked showInfo')
     iface.showInfo.side_effect = mock_showInfo
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_info_with_tcp_interface(capsys, reset_globals):
+    """Test --info"""
+    sys.argv = ['', '--info', '--host', 'meshtastic.local']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=TCPInterface)
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+    with patch('meshtastic.tcp_interface.TCPInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_info_with_ble_interface(capsys, reset_globals):
+    """Test --info"""
+    sys.argv = ['', '--info', '--ble', 'foo']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=BLEInterface)
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+    with patch('meshtastic.ble_interface.BLEInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
         assert re.search(r'Connected to radio', out, re.MULTILINE)
@@ -360,6 +400,27 @@ def test_main_reboot(capsys, reset_globals):
 def test_main_sendtext(capsys, reset_globals):
     """Test --sendtext"""
     sys.argv = ['', '--sendtext', 'hello']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_sendText(text, dest, wantAck):
+        print('inside mocked sendText')
+    iface.sendText.side_effect = mock_sendText
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Sending text message', out, re.MULTILINE)
+        assert re.search(r'inside mocked sendText', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_sendtext_with_dest(capsys, reset_globals):
+    """Test --sendtext with --dest"""
+    sys.argv = ['', '--sendtext', 'hello', '--dest', 'foo']
     Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)

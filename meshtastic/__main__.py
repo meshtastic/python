@@ -13,8 +13,6 @@ import pyqrcode
 import pkg_resources
 import meshtastic.util
 import meshtastic.test
-from .tcp_interface import TCPInterface
-from .ble_interface import BLEInterface
 from . import remote_hardware
 from . import portnums_pb2, channel_pb2, radioconfig_pb2
 from .globals import Globals
@@ -575,9 +573,9 @@ def common():
 
             subscribe()
             if args.ble:
-                client = BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto)
+                client = meshtastic.ble_interface.BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto)
             elif args.host:
-                client = TCPInterface(
+                client = meshtastic.tcp_interface.TCPInterface(
                     args.host, debugOut=logfile, noProto=args.noproto)
             else:
                 client = meshtastic.serial_interface.SerialInterface(
