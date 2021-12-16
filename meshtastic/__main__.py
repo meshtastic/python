@@ -575,7 +575,7 @@ def common():
 
             subscribe()
             if args.ble:
-                client = BLEInterface(args.ble, debugOut=logfile)
+                client = BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto)
             elif args.host:
                 client = TCPInterface(
                     args.host, debugOut=logfile, noProto=args.noproto)

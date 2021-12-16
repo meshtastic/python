@@ -13,6 +13,8 @@ def test_MeshInterface(capsys):
     iface = MeshInterface(noProto=True)
     iface.showInfo()
     iface.localNode.showInfo()
+    iface.showNodes()
+    iface.close()
     out, err = capsys.readouterr()
     assert re.search(r'Owner: None \(None\)', out, re.MULTILINE)
     assert re.search(r'Nodes', out, re.MULTILINE)
@@ -20,4 +22,3 @@ def test_MeshInterface(capsys):
     assert re.search(r'Channels', out, re.MULTILINE)
     assert re.search(r'Primary channel URL', out, re.MULTILINE)
     assert err == ''
-    iface.close()

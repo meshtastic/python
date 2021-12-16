@@ -101,39 +101,38 @@ class MeshInterface:
             return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else None
 
         rows = []
-        for node in self.nodes.values():
-            if not includeSelf and node['num'] == self.localNode.nodeNum:
-                continue
+        if self.nodes:
+            for node in self.nodes.values():
+                if not includeSelf and node['num'] == self.localNode.nodeNum:
+                    continue
 
-            row = {"N": 0}
+                row = {"N": 0}
 
-            user = node.get('user')
-            if user:
+                user = node.get('user')
+                if user:
+                    row.update({
+                        "User": user['longName'],
+                        "AKA":  user['shortName'],
+                        "ID":   user['id'],
+                    })
+
+                pos = node.get('position')
+                if pos:
+                    row.update({
+                        "Latitude":  formatFloat(pos.get("latitude"),     4, "°"),
+                        "Longitude": formatFloat(pos.get("longitude"),    4, "°"),
+                        "Altitude":  formatFloat(pos.get("altitude"),     0, " m"),
+                        "Battery":   formatFloat(pos.get("batteryLevel"), 2, "%"),
+                    })
+
                 row.update({
-                    "User": user['longName'],
-                    "AKA":  user['shortName'],
-                    "ID":   user['id'],
+                    "SNR":       formatFloat(node.get("snr"), 2, " dB"),
+                    "LastHeard": getLH(node.get("lastHeard")),
+                    "Since":     getTimeAgo(node.get("lastHeard")),
                 })
 
-            pos = node.get('position')
-            if pos:
-                row.update({
-                    "Latitude":  formatFloat(pos.get("latitude"),     4, "°"),
-                    "Longitude": formatFloat(pos.get("longitude"),    4, "°"),
-                    "Altitude":  formatFloat(pos.get("altitude"),     0, " m"),
-                    "Battery":   formatFloat(pos.get("batteryLevel"), 2, "%"),
-                })
+                rows.append(row)
 
-            row.update({
-                "SNR":       formatFloat(node.get("snr"), 2, " dB"),
-                "LastHeard": getLH(node.get("lastHeard")),
-                "Since":     getTimeAgo(node.get("lastHeard")),
-            })
-
-            rows.append(row)
-
-        # Why doesn't this way work?
-        #rows.sort(key=lambda r: r.get('LastHeard', '0000'), reverse=True)
         rows.sort(key=lambda r: r.get('LastHeard') or '0000', reverse=True)
         for i, row in enumerate(rows):
             row['N'] = i+1

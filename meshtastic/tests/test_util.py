@@ -85,6 +85,12 @@ def test_pskToString_many_bytes():
 
 
 @pytest.mark.unit
+def test_pskToString_simple():
+    """Test pskToString simple"""
+    assert pskToString(bytes([0x03])) == 'simple2'
+
+
+@pytest.mark.unit
 def test_our_exit_zero_return_value():
     """Test our_exit with a zero return value"""
     with pytest.raises(SystemExit) as pytest_wrapped_e:
