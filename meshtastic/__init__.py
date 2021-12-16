@@ -155,10 +155,11 @@ def _onNodeInfoReceive(iface, asDict):
 
 
 def _receiveInfoUpdate(iface, asDict):
-    iface._getOrCreateByNum(asDict["from"])["lastReceived"] = asDict
-    iface._getOrCreateByNum(asDict["from"])["lastHeard"] = asDict.get("rxTime")
-    iface._getOrCreateByNum(asDict["from"])["snr"] = asDict.get("rxSnr")
-    iface._getOrCreateByNum(asDict["from"])["hopLimit"] = asDict.get("hopLimit")
+    if "from" in asDict:
+        iface._getOrCreateByNum(asDict["from"])["lastReceived"] = asDict
+        iface._getOrCreateByNum(asDict["from"])["lastHeard"] = asDict.get("rxTime")
+        iface._getOrCreateByNum(asDict["from"])["snr"] = asDict.get("rxSnr")
+        iface._getOrCreateByNum(asDict["from"])["hopLimit"] = asDict.get("hopLimit")
 
 
 """Well known message payloads can register decoders for automatic protobuf parsing"""

@@ -1,4 +1,4 @@
-""" Mesh Interface class
+"""Mesh Interface class
 """
 import sys
 import random
@@ -222,6 +222,7 @@ class MeshInterface:
             logging.debug(f"Serializing protobuf as data: {stripnl(data)}")
             data = data.SerializeToString()
 
+        logging.debug(f"len(data): {len(data)}")
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
             Exception("Data payload too big")
 
@@ -543,8 +544,15 @@ class MeshInterface:
             self.nodesByNum[nodeNum] = n
             return n
 
-    def _handlePacketFromRadio(self, meshPacket):
+    def _handlePacketFromRadio(self, meshPacket, hack=False):
         """Handle a MeshPacket that just arrived from the radio
+
+        hack - well, since we used 'from', which is a python keyword,
+               as an attribute to MeshPacket in protobufs,
+               there really is no way to do something like this:
+                    meshPacket = mesh_pb2.MeshPacket()
+                    meshPacket.from = 123
+               If hack is True, we can unit test this code.
 
         Will publish one of the following events:
         - meshtastic.receive.text(packet = MeshPacket dictionary)
@@ -561,10 +569,10 @@ class MeshInterface:
         asDict["raw"] = meshPacket
 
         # from might be missing if the nodenum was zero.
-        if "from" not in asDict:
+        if not hack and "from" not in asDict:
             asDict["from"] = 0
-            logging.error(
-                f"Device returned a packet we sent, ignoring: {stripnl(asDict)}")
+            logging.error(f"Device returned a packet we sent, ignoring: {stripnl(asDict)}")
+            print(f"Error: Device returned a packet we sent, ignoring: {stripnl(asDict)}")
             return
         if "to" not in asDict:
             asDict["to"] = 0
