@@ -91,9 +91,10 @@ BROADCAST_NUM = 0xffffffff
 BROADCAST_ADDR = "^all"
 
 
-"""The numeric buildnumber (shared with android apps) specifying the level of device code we are guaranteed to understand
+"""The numeric buildnumber (shared with android apps) specifying the
+   level of device code we are guaranteed to understand
 
-format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
+   format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 """
 OUR_APP_VERSION = 20200
 

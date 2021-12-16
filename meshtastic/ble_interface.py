@@ -1,4 +1,4 @@
-""" Bluetooth interface
+"""Bluetooth interface
 """
 import logging
 import pygatt

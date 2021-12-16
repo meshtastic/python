@@ -18,7 +18,7 @@ from . import portnums_pb2, channel_pb2, radioconfig_pb2
 from .globals import Globals
 
 
-"""We only import the tunnel code if we are on a platform that can run it"""
+"""We only import the tunnel code if we are on a platform that can run it. """
 have_tunnel = platform.system() == 'Linux'
 
 def onReceive(packet, interface):
@@ -375,7 +375,9 @@ def onConnected(interface):
                     print(f"Deleting channel {channelIndex}")
                     ch = getNode().deleteChannel(channelIndex)
 
-        ch_changes = [args.ch_longslow, args.ch_longfast, args.ch_mediumslow, args.ch_mediumfast, args.ch_shortslow, args.ch_shortfast]
+        ch_changes = [args.ch_longslow, args.ch_longfast,
+                      args.ch_mediumslow, args.ch_mediumfast,
+                      args.ch_shortslow, args.ch_shortfast]
         any_primary_channel_changes = any(x for x in ch_changes)
         if args.ch_set or any_primary_channel_changes or args.ch_enable or args.ch_disable:
             closeNow = True
@@ -593,7 +595,7 @@ def common():
 
 
 def initParser():
-    """ Initialize the command line argument parsing."""
+    """Initialize the command line argument parsing."""
     our_globals = Globals.getInstance()
     parser = our_globals.get_parser()
     args = our_globals.get_args()

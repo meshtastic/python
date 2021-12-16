@@ -1,4 +1,4 @@
-""" Code for IP tunnel over a mesh
+"""Code for IP tunnel over a mesh
 
 # Note python-pytuntap was too buggy
 # using pip3 install pytap2
@@ -88,8 +88,8 @@ class Tunnel:
         global tunnelInstance
         tunnelInstance = self
 
-        logging.info(
-            "Starting IP to mesh tunnel (you must be root for this *pre-alpha* feature to work).  Mesh members:")
+        logging.info("Starting IP to mesh tunnel (you must be root for this *pre-alpha* "\
+                     "feature to work).  Mesh members:")
 
         pub.subscribe(onTunnelReceive, "meshtastic.receive.data.IP_TUNNEL_APP")
         myAddr = self._nodeNumToIp(self.iface.myInfo.my_node_num)
@@ -117,8 +117,8 @@ class Tunnel:
         else:
             logging.debug(
                 f"Received mesh tunnel message type={type(p)} len={len(p)}")
-            # we don't really need to check for filtering here (sender should have checked), but this provides
-            # useful debug printing on types of packets received
+            # we don't really need to check for filtering here (sender should have checked),
+            # but this provides useful debug printing on types of packets received
             if not self._shouldFilterPacket(p):
                 self.tun.write(p)
 
@@ -137,8 +137,8 @@ class Tunnel:
             icmpType = p[20]
             icmpCode = p[21]
             checksum = p[22:24]
-            logging.debug(
-                f"forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}, type={icmpType}, code={icmpCode}, checksum={checksum}")
+            # pylint: disable=line-too-long
+            logging.debug(f"forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}, type={icmpType}, code={icmpCode}, checksum={checksum}")
             # reply to pings (swap src and dest but keep rest of packet unchanged)
             #pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
             # tap.write(pingback)
@@ -157,14 +157,12 @@ class Tunnel:
             destport = readnet_u16(p, subheader + 2)
             if destport in tcpBlacklist:
                 ignore = True
-                logging.log(
-                    LOG_TRACE, f"ignoring blacklisted TCP port {destport}")
+                logging.log(LOG_TRACE, f"ignoring blacklisted TCP port {destport}")
             else:
-                logging.debug(
-                    f"forwarding tcp srcport={srcport}, destport={destport}")
+                logging.debug(f"forwarding tcp srcport={srcport}, destport={destport}")
         else:
-            logging.warning(
-                f"forwarding unexpected protocol 0x{protocol:02x}, src={ipstr(srcaddr)}, dest={ipstr(destAddr)}")
+            logging.warning(f"forwarding unexpected protocol 0x{protocol:02x}, "\
+                             "src={ipstr(srcaddr)}, dest={ipstr(destAddr)}")
 
         return ignore
 
@@ -200,13 +198,11 @@ class Tunnel:
         """Forward the provided IP packet into the mesh"""
         nodeId = self._ipToNodeId(destAddr)
         if nodeId is not None:
-            logging.debug(
-                f"Forwarding packet bytelen={len(p)} dest={ipstr(destAddr)}, destNode={nodeId}")
+            logging.debug(f"Forwarding packet bytelen={len(p)} dest={ipstr(destAddr)}, destNode={nodeId}")
             self.iface.sendData(
                 p, nodeId, portnums_pb2.IP_TUNNEL_APP, wantAck=False)
         else:
-            logging.warning(
-                f"Dropping packet because no node found for destIP={ipstr(destAddr)}")
+            logging.warning(f"Dropping packet because no node found for destIP={ipstr(destAddr)}")
 
     def close(self):
         """Close"""
