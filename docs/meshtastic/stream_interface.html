@@ -27,7 +27,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34; Stream Interface base class
+<pre><code class="python">&#34;&#34;&#34;Stream Interface base class
 &#34;&#34;&#34;
 import logging
 import threading
@@ -54,7 +54,8 @@ class StreamInterface(MeshInterface):
 
         Keyword Arguments:
             devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
-            debugOut {stream} -- If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})
+            debugOut {stream} -- If a stream is provided, any debug serial output from the
+                                 device will be emitted to that stream. (default: {None})
 
         Raises:
             Exception: [description]
@@ -82,12 +83,14 @@ class StreamInterface(MeshInterface):
     def connect(self):
         &#34;&#34;&#34;Connect to our radio
 
-        Normally this is called automatically by the constructor, but if you passed in connectNow=False you can manually
-        start the reading thread later.
+        Normally this is called automatically by the constructor, but if you
+        passed in connectNow=False you can manually start the reading thread later.
         &#34;&#34;&#34;
 
-        # Send some bogus UART characters to force a sleeping device to wake, and if the reading statemachine was parsing a bad packet make sure
-        # we write enought start bytes to force it to resync (we don&#39;t use START1 because we want to ensure it is looking for START1)
+        # Send some bogus UART characters to force a sleeping device to wake, and
+        # if the reading statemachine was parsing a bad packet make sure
+        # we write enought start bytes to force it to resync (we don&#39;t use START1
+        # because we want to ensure it is looking for START1)
         p = bytearray([START2] * 32)
         self._writeBytes(p)
         time.sleep(0.1)  # wait 100ms to give device time to start running
@@ -104,8 +107,11 @@ class StreamInterface(MeshInterface):
         MeshInterface._disconnected(self)
 
         logging.debug(&#34;Closing our port&#34;)
+        # pylint: disable=E0203
         if not self.stream is None:
+            # pylint: disable=E0203
             self.stream.close()
+            # pylint: disable=W0201
             self.stream = None
 
     def _writeBytes(self, b):
@@ -131,7 +137,8 @@ class StreamInterface(MeshInterface):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing stream&#34;)
         MeshInterface.close(self)
-        # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
+        # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the
+        # reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
             self._rxThread.join()  # wait for it to exit
@@ -177,8 +184,7 @@ class StreamInterface(MeshInterface):
                             try:
                                 self._handleFromRadio(self._rxBuf[HEADER_LEN:])
                             except Exception as ex:
-                                logging.error(
-                                    f&#34;Error while handling message from radio {ex}&#34;)
+                                logging.error(f&#34;Error while handling message from radio {ex}&#34;)
                                 traceback.print_exc()
                             self._rxBuf = empty
                 else:
@@ -186,15 +192,12 @@ class StreamInterface(MeshInterface):
                     pass
         except serial.SerialException as ex:
             if not self._wantExit:  # We might intentionally get an exception during shutdown
-                logging.warning(
-                    f&#34;Meshtastic serial port disconnected, disconnecting... {ex}&#34;)
+                logging.warning(f&#34;Meshtastic serial port disconnected, disconnecting... {ex}&#34;)
         except OSError as ex:
             if not self._wantExit:  # We might intentionally get an exception during shutdown
-                logging.error(
-                    f&#34;Unexpected OSError, terminating meshtastic reader... {ex}&#34;)
+                logging.error(f&#34;Unexpected OSError, terminating meshtastic reader... {ex}&#34;)
         except Exception as ex:
-            logging.error(
-                f&#34;Unexpected exception, terminating meshtastic reader... {ex}&#34;)
+            logging.error(f&#34;Unexpected exception, terminating meshtastic reader... {ex}&#34;)
         finally:
             logging.debug(&#34;reader is exiting&#34;)
             self._disconnected()</code></pre>
@@ -218,7 +221,8 @@ class StreamInterface(MeshInterface):
 <p>Constructor, opens a connection to self.stream</p>
 <p>Keyword Arguments:
 devPath {string} &ndash; A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
-debugOut {stream} &ndash; If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})</p>
+debugOut {stream} &ndash; If a stream is provided, any debug serial output from the
+device will be emitted to that stream. (default: {None})</p>
 <h2 id="raises">Raises</h2>
 <dl>
 <dt><code>Exception</code></dt>
@@ -238,7 +242,8 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 
         Keyword Arguments:
             devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
-            debugOut {stream} -- If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})
+            debugOut {stream} -- If a stream is provided, any debug serial output from the
+                                 device will be emitted to that stream. (default: {None})
 
         Raises:
             Exception: [description]
@@ -266,12 +271,14 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
     def connect(self):
         &#34;&#34;&#34;Connect to our radio
 
-        Normally this is called automatically by the constructor, but if you passed in connectNow=False you can manually
-        start the reading thread later.
+        Normally this is called automatically by the constructor, but if you
+        passed in connectNow=False you can manually start the reading thread later.
         &#34;&#34;&#34;
 
-        # Send some bogus UART characters to force a sleeping device to wake, and if the reading statemachine was parsing a bad packet make sure
-        # we write enought start bytes to force it to resync (we don&#39;t use START1 because we want to ensure it is looking for START1)
+        # Send some bogus UART characters to force a sleeping device to wake, and
+        # if the reading statemachine was parsing a bad packet make sure
+        # we write enought start bytes to force it to resync (we don&#39;t use START1
+        # because we want to ensure it is looking for START1)
         p = bytearray([START2] * 32)
         self._writeBytes(p)
         time.sleep(0.1)  # wait 100ms to give device time to start running
@@ -288,8 +295,11 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         MeshInterface._disconnected(self)
 
         logging.debug(&#34;Closing our port&#34;)
+        # pylint: disable=E0203
         if not self.stream is None:
+            # pylint: disable=E0203
             self.stream.close()
+            # pylint: disable=W0201
             self.stream = None
 
     def _writeBytes(self, b):
@@ -315,7 +325,8 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing stream&#34;)
         MeshInterface.close(self)
-        # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
+        # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the
+        # reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
             self._rxThread.join()  # wait for it to exit
@@ -361,8 +372,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
                             try:
                                 self._handleFromRadio(self._rxBuf[HEADER_LEN:])
                             except Exception as ex:
-                                logging.error(
-                                    f&#34;Error while handling message from radio {ex}&#34;)
+                                logging.error(f&#34;Error while handling message from radio {ex}&#34;)
                                 traceback.print_exc()
                             self._rxBuf = empty
                 else:
@@ -370,15 +380,12 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
                     pass
         except serial.SerialException as ex:
             if not self._wantExit:  # We might intentionally get an exception during shutdown
-                logging.warning(
-                    f&#34;Meshtastic serial port disconnected, disconnecting... {ex}&#34;)
+                logging.warning(f&#34;Meshtastic serial port disconnected, disconnecting... {ex}&#34;)
         except OSError as ex:
             if not self._wantExit:  # We might intentionally get an exception during shutdown
-                logging.error(
-                    f&#34;Unexpected OSError, terminating meshtastic reader... {ex}&#34;)
+                logging.error(f&#34;Unexpected OSError, terminating meshtastic reader... {ex}&#34;)
         except Exception as ex:
-            logging.error(
-                f&#34;Unexpected exception, terminating meshtastic reader... {ex}&#34;)
+            logging.error(f&#34;Unexpected exception, terminating meshtastic reader... {ex}&#34;)
         finally:
             logging.debug(&#34;reader is exiting&#34;)
             self._disconnected()</code></pre>
@@ -407,7 +414,8 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
     &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
     logging.debug(&#34;Closing stream&#34;)
     MeshInterface.close(self)
-    # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the reader thread to close things for us
+    # pyserial cancel_read doesn&#39;t seem to work, therefore we ask the
+    # reader thread to close things for us
     self._wantExit = True
     if self._rxThread != threading.current_thread():
         self._rxThread.join()  # wait for it to exit</code></pre>
@@ -418,8 +426,8 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 </code></dt>
 <dd>
 <div class="desc"><p>Connect to our radio</p>
-<p>Normally this is called automatically by the constructor, but if you passed in connectNow=False you can manually
-start the reading thread later.</p></div>
+<p>Normally this is called automatically by the constructor, but if you
+passed in connectNow=False you can manually start the reading thread later.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -427,12 +435,14 @@ start the reading thread later.</p></div>
 <pre><code class="python">def connect(self):
     &#34;&#34;&#34;Connect to our radio
 
-    Normally this is called automatically by the constructor, but if you passed in connectNow=False you can manually
-    start the reading thread later.
+    Normally this is called automatically by the constructor, but if you
+    passed in connectNow=False you can manually start the reading thread later.
     &#34;&#34;&#34;
 
-    # Send some bogus UART characters to force a sleeping device to wake, and if the reading statemachine was parsing a bad packet make sure
-    # we write enought start bytes to force it to resync (we don&#39;t use START1 because we want to ensure it is looking for START1)
+    # Send some bogus UART characters to force a sleeping device to wake, and
+    # if the reading statemachine was parsing a bad packet make sure
+    # we write enought start bytes to force it to resync (we don&#39;t use START1
+    # because we want to ensure it is looking for START1)
     p = bytearray([START2] * 32)
     self._writeBytes(p)
     time.sleep(0.1)  # wait 100ms to give device time to start running

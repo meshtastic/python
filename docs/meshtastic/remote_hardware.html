@@ -67,9 +67,8 @@ class RemoteHardwareClient:
 
     def _sendHardware(self, nodeid, r, wantResponse=False, onResponse=None):
         if not nodeid:
-            # pylint: disable=W1401
             raise Exception(
-                &#34;You must set a destination node ID for this operation (use --dest \!xxxxxxxxx)&#34;)
+                r&#34;You must set a destination node ID for this operation (use --dest \!xxxxxxxxx)&#34;)
         return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP,
                                    wantAck=True, channelIndex=self.channelIndex, wantResponse=wantResponse, onResponse=onResponse)
 
@@ -170,9 +169,8 @@ code for how you can connect to your own custom meshtastic services</p>
 
     def _sendHardware(self, nodeid, r, wantResponse=False, onResponse=None):
         if not nodeid:
-            # pylint: disable=W1401
             raise Exception(
-                &#34;You must set a destination node ID for this operation (use --dest \!xxxxxxxxx)&#34;)
+                r&#34;You must set a destination node ID for this operation (use --dest \!xxxxxxxxx)&#34;)
         return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP,
                                    wantAck=True, channelIndex=self.channelIndex, wantResponse=wantResponse, onResponse=onResponse)
 

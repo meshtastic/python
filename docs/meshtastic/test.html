@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>meshtastic.test API documentation</title>
-<meta name="description" content="Testing" />
+<meta name="description" content="With two radios connected serially, send and receive test
+messages and report back if successful." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,12 +23,14 @@
 <h1 class="title">Module <code>meshtastic.test</code></h1>
 </header>
 <section id="section-intro">
-<p>Testing</p>
+<p>With two radios connected serially, send and receive test
+messages and report back if successful.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34; Testing
+<pre><code class="python">&#34;&#34;&#34;With two radios connected serially, send and receive test
+   messages and report back if successful.
 &#34;&#34;&#34;
 import logging
 import time
@@ -35,8 +38,11 @@ import sys
 import traceback
 from dotmap import DotMap
 from pubsub import pub
-from . import util
-from . import SerialInterface, TCPInterface, BROADCAST_NUM
+import meshtastic.util
+from .__init__ import BROADCAST_NUM
+from .serial_interface import SerialInterface
+from .tcp_interface import TCPInterface
+
 
 &#34;&#34;&#34;The interfaces we are using for our tests&#34;&#34;&#34;
 interfaces = None
@@ -134,25 +140,23 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
             logging.info(
                 f&#34;Test {testNumber} succeeded {numSuccess} successes {numFail} failures so far&#34;)
 
-        # if numFail &gt;= 3:
-        #    for i in interfaces:
-        #        i.close()
-        #    return
-
         time.sleep(1)
 
     if numFail &gt; maxFailures:
         logging.error(&#34;Too many failures! Test failed!&#34;)
-
-    return numFail
+        return False
+    return True
 
 
 def testThread(numTests=50):
     &#34;&#34;&#34;Test thread&#34;&#34;&#34;
     logging.info(&#34;Found devices, starting tests...&#34;)
-    runTests(numTests, wantAck=True)
-    # Allow a few dropped packets
-    runTests(numTests, wantAck=False, maxFailures=5)
+    result = runTests(numTests, wantAck=True)
+    if result:
+        # Run another test
+        # Allow a few dropped packets
+        result = runTests(numTests, wantAck=False, maxFailures=1)
+    return result
 
 
 def onConnection(topic=pub.AUTO_TOPIC):
@@ -164,19 +168,18 @@ def openDebugLog(portName):
     &#34;&#34;&#34;Open the debug log file&#34;&#34;&#34;
     debugname = &#34;log&#34; + portName.replace(&#34;/&#34;, &#34;_&#34;)
     logging.info(f&#34;Writing serial debugging to {debugname}&#34;)
-    return open(debugname, &#39;w+&#39;, buffering=1)
+    return open(debugname, &#39;w+&#39;, buffering=1, encoding=&#39;utf8&#39;)
 
 
-def testAll():
+def testAll(numTests=5):
     &#34;&#34;&#34;
     Run a series of tests using devices we can find.
+    This is called from the cli with the &#34;--test&#34; option.
 
-    Raises:
-        Exception: If not enough devices are found
     &#34;&#34;&#34;
-    ports = util.findPorts()
+    ports = meshtastic.util.findPorts()
     if len(ports) &lt; 2:
-        raise Exception(&#34;Must have at least two devices connected to USB&#34;)
+        meshtastic.util.our_exit(&#34;Warning: Must have at least two devices connected to USB.&#34;)
 
     pub.subscribe(onConnection, &#34;meshtastic.connection&#34;)
     pub.subscribe(onReceive, &#34;meshtastic.receive&#34;)
@@ -185,10 +188,12 @@ def testAll():
         port, debugOut=openDebugLog(port), connectNow=True), ports))
 
     logging.info(&#34;Ports opened, starting test&#34;)
-    testThread()
+    result = testThread(numTests)
 
     for i in interfaces:
         i.close()
+
+    return result
 
 
 def testSimulator():
@@ -200,7 +205,7 @@ def testSimulator():
     Run with
     python3 -c &#39;from meshtastic.test import testSimulator; testSimulator()&#39;
     &#34;&#34;&#34;
-    logging.basicConfig(level=logging.DEBUG if False else logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logging.info(&#34;Connecting to simulator on localhost!&#34;)
     try:
         iface = TCPInterface(&#34;localhost&#34;)
@@ -295,7 +300,7 @@ def testSimulator():
     &#34;&#34;&#34;Open the debug log file&#34;&#34;&#34;
     debugname = &#34;log&#34; + portName.replace(&#34;/&#34;, &#34;_&#34;)
     logging.info(f&#34;Writing serial debugging to {debugname}&#34;)
-    return open(debugname, &#39;w+&#39;, buffering=1)</code></pre>
+    return open(debugname, &#39;w+&#39;, buffering=1, encoding=&#39;utf8&#39;)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.test.runTests"><code class="name flex">
@@ -328,17 +333,12 @@ def testSimulator():
             logging.info(
                 f&#34;Test {testNumber} succeeded {numSuccess} successes {numFail} failures so far&#34;)
 
-        # if numFail &gt;= 3:
-        #    for i in interfaces:
-        #        i.close()
-        #    return
-
         time.sleep(1)
 
     if numFail &gt; maxFailures:
         logging.error(&#34;Too many failures! Test failed!&#34;)
-
-    return numFail</code></pre>
+        return False
+    return True</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.test.subscribe"><code class="name flex">
@@ -357,29 +357,24 @@ def testSimulator():
 </details>
 </dd>
 <dt id="meshtastic.test.testAll"><code class="name flex">
-<span>def <span class="ident">testAll</span></span>(<span>)</span>
+<span>def <span class="ident">testAll</span></span>(<span>numTests=5)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Run a series of tests using devices we can find.</p>
-<h2 id="raises">Raises</h2>
-<dl>
-<dt><code>Exception</code></dt>
-<dd>If not enough devices are found</dd>
-</dl></div>
+<div class="desc"><p>Run a series of tests using devices we can find.
+This is called from the cli with the "&ndash;test" option.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def testAll():
+<pre><code class="python">def testAll(numTests=5):
     &#34;&#34;&#34;
     Run a series of tests using devices we can find.
+    This is called from the cli with the &#34;--test&#34; option.
 
-    Raises:
-        Exception: If not enough devices are found
     &#34;&#34;&#34;
-    ports = util.findPorts()
+    ports = meshtastic.util.findPorts()
     if len(ports) &lt; 2:
-        raise Exception(&#34;Must have at least two devices connected to USB&#34;)
+        meshtastic.util.our_exit(&#34;Warning: Must have at least two devices connected to USB.&#34;)
 
     pub.subscribe(onConnection, &#34;meshtastic.connection&#34;)
     pub.subscribe(onReceive, &#34;meshtastic.receive&#34;)
@@ -388,10 +383,12 @@ def testSimulator():
         port, debugOut=openDebugLog(port), connectNow=True), ports))
 
     logging.info(&#34;Ports opened, starting test&#34;)
-    testThread()
+    result = testThread(numTests)
 
     for i in interfaces:
-        i.close()</code></pre>
+        i.close()
+
+    return result</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.test.testSend"><code class="name flex">
@@ -466,7 +463,7 @@ python3 -c 'from meshtastic.test import testSimulator; testSimulator()'</p></div
     Run with
     python3 -c &#39;from meshtastic.test import testSimulator; testSimulator()&#39;
     &#34;&#34;&#34;
-    logging.basicConfig(level=logging.DEBUG if False else logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logging.info(&#34;Connecting to simulator on localhost!&#34;)
     try:
         iface = TCPInterface(&#34;localhost&#34;)
@@ -494,9 +491,12 @@ python3 -c 'from meshtastic.test import testSimulator; testSimulator()'</p></div
 <pre><code class="python">def testThread(numTests=50):
     &#34;&#34;&#34;Test thread&#34;&#34;&#34;
     logging.info(&#34;Found devices, starting tests...&#34;)
-    runTests(numTests, wantAck=True)
-    # Allow a few dropped packets
-    runTests(numTests, wantAck=False, maxFailures=5)</code></pre>
+    result = runTests(numTests, wantAck=True)
+    if result:
+        # Run another test
+        # Allow a few dropped packets
+        result = runTests(numTests, wantAck=False, maxFailures=1)
+    return result</code></pre>
 </details>
 </dd>
 </dl>
