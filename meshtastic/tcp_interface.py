@@ -1,4 +1,4 @@
-""" TCPInterface class for interfacing with http endpoint
+"""TCPInterface class for interfacing with http endpoint
 """
 import logging
 import socket
@@ -9,7 +9,8 @@ from .stream_interface import StreamInterface
 class TCPInterface(StreamInterface):
     """Interface class for meshtastic devices over a TCP link"""
 
-    def __init__(self, hostname: AnyStr, debugOut=None, noProto=False, connectNow=True, portNumber=4403):
+    def __init__(self, hostname: AnyStr, debugOut=None, noProto=False,
+                 connectNow=True, portNumber=4403):
         """Constructor, opens a connection to a specified IP address/hostname
 
         Keyword Arguments:
@@ -33,8 +34,8 @@ class TCPInterface(StreamInterface):
         """Close a connection to the device"""
         logging.debug("Closing TCP stream")
         StreamInterface.close(self)
-        # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing
-        # the socket here
+        # Sometimes the socket read might be blocked in the reader thread.
+        # Therefore we force the shutdown by closing the socket here
         self._wantExit = True
         if not self.socket is None:
             try:

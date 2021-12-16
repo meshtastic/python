@@ -1,4 +1,4 @@
-""" Bluetooth interface
+"""Bluetooth interface
 """
 import logging
 import pygatt
@@ -15,22 +15,27 @@ FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
 class BLEInterface(MeshInterface):
     """A not quite ready - FIXME - BLE interface to devices"""
 
-    def __init__(self, address, debugOut=None):
+    def __init__(self, address, noProto=False, debugOut=None):
         self.address = address
-        self.adapter = pygatt.GATTToolBackend()  # BGAPIBackend()
-        self.adapter.start()
-        logging.debug(f"Connecting to {self.address}")
-        self.device = self.adapter.connect(address)
+        if not noProto:
+            self.adapter = pygatt.GATTToolBackend()  # BGAPIBackend()
+            self.adapter.start()
+            logging.debug(f"Connecting to {self.address}")
+            self.device = self.adapter.connect(address)
+        else:
+            self.adapter = None
+            self.device = None
         logging.debug("Connected to device")
         # fromradio = self.device.char_read(FROMRADIO_UUID)
-        MeshInterface.__init__(self, debugOut=debugOut)
+        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
         self._readFromRadio()  # read the initial responses
 
         def handle_data(handle, data):
             self._handleFromRadio(data)
 
-        self.device.subscribe(FROMNUM_UUID, callback=handle_data)
+        if self.device:
+            self.device.subscribe(FROMNUM_UUID, callback=handle_data)
 
     def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
@@ -40,12 +45,15 @@ class BLEInterface(MeshInterface):
 
     def close(self):
         MeshInterface.close(self)
-        self.adapter.stop()
+        if self.adapter:
+            self.adapter.stop()
 
     def _readFromRadio(self):
-        wasEmpty = False
-        while not wasEmpty:
-            b = self.device.char_read(FROMRADIO_UUID)
-            wasEmpty = len(b) == 0
-            if not wasEmpty:
-                self._handleFromRadio(b)
+        if not self.noProto:
+            wasEmpty = False
+            while not wasEmpty:
+                if self.device:
+                    b = self.device.char_read(FROMRADIO_UUID)
+                    wasEmpty = len(b) == 0
+                    if not wasEmpty:
+                        self._handleFromRadio(b)

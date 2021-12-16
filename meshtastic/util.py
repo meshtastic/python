@@ -1,4 +1,4 @@
-""" Utility functions.
+"""Utility functions.
 """
 import traceback
 from queue import Queue
@@ -39,7 +39,8 @@ def fromPSK(valstr):
 
 
 def fromStr(valstr):
-    """try to parse as int, float or bool (and fallback to a string as last resort)
+    """Try to parse as int, float or bool (and fallback to a string as last resort)
+
     Returns: an int, bool, float, str or byte array (for strings of hex digits)
 
     Args:
@@ -82,13 +83,13 @@ def pskToString(psk: bytes):
 
 
 def stripnl(s):
-    """remove newlines from a string (and remove extra whitespace)"""
+    """Remove newlines from a string (and remove extra whitespace)"""
     s = str(s).replace("\n", " ")
     return ' '.join(s.split())
 
 
 def fixme(message):
-    """raise an exception for things that needs to be fixed"""
+    """Raise an exception for things that needs to be fixed"""
     raise Exception(f"FIXME: {message}")
 
 
@@ -174,7 +175,7 @@ def our_exit(message, return_value = 1):
 
 
 def support_info():
-    """Print out info that is helping in support of the cli."""
+    """Print out info that helps troubleshooting of the cli."""
     print('')
     print('If having issues with meshtastic cli or python library')
     print('or wish to make feature requests, visit:')

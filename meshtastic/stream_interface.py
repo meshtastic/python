@@ -1,4 +1,4 @@
-""" Stream Interface base class
+"""Stream Interface base class
 """
 import logging
 import threading
@@ -25,7 +25,8 @@ class StreamInterface(MeshInterface):
 
         Keyword Arguments:
             devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
-            debugOut {stream} -- If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})
+            debugOut {stream} -- If a stream is provided, any debug serial output from the
+                                 device will be emitted to that stream. (default: {None})
 
         Raises:
             Exception: [description]
@@ -53,12 +54,14 @@ class StreamInterface(MeshInterface):
     def connect(self):
         """Connect to our radio
 
-        Normally this is called automatically by the constructor, but if you passed in connectNow=False you can manually
-        start the reading thread later.
+        Normally this is called automatically by the constructor, but if you
+        passed in connectNow=False you can manually start the reading thread later.
         """
 
-        # Send some bogus UART characters to force a sleeping device to wake, and if the reading statemachine was parsing a bad packet make sure
-        # we write enought start bytes to force it to resync (we don't use START1 because we want to ensure it is looking for START1)
+        # Send some bogus UART characters to force a sleeping device to wake, and
+        # if the reading statemachine was parsing a bad packet make sure
+        # we write enought start bytes to force it to resync (we don't use START1
+        # because we want to ensure it is looking for START1)
         p = bytearray([START2] * 32)
         self._writeBytes(p)
         time.sleep(0.1)  # wait 100ms to give device time to start running
@@ -105,7 +108,8 @@ class StreamInterface(MeshInterface):
         """Close a connection to the device"""
         logging.debug("Closing stream")
         MeshInterface.close(self)
-        # pyserial cancel_read doesn't seem to work, therefore we ask the reader thread to close things for us
+        # pyserial cancel_read doesn't seem to work, therefore we ask the
+        # reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
             self._rxThread.join()  # wait for it to exit
@@ -151,8 +155,7 @@ class StreamInterface(MeshInterface):
                             try:
                                 self._handleFromRadio(self._rxBuf[HEADER_LEN:])
                             except Exception as ex:
-                                logging.error(
-                                    f"Error while handling message from radio {ex}")
+                                logging.error(f"Error while handling message from radio {ex}")
                                 traceback.print_exc()
                             self._rxBuf = empty
                 else:
@@ -160,15 +163,12 @@ class StreamInterface(MeshInterface):
                     pass
         except serial.SerialException as ex:
             if not self._wantExit:  # We might intentionally get an exception during shutdown
-                logging.warning(
-                    f"Meshtastic serial port disconnected, disconnecting... {ex}")
+                logging.warning(f"Meshtastic serial port disconnected, disconnecting... {ex}")
         except OSError as ex:
             if not self._wantExit:  # We might intentionally get an exception during shutdown
-                logging.error(
-                    f"Unexpected OSError, terminating meshtastic reader... {ex}")
+                logging.error(f"Unexpected OSError, terminating meshtastic reader... {ex}")
         except Exception as ex:
-            logging.error(
-                f"Unexpected exception, terminating meshtastic reader... {ex}")
+            logging.error(f"Unexpected exception, terminating meshtastic reader... {ex}")
         finally:
             logging.debug("reader is exiting")
             self._disconnected()

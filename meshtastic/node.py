@@ -1,4 +1,4 @@
-""" Node class
+"""Node class
 """
 
 import logging
@@ -24,7 +24,7 @@ class Node:
         self.partialChannels = None
 
     def showChannels(self):
-        """Show human readable description of our channels"""
+        """Show human readable description of our channels."""
         print("Channels:")
         if self.channels:
             for c in self.channels:
@@ -47,9 +47,7 @@ class Node:
         self.showChannels()
 
     def requestConfig(self):
-        """
-        Send regular MeshPackets to ask for settings and channels
-        """
+        """Send regular MeshPackets to ask for settings and channels."""
         self.radioConfig = None
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
@@ -104,9 +102,11 @@ class Node:
             self.writeChannel(index, adminIndex=adminIndex)
             index += 1
 
-            # if we are updating the local node, we might end up *moving* the admin channel index as we are writing
+            # if we are updating the local node, we might end up
+            # *moving* the admin channel index as we are writing
             if (self.iface.localNode == self) and index >= adminIndex:
-                # We've now passed the old location for admin index (and writen it), so we can start finding it by name again
+                # We've now passed the old location for admin index
+                # (and writen it), so we can start finding it by name again
                 adminIndex = 0
 
     def getChannelByName(self, name):
@@ -165,8 +165,7 @@ class Node:
         return self._sendAdmin(p)
 
     def getURL(self, includeAll: bool = True):
-        """The sharable URL that describes the current channel
-        """
+        """The sharable URL that describes the current channel"""
         # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
         if self.channels:
@@ -212,9 +211,8 @@ class Node:
             i = i + 1
 
     def _requestSettings(self):
-        """
-        Done with initial config messages, now send regular MeshPackets to ask for settings
-        """
+        """Done with initial config messages, now send regular
+           MeshPackets to ask for settings."""
         p = admin_pb2.AdminMessage()
         p.get_radio_request = True
 
@@ -233,26 +231,20 @@ class Node:
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            logging.info(
-                "Requesting preferences from remote node (this could take a while)")
+            print("Requesting preferences from remote node (this could take a while)")
 
-        return self._sendAdmin(p,
-                               wantResponse=True,
-                               onResponse=onResponse)
+        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
 
     def exitSimulator(self):
-        """
-        Tell a simulator node to exit (this message is ignored for other nodes)
-        """
+        """Tell a simulator node to exit (this message
+           is ignored for other nodes)"""
         p = admin_pb2.AdminMessage()
         p.exit_simulator = True
 
         return self._sendAdmin(p)
 
     def reboot(self, secs: int = 10):
-        """
-        Tell the node to reboot
-        """
+        """Tell the node to reboot."""
         p = admin_pb2.AdminMessage()
         p.reboot_seconds = secs
         logging.info(f"Telling node to reboot in {secs} seconds")
@@ -263,6 +255,7 @@ class Node:
         """Fixup indexes and add disabled channels as needed"""
 
         # Add extra disabled channels as needed
+        # TODO: These 2 lines seem to not do anything.
         for index, ch in enumerate(self.channels):
             ch.index = index  # fixup indexes
 
@@ -281,21 +274,19 @@ class Node:
             index += 1
 
     def _requestChannel(self, channelNum: int):
-        """
-        Done with initial config messages, now send regular MeshPackets to ask for settings
-        """
+        """Done with initial config messages, now send regular
+           MeshPackets to ask for settings"""
         p = admin_pb2.AdminMessage()
         p.get_channel_request = channelNum + 1
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            logging.info(
-                f"Requesting channel {channelNum} info from remote node (this could take a while)")
+            logging.info(f"Requesting channel {channelNum} info from remote node (this could take a while)")
         else:
             logging.debug(f"Requesting channel {channelNum}")
 
         def onResponse(p):
-            """A closure to handle the response packet"""
+            """A closure to handle the response packet for requesting a channel"""
             c = p["decoded"]["admin"]["raw"].get_channel_response
             self.partialChannels.append(c)
             self._timeout.reset()  # We made foreward progress
@@ -305,9 +296,9 @@ class Node:
             # for stress testing, we can always download all channels
             fastChannelDownload = True
 
-            # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
-            quitEarly = (
-                c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+            # Once we see a response that has NO settings, assume
+            # we are at the end of channels and stop fetching
+            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
 
             if quitEarly or index >= self.iface.myInfo.max_channels - 1:
                 logging.debug("Finished downloading channels")
@@ -320,13 +311,10 @@ class Node:
             else:
                 self._requestChannel(index + 1)
 
-        return self._sendAdmin(p,
-                               wantResponse=True,
-                               onResponse=onResponse)
+        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
 
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
-                   onResponse=None,
-                   adminIndex=0):
+                   onResponse=None, adminIndex=0):
         """Send an admin message to the specified node (or the local node if destNodeNum is zero)"""
 
         if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index

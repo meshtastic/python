@@ -7,9 +7,11 @@ import re
 from unittest.mock import patch, MagicMock
 import pytest
 
-from meshtastic.__main__ import initParser, main, Globals
+from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
+from ..tcp_interface import TCPInterface
+from ..ble_interface import BLEInterface
 from ..node import Node
 from ..channel_pb2 import Channel
 
@@ -176,6 +178,44 @@ def test_main_info(capsys, reset_globals):
         print('inside mocked showInfo')
     iface.showInfo.side_effect = mock_showInfo
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_info_with_tcp_interface(capsys, reset_globals):
+    """Test --info"""
+    sys.argv = ['', '--info', '--host', 'meshtastic.local']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=TCPInterface)
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+    with patch('meshtastic.tcp_interface.TCPInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_info_with_ble_interface(capsys, reset_globals):
+    """Test --info"""
+    sys.argv = ['', '--info', '--ble', 'foo']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=BLEInterface)
+    def mock_showInfo():
+        print('inside mocked showInfo')
+    iface.showInfo.side_effect = mock_showInfo
+    with patch('meshtastic.ble_interface.BLEInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
         assert re.search(r'Connected to radio', out, re.MULTILINE)
@@ -360,6 +400,27 @@ def test_main_reboot(capsys, reset_globals):
 def test_main_sendtext(capsys, reset_globals):
     """Test --sendtext"""
     sys.argv = ['', '--sendtext', 'hello']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_sendText(text, dest, wantAck):
+        print('inside mocked sendText')
+    iface.sendText.side_effect = mock_sendText
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Sending text message', out, re.MULTILINE)
+        assert re.search(r'inside mocked sendText', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_sendtext_with_dest(capsys, reset_globals):
+    """Test --sendtext with --dest"""
+    sys.argv = ['', '--sendtext', 'hello', '--dest', 'foo']
     Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
@@ -1106,3 +1167,32 @@ def test_main_setchan(capsys, reset_globals):
             main()
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+def test_main_onReceive_empty(reset_globals):
+    """Test onReceive"""
+    sys.argv = ['']
+    Globals.getInstance().set_args(sys.argv)
+    iface = MagicMock(autospec=SerialInterface)
+    packet = {'decoded': 'foo'}
+    onReceive(packet, iface)
+    # TODO: how do we know we actually called it?
+
+
+@pytest.mark.unit
+def test_main_onConnection(reset_globals, capsys):
+    """Test onConnection"""
+    sys.argv = ['']
+    Globals.getInstance().set_args(sys.argv)
+    iface = MagicMock(autospec=SerialInterface)
+    class TempTopic:
+        """ temp class for topic """
+        def getName(self):
+            """ return the fake name of a topic"""
+            return 'foo'
+    mytopic = TempTopic()
+    onConnection(iface, mytopic)
+    out, err = capsys.readouterr()
+    assert re.search(r'Connection changed: foo', out, re.MULTILINE)
+    assert err == ''

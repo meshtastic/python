@@ -1,5 +1,5 @@
-""" With two radios connected serially, send and receive test
-    messages and report back if successful.
+"""With two radios connected serially, send and receive test
+   messages and report back if successful.
 """
 import logging
 import time
