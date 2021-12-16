@@ -7,7 +7,7 @@ import re
 from unittest.mock import patch, MagicMock
 import pytest
 
-from meshtastic.__main__ import initParser, main, Globals
+from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
 from ..node import Node
@@ -1106,3 +1106,32 @@ def test_main_setchan(capsys, reset_globals):
             main()
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+def test_main_onReceive_empty(reset_globals):
+    """Test onReceive"""
+    sys.argv = ['']
+    Globals.getInstance().set_args(sys.argv)
+    iface = MagicMock(autospec=SerialInterface)
+    packet = {'decoded': 'foo'}
+    onReceive(packet, iface)
+    # TODO: how do we know we actually called it?
+
+
+@pytest.mark.unit
+def test_main_onConnection(reset_globals, capsys):
+    """Test onConnection"""
+    sys.argv = ['']
+    Globals.getInstance().set_args(sys.argv)
+    iface = MagicMock(autospec=SerialInterface)
+    class TempTopic:
+        """ temp class for topic """
+        def getName(self):
+            """ return the fake name of a topic"""
+            return 'foo'
+    mytopic = TempTopic()
+    onConnection(iface, mytopic)
+    out, err = capsys.readouterr()
+    assert re.search(r'Connection changed: foo', out, re.MULTILINE)
+    assert err == ''
