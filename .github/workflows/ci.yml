@@ -32,3 +32,16 @@ jobs:
         run: pylint meshtastic
       - name: Run tests with pytest
         run: pytest --cov=meshtastic
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Python 3
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+      - name: Install meshtastic from local
+        run: |
+          pip3 install .
+          which meshtastic
+          meshtastic --version
