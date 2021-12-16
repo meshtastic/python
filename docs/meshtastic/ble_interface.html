@@ -27,7 +27,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34; Bluetooth interface
+<pre><code class="python">&#34;&#34;&#34;Bluetooth interface
 &#34;&#34;&#34;
 import logging
 import pygatt
@@ -44,22 +44,27 @@ FROMNUM_UUID = &#34;ed9da18c-a800-4f66-a670-aa7547e34453&#34;
 class BLEInterface(MeshInterface):
     &#34;&#34;&#34;A not quite ready - FIXME - BLE interface to devices&#34;&#34;&#34;
 
-    def __init__(self, address, debugOut=None):
+    def __init__(self, address, noProto=False, debugOut=None):
         self.address = address
-        self.adapter = pygatt.GATTToolBackend()  # BGAPIBackend()
-        self.adapter.start()
-        logging.debug(f&#34;Connecting to {self.address}&#34;)
-        self.device = self.adapter.connect(address)
+        if not noProto:
+            self.adapter = pygatt.GATTToolBackend()  # BGAPIBackend()
+            self.adapter.start()
+            logging.debug(f&#34;Connecting to {self.address}&#34;)
+            self.device = self.adapter.connect(address)
+        else:
+            self.adapter = None
+            self.device = None
         logging.debug(&#34;Connected to device&#34;)
         # fromradio = self.device.char_read(FROMRADIO_UUID)
-        MeshInterface.__init__(self, debugOut=debugOut)
+        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
         self._readFromRadio()  # read the initial responses
 
         def handle_data(handle, data):
             self._handleFromRadio(data)
 
-        self.device.subscribe(FROMNUM_UUID, callback=handle_data)
+        if self.device:
+            self.device.subscribe(FROMNUM_UUID, callback=handle_data)
 
     def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
@@ -69,15 +74,18 @@ class BLEInterface(MeshInterface):
 
     def close(self):
         MeshInterface.close(self)
-        self.adapter.stop()
+        if self.adapter:
+            self.adapter.stop()
 
     def _readFromRadio(self):
-        wasEmpty = False
-        while not wasEmpty:
-            b = self.device.char_read(FROMRADIO_UUID)
-            wasEmpty = len(b) == 0
-            if not wasEmpty:
-                self._handleFromRadio(b)</code></pre>
+        if not self.noProto:
+            wasEmpty = False
+            while not wasEmpty:
+                if self.device:
+                    b = self.device.char_read(FROMRADIO_UUID)
+                    wasEmpty = len(b) == 0
+                    if not wasEmpty:
+                        self._handleFromRadio(b)</code></pre>
 </details>
 </section>
 <section>
@@ -91,13 +99,14 @@ class BLEInterface(MeshInterface):
 <dl>
 <dt id="meshtastic.ble_interface.BLEInterface"><code class="flex name class">
 <span>class <span class="ident">BLEInterface</span></span>
-<span>(</span><span>address, debugOut=None)</span>
+<span>(</span><span>address, noProto=False, debugOut=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A not quite ready - FIXME - BLE interface to devices</p>
 <p>Constructor</p>
 <p>Keyword Arguments:
-noProto &ndash; If True, don't try to run our protocol on the link - just be a dumb serial client.</p></div>
+noProto &ndash; If True, don't try to run our protocol on the
+link - just be a dumb serial client.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -105,22 +114,27 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 <pre><code class="python">class BLEInterface(MeshInterface):
     &#34;&#34;&#34;A not quite ready - FIXME - BLE interface to devices&#34;&#34;&#34;
 
-    def __init__(self, address, debugOut=None):
+    def __init__(self, address, noProto=False, debugOut=None):
         self.address = address
-        self.adapter = pygatt.GATTToolBackend()  # BGAPIBackend()
-        self.adapter.start()
-        logging.debug(f&#34;Connecting to {self.address}&#34;)
-        self.device = self.adapter.connect(address)
+        if not noProto:
+            self.adapter = pygatt.GATTToolBackend()  # BGAPIBackend()
+            self.adapter.start()
+            logging.debug(f&#34;Connecting to {self.address}&#34;)
+            self.device = self.adapter.connect(address)
+        else:
+            self.adapter = None
+            self.device = None
         logging.debug(&#34;Connected to device&#34;)
         # fromradio = self.device.char_read(FROMRADIO_UUID)
-        MeshInterface.__init__(self, debugOut=debugOut)
+        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
         self._readFromRadio()  # read the initial responses
 
         def handle_data(handle, data):
             self._handleFromRadio(data)
 
-        self.device.subscribe(FROMNUM_UUID, callback=handle_data)
+        if self.device:
+            self.device.subscribe(FROMNUM_UUID, callback=handle_data)
 
     def _sendToRadioImpl(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
@@ -130,15 +144,18 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
     def close(self):
         MeshInterface.close(self)
-        self.adapter.stop()
+        if self.adapter:
+            self.adapter.stop()
 
     def _readFromRadio(self):
-        wasEmpty = False
-        while not wasEmpty:
-            b = self.device.char_read(FROMRADIO_UUID)
-            wasEmpty = len(b) == 0
-            if not wasEmpty:
-                self._handleFromRadio(b)</code></pre>
+        if not self.noProto:
+            wasEmpty = False
+            while not wasEmpty:
+                if self.device:
+                    b = self.device.char_read(FROMRADIO_UUID)
+                    wasEmpty = len(b) == 0
+                    if not wasEmpty:
+                        self._handleFromRadio(b)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

@@ -35,8 +35,8 @@ import os
 import stat
 import serial
 
+import meshtastic.util
 from .stream_interface import StreamInterface
-from .util import findPorts, our_exit
 
 class SerialInterface(StreamInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a serial link&#34;&#34;&#34;
@@ -51,14 +51,14 @@ class SerialInterface(StreamInterface):
         &#34;&#34;&#34;
 
         if devPath is None:
-            ports = findPorts()
+            ports = meshtastic.util.findPorts()
             logging.debug(f&#34;ports:{ports}&#34;)
             if len(ports) == 0:
-                our_exit(&#34;Warning: No Meshtastic devices detected.&#34;)
+                meshtastic.util.our_exit(&#34;Warning: No Meshtastic devices detected.&#34;)
             elif len(ports) &gt; 1:
                 message = &#34;Warning: Multiple serial ports were detected so one serial port must be specified with the &#39;--port&#39;.\n&#34;
                 message += f&#34;  Ports detected:{ports}&#34;
-                our_exit(message)
+                meshtastic.util.our_exit(message)
             else:
                 devPath = ports[0]
 
@@ -143,14 +143,14 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
         &#34;&#34;&#34;
 
         if devPath is None:
-            ports = findPorts()
+            ports = meshtastic.util.findPorts()
             logging.debug(f&#34;ports:{ports}&#34;)
             if len(ports) == 0:
-                our_exit(&#34;Warning: No Meshtastic devices detected.&#34;)
+                meshtastic.util.our_exit(&#34;Warning: No Meshtastic devices detected.&#34;)
             elif len(ports) &gt; 1:
                 message = &#34;Warning: Multiple serial ports were detected so one serial port must be specified with the &#39;--port&#39;.\n&#34;
                 message += f&#34;  Ports detected:{ports}&#34;
-                our_exit(message)
+                meshtastic.util.our_exit(message)
             else:
                 devPath = ports[0]
 

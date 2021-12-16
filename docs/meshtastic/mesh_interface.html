@@ -68,7 +68,8 @@ class MeshInterface:
         &#34;&#34;&#34;Constructor
 
         Keyword Arguments:
-            noProto -- If True, don&#39;t try to run our protocol on the link - just be a dumb serial client.
+            noProto -- If True, don&#39;t try to run our protocol on the
+                       link - just be a dumb serial client.
         &#34;&#34;&#34;
         self.debugOut = debugOut
         self.nodes = None  # FIXME
@@ -82,6 +83,8 @@ class MeshInterface:
         self.heartbeatTimer = None
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
+        self.nodesByNum = None
+        self.configId = None
 
     def close(self):
         &#34;&#34;&#34;Shutdown this interface&#34;&#34;&#34;
@@ -119,54 +122,55 @@ class MeshInterface:
     def showNodes(self, includeSelf=True, file=sys.stdout):
         &#34;&#34;&#34;Show table summary of nodes in mesh&#34;&#34;&#34;
         def formatFloat(value, precision=2, unit=&#39;&#39;):
+            &#34;&#34;&#34;Format a float value with precsion.&#34;&#34;&#34;
             return f&#39;{value:.{precision}f}{unit}&#39; if value else None
 
         def getLH(ts):
+            &#34;&#34;&#34;Format last heard&#34;&#34;&#34;
             return datetime.fromtimestamp(ts).strftime(&#39;%Y-%m-%d %H:%M:%S&#39;) if ts else None
 
         def getTimeAgo(ts):
+            &#34;&#34;&#34;Format how long ago have we heard from this node (aka timeago).&#34;&#34;&#34;
             return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else None
 
         rows = []
-        for node in self.nodes.values():
-            if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
-                continue
+        if self.nodes:
+            for node in self.nodes.values():
+                if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
+                    continue
 
-            row = {&#34;N&#34;: 0}
+                row = {&#34;N&#34;: 0}
 
-            user = node.get(&#39;user&#39;)
-            if user:
+                user = node.get(&#39;user&#39;)
+                if user:
+                    row.update({
+                        &#34;User&#34;: user[&#39;longName&#39;],
+                        &#34;AKA&#34;:  user[&#39;shortName&#39;],
+                        &#34;ID&#34;:   user[&#39;id&#39;],
+                    })
+
+                pos = node.get(&#39;position&#39;)
+                if pos:
+                    row.update({
+                        &#34;Latitude&#34;:  formatFloat(pos.get(&#34;latitude&#34;),     4, &#34;°&#34;),
+                        &#34;Longitude&#34;: formatFloat(pos.get(&#34;longitude&#34;),    4, &#34;°&#34;),
+                        &#34;Altitude&#34;:  formatFloat(pos.get(&#34;altitude&#34;),     0, &#34; m&#34;),
+                        &#34;Battery&#34;:   formatFloat(pos.get(&#34;batteryLevel&#34;), 2, &#34;%&#34;),
+                    })
+
                 row.update({
-                    &#34;User&#34;: user[&#39;longName&#39;],
-                    &#34;AKA&#34;:  user[&#39;shortName&#39;],
-                    &#34;ID&#34;:   user[&#39;id&#39;],
+                    &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
+                    &#34;LastHeard&#34;: getLH(node.get(&#34;lastHeard&#34;)),
+                    &#34;Since&#34;:     getTimeAgo(node.get(&#34;lastHeard&#34;)),
                 })
 
-            pos = node.get(&#39;position&#39;)
-            if pos:
-                row.update({
-                    &#34;Latitude&#34;:  formatFloat(pos.get(&#34;latitude&#34;),     4, &#34;°&#34;),
-                    &#34;Longitude&#34;: formatFloat(pos.get(&#34;longitude&#34;),    4, &#34;°&#34;),
-                    &#34;Altitude&#34;:  formatFloat(pos.get(&#34;altitude&#34;),     0, &#34; m&#34;),
-                    &#34;Battery&#34;:   formatFloat(pos.get(&#34;batteryLevel&#34;), 2, &#34;%&#34;),
-                })
+                rows.append(row)
 
-            row.update({
-                &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
-                &#34;LastHeard&#34;: getLH(node.get(&#34;lastHeard&#34;)),
-                &#34;Since&#34;:     getTimeAgo(node.get(&#34;lastHeard&#34;)),
-            })
-
-            rows.append(row)
-
-        # Why doesn&#39;t this way work?
-        #rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;, &#39;0000&#39;), reverse=True)
         rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;) or &#39;0000&#39;, reverse=True)
         for i, row in enumerate(rows):
             row[&#39;N&#39;] = i+1
 
-        table = tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
-                       tablefmt=&#39;fancy_grid&#39;)
+        table = tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;, tablefmt=&#39;fancy_grid&#39;)
         print(table)
         return table
 
@@ -189,18 +193,24 @@ class MeshInterface:
                  hopLimit=defaultHopLimit,
                  onResponse=None,
                  channelIndex=0):
-        &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
+        &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it
+           will also be shown on the device.
 
         Arguments:
             text {string} -- The text to send
 
         Keyword Arguments:
-            destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
-            portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
-            wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
-            wantResponse -- True if you want the service on the other side to send an application layer response
+            destinationId {nodeId or nodeNum} -- where to send this
+                                                 message (default: {BROADCAST_ADDR})
+            portNum -- the application portnum (similar to IP port numbers)
+                       of the destination, see portnums.proto for a list
+            wantAck -- True if you want the message sent in a reliable manner
+                       (with retries and ack/nak provided for delivery)
+            wantResponse -- True if you want the service on the other side to
+                            send an application layer response
 
-        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        Returns the sent packet. The id field will be populated in this packet
+        and can be used to track future message acks/naks.
         &#34;&#34;&#34;
         return self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
                              portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
@@ -219,15 +229,23 @@ class MeshInterface:
         &#34;&#34;&#34;Send a data packet to some other node
 
         Keyword Arguments:
-            data -- the data to send, either as an array of bytes or as a protobuf (which will be automatically serialized to bytes)
-            destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
-            portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
-            wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
-            wantResponse -- True if you want the service on the other side to send an application layer response
-            onResponse -- A closure of the form funct(packet), that will be called when a response packet arrives
-                          (or the transaction is NAKed due to non receipt)
+            data -- the data to send, either as an array of bytes or
+                    as a protobuf (which will be automatically
+                    serialized to bytes)
+            destinationId {nodeId or nodeNum} -- where to send this
+                    message (default: {BROADCAST_ADDR})
+            portNum -- the application portnum (similar to IP port numbers)
+                    of the destination, see portnums.proto for a list
+            wantAck -- True if you want the message sent in a reliable
+                    manner (with retries and ack/nak provided for delivery)
+            wantResponse -- True if you want the service on the other
+                    side to send an application layer response
+            onResponse -- A closure of the form funct(packet), that will be
+                    called when a response packet arrives (or the transaction
+                    is NAKed due to non receipt)
 
-        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        Returns the sent packet. The id field will be populated in this packet
+        and can be used to track future message acks/naks.
         &#34;&#34;&#34;
         if getattr(data, &#34;SerializeToString&#34;, None):
             logging.debug(f&#34;Serializing protobuf as data: {stripnl(data)}&#34;)
@@ -251,16 +269,18 @@ class MeshInterface:
             self._addResponseHandler(p.id, onResponse)
         return p
 
-    def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
+    def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0,
+                     destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;
         Send a position packet to some other node (normally a broadcast)
 
-        Also, the device software will notice this packet and use it to automatically set its notion of
-        the local position.
+        Also, the device software will notice this packet and use it to automatically
+        set its notion of the local position.
 
         If timeSec is not specified (recommended), we will use the local machine time.
 
-        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        Returns the sent packet. The id field will be populated in this packet and
+        can be used to track future message acks/naks.
         &#34;&#34;&#34;
         p = mesh_pb2.Position()
         if latitude != 0.0:
@@ -321,8 +341,8 @@ class MeshInterface:
         meshPacket.want_ack = wantAck
         meshPacket.hop_limit = hopLimit
 
-        # if the user hasn&#39;t set an ID for this packet (likely and recommended), we should pick a new unique ID
-        # so the message can be tracked.
+        # if the user hasn&#39;t set an ID for this packet (likely and recommended),
+        # we should pick a new unique ID so the message can be tracked.
         if meshPacket.id == 0:
             meshPacket.id = self._generatePacketId()
 
@@ -333,8 +353,7 @@ class MeshInterface:
 
     def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-        success = self._timeout.waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
-                                           ) and self.localNode.waitForConfig()
+        success = self._timeout.waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)) and self.localNode.waitForConfig()
         if not success:
             raise Exception(&#34;Timed out waiting for interface config&#34;)
 
@@ -436,8 +455,7 @@ class MeshInterface:
     def _sendToRadio(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
         if self.noProto:
-            logging.warning(
-                f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
+            logging.warning(f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
         else:
             #logging.debug(f&#34;Sending toRadio: {stripnl(toRadio)}&#34;)
             self._sendToRadioImpl(toRadio)
@@ -448,7 +466,8 @@ class MeshInterface:
 
     def _handleConfigComplete(self):
         &#34;&#34;&#34;
-        Done with initial config messages, now send regular MeshPackets to ask for settings and channels
+        Done with initial config messages, now send regular MeshPackets
+        to ask for settings and channels
         &#34;&#34;&#34;
         self.localNode.requestConfig()
 
@@ -469,7 +488,7 @@ class MeshInterface:
             failmsg = None
             # Check for app too old
             if self.myInfo.min_app_version &gt; OUR_APP_VERSION:
-                failmsg = &#34;This device needs a newer python client, please \&#34;pip install --upgrade meshtastic\&#34;.  &#34;\
+                failmsg = &#34;This device needs a newer python client, run &#39;pip install --upgrade meshtastic&#39;.&#34;\
                           &#34;For more information see https://tinyurl.com/5bjsxu32&#34;
 
             # check for firmware too old
@@ -497,13 +516,15 @@ class MeshInterface:
             publishingThread.queueWork(lambda: pub.sendMessage(&#34;meshtastic.node.updated&#34;,
                                                                node=node, interface=self))
         elif fromRadio.config_complete_id == self.configId:
-            # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
+            # we ignore the config_complete_id, it is unneeded for our
+            # stream API fromRadio.config_complete_id
             logging.debug(f&#34;Config complete ID {self.configId}&#34;)
             self._handleConfigComplete()
         elif fromRadio.HasField(&#34;packet&#34;):
             self._handlePacketFromRadio(fromRadio.packet)
         elif fromRadio.rebooted:
-            # Tell clients the device went away.  Careful not to call the overridden subclass version that closes the serial port
+            # Tell clients the device went away.  Careful not to call the overridden
+            # subclass version that closes the serial port
             MeshInterface._disconnected(self)
 
             self._startConfig()  # redownload the node db etc...
@@ -569,12 +590,12 @@ class MeshInterface:
         asDict[&#34;raw&#34;] = meshPacket
 
         # from might be missing if the nodenum was zero.
-        if not &#34;from&#34; in asDict:
+        if &#34;from&#34; not in asDict:
             asDict[&#34;from&#34;] = 0
             logging.error(
                 f&#34;Device returned a packet we sent, ignoring: {stripnl(asDict)}&#34;)
             return
-        if not &#34;to&#34; in asDict:
+        if &#34;to&#34; not in asDict:
             asDict[&#34;to&#34;] = 0
 
         # /add fromId and toId fields based on the node ID
@@ -597,8 +618,9 @@ class MeshInterface:
         # byte array.
         decoded[&#34;payload&#34;] = meshPacket.decoded.payload
 
-        # UNKNOWN_APP is the default protobuf portnum value, and therefore if not set it will not be populated at all
-        # to make API usage easier, set it to prevent confusion
+        # UNKNOWN_APP is the default protobuf portnum value, and therefore if not
+        # set it will not be populated at all to make API usage easier, set
+        # it to prevent confusion
         if not &#34;portnum&#34; in decoded:
             decoded[&#34;portnum&#34;] = portnums_pb2.PortNum.Name(
                 portnums_pb2.PortNum.UNKNOWN_APP)
@@ -607,8 +629,9 @@ class MeshInterface:
 
         topic = f&#34;meshtastic.receive.data.{portnum}&#34;
 
-        # decode position protobufs and update nodedb, provide decoded version as &#34;position&#34; in the published msg
-        # move the following into a &#39;decoders&#39; API that clients could register?
+        # decode position protobufs and update nodedb, provide decoded version
+        # as &#34;position&#34; in the published msg move the following into a &#39;decoders&#39;
+        # API that clients could register?
         portNumInt = meshPacket.decoded.portnum  # we want portnum as an int
         handler = protocols.get(portNumInt)
         # The decoded protobuf as a dictionary (if we understand this message)
@@ -667,7 +690,8 @@ nodes
 debugOut</p>
 <p>Constructor</p>
 <p>Keyword Arguments:
-noProto &ndash; If True, don't try to run our protocol on the link - just be a dumb serial client.</p></div>
+noProto &ndash; If True, don't try to run our protocol on the
+link - just be a dumb serial client.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -686,7 +710,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         &#34;&#34;&#34;Constructor
 
         Keyword Arguments:
-            noProto -- If True, don&#39;t try to run our protocol on the link - just be a dumb serial client.
+            noProto -- If True, don&#39;t try to run our protocol on the
+                       link - just be a dumb serial client.
         &#34;&#34;&#34;
         self.debugOut = debugOut
         self.nodes = None  # FIXME
@@ -700,6 +725,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         self.heartbeatTimer = None
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
+        self.nodesByNum = None
+        self.configId = None
 
     def close(self):
         &#34;&#34;&#34;Shutdown this interface&#34;&#34;&#34;
@@ -737,54 +764,55 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
     def showNodes(self, includeSelf=True, file=sys.stdout):
         &#34;&#34;&#34;Show table summary of nodes in mesh&#34;&#34;&#34;
         def formatFloat(value, precision=2, unit=&#39;&#39;):
+            &#34;&#34;&#34;Format a float value with precsion.&#34;&#34;&#34;
             return f&#39;{value:.{precision}f}{unit}&#39; if value else None
 
         def getLH(ts):
+            &#34;&#34;&#34;Format last heard&#34;&#34;&#34;
             return datetime.fromtimestamp(ts).strftime(&#39;%Y-%m-%d %H:%M:%S&#39;) if ts else None
 
         def getTimeAgo(ts):
+            &#34;&#34;&#34;Format how long ago have we heard from this node (aka timeago).&#34;&#34;&#34;
             return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else None
 
         rows = []
-        for node in self.nodes.values():
-            if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
-                continue
+        if self.nodes:
+            for node in self.nodes.values():
+                if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
+                    continue
 
-            row = {&#34;N&#34;: 0}
+                row = {&#34;N&#34;: 0}
 
-            user = node.get(&#39;user&#39;)
-            if user:
+                user = node.get(&#39;user&#39;)
+                if user:
+                    row.update({
+                        &#34;User&#34;: user[&#39;longName&#39;],
+                        &#34;AKA&#34;:  user[&#39;shortName&#39;],
+                        &#34;ID&#34;:   user[&#39;id&#39;],
+                    })
+
+                pos = node.get(&#39;position&#39;)
+                if pos:
+                    row.update({
+                        &#34;Latitude&#34;:  formatFloat(pos.get(&#34;latitude&#34;),     4, &#34;°&#34;),
+                        &#34;Longitude&#34;: formatFloat(pos.get(&#34;longitude&#34;),    4, &#34;°&#34;),
+                        &#34;Altitude&#34;:  formatFloat(pos.get(&#34;altitude&#34;),     0, &#34; m&#34;),
+                        &#34;Battery&#34;:   formatFloat(pos.get(&#34;batteryLevel&#34;), 2, &#34;%&#34;),
+                    })
+
                 row.update({
-                    &#34;User&#34;: user[&#39;longName&#39;],
-                    &#34;AKA&#34;:  user[&#39;shortName&#39;],
-                    &#34;ID&#34;:   user[&#39;id&#39;],
+                    &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
+                    &#34;LastHeard&#34;: getLH(node.get(&#34;lastHeard&#34;)),
+                    &#34;Since&#34;:     getTimeAgo(node.get(&#34;lastHeard&#34;)),
                 })
 
-            pos = node.get(&#39;position&#39;)
-            if pos:
-                row.update({
-                    &#34;Latitude&#34;:  formatFloat(pos.get(&#34;latitude&#34;),     4, &#34;°&#34;),
-                    &#34;Longitude&#34;: formatFloat(pos.get(&#34;longitude&#34;),    4, &#34;°&#34;),
-                    &#34;Altitude&#34;:  formatFloat(pos.get(&#34;altitude&#34;),     0, &#34; m&#34;),
-                    &#34;Battery&#34;:   formatFloat(pos.get(&#34;batteryLevel&#34;), 2, &#34;%&#34;),
-                })
+                rows.append(row)
 
-            row.update({
-                &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
-                &#34;LastHeard&#34;: getLH(node.get(&#34;lastHeard&#34;)),
-                &#34;Since&#34;:     getTimeAgo(node.get(&#34;lastHeard&#34;)),
-            })
-
-            rows.append(row)
-
-        # Why doesn&#39;t this way work?
-        #rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;, &#39;0000&#39;), reverse=True)
         rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;) or &#39;0000&#39;, reverse=True)
         for i, row in enumerate(rows):
             row[&#39;N&#39;] = i+1
 
-        table = tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
-                       tablefmt=&#39;fancy_grid&#39;)
+        table = tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;, tablefmt=&#39;fancy_grid&#39;)
         print(table)
         return table
 
@@ -807,18 +835,24 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
                  hopLimit=defaultHopLimit,
                  onResponse=None,
                  channelIndex=0):
-        &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
+        &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it
+           will also be shown on the device.
 
         Arguments:
             text {string} -- The text to send
 
         Keyword Arguments:
-            destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
-            portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
-            wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
-            wantResponse -- True if you want the service on the other side to send an application layer response
+            destinationId {nodeId or nodeNum} -- where to send this
+                                                 message (default: {BROADCAST_ADDR})
+            portNum -- the application portnum (similar to IP port numbers)
+                       of the destination, see portnums.proto for a list
+            wantAck -- True if you want the message sent in a reliable manner
+                       (with retries and ack/nak provided for delivery)
+            wantResponse -- True if you want the service on the other side to
+                            send an application layer response
 
-        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        Returns the sent packet. The id field will be populated in this packet
+        and can be used to track future message acks/naks.
         &#34;&#34;&#34;
         return self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
                              portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
@@ -837,15 +871,23 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         &#34;&#34;&#34;Send a data packet to some other node
 
         Keyword Arguments:
-            data -- the data to send, either as an array of bytes or as a protobuf (which will be automatically serialized to bytes)
-            destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
-            portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
-            wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
-            wantResponse -- True if you want the service on the other side to send an application layer response
-            onResponse -- A closure of the form funct(packet), that will be called when a response packet arrives
-                          (or the transaction is NAKed due to non receipt)
+            data -- the data to send, either as an array of bytes or
+                    as a protobuf (which will be automatically
+                    serialized to bytes)
+            destinationId {nodeId or nodeNum} -- where to send this
+                    message (default: {BROADCAST_ADDR})
+            portNum -- the application portnum (similar to IP port numbers)
+                    of the destination, see portnums.proto for a list
+            wantAck -- True if you want the message sent in a reliable
+                    manner (with retries and ack/nak provided for delivery)
+            wantResponse -- True if you want the service on the other
+                    side to send an application layer response
+            onResponse -- A closure of the form funct(packet), that will be
+                    called when a response packet arrives (or the transaction
+                    is NAKed due to non receipt)
 
-        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        Returns the sent packet. The id field will be populated in this packet
+        and can be used to track future message acks/naks.
         &#34;&#34;&#34;
         if getattr(data, &#34;SerializeToString&#34;, None):
             logging.debug(f&#34;Serializing protobuf as data: {stripnl(data)}&#34;)
@@ -869,16 +911,18 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             self._addResponseHandler(p.id, onResponse)
         return p
 
-    def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
+    def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0,
+                     destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
         &#34;&#34;&#34;
         Send a position packet to some other node (normally a broadcast)
 
-        Also, the device software will notice this packet and use it to automatically set its notion of
-        the local position.
+        Also, the device software will notice this packet and use it to automatically
+        set its notion of the local position.
 
         If timeSec is not specified (recommended), we will use the local machine time.
 
-        Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+        Returns the sent packet. The id field will be populated in this packet and
+        can be used to track future message acks/naks.
         &#34;&#34;&#34;
         p = mesh_pb2.Position()
         if latitude != 0.0:
@@ -939,8 +983,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         meshPacket.want_ack = wantAck
         meshPacket.hop_limit = hopLimit
 
-        # if the user hasn&#39;t set an ID for this packet (likely and recommended), we should pick a new unique ID
-        # so the message can be tracked.
+        # if the user hasn&#39;t set an ID for this packet (likely and recommended),
+        # we should pick a new unique ID so the message can be tracked.
         if meshPacket.id == 0:
             meshPacket.id = self._generatePacketId()
 
@@ -951,8 +995,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
     def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-        success = self._timeout.waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
-                                           ) and self.localNode.waitForConfig()
+        success = self._timeout.waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)) and self.localNode.waitForConfig()
         if not success:
             raise Exception(&#34;Timed out waiting for interface config&#34;)
 
@@ -1054,8 +1097,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
     def _sendToRadio(self, toRadio):
         &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
         if self.noProto:
-            logging.warning(
-                f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
+            logging.warning(f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
         else:
             #logging.debug(f&#34;Sending toRadio: {stripnl(toRadio)}&#34;)
             self._sendToRadioImpl(toRadio)
@@ -1066,7 +1108,8 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
     def _handleConfigComplete(self):
         &#34;&#34;&#34;
-        Done with initial config messages, now send regular MeshPackets to ask for settings and channels
+        Done with initial config messages, now send regular MeshPackets
+        to ask for settings and channels
         &#34;&#34;&#34;
         self.localNode.requestConfig()
 
@@ -1087,7 +1130,7 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             failmsg = None
             # Check for app too old
             if self.myInfo.min_app_version &gt; OUR_APP_VERSION:
-                failmsg = &#34;This device needs a newer python client, please \&#34;pip install --upgrade meshtastic\&#34;.  &#34;\
+                failmsg = &#34;This device needs a newer python client, run &#39;pip install --upgrade meshtastic&#39;.&#34;\
                           &#34;For more information see https://tinyurl.com/5bjsxu32&#34;
 
             # check for firmware too old
@@ -1115,13 +1158,15 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
             publishingThread.queueWork(lambda: pub.sendMessage(&#34;meshtastic.node.updated&#34;,
                                                                node=node, interface=self))
         elif fromRadio.config_complete_id == self.configId:
-            # we ignore the config_complete_id, it is unneeded for our stream API fromRadio.config_complete_id
+            # we ignore the config_complete_id, it is unneeded for our
+            # stream API fromRadio.config_complete_id
             logging.debug(f&#34;Config complete ID {self.configId}&#34;)
             self._handleConfigComplete()
         elif fromRadio.HasField(&#34;packet&#34;):
             self._handlePacketFromRadio(fromRadio.packet)
         elif fromRadio.rebooted:
-            # Tell clients the device went away.  Careful not to call the overridden subclass version that closes the serial port
+            # Tell clients the device went away.  Careful not to call the overridden
+            # subclass version that closes the serial port
             MeshInterface._disconnected(self)
 
             self._startConfig()  # redownload the node db etc...
@@ -1187,12 +1232,12 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         asDict[&#34;raw&#34;] = meshPacket
 
         # from might be missing if the nodenum was zero.
-        if not &#34;from&#34; in asDict:
+        if &#34;from&#34; not in asDict:
             asDict[&#34;from&#34;] = 0
             logging.error(
                 f&#34;Device returned a packet we sent, ignoring: {stripnl(asDict)}&#34;)
             return
-        if not &#34;to&#34; in asDict:
+        if &#34;to&#34; not in asDict:
             asDict[&#34;to&#34;] = 0
 
         # /add fromId and toId fields based on the node ID
@@ -1215,8 +1260,9 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
         # byte array.
         decoded[&#34;payload&#34;] = meshPacket.decoded.payload
 
-        # UNKNOWN_APP is the default protobuf portnum value, and therefore if not set it will not be populated at all
-        # to make API usage easier, set it to prevent confusion
+        # UNKNOWN_APP is the default protobuf portnum value, and therefore if not
+        # set it will not be populated at all to make API usage easier, set
+        # it to prevent confusion
         if not &#34;portnum&#34; in decoded:
             decoded[&#34;portnum&#34;] = portnums_pb2.PortNum.Name(
                 portnums_pb2.PortNum.UNKNOWN_APP)
@@ -1225,8 +1271,9 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 
         topic = f&#34;meshtastic.receive.data.{portnum}&#34;
 
-        # decode position protobufs and update nodedb, provide decoded version as &#34;position&#34; in the published msg
-        # move the following into a &#39;decoders&#39; API that clients could register?
+        # decode position protobufs and update nodedb, provide decoded version
+        # as &#34;position&#34; in the published msg move the following into a &#39;decoders&#39;
+        # API that clients could register?
         portNumInt = meshPacket.decoded.portnum  # we want portnum as an int
         handler = protocols.get(portNumInt)
         # The decoded protobuf as a dictionary (if we understand this message)
@@ -1381,14 +1428,22 @@ noProto &ndash; If True, don't try to run our protocol on the link - just be a d
 <dd>
 <div class="desc"><p>Send a data packet to some other node</p>
 <p>Keyword Arguments:
-data &ndash; the data to send, either as an array of bytes or as a protobuf (which will be automatically serialized to bytes)
-destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {BROADCAST_ADDR})
-portNum &ndash; the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
-wantAck &ndash; True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
-wantResponse &ndash; True if you want the service on the other side to send an application layer response
-onResponse &ndash; A closure of the form funct(packet), that will be called when a response packet arrives
-(or the transaction is NAKed due to non receipt)</p>
-<p>Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.</p></div>
+data &ndash; the data to send, either as an array of bytes or
+as a protobuf (which will be automatically
+serialized to bytes)
+destinationId {nodeId or nodeNum} &ndash; where to send this
+message (default: {BROADCAST_ADDR})
+portNum &ndash; the application portnum (similar to IP port numbers)
+of the destination, see portnums.proto for a list
+wantAck &ndash; True if you want the message sent in a reliable
+manner (with retries and ack/nak provided for delivery)
+wantResponse &ndash; True if you want the service on the other
+side to send an application layer response
+onResponse &ndash; A closure of the form funct(packet), that will be
+called when a response packet arrives (or the transaction
+is NAKed due to non receipt)</p>
+<p>Returns the sent packet. The id field will be populated in this packet
+and can be used to track future message acks/naks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1402,15 +1457,23 @@ onResponse &ndash; A closure of the form funct(packet), that will be called when
     &#34;&#34;&#34;Send a data packet to some other node
 
     Keyword Arguments:
-        data -- the data to send, either as an array of bytes or as a protobuf (which will be automatically serialized to bytes)
-        destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
-        portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
-        wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
-        wantResponse -- True if you want the service on the other side to send an application layer response
-        onResponse -- A closure of the form funct(packet), that will be called when a response packet arrives
-                      (or the transaction is NAKed due to non receipt)
+        data -- the data to send, either as an array of bytes or
+                as a protobuf (which will be automatically
+                serialized to bytes)
+        destinationId {nodeId or nodeNum} -- where to send this
+                message (default: {BROADCAST_ADDR})
+        portNum -- the application portnum (similar to IP port numbers)
+                of the destination, see portnums.proto for a list
+        wantAck -- True if you want the message sent in a reliable
+                manner (with retries and ack/nak provided for delivery)
+        wantResponse -- True if you want the service on the other
+                side to send an application layer response
+        onResponse -- A closure of the form funct(packet), that will be
+                called when a response packet arrives (or the transaction
+                is NAKed due to non receipt)
 
-    Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+    Returns the sent packet. The id field will be populated in this packet
+    and can be used to track future message acks/naks.
     &#34;&#34;&#34;
     if getattr(data, &#34;SerializeToString&#34;, None):
         logging.debug(f&#34;Serializing protobuf as data: {stripnl(data)}&#34;)
@@ -1440,24 +1503,27 @@ onResponse &ndash; A closure of the form funct(packet), that will be called when
 </code></dt>
 <dd>
 <div class="desc"><p>Send a position packet to some other node (normally a broadcast)</p>
-<p>Also, the device software will notice this packet and use it to automatically set its notion of
-the local position.</p>
+<p>Also, the device software will notice this packet and use it to automatically
+set its notion of the local position.</p>
 <p>If timeSec is not specified (recommended), we will use the local machine time.</p>
-<p>Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.</p></div>
+<p>Returns the sent packet. The id field will be populated in this packet and
+can be used to track future message acks/naks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0, destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
+<pre><code class="python">def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0,
+                 destinationId=BROADCAST_ADDR, wantAck=False, wantResponse=False):
     &#34;&#34;&#34;
     Send a position packet to some other node (normally a broadcast)
 
-    Also, the device software will notice this packet and use it to automatically set its notion of
-    the local position.
+    Also, the device software will notice this packet and use it to automatically
+    set its notion of the local position.
 
     If timeSec is not specified (recommended), we will use the local machine time.
 
-    Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+    Returns the sent packet. The id field will be populated in this packet and
+    can be used to track future message acks/naks.
     &#34;&#34;&#34;
     p = mesh_pb2.Position()
     if latitude != 0.0:
@@ -1483,15 +1549,21 @@ the local position.</p>
 <span>def <span class="ident">sendText</span></span>(<span>self, text: ~AnyStr, destinationId='^all', wantAck=False, wantResponse=False, hopLimit=3, onResponse=None, channelIndex=0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Send a utf8 string to some other node, if the node has a display it will also be shown on the device.</p>
+<div class="desc"><p>Send a utf8 string to some other node, if the node has a display it
+will also be shown on the device.</p>
 <h2 id="arguments">Arguments</h2>
 <p>text {string} &ndash; The text to send</p>
 <p>Keyword Arguments:
-destinationId {nodeId or nodeNum} &ndash; where to send this message (default: {BROADCAST_ADDR})
-portNum &ndash; the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
-wantAck &ndash; True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
-wantResponse &ndash; True if you want the service on the other side to send an application layer response</p>
-<p>Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.</p></div>
+destinationId {nodeId or nodeNum} &ndash; where to send this
+message (default: {BROADCAST_ADDR})
+portNum &ndash; the application portnum (similar to IP port numbers)
+of the destination, see portnums.proto for a list
+wantAck &ndash; True if you want the message sent in a reliable manner
+(with retries and ack/nak provided for delivery)
+wantResponse &ndash; True if you want the service on the other side to
+send an application layer response</p>
+<p>Returns the sent packet. The id field will be populated in this packet
+and can be used to track future message acks/naks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1503,18 +1575,24 @@ wantResponse &ndash; True if you want the service on the other side to send an a
              hopLimit=defaultHopLimit,
              onResponse=None,
              channelIndex=0):
-    &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it will also be shown on the device.
+    &#34;&#34;&#34;Send a utf8 string to some other node, if the node has a display it
+       will also be shown on the device.
 
     Arguments:
         text {string} -- The text to send
 
     Keyword Arguments:
-        destinationId {nodeId or nodeNum} -- where to send this message (default: {BROADCAST_ADDR})
-        portNum -- the application portnum (similar to IP port numbers) of the destination, see portnums.proto for a list
-        wantAck -- True if you want the message sent in a reliable manner (with retries and ack/nak provided for delivery)
-        wantResponse -- True if you want the service on the other side to send an application layer response
+        destinationId {nodeId or nodeNum} -- where to send this
+                                             message (default: {BROADCAST_ADDR})
+        portNum -- the application portnum (similar to IP port numbers)
+                   of the destination, see portnums.proto for a list
+        wantAck -- True if you want the message sent in a reliable manner
+                   (with retries and ack/nak provided for delivery)
+        wantResponse -- True if you want the service on the other side to
+                        send an application layer response
 
-    Returns the sent packet. The id field will be populated in this packet and can be used to track future message acks/naks.
+    Returns the sent packet. The id field will be populated in this packet
+    and can be used to track future message acks/naks.
     &#34;&#34;&#34;
     return self.sendData(text.encode(&#34;utf-8&#34;), destinationId,
                          portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
@@ -1562,54 +1640,55 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 <pre><code class="python">def showNodes(self, includeSelf=True, file=sys.stdout):
     &#34;&#34;&#34;Show table summary of nodes in mesh&#34;&#34;&#34;
     def formatFloat(value, precision=2, unit=&#39;&#39;):
+        &#34;&#34;&#34;Format a float value with precsion.&#34;&#34;&#34;
         return f&#39;{value:.{precision}f}{unit}&#39; if value else None
 
     def getLH(ts):
+        &#34;&#34;&#34;Format last heard&#34;&#34;&#34;
         return datetime.fromtimestamp(ts).strftime(&#39;%Y-%m-%d %H:%M:%S&#39;) if ts else None
 
     def getTimeAgo(ts):
+        &#34;&#34;&#34;Format how long ago have we heard from this node (aka timeago).&#34;&#34;&#34;
         return timeago.format(datetime.fromtimestamp(ts), datetime.now()) if ts else None
 
     rows = []
-    for node in self.nodes.values():
-        if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
-            continue
+    if self.nodes:
+        for node in self.nodes.values():
+            if not includeSelf and node[&#39;num&#39;] == self.localNode.nodeNum:
+                continue
 
-        row = {&#34;N&#34;: 0}
+            row = {&#34;N&#34;: 0}
 
-        user = node.get(&#39;user&#39;)
-        if user:
+            user = node.get(&#39;user&#39;)
+            if user:
+                row.update({
+                    &#34;User&#34;: user[&#39;longName&#39;],
+                    &#34;AKA&#34;:  user[&#39;shortName&#39;],
+                    &#34;ID&#34;:   user[&#39;id&#39;],
+                })
+
+            pos = node.get(&#39;position&#39;)
+            if pos:
+                row.update({
+                    &#34;Latitude&#34;:  formatFloat(pos.get(&#34;latitude&#34;),     4, &#34;°&#34;),
+                    &#34;Longitude&#34;: formatFloat(pos.get(&#34;longitude&#34;),    4, &#34;°&#34;),
+                    &#34;Altitude&#34;:  formatFloat(pos.get(&#34;altitude&#34;),     0, &#34; m&#34;),
+                    &#34;Battery&#34;:   formatFloat(pos.get(&#34;batteryLevel&#34;), 2, &#34;%&#34;),
+                })
+
             row.update({
-                &#34;User&#34;: user[&#39;longName&#39;],
-                &#34;AKA&#34;:  user[&#39;shortName&#39;],
-                &#34;ID&#34;:   user[&#39;id&#39;],
+                &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
+                &#34;LastHeard&#34;: getLH(node.get(&#34;lastHeard&#34;)),
+                &#34;Since&#34;:     getTimeAgo(node.get(&#34;lastHeard&#34;)),
             })
 
-        pos = node.get(&#39;position&#39;)
-        if pos:
-            row.update({
-                &#34;Latitude&#34;:  formatFloat(pos.get(&#34;latitude&#34;),     4, &#34;°&#34;),
-                &#34;Longitude&#34;: formatFloat(pos.get(&#34;longitude&#34;),    4, &#34;°&#34;),
-                &#34;Altitude&#34;:  formatFloat(pos.get(&#34;altitude&#34;),     0, &#34; m&#34;),
-                &#34;Battery&#34;:   formatFloat(pos.get(&#34;batteryLevel&#34;), 2, &#34;%&#34;),
-            })
+            rows.append(row)
 
-        row.update({
-            &#34;SNR&#34;:       formatFloat(node.get(&#34;snr&#34;), 2, &#34; dB&#34;),
-            &#34;LastHeard&#34;: getLH(node.get(&#34;lastHeard&#34;)),
-            &#34;Since&#34;:     getTimeAgo(node.get(&#34;lastHeard&#34;)),
-        })
-
-        rows.append(row)
-
-    # Why doesn&#39;t this way work?
-    #rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;, &#39;0000&#39;), reverse=True)
     rows.sort(key=lambda r: r.get(&#39;LastHeard&#39;) or &#39;0000&#39;, reverse=True)
     for i, row in enumerate(rows):
         row[&#39;N&#39;] = i+1
 
-    table = tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;,
-                   tablefmt=&#39;fancy_grid&#39;)
+    table = tabulate(rows, headers=&#39;keys&#39;, missingval=&#39;N/A&#39;, tablefmt=&#39;fancy_grid&#39;)
     print(table)
     return table</code></pre>
 </details>
@@ -1625,8 +1704,7 @@ wantResponse &ndash; True if you want the service on the other side to send an a
 </summary>
 <pre><code class="python">def waitForConfig(self):
     &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
-    success = self._timeout.waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)
-                                       ) and self.localNode.waitForConfig()
+    success = self._timeout.waitForSet(self, attrs=(&#39;myInfo&#39;, &#39;nodes&#39;)) and self.localNode.waitForConfig()
     if not success:
         raise Exception(&#34;Timed out waiting for interface config&#34;)</code></pre>
 </details>

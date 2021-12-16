@@ -27,14 +27,14 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34; Node class
+<pre><code class="python">&#34;&#34;&#34;Node class
 &#34;&#34;&#34;
 
 import logging
 import base64
 from google.protobuf.json_format import MessageToJson
 from . import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
-from .util import pskToString, stripnl, Timeout, our_exit
+from .util import pskToString, stripnl, Timeout, our_exit, fromPSK
 
 
 class Node:
@@ -50,14 +50,16 @@ class Node:
         self.radioConfig = None
         self.channels = None
         self._timeout = Timeout(maxSecs=60)
+        self.partialChannels = None
 
     def showChannels(self):
-        &#34;&#34;&#34;Show human readable description of our channels&#34;&#34;&#34;
+        &#34;&#34;&#34;Show human readable description of our channels.&#34;&#34;&#34;
         print(&#34;Channels:&#34;)
         if self.channels:
             for c in self.channels:
-                if c.role != channel_pb2.Channel.Role.DISABLED:
-                    cStr = stripnl(MessageToJson(c.settings))
+                cStr = stripnl(MessageToJson(c.settings))
+                # only show if there is no psk (meaning disabled channel)
+                if c.settings.psk:
                     print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
@@ -74,14 +76,18 @@ class Node:
         self.showChannels()
 
     def requestConfig(self):
-        &#34;&#34;&#34;
-        Send regular MeshPackets to ask for settings and channels
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Send regular MeshPackets to ask for settings and channels.&#34;&#34;&#34;
         self.radioConfig = None
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
 
         self._requestSettings()
+
+    def turnOffEncryptionOnPrimaryChannel(self):
+        &#34;&#34;&#34;Turn off encryption on primary channel.&#34;&#34;&#34;
+        self.channels[0].settings.psk = fromPSK(&#34;none&#34;)
+        print(&#34;Writing modified channels to device&#34;)
+        self.writeChannel(0)
 
     def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
@@ -110,7 +116,7 @@ class Node:
     def deleteChannel(self, channelIndex):
         &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
         ch = self.channels[channelIndex]
-        if ch.role != channel_pb2.Channel.Role.SECONDARY:
+        if ch.role not in (channel_pb2.Channel.Role.SECONDARY, channel_pb2.Channel.Role.DISABLED):
             our_exit(&#34;Warning: Only SECONDARY channels can be deleted&#34;)
 
         # we are careful here because if we move the &#34;admin&#34; channel the channelIndex we need to use
@@ -125,9 +131,11 @@ class Node:
             self.writeChannel(index, adminIndex=adminIndex)
             index += 1
 
-            # if we are updating the local node, we might end up *moving* the admin channel index as we are writing
+            # if we are updating the local node, we might end up
+            # *moving* the admin channel index as we are writing
             if (self.iface.localNode == self) and index &gt;= adminIndex:
-                # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again
+                # We&#39;ve now passed the old location for admin index
+                # (and writen it), so we can start finding it by name again
                 adminIndex = 0
 
     def getChannelByName(self, name):
@@ -186,16 +194,15 @@ class Node:
         return self._sendAdmin(p)
 
     def getURL(self, includeAll: bool = True):
-        &#34;&#34;&#34;The sharable URL that describes the current channel
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;The sharable URL that describes the current channel&#34;&#34;&#34;
         # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
         if self.channels:
             for c in self.channels:
                 if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
                     channelSet.settings.append(c.settings)
-        bytes = channelSet.SerializeToString()
-        s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
+        some_bytes = channelSet.SerializeToString()
+        s = base64.urlsafe_b64encode(some_bytes).decode(&#39;ascii&#39;)
         return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)
 
     def setURL(self, url):
@@ -233,41 +240,40 @@ class Node:
             i = i + 1
 
     def _requestSettings(self):
-        &#34;&#34;&#34;
-        Done with initial config messages, now send regular MeshPackets to ask for settings
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Done with initial config messages, now send regular
+           MeshPackets to ask for settings.&#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.get_radio_request = True
 
         def onResponse(p):
             &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
-            self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
-            logging.debug(&#34;Received radio config, now fetching channels...&#34;)
-            self._timeout.reset()  # We made foreward progress
-            self._requestChannel(0)  # now start fetching channels
+            errorFound = False
+            if &#39;routing&#39; in p[&#34;decoded&#34;]:
+                if p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;] != &#34;NONE&#34;:
+                    errorFound = True
+                    print(f&#39;Error on response: {p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;]}&#39;)
+            if errorFound is False:
+                self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
+                logging.debug(&#34;Received radio config, now fetching channels...&#34;)
+                self._timeout.reset()  # We made foreward progress
+                self._requestChannel(0)  # now start fetching channels
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            logging.info(
-                &#34;Requesting preferences from remote node (this could take a while)&#34;)
+            print(&#34;Requesting preferences from remote node (this could take a while)&#34;)
 
-        return self._sendAdmin(p,
-                               wantResponse=True,
-                               onResponse=onResponse)
+        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
 
     def exitSimulator(self):
-        &#34;&#34;&#34;
-        Tell a simulator node to exit (this message is ignored for other nodes)
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Tell a simulator node to exit (this message
+           is ignored for other nodes)&#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.exit_simulator = True
 
         return self._sendAdmin(p)
 
     def reboot(self, secs: int = 10):
-        &#34;&#34;&#34;
-        Tell the node to reboot
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Tell the node to reboot.&#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.reboot_seconds = secs
         logging.info(f&#34;Telling node to reboot in {secs} seconds&#34;)
@@ -278,6 +284,7 @@ class Node:
         &#34;&#34;&#34;Fixup indexes and add disabled channels as needed&#34;&#34;&#34;
 
         # Add extra disabled channels as needed
+        # TODO: These 2 lines seem to not do anything.
         for index, ch in enumerate(self.channels):
             ch.index = index  # fixup indexes
 
@@ -296,21 +303,19 @@ class Node:
             index += 1
 
     def _requestChannel(self, channelNum: int):
-        &#34;&#34;&#34;
-        Done with initial config messages, now send regular MeshPackets to ask for settings
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Done with initial config messages, now send regular
+           MeshPackets to ask for settings&#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.get_channel_request = channelNum + 1
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            logging.info(
-                f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
+            logging.info(f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
         else:
             logging.debug(f&#34;Requesting channel {channelNum}&#34;)
 
         def onResponse(p):
-            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
+            &#34;&#34;&#34;A closure to handle the response packet for requesting a channel&#34;&#34;&#34;
             c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
             self.partialChannels.append(c)
             self._timeout.reset()  # We made foreward progress
@@ -320,9 +325,9 @@ class Node:
             # for stress testing, we can always download all channels
             fastChannelDownload = True
 
-            # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
-            quitEarly = (
-                c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+            # Once we see a response that has NO settings, assume
+            # we are at the end of channels and stop fetching
+            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
 
             if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
                 logging.debug(&#34;Finished downloading channels&#34;)
@@ -335,13 +340,10 @@ class Node:
             else:
                 self._requestChannel(index + 1)
 
-        return self._sendAdmin(p,
-                               wantResponse=True,
-                               onResponse=onResponse)
+        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
 
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
-                   onResponse=None,
-                   adminIndex=0):
+                   onResponse=None, adminIndex=0):
         &#34;&#34;&#34;Send an admin message to the specified node (or the local node if destNodeNum is zero)&#34;&#34;&#34;
 
         if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
@@ -389,14 +391,16 @@ class Node:
         self.radioConfig = None
         self.channels = None
         self._timeout = Timeout(maxSecs=60)
+        self.partialChannels = None
 
     def showChannels(self):
-        &#34;&#34;&#34;Show human readable description of our channels&#34;&#34;&#34;
+        &#34;&#34;&#34;Show human readable description of our channels.&#34;&#34;&#34;
         print(&#34;Channels:&#34;)
         if self.channels:
             for c in self.channels:
-                if c.role != channel_pb2.Channel.Role.DISABLED:
-                    cStr = stripnl(MessageToJson(c.settings))
+                cStr = stripnl(MessageToJson(c.settings))
+                # only show if there is no psk (meaning disabled channel)
+                if c.settings.psk:
                     print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
@@ -413,14 +417,18 @@ class Node:
         self.showChannels()
 
     def requestConfig(self):
-        &#34;&#34;&#34;
-        Send regular MeshPackets to ask for settings and channels
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Send regular MeshPackets to ask for settings and channels.&#34;&#34;&#34;
         self.radioConfig = None
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
 
         self._requestSettings()
+
+    def turnOffEncryptionOnPrimaryChannel(self):
+        &#34;&#34;&#34;Turn off encryption on primary channel.&#34;&#34;&#34;
+        self.channels[0].settings.psk = fromPSK(&#34;none&#34;)
+        print(&#34;Writing modified channels to device&#34;)
+        self.writeChannel(0)
 
     def waitForConfig(self):
         &#34;&#34;&#34;Block until radio config is received. Returns True if config has been received.&#34;&#34;&#34;
@@ -449,7 +457,7 @@ class Node:
     def deleteChannel(self, channelIndex):
         &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
         ch = self.channels[channelIndex]
-        if ch.role != channel_pb2.Channel.Role.SECONDARY:
+        if ch.role not in (channel_pb2.Channel.Role.SECONDARY, channel_pb2.Channel.Role.DISABLED):
             our_exit(&#34;Warning: Only SECONDARY channels can be deleted&#34;)
 
         # we are careful here because if we move the &#34;admin&#34; channel the channelIndex we need to use
@@ -464,9 +472,11 @@ class Node:
             self.writeChannel(index, adminIndex=adminIndex)
             index += 1
 
-            # if we are updating the local node, we might end up *moving* the admin channel index as we are writing
+            # if we are updating the local node, we might end up
+            # *moving* the admin channel index as we are writing
             if (self.iface.localNode == self) and index &gt;= adminIndex:
-                # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again
+                # We&#39;ve now passed the old location for admin index
+                # (and writen it), so we can start finding it by name again
                 adminIndex = 0
 
     def getChannelByName(self, name):
@@ -525,16 +535,15 @@ class Node:
         return self._sendAdmin(p)
 
     def getURL(self, includeAll: bool = True):
-        &#34;&#34;&#34;The sharable URL that describes the current channel
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;The sharable URL that describes the current channel&#34;&#34;&#34;
         # Only keep the primary/secondary channels, assume primary is first
         channelSet = apponly_pb2.ChannelSet()
         if self.channels:
             for c in self.channels:
                 if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
                     channelSet.settings.append(c.settings)
-        bytes = channelSet.SerializeToString()
-        s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
+        some_bytes = channelSet.SerializeToString()
+        s = base64.urlsafe_b64encode(some_bytes).decode(&#39;ascii&#39;)
         return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)
 
     def setURL(self, url):
@@ -572,41 +581,40 @@ class Node:
             i = i + 1
 
     def _requestSettings(self):
-        &#34;&#34;&#34;
-        Done with initial config messages, now send regular MeshPackets to ask for settings
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Done with initial config messages, now send regular
+           MeshPackets to ask for settings.&#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.get_radio_request = True
 
         def onResponse(p):
             &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
-            self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
-            logging.debug(&#34;Received radio config, now fetching channels...&#34;)
-            self._timeout.reset()  # We made foreward progress
-            self._requestChannel(0)  # now start fetching channels
+            errorFound = False
+            if &#39;routing&#39; in p[&#34;decoded&#34;]:
+                if p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;] != &#34;NONE&#34;:
+                    errorFound = True
+                    print(f&#39;Error on response: {p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;]}&#39;)
+            if errorFound is False:
+                self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
+                logging.debug(&#34;Received radio config, now fetching channels...&#34;)
+                self._timeout.reset()  # We made foreward progress
+                self._requestChannel(0)  # now start fetching channels
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            logging.info(
-                &#34;Requesting preferences from remote node (this could take a while)&#34;)
+            print(&#34;Requesting preferences from remote node (this could take a while)&#34;)
 
-        return self._sendAdmin(p,
-                               wantResponse=True,
-                               onResponse=onResponse)
+        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
 
     def exitSimulator(self):
-        &#34;&#34;&#34;
-        Tell a simulator node to exit (this message is ignored for other nodes)
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Tell a simulator node to exit (this message
+           is ignored for other nodes)&#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.exit_simulator = True
 
         return self._sendAdmin(p)
 
     def reboot(self, secs: int = 10):
-        &#34;&#34;&#34;
-        Tell the node to reboot
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Tell the node to reboot.&#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.reboot_seconds = secs
         logging.info(f&#34;Telling node to reboot in {secs} seconds&#34;)
@@ -617,6 +625,7 @@ class Node:
         &#34;&#34;&#34;Fixup indexes and add disabled channels as needed&#34;&#34;&#34;
 
         # Add extra disabled channels as needed
+        # TODO: These 2 lines seem to not do anything.
         for index, ch in enumerate(self.channels):
             ch.index = index  # fixup indexes
 
@@ -635,21 +644,19 @@ class Node:
             index += 1
 
     def _requestChannel(self, channelNum: int):
-        &#34;&#34;&#34;
-        Done with initial config messages, now send regular MeshPackets to ask for settings
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Done with initial config messages, now send regular
+           MeshPackets to ask for settings&#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.get_channel_request = channelNum + 1
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            logging.info(
-                f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
+            logging.info(f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
         else:
             logging.debug(f&#34;Requesting channel {channelNum}&#34;)
 
         def onResponse(p):
-            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
+            &#34;&#34;&#34;A closure to handle the response packet for requesting a channel&#34;&#34;&#34;
             c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
             self.partialChannels.append(c)
             self._timeout.reset()  # We made foreward progress
@@ -659,9 +666,9 @@ class Node:
             # for stress testing, we can always download all channels
             fastChannelDownload = True
 
-            # Once we see a response that has NO settings, assume we are at the end of channels and stop fetching
-            quitEarly = (
-                c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+            # Once we see a response that has NO settings, assume
+            # we are at the end of channels and stop fetching
+            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
 
             if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
                 logging.debug(&#34;Finished downloading channels&#34;)
@@ -674,13 +681,10 @@ class Node:
             else:
                 self._requestChannel(index + 1)
 
-        return self._sendAdmin(p,
-                               wantResponse=True,
-                               onResponse=onResponse)
+        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
 
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
-                   onResponse=None,
-                   adminIndex=0):
+                   onResponse=None, adminIndex=0):
         &#34;&#34;&#34;Send an admin message to the specified node (or the local node if destNodeNum is zero)&#34;&#34;&#34;
 
         if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
@@ -707,7 +711,7 @@ class Node:
 <pre><code class="python">def deleteChannel(self, channelIndex):
     &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
     ch = self.channels[channelIndex]
-    if ch.role != channel_pb2.Channel.Role.SECONDARY:
+    if ch.role not in (channel_pb2.Channel.Role.SECONDARY, channel_pb2.Channel.Role.DISABLED):
         our_exit(&#34;Warning: Only SECONDARY channels can be deleted&#34;)
 
     # we are careful here because if we move the &#34;admin&#34; channel the channelIndex we need to use
@@ -722,9 +726,11 @@ class Node:
         self.writeChannel(index, adminIndex=adminIndex)
         index += 1
 
-        # if we are updating the local node, we might end up *moving* the admin channel index as we are writing
+        # if we are updating the local node, we might end up
+        # *moving* the admin channel index as we are writing
         if (self.iface.localNode == self) and index &gt;= adminIndex:
-            # We&#39;ve now passed the old location for admin index (and writen it), so we can start finding it by name again
+            # We&#39;ve now passed the old location for admin index
+            # (and writen it), so we can start finding it by name again
             adminIndex = 0</code></pre>
 </details>
 </dd>
@@ -732,15 +738,15 @@ class Node:
 <span>def <span class="ident">exitSimulator</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Tell a simulator node to exit (this message is ignored for other nodes)</p></div>
+<div class="desc"><p>Tell a simulator node to exit (this message
+is ignored for other nodes)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def exitSimulator(self):
-    &#34;&#34;&#34;
-    Tell a simulator node to exit (this message is ignored for other nodes)
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Tell a simulator node to exit (this message
+       is ignored for other nodes)&#34;&#34;&#34;
     p = admin_pb2.AdminMessage()
     p.exit_simulator = True
 
@@ -791,16 +797,15 @@ class Node:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def getURL(self, includeAll: bool = True):
-    &#34;&#34;&#34;The sharable URL that describes the current channel
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;The sharable URL that describes the current channel&#34;&#34;&#34;
     # Only keep the primary/secondary channels, assume primary is first
     channelSet = apponly_pb2.ChannelSet()
     if self.channels:
         for c in self.channels:
             if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
                 channelSet.settings.append(c.settings)
-    bytes = channelSet.SerializeToString()
-    s = base64.urlsafe_b64encode(bytes).decode(&#39;ascii&#39;)
+    some_bytes = channelSet.SerializeToString()
+    s = base64.urlsafe_b64encode(some_bytes).decode(&#39;ascii&#39;)
     return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)</code></pre>
 </details>
 </dd>
@@ -808,15 +813,13 @@ class Node:
 <span>def <span class="ident">reboot</span></span>(<span>self, secs: int = 10)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Tell the node to reboot</p></div>
+<div class="desc"><p>Tell the node to reboot.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def reboot(self, secs: int = 10):
-    &#34;&#34;&#34;
-    Tell the node to reboot
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Tell the node to reboot.&#34;&#34;&#34;
     p = admin_pb2.AdminMessage()
     p.reboot_seconds = secs
     logging.info(f&#34;Telling node to reboot in {secs} seconds&#34;)
@@ -828,15 +831,13 @@ class Node:
 <span>def <span class="ident">requestConfig</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Send regular MeshPackets to ask for settings and channels</p></div>
+<div class="desc"><p>Send regular MeshPackets to ask for settings and channels.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def requestConfig(self):
-    &#34;&#34;&#34;
-    Send regular MeshPackets to ask for settings and channels
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Send regular MeshPackets to ask for settings and channels.&#34;&#34;&#34;
     self.radioConfig = None
     self.channels = None
     self.partialChannels = []  # We keep our channels in a temp array until finished
@@ -935,18 +936,19 @@ class Node:
 <span>def <span class="ident">showChannels</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Show human readable description of our channels</p></div>
+<div class="desc"><p>Show human readable description of our channels.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def showChannels(self):
-    &#34;&#34;&#34;Show human readable description of our channels&#34;&#34;&#34;
+    &#34;&#34;&#34;Show human readable description of our channels.&#34;&#34;&#34;
     print(&#34;Channels:&#34;)
     if self.channels:
         for c in self.channels:
-            if c.role != channel_pb2.Channel.Role.DISABLED:
-                cStr = stripnl(MessageToJson(c.settings))
+            cStr = stripnl(MessageToJson(c.settings))
+            # only show if there is no psk (meaning disabled channel)
+            if c.settings.psk:
                 print(f&#34;  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}&#34;)
     publicURL = self.getURL(includeAll=False)
     adminURL = self.getURL(includeAll=True)
@@ -971,6 +973,22 @@ class Node:
         prefs = stripnl(MessageToJson(self.radioConfig.preferences))
     print(f&#34;Preferences: {prefs}\n&#34;)
     self.showChannels()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.node.Node.turnOffEncryptionOnPrimaryChannel"><code class="name flex">
+<span>def <span class="ident">turnOffEncryptionOnPrimaryChannel</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Turn off encryption on primary channel.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def turnOffEncryptionOnPrimaryChannel(self):
+    &#34;&#34;&#34;Turn off encryption on primary channel.&#34;&#34;&#34;
+    self.channels[0].settings.psk = fromPSK(&#34;none&#34;)
+    print(&#34;Writing modified channels to device&#34;)
+    self.writeChannel(0)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.node.Node.waitForConfig"><code class="name flex">
@@ -1047,7 +1065,7 @@ class Node:
 <ul>
 <li>
 <h4><code><a title="meshtastic.node.Node" href="#meshtastic.node.Node">Node</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="meshtastic.node.Node.deleteChannel" href="#meshtastic.node.Node.deleteChannel">deleteChannel</a></code></li>
 <li><code><a title="meshtastic.node.Node.exitSimulator" href="#meshtastic.node.Node.exitSimulator">exitSimulator</a></code></li>
 <li><code><a title="meshtastic.node.Node.getChannelByName" href="#meshtastic.node.Node.getChannelByName">getChannelByName</a></code></li>
@@ -1059,6 +1077,7 @@ class Node:
 <li><code><a title="meshtastic.node.Node.setURL" href="#meshtastic.node.Node.setURL">setURL</a></code></li>
 <li><code><a title="meshtastic.node.Node.showChannels" href="#meshtastic.node.Node.showChannels">showChannels</a></code></li>
 <li><code><a title="meshtastic.node.Node.showInfo" href="#meshtastic.node.Node.showInfo">showInfo</a></code></li>
+<li><code><a title="meshtastic.node.Node.turnOffEncryptionOnPrimaryChannel" href="#meshtastic.node.Node.turnOffEncryptionOnPrimaryChannel">turnOffEncryptionOnPrimaryChannel</a></code></li>
 <li><code><a title="meshtastic.node.Node.waitForConfig" href="#meshtastic.node.Node.waitForConfig">waitForConfig</a></code></li>
 <li><code><a title="meshtastic.node.Node.writeChannel" href="#meshtastic.node.Node.writeChannel">writeChannel</a></code></li>
 <li><code><a title="meshtastic.node.Node.writeConfig" href="#meshtastic.node.Node.writeConfig">writeConfig</a></code></li>

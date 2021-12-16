@@ -27,10 +27,11 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34; Utility functions.
+<pre><code class="python">&#34;&#34;&#34;Utility functions.
 &#34;&#34;&#34;
 import traceback
 from queue import Queue
+import os
 import sys
 import time
 import platform
@@ -42,6 +43,56 @@ import pkg_resources
 
 &#34;&#34;&#34;Some devices such as a seger jlink we never want to accidentally open&#34;&#34;&#34;
 blacklistVids = dict.fromkeys([0x1366])
+
+
+def genPSK256():
+    &#34;&#34;&#34;Generate a random preshared key&#34;&#34;&#34;
+    return os.urandom(32)
+
+
+def fromPSK(valstr):
+    &#34;&#34;&#34;A special version of fromStr that assumes the user is trying to set a PSK.
+    In that case we also allow &#34;none&#34;, &#34;default&#34; or &#34;random&#34; (to have python generate one), or simpleN
+    &#34;&#34;&#34;
+    if valstr == &#34;random&#34;:
+        return genPSK256()
+    elif valstr == &#34;none&#34;:
+        return bytes([0])  # Use the &#39;no encryption&#39; PSK
+    elif valstr == &#34;default&#34;:
+        return bytes([1])  # Use default channel psk
+    elif valstr.startswith(&#34;simple&#34;):
+        # Use one of the single byte encodings
+        return bytes([int(valstr[6:]) + 1])
+    else:
+        return fromStr(valstr)
+
+
+def fromStr(valstr):
+    &#34;&#34;&#34;Try to parse as int, float or bool (and fallback to a string as last resort)
+
+    Returns: an int, bool, float, str or byte array (for strings of hex digits)
+
+    Args:
+        valstr (string): A user provided string
+    &#34;&#34;&#34;
+    if len(valstr) == 0:  # Treat an emptystring as an empty bytes
+        val = bytes()
+    elif valstr.startswith(&#39;0x&#39;):
+        # if needed convert to string with asBytes.decode(&#39;utf-8&#39;)
+        val = bytes.fromhex(valstr[2:])
+    elif valstr.lower() in {&#34;t&#34;, &#34;true&#34;, &#34;yes&#34;}:
+        val = True
+    elif valstr.lower() in {&#34;f&#34;, &#34;false&#34;, &#34;no&#34;}:
+        val = False
+    else:
+        try:
+            val = int(valstr)
+        except ValueError:
+            try:
+                val = float(valstr)
+            except ValueError:
+                val = valstr  # Not a float or an int, assume string
+    return val
 
 
 def pskToString(psk: bytes):
@@ -61,13 +112,13 @@ def pskToString(psk: bytes):
 
 
 def stripnl(s):
-    &#34;&#34;&#34;remove newlines from a string (and remove extra whitespace)&#34;&#34;&#34;
+    &#34;&#34;&#34;Remove newlines from a string (and remove extra whitespace)&#34;&#34;&#34;
     s = str(s).replace(&#34;\n&#34;, &#34; &#34;)
     return &#39; &#39;.join(s.split())
 
 
 def fixme(message):
-    &#34;&#34;&#34;raise an exception for things that needs to be fixed&#34;&#34;&#34;
+    &#34;&#34;&#34;Raise an exception for things that needs to be fixed&#34;&#34;&#34;
     raise Exception(f&#34;FIXME: {message}&#34;)
 
 
@@ -153,7 +204,8 @@ def our_exit(message, return_value = 1):
 
 
 def support_info():
-    &#34;&#34;&#34;Print out info that is helping in support of the cli.&#34;&#34;&#34;
+    &#34;&#34;&#34;Print out info that helps troubleshooting of the cli.&#34;&#34;&#34;
+    print(&#39;&#39;)
     print(&#39;If having issues with meshtastic cli or python library&#39;)
     print(&#39;or wish to make feature requests, visit:&#39;)
     print(&#39;https://github.com/meshtastic/Meshtastic-python/issues&#39;)
@@ -162,13 +214,14 @@ def support_info():
     print(&#39;   Platform: {0}&#39;.format(platform.platform()))
     print(&#39;   Release: {0}&#39;.format(platform.uname().release))
     print(&#39;   Machine: {0}&#39;.format(platform.uname().machine))
+    print(&#39;   Encoding (stdin): {0}&#39;.format(sys.stdin.encoding))
+    print(&#39;   Encoding (stdout): {0}&#39;.format(sys.stdout.encoding))
     print(&#39; meshtastic: v{0}&#39;.format(pkg_resources.require(&#39;meshtastic&#39;)[0].version))
     print(&#39; Executable: {0}&#39;.format(sys.argv[0]))
     print(&#39; Python: {0} {1} {2}&#39;.format(platform.python_version(),
           platform.python_implementation(), platform.python_compiler()))
     print(&#39;&#39;)
-    print(&#39;Please add the output from the command: meshtastic --info&#39;)
-    print(&#39;&#39;)</code></pre>
+    print(&#39;Please add the output from the command: meshtastic --info&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -223,14 +276,98 @@ def support_info():
 <span>def <span class="ident">fixme</span></span>(<span>message)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>raise an exception for things that needs to be fixed</p></div>
+<div class="desc"><p>Raise an exception for things that needs to be fixed</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def fixme(message):
-    &#34;&#34;&#34;raise an exception for things that needs to be fixed&#34;&#34;&#34;
+    &#34;&#34;&#34;Raise an exception for things that needs to be fixed&#34;&#34;&#34;
     raise Exception(f&#34;FIXME: {message}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.util.fromPSK"><code class="name flex">
+<span>def <span class="ident">fromPSK</span></span>(<span>valstr)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A special version of fromStr that assumes the user is trying to set a PSK.
+In that case we also allow "none", "default" or "random" (to have python generate one), or simpleN</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fromPSK(valstr):
+    &#34;&#34;&#34;A special version of fromStr that assumes the user is trying to set a PSK.
+    In that case we also allow &#34;none&#34;, &#34;default&#34; or &#34;random&#34; (to have python generate one), or simpleN
+    &#34;&#34;&#34;
+    if valstr == &#34;random&#34;:
+        return genPSK256()
+    elif valstr == &#34;none&#34;:
+        return bytes([0])  # Use the &#39;no encryption&#39; PSK
+    elif valstr == &#34;default&#34;:
+        return bytes([1])  # Use default channel psk
+    elif valstr.startswith(&#34;simple&#34;):
+        # Use one of the single byte encodings
+        return bytes([int(valstr[6:]) + 1])
+    else:
+        return fromStr(valstr)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.util.fromStr"><code class="name flex">
+<span>def <span class="ident">fromStr</span></span>(<span>valstr)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Try to parse as int, float or bool (and fallback to a string as last resort)</p>
+<p>Returns: an int, bool, float, str or byte array (for strings of hex digits)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>valstr</code></strong> :&ensp;<code>string</code></dt>
+<dd>A user provided string</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fromStr(valstr):
+    &#34;&#34;&#34;Try to parse as int, float or bool (and fallback to a string as last resort)
+
+    Returns: an int, bool, float, str or byte array (for strings of hex digits)
+
+    Args:
+        valstr (string): A user provided string
+    &#34;&#34;&#34;
+    if len(valstr) == 0:  # Treat an emptystring as an empty bytes
+        val = bytes()
+    elif valstr.startswith(&#39;0x&#39;):
+        # if needed convert to string with asBytes.decode(&#39;utf-8&#39;)
+        val = bytes.fromhex(valstr[2:])
+    elif valstr.lower() in {&#34;t&#34;, &#34;true&#34;, &#34;yes&#34;}:
+        val = True
+    elif valstr.lower() in {&#34;f&#34;, &#34;false&#34;, &#34;no&#34;}:
+        val = False
+    else:
+        try:
+            val = int(valstr)
+        except ValueError:
+            try:
+                val = float(valstr)
+            except ValueError:
+                val = valstr  # Not a float or an int, assume string
+    return val</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.util.genPSK256"><code class="name flex">
+<span>def <span class="ident">genPSK256</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate a random preshared key</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def genPSK256():
+    &#34;&#34;&#34;Generate a random preshared key&#34;&#34;&#34;
+    return os.urandom(32)</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.util.our_exit"><code class="name flex">
@@ -280,13 +417,13 @@ return_value defaults to 1 (non-successful)</p></div>
 <span>def <span class="ident">stripnl</span></span>(<span>s)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>remove newlines from a string (and remove extra whitespace)</p></div>
+<div class="desc"><p>Remove newlines from a string (and remove extra whitespace)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def stripnl(s):
-    &#34;&#34;&#34;remove newlines from a string (and remove extra whitespace)&#34;&#34;&#34;
+    &#34;&#34;&#34;Remove newlines from a string (and remove extra whitespace)&#34;&#34;&#34;
     s = str(s).replace(&#34;\n&#34;, &#34; &#34;)
     return &#39; &#39;.join(s.split())</code></pre>
 </details>
@@ -295,13 +432,14 @@ return_value defaults to 1 (non-successful)</p></div>
 <span>def <span class="ident">support_info</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Print out info that is helping in support of the cli.</p></div>
+<div class="desc"><p>Print out info that helps troubleshooting of the cli.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def support_info():
-    &#34;&#34;&#34;Print out info that is helping in support of the cli.&#34;&#34;&#34;
+    &#34;&#34;&#34;Print out info that helps troubleshooting of the cli.&#34;&#34;&#34;
+    print(&#39;&#39;)
     print(&#39;If having issues with meshtastic cli or python library&#39;)
     print(&#39;or wish to make feature requests, visit:&#39;)
     print(&#39;https://github.com/meshtastic/Meshtastic-python/issues&#39;)
@@ -310,13 +448,14 @@ return_value defaults to 1 (non-successful)</p></div>
     print(&#39;   Platform: {0}&#39;.format(platform.platform()))
     print(&#39;   Release: {0}&#39;.format(platform.uname().release))
     print(&#39;   Machine: {0}&#39;.format(platform.uname().machine))
+    print(&#39;   Encoding (stdin): {0}&#39;.format(sys.stdin.encoding))
+    print(&#39;   Encoding (stdout): {0}&#39;.format(sys.stdout.encoding))
     print(&#39; meshtastic: v{0}&#39;.format(pkg_resources.require(&#39;meshtastic&#39;)[0].version))
     print(&#39; Executable: {0}&#39;.format(sys.argv[0]))
     print(&#39; Python: {0} {1} {2}&#39;.format(platform.python_version(),
           platform.python_implementation(), platform.python_compiler()))
     print(&#39;&#39;)
-    print(&#39;Please add the output from the command: meshtastic --info&#39;)
-    print(&#39;&#39;)</code></pre>
+    print(&#39;Please add the output from the command: meshtastic --info&#39;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -482,6 +621,9 @@ return_value defaults to 1 (non-successful)</p></div>
 <li><code><a title="meshtastic.util.catchAndIgnore" href="#meshtastic.util.catchAndIgnore">catchAndIgnore</a></code></li>
 <li><code><a title="meshtastic.util.findPorts" href="#meshtastic.util.findPorts">findPorts</a></code></li>
 <li><code><a title="meshtastic.util.fixme" href="#meshtastic.util.fixme">fixme</a></code></li>
+<li><code><a title="meshtastic.util.fromPSK" href="#meshtastic.util.fromPSK">fromPSK</a></code></li>
+<li><code><a title="meshtastic.util.fromStr" href="#meshtastic.util.fromStr">fromStr</a></code></li>
+<li><code><a title="meshtastic.util.genPSK256" href="#meshtastic.util.genPSK256">genPSK256</a></code></li>
 <li><code><a title="meshtastic.util.our_exit" href="#meshtastic.util.our_exit">our_exit</a></code></li>
 <li><code><a title="meshtastic.util.pskToString" href="#meshtastic.util.pskToString">pskToString</a></code></li>
 <li><code><a title="meshtastic.util.stripnl" href="#meshtastic.util.stripnl">stripnl</a></code></li>

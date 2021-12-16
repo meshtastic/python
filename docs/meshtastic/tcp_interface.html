@@ -27,7 +27,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34; TCPInterface class for interfacing with http endpoint
+<pre><code class="python">&#34;&#34;&#34;TCPInterface class for interfacing with http endpoint
 &#34;&#34;&#34;
 import logging
 import socket
@@ -38,7 +38,8 @@ from .stream_interface import StreamInterface
 class TCPInterface(StreamInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a TCP link&#34;&#34;&#34;
 
-    def __init__(self, hostname: AnyStr, debugOut=None, noProto=False, connectNow=True, portNumber=4403):
+    def __init__(self, hostname: AnyStr, debugOut=None, noProto=False,
+                 connectNow=True, portNumber=4403):
         &#34;&#34;&#34;Constructor, opens a connection to a specified IP address/hostname
 
         Keyword Arguments:
@@ -62,8 +63,8 @@ class TCPInterface(StreamInterface):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing TCP stream&#34;)
         StreamInterface.close(self)
-        # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing
-        # the socket here
+        # Sometimes the socket read might be blocked in the reader thread.
+        # Therefore we force the shutdown by closing the socket here
         self._wantExit = True
         if not self.socket is None:
             try:
@@ -106,7 +107,8 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <pre><code class="python">class TCPInterface(StreamInterface):
     &#34;&#34;&#34;Interface class for meshtastic devices over a TCP link&#34;&#34;&#34;
 
-    def __init__(self, hostname: AnyStr, debugOut=None, noProto=False, connectNow=True, portNumber=4403):
+    def __init__(self, hostname: AnyStr, debugOut=None, noProto=False,
+                 connectNow=True, portNumber=4403):
         &#34;&#34;&#34;Constructor, opens a connection to a specified IP address/hostname
 
         Keyword Arguments:
@@ -130,8 +132,8 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
         logging.debug(&#34;Closing TCP stream&#34;)
         StreamInterface.close(self)
-        # Sometimes the socket read might be blocked in the reader thread.  Therefore we force the shutdown by closing
-        # the socket here
+        # Sometimes the socket read might be blocked in the reader thread.
+        # Therefore we force the shutdown by closing the socket here
         self._wantExit = True
         if not self.socket is None:
             try:
