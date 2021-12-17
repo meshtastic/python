@@ -1,4 +1,5 @@
 """Meshtastic unit tests for __main__.py"""
+# pylint: disable=C0302
 
 import sys
 import os
@@ -7,7 +8,7 @@ import re
 from unittest.mock import patch, MagicMock
 import pytest
 
-from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection
+from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
 from ..tcp_interface import TCPInterface
@@ -1195,4 +1196,36 @@ def test_main_onConnection(reset_globals, capsys):
     onConnection(iface, mytopic)
     out, err = capsys.readouterr()
     assert re.search(r'Connection changed: foo', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+def test_main_export_config(reset_globals, capsys):
+    """Test export_config"""
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        mo.getLongName.return_value = 'foo'
+        mo.localNode.getURL.return_value = 'bar'
+        mo.getMyNodeInfo().get.return_value = { 'latitudeI': 1100000000, 'longitudeI': 1200000000,
+                                                'altitude': 100, 'batteryLevel': 34, 'latitude': 110.0,
+                                                'longitude': 120.0}
+        mo.localNode.radioConfig.preferences = """phone_timeout_secs: 900
+ls_secs: 300
+position_broadcast_smart: true
+fixed_position: true
+position_flags: 35"""
+        export_config(mo)
+    out, err = capsys.readouterr()
+    assert re.search(r'owner: foo', out, re.MULTILINE)
+    assert re.search(r'channel_url: bar', out, re.MULTILINE)
+    assert re.search(r'location:', out, re.MULTILINE)
+    assert re.search(r'lat: 110.0', out, re.MULTILINE)
+    assert re.search(r'lon: 120.0', out, re.MULTILINE)
+    assert re.search(r'alt: 100', out, re.MULTILINE)
+    assert re.search(r'user_prefs:', out, re.MULTILINE)
+    assert re.search(r'phone_timeout_secs: 900', out, re.MULTILINE)
+    assert re.search(r'ls_secs: 300', out, re.MULTILINE)
+    assert re.search(r"position_broadcast_smart: 'true'", out, re.MULTILINE)
+    assert re.search(r"fixed_position: 'true'", out, re.MULTILINE)
+    assert re.search(r"position_flags: 35", out, re.MULTILINE)
     assert err == ''

@@ -335,6 +335,11 @@ def onConnected(interface):
                     print("Writing modified preferences to device")
                     getNode().writeConfig()
 
+        if args.export_config:
+            # export the configuration (the opposite of '--configure')
+            closeNow = True
+            export_config(interface)
+
         if args.seturl:
             closeNow = True
             getNode().setURL(args.seturl)
@@ -515,6 +520,44 @@ def subscribe():
     # pub.subscribe(onNode, "meshtastic.node")
 
 
+def export_config(interface):
+    """used in--export-config"""
+    owner = interface.getLongName()
+    channel_url = interface.localNode.getURL()
+    myinfo = interface.getMyNodeInfo()
+    pos = myinfo.get('position')
+    lat = None
+    lon = None
+    alt = None
+    if pos:
+        lat = pos.get('latitude')
+        lon = pos.get('longitude')
+        alt = pos.get('altitude')
+
+    config = "# start of Meshtastic configure yaml\n"
+    if owner:
+        config += f"owner: {owner}\n\n"
+    if channel_url:
+        config += f"channel_url: {channel_url}\n\n"
+    if lat or lon or alt:
+        config += "location:\n"
+        if lat:
+            config += f"  lat: {lat}\n"
+        if lon:
+            config += f"  lon: {lon}\n"
+        if alt:
+            config += f"  alt: {alt}\n"
+        config += "\n"
+    preferences = f'{interface.localNode.radioConfig.preferences}'
+    prefs = preferences.splitlines()
+    if prefs:
+        config += "user_prefs:\n"
+        for pref in prefs:
+            config += f"  {meshtastic.util.quoteBooleans(pref)}\n"
+    print(config)
+    return config
+
+
 def common():
     """Shared code for all of our command line wrappers"""
     our_globals = Globals.getInstance()
@@ -604,6 +647,11 @@ def initParser():
         "--configure",
         help="Specify a path to a yaml(.yml) file containing the desired settings for the connected device.",
         action='append')
+
+    parser.add_argument(
+        "--export-config",
+        help="Export the configuration in yaml(.yml) format.",
+        action='store_true')
 
     parser.add_argument(
         "--port",
