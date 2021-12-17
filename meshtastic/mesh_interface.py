@@ -268,6 +268,7 @@ class MeshInterface:
         if timeSec == 0:
             timeSec = time.time()  # returns unix timestamp in seconds
         p.time = int(timeSec)
+        logging.debug(f'p.time:{p.time}')
 
         return self.sendData(p, destinationId,
                              portNum=portnums_pb2.PortNum.POSITION_APP,
@@ -455,8 +456,9 @@ class MeshInterface:
         Called by subclasses."""
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
+        #logging.debug(f"fromRadioBytes: {fromRadioBytes}")
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
-        #logging.debug(f"Received from radio: {fromRadio}")
+        logging.debug(f"Received from radio: {fromRadio}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
             self.localNode.nodeNum = self.myInfo.my_node_num
