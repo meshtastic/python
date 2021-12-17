@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from meshtastic.util import fixme, stripnl, pskToString, our_exit, support_info, genPSK256, fromStr, fromPSK
+from meshtastic.util import fixme, stripnl, pskToString, our_exit, support_info, genPSK256, fromStr, fromPSK, quoteBooleans
 
 
 @pytest.mark.unit
@@ -34,6 +34,16 @@ def test_fromStr():
     assert fromStr('123') == 123
     assert fromStr('abc') == 'abc'
 
+
+@pytest.mark.unit
+def test_quoteBooleans():
+    """Test quoteBooleans"""
+    assert quoteBooleans('') == ''
+    assert quoteBooleans('foo') == 'foo'
+    assert quoteBooleans('true') == 'true'
+    assert quoteBooleans('false') == 'false'
+    assert quoteBooleans(': true') == ": 'true'"
+    assert quoteBooleans(': false') == ": 'false'"
 
 @pytest.mark.unit
 def test_fromPSK():

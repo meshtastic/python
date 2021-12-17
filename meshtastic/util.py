@@ -16,6 +16,14 @@ import pkg_resources
 blacklistVids = dict.fromkeys([0x1366])
 
 
+def quoteBooleans(a_string):
+    """Quote booleans
+        given a string that contains ": true", replace with ": 'true'" (or false)
+    """
+    tmp = a_string.replace(": true", ": 'true'")
+    tmp = tmp.replace(": false", ": 'false'")
+    return tmp
+
 def genPSK256():
     """Generate a random preshared key"""
     return os.urandom(32)
