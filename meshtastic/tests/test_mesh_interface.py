@@ -149,7 +149,7 @@ def test_handleFromRadio_with_my_info(reset_globals, caplog):
 
 
 @pytest.mark.unit
-def test_handleFromRadio_with_node_info(reset_globals, caplog):
+def test_handleFromRadio_with_node_info(reset_globals, caplog, capsys):
     """Test _handleFromRadio with node_info"""
     # Note: I captured the '--debug --info' for the bytes below.
     # It "translates" to this:
@@ -171,7 +171,14 @@ def test_handleFromRadio_with_node_info(reset_globals, caplog):
     with caplog.at_level(logging.DEBUG):
         iface._startConfig()
         iface._handleFromRadio(from_radio_bytes)
-    iface.close()
-    assert re.search(r'Received nodeinfo', caplog.text, re.MULTILINE)
-    assert re.search(r'682584012', caplog.text, re.MULTILINE)
-    assert re.search(r'HELTEC_V2_1', caplog.text, re.MULTILINE)
+        assert re.search(r'Received nodeinfo', caplog.text, re.MULTILINE)
+        assert re.search(r'682584012', caplog.text, re.MULTILINE)
+        assert re.search(r'HELTEC_V2_1', caplog.text, re.MULTILINE)
+        # validate some of showNodes() output
+        iface.showNodes()
+        out, err = capsys.readouterr()
+        assert re.search(r' 1 ', out, re.MULTILINE)
+        assert re.search(r'│ Unknown 67cc │ ', out, re.MULTILINE)
+        assert re.search(r'│ !28af67cc │ N/A   │ N/A         │ N/A', out, re.MULTILINE)
+        assert err == ''
+        iface.close()
