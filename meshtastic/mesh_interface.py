@@ -1,4 +1,4 @@
-""" Mesh Interface class
+"""Mesh Interface class
 """
 import sys
 import random
@@ -16,9 +16,9 @@ from pubsub import pub
 from google.protobuf.json_format import MessageToJson
 
 
+import meshtastic.node
 from . import portnums_pb2, mesh_pb2
 from .util import stripnl, Timeout, our_exit
-from .node import Node
 from .__init__ import LOCAL_ADDR, BROADCAST_NUM, BROADCAST_ADDR, ResponseHandler, publishingThread, OUR_APP_VERSION, protocols
 
 
@@ -46,7 +46,7 @@ class MeshInterface:
         self.nodes = None  # FIXME
         self.isConnected = threading.Event()
         self.noProto = noProto
-        self.localNode = Node(self, -1)  # We fixup nodenum later
+        self.localNode = meshtastic.node.Node(self, -1)  # We fixup nodenum later
         self.myInfo = None  # We don't have device info yet
         self.responseHandlers = {}  # A map from request ID to the handler
         self.failure = None  # If we've encountered a fatal exception it will be kept here
@@ -151,7 +151,8 @@ class MeshInterface:
         if nodeId == LOCAL_ADDR:
             return self.localNode
         else:
-            n = Node(self, nodeId)
+            n = meshtastic.node.Node(self, nodeId)
+            logging.debug("About to requestConfig")
             n.requestConfig()
             if not n.waitForConfig():
                 our_exit("Error: Timed out waiting for node config")
@@ -222,6 +223,7 @@ class MeshInterface:
             logging.debug(f"Serializing protobuf as data: {stripnl(data)}")
             data = data.SerializeToString()
 
+        logging.debug(f"len(data): {len(data)}")
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
             Exception("Data payload too big")
 
@@ -266,6 +268,7 @@ class MeshInterface:
         if timeSec == 0:
             timeSec = time.time()  # returns unix timestamp in seconds
         p.time = int(timeSec)
+        logging.debug(f'p.time:{p.time}')
 
         return self.sendData(p, destinationId,
                              portNum=portnums_pb2.PortNum.POSITION_APP,
@@ -291,6 +294,7 @@ class MeshInterface:
 
         toRadio = mesh_pb2.ToRadio()
 
+        nodeNum = 0
         if destinationId is None:
             our_exit("Warning: destinationId must not be None")
         elif isinstance(destinationId, int):
@@ -303,10 +307,13 @@ class MeshInterface:
         elif destinationId.startswith("!"):
             nodeNum = int(destinationId[1:], 16)
         else:
-            node = self.nodes.get(destinationId)
-            if not node:
-                our_exit(f"Warning: NodeId {destinationId} not found in DB")
-            nodeNum = node['num']
+            if self.nodes:
+                node = self.nodes.get(destinationId)
+                if not node:
+                    our_exit(f"Warning: NodeId {destinationId} not found in DB")
+                nodeNum = node['num']
+            else:
+                logging.warning("Warning: There were no self.nodes.")
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
@@ -449,8 +456,9 @@ class MeshInterface:
         Called by subclasses."""
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
+        #logging.debug(f"fromRadioBytes: {fromRadioBytes}")
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
-        #logging.debug(f"Received from radio: {fromRadio}")
+        logging.debug(f"Received from radio: {fromRadio}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
             self.localNode.nodeNum = self.myInfo.my_node_num
@@ -543,8 +551,15 @@ class MeshInterface:
             self.nodesByNum[nodeNum] = n
             return n
 
-    def _handlePacketFromRadio(self, meshPacket):
+    def _handlePacketFromRadio(self, meshPacket, hack=False):
         """Handle a MeshPacket that just arrived from the radio
+
+        hack - well, since we used 'from', which is a python keyword,
+               as an attribute to MeshPacket in protobufs,
+               there really is no way to do something like this:
+                    meshPacket = mesh_pb2.MeshPacket()
+                    meshPacket.from = 123
+               If hack is True, we can unit test this code.
 
         Will publish one of the following events:
         - meshtastic.receive.text(packet = MeshPacket dictionary)
@@ -561,10 +576,10 @@ class MeshInterface:
         asDict["raw"] = meshPacket
 
         # from might be missing if the nodenum was zero.
-        if "from" not in asDict:
+        if not hack and "from" not in asDict:
             asDict["from"] = 0
-            logging.error(
-                f"Device returned a packet we sent, ignoring: {stripnl(asDict)}")
+            logging.error(f"Device returned a packet we sent, ignoring: {stripnl(asDict)}")
+            print(f"Error: Device returned a packet we sent, ignoring: {stripnl(asDict)}")
             return
         if "to" not in asDict:
             asDict["to"] = 0
@@ -592,9 +607,10 @@ class MeshInterface:
         # UNKNOWN_APP is the default protobuf portnum value, and therefore if not
         # set it will not be populated at all to make API usage easier, set
         # it to prevent confusion
-        if not "portnum" in decoded:
-            decoded["portnum"] = portnums_pb2.PortNum.Name(
-                portnums_pb2.PortNum.UNKNOWN_APP)
+        if "portnum" not in decoded:
+            new_portnum = portnums_pb2.PortNum.Name(portnums_pb2.PortNum.UNKNOWN_APP)
+            decoded["portnum"] = new_portnum
+            logging.warning(f"portnum was not in decoded. Setting to:{new_portnum}")
 
         portnum = decoded["portnum"]
 

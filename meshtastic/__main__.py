@@ -29,11 +29,11 @@ def onReceive(packet, interface):
         d = packet.get('decoded')
 
         # Exit once we receive a reply
-        if args.sendtext and packet["to"] == interface.myInfo.my_node_num and d["portnum"] == portnums_pb2.PortNum.TEXT_MESSAGE_APP:
+        if args and args.sendtext and packet["to"] == interface.myInfo.my_node_num and d["portnum"] == portnums_pb2.PortNum.TEXT_MESSAGE_APP:
             interface.close()  # after running command then exit
 
         # Reply to every received message with some stats
-        if args.reply:
+        if args and args.reply:
             msg = d.get('text')
             if msg:
                 #shortName = packet['decoded']['shortName']
