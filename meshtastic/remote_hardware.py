@@ -1,5 +1,6 @@
-""" Remote hardware
+"""Remote hardware
 """
+import logging
 from pubsub import pub
 from . import portnums_pb2, remote_hardware_pb2
 
@@ -33,8 +34,7 @@ class RemoteHardwareClient:
                 "to use this (secured) service (--ch-add gpio --info then --seturl)")
         self.channelIndex = ch.index
 
-        pub.subscribe(
-            onGPIOreceive, "meshtastic.receive.remotehw")
+        pub.subscribe(onGPIOreceive, "meshtastic.receive.remotehw")
 
     def _sendHardware(self, nodeid, r, wantResponse=False, onResponse=None):
         if not nodeid:
@@ -48,6 +48,7 @@ class RemoteHardwareClient:
         Write the specified vals bits to the device GPIOs.  Only bits in mask that
         are 1 will be changed
         """
+        logging.debug(f'writeGPIOs nodeid:{nodeid} mask:{mask} vals:{vals}')
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.WRITE_GPIOS
         r.gpio_mask = mask
@@ -56,6 +57,7 @@ class RemoteHardwareClient:
 
     def readGPIOs(self, nodeid, mask, onResponse = None):
         """Read the specified bits from GPIO inputs on the device"""
+        logging.debug(f'readGPIOs nodeid:{nodeid} mask:{mask}')
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
         r.gpio_mask = mask
@@ -63,6 +65,7 @@ class RemoteHardwareClient:
 
     def watchGPIOs(self, nodeid, mask):
         """Watch the specified bits from GPIO inputs on the device for changes"""
+        logging.debug(f'watchGPIOs nodeid:{nodeid} mask:{mask}')
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
         r.gpio_mask = mask
