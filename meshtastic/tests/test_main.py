@@ -8,7 +8,7 @@ import re
 from unittest.mock import patch, MagicMock
 import pytest
 
-from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, configure_dump
+from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
 from ..tcp_interface import TCPInterface
@@ -1200,8 +1200,8 @@ def test_main_onConnection(reset_globals, capsys):
 
 
 @pytest.mark.unit
-def test_main_configure_dump(reset_globals, capsys):
-    """Test configure_dump"""
+def test_main_export_config(reset_globals, capsys):
+    """Test export_config"""
     iface = MagicMock(autospec=SerialInterface)
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         mo.getLongName.return_value = 'foo'
@@ -1214,7 +1214,7 @@ ls_secs: 300
 position_broadcast_smart: true
 fixed_position: true
 position_flags: 35"""
-        configure_dump(mo)
+        export_config(mo)
     out, err = capsys.readouterr()
     assert re.search(r'owner: foo', out, re.MULTILINE)
     assert re.search(r'channel_url: bar', out, re.MULTILINE)

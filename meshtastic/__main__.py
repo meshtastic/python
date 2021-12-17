@@ -335,10 +335,10 @@ def onConnected(interface):
                     print("Writing modified preferences to device")
                     getNode().writeConfig()
 
-        if args.configure_dump:
-            # dump out the configuration (the opposite of '--configure')
+        if args.export_config:
+            # export the configuration (the opposite of '--configure')
             closeNow = True
-            configure_dump(interface)
+            export_config(interface)
 
         if args.seturl:
             closeNow = True
@@ -520,8 +520,8 @@ def subscribe():
     # pub.subscribe(onNode, "meshtastic.node")
 
 
-def configure_dump(interface):
-    """Get info used in --configuration-dump"""
+def export_config(interface):
+    """used in--export-config"""
     owner = interface.getLongName()
     channel_url = interface.localNode.getURL()
     myinfo = interface.getMyNodeInfo()
@@ -649,8 +649,8 @@ def initParser():
         action='append')
 
     parser.add_argument(
-        "--configure-dump",
-        help="Dump the configuration in yaml(.yml) format.",
+        "--export-config",
+        help="Export the configuration in yaml(.yml) format.",
         action='store_true')
 
     parser.add_argument(
