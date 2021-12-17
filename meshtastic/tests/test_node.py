@@ -81,3 +81,61 @@ def test_setOwner_no_short_name_and_long_name_has_words(caplog):
     assert re.search(r'p.set_owner.short_name:ABC:', caplog.text, re.MULTILINE)
     assert re.search(r'p.set_owner.is_licensed:True', caplog.text, re.MULTILINE)
     assert re.search(r'p.set_owner.team:0', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_exitSimulator(caplog):
+    """Test exitSimulator"""
+    anode = Node('foo', 'bar', noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        anode.exitSimulator()
+    assert re.search(r'in exitSimulator', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_reboot(caplog):
+    """Test reboot"""
+    anode = Node('foo', 'bar', noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        anode.reboot()
+    assert re.search(r'Telling node to reboot', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_setURL_empty_url():
+    """Test reboot"""
+    anode = Node('foo', 'bar', noProto=True)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        anode.setURL('')
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+def test_setURL_valid_URL(caplog):
+    """Test setURL"""
+    iface = MagicMock(autospec=SerialInterface)
+    url = "https://www.meshtastic.org/d/#CgUYAyIBAQ"
+    with caplog.at_level(logging.DEBUG):
+        anode = Node(iface, 'bar', noProto=True)
+        anode.radioConfig = 'baz'
+        channels = ['zoo']
+        anode.channels = channels
+        anode.setURL(url)
+    assert re.search(r'Channel i:0', caplog.text, re.MULTILINE)
+    assert re.search(r'modem_config: Bw125Cr48Sf4096', caplog.text, re.MULTILINE)
+    assert re.search(r'psk: "\\001"', caplog.text, re.MULTILINE)
+    assert re.search(r'role: PRIMARY', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_setURL_valid_URL_but_no_settings(caplog):
+    """Test setURL"""
+    iface = MagicMock(autospec=SerialInterface)
+    url = "https://www.meshtastic.org/d/#"
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        anode = Node(iface, 'bar', noProto=True)
+        anode.radioConfig = 'baz'
+        anode.setURL(url)
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1

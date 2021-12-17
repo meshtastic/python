@@ -203,6 +203,7 @@ class Node:
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
 
+
         if len(channelSet.settings) == 0:
             our_exit("Warning: There were no settings.")
 
@@ -213,6 +214,7 @@ class Node:
             ch.index = i
             ch.settings.CopyFrom(chs)
             self.channels[ch.index] = ch
+            logging.debug(f'Channel i:{i} ch:{ch}')
             self.writeChannel(ch.index)
             i = i + 1
 
@@ -246,6 +248,7 @@ class Node:
            is ignored for other nodes)"""
         p = admin_pb2.AdminMessage()
         p.exit_simulator = True
+        logging.debug('in exitSimulator()')
 
         return self._sendAdmin(p)
 
