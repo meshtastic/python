@@ -267,11 +267,11 @@ def test_smoke1_ch_values():
     """
     exp = {
             '--ch-longslow': 'Bw125Cr48Sf4096',
-            # TODO: not sure why these fail thru tests, but ok manually
-            #'--ch-longfast': 'Bw31_25Cr48Sf512',
-            #'--ch-mediumslow': 'Bw250Cr46Sf2048',
-            #'--ch-mediumfast': 'Bw250Cr47Sf1024',
-            # TODO '--ch-shortslow': '?',
+            '--ch-longfast': 'Bw31_25Cr48Sf512',
+            '--ch-mediumslow': 'Bw250Cr46Sf2048',
+            '--ch-mediumfast': 'Bw250Cr47Sf1024',
+            # for some reason, this value does not show any modemConfig
+            '--ch-shortslow': '{ "psk',
             '--ch-shortfast': 'Bw500Cr45Sf128'
           }
 
