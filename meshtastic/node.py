@@ -14,7 +14,7 @@ class Node:
     Includes methods for radioConfig and channels
     """
 
-    def __init__(self, iface, nodeNum):
+    def __init__(self, iface, nodeNum, noProto=False):
         """Constructor"""
         self.iface = iface
         self.nodeNum = nodeNum
@@ -22,6 +22,7 @@ class Node:
         self.channels = None
         self._timeout = Timeout(maxSecs=60)
         self.partialChannels = None
+        self.noProto = noProto
 
     def showChannels(self):
         """Show human readable description of our channels."""
@@ -162,6 +163,11 @@ class Node:
         if team is not None:
             p.set_owner.team = team
 
+        # Note: These debug lines are used in unit tests
+        logging.debug(f'p.set_owner.long_name:{p.set_owner.long_name}:')
+        logging.debug(f'p.set_owner.short_name:{p.set_owner.short_name}:')
+        logging.debug(f'p.set_owner.is_licensed:{p.set_owner.is_licensed}')
+        logging.debug(f'p.set_owner.team:{p.set_owner.team}')
         return self._sendAdmin(p)
 
     def getURL(self, includeAll: bool = True):
@@ -307,22 +313,26 @@ class Node:
                 self._fixupChannels()
 
                 # FIXME, the following should only be called after we have settings and channels
-                self.iface._connected()  # Tell everone else we are ready to go
+                self.iface._connected()  # Tell everyone else we are ready to go
             else:
                 self._requestChannel(index + 1)
 
         return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
 
+    # pylint: disable=R1710
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
                    onResponse=None, adminIndex=0):
         """Send an admin message to the specified node (or the local node if destNodeNum is zero)"""
 
-        if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
-            adminIndex = self.iface.localNode._getAdminChannelIndex()
+        if self.noProto:
+            logging.warning(f"Not sending packet because protocol use is disabled by noProto")
+        else:
+            if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
+                adminIndex = self.iface.localNode._getAdminChannelIndex()
 
-        return self.iface.sendData(p, self.nodeNum,
-                                   portNum=portnums_pb2.PortNum.ADMIN_APP,
-                                   wantAck=True,
-                                   wantResponse=wantResponse,
-                                   onResponse=onResponse,
-                                   channelIndex=adminIndex)
+            return self.iface.sendData(p, self.nodeNum,
+                                       portNum=portnums_pb2.PortNum.ADMIN_APP,
+                                       wantAck=True,
+                                       wantResponse=wantResponse,
+                                       onResponse=onResponse,
+                                       channelIndex=adminIndex)
