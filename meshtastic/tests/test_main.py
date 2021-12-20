@@ -404,7 +404,7 @@ def test_main_sendtext(capsys, reset_globals):
     Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
-    def mock_sendText(text, dest, wantAck):
+    def mock_sendText(text, dest, wantAck, channelIndex):
         print('inside mocked sendText')
     iface.sendText.side_effect = mock_sendText
 
@@ -425,7 +425,7 @@ def test_main_sendtext_with_dest(capsys, reset_globals):
     Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
-    def mock_sendText(text, dest, wantAck):
+    def mock_sendText(text, dest, wantAck, channelIndex):
         print('inside mocked sendText')
     iface.sendText.side_effect = mock_sendText
 

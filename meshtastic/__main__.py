@@ -240,11 +240,14 @@ def onConnected(interface):
 
         if args.sendtext:
             closeNow = True
+            channelIndex = 0
+            if args.ch_index is not None:
+                channelIndex = int(args.ch_index)
             print(f"Sending text message {args.sendtext} to {args.destOrAll}")
-            interface.sendText(args.sendtext, args.destOrAll, wantAck=True)
+            interface.sendText(args.sendtext, args.destOrAll, wantAck=True, channelIndex=channelIndex)
 
         if args.sendping:
-            print(f"Sending ping message {args.sendtext} to {args.destOrAll}")
+            print(f"Sending ping message {args.sendping} to {args.destOrAll}")
             payload = str.encode("test string")
             interface.sendData(payload, args.destOrAll, portNum=portnums_pb2.PortNum.REPLY_APP,
                                wantAck=True, wantResponse=True)
