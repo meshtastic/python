@@ -1,6 +1,7 @@
 """Node class
 """
 
+import re
 import logging
 import base64
 from google.protobuf.json_format import MessageToJson
@@ -20,7 +21,7 @@ class Node:
         self.nodeNum = nodeNum
         self.radioConfig = None
         self.channels = None
-        self._timeout = Timeout(maxSecs=60)
+        self._timeout = Timeout(maxSecs=300)
         self.partialChannels = None
         self.noProto = noProto
 
@@ -49,6 +50,7 @@ class Node:
 
     def requestConfig(self):
         """Send regular MeshPackets to ask for settings and channels."""
+        logging.debug(f"requestConfig for nodeNum:{self.nodeNum}")
         self.radioConfig = None
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
@@ -134,6 +136,7 @@ class Node:
 
     def setOwner(self, long_name=None, short_name=None, is_licensed=False, team=None):
         """Set device owner name"""
+        logging.debug(f"in setOwner nodeNum:{self.nodeNum}")
         nChars = 3
         minChars = 2
         if long_name is not None:
@@ -227,19 +230,39 @@ class Node:
         def onResponse(p):
             """A closure to handle the response packet"""
             errorFound = False
-            if 'routing' in p["decoded"]:
-                if p["decoded"]["routing"]["errorReason"] != "NONE":
-                    errorFound = True
-                    print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+            if 'routing' in p['decoded']:
+                if 'errorReason' in p['decoded']:
+                    if p['decoded']['routing']['errorReason'] != 'NONE':
+                        errorFound = True
+                        print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
             if errorFound is False:
-                self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
-                logging.debug("Received radio config, now fetching channels...")
-                self._timeout.reset()  # We made foreward progress
-                self._requestChannel(0)  # now start fetching channels
+                logging.debug(f'p:{p}')
+                if "decoded" in p:
+                    if "admin" in p["decoded"]:
+                        if "raw" in p["decoded"]["admin"]:
+                            self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
+                            logging.debug("Received radio config, now fetching channels...")
+                            self._timeout.reset()  # We made foreward progress
+                            self._requestChannel(0)  # now start fetching channels
+                        else:
+                            print("Warning: There was no 'raw' in packet in onResponse() in _requestSettings()")
+                            print(f"p:{p}")
+                    #else:
+                        #print("Warning: There was no 'admin' in packet in onResponse() in _requestSettings()")
+                        #print(f"p:{p}")
+                else:
+                    print("Warning: There was no 'decoded' in packet in onResponse() in _requestSettings()")
+                    print(f"p:{p}")
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            print("Requesting preferences from remote node (this could take a while)")
+            print("Requesting preferences from remote node.")
+            print("Be sure:")
+            print(" 1. There is a SECONDARY channel named 'admin'.")
+            print(" 2. The '--seturl' was used to configure.")
+            print(" 3. All devices have the same modem config. (i.e., '--ch-longfast')")
+            print(" 4. All devices have been rebooted after all of the above. (optional, but recommended)")
+            print("Note: This could take a while (it requests remote channel configs, then writes config)")
 
         return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
 
@@ -290,25 +313,49 @@ class Node:
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            logging.info(f"Requesting channel {channelNum} info from remote node (this could take a while)")
+            print(f"Requesting channel {channelNum} info from remote node (this could take a while)")
+            logging.debug(f"Requesting channel {channelNum} info from remote node (this could take a while)")
         else:
             logging.debug(f"Requesting channel {channelNum}")
 
         def onResponse(p):
             """A closure to handle the response packet for requesting a channel"""
-            c = p["decoded"]["admin"]["raw"].get_channel_response
-            self.partialChannels.append(c)
-            self._timeout.reset()  # We made foreward progress
-            logging.debug(f"Received channel {stripnl(c)}")
-            index = c.index
 
-            # for stress testing, we can always download all channels
-            fastChannelDownload = True
+            quitEarly = False
 
-            # Once we see a response that has NO settings, assume
-            # we are at the end of channels and stop fetching
-            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+            index = len(self.partialChannels)
+            logging.debug(f'index:{index}')
+            logging.debug(f'  p:{p}')
 
+            if 'decoded' in p:
+                if 'admin' in p['decoded']:
+                    if 'raw' in p['decoded']['admin']:
+                        c = p["decoded"]["admin"]["raw"].get_channel_response
+                        # Once we see a response that has NO settings, assume
+                        # we are at the end of channels and stop fetching
+                        tmp = f"{stripnl(c)}"
+                        logging.debug(f'tmp:{tmp}:')
+                        if re.search(r'settings { }', tmp):
+                            quitEarly = True
+                            logging.debug(f'Set quitEarly')
+                        else:
+                            self.partialChannels.append(c)
+                            logging.debug(f"Received channel {stripnl(c)}")
+                            #index = c.index
+                        self._timeout.reset()  # We made foreward progress
+                    else:
+                        print("Warning: There was no 'raw' in packet to onResponse() in _requestChannel.")
+                        print(f"p:{p}")
+                else:
+                    #print("Warning: There was no 'admin' in packet to onResponse() in _requestChannel.")
+                    #print(f"p:{p}")
+                    pass
+            else:
+                print("Warning: There was no 'decoded' in packet to onResponse() in _requestChannel.")
+                print(f"p:{p}")
+
+            # TODO: is myInfo.max_channels the same as the remote's max channels?
+            logging.debug(f'index:{index} self.iface.myInfo.max_channels:{self.iface.myInfo.max_channels}')
             if quitEarly or index >= self.iface.myInfo.max_channels - 1:
                 logging.debug("Finished downloading channels")
 
