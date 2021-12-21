@@ -227,8 +227,9 @@ class MeshInterface:
             data = data.SerializeToString()
 
         logging.debug(f"len(data): {len(data)}")
+        logging.debug(f"mesh_pb2.Constants.DATA_PAYLOAD_LEN: {mesh_pb2.Constants.DATA_PAYLOAD_LEN}")
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
-            Exception("Data payload too big")
+            raise Exception("Data payload too big")
 
         if portNum == portnums_pb2.PortNum.UNKNOWN_APP:  # we are now more strict wrt port numbers
             our_exit("Warning: A non-zero port number must be specified")
@@ -261,12 +262,15 @@ class MeshInterface:
         p = mesh_pb2.Position()
         if latitude != 0.0:
             p.latitude_i = int(latitude / 1e-7)
+            logging.debug(f'p.latitude_i:{p.latitude_i}')
 
         if longitude != 0.0:
             p.longitude_i = int(longitude / 1e-7)
+            logging.debug(f'p.longitude_i:{p.longitude_i}')
 
         if altitude != 0:
             p.altitude = int(altitude)
+            logging.debug(f'p.altitude:{p.altitude}')
 
         if timeSec == 0:
             timeSec = time.time()  # returns unix timestamp in seconds

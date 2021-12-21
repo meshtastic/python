@@ -216,3 +216,71 @@ def test_handleFromRadio_with_node_info_tbeam_with_bad_data(reset_globals, caplo
     with caplog.at_level(logging.DEBUG):
         iface._startConfig()
         iface._handleFromRadio(from_radio_bytes)
+
+
+@pytest.mark.unit
+def test_MeshInterface_sendToRadioImpl(caplog, reset_globals):
+    """Test _sendToRadioImp()"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        iface._sendToRadioImpl('foo')
+    assert re.search(r'Subclass must provide toradio', caplog.text, re.MULTILINE)
+    iface.close()
+
+
+@pytest.mark.unit
+def test_MeshInterface_sendToRadio_no_proto(caplog, reset_globals):
+    """Test sendToRadio()"""
+    iface = MeshInterface()
+    with caplog.at_level(logging.DEBUG):
+        iface._sendToRadioImpl('foo')
+    assert re.search(r'Subclass must provide toradio', caplog.text, re.MULTILINE)
+    iface.close()
+
+
+@pytest.mark.unit
+def test_sendData_too_long(caplog, reset_globals):
+    """Test when data payload is too big"""
+    iface = MeshInterface(noProto=True)
+    some_large_text = b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    with caplog.at_level(logging.DEBUG):
+        with pytest.raises(Exception) as pytest_wrapped_e:
+            iface.sendData(some_large_text)
+            assert re.search('Data payload too big', caplog.text, re.MULTILINE)
+        assert pytest_wrapped_e.type == Exception
+    iface.close()
+
+
+@pytest.mark.unit
+def test_sendData_unknown_app(capsys, reset_globals):
+    """Test sendData when unknown app"""
+    iface = MeshInterface(noProto=True)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        iface.sendData(b'hello', portNum=0)
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: A non-zero port number', out, re.MULTILINE)
+    assert err == ''
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+def test_sendPosition_with_a_position(caplog, reset_globals):
+    """Test sendPosition when lat/long/alt"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        iface.sendPosition(latitude=40.8, longitude=-111.86, altitude=201)
+        assert re.search(r'p.latitude_i:408', caplog.text, re.MULTILINE)
+        assert re.search(r'p.longitude_i:-11186', caplog.text, re.MULTILINE)
+        assert re.search(r'p.altitude:201', caplog.text, re.MULTILINE)
