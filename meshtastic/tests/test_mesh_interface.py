@@ -9,7 +9,7 @@ import pytest
 from ..mesh_interface import MeshInterface
 from ..node import Node
 from .. import mesh_pb2
-from ..__init__ import LOCAL_ADDR
+from ..__init__ import LOCAL_ADDR, BROADCAST_ADDR
 
 
 @pytest.mark.unit
@@ -284,3 +284,62 @@ def test_sendPosition_with_a_position(caplog, reset_globals):
         assert re.search(r'p.latitude_i:408', caplog.text, re.MULTILINE)
         assert re.search(r'p.longitude_i:-11186', caplog.text, re.MULTILINE)
         assert re.search(r'p.altitude:201', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_sendPacket_with_no_destination(capsys, reset_globals):
+    """Test _sendPacket()"""
+    iface = MeshInterface(noProto=True)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        iface._sendPacket(b'', destinationId=None)
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: destinationId must not be None', out, re.MULTILINE)
+    assert err == ''
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_as_int(caplog, reset_globals):
+    """Test _sendPacket() with int as a destination"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        meshPacket = mesh_pb2.MeshPacket()
+        iface._sendPacket(meshPacket, destinationId=123)
+        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_as_BROADCAST_ADDR(caplog, reset_globals):
+    """Test _sendPacket() with BROADCAST_ADDR as a destination"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        meshPacket = mesh_pb2.MeshPacket()
+        iface._sendPacket(meshPacket, destinationId=BROADCAST_ADDR)
+        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_as_LOCAL_ADDR_no_myInfo(capsys, reset_globals):
+    """Test _sendPacket() with LOCAL_ADDR as a destination with no myInfo"""
+    iface = MeshInterface(noProto=True)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        meshPacket = mesh_pb2.MeshPacket()
+        iface._sendPacket(meshPacket, destinationId=LOCAL_ADDR)
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: No myInfo', out, re.MULTILINE)
+    assert err == ''
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_as_LOCAL_ADDR_with_myInfo(caplog, reset_globals):
+    """Test _sendPacket() with LOCAL_ADDR as a destination with myInfo"""
+    iface = MeshInterface(noProto=True)
+    myInfo = MagicMock()
+    iface.myInfo = myInfo
+    with caplog.at_level(logging.DEBUG):
+        meshPacket = mesh_pb2.MeshPacket()
+        iface._sendPacket(meshPacket, destinationId=LOCAL_ADDR)
+        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)

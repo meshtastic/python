@@ -311,7 +311,10 @@ class MeshInterface:
         elif destinationId == BROADCAST_ADDR:
             nodeNum = BROADCAST_NUM
         elif destinationId == LOCAL_ADDR:
-            nodeNum = self.myInfo.my_node_num
+            if self.myInfo:
+                nodeNum = self.myInfo.my_node_num
+            else:
+                our_exit("Warning: No myInfo found.")
         # A simple hex style nodeid - we can parse this without needing the DB
         elif destinationId.startswith("!"):
             nodeNum = int(destinationId[1:], 16)
@@ -334,7 +337,7 @@ class MeshInterface:
             meshPacket.id = self._generatePacketId()
 
         toRadio.packet.CopyFrom(meshPacket)
-        #logging.debug(f"Sending packet: {stripnl(meshPacket)}")
+        logging.debug(f"Sending packet: {stripnl(meshPacket)}")
         self._sendToRadio(toRadio)
         return meshPacket
 
@@ -374,8 +377,9 @@ class MeshInterface:
     def _waitConnected(self):
         """Block until the initial node db download is complete, or timeout
         and raise an exception"""
-        if not self.isConnected.wait(15.0):  # timeout after x seconds
-            raise Exception("Timed out waiting for connection completion")
+        if not self.noProto:
+            if not self.isConnected.wait(15.0):  # timeout after x seconds
+                raise Exception("Timed out waiting for connection completion")
 
         # If we failed while connecting, raise the connection to the client
         if self.failure:

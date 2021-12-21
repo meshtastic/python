@@ -28,7 +28,7 @@ An example using Python 3 code to send a message to the mesh:
 
 ```
 import meshtastic
-interface = meshtastic.SerialInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
+interface = meshtastic.serial_interface.SerialInterface() # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
 interface.sendText("hello mesh") # or sendData to send binary data, see documentations for other options.
 interface.close()
 ```
@@ -103,7 +103,7 @@ You can even set the channel preshared key to a particular AES128 or AES256 sequ
 meshtastic --ch-set psk 0x1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b --info
 ```
 
-Use "--ch-set psk none" to turn off encryption.  
+Use "--ch-set psk none" to turn off encryption.
 
 Use "--ch-set psk random" will assign a new (high quality) random AES256 key to the primary channel (similar to what the Android app does when making new channels).
 
