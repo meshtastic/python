@@ -9,3 +9,7 @@ nanopb-0.4.4
 .coverage
 *.py-E
 venv/
+*pyc
+.DS_Store
+__pycache__
+examples/__pycache__
