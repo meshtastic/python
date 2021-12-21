@@ -21,10 +21,6 @@ from . import portnums_pb2, mesh_pb2
 from .util import stripnl, Timeout, our_exit
 from .__init__ import LOCAL_ADDR, BROADCAST_NUM, BROADCAST_ADDR, ResponseHandler, publishingThread, OUR_APP_VERSION, protocols
 
-
-defaultHopLimit = 3
-
-
 class MeshInterface:
     """Interface class for meshtastic devices
 
@@ -56,6 +52,7 @@ class MeshInterface:
         self.currentPacketId = random.randint(0, 0xffffffff)
         self.nodesByNum = None
         self.configId = None
+        self.defaultHopLimit = 3
 
     def close(self):
         """Shutdown this interface"""
@@ -162,7 +159,7 @@ class MeshInterface:
                  destinationId=BROADCAST_ADDR,
                  wantAck=False,
                  wantResponse=False,
-                 hopLimit=defaultHopLimit,
+                 hopLimit=None,
                  onResponse=None,
                  channelIndex=0):
         """Send a utf8 string to some other node, if the node has a display it
@@ -184,6 +181,9 @@ class MeshInterface:
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
         """
+        if hopLimit is None:
+            hopLimit = self.defaultHopLimit
+
         return self.sendData(text.encode("utf-8"), destinationId,
                              portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
                              wantAck=wantAck,
@@ -195,7 +195,7 @@ class MeshInterface:
     def sendData(self, data, destinationId=BROADCAST_ADDR,
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
                  wantResponse=False,
-                 hopLimit=defaultHopLimit,
+                 hopLimit=None,
                  onResponse=None,
                  channelIndex=0):
         """Send a data packet to some other node
@@ -219,6 +219,9 @@ class MeshInterface:
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
         """
+        if hopLimit is None:
+            hopLimit = self.defaultHopLimit
+
         if getattr(data, "SerializeToString", None):
             logging.debug(f"Serializing protobuf as data: {stripnl(data)}")
             data = data.SerializeToString()
@@ -280,13 +283,15 @@ class MeshInterface:
 
     def _sendPacket(self, meshPacket,
                     destinationId=BROADCAST_ADDR,
-                    wantAck=False, hopLimit=defaultHopLimit):
+                    wantAck=False, hopLimit=None):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead.
 
         Returns the sent packet. The id field will be populated in this packet and
         can be used to track future message acks/naks.
         """
+        if hopLimit is None:
+            hopLimit = self.defaultHopLimit
 
         # We allow users to talk to the local node before we've completed the full connection flow...
         if(self.myInfo is not None and destinationId != self.myInfo.my_node_num):
@@ -365,7 +370,7 @@ class MeshInterface:
     def _waitConnected(self):
         """Block until the initial node db download is complete, or timeout
         and raise an exception"""
-        if not self.isConnected.wait(10.0):  # timeout after 10 seconds
+        if not self.isConnected.wait(15.0):  # timeout after x seconds
             raise Exception("Timed out waiting for connection completion")
 
         # If we failed while connecting, raise the connection to the client
@@ -456,7 +461,7 @@ class MeshInterface:
         Called by subclasses."""
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
-        #logging.debug(f"fromRadioBytes: {fromRadioBytes}")
+        logging.debug(f"in mesh_interface.py _handleFromRadio() fromRadioBytes: {fromRadioBytes}")
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
         logging.debug(f"Received from radio: {fromRadio}")
         if fromRadio.HasField("my_info"):
@@ -491,7 +496,8 @@ class MeshInterface:
 
             self.nodesByNum[node["num"]] = node
             if "user" in node:  # Some nodes might not have user/ids assigned yet
-                self.nodes[node["user"]["id"]] = node
+                if "id" in node["user"]:
+                    self.nodes[node["user"]["id"]] = node
             publishingThread.queueWork(lambda: pub.sendMessage("meshtastic.node.updated",
                                                                node=node, interface=self))
         elif fromRadio.config_complete_id == self.configId:

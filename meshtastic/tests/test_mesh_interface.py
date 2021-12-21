@@ -182,3 +182,37 @@ def test_handleFromRadio_with_node_info(reset_globals, caplog, capsys):
         assert re.search(r'│ !28af67cc │ N/A   │ N/A         │ N/A', out, re.MULTILINE)
         assert err == ''
         iface.close()
+
+
+@pytest.mark.unit
+def test_handleFromRadio_with_node_info_tbeam1(reset_globals, caplog, capsys):
+    """Test _handleFromRadio with node_info"""
+    # Note: Captured the '--debug --info' for the bytes below.
+    # pylint: disable=C0301
+    from_radio_bytes = b'"=\x08\x80\xf8\xc8\xf6\x07\x12"\n\t!7ed23c00\x12\x07TBeam 1\x1a\x02T1"\x06\x94\xb9~\xd2<\x000\x04\x1a\x07 ]MN\x01\xbea%\xad\x01\xbea=\x00\x00,A'
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        iface._startConfig()
+        iface._handleFromRadio(from_radio_bytes)
+        assert re.search(r'Received nodeinfo', caplog.text, re.MULTILINE)
+        assert re.search(r'TBeam 1', caplog.text, re.MULTILINE)
+        assert re.search(r'2127707136', caplog.text, re.MULTILINE)
+        # validate some of showNodes() output
+        iface.showNodes()
+        out, err = capsys.readouterr()
+        assert re.search(r' 1 ', out, re.MULTILINE)
+        assert re.search(r'│ TBeam 1 │ ', out, re.MULTILINE)
+        assert re.search(r'│ !7ed23c00 │', out, re.MULTILINE)
+        assert err == ''
+        iface.close()
+
+
+@pytest.mark.unit
+def test_handleFromRadio_with_node_info_tbeam_with_bad_data(reset_globals, caplog, capsys):
+    """Test _handleFromRadio with node_info with some bad data (issue#172) - ensure we do not throw exception"""
+    # Note: Captured the '--debug --info' for the bytes below.
+    from_radio_bytes = b'"\x17\x08\xdc\x8a\x8a\xae\x02\x12\x08"\x06\x00\x00\x00\x00\x00\x00\x1a\x00=\x00\x00\xb8@'
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        iface._startConfig()
+        iface._handleFromRadio(from_radio_bytes)

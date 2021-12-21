@@ -20,7 +20,7 @@ class Node:
         self.nodeNum = nodeNum
         self.radioConfig = None
         self.channels = None
-        self._timeout = Timeout(maxSecs=60)
+        self._timeout = Timeout(maxSecs=300)
         self.partialChannels = None
         self.noProto = noProto
 
@@ -49,6 +49,7 @@ class Node:
 
     def requestConfig(self):
         """Send regular MeshPackets to ask for settings and channels."""
+        logging.debug(f"requestConfig for nodeNum:{self.nodeNum}")
         self.radioConfig = None
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
@@ -134,6 +135,7 @@ class Node:
 
     def setOwner(self, long_name=None, short_name=None, is_licensed=False, team=None):
         """Set device owner name"""
+        logging.debug(f"in setOwner nodeNum:{self.nodeNum}")
         nChars = 3
         minChars = 2
         if long_name is not None:
@@ -239,7 +241,13 @@ class Node:
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            print("Requesting preferences from remote node (this could take a while)")
+            print("Requesting preferences from remote node.")
+            print("Be sure:")
+            print(" 1. There is a SECONDARY channel named 'admin'.")
+            print(" 2. The '--seturl' was used to configure.")
+            print(" 3. All devices have the same modem config. (i.e., '--ch-longfast')")
+            print(" 4. All devices have been rebooted after all of the above. (optional, but recommended)")
+            print("Note: This could take a while (it requests remote channel configs, then writes config)")
 
         return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
 
@@ -290,7 +298,8 @@ class Node:
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            logging.info(f"Requesting channel {channelNum} info from remote node (this could take a while)")
+            print(f"Requesting channel {channelNum} info from remote node (this could take a while)")
+            logging.debug(f"Requesting channel {channelNum} info from remote node (this could take a while)")
         else:
             logging.debug(f"Requesting channel {channelNum}")
 
@@ -322,6 +331,7 @@ class Node:
 
         return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
 
+
     # pylint: disable=R1710
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
                    onResponse=None, adminIndex=0):
@@ -332,6 +342,7 @@ class Node:
         else:
             if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
                 adminIndex = self.iface.localNode._getAdminChannelIndex()
+            logging.debug(f'adminIndex:{adminIndex}')
 
             return self.iface.sendData(p, self.nodeNum,
                                        portNum=portnums_pb2.PortNum.ADMIN_APP,

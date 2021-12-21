@@ -240,13 +240,15 @@ def onConnected(interface):
 
         if args.sendtext:
             closeNow = True
+            channelIndex = 0
+            if args.ch_index is not None:
+                channelIndex = int(args.ch_index)
             print(f"Sending text message {args.sendtext} to {args.destOrAll}")
-            interface.sendText(args.sendtext, args.destOrAll,
-                               wantAck=True)
+            interface.sendText(args.sendtext, args.destOrAll, wantAck=True, channelIndex=channelIndex)
 
         if args.sendping:
-            print(f"Sending ping message {args.sendtext} to {args.destOrAll}")
             payload = str.encode("test string")
+            print(f"Sending ping message to {args.destOrAll}")
             interface.sendData(payload, args.destOrAll, portNum=portnums_pb2.PortNum.REPLY_APP,
                                wantAck=True, wantResponse=True)
 
@@ -259,8 +261,7 @@ def onConnected(interface):
                 for wrpair in (args.gpio_wrb or []):
                     bitmask |= 1 << int(wrpair[0])
                     bitval |= int(wrpair[1]) << int(wrpair[0])
-                print(
-                    f"Writing GPIO mask 0x{bitmask:x} with value 0x{bitval:x} to {args.dest}")
+                print(f"Writing GPIO mask 0x{bitmask:x} with value 0x{bitval:x} to {args.dest}")
                 rhc.writeGPIOs(args.dest, bitmask, bitval)
                 closeNow = True
 
@@ -275,6 +276,7 @@ def onConnected(interface):
                     sys.exit(0)  # Just force an exit (FIXME - ugly)
 
                 rhc.readGPIOs(args.dest, bitmask, onResponse)
+                time.sleep(10)
 
             if args.gpio_watch:
                 bitmask = int(args.gpio_watch, 16)
@@ -752,13 +754,13 @@ def initParser():
         action="store_true")
 
     parser.add_argument(
-        "--gpio-wrb", nargs=2, help="Set a particlar GPIO # to 1 or 0", action='append')
+        "--gpio-wrb", nargs=2, help="Set a particular GPIO # to 1 or 0", action='append')
 
     parser.add_argument(
-        "--gpio-rd", help="Read from a GPIO mask")
+        "--gpio-rd", help="Read from a GPIO mask (ex: '0x10')")
 
     parser.add_argument(
-        "--gpio-watch", help="Start watching a GPIO mask for changes")
+        "--gpio-watch", help="Start watching a GPIO mask for changes (ex: '0x10')")
 
     parser.add_argument(
         "--no-time", help="Suppress sending the current time to the mesh", action="store_true")
