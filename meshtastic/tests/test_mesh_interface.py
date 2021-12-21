@@ -188,6 +188,7 @@ def test_handleFromRadio_with_node_info(reset_globals, caplog, capsys):
 def test_handleFromRadio_with_node_info_tbeam1(reset_globals, caplog, capsys):
     """Test _handleFromRadio with node_info"""
     # Note: Captured the '--debug --info' for the bytes below.
+    # pylint: disable=C0301
     from_radio_bytes = b'"=\x08\x80\xf8\xc8\xf6\x07\x12"\n\t!7ed23c00\x12\x07TBeam 1\x1a\x02T1"\x06\x94\xb9~\xd2<\x000\x04\x1a\x07 ]MN\x01\xbea%\xad\x01\xbea=\x00\x00,A'
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
