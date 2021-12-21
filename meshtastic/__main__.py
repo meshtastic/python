@@ -247,8 +247,8 @@ def onConnected(interface):
             interface.sendText(args.sendtext, args.destOrAll, wantAck=True, channelIndex=channelIndex)
 
         if args.sendping:
-            print(f"Sending ping message {args.sendping} to {args.destOrAll}")
             payload = str.encode("test string")
+            print(f"Sending ping message to {args.destOrAll}")
             interface.sendData(payload, args.destOrAll, portNum=portnums_pb2.PortNum.REPLY_APP,
                                wantAck=True, wantResponse=True)
 
