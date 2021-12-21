@@ -461,7 +461,7 @@ class MeshInterface:
         Called by subclasses."""
         fromRadio = mesh_pb2.FromRadio()
         fromRadio.ParseFromString(fromRadioBytes)
-        #logging.debug(f"fromRadioBytes: {fromRadioBytes}")
+        logging.debug(f"in mesh_interface.py _handleFromRadio() fromRadioBytes: {fromRadioBytes}")
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
         logging.debug(f"Received from radio: {fromRadio}")
         if fromRadio.HasField("my_info"):
@@ -496,7 +496,8 @@ class MeshInterface:
 
             self.nodesByNum[node["num"]] = node
             if "user" in node:  # Some nodes might not have user/ids assigned yet
-                self.nodes[node["user"]["id"]] = node
+                if "id" in node["user"]:
+                    self.nodes[node["user"]["id"]] = node
             publishingThread.queueWork(lambda: pub.sendMessage("meshtastic.node.updated",
                                                                node=node, interface=self))
         elif fromRadio.config_complete_id == self.configId:
