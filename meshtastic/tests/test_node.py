@@ -625,13 +625,102 @@ def test_requestChannel_localNode(caplog):
             assert not re.search(r'from remote node', caplog.text, re.MULTILINE)
 
 
-# TODO:
-#@pytest.mark.unit
-#def test_onResponseRequestChannel(caplog):
-#    """Test onResponseRequestChannel()"""
-#    anode = Node('foo', 'bar')
-#    radioConfig = RadioConfig()
-#    anode.radioConfig = radioConfig
+@pytest.mark.unit
+def test_onResponseRequestChannel(caplog):
+    """Test onResponseRequestChannel()"""
+
+    channel1 = Channel(index=1, role=1)
+    channel1.settings.modem_config = 3
+    channel1.settings.psk = b'\x01'
+
+    msg1 = MagicMock(autospec=AdminMessage)
+    msg1.get_channel_response = channel1
+
+    msg2 = MagicMock(autospec=AdminMessage)
+    channel2 = Channel(index=2, role=0) # disabled
+    msg2.get_channel_response = channel2
+
+    # default primary channel
+    packet1 = {
+        'from': 2475227164,
+        'to': 2475227164,
+        'decoded': {
+            'portnum': 'ADMIN_APP',
+            'payload': b':\t\x12\x05\x18\x03"\x01\x01\x18\x01',
+            'requestId': 2615094405,
+            'admin': {
+                'getChannelResponse': {
+                    'settings': {
+                        'modemConfig': 'Bw125Cr48Sf4096',
+                        'psk': 'AQ=='
+                    },
+                    'role': 'PRIMARY'
+                },
+                'raw': msg1,
+            }
+        },
+        'id': 1692918436,
+        'hopLimit': 3,
+        'priority':
+        'RELIABLE',
+        'raw': 'fake',
+        'fromId': '!9388f81c',
+        'toId': '!9388f81c'
+        }
+
+    # no other channels
+    packet2 = {
+        'from': 2475227164,
+        'to': 2475227164,
+        'decoded': {
+            'portnum': 'ADMIN_APP',
+            'payload': b':\x04\x08\x02\x12\x00',
+            'requestId': 743049663,
+            'admin': {
+                'getChannelResponse': {
+                    'index': 2,
+                    'settings': {}
+                },
+                'raw': msg2,
+            }
+        },
+        'id': 1692918456,
+        'rxTime': 1640202239,
+        'hopLimit': 3,
+        'priority': 'RELIABLE',
+        'raw': 'faked',
+        'fromId': '!9388f81c',
+        'toId': '!9388f81c'
+    }
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, 'bar', noProto=True)
+
+        radioConfig = RadioConfig()
+        anode.radioConfig = radioConfig
+
+        # Note: Have to do this next line because every call to MagicMock object/method returns a new magic mock
+        mo.localNode = anode
+
+        with caplog.at_level(logging.DEBUG):
+            anode.requestConfig()
+            anode.onResponseRequestChannel(packet1)
+            assert re.search(r'Received channel', caplog.text, re.MULTILINE)
+            anode.onResponseRequestChannel(packet2)
+            assert re.search(r'Received channel', caplog.text, re.MULTILINE)
+            assert re.search(r'Finished downloading channels', caplog.text, re.MULTILINE)
+            assert len(anode.channels) == 8
+            assert anode.channels[0].settings.modem_config == 3
+            assert anode.channels[1].settings.name == ''
+            assert anode.channels[2].settings.name == ''
+            assert anode.channels[3].settings.name == ''
+            assert anode.channels[4].settings.name == ''
+            assert anode.channels[5].settings.name == ''
+            assert anode.channels[6].settings.name == ''
+            assert anode.channels[7].settings.name == ''
 
 
 @pytest.mark.unit
@@ -649,19 +738,6 @@ def test_onResponseRequestSetting(caplog):
     position_flags: 35
   }
 }"""
-    # TODO: not sure if this tmpraw is formatted correctly
-    tmpraw = """from: 2475227164
-to: 2475227164
-decoded {
-  portnum: ADMIN_APP
-  payload: "*\016\n\0140\204\007P\254\002\210\001\001\260\t#"
-  request_id: 3145147848
-}
-id: 365963704
-rx_time: 1640195197
-hop_limit: 3
-priority: RELIABLE"""
-
     packet = {
         'from': 2475227164,
         'to': 2475227164,
@@ -684,7 +760,7 @@ priority: RELIABLE"""
             'rxTime': 1640195197,
             'hopLimit': 3,
             'priority': 'RELIABLE',
-            'raw': tmpraw,
+            'raw': 'faked',
             'fromId': '!9388f81c',
             'toId': '!9388f81c'
         }
