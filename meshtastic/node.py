@@ -28,7 +28,9 @@ class Node:
         """Show human readable description of our channels."""
         print("Channels:")
         if self.channels:
+            logging.debug(f'self.channels:{self.channels}')
             for c in self.channels:
+                #print('c.settings.psk:', c.settings.psk)
                 cStr = stripnl(MessageToJson(c.settings))
                 # only show if there is no psk (meaning disabled channel)
                 if c.settings.psk:
