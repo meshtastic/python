@@ -10,6 +10,7 @@ from ..node import Node
 from ..serial_interface import SerialInterface
 from ..admin_pb2 import AdminMessage
 from ..channel_pb2 import Channel
+from ..radioconfig_pb2 import RadioConfig
 
 
 @pytest.mark.unit
@@ -214,6 +215,171 @@ def test_deleteChannel_try_to_delete_primary_channel(capsys):
 
 
 @pytest.mark.unit
+def test_deleteChannel_secondary():
+    """Try to delete a secondary channel."""
+
+    channel1 = Channel(index=1, role=1)
+    channel1.settings.modem_config = 3
+    channel1.settings.psk = b'\x01'
+
+    channel2 = Channel(index=2, role=2)
+    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
+    channel2.settings.name = 'testing'
+
+    channel3 = Channel(index=3, role=0)
+    channel4 = Channel(index=4, role=0)
+    channel5 = Channel(index=5, role=0)
+    channel6 = Channel(index=6, role=0)
+    channel7 = Channel(index=7, role=0)
+    channel8 = Channel(index=8, role=0)
+
+    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
+
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, 'bar', noProto=True)
+
+        anode.channels = channels
+        assert len(anode.channels) == 8
+        assert channels[0].settings.modem_config == 3
+        assert channels[1].settings.name == 'testing'
+        assert channels[2].settings.name == ''
+        assert channels[3].settings.name == ''
+        assert channels[4].settings.name == ''
+        assert channels[5].settings.name == ''
+        assert channels[6].settings.name == ''
+        assert channels[7].settings.name == ''
+
+        anode.deleteChannel(1)
+
+        assert len(anode.channels) == 8
+        assert channels[0].settings.modem_config == 3
+        assert channels[1].settings.name == ''
+        assert channels[2].settings.name == ''
+        assert channels[3].settings.name == ''
+        assert channels[4].settings.name == ''
+        assert channels[5].settings.name == ''
+        assert channels[6].settings.name == ''
+        assert channels[7].settings.name == ''
+
+
+@pytest.mark.unit
+def test_deleteChannel_secondary_with_admin_channel_after_testing():
+    """Try to delete a secondary channel where there is an admin channel."""
+
+    channel1 = Channel(index=1, role=1)
+    channel1.settings.modem_config = 3
+    channel1.settings.psk = b'\x01'
+
+    channel2 = Channel(index=2, role=2)
+    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
+    channel2.settings.name = 'testing'
+
+    channel3 = Channel(index=3, role=2)
+    channel3.settings.name = 'admin'
+
+    channel4 = Channel(index=4, role=0)
+    channel5 = Channel(index=5, role=0)
+    channel6 = Channel(index=6, role=0)
+    channel7 = Channel(index=7, role=0)
+    channel8 = Channel(index=8, role=0)
+
+    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
+
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, 'bar', noProto=True)
+
+        # Note: Have to do this next line because every call to MagicMock object/method returns a new magic mock
+        mo.localNode = anode
+
+        assert mo.localNode == anode
+
+        anode.channels = channels
+        assert len(anode.channels) == 8
+        assert channels[0].settings.modem_config == 3
+        assert channels[1].settings.name == 'testing'
+        assert channels[2].settings.name == 'admin'
+        assert channels[3].settings.name == ''
+        assert channels[4].settings.name == ''
+        assert channels[5].settings.name == ''
+        assert channels[6].settings.name == ''
+        assert channels[7].settings.name == ''
+
+        anode.deleteChannel(1)
+
+        assert len(anode.channels) == 8
+        assert channels[0].settings.modem_config == 3
+        assert channels[1].settings.name == 'admin'
+        assert channels[2].settings.name == ''
+        assert channels[3].settings.name == ''
+        assert channels[4].settings.name == ''
+        assert channels[5].settings.name == ''
+        assert channels[6].settings.name == ''
+        assert channels[7].settings.name == ''
+
+
+@pytest.mark.unit
+def test_deleteChannel_secondary_with_admin_channel_before_testing():
+    """Try to delete a secondary channel where there is an admin channel."""
+
+    channel1 = Channel(index=1, role=1)
+    channel1.settings.modem_config = 3
+    channel1.settings.psk = b'\x01'
+
+    channel2 = Channel(index=2, role=2)
+    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
+    channel2.settings.name = 'admin'
+
+    channel3 = Channel(index=3, role=2)
+    channel3.settings.name = 'testing'
+
+    channel4 = Channel(index=4, role=0)
+    channel5 = Channel(index=5, role=0)
+    channel6 = Channel(index=6, role=0)
+    channel7 = Channel(index=7, role=0)
+    channel8 = Channel(index=8, role=0)
+
+    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
+
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, 'bar', noProto=True)
+
+        anode.channels = channels
+        assert len(anode.channels) == 8
+        assert channels[0].settings.modem_config == 3
+        assert channels[1].settings.name == 'admin'
+        assert channels[2].settings.name == 'testing'
+        assert channels[3].settings.name == ''
+        assert channels[4].settings.name == ''
+        assert channels[5].settings.name == ''
+        assert channels[6].settings.name == ''
+        assert channels[7].settings.name == ''
+
+        anode.deleteChannel(2)
+
+        assert len(anode.channels) == 8
+        assert channels[0].settings.modem_config == 3
+        assert channels[1].settings.name == 'admin'
+        assert channels[2].settings.name == ''
+        assert channels[3].settings.name == ''
+        assert channels[4].settings.name == ''
+        assert channels[5].settings.name == ''
+        assert channels[6].settings.name == ''
+        assert channels[7].settings.name == ''
+
+
+@pytest.mark.unit
 def test_getChannelByName(capsys):
     """Get a channel by the name."""
     anode = Node('foo', 'bar')
@@ -376,7 +542,6 @@ def test_getAdminChannelIndex_when_no_admin_named_channel(capsys):
 @pytest.mark.unit
 def test_turnOffEncryptionOnPrimaryChannel(capsys):
     """Turn off encryption when there is a psk."""
-    #iface = MagicMock(autospec=SerialInterface)
     anode = Node('foo', 'bar', noProto=True)
 
     channel1 = Channel(index=1, role=1)
@@ -404,7 +569,6 @@ def test_turnOffEncryptionOnPrimaryChannel(capsys):
 @pytest.mark.unit
 def test_writeConfig_with_no_radioConfig(capsys):
     """Test writeConfig with no radioConfig."""
-    #iface = MagicMock(autospec=SerialInterface)
     anode = Node('foo', 'bar', noProto=True)
 
     with pytest.raises(SystemExit) as pytest_wrapped_e:
@@ -414,3 +578,15 @@ def test_writeConfig_with_no_radioConfig(capsys):
     out, err = capsys.readouterr()
     assert re.search(r'Error: No RadioConfig has been read', out)
     assert err == ''
+
+
+@pytest.mark.unit
+def test_writeConfig(caplog):
+    """Test writeConfig"""
+    anode = Node('foo', 'bar', noProto=True)
+    radioConfig = RadioConfig()
+    anode.radioConfig = radioConfig
+
+    with caplog.at_level(logging.DEBUG):
+        anode.writeConfig()
+    assert re.search(r'Wrote config', caplog.text, re.MULTILINE)

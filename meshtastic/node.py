@@ -110,7 +110,7 @@ class Node:
             # *moving* the admin channel index as we are writing
             if (self.iface.localNode == self) and index >= adminIndex:
                 # We've now passed the old location for admin index
-                # (and writen it), so we can start finding it by name again
+                # (and written it), so we can start finding it by name again
                 adminIndex = 0
 
     def getChannelByName(self, name):
@@ -237,6 +237,7 @@ class Node:
                     print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
             if errorFound is False:
                 self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
+                logging.debug(f'self.radioConfig:{self.radioConfig}')
                 logging.debug("Received radio config, now fetching channels...")
                 self._timeout.reset()  # We made foreward progress
                 self._requestChannel(0)  # now start fetching channels
