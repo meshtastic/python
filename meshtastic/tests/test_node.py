@@ -17,6 +17,8 @@ from ..radioconfig_pb2 import RadioConfig
 def test_node(capsys):
     """Test that we can instantiate a Node"""
     anode = Node('foo', 'bar')
+    radioConfig = RadioConfig()
+    anode.radioConfig = radioConfig
     anode.showChannels()
     anode.showInfo()
     out, err = capsys.readouterr()
@@ -590,3 +592,34 @@ def test_writeConfig(caplog):
     with caplog.at_level(logging.DEBUG):
         anode.writeConfig()
     assert re.search(r'Wrote config', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_requestChannel_not_localNode(caplog):
+    """Test _requestChannel()"""
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, 'bar', noProto=True)
+        with caplog.at_level(logging.DEBUG):
+            anode._requestChannel(0)
+            assert re.search(r'Requesting channel 0 info from remote node', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_requestChannel_localNode(caplog):
+    """Test _requestChannel()"""
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, 'bar', noProto=True)
+
+        # Note: Have to do this next line because every call to MagicMock object/method returns a new magic mock
+        mo.localNode = anode
+
+        with caplog.at_level(logging.DEBUG):
+            anode._requestChannel(0)
+            assert re.search(r'Requesting channel 0', caplog.text, re.MULTILINE)
+            assert not re.search(r'from remote node', caplog.text, re.MULTILINE)
