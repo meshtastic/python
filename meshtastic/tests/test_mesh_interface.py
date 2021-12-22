@@ -343,3 +343,17 @@ def test_sendPacket_with_destination_as_LOCAL_ADDR_with_myInfo(caplog, reset_glo
         meshPacket = mesh_pb2.MeshPacket()
         iface._sendPacket(meshPacket, destinationId=LOCAL_ADDR)
         assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_getMyNodeInfo(reset_globals):
+    """Test getMyNodeInfo()"""
+    iface = MeshInterface(noProto=True)
+    anode = iface.getNode(LOCAL_ADDR)
+    iface.nodesByNum = {1: anode }
+    assert iface.nodesByNum.get(1) == anode
+    myInfo = MagicMock()
+    iface.myInfo = myInfo
+    iface.myInfo.my_node_num = 1
+    myinfo = iface.getMyNodeInfo()
+    assert myinfo == anode
