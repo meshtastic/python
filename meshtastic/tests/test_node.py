@@ -623,3 +623,133 @@ def test_requestChannel_localNode(caplog):
             anode._requestChannel(0)
             assert re.search(r'Requesting channel 0', caplog.text, re.MULTILINE)
             assert not re.search(r'from remote node', caplog.text, re.MULTILINE)
+
+
+# TODO:
+#@pytest.mark.unit
+#def test_onResponseRequestChannel(caplog):
+#    """Test onResponseRequestChannel()"""
+#    anode = Node('foo', 'bar')
+#    radioConfig = RadioConfig()
+#    anode.radioConfig = radioConfig
+
+
+@pytest.mark.unit
+def test_onResponseRequestSetting(caplog):
+    """Test onResponseRequestSetting()"""
+    # Note: Split out the get_radio_response to a MagicMock
+    # so it could be "returned" (not really sure how to do that
+    # in a python dict.
+    amsg = MagicMock(autospec=AdminMessage)
+    amsg.get_radio_response = """{
+  preferences {
+    phone_timeout_secs: 900
+    ls_secs: 300
+    position_broadcast_smart: true
+    position_flags: 35
+  }
+}"""
+    # TODO: not sure if this tmpraw is formatted correctly
+    tmpraw = """from: 2475227164
+to: 2475227164
+decoded {
+  portnum: ADMIN_APP
+  payload: "*\016\n\0140\204\007P\254\002\210\001\001\260\t#"
+  request_id: 3145147848
+}
+id: 365963704
+rx_time: 1640195197
+hop_limit: 3
+priority: RELIABLE"""
+
+    packet = {
+        'from': 2475227164,
+        'to': 2475227164,
+        'decoded': {
+            'portnum': 'ADMIN_APP',
+            'payload': b'*\x0e\n\x0c0\x84\x07P\xac\x02\x88\x01\x01\xb0\t#',
+            'requestId': 3145147848,
+            'admin': {
+                'getRadioResponse': {
+                    'preferences': {
+                        'phoneTimeoutSecs': 900,
+                        'lsSecs': 300,
+                        'positionBroadcastSmart': True,
+                        'positionFlags': 35
+                     }
+                },
+                'raw': amsg
+            },
+            'id': 365963704,
+            'rxTime': 1640195197,
+            'hopLimit': 3,
+            'priority': 'RELIABLE',
+            'raw': tmpraw,
+            'fromId': '!9388f81c',
+            'toId': '!9388f81c'
+        }
+    }
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, 'bar', noProto=True)
+
+        radioConfig = RadioConfig()
+        anode.radioConfig = radioConfig
+
+        # Note: Have to do this next line because every call to MagicMock object/method returns a new magic mock
+        mo.localNode = anode
+
+        with caplog.at_level(logging.DEBUG):
+            anode.onResponseRequestSettings(packet)
+            assert re.search(r'Received radio config, now fetching channels..', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_onResponseRequestSetting_with_error(capsys):
+    """Test onResponseRequestSetting() with an error"""
+    packet = {
+        'from': 2475227164,
+        'to': 2475227164,
+        'decoded': {
+            'portnum': 'ADMIN_APP',
+            'payload': b'*\x0e\n\x0c0\x84\x07P\xac\x02\x88\x01\x01\xb0\t#',
+            'requestId': 3145147848,
+            'routing': {
+                'errorReason': 'some made up error',
+            },
+            'admin': {
+                'getRadioResponse': {
+                    'preferences': {
+                        'phoneTimeoutSecs': 900,
+                        'lsSecs': 300,
+                        'positionBroadcastSmart': True,
+                        'positionFlags': 35
+                     }
+                },
+            },
+            'id': 365963704,
+            'rxTime': 1640195197,
+            'hopLimit': 3,
+            'priority': 'RELIABLE',
+            'fromId': '!9388f81c',
+            'toId': '!9388f81c'
+        }
+    }
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, 'bar', noProto=True)
+
+        radioConfig = RadioConfig()
+        anode.radioConfig = radioConfig
+
+        # Note: Have to do this next line because every call to MagicMock object/method returns a new magic mock
+        mo.localNode = anode
+
+        anode.onResponseRequestSettings(packet)
+        out, err = capsys.readouterr()
+        assert re.search(r'Error on response', out)
+        assert err == ''

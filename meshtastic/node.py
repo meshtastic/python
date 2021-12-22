@@ -8,6 +8,8 @@ from . import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
 from .util import pskToString, stripnl, Timeout, our_exit, fromPSK
 
 
+
+
 class Node:
     """A model of a (local or remote) node in the mesh
 
@@ -222,25 +224,28 @@ class Node:
             self.writeChannel(ch.index)
             i = i + 1
 
+
+    def onResponseRequestSettings(self, p):
+        """Handle the response packet for requesting settings _requestSettings()"""
+        logging.debug(f'onResponseRequestSetting() p:{p}')
+        errorFound = False
+        if 'routing' in p["decoded"]:
+            if p["decoded"]["routing"]["errorReason"] != "NONE":
+                errorFound = True
+                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+        if errorFound is False:
+            self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
+            logging.debug(f'self.radioConfig:{self.radioConfig}')
+            logging.debug("Received radio config, now fetching channels...")
+            self._timeout.reset()  # We made foreward progress
+            self._requestChannel(0)  # now start fetching channels
+
+
     def _requestSettings(self):
         """Done with initial config messages, now send regular
            MeshPackets to ask for settings."""
         p = admin_pb2.AdminMessage()
         p.get_radio_request = True
-
-        def onResponse(p):
-            """A closure to handle the response packet"""
-            errorFound = False
-            if 'routing' in p["decoded"]:
-                if p["decoded"]["routing"]["errorReason"] != "NONE":
-                    errorFound = True
-                    print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
-            if errorFound is False:
-                self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
-                logging.debug(f'self.radioConfig:{self.radioConfig}')
-                logging.debug("Received radio config, now fetching channels...")
-                self._timeout.reset()  # We made foreward progress
-                self._requestChannel(0)  # now start fetching channels
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
@@ -252,7 +257,7 @@ class Node:
             print(" 4. All devices have been rebooted after all of the above. (optional, but recommended)")
             print("Note: This could take a while (it requests remote channel configs, then writes config)")
 
-        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
+        return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestSettings)
 
     def exitSimulator(self):
         """Tell a simulator node to exit (this message
@@ -293,6 +298,34 @@ class Node:
             self.channels.append(ch)
             index += 1
 
+
+    def onResponseRequestChannel(self, p):
+        """Handle the response packet for requesting a channel _requestChannel()"""
+        logging.debug(f'onResponseRequestChannel() p:{p}')
+        c = p["decoded"]["admin"]["raw"].get_channel_response
+        self.partialChannels.append(c)
+        self._timeout.reset()  # We made foreward progress
+        logging.debug(f"Received channel {stripnl(c)}")
+        index = c.index
+
+        # for stress testing, we can always download all channels
+        fastChannelDownload = True
+
+        # Once we see a response that has NO settings, assume
+        # we are at the end of channels and stop fetching
+        quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+
+        if quitEarly or index >= self.iface.myInfo.max_channels - 1:
+            logging.debug("Finished downloading channels")
+
+            self.channels = self.partialChannels
+            self._fixupChannels()
+
+            # FIXME, the following should only be called after we have settings and channels
+            self.iface._connected()  # Tell everyone else we are ready to go
+        else:
+            self._requestChannel(index + 1)
+
     def _requestChannel(self, channelNum: int):
         """Done with initial config messages, now send regular
            MeshPackets to ask for settings"""
@@ -306,33 +339,7 @@ class Node:
         else:
             logging.debug(f"Requesting channel {channelNum}")
 
-        def onResponse(p):
-            """A closure to handle the response packet for requesting a channel"""
-            c = p["decoded"]["admin"]["raw"].get_channel_response
-            self.partialChannels.append(c)
-            self._timeout.reset()  # We made foreward progress
-            logging.debug(f"Received channel {stripnl(c)}")
-            index = c.index
-
-            # for stress testing, we can always download all channels
-            fastChannelDownload = True
-
-            # Once we see a response that has NO settings, assume
-            # we are at the end of channels and stop fetching
-            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
-
-            if quitEarly or index >= self.iface.myInfo.max_channels - 1:
-                logging.debug("Finished downloading channels")
-
-                self.channels = self.partialChannels
-                self._fixupChannels()
-
-                # FIXME, the following should only be called after we have settings and channels
-                self.iface._connected()  # Tell everyone else we are ready to go
-            else:
-                self._requestChannel(index + 1)
-
-        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
+        return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestChannel)
 
 
     # pylint: disable=R1710
