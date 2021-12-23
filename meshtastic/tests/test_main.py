@@ -419,6 +419,48 @@ def test_main_sendtext(capsys, reset_globals):
 
 
 @pytest.mark.unit
+def test_main_sendtext_with_channel(capsys, reset_globals):
+    """Test --sendtext"""
+    sys.argv = ['', '--sendtext', 'hello', '--ch-index', '1']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_sendText(text, dest, wantAck, channelIndex):
+        print('inside mocked sendText')
+    iface.sendText.side_effect = mock_sendText
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Sending text message', out, re.MULTILINE)
+        assert re.search(r'on channelIndex:1', out, re.MULTILINE)
+        assert re.search(r'inside mocked sendText', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_sendtext_with_invalid_channel(capsys, reset_globals):
+    """Test --sendtext"""
+    sys.argv = ['', '--sendtext', 'hello', '--ch-index', '-1']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getChannelByChannelIndex.return_value = None
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        #mo.getChannelByChannelIndex.return_value = None
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r'is not a valid channel', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
 def test_main_sendtext_with_dest(capsys, reset_globals):
     """Test --sendtext with --dest"""
     sys.argv = ['', '--sendtext', 'hello', '--dest', 'foo']
@@ -1201,7 +1243,7 @@ def test_main_onConnection(reset_globals, capsys):
 
 @pytest.mark.unit
 def test_main_export_config(reset_globals, capsys):
-    """Test export_config"""
+    """Test export_config() function directly"""
     iface = MagicMock(autospec=SerialInterface)
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         mo.getLongName.return_value = 'foo'
@@ -1229,3 +1271,19 @@ position_flags: 35"""
     assert re.search(r"fixed_position: 'true'", out, re.MULTILINE)
     assert re.search(r"position_flags: 35", out, re.MULTILINE)
     assert err == ''
+
+
+@pytest.mark.unit
+def test_main_export_config_called_from_main(capsys, reset_globals):
+    """Test --export-config"""
+    sys.argv = ['', '--export-config']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'# start of Meshtastic configure yaml', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()

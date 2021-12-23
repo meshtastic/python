@@ -27,6 +27,7 @@ def onReceive(packet, interface):
     args = our_globals.get_args()
     try:
         d = packet.get('decoded')
+        logging.debug(f'd:{d}')
 
         # Exit once we receive a reply
         if args and args.sendtext and packet["to"] == interface.myInfo.my_node_num and d["portnum"] == portnums_pb2.PortNum.TEXT_MESSAGE_APP:
@@ -243,8 +244,12 @@ def onConnected(interface):
             channelIndex = 0
             if args.ch_index is not None:
                 channelIndex = int(args.ch_index)
-            print(f"Sending text message {args.sendtext} to {args.destOrAll}")
-            interface.sendText(args.sendtext, args.destOrAll, wantAck=True, channelIndex=channelIndex)
+            ch = interface.getChannelByChannelIndex(channelIndex)
+            if ch and ch.role != channel_pb2.Channel.Role.DISABLED:
+                print(f"Sending text message {args.sendtext} to {args.destOrAll} on channelIndex:{channelIndex}")
+                interface.sendText(args.sendtext, args.destOrAll, wantAck=True, channelIndex=channelIndex)
+            else:
+                meshtastic.util.our_exit(f"Warning: {channelIndex} is not a valid channel. Channel must not be DISABLED.")
 
         if args.sendping:
             payload = str.encode("test string")
@@ -565,7 +570,8 @@ def common():
     our_globals = Globals.getInstance()
     args = our_globals.get_args()
     parser = our_globals.get_parser()
-    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO,
+                        format='%(levelname)s file:%(filename)s %(funcName)s line:%(lineno)s %(message)s')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -688,7 +694,7 @@ def initParser():
         "--seturl", help="Set a channel URL", action="store")
 
     parser.add_argument(
-        "--ch-index", help="Set the specified channel index", action="store")
+        "--ch-index", help="Set the specified channel index. Channels start at 0 (0 is the PRIMARY channel).", action="store")
 
     parser.add_argument(
         "--ch-add", help="Add a secondary channel, you must specify a channel name", default=None)
@@ -738,16 +744,13 @@ def initParser():
         "--dest", help="The destination node id for any sent commands, if not set '^all' or '^local' is assumed as appropriate", default=None)
 
     parser.add_argument(
-        "--sendtext", help="Send a text message")
+        "--sendtext", help="Send a text message. Can specify a destination '--dest' and/or channel index '--ch-index'.")
 
     parser.add_argument(
         "--sendping", help="Send a ping message (which requests a reply)", action="store_true")
 
     parser.add_argument(
         "--reboot", help="Tell the destination node to reboot", action="store_true")
-
-    # parser.add_argument(
-    #    "--repeat", help="Normally the send commands send only one message, use this option to request repeated sends")
 
     parser.add_argument(
         "--reply", help="Reply to received messages",
