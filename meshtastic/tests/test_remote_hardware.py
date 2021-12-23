@@ -31,14 +31,18 @@ def test_onGPIOreceive(capsys):
 
 
 @pytest.mark.unit
-def test_RemoteHardwareClient_no_gpio_channel():
-    """Test that we can instantiate a RemoteHardwareClient instance but cannot get channel gpio"""
+def test_RemoteHardwareClient_no_gpio_channel(capsys):
+    """Test that we can instantiate a RemoteHardwareClient instance but there is no channel named channel 'gpio'"""
     iface = MagicMock(autospec=SerialInterface)
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         mo.localNode.getChannelByName.return_value = None
-        with pytest.raises(Exception) as pytest_wrapped_e:
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
             RemoteHardwareClient(mo)
-        assert pytest_wrapped_e.type == Exception
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r'Warning: No channel named', out)
+        assert err == ""
 
 
 @pytest.mark.unit
@@ -79,7 +83,7 @@ def test_sendHardware_no_nodeid():
     """Test sending no nodeid to _sendHardware()"""
     iface = MagicMock(autospec=SerialInterface)
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        with pytest.raises(Exception) as pytest_wrapped_e:
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
             rhw = RemoteHardwareClient(mo)
             rhw._sendHardware(None, None)
-        assert pytest_wrapped_e.type == Exception
+        assert pytest_wrapped_e.type == SystemExit

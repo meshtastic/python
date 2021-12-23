@@ -3,14 +3,16 @@
 import logging
 from pubsub import pub
 from . import portnums_pb2, remote_hardware_pb2
+from .util import our_exit
 
 
 def onGPIOreceive(packet, interface):
     """Callback for received GPIO responses
-
-    FIXME figure out how to do closures with methods in python"""
+    """
+    logging.debug(f"packet:{packet} interface:{interface}")
     hw = packet["decoded"]["remotehw"]
     print(f'Received RemoteHardware typ={hw["typ"]}, gpio_value={hw["gpioValue"]}')
+    interface.gotResponse = True
 
 
 class RemoteHardwareClient:
@@ -29,19 +31,21 @@ class RemoteHardwareClient:
         self.iface = iface
         ch = iface.localNode.getChannelByName("gpio")
         if not ch:
-            raise Exception(
-                "No gpio channel found, please create on the sending and receive nodes "\
-                "to use this (secured) service (--ch-add gpio --info then --seturl)")
+            our_exit(
+                "Warning: No channel named 'gpio' was found.\n"\
+                "On the sending and receive nodes create a channel named 'gpio'.\n"\
+                "For example, run '--ch-add gpio' on one device, then '--seturl' on\n"\
+                "the other devices using the url from the device where the channel was added.")
         self.channelIndex = ch.index
 
         pub.subscribe(onGPIOreceive, "meshtastic.receive.remotehw")
 
     def _sendHardware(self, nodeid, r, wantResponse=False, onResponse=None):
         if not nodeid:
-            raise Exception(
-                r"You must set a destination node ID for this operation (use --dest \!xxxxxxxxx)")
+            our_exit(r"Warning: Must use a destination node ID for this operation (use --dest \!xxxxxxxxx)")
         return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP,
-                                   wantAck=True, channelIndex=self.channelIndex, wantResponse=wantResponse, onResponse=onResponse)
+                                   wantAck=True, channelIndex=self.channelIndex,
+                                   wantResponse=wantResponse, onResponse=onResponse)
 
     def writeGPIOs(self, nodeid, mask, vals):
         """

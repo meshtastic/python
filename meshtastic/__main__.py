@@ -273,15 +273,14 @@ def onConnected(interface):
             if args.gpio_rd:
                 bitmask = int(args.gpio_rd, 16)
                 print(f"Reading GPIO mask 0x{bitmask:x} from {args.dest}")
-
-                def onResponse(packet):
-                    """A closure to handle the response packet"""
-                    hw = packet["decoded"]["remotehw"]
-                    print(f'GPIO read response gpio_value={hw["gpioValue"]}')
-                    sys.exit(0)  # Just force an exit (FIXME - ugly)
-
-                rhc.readGPIOs(args.dest, bitmask, onResponse)
-                time.sleep(10)
+                rhc.readGPIOs(args.dest, bitmask, None)
+                if not interface.noProto:
+                    # wait up to X seconds for a response
+                    for _ in range(10):
+                        time.sleep(1)
+                        if interface.gotResponse:
+                            break
+                logging.debug(f'end of gpio_rd')
 
             if args.gpio_watch:
                 bitmask = int(args.gpio_watch, 16)
