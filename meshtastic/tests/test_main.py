@@ -449,7 +449,26 @@ def test_main_sendtext_with_invalid_channel(capsys, reset_globals):
     iface = MagicMock(autospec=SerialInterface)
     iface.getChannelByChannelIndex.return_value = None
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        #mo.getChannelByChannelIndex.return_value = None
+        iface.getNode.return_value.getChannelByChannelIndex.return_value = None
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r'is not a valid channel', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_sendtext_with_invalid_channel_nine(capsys, reset_globals):
+    """Test --sendtext"""
+    sys.argv = ['', '--sendtext', 'hello', '--ch-index', '9']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        iface.getNode.return_value.getChannelByChannelIndex.return_value = None
         with pytest.raises(SystemExit) as pytest_wrapped_e:
             main()
         assert pytest_wrapped_e.type == SystemExit
