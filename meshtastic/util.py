@@ -102,7 +102,7 @@ def fixme(message):
 
 
 def catchAndIgnore(reason, closure):
-    """Call a closure but if it throws an excpetion print it and continue"""
+    """Call a closure but if it throws an exception print it and continue"""
     try:
         closure()
     except BaseException as ex:

@@ -90,6 +90,16 @@ class Node:
         self._sendAdmin(p, adminIndex=adminIndex)
         logging.debug(f"Wrote channel {channelIndex}")
 
+    def getChannelByChannelIndex(self, channelIndex):
+        """Get channel by channelIndex
+            channelIndex: number, typically 0-7; based on max number channels
+            returns: None if there is no channel found
+        """
+        ch = None
+        if self.channels and 0 <= channelIndex < len(self.channels):
+            ch = self.channels[channelIndex]
+        return ch
+
     def deleteChannel(self, channelIndex):
         """Delete the specifed channelIndex and shift other channels up"""
         ch = self.channels[channelIndex]

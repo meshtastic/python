@@ -187,6 +187,35 @@ def test_showChannels(capsys):
 
 
 @pytest.mark.unit
+def test_getChannelByChannelIndex():
+    """Test getChannelByChannelIndex()"""
+    anode = Node('foo', 'bar')
+
+    channel1 = Channel(index=1, role=1) # primary channel
+    channel2 = Channel(index=2, role=2) # secondary channel
+    channel3 = Channel(index=3, role=0)
+    channel4 = Channel(index=4, role=0)
+    channel5 = Channel(index=5, role=0)
+    channel6 = Channel(index=6, role=0)
+    channel7 = Channel(index=7, role=0)
+    channel8 = Channel(index=8, role=0)
+
+    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
+
+    anode.channels = channels
+
+    # test primary
+    assert anode.getChannelByChannelIndex(0) is not None
+    # test secondary
+    assert anode.getChannelByChannelIndex(1) is not None
+    # test disabled
+    assert anode.getChannelByChannelIndex(2) is not None
+    # test invalid values
+    assert anode.getChannelByChannelIndex(-1) is None
+    assert anode.getChannelByChannelIndex(9) is None
+
+
+@pytest.mark.unit
 def test_deleteChannel_try_to_delete_primary_channel(capsys):
     """Try to delete primary channel."""
     anode = Node('foo', 'bar')
@@ -214,7 +243,6 @@ def test_deleteChannel_try_to_delete_primary_channel(capsys):
     out, err = capsys.readouterr()
     assert re.search(r'Warning: Only SECONDARY channels can be deleted', out, re.MULTILINE)
     assert err == ''
-
 
 @pytest.mark.unit
 def test_deleteChannel_secondary():

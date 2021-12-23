@@ -1,10 +1,13 @@
 """Meshtastic unit tests for util.py"""
 
 import re
+import logging
 
 import pytest
 
-from meshtastic.util import fixme, stripnl, pskToString, our_exit, support_info, genPSK256, fromStr, fromPSK, quoteBooleans
+from meshtastic.util import (fixme, stripnl, pskToString, our_exit,
+                             support_info, genPSK256, fromStr, fromPSK,
+                             quoteBooleans, catchAndIgnore)
 
 
 @pytest.mark.unit
@@ -120,7 +123,7 @@ def test_our_exit_non_zero_return_value():
 
 @pytest.mark.unit
 def test_fixme():
-    """Test fixme"""
+    """Test fixme()"""
     with pytest.raises(Exception) as pytest_wrapped_e:
         fixme("some exception")
     assert pytest_wrapped_e.type == Exception
@@ -136,3 +139,13 @@ def test_support_info(capsys):
     assert re.search(r'Machine', out, re.MULTILINE)
     assert re.search(r'Executable', out, re.MULTILINE)
     assert err == ''
+
+
+@pytest.mark.unit
+def test_catchAndIgnore(caplog):
+    """Test catchAndIgnore() does not actually throw an exception, but just logs"""
+    def some_closure():
+        raise Exception('foo')
+    with caplog.at_level(logging.DEBUG):
+        catchAndIgnore("something", some_closure)
+    assert re.search(r'Exception thrown in something', caplog.text, re.MULTILINE)
