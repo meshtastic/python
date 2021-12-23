@@ -103,6 +103,7 @@ class MeshInterface:
 
         rows = []
         if self.nodes:
+            logging.debug(f'self.nodes:{self.nodes}')
             for node in self.nodes.values():
                 if not includeSelf and node['num'] == self.localNode.nodeNum:
                     continue
@@ -227,8 +228,9 @@ class MeshInterface:
             data = data.SerializeToString()
 
         logging.debug(f"len(data): {len(data)}")
+        logging.debug(f"mesh_pb2.Constants.DATA_PAYLOAD_LEN: {mesh_pb2.Constants.DATA_PAYLOAD_LEN}")
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
-            Exception("Data payload too big")
+            raise Exception("Data payload too big")
 
         if portNum == portnums_pb2.PortNum.UNKNOWN_APP:  # we are now more strict wrt port numbers
             our_exit("Warning: A non-zero port number must be specified")
@@ -261,12 +263,15 @@ class MeshInterface:
         p = mesh_pb2.Position()
         if latitude != 0.0:
             p.latitude_i = int(latitude / 1e-7)
+            logging.debug(f'p.latitude_i:{p.latitude_i}')
 
         if longitude != 0.0:
             p.longitude_i = int(longitude / 1e-7)
+            logging.debug(f'p.longitude_i:{p.longitude_i}')
 
         if altitude != 0:
             p.altitude = int(altitude)
+            logging.debug(f'p.altitude:{p.altitude}')
 
         if timeSec == 0:
             timeSec = time.time()  # returns unix timestamp in seconds
@@ -307,7 +312,10 @@ class MeshInterface:
         elif destinationId == BROADCAST_ADDR:
             nodeNum = BROADCAST_NUM
         elif destinationId == LOCAL_ADDR:
-            nodeNum = self.myInfo.my_node_num
+            if self.myInfo:
+                nodeNum = self.myInfo.my_node_num
+            else:
+                our_exit("Warning: No myInfo found.")
         # A simple hex style nodeid - we can parse this without needing the DB
         elif destinationId.startswith("!"):
             nodeNum = int(destinationId[1:], 16)
@@ -330,7 +338,7 @@ class MeshInterface:
             meshPacket.id = self._generatePacketId()
 
         toRadio.packet.CopyFrom(meshPacket)
-        #logging.debug(f"Sending packet: {stripnl(meshPacket)}")
+        logging.debug(f"Sending packet: {stripnl(meshPacket)}")
         self._sendToRadio(toRadio)
         return meshPacket
 
@@ -344,6 +352,7 @@ class MeshInterface:
         """Get info about my node."""
         if self.myInfo is None:
             return None
+        logging.debug(f'self.nodesByNum:{self.nodesByNum}')
         return self.nodesByNum.get(self.myInfo.my_node_num)
 
     def getMyUser(self):
@@ -370,8 +379,9 @@ class MeshInterface:
     def _waitConnected(self):
         """Block until the initial node db download is complete, or timeout
         and raise an exception"""
-        if not self.isConnected.wait(15.0):  # timeout after x seconds
-            raise Exception("Timed out waiting for connection completion")
+        if not self.noProto:
+            if not self.isConnected.wait(15.0):  # timeout after x seconds
+                raise Exception("Timed out waiting for connection completion")
 
         # If we failed while connecting, raise the connection to the client
         if self.failure:

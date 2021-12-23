@@ -9,13 +9,36 @@ import pytest
 from ..mesh_interface import MeshInterface
 from ..node import Node
 from .. import mesh_pb2
-from ..__init__ import LOCAL_ADDR
+from ..__init__ import LOCAL_ADDR, BROADCAST_ADDR
 
 
 @pytest.mark.unit
 def test_MeshInterface(capsys, reset_globals):
     """Test that we can instantiate a MeshInterface"""
     iface = MeshInterface(noProto=True)
+    anode = Node('foo', 'bar')
+
+    nodes = {
+        '!9388f81c': {
+            'num': 2475227164,
+            'user': {
+                'id': '!9388f81c',
+                'longName': 'Unknown f81c',
+                'shortName': '?1C',
+                'macaddr': 'RBeTiPgc',
+                'hwModel': 'TBEAM'
+            },
+            'position': {},
+            'lastHeard': 1640204888
+        }
+    }
+
+    iface.nodesByNum = {1: anode }
+    iface.nodes = nodes
+
+    myInfo = MagicMock()
+    iface.myInfo = myInfo
+
     iface.showInfo()
     iface.localNode.showInfo()
     iface.showNodes()
@@ -28,6 +51,36 @@ def test_MeshInterface(capsys, reset_globals):
     assert re.search(r'Channels', out, re.MULTILINE)
     assert re.search(r'Primary channel URL', out, re.MULTILINE)
     assert err == ''
+
+
+@pytest.mark.unit
+def test_getMyUser(reset_globals, iface_with_nodes):
+    """Test getMyUser()"""
+    iface = iface_with_nodes
+
+    iface.myInfo.my_node_num = 2475227164
+    myuser = iface.getMyUser()
+    print(f'myuser:{myuser}')
+    assert myuser is not None
+    assert myuser["id"] == '!9388f81c'
+
+
+@pytest.mark.unit
+def test_getLongName(reset_globals, iface_with_nodes):
+    """Test getLongName()"""
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
+    mylongname = iface.getLongName()
+    assert mylongname == 'Unknown f81c'
+
+
+@pytest.mark.unit
+def test_getShortName(reset_globals, iface_with_nodes):
+    """Test getShortName()."""
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
+    myshortname = iface.getShortName()
+    assert myshortname == '?1C'
 
 
 @pytest.mark.unit
@@ -216,3 +269,194 @@ def test_handleFromRadio_with_node_info_tbeam_with_bad_data(reset_globals, caplo
     with caplog.at_level(logging.DEBUG):
         iface._startConfig()
         iface._handleFromRadio(from_radio_bytes)
+
+
+@pytest.mark.unit
+def test_MeshInterface_sendToRadioImpl(caplog, reset_globals):
+    """Test _sendToRadioImp()"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        iface._sendToRadioImpl('foo')
+    assert re.search(r'Subclass must provide toradio', caplog.text, re.MULTILINE)
+    iface.close()
+
+
+@pytest.mark.unit
+def test_MeshInterface_sendToRadio_no_proto(caplog, reset_globals):
+    """Test sendToRadio()"""
+    iface = MeshInterface()
+    with caplog.at_level(logging.DEBUG):
+        iface._sendToRadioImpl('foo')
+    assert re.search(r'Subclass must provide toradio', caplog.text, re.MULTILINE)
+    iface.close()
+
+
+@pytest.mark.unit
+def test_sendData_too_long(caplog, reset_globals):
+    """Test when data payload is too big"""
+    iface = MeshInterface(noProto=True)
+    some_large_text = b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    some_large_text += b'This is a long text that will be too long for send text.'
+    with caplog.at_level(logging.DEBUG):
+        with pytest.raises(Exception) as pytest_wrapped_e:
+            iface.sendData(some_large_text)
+            assert re.search('Data payload too big', caplog.text, re.MULTILINE)
+        assert pytest_wrapped_e.type == Exception
+    iface.close()
+
+
+@pytest.mark.unit
+def test_sendData_unknown_app(capsys, reset_globals):
+    """Test sendData when unknown app"""
+    iface = MeshInterface(noProto=True)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        iface.sendData(b'hello', portNum=0)
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: A non-zero port number', out, re.MULTILINE)
+    assert err == ''
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+def test_sendPosition_with_a_position(caplog, reset_globals):
+    """Test sendPosition when lat/long/alt"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        iface.sendPosition(latitude=40.8, longitude=-111.86, altitude=201)
+        assert re.search(r'p.latitude_i:408', caplog.text, re.MULTILINE)
+        assert re.search(r'p.longitude_i:-11186', caplog.text, re.MULTILINE)
+        assert re.search(r'p.altitude:201', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_sendPacket_with_no_destination(capsys, reset_globals):
+    """Test _sendPacket()"""
+    iface = MeshInterface(noProto=True)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        iface._sendPacket(b'', destinationId=None)
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: destinationId must not be None', out, re.MULTILINE)
+    assert err == ''
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_as_int(caplog, reset_globals):
+    """Test _sendPacket() with int as a destination"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        meshPacket = mesh_pb2.MeshPacket()
+        iface._sendPacket(meshPacket, destinationId=123)
+        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_starting_with_a_bang(caplog, reset_globals):
+    """Test _sendPacket() with int as a destination"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        meshPacket = mesh_pb2.MeshPacket()
+        iface._sendPacket(meshPacket, destinationId='!1234')
+        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_as_BROADCAST_ADDR(caplog, reset_globals):
+    """Test _sendPacket() with BROADCAST_ADDR as a destination"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        meshPacket = mesh_pb2.MeshPacket()
+        iface._sendPacket(meshPacket, destinationId=BROADCAST_ADDR)
+        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_as_LOCAL_ADDR_no_myInfo(capsys, reset_globals):
+    """Test _sendPacket() with LOCAL_ADDR as a destination with no myInfo"""
+    iface = MeshInterface(noProto=True)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        meshPacket = mesh_pb2.MeshPacket()
+        iface._sendPacket(meshPacket, destinationId=LOCAL_ADDR)
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: No myInfo', out, re.MULTILINE)
+    assert err == ''
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_as_LOCAL_ADDR_with_myInfo(caplog, reset_globals):
+    """Test _sendPacket() with LOCAL_ADDR as a destination with myInfo"""
+    iface = MeshInterface(noProto=True)
+    myInfo = MagicMock()
+    iface.myInfo = myInfo
+    with caplog.at_level(logging.DEBUG):
+        meshPacket = mesh_pb2.MeshPacket()
+        iface._sendPacket(meshPacket, destinationId=LOCAL_ADDR)
+        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_is_blank_with_nodes(capsys, reset_globals, iface_with_nodes):
+    """Test _sendPacket() with '' as a destination with myInfo"""
+    iface = iface_with_nodes
+    meshPacket = mesh_pb2.MeshPacket()
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        iface._sendPacket(meshPacket, destinationId='')
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+    out, err = capsys.readouterr()
+    assert re.match(r'Warning: NodeId  not found in DB', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_is_blank_without_nodes(caplog, reset_globals, iface_with_nodes):
+    """Test _sendPacket() with '' as a destination with myInfo"""
+    iface = iface_with_nodes
+    iface.nodes = None
+    meshPacket = mesh_pb2.MeshPacket()
+    with caplog.at_level(logging.WARNING):
+        iface._sendPacket(meshPacket, destinationId='')
+    assert re.search(r'Warning: There were no self.nodes.', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_getMyNodeInfo(reset_globals):
+    """Test getMyNodeInfo()"""
+    iface = MeshInterface(noProto=True)
+    anode = iface.getNode(LOCAL_ADDR)
+    iface.nodesByNum = {1: anode }
+    assert iface.nodesByNum.get(1) == anode
+    myInfo = MagicMock()
+    iface.myInfo = myInfo
+    iface.myInfo.my_node_num = 1
+    myinfo = iface.getMyNodeInfo()
+    assert myinfo == anode
+
+
+@pytest.mark.unit
+def test_generatePacketId(capsys, reset_globals):
+    """Test _generatePacketId() when no currentPacketId (not connected)"""
+    iface = MeshInterface(noProto=True)
+    # not sure when this condition would ever happen... but we can simulate it
+    iface.currentPacketId = None
+    assert iface.currentPacketId is None
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        iface._generatePacketId()
+        out, err = capsys.readouterr()
+        assert re.search(r'Not connected yet, can not generate packet', out, re.MULTILINE)
+        assert err == ''
+    assert pytest_wrapped_e.type == Exception
