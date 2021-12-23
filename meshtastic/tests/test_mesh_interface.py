@@ -16,6 +16,29 @@ from ..__init__ import LOCAL_ADDR, BROADCAST_ADDR
 def test_MeshInterface(capsys, reset_globals):
     """Test that we can instantiate a MeshInterface"""
     iface = MeshInterface(noProto=True)
+    anode = Node('foo', 'bar')
+
+    nodes = {
+        '!9388f81c': {
+            'num': 2475227164,
+            'user': {
+                'id': '!9388f81c',
+                'longName': 'Unknown f81c',
+                'shortName': '?1C',
+                'macaddr': 'RBeTiPgc',
+                'hwModel': 'TBEAM'
+            },
+            'position': {},
+            'lastHeard': 1640204888
+        }
+    }
+
+    iface.nodesByNum = {1: anode }
+    iface.nodes = nodes
+
+    myInfo = MagicMock()
+    iface.myInfo = myInfo
+
     iface.showInfo()
     iface.localNode.showInfo()
     iface.showNodes()
@@ -28,6 +51,62 @@ def test_MeshInterface(capsys, reset_globals):
     assert re.search(r'Channels', out, re.MULTILINE)
     assert re.search(r'Primary channel URL', out, re.MULTILINE)
     assert err == ''
+
+
+@pytest.mark.unit
+def test_getMyUser_and_LongName_and_ShortName(reset_globals):
+    """Test getMyUser(), getLongName(), and getShortName().
+       Note: These should be separate tests, but feeling lazy.
+             Could move these nodes out to a fixture and
+             create smaller tests.
+    """
+
+    nodesById = {
+        '!9388f81c': {
+            'num': 2475227164,
+            'user': {
+                'id': '!9388f81c',
+                'longName': 'Unknown f81c',
+                'shortName': '?1C',
+                'macaddr': 'RBeTiPgc',
+                'hwModel': 'TBEAM'
+            },
+            'position': {},
+            'lastHeard': 1640204888
+        }
+    }
+
+    nodesByNum = {
+            2475227164: {
+                'num': 2475227164,
+                'user': {
+                    'id': '!9388f81c',
+                    'longName': 'Unknown f81c',
+                    'shortName': '?1C',
+                    'macaddr': 'RBeTiPgc',
+                    'hwModel': 'TBEAM'
+                },
+                'position': {
+                    'time': 1640206266
+                 },
+                'lastHeard': 1640206266
+             }
+           }
+
+    iface = MeshInterface(noProto=True)
+    iface.nodes = nodesById
+    iface.nodesByNum = nodesByNum
+    myInfo = MagicMock()
+    iface.myInfo = myInfo
+    iface.myInfo.my_node_num = 2475227164
+    myuser = iface.getMyUser()
+    print(f'myuser:{myuser}')
+    assert myuser is not None
+    assert myuser["id"] == '!9388f81c'
+    mylongname = iface.getLongName()
+    assert mylongname == 'Unknown f81c'
+    myshortname = iface.getShortName()
+    assert myshortname == '?1C'
 
 
 @pytest.mark.unit
@@ -310,6 +389,16 @@ def test_sendPacket_with_destination_as_int(caplog, reset_globals):
 
 
 @pytest.mark.unit
+def test_sendPacket_with_destination_starting_with_a_bang(caplog, reset_globals):
+    """Test _sendPacket() with int as a destination"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        meshPacket = mesh_pb2.MeshPacket()
+        iface._sendPacket(meshPacket, destinationId='!1234')
+        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
 def test_sendPacket_with_destination_as_BROADCAST_ADDR(caplog, reset_globals):
     """Test _sendPacket() with BROADCAST_ADDR as a destination"""
     iface = MeshInterface(noProto=True)
@@ -346,6 +435,31 @@ def test_sendPacket_with_destination_as_LOCAL_ADDR_with_myInfo(caplog, reset_glo
 
 
 @pytest.mark.unit
+def test_sendPacket_with_destination_is_blank_with_nodes(capsys, reset_globals, iface_with_nodes):
+    """Test _sendPacket() with '' as a destination with myInfo"""
+    iface = iface_with_nodes
+    meshPacket = mesh_pb2.MeshPacket()
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        iface._sendPacket(meshPacket, destinationId='')
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+    out, err = capsys.readouterr()
+    assert re.match(r'Warning: NodeId  not found in DB', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+def test_sendPacket_with_destination_is_blank_without_nodes(caplog, reset_globals, iface_with_nodes):
+    """Test _sendPacket() with '' as a destination with myInfo"""
+    iface = iface_with_nodes
+    iface.nodes = None
+    meshPacket = mesh_pb2.MeshPacket()
+    with caplog.at_level(logging.WARNING):
+        iface._sendPacket(meshPacket, destinationId='')
+    assert re.search(r'Warning: There were no self.nodes.', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
 def test_getMyNodeInfo(reset_globals):
     """Test getMyNodeInfo()"""
     iface = MeshInterface(noProto=True)
@@ -357,3 +471,18 @@ def test_getMyNodeInfo(reset_globals):
     iface.myInfo.my_node_num = 1
     myinfo = iface.getMyNodeInfo()
     assert myinfo == anode
+
+
+@pytest.mark.unit
+def test_generatePacketId(capsys, reset_globals):
+    """Test _generatePacketId() when no currentPacketId (not connected)"""
+    iface = MeshInterface(noProto=True)
+    # not sure when this condition would ever happen... but we can simulate it
+    iface.currentPacketId = None
+    assert iface.currentPacketId is None
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        iface._generatePacketId()
+        out, err = capsys.readouterr()
+        assert re.search(r'Not connected yet, can not generate packet', out, re.MULTILINE)
+        assert err == ''
+    assert pytest_wrapped_e.type == Exception

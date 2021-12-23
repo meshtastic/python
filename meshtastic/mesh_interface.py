@@ -103,6 +103,7 @@ class MeshInterface:
 
         rows = []
         if self.nodes:
+            logging.debug(f'self.nodes:{self.nodes}')
             for node in self.nodes.values():
                 if not includeSelf and node['num'] == self.localNode.nodeNum:
                     continue
@@ -351,6 +352,7 @@ class MeshInterface:
         """Get info about my node."""
         if self.myInfo is None:
             return None
+        logging.debug(f'self.nodesByNum:{self.nodesByNum}')
         return self.nodesByNum.get(self.myInfo.my_node_num)
 
     def getMyUser(self):
