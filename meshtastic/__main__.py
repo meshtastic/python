@@ -244,7 +244,7 @@ def onConnected(interface):
             channelIndex = 0
             if args.ch_index is not None:
                 channelIndex = int(args.ch_index)
-            ch = interface.getChannelByChannelIndex(channelIndex)
+            ch = getNode().getChannelByChannelIndex(channelIndex)
             if ch and ch.role != channel_pb2.Channel.Role.DISABLED:
                 print(f"Sending text message {args.sendtext} to {args.destOrAll} on channelIndex:{channelIndex}")
                 interface.sendText(args.sendtext, args.destOrAll, wantAck=True, channelIndex=channelIndex)
