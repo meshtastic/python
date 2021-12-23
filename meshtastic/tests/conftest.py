@@ -2,8 +2,8 @@
 
 import argparse
 
+from unittest.mock import MagicMock
 import pytest
-from unittest.mock import patch, MagicMock
 
 from meshtastic.__main__ import Globals
 from ..mesh_interface import MeshInterface

@@ -54,57 +54,31 @@ def test_MeshInterface(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_getMyUser_and_LongName_and_ShortName(reset_globals):
-    """Test getMyUser(), getLongName(), and getShortName().
-       Note: These should be separate tests, but feeling lazy.
-             Could move these nodes out to a fixture and
-             create smaller tests.
-    """
+def test_getMyUser(reset_globals, iface_with_nodes):
+    """Test getMyUser()"""
+    iface = iface_with_nodes
 
-    nodesById = {
-        '!9388f81c': {
-            'num': 2475227164,
-            'user': {
-                'id': '!9388f81c',
-                'longName': 'Unknown f81c',
-                'shortName': '?1C',
-                'macaddr': 'RBeTiPgc',
-                'hwModel': 'TBEAM'
-            },
-            'position': {},
-            'lastHeard': 1640204888
-        }
-    }
-
-    nodesByNum = {
-            2475227164: {
-                'num': 2475227164,
-                'user': {
-                    'id': '!9388f81c',
-                    'longName': 'Unknown f81c',
-                    'shortName': '?1C',
-                    'macaddr': 'RBeTiPgc',
-                    'hwModel': 'TBEAM'
-                },
-                'position': {
-                    'time': 1640206266
-                 },
-                'lastHeard': 1640206266
-             }
-           }
-
-    iface = MeshInterface(noProto=True)
-    iface.nodes = nodesById
-    iface.nodesByNum = nodesByNum
-    myInfo = MagicMock()
-    iface.myInfo = myInfo
     iface.myInfo.my_node_num = 2475227164
     myuser = iface.getMyUser()
     print(f'myuser:{myuser}')
     assert myuser is not None
     assert myuser["id"] == '!9388f81c'
+
+
+@pytest.mark.unit
+def test_getLongName(reset_globals, iface_with_nodes):
+    """Test getLongName()"""
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
     mylongname = iface.getLongName()
     assert mylongname == 'Unknown f81c'
+
+
+@pytest.mark.unit
+def test_getShortName(reset_globals, iface_with_nodes):
+    """Test getShortName()."""
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
     myshortname = iface.getShortName()
     assert myshortname == '?1C'
 
