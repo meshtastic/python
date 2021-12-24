@@ -9,7 +9,7 @@ import logging
 from unittest.mock import patch, MagicMock
 import pytest
 
-from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config, getPref
+from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config, getPref, setPref
 #from ..radioconfig_pb2 import UserPreferences
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
@@ -1546,6 +1546,59 @@ def test_main_getPref_invalid_field(capsys, reset_globals):
 
     getPref(prefs, 'foo')
 
+    out, err = capsys.readouterr()
+    assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
+    # ensure they are sorted
+    assert re.search(r'fixed_position\s+is_router\s+ls_secs', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+def test_main_setPref_valid_field(capsys, reset_globals):
+    """Test setPref() with a valid field"""
+
+    class Field:
+        """Simple class for testing."""
+
+        def __init__(self, name, enum_type):
+            """constructor"""
+            self.name = name
+            self.enum_type = enum_type
+
+    ls_secs_field = Field('ls_secs', 'int')
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = ls_secs_field
+
+    setPref(prefs, 'ls_secs', '300')
+    out, err = capsys.readouterr()
+    assert re.search(r'Set ls_secs to 300', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+def test_main_setPref_invalid_field(capsys, reset_globals):
+    """Test setPref() with a invalid field"""
+
+
+    class Field:
+        """Simple class for testing."""
+
+        def __init__(self, name):
+            """constructor"""
+            self.name = name
+
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = None
+
+    # Note: This is a subset of the real fields
+    ls_secs_field = Field('ls_secs')
+    is_router = Field('is_router')
+    fixed_position = Field('fixed_position')
+
+    fields = [ ls_secs_field, is_router, fixed_position ]
+    prefs.DESCRIPTOR.fields = fields
+
+    setPref(prefs, 'foo', '300')
     out, err = capsys.readouterr()
     assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
     # ensure they are sorted
