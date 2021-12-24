@@ -53,7 +53,8 @@ class MeshInterface:
         self.nodesByNum = None
         self.configId = None
         self.defaultHopLimit = 3
-        self.gotResponse = False
+        self.gotResponse = False # used in gpio read
+        self.mask = None # used in gpio read and gpio watch
 
     def close(self):
         """Shutdown this interface"""

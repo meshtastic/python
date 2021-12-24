@@ -273,6 +273,7 @@ def onConnected(interface):
             if args.gpio_rd:
                 bitmask = int(args.gpio_rd, 16)
                 print(f"Reading GPIO mask 0x{bitmask:x} from {args.dest}")
+                interface.mask = bitmask
                 rhc.readGPIOs(args.dest, bitmask, None)
                 if not interface.noProto:
                     # wait up to X seconds for a response
@@ -284,8 +285,10 @@ def onConnected(interface):
 
             if args.gpio_watch:
                 bitmask = int(args.gpio_watch, 16)
-                print(f"Watching GPIO mask 0x{bitmask:x} from {args.dest}")
-                rhc.watchGPIOs(args.dest, bitmask)
+                print(f"Watching GPIO mask 0x{bitmask:x} from {args.dest}. Press ctrl-c to exit")
+                while True:
+                    rhc.watchGPIOs(args.dest, bitmask)
+                    time.sleep(1)
 
         # handle settings
         if args.set:

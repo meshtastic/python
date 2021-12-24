@@ -11,7 +11,10 @@ def onGPIOreceive(packet, interface):
     """
     logging.debug(f"packet:{packet} interface:{interface}")
     hw = packet["decoded"]["remotehw"]
-    print(f'Received RemoteHardware typ={hw["typ"]}, gpio_value={hw["gpioValue"]}')
+    gpioValue = hw["gpioValue"]
+    print(f'mask:{interface.mask}')
+    value = int(gpioValue) & int(interface.mask)
+    print(f'Received RemoteHardware typ={hw["typ"]}, gpio_value={gpioValue} value={value}')
     interface.gotResponse = True
 
 
@@ -73,4 +76,5 @@ class RemoteHardwareClient:
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
         r.gpio_mask = mask
+        self.iface.mask = mask
         return self._sendHardware(nodeid, r)

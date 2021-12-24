@@ -10,6 +10,10 @@ install:
 lint:
 	pylint meshtastic
 
+# show the slowest unit tests
+slow:
+	pytest --durations=0
+
 # run the coverage report and open results in a browser
 cov:
 	pytest --cov-report html --cov=meshtastic

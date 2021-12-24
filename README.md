@@ -199,6 +199,8 @@ pytest -vv
 pytest
 # or (more verbosely)
 pytest -m unit
+# or
+make
 ```
 
 * To run just integration tests:
@@ -246,4 +248,14 @@ pytest -m smokewifi meshtastic/tests/test_smoke_wifi.py::test_smokewifi_info
 pytest --cov=meshtastic
 # or if want html coverage report
 pytest --cov-report html --cov=meshtastic
+# or
+make cov
+```
+
+* To see slowest unit tests, you can run:
+
+```
+pytest --durations=0
+# or
+make slow
 ```
