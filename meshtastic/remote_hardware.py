@@ -12,7 +12,7 @@ def onGPIOreceive(packet, interface):
     logging.debug(f"packet:{packet} interface:{interface}")
     hw = packet["decoded"]["remotehw"]
     gpioValue = hw["gpioValue"]
-    print(f'mask:{interface.mask}')
+    #print(f'mask:{interface.mask}')
     value = int(gpioValue) & int(interface.mask)
     print(f'Received RemoteHardware typ={hw["typ"]}, gpio_value={gpioValue} value={value}')
     interface.gotResponse = True
