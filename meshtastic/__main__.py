@@ -27,7 +27,7 @@ def onReceive(packet, interface):
     args = our_globals.get_args()
     try:
         d = packet.get('decoded')
-        logging.debug(f'd:{d}')
+        logging.debug(f'in onReceive() d:{d}')
 
         # Exit once we receive a reply
         if args and args.sendtext and packet["to"] == interface.myInfo.my_node_num and d["portnum"] == portnums_pb2.PortNum.TEXT_MESSAGE_APP:
@@ -37,12 +37,10 @@ def onReceive(packet, interface):
         if args and args.reply:
             msg = d.get('text')
             if msg:
-                #shortName = packet['decoded']['shortName']
                 rxSnr = packet['rxSnr']
                 hopLimit = packet['hopLimit']
                 print(f"message: {msg}")
-                reply = "got msg \'{}\' with rxSnr: {} and hopLimit: {}".format(
-                    msg, rxSnr, hopLimit)
+                reply = "got msg \'{}\' with rxSnr: {} and hopLimit: {}".format(msg, rxSnr, hopLimit)
                 print("Sending reply: ", reply)
                 interface.sendText(reply)
 
