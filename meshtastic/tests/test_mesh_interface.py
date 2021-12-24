@@ -359,7 +359,7 @@ def test_sendPacket_with_destination_as_int(caplog, reset_globals):
     with caplog.at_level(logging.DEBUG):
         meshPacket = mesh_pb2.MeshPacket()
         iface._sendPacket(meshPacket, destinationId=123)
-        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+        assert re.search(r'Not sending packet', caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
@@ -369,7 +369,7 @@ def test_sendPacket_with_destination_starting_with_a_bang(caplog, reset_globals)
     with caplog.at_level(logging.DEBUG):
         meshPacket = mesh_pb2.MeshPacket()
         iface._sendPacket(meshPacket, destinationId='!1234')
-        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+        assert re.search(r'Not sending packet', caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
@@ -379,7 +379,7 @@ def test_sendPacket_with_destination_as_BROADCAST_ADDR(caplog, reset_globals):
     with caplog.at_level(logging.DEBUG):
         meshPacket = mesh_pb2.MeshPacket()
         iface._sendPacket(meshPacket, destinationId=BROADCAST_ADDR)
-        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+        assert re.search(r'Not sending packet', caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
@@ -405,7 +405,7 @@ def test_sendPacket_with_destination_as_LOCAL_ADDR_with_myInfo(caplog, reset_glo
     with caplog.at_level(logging.DEBUG):
         meshPacket = mesh_pb2.MeshPacket()
         iface._sendPacket(meshPacket, destinationId=LOCAL_ADDR)
-        assert re.search(r'Sending packet', caplog.text, re.MULTILINE)
+        assert re.search(r'Not sending packet', caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit

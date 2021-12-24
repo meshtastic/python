@@ -53,6 +53,8 @@ class MeshInterface:
         self.nodesByNum = None
         self.configId = None
         self.defaultHopLimit = 3
+        self.gotResponse = False # used in gpio read
+        self.mask = None # used in gpio read and gpio watch
 
     def close(self):
         """Shutdown this interface"""
@@ -216,6 +218,7 @@ class MeshInterface:
             onResponse -- A closure of the form funct(packet), that will be
                     called when a response packet arrives (or the transaction
                     is NAKed due to non receipt)
+            channelIndex - channel number to use
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -338,8 +341,11 @@ class MeshInterface:
             meshPacket.id = self._generatePacketId()
 
         toRadio.packet.CopyFrom(meshPacket)
-        logging.debug(f"Sending packet: {stripnl(meshPacket)}")
-        self._sendToRadio(toRadio)
+        if self.noProto:
+            logging.warning(f"Not sending packet because protocol use is disabled by noProto")
+        else:
+            logging.debug(f"Sending packet: {stripnl(meshPacket)}")
+            self._sendToRadio(toRadio)
         return meshPacket
 
     def waitForConfig(self):
@@ -583,7 +589,6 @@ class MeshInterface:
         - meshtastic.receive.user(packet = MeshPacket dictionary)
         - meshtastic.receive.data(packet = MeshPacket dictionary)
         """
-
         asDict = google.protobuf.json_format.MessageToDict(meshPacket)
 
         # We normally decompose the payload into a dictionary so that the client
