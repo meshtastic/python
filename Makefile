@@ -1,6 +1,6 @@
-# unit test
+# only run the fast unit tests
 test:
-	pytest
+	pytest -m unit
 
 # local install
 install:

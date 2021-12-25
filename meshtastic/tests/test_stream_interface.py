@@ -17,7 +17,8 @@ def test_StreamInterface():
     assert pytest_wrapped_e.type == Exception
 
 
-@pytest.mark.unit
+# Note: This takes a bit, so moving from unit to slow
+@pytest.mark.unitslow
 def test_StreamInterface_with_noProto(caplog, reset_globals):
     """Test that we can instantiate a StreamInterface based on nonProto
        and we can read/write bytes from a mocked stream
@@ -33,7 +34,8 @@ def test_StreamInterface_with_noProto(caplog, reset_globals):
         assert data == test_data
 
 
-@pytest.mark.unit
+# Note: This takes a bit, so moving from unit to slow
+@pytest.mark.unitslow
 def test_sendToRadioImpl(caplog, reset_globals):
     """Test _sendToRadioImpl()"""
     test_data = b'hello'
