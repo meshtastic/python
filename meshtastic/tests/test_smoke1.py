@@ -104,7 +104,7 @@ def test_smoke1_debug():
     """Test --debug"""
     return_value, out = subprocess.getstatusoutput('meshtastic --info --debug')
     assert re.search(r'^Owner', out, re.MULTILINE)
-    assert re.search(r'^DEBUG:root', out, re.MULTILINE)
+    assert re.search(r'^DEBUG file', out, re.MULTILINE)
     assert return_value == 0
 
 
