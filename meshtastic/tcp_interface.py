@@ -17,18 +17,29 @@ class TCPInterface(StreamInterface):
             hostname {string} -- Hostname/IP address of the device to connect to
         """
 
-        logging.debug(f"Connecting to {hostname}")
-
-        server_address = (hostname, portNumber)
-        sock = socket.create_connection(server_address)
-
         # Instead of wrapping as a stream, we use the native socket API
         # self.stream = sock.makefile('rw')
         self.stream = None
-        self.socket = sock
 
-        StreamInterface.__init__(
-            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
+        self.hostname = hostname
+        self.portNumber = portNumber
+
+        if connectNow:
+            logging.debug(f"Connecting to {hostname}")
+            server_address = (hostname, portNumber)
+            sock = socket.create_connection(server_address)
+            self.socket = sock
+        else:
+            self.socket = None
+
+        StreamInterface.__init__(self, debugOut=debugOut, noProto=noProto,
+                                 connectNow=connectNow)
+
+    def myConnect(self):
+        """Connect to socket"""
+        server_address = (self.hostname, self.portNumber)
+        sock = socket.create_connection(server_address)
+        self.socket = sock
 
     def close(self):
         """Close a connection to the device"""

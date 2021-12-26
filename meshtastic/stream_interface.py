@@ -24,7 +24,6 @@ class StreamInterface(MeshInterface):
         """Constructor, opens a connection to self.stream
 
         Keyword Arguments:
-            devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
             debugOut {stream} -- If a stream is provided, any debug serial output from the
                                  device will be emitted to that stream. (default: {None})
 
@@ -33,15 +32,14 @@ class StreamInterface(MeshInterface):
             Exception: [description]
         """
 
-        if not hasattr(self, 'stream'):
+        if not hasattr(self, 'stream') and not noProto:
             raise Exception(
                 "StreamInterface is now abstract (to update existing code create SerialInterface instead)")
         self._rxBuf = bytes()  # empty
         self._wantExit = False
 
         # FIXME, figure out why daemon=True causes reader thread to exit too early
-        self._rxThread = threading.Thread(
-            target=self.__reader, args=(), daemon=True)
+        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
 
@@ -93,7 +91,10 @@ class StreamInterface(MeshInterface):
 
     def _readBytes(self, length):
         """Read an array of bytes from our stream"""
-        return self.stream.read(length)
+        if self.stream:
+            return self.stream.read(length)
+        else:
+            return None
 
     def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
@@ -102,6 +103,7 @@ class StreamInterface(MeshInterface):
         bufLen = len(b)
         # We convert into a string, because the TCP code doesn't work with byte arrays
         header = bytes([START1, START2, (bufLen >> 8) & 0xff,  bufLen & 0xff])
+        logging.debug(f'sending header:{header} b:{b}')
         self._writeBytes(header + b)
 
     def close(self):
@@ -116,16 +118,18 @@ class StreamInterface(MeshInterface):
 
     def __reader(self):
         """The reader thread that reads bytes from our stream"""
+        logging.debug('in __reader()')
         empty = bytes()
 
         try:
             while not self._wantExit:
-                # logging.debug("reading character")
+                logging.debug("reading character")
                 b = self._readBytes(1)
-                # logging.debug("In reader loop")
-                # logging.debug(f"read returned {b}")
+                logging.debug("In reader loop")
+                #logging.debug(f"read returned {b}")
                 if len(b) > 0:
                     c = b[0]
+                    #logging.debug(f'c:{c}')
                     ptr = len(self._rxBuf)
 
                     # Assume we want to append this byte, fixme use bytearray instead
@@ -144,12 +148,13 @@ class StreamInterface(MeshInterface):
                         if c != START2:
                             self._rxBuf = empty  # failed to find start2
                     elif ptr >= HEADER_LEN - 1:  # we've at least got a header
-                        # big endian length follos header
+                        #logging.debug('at least we received a header')
+                        # big endian length follows header
                         packetlen = (self._rxBuf[2] << 8) + self._rxBuf[3]
 
                         if ptr == HEADER_LEN - 1:  # we _just_ finished reading the header, validate length
                             if packetlen > MAX_TO_FROM_RADIO_SIZE:
-                                self._rxBuf = empty  # length ws out out bounds, restart
+                                self._rxBuf = empty  # length was out out bounds, restart
 
                         if len(self._rxBuf) != 0 and ptr + 1 >= packetlen + HEADER_LEN:
                             try:

@@ -8,6 +8,7 @@ import pytest
 from meshtastic.__main__ import Globals
 from ..mesh_interface import MeshInterface
 
+
 @pytest.fixture
 def reset_globals():
     """Fixture to reset globals."""

@@ -9,7 +9,8 @@ import logging
 from unittest.mock import patch, MagicMock
 import pytest
 
-from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config
+from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config, getPref, setPref
+#from ..radioconfig_pb2 import UserPreferences
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
 from ..tcp_interface import TCPInterface
@@ -1234,14 +1235,113 @@ def test_main_setchan(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_onReceive_empty(reset_globals):
+def test_main_onReceive_empty(caplog, reset_globals):
     """Test onReceive"""
     sys.argv = ['']
     Globals.getInstance().set_args(sys.argv)
     iface = MagicMock(autospec=SerialInterface)
     packet = {'decoded': 'foo'}
-    onReceive(packet, iface)
-    # TODO: how do we know we actually called it?
+    with caplog.at_level(logging.DEBUG):
+        onReceive(packet, iface)
+    assert re.search(r'in onReceive', caplog.text, re.MULTILINE)
+
+
+#    TODO: use this captured position app message (might want/need in the future)
+#    packet = {
+#            'to': 4294967295,
+#            'decoded': {
+#                'portnum': 'POSITION_APP',
+#                'payload': "M69\306a"
+#                },
+#            'id': 334776976,
+#            'hop_limit': 3
+#            }
+
+@pytest.mark.unit
+def test_main_onReceive_with_sendtext(caplog, reset_globals):
+    """Test onReceive with sendtext
+       The entire point of this test is to make sure the interface.close() call
+       is made in onReceive().
+    """
+    sys.argv = ['', '--sendtext', 'hello']
+    Globals.getInstance().set_args(sys.argv)
+
+    # Note: 'TEXT_MESSAGE_APP' value is 1
+    packet = {
+            'to': 4294967295,
+            'decoded': {
+                'portnum': 1,
+                'payload': "hello"
+                },
+            'id': 334776977,
+            'hop_limit': 3,
+            'want_ack': True
+            }
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.myInfo.my_node_num = 4294967295
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        with caplog.at_level(logging.DEBUG):
+            main()
+            onReceive(packet, iface)
+        assert re.search(r'in onReceive', caplog.text, re.MULTILINE)
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_onReceive_with_reply(caplog, capsys, reset_globals):
+    """Test onReceive with a reply
+       To capture: on one device run '--sendtext aaa --reply' and on another
+       device run '--sendtext bbb --reply', then back to the first device and
+       run '--sendtext aaa2 --reply'. You should now see a "Sending reply" message.
+    """
+    sys.argv = ['', '--sendtext', 'hello', '--reply']
+    Globals.getInstance().set_args(sys.argv)
+
+    # Note: 'TEXT_MESSAGE_APP' value is 1
+
+    send_packet = {
+            'to': 4294967295,
+            'decoded': {
+                'portnum': 1,
+                'payload': "hello"
+                },
+            'id': 334776977,
+            'hop_limit': 3,
+            'want_ack': True
+            }
+
+    reply_packet = {
+            'from': 682968668,
+            'to': 4294967295,
+            'decoded': {
+                'portnum': 'TEXT_MESSAGE_APP',
+                'payload': b'bbb',
+                'text': 'bbb'
+                },
+            'id': 1709936182,
+            'rxTime': 1640381999,
+            'rxSnr': 6.0,
+            'hopLimit': 3,
+            'raw': 'faked',
+            'fromId': '!28b5465c',
+            'toId': '^all'
+            }
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.myInfo.my_node_num = 4294967295
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        with caplog.at_level(logging.DEBUG):
+            main()
+            onReceive(send_packet, iface)
+            onReceive(reply_packet, iface)
+        assert re.search(r'in onReceive', caplog.text, re.MULTILINE)
+        out, err = capsys.readouterr()
+        assert re.search(r'got msg ', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
 
 
 @pytest.mark.unit
@@ -1371,6 +1471,7 @@ def test_main_gpio_rd(caplog, capsys, reset_globals):
     channel.settings.psk = b'\x01'
 
     packet = {
+
             'from': 682968668,
             'to': 682968612,
             'channel': 1,
@@ -1403,4 +1504,103 @@ def test_main_gpio_rd(caplog, capsys, reset_globals):
     assert re.search(r'Connected to radio', out, re.MULTILINE)
     assert re.search(r'Reading GPIO mask 0x1000 ', out, re.MULTILINE)
     assert re.search(r'Received RemoteHardware typ=READ_GPIOS_REPLY, gpio_value=4096', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+def test_main_getPref_valid_field(capsys, reset_globals):
+    """Test getPref() with a valid field"""
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = 'ls_secs'
+    prefs.wifi_ssid = 'foo'
+    prefs.ls_secs = 300
+    prefs.fixed_position = False
+
+    getPref(prefs, 'ls_secs')
+    out, err = capsys.readouterr()
+    assert re.search(r'ls_secs: 300', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+def test_main_getPref_invalid_field(capsys, reset_globals):
+    """Test getPref() with an invalid field"""
+
+    class Field:
+        """Simple class for testing."""
+
+        def __init__(self, name):
+            """constructor"""
+            self.name = name
+
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = None
+
+    # Note: This is a subset of the real fields
+    ls_secs_field = Field('ls_secs')
+    is_router = Field('is_router')
+    fixed_position = Field('fixed_position')
+
+    fields = [ ls_secs_field, is_router, fixed_position ]
+    prefs.DESCRIPTOR.fields = fields
+
+    getPref(prefs, 'foo')
+
+    out, err = capsys.readouterr()
+    assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
+    # ensure they are sorted
+    assert re.search(r'fixed_position\s+is_router\s+ls_secs', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+def test_main_setPref_valid_field(capsys, reset_globals):
+    """Test setPref() with a valid field"""
+
+    class Field:
+        """Simple class for testing."""
+
+        def __init__(self, name, enum_type):
+            """constructor"""
+            self.name = name
+            self.enum_type = enum_type
+
+    ls_secs_field = Field('ls_secs', 'int')
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = ls_secs_field
+
+    setPref(prefs, 'ls_secs', '300')
+    out, err = capsys.readouterr()
+    assert re.search(r'Set ls_secs to 300', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+def test_main_setPref_invalid_field(capsys, reset_globals):
+    """Test setPref() with a invalid field"""
+
+
+    class Field:
+        """Simple class for testing."""
+
+        def __init__(self, name):
+            """constructor"""
+            self.name = name
+
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = None
+
+    # Note: This is a subset of the real fields
+    ls_secs_field = Field('ls_secs')
+    is_router = Field('is_router')
+    fixed_position = Field('fixed_position')
+
+    fields = [ ls_secs_field, is_router, fixed_position ]
+    prefs.DESCRIPTOR.fields = fields
+
+    setPref(prefs, 'foo', '300')
+    out, err = capsys.readouterr()
+    assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
+    # ensure they are sorted
+    assert re.search(r'fixed_position\s+is_router\s+ls_secs', out, re.MULTILINE)
     assert err == ''
