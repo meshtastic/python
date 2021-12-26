@@ -38,8 +38,6 @@ class StreamInterface(MeshInterface):
         self._rxBuf = bytes()  # empty
         self._wantExit = False
 
-        self.stream = None
-
         # FIXME, figure out why daemon=True causes reader thread to exit too early
         self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
 
@@ -105,6 +103,7 @@ class StreamInterface(MeshInterface):
         bufLen = len(b)
         # We convert into a string, because the TCP code doesn't work with byte arrays
         header = bytes([START1, START2, (bufLen >> 8) & 0xff,  bufLen & 0xff])
+        logging.debug(f'sending header:{header} b:{b}')
         self._writeBytes(header + b)
 
     def close(self):
@@ -127,9 +126,10 @@ class StreamInterface(MeshInterface):
                 logging.debug("reading character")
                 b = self._readBytes(1)
                 logging.debug("In reader loop")
-                logging.debug(f"read returned {b}")
+                #logging.debug(f"read returned {b}")
                 if len(b) > 0:
                     c = b[0]
+                    #logging.debug(f'c:{c}')
                     ptr = len(self._rxBuf)
 
                     # Assume we want to append this byte, fixme use bytearray instead
@@ -148,6 +148,7 @@ class StreamInterface(MeshInterface):
                         if c != START2:
                             self._rxBuf = empty  # failed to find start2
                     elif ptr >= HEADER_LEN - 1:  # we've at least got a header
+                        #logging.debug('at least we received a header')
                         # big endian length follows header
                         packetlen = (self._rxBuf[2] << 8) + self._rxBuf[3]
 
