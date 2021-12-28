@@ -196,7 +196,7 @@ meshtastic --dest \!28979058 --set-owner "MeshyJohn"
 
 ### --set-ham SET_HAM
 
-Set licensed HAM ID and turn off encryption.
+Set licensed Ham ID and turn off encryption.
 
 **Usage**
 
