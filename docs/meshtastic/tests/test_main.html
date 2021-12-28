@@ -395,7 +395,7 @@ def test_main_set_ham_to_KI123(capsys, reset_globals):
         main()
         out, err = capsys.readouterr()
         assert re.search(r&#39;Connected to radio&#39;, out, re.MULTILINE)
-        assert re.search(r&#39;Setting HAM ID to KI123&#39;, out, re.MULTILINE)
+        assert re.search(r&#39;Setting Ham ID to KI123&#39;, out, re.MULTILINE)
         assert re.search(r&#39;inside mocked setOwner&#39;, out, re.MULTILINE)
         assert re.search(r&#39;inside mocked turnOffEncryptionOnPrimaryChannel&#39;, out, re.MULTILINE)
         assert err == &#39;&#39;
@@ -2437,7 +2437,7 @@ def test_main_set_ham_to_KI123(capsys, reset_globals):
         main()
         out, err = capsys.readouterr()
         assert re.search(r&#39;Connected to radio&#39;, out, re.MULTILINE)
-        assert re.search(r&#39;Setting HAM ID to KI123&#39;, out, re.MULTILINE)
+        assert re.search(r&#39;Setting Ham ID to KI123&#39;, out, re.MULTILINE)
         assert re.search(r&#39;inside mocked setOwner&#39;, out, re.MULTILINE)
         assert re.search(r&#39;inside mocked turnOffEncryptionOnPrimaryChannel&#39;, out, re.MULTILINE)
         assert err == &#39;&#39;

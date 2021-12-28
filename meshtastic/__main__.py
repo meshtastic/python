@@ -228,7 +228,7 @@ def onConnected(interface):
 
         if args.set_ham:
             closeNow = True
-            print(f"Setting HAM ID to {args.set_ham} and turning off encryption")
+            print(f"Setting Ham ID to {args.set_ham} and turning off encryption")
             getNode().setOwner(args.set_ham, is_licensed=True)
             # Must turn off encryption on primary channel
             getNode().turnOffEncryptionOnPrimaryChannel()
@@ -738,7 +738,7 @@ def initParser():
         "--set-team", help="Set team affiliation (an invalid team will list valid values)", action="store")
 
     parser.add_argument(
-        "--set-ham", help="Set licensed HAM ID and turn off encryption", action="store")
+        "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store")
 
     parser.add_argument(
         "--dest", help="The destination node id for any sent commands, if not set '^all' or '^local' is assumed as appropriate", default=None)

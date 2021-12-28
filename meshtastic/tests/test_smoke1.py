@@ -662,7 +662,7 @@ def test_smoke1_set_ham():
        Note: Do a factory reset after this setting so it is very short-lived.
     """
     return_value, out = subprocess.getstatusoutput('meshtastic --set-ham KI1234')
-    assert re.search(r'Setting HAM ID', out, re.MULTILINE)
+    assert re.search(r'Setting Ham ID', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_REBOOT)
