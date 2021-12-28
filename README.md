@@ -122,7 +122,7 @@ Meshtastic is designed to be used without a radio operator license.  If you do h
 ```
 meshtastic --port /dev/ttyUSB1 --set-ham KI1345
 Connected to radio
-Setting HAM ID to KI1345 and turning off encryption
+Setting Ham ID to KI1345 and turning off encryption
 Writing modified channels to device
 ```
 

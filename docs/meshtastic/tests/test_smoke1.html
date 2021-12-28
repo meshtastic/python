@@ -691,7 +691,7 @@ def test_smoke1_set_ham():
        Note: Do a factory reset after this setting so it is very short-lived.
     &#34;&#34;&#34;
     return_value, out = subprocess.getstatusoutput(&#39;meshtastic --set-ham KI1234&#39;)
-    assert re.search(r&#39;Setting HAM ID&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;Setting Ham ID&#39;, out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_REBOOT)
@@ -1510,7 +1510,7 @@ def test_smoke1_set_ham():
        Note: Do a factory reset after this setting so it is very short-lived.
     &#34;&#34;&#34;
     return_value, out = subprocess.getstatusoutput(&#39;meshtastic --set-ham KI1234&#39;)
-    assert re.search(r&#39;Setting HAM ID&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;Setting Ham ID&#39;, out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_REBOOT)
