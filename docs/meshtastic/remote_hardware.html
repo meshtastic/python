@@ -27,18 +27,24 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34; Remote hardware
+<pre><code class="python">&#34;&#34;&#34;Remote hardware
 &#34;&#34;&#34;
+import logging
 from pubsub import pub
 from . import portnums_pb2, remote_hardware_pb2
+from .util import our_exit
 
 
 def onGPIOreceive(packet, interface):
     &#34;&#34;&#34;Callback for received GPIO responses
-
-    FIXME figure out how to do closures with methods in python&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    logging.debug(f&#34;packet:{packet} interface:{interface}&#34;)
     hw = packet[&#34;decoded&#34;][&#34;remotehw&#34;]
-    print(f&#39;Received RemoteHardware typ={hw[&#34;typ&#34;]}, gpio_value={hw[&#34;gpioValue&#34;]}&#39;)
+    gpioValue = hw[&#34;gpioValue&#34;]
+    #print(f&#39;mask:{interface.mask}&#39;)
+    value = int(gpioValue) &amp; int(interface.mask)
+    print(f&#39;Received RemoteHardware typ={hw[&#34;typ&#34;]}, gpio_value={gpioValue} value={value}&#39;)
+    interface.gotResponse = True
 
 
 class RemoteHardwareClient:
@@ -57,26 +63,28 @@ class RemoteHardwareClient:
         self.iface = iface
         ch = iface.localNode.getChannelByName(&#34;gpio&#34;)
         if not ch:
-            raise Exception(
-                &#34;No gpio channel found, please create on the sending and receive nodes &#34;\
-                &#34;to use this (secured) service (--ch-add gpio --info then --seturl)&#34;)
+            our_exit(
+                &#34;Warning: No channel named &#39;gpio&#39; was found.\n&#34;\
+                &#34;On the sending and receive nodes create a channel named &#39;gpio&#39;.\n&#34;\
+                &#34;For example, run &#39;--ch-add gpio&#39; on one device, then &#39;--seturl&#39; on\n&#34;\
+                &#34;the other devices using the url from the device where the channel was added.&#34;)
         self.channelIndex = ch.index
 
-        pub.subscribe(
-            onGPIOreceive, &#34;meshtastic.receive.remotehw&#34;)
+        pub.subscribe(onGPIOreceive, &#34;meshtastic.receive.remotehw&#34;)
 
     def _sendHardware(self, nodeid, r, wantResponse=False, onResponse=None):
         if not nodeid:
-            raise Exception(
-                r&#34;You must set a destination node ID for this operation (use --dest \!xxxxxxxxx)&#34;)
+            our_exit(r&#34;Warning: Must use a destination node ID for this operation (use --dest \!xxxxxxxxx)&#34;)
         return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP,
-                                   wantAck=True, channelIndex=self.channelIndex, wantResponse=wantResponse, onResponse=onResponse)
+                                   wantAck=True, channelIndex=self.channelIndex,
+                                   wantResponse=wantResponse, onResponse=onResponse)
 
     def writeGPIOs(self, nodeid, mask, vals):
         &#34;&#34;&#34;
         Write the specified vals bits to the device GPIOs.  Only bits in mask that
         are 1 will be changed
         &#34;&#34;&#34;
+        logging.debug(f&#39;writeGPIOs nodeid:{nodeid} mask:{mask} vals:{vals}&#39;)
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.WRITE_GPIOS
         r.gpio_mask = mask
@@ -85,6 +93,7 @@ class RemoteHardwareClient:
 
     def readGPIOs(self, nodeid, mask, onResponse = None):
         &#34;&#34;&#34;Read the specified bits from GPIO inputs on the device&#34;&#34;&#34;
+        logging.debug(f&#39;readGPIOs nodeid:{nodeid} mask:{mask}&#39;)
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
         r.gpio_mask = mask
@@ -92,9 +101,11 @@ class RemoteHardwareClient:
 
     def watchGPIOs(self, nodeid, mask):
         &#34;&#34;&#34;Watch the specified bits from GPIO inputs on the device for changes&#34;&#34;&#34;
+        logging.debug(f&#39;watchGPIOs nodeid:{nodeid} mask:{mask}&#39;)
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
         r.gpio_mask = mask
+        self.iface.mask = mask
         return self._sendHardware(nodeid, r)</code></pre>
 </details>
 </section>
@@ -109,18 +120,21 @@ class RemoteHardwareClient:
 <span>def <span class="ident">onGPIOreceive</span></span>(<span>packet, interface)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Callback for received GPIO responses</p>
-<p>FIXME figure out how to do closures with methods in python</p></div>
+<div class="desc"><p>Callback for received GPIO responses</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def onGPIOreceive(packet, interface):
     &#34;&#34;&#34;Callback for received GPIO responses
-
-    FIXME figure out how to do closures with methods in python&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    logging.debug(f&#34;packet:{packet} interface:{interface}&#34;)
     hw = packet[&#34;decoded&#34;][&#34;remotehw&#34;]
-    print(f&#39;Received RemoteHardware typ={hw[&#34;typ&#34;]}, gpio_value={hw[&#34;gpioValue&#34;]}&#39;)</code></pre>
+    gpioValue = hw[&#34;gpioValue&#34;]
+    #print(f&#39;mask:{interface.mask}&#39;)
+    value = int(gpioValue) &amp; int(interface.mask)
+    print(f&#39;Received RemoteHardware typ={hw[&#34;typ&#34;]}, gpio_value={gpioValue} value={value}&#39;)
+    interface.gotResponse = True</code></pre>
 </details>
 </dd>
 </dl>
@@ -159,26 +173,28 @@ code for how you can connect to your own custom meshtastic services</p>
         self.iface = iface
         ch = iface.localNode.getChannelByName(&#34;gpio&#34;)
         if not ch:
-            raise Exception(
-                &#34;No gpio channel found, please create on the sending and receive nodes &#34;\
-                &#34;to use this (secured) service (--ch-add gpio --info then --seturl)&#34;)
+            our_exit(
+                &#34;Warning: No channel named &#39;gpio&#39; was found.\n&#34;\
+                &#34;On the sending and receive nodes create a channel named &#39;gpio&#39;.\n&#34;\
+                &#34;For example, run &#39;--ch-add gpio&#39; on one device, then &#39;--seturl&#39; on\n&#34;\
+                &#34;the other devices using the url from the device where the channel was added.&#34;)
         self.channelIndex = ch.index
 
-        pub.subscribe(
-            onGPIOreceive, &#34;meshtastic.receive.remotehw&#34;)
+        pub.subscribe(onGPIOreceive, &#34;meshtastic.receive.remotehw&#34;)
 
     def _sendHardware(self, nodeid, r, wantResponse=False, onResponse=None):
         if not nodeid:
-            raise Exception(
-                r&#34;You must set a destination node ID for this operation (use --dest \!xxxxxxxxx)&#34;)
+            our_exit(r&#34;Warning: Must use a destination node ID for this operation (use --dest \!xxxxxxxxx)&#34;)
         return self.iface.sendData(r, nodeid, portnums_pb2.REMOTE_HARDWARE_APP,
-                                   wantAck=True, channelIndex=self.channelIndex, wantResponse=wantResponse, onResponse=onResponse)
+                                   wantAck=True, channelIndex=self.channelIndex,
+                                   wantResponse=wantResponse, onResponse=onResponse)
 
     def writeGPIOs(self, nodeid, mask, vals):
         &#34;&#34;&#34;
         Write the specified vals bits to the device GPIOs.  Only bits in mask that
         are 1 will be changed
         &#34;&#34;&#34;
+        logging.debug(f&#39;writeGPIOs nodeid:{nodeid} mask:{mask} vals:{vals}&#39;)
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.WRITE_GPIOS
         r.gpio_mask = mask
@@ -187,6 +203,7 @@ code for how you can connect to your own custom meshtastic services</p>
 
     def readGPIOs(self, nodeid, mask, onResponse = None):
         &#34;&#34;&#34;Read the specified bits from GPIO inputs on the device&#34;&#34;&#34;
+        logging.debug(f&#39;readGPIOs nodeid:{nodeid} mask:{mask}&#39;)
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
         r.gpio_mask = mask
@@ -194,9 +211,11 @@ code for how you can connect to your own custom meshtastic services</p>
 
     def watchGPIOs(self, nodeid, mask):
         &#34;&#34;&#34;Watch the specified bits from GPIO inputs on the device for changes&#34;&#34;&#34;
+        logging.debug(f&#39;watchGPIOs nodeid:{nodeid} mask:{mask}&#39;)
         r = remote_hardware_pb2.HardwareMessage()
         r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
         r.gpio_mask = mask
+        self.iface.mask = mask
         return self._sendHardware(nodeid, r)</code></pre>
 </details>
 <h3>Methods</h3>
@@ -212,6 +231,7 @@ code for how you can connect to your own custom meshtastic services</p>
 </summary>
 <pre><code class="python">def readGPIOs(self, nodeid, mask, onResponse = None):
     &#34;&#34;&#34;Read the specified bits from GPIO inputs on the device&#34;&#34;&#34;
+    logging.debug(f&#39;readGPIOs nodeid:{nodeid} mask:{mask}&#39;)
     r = remote_hardware_pb2.HardwareMessage()
     r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
     r.gpio_mask = mask
@@ -229,9 +249,11 @@ code for how you can connect to your own custom meshtastic services</p>
 </summary>
 <pre><code class="python">def watchGPIOs(self, nodeid, mask):
     &#34;&#34;&#34;Watch the specified bits from GPIO inputs on the device for changes&#34;&#34;&#34;
+    logging.debug(f&#39;watchGPIOs nodeid:{nodeid} mask:{mask}&#39;)
     r = remote_hardware_pb2.HardwareMessage()
     r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
     r.gpio_mask = mask
+    self.iface.mask = mask
     return self._sendHardware(nodeid, r)</code></pre>
 </details>
 </dd>
@@ -251,6 +273,7 @@ are 1 will be changed</p></div>
     Write the specified vals bits to the device GPIOs.  Only bits in mask that
     are 1 will be changed
     &#34;&#34;&#34;
+    logging.debug(f&#39;writeGPIOs nodeid:{nodeid} mask:{mask} vals:{vals}&#39;)
     r = remote_hardware_pb2.HardwareMessage()
     r.typ = remote_hardware_pb2.HardwareMessage.Type.WRITE_GPIOS
     r.gpio_mask = mask

@@ -66,6 +66,7 @@ For ASCII these two strings will be the same, but for
 unicode scripts they can be different.</p>
 <h1 id="example-usage">Example Usage</h1>
 <pre><code>import meshtastic
+import meshtastic.serial_interface
 from pubsub import pub
 
 def onReceive(packet, interface): # called when a packet arrives
@@ -78,7 +79,7 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # called when we (re)connect 
 pub.subscribe(onReceive, &quot;meshtastic.receive&quot;)
 pub.subscribe(onConnection, &quot;meshtastic.connection.established&quot;)
 # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
-interface = meshtastic.SerialInterface()
+interface = meshtastic.serial_interface.SerialInterface()
 
 </code></pre>
 <details class="source">
@@ -124,6 +125,7 @@ unicode scripts they can be different.
 # Example Usage
 ```
 import meshtastic
+import meshtastic.serial_interface
 from pubsub import pub
 
 def onReceive(packet, interface): # called when a packet arrives
@@ -136,7 +138,7 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # called when we (re)connect 
 pub.subscribe(onReceive, &#34;meshtastic.receive&#34;)
 pub.subscribe(onConnection, &#34;meshtastic.connection.established&#34;)
 # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
-interface = meshtastic.SerialInterface()
+interface = meshtastic.serial_interface.SerialInterface()
 
 ```
 
@@ -167,23 +169,23 @@ from .util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
 from .node import Node
 from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
 
+# Note: To follow PEP224, comments should be after the module variable.
 
-&#34;&#34;&#34;A special ID that means the local node&#34;&#34;&#34;
 LOCAL_ADDR = &#34;^local&#34;
+&#34;&#34;&#34;A special ID that means the local node&#34;&#34;&#34;
 
-# if using 8 bit nodenums this will be shortend on the target
 BROADCAST_NUM = 0xffffffff
+&#34;&#34;&#34;if using 8 bit nodenums this will be shortend on the target&#34;&#34;&#34;
 
-&#34;&#34;&#34;A special ID that means broadcast&#34;&#34;&#34;
 BROADCAST_ADDR = &#34;^all&#34;
+&#34;&#34;&#34;A special ID that means broadcast&#34;&#34;&#34;
 
-
+OUR_APP_VERSION = 20200
 &#34;&#34;&#34;The numeric buildnumber (shared with android apps) specifying the
    level of device code we are guaranteed to understand
 
    format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 &#34;&#34;&#34;
-OUR_APP_VERSION = 20200
 
 publishingThread = DeferredExecution(&#34;publishing&#34;)
 
@@ -242,10 +244,11 @@ def _onNodeInfoReceive(iface, asDict):
 
 
 def _receiveInfoUpdate(iface, asDict):
-    iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;lastReceived&#34;] = asDict
-    iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;lastHeard&#34;] = asDict.get(&#34;rxTime&#34;)
-    iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;snr&#34;] = asDict.get(&#34;rxSnr&#34;)
-    iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;hopLimit&#34;] = asDict.get(&#34;hopLimit&#34;)
+    if &#34;from&#34; in asDict:
+        iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;lastReceived&#34;] = asDict
+        iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;lastHeard&#34;] = asDict.get(&#34;rxTime&#34;)
+        iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;snr&#34;] = asDict.get(&#34;rxSnr&#34;)
+        iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;hopLimit&#34;] = asDict.get(&#34;hopLimit&#34;)
 
 
 &#34;&#34;&#34;Well known message payloads can register decoders for automatic protobuf parsing&#34;&#34;&#34;
@@ -368,13 +371,21 @@ messages and report back if successful.</p></div>
 <dl>
 <dt id="meshtastic.BROADCAST_ADDR"><code class="name">var <span class="ident">BROADCAST_ADDR</span></code></dt>
 <dd>
-<div class="desc"><p>The numeric buildnumber (shared with android apps) specifying the
-level of device code we are guaranteed to understand</p>
-<p>format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20</p></div>
+<div class="desc"><p>A special ID that means broadcast</p></div>
 </dd>
 <dt id="meshtastic.BROADCAST_NUM"><code class="name">var <span class="ident">BROADCAST_NUM</span></code></dt>
 <dd>
-<div class="desc"><p>A special ID that means broadcast</p></div>
+<div class="desc"><p>if using 8 bit nodenums this will be shortend on the target</p></div>
+</dd>
+<dt id="meshtastic.LOCAL_ADDR"><code class="name">var <span class="ident">LOCAL_ADDR</span></code></dt>
+<dd>
+<div class="desc"><p>A special ID that means the local node</p></div>
+</dd>
+<dt id="meshtastic.OUR_APP_VERSION"><code class="name">var <span class="ident">OUR_APP_VERSION</span></code></dt>
+<dd>
+<div class="desc"><p>The numeric buildnumber (shared with android apps) specifying the
+level of device code we are guaranteed to understand</p>
+<p>format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20</p></div>
 </dd>
 </dl>
 </section>
@@ -495,6 +506,8 @@ level of device code we are guaranteed to understand</p>
 <ul class="">
 <li><code><a title="meshtastic.BROADCAST_ADDR" href="#meshtastic.BROADCAST_ADDR">BROADCAST_ADDR</a></code></li>
 <li><code><a title="meshtastic.BROADCAST_NUM" href="#meshtastic.BROADCAST_NUM">BROADCAST_NUM</a></code></li>
+<li><code><a title="meshtastic.LOCAL_ADDR" href="#meshtastic.LOCAL_ADDR">LOCAL_ADDR</a></code></li>
+<li><code><a title="meshtastic.OUR_APP_VERSION" href="#meshtastic.OUR_APP_VERSION">OUR_APP_VERSION</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

@@ -45,6 +45,14 @@ import pkg_resources
 blacklistVids = dict.fromkeys([0x1366])
 
 
+def quoteBooleans(a_string):
+    &#34;&#34;&#34;Quote booleans
+        given a string that contains &#34;: true&#34;, replace with &#34;: &#39;true&#39;&#34; (or false)
+    &#34;&#34;&#34;
+    tmp = a_string.replace(&#34;: true&#34;, &#34;: &#39;true&#39;&#34;)
+    tmp = tmp.replace(&#34;: false&#34;, &#34;: &#39;false&#39;&#34;)
+    return tmp
+
 def genPSK256():
     &#34;&#34;&#34;Generate a random preshared key&#34;&#34;&#34;
     return os.urandom(32)
@@ -123,7 +131,7 @@ def fixme(message):
 
 
 def catchAndIgnore(reason, closure):
-    &#34;&#34;&#34;Call a closure but if it throws an excpetion print it and continue&#34;&#34;&#34;
+    &#34;&#34;&#34;Call a closure but if it throws an exception print it and continue&#34;&#34;&#34;
     try:
         closure()
     except BaseException as ex:
@@ -235,13 +243,13 @@ def support_info():
 <span>def <span class="ident">catchAndIgnore</span></span>(<span>reason, closure)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Call a closure but if it throws an excpetion print it and continue</p></div>
+<div class="desc"><p>Call a closure but if it throws an exception print it and continue</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def catchAndIgnore(reason, closure):
-    &#34;&#34;&#34;Call a closure but if it throws an excpetion print it and continue&#34;&#34;&#34;
+    &#34;&#34;&#34;Call a closure but if it throws an exception print it and continue&#34;&#34;&#34;
     try:
         closure()
     except BaseException as ex:
@@ -411,6 +419,25 @@ return_value defaults to 1 (non-successful)</p></div>
             return f&#34;simple{b - 1}&#34;
     else:
         return &#34;secret&#34;</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.util.quoteBooleans"><code class="name flex">
+<span>def <span class="ident">quoteBooleans</span></span>(<span>a_string)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Quote booleans
+given a string that contains ": true", replace with ": 'true'" (or false)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def quoteBooleans(a_string):
+    &#34;&#34;&#34;Quote booleans
+        given a string that contains &#34;: true&#34;, replace with &#34;: &#39;true&#39;&#34; (or false)
+    &#34;&#34;&#34;
+    tmp = a_string.replace(&#34;: true&#34;, &#34;: &#39;true&#39;&#34;)
+    tmp = tmp.replace(&#34;: false&#34;, &#34;: &#39;false&#39;&#34;)
+    return tmp</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.util.stripnl"><code class="name flex">
@@ -626,6 +653,7 @@ return_value defaults to 1 (non-successful)</p></div>
 <li><code><a title="meshtastic.util.genPSK256" href="#meshtastic.util.genPSK256">genPSK256</a></code></li>
 <li><code><a title="meshtastic.util.our_exit" href="#meshtastic.util.our_exit">our_exit</a></code></li>
 <li><code><a title="meshtastic.util.pskToString" href="#meshtastic.util.pskToString">pskToString</a></code></li>
+<li><code><a title="meshtastic.util.quoteBooleans" href="#meshtastic.util.quoteBooleans">quoteBooleans</a></code></li>
 <li><code><a title="meshtastic.util.stripnl" href="#meshtastic.util.stripnl">stripnl</a></code></li>
 <li><code><a title="meshtastic.util.support_info" href="#meshtastic.util.support_info">support_info</a></code></li>
 </ul>

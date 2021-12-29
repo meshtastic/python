@@ -31,9 +31,12 @@
 
 import argparse
 
+from unittest.mock import MagicMock
 import pytest
 
 from meshtastic.__main__ import Globals
+from ..mesh_interface import MeshInterface
+
 
 @pytest.fixture
 def reset_globals():
@@ -41,7 +44,50 @@ def reset_globals():
     parser = None
     parser = argparse.ArgumentParser()
     Globals.getInstance().reset()
-    Globals.getInstance().set_parser(parser)</code></pre>
+    Globals.getInstance().set_parser(parser)
+
+
+@pytest.fixture
+def iface_with_nodes():
+    &#34;&#34;&#34;Fixture to setup some nodes.&#34;&#34;&#34;
+    nodesById = {
+            &#39;!9388f81c&#39;: {
+                &#39;num&#39;: 2475227164,
+                &#39;user&#39;: {
+                    &#39;id&#39;: &#39;!9388f81c&#39;,
+                    &#39;longName&#39;: &#39;Unknown f81c&#39;,
+                    &#39;shortName&#39;: &#39;?1C&#39;,
+                    &#39;macaddr&#39;: &#39;RBeTiPgc&#39;,
+                    &#39;hwModel&#39;: &#39;TBEAM&#39;
+                    },
+                &#39;position&#39;: {},
+                &#39;lastHeard&#39;: 1640204888
+                }
+            }
+
+    nodesByNum = {
+            2475227164: {
+                &#39;num&#39;: 2475227164,
+                &#39;user&#39;: {
+                    &#39;id&#39;: &#39;!9388f81c&#39;,
+                    &#39;longName&#39;: &#39;Unknown f81c&#39;,
+                    &#39;shortName&#39;: &#39;?1C&#39;,
+                    &#39;macaddr&#39;: &#39;RBeTiPgc&#39;,
+                    &#39;hwModel&#39;: &#39;TBEAM&#39;
+                    },
+                &#39;position&#39;: {
+                    &#39;time&#39;: 1640206266
+                    },
+                &#39;lastHeard&#39;: 1640206266
+                }
+            }
+    iface = MeshInterface(noProto=True)
+    iface.nodes = nodesById
+    iface.nodesByNum = nodesByNum
+    myInfo = MagicMock()
+    iface.myInfo = myInfo
+    iface.myInfo.my_node_num = 2475227164
+    return iface</code></pre>
 </details>
 </section>
 <section>
@@ -51,6 +97,58 @@ def reset_globals():
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="meshtastic.tests.conftest.iface_with_nodes"><code class="name flex">
+<span>def <span class="ident">iface_with_nodes</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fixture to setup some nodes.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.fixture
+def iface_with_nodes():
+    &#34;&#34;&#34;Fixture to setup some nodes.&#34;&#34;&#34;
+    nodesById = {
+            &#39;!9388f81c&#39;: {
+                &#39;num&#39;: 2475227164,
+                &#39;user&#39;: {
+                    &#39;id&#39;: &#39;!9388f81c&#39;,
+                    &#39;longName&#39;: &#39;Unknown f81c&#39;,
+                    &#39;shortName&#39;: &#39;?1C&#39;,
+                    &#39;macaddr&#39;: &#39;RBeTiPgc&#39;,
+                    &#39;hwModel&#39;: &#39;TBEAM&#39;
+                    },
+                &#39;position&#39;: {},
+                &#39;lastHeard&#39;: 1640204888
+                }
+            }
+
+    nodesByNum = {
+            2475227164: {
+                &#39;num&#39;: 2475227164,
+                &#39;user&#39;: {
+                    &#39;id&#39;: &#39;!9388f81c&#39;,
+                    &#39;longName&#39;: &#39;Unknown f81c&#39;,
+                    &#39;shortName&#39;: &#39;?1C&#39;,
+                    &#39;macaddr&#39;: &#39;RBeTiPgc&#39;,
+                    &#39;hwModel&#39;: &#39;TBEAM&#39;
+                    },
+                &#39;position&#39;: {
+                    &#39;time&#39;: 1640206266
+                    },
+                &#39;lastHeard&#39;: 1640206266
+                }
+            }
+    iface = MeshInterface(noProto=True)
+    iface.nodes = nodesById
+    iface.nodesByNum = nodesByNum
+    myInfo = MagicMock()
+    iface.myInfo = myInfo
+    iface.myInfo.my_node_num = 2475227164
+    return iface</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.tests.conftest.reset_globals"><code class="name flex">
 <span>def <span class="ident">reset_globals</span></span>(<span>)</span>
 </code></dt>
@@ -87,6 +185,7 @@ def reset_globals():
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="meshtastic.tests.conftest.iface_with_nodes" href="#meshtastic.tests.conftest.iface_with_nodes">iface_with_nodes</a></code></li>
 <li><code><a title="meshtastic.tests.conftest.reset_globals" href="#meshtastic.tests.conftest.reset_globals">reset_globals</a></code></li>
 </ul>
 </li>
