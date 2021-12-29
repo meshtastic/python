@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="generator" content="pdoc 0.10.1.dev1+g4aa70de.d20211229" />
 <title>meshtastic.stream_interface API documentation</title>
 <meta name="description" content="Stream Interface base class" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -410,6 +410,133 @@ device will be emitted to that stream. (default: {None})</p>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="meshtastic.stream_interface.StreamInterface._StreamInterface__reader"><code class="name flex">
+<span>def <span class="ident">_StreamInterface__reader</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The reader thread that reads bytes from our stream</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __reader(self):
+    &#34;&#34;&#34;The reader thread that reads bytes from our stream&#34;&#34;&#34;
+    logging.debug(&#39;in __reader()&#39;)
+    empty = bytes()
+
+    try:
+        while not self._wantExit:
+            logging.debug(&#34;reading character&#34;)
+            b = self._readBytes(1)
+            logging.debug(&#34;In reader loop&#34;)
+            #logging.debug(f&#34;read returned {b}&#34;)
+            if len(b) &gt; 0:
+                c = b[0]
+                #logging.debug(f&#39;c:{c}&#39;)
+                ptr = len(self._rxBuf)
+
+                # Assume we want to append this byte, fixme use bytearray instead
+                self._rxBuf = self._rxBuf + b
+
+                if ptr == 0:  # looking for START1
+                    if c != START1:
+                        self._rxBuf = empty  # failed to find start
+                        if self.debugOut is not None:
+                            try:
+                                self.debugOut.write(b.decode(&#34;utf-8&#34;))
+                            except:
+                                self.debugOut.write(&#39;?&#39;)
+
+                elif ptr == 1:  # looking for START2
+                    if c != START2:
+                        self._rxBuf = empty  # failed to find start2
+                elif ptr &gt;= HEADER_LEN - 1:  # we&#39;ve at least got a header
+                    #logging.debug(&#39;at least we received a header&#39;)
+                    # big endian length follows header
+                    packetlen = (self._rxBuf[2] &lt;&lt; 8) + self._rxBuf[3]
+
+                    if ptr == HEADER_LEN - 1:  # we _just_ finished reading the header, validate length
+                        if packetlen &gt; MAX_TO_FROM_RADIO_SIZE:
+                            self._rxBuf = empty  # length was out out bounds, restart
+
+                    if len(self._rxBuf) != 0 and ptr + 1 &gt;= packetlen + HEADER_LEN:
+                        try:
+                            self._handleFromRadio(self._rxBuf[HEADER_LEN:])
+                        except Exception as ex:
+                            logging.error(f&#34;Error while handling message from radio {ex}&#34;)
+                            traceback.print_exc()
+                        self._rxBuf = empty
+            else:
+                # logging.debug(f&#34;timeout&#34;)
+                pass
+    except serial.SerialException as ex:
+        if not self._wantExit:  # We might intentionally get an exception during shutdown
+            logging.warning(f&#34;Meshtastic serial port disconnected, disconnecting... {ex}&#34;)
+    except OSError as ex:
+        if not self._wantExit:  # We might intentionally get an exception during shutdown
+            logging.error(f&#34;Unexpected OSError, terminating meshtastic reader... {ex}&#34;)
+    except Exception as ex:
+        logging.error(f&#34;Unexpected exception, terminating meshtastic reader... {ex}&#34;)
+    finally:
+        logging.debug(&#34;reader is exiting&#34;)
+        self._disconnected()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.stream_interface.StreamInterface._disconnected"><code class="name flex">
+<span>def <span class="ident">_disconnected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>We override the superclass implementation to close our port</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _disconnected(self):
+    &#34;&#34;&#34;We override the superclass implementation to close our port&#34;&#34;&#34;
+    MeshInterface._disconnected(self)
+
+    logging.debug(&#34;Closing our port&#34;)
+    # pylint: disable=E0203
+    if not self.stream is None:
+        # pylint: disable=E0203
+        self.stream.close()
+        # pylint: disable=W0201
+        self.stream = None</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.stream_interface.StreamInterface._readBytes"><code class="name flex">
+<span>def <span class="ident">_readBytes</span></span>(<span>self, length)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read an array of bytes from our stream</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _readBytes(self, length):
+    &#34;&#34;&#34;Read an array of bytes from our stream&#34;&#34;&#34;
+    if self.stream:
+        return self.stream.read(length)
+    else:
+        return None</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.stream_interface.StreamInterface._writeBytes"><code class="name flex">
+<span>def <span class="ident">_writeBytes</span></span>(<span>self, b)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write an array of bytes to our stream and flush</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _writeBytes(self, b):
+    &#34;&#34;&#34;Write an array of bytes to our stream and flush&#34;&#34;&#34;
+    if self.stream:  # ignore writes when stream is closed
+        self.stream.write(b)
+        self.stream.flush()</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.stream_interface.StreamInterface.close"><code class="name flex">
 <span>def <span class="ident">close</span></span>(<span>self)</span>
 </code></dt>
@@ -469,6 +596,21 @@ passed in connectNow=False you can manually start the reading thread later.</p><
 <ul class="hlist">
 <li><code><b><a title="meshtastic.mesh_interface.MeshInterface" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface">MeshInterface</a></b></code>:
 <ul class="hlist">
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._connected" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._connected">_connected</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._fixupPosition" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._fixupPosition">_fixupPosition</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._generatePacketId" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._generatePacketId">_generatePacketId</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._getOrCreateByNum" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._getOrCreateByNum">_getOrCreateByNum</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._handleConfigComplete" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._handleConfigComplete">_handleConfigComplete</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._handleFromRadio" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._handleFromRadio">_handleFromRadio</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._handlePacketFromRadio" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._handlePacketFromRadio">_handlePacketFromRadio</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._nodeNumToId" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._nodeNumToId">_nodeNumToId</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendDisconnect" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendDisconnect">_sendDisconnect</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendPacket" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendPacket">_sendPacket</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendToRadio" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendToRadio">_sendToRadio</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendToRadioImpl" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendToRadioImpl">_sendToRadioImpl</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._startConfig" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._startConfig">_startConfig</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._startHeartbeat" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._startHeartbeat">_startHeartbeat</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._waitConnected" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._waitConnected">_waitConnected</a></code></li>
 <li><code><a title="meshtastic.mesh_interface.MeshInterface.getLongName" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface.getLongName">getLongName</a></code></li>
 <li><code><a title="meshtastic.mesh_interface.MeshInterface.getMyNodeInfo" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface.getMyNodeInfo">getMyNodeInfo</a></code></li>
 <li><code><a title="meshtastic.mesh_interface.MeshInterface.getMyUser" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface.getMyUser">getMyUser</a></code></li>
@@ -503,6 +645,10 @@ passed in connectNow=False you can manually start the reading thread later.</p><
 <li>
 <h4><code><a title="meshtastic.stream_interface.StreamInterface" href="#meshtastic.stream_interface.StreamInterface">StreamInterface</a></code></h4>
 <ul class="">
+<li><code><a title="meshtastic.stream_interface.StreamInterface._StreamInterface__reader" href="#meshtastic.stream_interface.StreamInterface._StreamInterface__reader">_StreamInterface__reader</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._disconnected" href="#meshtastic.stream_interface.StreamInterface._disconnected">_disconnected</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._readBytes" href="#meshtastic.stream_interface.StreamInterface._readBytes">_readBytes</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._writeBytes" href="#meshtastic.stream_interface.StreamInterface._writeBytes">_writeBytes</a></code></li>
 <li><code><a title="meshtastic.stream_interface.StreamInterface.close" href="#meshtastic.stream_interface.StreamInterface.close">close</a></code></li>
 <li><code><a title="meshtastic.stream_interface.StreamInterface.connect" href="#meshtastic.stream_interface.StreamInterface.connect">connect</a></code></li>
 </ul>
@@ -513,7 +659,7 @@ passed in connectNow=False you can manually start the reading thread later.</p><
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.1.dev1+g4aa70de.d20211229</a>.</p>
 </footer>
 </body>
 </html>

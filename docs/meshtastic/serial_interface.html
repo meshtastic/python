@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="generator" content="pdoc 0.10.1.dev1+g4aa70de.d20211229" />
 <title>meshtastic.serial_interface API documentation</title>
 <meta name="description" content="Serial interface class" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -202,10 +202,75 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <li><a title="meshtastic.stream_interface.StreamInterface" href="stream_interface.html#meshtastic.stream_interface.StreamInterface">StreamInterface</a></li>
 <li><a title="meshtastic.mesh_interface.MeshInterface" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface">MeshInterface</a></li>
 </ul>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.serial_interface.SerialInterface._hostPlatformAlwaysDrivesUartRts"><code class="name flex">
+<span>def <span class="ident">_hostPlatformAlwaysDrivesUartRts</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _hostPlatformAlwaysDrivesUartRts(self):
+    # OS-X/Windows seems to have a bug in its CP21xx serial drivers.  It ignores that we asked for no RTSCTS
+    # control and will always drive RTS either high or low (rather than letting the CP102 leave
+    # it as an open-collector floating pin).
+    # TODO: When WSL2 supports USB passthrough, this will get messier.  If/when WSL2 gets virtual serial
+    # ports that &#34;share&#34; the Windows serial port (and thus the Windows drivers), this code will need to be
+    # updated to reflect that as well -- or if T-Beams get made with an alternate USB to UART bridge that has
+    # a less buggy driver.
+    return platform.system() != &#39;Linux&#39; or self._isWsl1()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.serial_interface.SerialInterface._isWsl1"><code class="name flex">
+<span>def <span class="ident">_isWsl1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _isWsl1(self):
+    # WSL1 identifies itself as Linux, but has a special char device at /dev/lxss for use with session control,
+    # e.g. /init.  We should treat WSL1 as Windows for the RTS-driving hack because the underlying platfrom
+    # serial driver for the CP21xx still exhibits the buggy behavior.
+    # WSL2 is not covered here, as it does not (as of 2021-May-25) support the appropriate functionality to
+    # share or pass-through serial ports.
+    try:
+        # Claims to be Linux, but has /dev/lxss; must be WSL 1
+        return platform.system() == &#39;Linux&#39; and stat.S_ISCHR(os.stat(&#39;/dev/lxss&#39;).st_mode)
+    except:
+        # Couldn&#39;t stat /dev/lxss special device; not WSL1
+        return False</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="meshtastic.stream_interface.StreamInterface" href="stream_interface.html#meshtastic.stream_interface.StreamInterface">StreamInterface</a></b></code>:
 <ul class="hlist">
+<li><code><a title="meshtastic.stream_interface.StreamInterface._StreamInterface__reader" href="stream_interface.html#meshtastic.stream_interface.StreamInterface._StreamInterface__reader">_StreamInterface__reader</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._connected" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._connected">_connected</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._disconnected" href="stream_interface.html#meshtastic.stream_interface.StreamInterface._disconnected">_disconnected</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._fixupPosition" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._fixupPosition">_fixupPosition</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._generatePacketId" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._generatePacketId">_generatePacketId</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._getOrCreateByNum" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._getOrCreateByNum">_getOrCreateByNum</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._handleConfigComplete" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._handleConfigComplete">_handleConfigComplete</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._handleFromRadio" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._handleFromRadio">_handleFromRadio</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._handlePacketFromRadio" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._handlePacketFromRadio">_handlePacketFromRadio</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._nodeNumToId" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._nodeNumToId">_nodeNumToId</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._readBytes" href="stream_interface.html#meshtastic.stream_interface.StreamInterface._readBytes">_readBytes</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._sendDisconnect" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendDisconnect">_sendDisconnect</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._sendPacket" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendPacket">_sendPacket</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._sendToRadio" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendToRadio">_sendToRadio</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._sendToRadioImpl" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendToRadioImpl">_sendToRadioImpl</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._startConfig" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._startConfig">_startConfig</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._startHeartbeat" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._startHeartbeat">_startHeartbeat</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._waitConnected" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._waitConnected">_waitConnected</a></code></li>
+<li><code><a title="meshtastic.stream_interface.StreamInterface._writeBytes" href="stream_interface.html#meshtastic.stream_interface.StreamInterface._writeBytes">_writeBytes</a></code></li>
 <li><code><a title="meshtastic.stream_interface.StreamInterface.close" href="stream_interface.html#meshtastic.stream_interface.StreamInterface.close">close</a></code></li>
 <li><code><a title="meshtastic.stream_interface.StreamInterface.connect" href="stream_interface.html#meshtastic.stream_interface.StreamInterface.connect">connect</a></code></li>
 <li><code><a title="meshtastic.stream_interface.StreamInterface.getLongName" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface.getLongName">getLongName</a></code></li>
@@ -241,6 +306,10 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 <ul>
 <li>
 <h4><code><a title="meshtastic.serial_interface.SerialInterface" href="#meshtastic.serial_interface.SerialInterface">SerialInterface</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.serial_interface.SerialInterface._hostPlatformAlwaysDrivesUartRts" href="#meshtastic.serial_interface.SerialInterface._hostPlatformAlwaysDrivesUartRts">_hostPlatformAlwaysDrivesUartRts</a></code></li>
+<li><code><a title="meshtastic.serial_interface.SerialInterface._isWsl1" href="#meshtastic.serial_interface.SerialInterface._isWsl1">_isWsl1</a></code></li>
+</ul>
 </li>
 </ul>
 </li>
@@ -248,7 +317,7 @@ debugOut {stream} &ndash; If a stream is provided, any debug serial output from 
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.1.dev1+g4aa70de.d20211229</a>.</p>
 </footer>
 </body>
 </html>

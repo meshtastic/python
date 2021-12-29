@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="generator" content="pdoc 0.10.1.dev1+g4aa70de.d20211229" />
 <title>meshtastic.mesh_interface API documentation</title>
 <meta name="description" content="Mesh Interface class" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -1395,6 +1395,555 @@ link - just be a dumb serial client.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="meshtastic.mesh_interface.MeshInterface._addResponseHandler"><code class="name flex">
+<span>def <span class="ident">_addResponseHandler</span></span>(<span>self, requestId, callback)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _addResponseHandler(self, requestId, callback):
+    self.responseHandlers[requestId] = ResponseHandler(callback)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._connected"><code class="name flex">
+<span>def <span class="ident">_connected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Called by this class to tell clients we are now fully connected to a node</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _connected(self):
+    &#34;&#34;&#34;Called by this class to tell clients we are now fully connected to a node
+    &#34;&#34;&#34;
+    # (because I&#39;m lazy) _connected might be called when remote Node
+    # objects complete their config reads, don&#39;t generate redundant isConnected
+    # for the local interface
+    if not self.isConnected.is_set():
+        self.isConnected.set()
+        self._startHeartbeat()
+        publishingThread.queueWork(lambda: pub.sendMessage(
+            &#34;meshtastic.connection.established&#34;, interface=self))</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._disconnected"><code class="name flex">
+<span>def <span class="ident">_disconnected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Called by subclasses to tell clients this interface has disconnected</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _disconnected(self):
+    &#34;&#34;&#34;Called by subclasses to tell clients this interface has disconnected&#34;&#34;&#34;
+    self.isConnected.clear()
+    publishingThread.queueWork(lambda: pub.sendMessage(
+        &#34;meshtastic.connection.lost&#34;, interface=self))</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._fixupPosition"><code class="name flex">
+<span>def <span class="ident">_fixupPosition</span></span>(<span>self, position)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert integer lat/lon into floats</p>
+<h2 id="arguments">Arguments</h2>
+<p>position {Position dictionary} &ndash; object ot fix up</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _fixupPosition(self, position):
+    &#34;&#34;&#34;Convert integer lat/lon into floats
+
+    Arguments:
+        position {Position dictionary} -- object ot fix up
+    &#34;&#34;&#34;
+    if &#34;latitudeI&#34; in position:
+        position[&#34;latitude&#34;] = position[&#34;latitudeI&#34;] * 1e-7
+    if &#34;longitudeI&#34; in position:
+        position[&#34;longitude&#34;] = position[&#34;longitudeI&#34;] * 1e-7</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._generatePacketId"><code class="name flex">
+<span>def <span class="ident">_generatePacketId</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a new unique packet ID</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _generatePacketId(self):
+    &#34;&#34;&#34;Get a new unique packet ID&#34;&#34;&#34;
+    if self.currentPacketId is None:
+        raise Exception(&#34;Not connected yet, can not generate packet&#34;)
+    else:
+        self.currentPacketId = (self.currentPacketId + 1) &amp; 0xffffffff
+        return self.currentPacketId</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._getOrCreateByNum"><code class="name flex">
+<span>def <span class="ident">_getOrCreateByNum</span></span>(<span>self, nodeNum)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given a nodenum find the NodeInfo in the DB (or create if necessary)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _getOrCreateByNum(self, nodeNum):
+    &#34;&#34;&#34;Given a nodenum find the NodeInfo in the DB (or create if necessary)&#34;&#34;&#34;
+    if nodeNum == BROADCAST_NUM:
+        raise Exception(&#34;Can not create/find nodenum by the broadcast num&#34;)
+
+    if nodeNum in self.nodesByNum:
+        return self.nodesByNum[nodeNum]
+    else:
+        n = {&#34;num&#34;: nodeNum}  # Create a minimial node db entry
+        self.nodesByNum[nodeNum] = n
+        return n</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._handleConfigComplete"><code class="name flex">
+<span>def <span class="ident">_handleConfigComplete</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Done with initial config messages, now send regular MeshPackets
+to ask for settings and channels</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _handleConfigComplete(self):
+    &#34;&#34;&#34;
+    Done with initial config messages, now send regular MeshPackets
+    to ask for settings and channels
+    &#34;&#34;&#34;
+    self.localNode.requestConfig()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._handleFromRadio"><code class="name flex">
+<span>def <span class="ident">_handleFromRadio</span></span>(<span>self, fromRadioBytes)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Handle a packet that arrived from the radio(update model and publish events)</p>
+<p>Called by subclasses.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _handleFromRadio(self, fromRadioBytes):
+    &#34;&#34;&#34;
+    Handle a packet that arrived from the radio(update model and publish events)
+
+    Called by subclasses.&#34;&#34;&#34;
+    fromRadio = mesh_pb2.FromRadio()
+    fromRadio.ParseFromString(fromRadioBytes)
+    logging.debug(f&#34;in mesh_interface.py _handleFromRadio() fromRadioBytes: {fromRadioBytes}&#34;)
+    asDict = google.protobuf.json_format.MessageToDict(fromRadio)
+    logging.debug(f&#34;Received from radio: {fromRadio}&#34;)
+    if fromRadio.HasField(&#34;my_info&#34;):
+        self.myInfo = fromRadio.my_info
+        self.localNode.nodeNum = self.myInfo.my_node_num
+        logging.debug(f&#34;Received myinfo: {stripnl(fromRadio.my_info)}&#34;)
+
+        failmsg = None
+        # Check for app too old
+        if self.myInfo.min_app_version &gt; OUR_APP_VERSION:
+            failmsg = &#34;This device needs a newer python client, run &#39;pip install --upgrade meshtastic&#39;.&#34;\
+                      &#34;For more information see https://tinyurl.com/5bjsxu32&#34;
+
+        # check for firmware too old
+        if self.myInfo.max_channels == 0:
+            failmsg = &#34;This version of meshtastic-python requires device firmware version 1.2 or later. &#34;\
+                      &#34;For more information see https://tinyurl.com/5bjsxu32&#34;
+
+        if failmsg:
+            self.failure = Exception(failmsg)
+            self.isConnected.set()  # let waitConnected return this exception
+            self.close()
+
+    elif fromRadio.HasField(&#34;node_info&#34;):
+        node = asDict[&#34;nodeInfo&#34;]
+        try:
+            self._fixupPosition(node[&#34;position&#34;])
+        except:
+            logging.debug(&#34;Node without position&#34;)
+
+        logging.debug(f&#34;Received nodeinfo: {node}&#34;)
+
+        self.nodesByNum[node[&#34;num&#34;]] = node
+        if &#34;user&#34; in node:  # Some nodes might not have user/ids assigned yet
+            if &#34;id&#34; in node[&#34;user&#34;]:
+                self.nodes[node[&#34;user&#34;][&#34;id&#34;]] = node
+        publishingThread.queueWork(lambda: pub.sendMessage(&#34;meshtastic.node.updated&#34;,
+                                                           node=node, interface=self))
+    elif fromRadio.config_complete_id == self.configId:
+        # we ignore the config_complete_id, it is unneeded for our
+        # stream API fromRadio.config_complete_id
+        logging.debug(f&#34;Config complete ID {self.configId}&#34;)
+        self._handleConfigComplete()
+    elif fromRadio.HasField(&#34;packet&#34;):
+        self._handlePacketFromRadio(fromRadio.packet)
+    elif fromRadio.rebooted:
+        # Tell clients the device went away.  Careful not to call the overridden
+        # subclass version that closes the serial port
+        MeshInterface._disconnected(self)
+
+        self._startConfig()  # redownload the node db etc...
+    else:
+        logging.debug(&#34;Unexpected FromRadio payload&#34;)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._handlePacketFromRadio"><code class="name flex">
+<span>def <span class="ident">_handlePacketFromRadio</span></span>(<span>self, meshPacket, hack=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Handle a MeshPacket that just arrived from the radio</p>
+<p>hack - well, since we used 'from', which is a python keyword,
+as an attribute to MeshPacket in protobufs,
+there really is no way to do something like this:
+meshPacket = mesh_pb2.MeshPacket()
+meshPacket.from = 123
+If hack is True, we can unit test this code.</p>
+<p>Will publish one of the following events:
+- meshtastic.receive.text(packet = MeshPacket dictionary)
+- meshtastic.receive.position(packet = MeshPacket dictionary)
+- meshtastic.receive.user(packet = MeshPacket dictionary)
+- meshtastic.receive.data(packet = MeshPacket dictionary)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _handlePacketFromRadio(self, meshPacket, hack=False):
+    &#34;&#34;&#34;Handle a MeshPacket that just arrived from the radio
+
+    hack - well, since we used &#39;from&#39;, which is a python keyword,
+           as an attribute to MeshPacket in protobufs,
+           there really is no way to do something like this:
+                meshPacket = mesh_pb2.MeshPacket()
+                meshPacket.from = 123
+           If hack is True, we can unit test this code.
+
+    Will publish one of the following events:
+    - meshtastic.receive.text(packet = MeshPacket dictionary)
+    - meshtastic.receive.position(packet = MeshPacket dictionary)
+    - meshtastic.receive.user(packet = MeshPacket dictionary)
+    - meshtastic.receive.data(packet = MeshPacket dictionary)
+    &#34;&#34;&#34;
+    asDict = google.protobuf.json_format.MessageToDict(meshPacket)
+
+    # We normally decompose the payload into a dictionary so that the client
+    # doesn&#39;t need to understand protobufs.  But advanced clients might
+    # want the raw protobuf, so we provide it in &#34;raw&#34;
+    asDict[&#34;raw&#34;] = meshPacket
+
+    # from might be missing if the nodenum was zero.
+    if not hack and &#34;from&#34; not in asDict:
+        asDict[&#34;from&#34;] = 0
+        logging.error(f&#34;Device returned a packet we sent, ignoring: {stripnl(asDict)}&#34;)
+        print(f&#34;Error: Device returned a packet we sent, ignoring: {stripnl(asDict)}&#34;)
+        return
+    if &#34;to&#34; not in asDict:
+        asDict[&#34;to&#34;] = 0
+
+    # /add fromId and toId fields based on the node ID
+    try:
+        asDict[&#34;fromId&#34;] = self._nodeNumToId(asDict[&#34;from&#34;])
+    except Exception as ex:
+        logging.warning(f&#34;Not populating fromId {ex}&#34;)
+    try:
+        asDict[&#34;toId&#34;] = self._nodeNumToId(asDict[&#34;to&#34;])
+    except Exception as ex:
+        logging.warning(f&#34;Not populating toId {ex}&#34;)
+
+    # We could provide our objects as DotMaps - which work with . notation or as dictionaries
+    # asObj = DotMap(asDict)
+    topic = &#34;meshtastic.receive&#34;  # Generic unknown packet type
+
+    decoded = asDict[&#34;decoded&#34;]
+    # The default MessageToDict converts byte arrays into base64 strings.
+    # We don&#39;t want that - it messes up data payload.  So slam in the correct
+    # byte array.
+    decoded[&#34;payload&#34;] = meshPacket.decoded.payload
+
+    # UNKNOWN_APP is the default protobuf portnum value, and therefore if not
+    # set it will not be populated at all to make API usage easier, set
+    # it to prevent confusion
+    if &#34;portnum&#34; not in decoded:
+        new_portnum = portnums_pb2.PortNum.Name(portnums_pb2.PortNum.UNKNOWN_APP)
+        decoded[&#34;portnum&#34;] = new_portnum
+        logging.warning(f&#34;portnum was not in decoded. Setting to:{new_portnum}&#34;)
+
+    portnum = decoded[&#34;portnum&#34;]
+
+    topic = f&#34;meshtastic.receive.data.{portnum}&#34;
+
+    # decode position protobufs and update nodedb, provide decoded version
+    # as &#34;position&#34; in the published msg move the following into a &#39;decoders&#39;
+    # API that clients could register?
+    portNumInt = meshPacket.decoded.portnum  # we want portnum as an int
+    handler = protocols.get(portNumInt)
+    # The decoded protobuf as a dictionary (if we understand this message)
+    p = None
+    if handler is not None:
+        topic = f&#34;meshtastic.receive.{handler.name}&#34;
+
+        # Convert to protobuf if possible
+        if handler.protobufFactory is not None:
+            pb = handler.protobufFactory()
+            pb.ParseFromString(meshPacket.decoded.payload)
+            p = google.protobuf.json_format.MessageToDict(pb)
+            asDict[&#34;decoded&#34;][handler.name] = p
+            # Also provide the protobuf raw
+            asDict[&#34;decoded&#34;][handler.name][&#34;raw&#34;] = pb
+
+        # Call specialized onReceive if necessary
+        if handler.onReceive is not None:
+            handler.onReceive(self, asDict)
+
+    # Is this message in response to a request, if so, look for a handler
+    requestId = decoded.get(&#34;requestId&#34;)
+    if requestId is not None:
+        # We ignore ACK packets, but send NAKs and data responses to the handlers
+        routing = decoded.get(&#34;routing&#34;)
+        isAck = routing is not None and (&#34;errorReason&#34; not in routing)
+        if not isAck:
+            # we keep the responseHandler in dict until we get a non ack
+            handler = self.responseHandlers.pop(requestId, None)
+            if handler is not None:
+                handler.callback(asDict)
+
+    logging.debug(f&#34;Publishing {topic}: packet={stripnl(asDict)} &#34;)
+    publishingThread.queueWork(lambda: pub.sendMessage(
+        topic, packet=asDict, interface=self))</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._nodeNumToId"><code class="name flex">
+<span>def <span class="ident">_nodeNumToId</span></span>(<span>self, num)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Map a node node number to a node ID</p>
+<h2 id="arguments">Arguments</h2>
+<p>num {int} &ndash; Node number</p>
+<h2 id="returns">Returns</h2>
+<p>string &ndash; Node ID</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _nodeNumToId(self, num):
+    &#34;&#34;&#34;Map a node node number to a node ID
+
+    Arguments:
+        num {int} -- Node number
+
+    Returns:
+        string -- Node ID
+    &#34;&#34;&#34;
+    if num == BROADCAST_NUM:
+        return BROADCAST_ADDR
+
+    try:
+        return self.nodesByNum[num][&#34;user&#34;][&#34;id&#34;]
+    except:
+        logging.debug(f&#34;Node {num} not found for fromId&#34;)
+        return None</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._sendDisconnect"><code class="name flex">
+<span>def <span class="ident">_sendDisconnect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Tell device we are done using it</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _sendDisconnect(self):
+    &#34;&#34;&#34;Tell device we are done using it&#34;&#34;&#34;
+    m = mesh_pb2.ToRadio()
+    m.disconnect = True
+    self._sendToRadio(m)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._sendPacket"><code class="name flex">
+<span>def <span class="ident">_sendPacket</span></span>(<span>self, meshPacket, destinationId='^all', wantAck=False, hopLimit=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send a MeshPacket to the specified node (or if unspecified, broadcast).
+You probably don't want this - use sendData instead.</p>
+<p>Returns the sent packet. The id field will be populated in this packet and
+can be used to track future message acks/naks.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _sendPacket(self, meshPacket,
+                destinationId=BROADCAST_ADDR,
+                wantAck=False, hopLimit=None):
+    &#34;&#34;&#34;Send a MeshPacket to the specified node (or if unspecified, broadcast).
+    You probably don&#39;t want this - use sendData instead.
+
+    Returns the sent packet. The id field will be populated in this packet and
+    can be used to track future message acks/naks.
+    &#34;&#34;&#34;
+    if hopLimit is None:
+        hopLimit = self.defaultHopLimit
+
+    # We allow users to talk to the local node before we&#39;ve completed the full connection flow...
+    if(self.myInfo is not None and destinationId != self.myInfo.my_node_num):
+        self._waitConnected()
+
+    toRadio = mesh_pb2.ToRadio()
+
+    nodeNum = 0
+    if destinationId is None:
+        our_exit(&#34;Warning: destinationId must not be None&#34;)
+    elif isinstance(destinationId, int):
+        nodeNum = destinationId
+    elif destinationId == BROADCAST_ADDR:
+        nodeNum = BROADCAST_NUM
+    elif destinationId == LOCAL_ADDR:
+        if self.myInfo:
+            nodeNum = self.myInfo.my_node_num
+        else:
+            our_exit(&#34;Warning: No myInfo found.&#34;)
+    # A simple hex style nodeid - we can parse this without needing the DB
+    elif destinationId.startswith(&#34;!&#34;):
+        nodeNum = int(destinationId[1:], 16)
+    else:
+        if self.nodes:
+            node = self.nodes.get(destinationId)
+            if not node:
+                our_exit(f&#34;Warning: NodeId {destinationId} not found in DB&#34;)
+            nodeNum = node[&#39;num&#39;]
+        else:
+            logging.warning(&#34;Warning: There were no self.nodes.&#34;)
+
+    meshPacket.to = nodeNum
+    meshPacket.want_ack = wantAck
+    meshPacket.hop_limit = hopLimit
+
+    # if the user hasn&#39;t set an ID for this packet (likely and recommended),
+    # we should pick a new unique ID so the message can be tracked.
+    if meshPacket.id == 0:
+        meshPacket.id = self._generatePacketId()
+
+    toRadio.packet.CopyFrom(meshPacket)
+    if self.noProto:
+        logging.warning(f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
+    else:
+        logging.debug(f&#34;Sending packet: {stripnl(meshPacket)}&#34;)
+        self._sendToRadio(toRadio)
+    return meshPacket</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._sendToRadio"><code class="name flex">
+<span>def <span class="ident">_sendToRadio</span></span>(<span>self, toRadio)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send a ToRadio protobuf to the device</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _sendToRadio(self, toRadio):
+    &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
+    if self.noProto:
+        logging.warning(f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
+    else:
+        #logging.debug(f&#34;Sending toRadio: {stripnl(toRadio)}&#34;)
+        self._sendToRadioImpl(toRadio)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._sendToRadioImpl"><code class="name flex">
+<span>def <span class="ident">_sendToRadioImpl</span></span>(<span>self, toRadio)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send a ToRadio protobuf to the device</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _sendToRadioImpl(self, toRadio):
+    &#34;&#34;&#34;Send a ToRadio protobuf to the device&#34;&#34;&#34;
+    logging.error(f&#34;Subclass must provide toradio: {toRadio}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._startConfig"><code class="name flex">
+<span>def <span class="ident">_startConfig</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Start device packets flowing</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _startConfig(self):
+    &#34;&#34;&#34;Start device packets flowing&#34;&#34;&#34;
+    self.myInfo = None
+    self.nodes = {}  # nodes keyed by ID
+    self.nodesByNum = {}  # nodes keyed by nodenum
+
+    startConfig = mesh_pb2.ToRadio()
+    self.configId = random.randint(0, 0xffffffff)
+    startConfig.want_config_id = self.configId
+    self._sendToRadio(startConfig)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._startHeartbeat"><code class="name flex">
+<span>def <span class="ident">_startHeartbeat</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>We need to send a heartbeat message to the device every X seconds</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _startHeartbeat(self):
+    &#34;&#34;&#34;We need to send a heartbeat message to the device every X seconds&#34;&#34;&#34;
+    def callback():
+        self.heartbeatTimer = None
+        prefs = self.localNode.radioConfig.preferences
+        i = prefs.phone_timeout_secs / 2
+        logging.debug(f&#34;Sending heartbeat, interval {i}&#34;)
+        if i != 0:
+            self.heartbeatTimer = threading.Timer(i, callback)
+            self.heartbeatTimer.start()
+            p = mesh_pb2.ToRadio()
+            self._sendToRadio(p)
+
+    callback()  # run our periodic callback now, it will make another timer if necessary</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.mesh_interface.MeshInterface._waitConnected"><code class="name flex">
+<span>def <span class="ident">_waitConnected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Block until the initial node db download is complete, or timeout
+and raise an exception</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _waitConnected(self):
+    &#34;&#34;&#34;Block until the initial node db download is complete, or timeout
+    and raise an exception&#34;&#34;&#34;
+    if not self.noProto:
+        if not self.isConnected.wait(15.0):  # timeout after x seconds
+            raise Exception(&#34;Timed out waiting for connection completion&#34;)
+
+    # If we failed while connecting, raise the connection to the client
+    if self.failure:
+        raise self.failure</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.mesh_interface.MeshInterface.close"><code class="name flex">
 <span>def <span class="ident">close</span></span>(<span>self)</span>
 </code></dt>
@@ -1824,7 +2373,24 @@ and can be used to track future message acks/naks.</p></div>
 <ul>
 <li>
 <h4><code><a title="meshtastic.mesh_interface.MeshInterface" href="#meshtastic.mesh_interface.MeshInterface">MeshInterface</a></code></h4>
-<ul class="two-column">
+<ul class="">
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._addResponseHandler" href="#meshtastic.mesh_interface.MeshInterface._addResponseHandler">_addResponseHandler</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._connected" href="#meshtastic.mesh_interface.MeshInterface._connected">_connected</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._disconnected" href="#meshtastic.mesh_interface.MeshInterface._disconnected">_disconnected</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._fixupPosition" href="#meshtastic.mesh_interface.MeshInterface._fixupPosition">_fixupPosition</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._generatePacketId" href="#meshtastic.mesh_interface.MeshInterface._generatePacketId">_generatePacketId</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._getOrCreateByNum" href="#meshtastic.mesh_interface.MeshInterface._getOrCreateByNum">_getOrCreateByNum</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._handleConfigComplete" href="#meshtastic.mesh_interface.MeshInterface._handleConfigComplete">_handleConfigComplete</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._handleFromRadio" href="#meshtastic.mesh_interface.MeshInterface._handleFromRadio">_handleFromRadio</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._handlePacketFromRadio" href="#meshtastic.mesh_interface.MeshInterface._handlePacketFromRadio">_handlePacketFromRadio</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._nodeNumToId" href="#meshtastic.mesh_interface.MeshInterface._nodeNumToId">_nodeNumToId</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendDisconnect" href="#meshtastic.mesh_interface.MeshInterface._sendDisconnect">_sendDisconnect</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendPacket" href="#meshtastic.mesh_interface.MeshInterface._sendPacket">_sendPacket</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendToRadio" href="#meshtastic.mesh_interface.MeshInterface._sendToRadio">_sendToRadio</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendToRadioImpl" href="#meshtastic.mesh_interface.MeshInterface._sendToRadioImpl">_sendToRadioImpl</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._startConfig" href="#meshtastic.mesh_interface.MeshInterface._startConfig">_startConfig</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._startHeartbeat" href="#meshtastic.mesh_interface.MeshInterface._startHeartbeat">_startHeartbeat</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._waitConnected" href="#meshtastic.mesh_interface.MeshInterface._waitConnected">_waitConnected</a></code></li>
 <li><code><a title="meshtastic.mesh_interface.MeshInterface.close" href="#meshtastic.mesh_interface.MeshInterface.close">close</a></code></li>
 <li><code><a title="meshtastic.mesh_interface.MeshInterface.getLongName" href="#meshtastic.mesh_interface.MeshInterface.getLongName">getLongName</a></code></li>
 <li><code><a title="meshtastic.mesh_interface.MeshInterface.getMyNodeInfo" href="#meshtastic.mesh_interface.MeshInterface.getMyNodeInfo">getMyNodeInfo</a></code></li>
@@ -1845,7 +2411,7 @@ and can be used to track future message acks/naks.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.1.dev1+g4aa70de.d20211229</a>.</p>
 </footer>
 </body>
 </html>
