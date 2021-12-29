@@ -6,6 +6,10 @@ test:
 install:
 	pip install .
 
+# generate the docs (for local use)
+docs:
+	pdoc3 --html -f --output-dir docs meshtastic
+
 # lint the codebase
 lint:
 	pylint meshtastic
