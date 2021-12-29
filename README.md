@@ -1,7 +1,7 @@
 # Meshtastic-python
+
 [![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/meshtastic/Meshtastic-python)
 ![Unit Tests](https://github.com/meshtastic/Meshtastic-python/actions/workflows/ci.yml/badge.svg)
-
 
 A python client for using [Meshtastic](https://www.meshtastic.org) devices. This small library (and example application) provides an easy API for sending and receiving messages over mesh radios. It also provides access to any of the operations/data available in the device user interface or the Android application. Events are delivered using a publish-subscribe model, and you can subscribe to only the message types you are interested in.
 
@@ -39,7 +39,7 @@ For the rough notes/implementation plan see [TODO](https://github.com/meshtastic
 
 This pip package will also install a "meshtastic" command line executable, which displays packets sent over the network as JSON and lets you see serial debugging information from the meshtastic devices. The source code for this tool is also a good [example](https://github.com/meshtastic/Meshtastic-python/blob/master/meshtastic/__main__.py) of a 'complete' application that uses the meshtastic python API.
 
-NOTE: This command is not run inside of python; you run it from your operating system shell prompt directly.  If when you type "meshtastic" it doesn't find the command and you are using Windows: Check that the python "scripts" directory [is in your path](https://datatofish.com/add-python-to-windows-path/).
+NOTE: This command is not run inside of python; you run it from your operating system shell prompt directly. If when you type "meshtastic" it doesn't find the command and you are using Windows: Check that the python "scripts" directory [is in your path](https://datatofish.com/add-python-to-windows-path/).
 
 To display a (partial) list of the available commands:
 
@@ -87,7 +87,7 @@ For a full list of preferences which can be set (and their documentation) see [h
 
 ### Changing channel settings
 
-The channel settings can be changed similiarly.  Either by using a standard (sharable) meshtastic URL or you can set partiular channel parameters (for advanced users).
+The channel settings can be changed similiarly. Either by using a standard (sharable) meshtastic URL or you can set partiular channel parameters (for advanced users).
 
 The URL is constructed automatically based off of the current channel settings. So if you want to customize a channel you could do something like:
 
@@ -117,7 +117,7 @@ meshtastic --ch-index 1 --ch-set name mychan --ch-set channel_num 4 --info
 
 ## Ham radio support
 
-Meshtastic is designed to be used without a radio operator license.  If you do have a license you can set your operator ID and turn off encryption with:
+Meshtastic is designed to be used without a radio operator license. If you do have a license you can set your operator ID and turn off encryption with:
 
 ```
 meshtastic --port /dev/ttyUSB1 --set-ham KI1345
@@ -131,6 +131,7 @@ Writing modified channels to device
 You can put parameters into a yaml file to update multiple values. See the [example_config.yaml](example_config.yaml).
 
 This is how you might call it:
+
 ```
 meshtastic --configure example_config.yaml
 ```
@@ -141,13 +142,13 @@ This is a collection of common questions and answers from our friendly forum.
 
 ### [Permission denied: ‘/dev/ttyUSB0’](https://meshtastic.discourse.group/t/question-on-permission-denied-dev-ttyusb0/590/3?u=geeksville)
 
-This indicates an OS permission problem for access by your user to the USB serial port.  Typically this is fixed by the following.
+This indicates an OS permission problem for access by your user to the USB serial port. Typically this is fixed by the following.
 
 ```
 sudo usermod -a -G dialout $USER
 ```
 
-This adds the "dialout" group to your user.  You'll need to obtain a new login session (for example, by logging out and logging back in) for the group change (and thus permission change) to take effect.
+This adds the "dialout" group to your user. You'll need to obtain a new login session (for example, by logging out and logging back in) for the group change (and thus permission change) to take effect.
 
 ## Mac OS Big Sur
 
@@ -161,7 +162,7 @@ Afterwards you can use the Meshtastic python client again on MacOS.
 
 ## A note to developers of this lib
 
-We use the visual-studio-code default python formatting conventions (autopep8).  So if you use that IDE you should be able to use "Format Document" and not generate unrelated diffs.  If you use some other editor, please don't change formatting on lines you haven't changed.
+We use the visual-studio-code default python formatting conventions (autopep8). So if you use that IDE you should be able to use "Format Document" and not generate unrelated diffs. If you use some other editor, please don't change formatting on lines you haven't changed.
 
 If you need to build a new release you'll need:
 
@@ -171,29 +172,33 @@ sudo pip3 install markdown pdoc3 webencodings pyparsing twine autopep8 pylint py
 ```
 
 For development, you will probably want to run:
+
 ```
 pip3 install -r requirements.txt
 ```
 
-
 To lint, run:
+
 ```
 pylint meshtastic
 ```
 
 To test, first install this code locally, then run pytest:
+
 ```
 pip3 install .
 pytest
 ```
+
 Possible options for testing:
-* For more verbosity, add "-v" or even "-vv" like this:
+
+- For more verbosity, add "-v" or even "-vv" like this:
 
 ```
 pytest -vv
 ```
 
-* To run just unit tests:
+- To run just unit tests:
 
 ```
 pytest
@@ -203,13 +208,13 @@ pytest -m unit
 make
 ```
 
-* To run just integration tests:
+- To run just integration tests:
 
 ```
 pytest -m int
 ```
 
-* To run the smoke test with only one device connected serially (aka smoke1):
+- To run the smoke test with only one device connected serially (aka smoke1):
 
 ```
 pytest -m smoke1
@@ -218,19 +223,19 @@ pytest -m smoke1
 CAUTION: Running smoke1 will reset values on the device, including the region to 1 (US).
 Be sure to hit the reset button on the device after the test is completed.
 
-* To run the smoke test with only two device connected serially (aka smoke2):
+- To run the smoke test with only two device connected serially (aka smoke2):
 
 ```
 pytest -m smoke2
 ```
 
-* To run the wifi smoke test:
+- To run the wifi smoke test:
 
 ```
 pytest -m smokewifi
 ```
 
-* To run a specific test:
+- To run a specific test:
 
 ```
 pytest -msmoke1 meshtastic/tests/test_smoke1.py::test_smoke1_info
@@ -240,9 +245,9 @@ pytest -m smoke2 meshtastic/tests/test_smoke2.py::test_smoke2_info
 pytest -m smokewifi meshtastic/tests/test_smoke_wifi.py::test_smokewifi_info
 ```
 
-* To add another classification of tests such as "unit" or "smoke1", see [pytest.ini](pytest.ini).
+- To add another classification of tests such as "unit" or "smoke1", see [pytest.ini](pytest.ini).
 
-* To see the unit test code coverage:
+- To see the unit test code coverage:
 
 ```
 pytest --cov=meshtastic
@@ -252,10 +257,12 @@ pytest --cov-report html --cov=meshtastic
 make cov
 ```
 
-* To see slowest unit tests, you can run:
+- To see slowest unit tests, you can run:
 
 ```
 pytest --durations=0
 # or
 make slow
 ```
+
+[![Powered by Vercel](https://raw.githubusercontent.com/abumalick/powered-by-vercel/master/powered-by-vercel.svg)](https://vercel.com?utm_source=meshtastic&utm_campaign=oss)
