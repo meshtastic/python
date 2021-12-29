@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="generator" content="pdoc 0.10.1.dev1+g4aa70de.d20211229" />
 <title>meshtastic.node API documentation</title>
 <meta name="description" content="Node class" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -785,6 +785,149 @@ class Node:
 </details>
 <h3>Methods</h3>
 <dl>
+<dt id="meshtastic.node.Node._fillChannels"><code class="name flex">
+<span>def <span class="ident">_fillChannels</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Mark unused channels as disabled</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _fillChannels(self):
+    &#34;&#34;&#34;Mark unused channels as disabled&#34;&#34;&#34;
+
+    # Add extra disabled channels as needed
+    index = len(self.channels)
+    while index &lt; self.iface.myInfo.max_channels:
+        ch = channel_pb2.Channel()
+        ch.role = channel_pb2.Channel.Role.DISABLED
+        ch.index = index
+        self.channels.append(ch)
+        index += 1</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.node.Node._fixupChannels"><code class="name flex">
+<span>def <span class="ident">_fixupChannels</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fixup indexes and add disabled channels as needed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _fixupChannels(self):
+    &#34;&#34;&#34;Fixup indexes and add disabled channels as needed&#34;&#34;&#34;
+
+    # Add extra disabled channels as needed
+    # TODO: These 2 lines seem to not do anything.
+    for index, ch in enumerate(self.channels):
+        ch.index = index  # fixup indexes
+
+    self._fillChannels()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.node.Node._getAdminChannelIndex"><code class="name flex">
+<span>def <span class="ident">_getAdminChannelIndex</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the channel number of the admin channel, or 0 if no reserved channel</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _getAdminChannelIndex(self):
+    &#34;&#34;&#34;Return the channel number of the admin channel, or 0 if no reserved channel&#34;&#34;&#34;
+    c = self.getChannelByName(&#34;admin&#34;)
+    if c:
+        return c.index
+    else:
+        return 0</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.node.Node._requestChannel"><code class="name flex">
+<span>def <span class="ident">_requestChannel</span></span>(<span>self, channelNum: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Done with initial config messages, now send regular
+MeshPackets to ask for settings</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _requestChannel(self, channelNum: int):
+    &#34;&#34;&#34;Done with initial config messages, now send regular
+       MeshPackets to ask for settings&#34;&#34;&#34;
+    p = admin_pb2.AdminMessage()
+    p.get_channel_request = channelNum + 1
+
+    # Show progress message for super slow operations
+    if self != self.iface.localNode:
+        print(f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
+        logging.debug(f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
+    else:
+        logging.debug(f&#34;Requesting channel {channelNum}&#34;)
+
+    return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestChannel)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.node.Node._requestSettings"><code class="name flex">
+<span>def <span class="ident">_requestSettings</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Done with initial config messages, now send regular
+MeshPackets to ask for settings.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _requestSettings(self):
+    &#34;&#34;&#34;Done with initial config messages, now send regular
+       MeshPackets to ask for settings.&#34;&#34;&#34;
+    p = admin_pb2.AdminMessage()
+    p.get_radio_request = True
+
+    # Show progress message for super slow operations
+    if self != self.iface.localNode:
+        print(&#34;Requesting preferences from remote node.&#34;)
+        print(&#34;Be sure:&#34;)
+        print(&#34; 1. There is a SECONDARY channel named &#39;admin&#39;.&#34;)
+        print(&#34; 2. The &#39;--seturl&#39; was used to configure.&#34;)
+        print(&#34; 3. All devices have the same modem config. (i.e., &#39;--ch-longfast&#39;)&#34;)
+        print(&#34; 4. All devices have been rebooted after all of the above. (optional, but recommended)&#34;)
+        print(&#34;Note: This could take a while (it requests remote channel configs, then writes config)&#34;)
+
+    return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestSettings)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.node.Node._sendAdmin"><code class="name flex">
+<span>def <span class="ident">_sendAdmin</span></span>(<span>self, p: admin_pb2.AdminMessage, wantResponse=False, onResponse=None, adminIndex=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send an admin message to the specified node (or the local node if destNodeNum is zero)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
+               onResponse=None, adminIndex=0):
+    &#34;&#34;&#34;Send an admin message to the specified node (or the local node if destNodeNum is zero)&#34;&#34;&#34;
+
+    if self.noProto:
+        logging.warning(f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
+    else:
+        if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
+            adminIndex = self.iface.localNode._getAdminChannelIndex()
+        logging.debug(f&#39;adminIndex:{adminIndex}&#39;)
+
+        return self.iface.sendData(p, self.nodeNum,
+                                   portNum=portnums_pb2.PortNum.ADMIN_APP,
+                                   wantAck=True,
+                                   wantResponse=wantResponse,
+                                   onResponse=onResponse,
+                                   channelIndex=adminIndex)</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.node.Node.deleteChannel"><code class="name flex">
 <span>def <span class="ident">deleteChannel</span></span>(<span>self, channelIndex)</span>
 </code></dt>
@@ -1248,6 +1391,12 @@ returns: None if there is no channel found</p></div>
 <li>
 <h4><code><a title="meshtastic.node.Node" href="#meshtastic.node.Node">Node</a></code></h4>
 <ul class="">
+<li><code><a title="meshtastic.node.Node._fillChannels" href="#meshtastic.node.Node._fillChannels">_fillChannels</a></code></li>
+<li><code><a title="meshtastic.node.Node._fixupChannels" href="#meshtastic.node.Node._fixupChannels">_fixupChannels</a></code></li>
+<li><code><a title="meshtastic.node.Node._getAdminChannelIndex" href="#meshtastic.node.Node._getAdminChannelIndex">_getAdminChannelIndex</a></code></li>
+<li><code><a title="meshtastic.node.Node._requestChannel" href="#meshtastic.node.Node._requestChannel">_requestChannel</a></code></li>
+<li><code><a title="meshtastic.node.Node._requestSettings" href="#meshtastic.node.Node._requestSettings">_requestSettings</a></code></li>
+<li><code><a title="meshtastic.node.Node._sendAdmin" href="#meshtastic.node.Node._sendAdmin">_sendAdmin</a></code></li>
 <li><code><a title="meshtastic.node.Node.deleteChannel" href="#meshtastic.node.Node.deleteChannel">deleteChannel</a></code></li>
 <li><code><a title="meshtastic.node.Node.exitSimulator" href="#meshtastic.node.Node.exitSimulator">exitSimulator</a></code></li>
 <li><code><a title="meshtastic.node.Node.getChannelByChannelIndex" href="#meshtastic.node.Node.getChannelByChannelIndex">getChannelByChannelIndex</a></code></li>
@@ -1274,7 +1423,7 @@ returns: None if there is no channel found</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.1.dev1+g4aa70de.d20211229</a>.</p>
 </footer>
 </body>
 </html>

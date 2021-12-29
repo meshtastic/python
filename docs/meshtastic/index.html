@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="generator" content="pdoc 0.10.1.dev1+g4aa70de.d20211229" />
 <title>meshtastic API documentation</title>
 <meta name="description" content="an API for Meshtastic devices …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -390,6 +390,89 @@ level of device code we are guaranteed to understand</p>
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="meshtastic._onNodeInfoReceive"><code class="name flex">
+<span>def <span class="ident">_onNodeInfoReceive</span></span>(<span>iface, asDict)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Special auto parsing for received messages</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _onNodeInfoReceive(iface, asDict):
+    &#34;&#34;&#34;Special auto parsing for received messages&#34;&#34;&#34;
+    p = asDict[&#34;decoded&#34;][&#34;user&#34;]
+    # decode user protobufs and update nodedb, provide decoded version as &#34;position&#34; in the published msg
+    # update node DB as needed
+    n = iface._getOrCreateByNum(asDict[&#34;from&#34;])
+    n[&#34;user&#34;] = p
+    # We now have a node ID, make sure it is uptodate in that table
+    iface.nodes[p[&#34;id&#34;]] = n
+    _receiveInfoUpdate(iface, asDict)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic._onPositionReceive"><code class="name flex">
+<span>def <span class="ident">_onPositionReceive</span></span>(<span>iface, asDict)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Special auto parsing for received messages</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _onPositionReceive(iface, asDict):
+    &#34;&#34;&#34;Special auto parsing for received messages&#34;&#34;&#34;
+    p = asDict[&#34;decoded&#34;][&#34;position&#34;]
+    iface._fixupPosition(p)
+    # update node DB as needed
+    iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;position&#34;] = p</code></pre>
+</details>
+</dd>
+<dt id="meshtastic._onTextReceive"><code class="name flex">
+<span>def <span class="ident">_onTextReceive</span></span>(<span>iface, asDict)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Special text auto parsing for received messages</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _onTextReceive(iface, asDict):
+    &#34;&#34;&#34;Special text auto parsing for received messages&#34;&#34;&#34;
+    # We don&#39;t throw if the utf8 is invalid in the text message.  Instead we just don&#39;t populate
+    # the decoded.data.text and we log an error message.  This at least allows some delivery to
+    # the app and the app can deal with the missing decoded representation.
+    #
+    # Usually btw this problem is caused by apps sending binary data but setting the payload type to
+    # text.
+    try:
+        asBytes = asDict[&#34;decoded&#34;][&#34;payload&#34;]
+        asDict[&#34;decoded&#34;][&#34;text&#34;] = asBytes.decode(&#34;utf-8&#34;)
+    except Exception as ex:
+        logging.error(f&#34;Malformatted utf8 in text message: {ex}&#34;)
+    _receiveInfoUpdate(iface, asDict)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic._receiveInfoUpdate"><code class="name flex">
+<span>def <span class="ident">_receiveInfoUpdate</span></span>(<span>iface, asDict)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _receiveInfoUpdate(iface, asDict):
+    if &#34;from&#34; in asDict:
+        iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;lastReceived&#34;] = asDict
+        iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;lastHeard&#34;] = asDict.get(&#34;rxTime&#34;)
+        iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;snr&#34;] = asDict.get(&#34;rxSnr&#34;)
+        iface._getOrCreateByNum(asDict[&#34;from&#34;])[&#34;hopLimit&#34;] = asDict.get(&#34;hopLimit&#34;)</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -417,6 +500,37 @@ level of device code we are guaranteed to understand</p>
 <ul class="hlist">
 <li>builtins.tuple</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.KnownProtocol._field_defaults"><code class="name">var <span class="ident">_field_defaults</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.KnownProtocol._fields"><code class="name">var <span class="ident">_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="meshtastic.KnownProtocol._make"><code class="name flex">
+<span>def <span class="ident">_make</span></span>(<span>iterable)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Make a new KnownProtocol object from a sequence or iterable</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def _make(cls, iterable):
+    result = tuple_new(cls, iterable)
+    if _len(result) != num_fields:
+        raise TypeError(f&#39;Expected {num_fields} arguments, got {len(result)}&#39;)
+    return result</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="meshtastic.KnownProtocol.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
@@ -430,6 +544,39 @@ level of device code we are guaranteed to understand</p>
 <dt id="meshtastic.KnownProtocol.protobufFactory"><code class="name">var <span class="ident">protobufFactory</span> : Callable</code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 1</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.KnownProtocol._asdict"><code class="name flex">
+<span>def <span class="ident">_asdict</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a new dict which maps field names to their values.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _asdict(self):
+    &#39;Return a new dict which maps field names to their values.&#39;
+    return _dict(_zip(self._fields, self))</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.KnownProtocol._replace"><code class="name flex">
+<span>def <span class="ident">_replace</span></span>(<span>self, /, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a new KnownProtocol object replacing specified fields with new values</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _replace(self, /, **kwds):
+    result = self._make(_map(kwds.pop, field_names, self))
+    if kwds:
+        raise ValueError(f&#39;Got unexpected field names: {list(kwds)!r}&#39;)
+    return result</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -453,11 +600,75 @@ level of device code we are guaranteed to understand</p>
 <ul class="hlist">
 <li>builtins.tuple</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.ResponseHandler._field_defaults"><code class="name">var <span class="ident">_field_defaults</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.ResponseHandler._fields"><code class="name">var <span class="ident">_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="meshtastic.ResponseHandler._make"><code class="name flex">
+<span>def <span class="ident">_make</span></span>(<span>iterable)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Make a new ResponseHandler object from a sequence or iterable</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def _make(cls, iterable):
+    result = tuple_new(cls, iterable)
+    if _len(result) != num_fields:
+        raise TypeError(f&#39;Expected {num_fields} arguments, got {len(result)}&#39;)
+    return result</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="meshtastic.ResponseHandler.callback"><code class="name">var <span class="ident">callback</span> : Callable</code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 0</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.ResponseHandler._asdict"><code class="name flex">
+<span>def <span class="ident">_asdict</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a new dict which maps field names to their values.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _asdict(self):
+    &#39;Return a new dict which maps field names to their values.&#39;
+    return _dict(_zip(self._fields, self))</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.ResponseHandler._replace"><code class="name flex">
+<span>def <span class="ident">_replace</span></span>(<span>self, /, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a new ResponseHandler object replacing specified fields with new values</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _replace(self, /, **kwds):
+    result = self._make(_map(kwds.pop, field_names, self))
+    if kwds:
+        raise ValueError(f&#39;Got unexpected field names: {list(kwds)!r}&#39;)
+    return result</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -510,11 +721,24 @@ level of device code we are guaranteed to understand</p>
 <li><code><a title="meshtastic.OUR_APP_VERSION" href="#meshtastic.OUR_APP_VERSION">OUR_APP_VERSION</a></code></li>
 </ul>
 </li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="meshtastic._onNodeInfoReceive" href="#meshtastic._onNodeInfoReceive">_onNodeInfoReceive</a></code></li>
+<li><code><a title="meshtastic._onPositionReceive" href="#meshtastic._onPositionReceive">_onPositionReceive</a></code></li>
+<li><code><a title="meshtastic._onTextReceive" href="#meshtastic._onTextReceive">_onTextReceive</a></code></li>
+<li><code><a title="meshtastic._receiveInfoUpdate" href="#meshtastic._receiveInfoUpdate">_receiveInfoUpdate</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
 <h4><code><a title="meshtastic.KnownProtocol" href="#meshtastic.KnownProtocol">KnownProtocol</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="meshtastic.KnownProtocol._asdict" href="#meshtastic.KnownProtocol._asdict">_asdict</a></code></li>
+<li><code><a title="meshtastic.KnownProtocol._field_defaults" href="#meshtastic.KnownProtocol._field_defaults">_field_defaults</a></code></li>
+<li><code><a title="meshtastic.KnownProtocol._fields" href="#meshtastic.KnownProtocol._fields">_fields</a></code></li>
+<li><code><a title="meshtastic.KnownProtocol._make" href="#meshtastic.KnownProtocol._make">_make</a></code></li>
+<li><code><a title="meshtastic.KnownProtocol._replace" href="#meshtastic.KnownProtocol._replace">_replace</a></code></li>
 <li><code><a title="meshtastic.KnownProtocol.name" href="#meshtastic.KnownProtocol.name">name</a></code></li>
 <li><code><a title="meshtastic.KnownProtocol.onReceive" href="#meshtastic.KnownProtocol.onReceive">onReceive</a></code></li>
 <li><code><a title="meshtastic.KnownProtocol.protobufFactory" href="#meshtastic.KnownProtocol.protobufFactory">protobufFactory</a></code></li>
@@ -522,7 +746,12 @@ level of device code we are guaranteed to understand</p>
 </li>
 <li>
 <h4><code><a title="meshtastic.ResponseHandler" href="#meshtastic.ResponseHandler">ResponseHandler</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="meshtastic.ResponseHandler._asdict" href="#meshtastic.ResponseHandler._asdict">_asdict</a></code></li>
+<li><code><a title="meshtastic.ResponseHandler._field_defaults" href="#meshtastic.ResponseHandler._field_defaults">_field_defaults</a></code></li>
+<li><code><a title="meshtastic.ResponseHandler._fields" href="#meshtastic.ResponseHandler._fields">_fields</a></code></li>
+<li><code><a title="meshtastic.ResponseHandler._make" href="#meshtastic.ResponseHandler._make">_make</a></code></li>
+<li><code><a title="meshtastic.ResponseHandler._replace" href="#meshtastic.ResponseHandler._replace">_replace</a></code></li>
 <li><code><a title="meshtastic.ResponseHandler.callback" href="#meshtastic.ResponseHandler.callback">callback</a></code></li>
 </ul>
 </li>
@@ -532,7 +761,7 @@ level of device code we are guaranteed to understand</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.1.dev1+g4aa70de.d20211229</a>.</p>
 </footer>
 </body>
 </html>

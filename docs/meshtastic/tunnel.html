@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="generator" content="pdoc 0.10.1.dev1+g4aa70de.d20211229" />
 <title>meshtastic.tunnel API documentation</title>
 <meta name="description" content="Code for IP tunnel over a mesh …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -492,6 +492,118 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
 </details>
 <h3>Methods</h3>
 <dl>
+<dt id="meshtastic.tunnel.Tunnel._Tunnel__tunReader"><code class="name flex">
+<span>def <span class="ident">_Tunnel__tunReader</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __tunReader(self):
+    tap = self.tun
+    logging.debug(&#34;TUN reader running&#34;)
+    while True:
+        p = tap.read()
+        #logging.debug(f&#34;IP packet received on TUN interface, type={type(p)}&#34;)
+        destAddr = p[16:20]
+
+        if not self._shouldFilterPacket(p):
+            self.sendPacket(destAddr, p)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tunnel.Tunnel._ipToNodeId"><code class="name flex">
+<span>def <span class="ident">_ipToNodeId</span></span>(<span>self, ipAddr)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _ipToNodeId(self, ipAddr):
+    # We only consider the last 16 bits of the nodenum for IP address matching
+    ipBits = ipAddr[2] * 256 + ipAddr[3]
+
+    if ipBits == 0xffff:
+        return &#34;^all&#34;
+
+    for node in self.iface.nodes.values():
+        nodeNum = node[&#34;num&#34;] &amp; 0xffff
+        # logging.debug(f&#34;Considering nodenum 0x{nodeNum:x} for ipBits 0x{ipBits:x}&#34;)
+        if (nodeNum) == ipBits:
+            return node[&#34;user&#34;][&#34;id&#34;]
+    return None</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tunnel.Tunnel._nodeNumToIp"><code class="name flex">
+<span>def <span class="ident">_nodeNumToIp</span></span>(<span>self, nodeNum)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _nodeNumToIp(self, nodeNum):
+    return f&#34;{self.subnetPrefix}.{(nodeNum &gt;&gt; 8) &amp; 0xff}.{nodeNum &amp; 0xff}&#34;</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tunnel.Tunnel._shouldFilterPacket"><code class="name flex">
+<span>def <span class="ident">_shouldFilterPacket</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given a packet, decode it and return true if it should be ignored</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _shouldFilterPacket(self, p):
+    &#34;&#34;&#34;Given a packet, decode it and return true if it should be ignored&#34;&#34;&#34;
+    protocol = p[8 + 1]
+    srcaddr = p[12:16]
+    destAddr = p[16:20]
+    subheader = 20
+    ignore = False  # Assume we will be forwarding the packet
+    if protocol in protocolBlacklist:
+        ignore = True
+        logging.log(
+            LOG_TRACE, f&#34;Ignoring blacklisted protocol 0x{protocol:02x}&#34;)
+    elif protocol == 0x01:  # ICMP
+        icmpType = p[20]
+        icmpCode = p[21]
+        checksum = p[22:24]
+        # pylint: disable=line-too-long
+        logging.debug(f&#34;forwarding ICMP message src={ipstr(srcaddr)}, dest={ipstr(destAddr)}, type={icmpType}, code={icmpCode}, checksum={checksum}&#34;)
+        # reply to pings (swap src and dest but keep rest of packet unchanged)
+        #pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
+        # tap.write(pingback)
+    elif protocol == 0x11:  # UDP
+        srcport = readnet_u16(p, subheader)
+        destport = readnet_u16(p, subheader + 2)
+        if destport in udpBlacklist:
+            ignore = True
+            logging.log(
+                LOG_TRACE, f&#34;ignoring blacklisted UDP port {destport}&#34;)
+        else:
+            logging.debug(
+                f&#34;forwarding udp srcport={srcport}, destport={destport}&#34;)
+    elif protocol == 0x06:  # TCP
+        srcport = readnet_u16(p, subheader)
+        destport = readnet_u16(p, subheader + 2)
+        if destport in tcpBlacklist:
+            ignore = True
+            logging.log(LOG_TRACE, f&#34;ignoring blacklisted TCP port {destport}&#34;)
+        else:
+            logging.debug(f&#34;forwarding tcp srcport={srcport}, destport={destport}&#34;)
+    else:
+        logging.warning(f&#34;forwarding unexpected protocol 0x{protocol:02x}, &#34;\
+                         &#34;src={ipstr(srcaddr)}, dest={ipstr(destAddr)}&#34;)
+
+    return ignore</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.tunnel.Tunnel.close"><code class="name flex">
 <span>def <span class="ident">close</span></span>(<span>self)</span>
 </code></dt>
@@ -597,7 +709,11 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
 <ul>
 <li>
 <h4><code><a title="meshtastic.tunnel.Tunnel" href="#meshtastic.tunnel.Tunnel">Tunnel</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="meshtastic.tunnel.Tunnel._Tunnel__tunReader" href="#meshtastic.tunnel.Tunnel._Tunnel__tunReader">_Tunnel__tunReader</a></code></li>
+<li><code><a title="meshtastic.tunnel.Tunnel._ipToNodeId" href="#meshtastic.tunnel.Tunnel._ipToNodeId">_ipToNodeId</a></code></li>
+<li><code><a title="meshtastic.tunnel.Tunnel._nodeNumToIp" href="#meshtastic.tunnel.Tunnel._nodeNumToIp">_nodeNumToIp</a></code></li>
+<li><code><a title="meshtastic.tunnel.Tunnel._shouldFilterPacket" href="#meshtastic.tunnel.Tunnel._shouldFilterPacket">_shouldFilterPacket</a></code></li>
 <li><code><a title="meshtastic.tunnel.Tunnel.close" href="#meshtastic.tunnel.Tunnel.close">close</a></code></li>
 <li><code><a title="meshtastic.tunnel.Tunnel.onReceive" href="#meshtastic.tunnel.Tunnel.onReceive">onReceive</a></code></li>
 <li><code><a title="meshtastic.tunnel.Tunnel.sendPacket" href="#meshtastic.tunnel.Tunnel.sendPacket">sendPacket</a></code></li>
@@ -609,7 +725,7 @@ subnet is used to construct our network number (normally 10.115.x.x)</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.1.dev1+g4aa70de.d20211229</a>.</p>
 </footer>
 </body>
 </html>

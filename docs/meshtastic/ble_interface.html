@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="generator" content="pdoc 0.10.1.dev1+g4aa70de.d20211229" />
 <title>meshtastic.ble_interface API documentation</title>
 <meta name="description" content="Bluetooth interface" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -161,10 +161,49 @@ link - just be a dumb serial client.</p></div>
 <ul class="hlist">
 <li><a title="meshtastic.mesh_interface.MeshInterface" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface">MeshInterface</a></li>
 </ul>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.ble_interface.BLEInterface._readFromRadio"><code class="name flex">
+<span>def <span class="ident">_readFromRadio</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _readFromRadio(self):
+    if not self.noProto:
+        wasEmpty = False
+        while not wasEmpty:
+            if self.device:
+                b = self.device.char_read(FROMRADIO_UUID)
+                wasEmpty = len(b) == 0
+                if not wasEmpty:
+                    self._handleFromRadio(b)</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="meshtastic.mesh_interface.MeshInterface" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface">MeshInterface</a></b></code>:
 <ul class="hlist">
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._connected" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._connected">_connected</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._disconnected" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._disconnected">_disconnected</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._fixupPosition" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._fixupPosition">_fixupPosition</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._generatePacketId" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._generatePacketId">_generatePacketId</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._getOrCreateByNum" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._getOrCreateByNum">_getOrCreateByNum</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._handleConfigComplete" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._handleConfigComplete">_handleConfigComplete</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._handleFromRadio" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._handleFromRadio">_handleFromRadio</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._handlePacketFromRadio" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._handlePacketFromRadio">_handlePacketFromRadio</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._nodeNumToId" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._nodeNumToId">_nodeNumToId</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendDisconnect" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendDisconnect">_sendDisconnect</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendPacket" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendPacket">_sendPacket</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendToRadio" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendToRadio">_sendToRadio</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._sendToRadioImpl" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._sendToRadioImpl">_sendToRadioImpl</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._startConfig" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._startConfig">_startConfig</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._startHeartbeat" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._startHeartbeat">_startHeartbeat</a></code></li>
+<li><code><a title="meshtastic.mesh_interface.MeshInterface._waitConnected" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface._waitConnected">_waitConnected</a></code></li>
 <li><code><a title="meshtastic.mesh_interface.MeshInterface.close" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface.close">close</a></code></li>
 <li><code><a title="meshtastic.mesh_interface.MeshInterface.getLongName" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface.getLongName">getLongName</a></code></li>
 <li><code><a title="meshtastic.mesh_interface.MeshInterface.getMyNodeInfo" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface.getMyNodeInfo">getMyNodeInfo</a></code></li>
@@ -199,6 +238,9 @@ link - just be a dumb serial client.</p></div>
 <ul>
 <li>
 <h4><code><a title="meshtastic.ble_interface.BLEInterface" href="#meshtastic.ble_interface.BLEInterface">BLEInterface</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.ble_interface.BLEInterface._readFromRadio" href="#meshtastic.ble_interface.BLEInterface._readFromRadio">_readFromRadio</a></code></li>
+</ul>
 </li>
 </ul>
 </li>
@@ -206,7 +248,7 @@ link - just be a dumb serial client.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.1.dev1+g4aa70de.d20211229</a>.</p>
 </footer>
 </body>
 </html>
