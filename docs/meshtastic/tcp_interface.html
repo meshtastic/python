@@ -46,18 +46,29 @@ class TCPInterface(StreamInterface):
             hostname {string} -- Hostname/IP address of the device to connect to
         &#34;&#34;&#34;
 
-        logging.debug(f&#34;Connecting to {hostname}&#34;)
-
-        server_address = (hostname, portNumber)
-        sock = socket.create_connection(server_address)
-
         # Instead of wrapping as a stream, we use the native socket API
         # self.stream = sock.makefile(&#39;rw&#39;)
         self.stream = None
-        self.socket = sock
 
-        StreamInterface.__init__(
-            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
+        self.hostname = hostname
+        self.portNumber = portNumber
+
+        if connectNow:
+            logging.debug(f&#34;Connecting to {hostname}&#34;)
+            server_address = (hostname, portNumber)
+            sock = socket.create_connection(server_address)
+            self.socket = sock
+        else:
+            self.socket = None
+
+        StreamInterface.__init__(self, debugOut=debugOut, noProto=noProto,
+                                 connectNow=connectNow)
+
+    def myConnect(self):
+        &#34;&#34;&#34;Connect to socket&#34;&#34;&#34;
+        server_address = (self.hostname, self.portNumber)
+        sock = socket.create_connection(server_address)
+        self.socket = sock
 
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
@@ -115,18 +126,29 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
             hostname {string} -- Hostname/IP address of the device to connect to
         &#34;&#34;&#34;
 
-        logging.debug(f&#34;Connecting to {hostname}&#34;)
-
-        server_address = (hostname, portNumber)
-        sock = socket.create_connection(server_address)
-
         # Instead of wrapping as a stream, we use the native socket API
         # self.stream = sock.makefile(&#39;rw&#39;)
         self.stream = None
-        self.socket = sock
 
-        StreamInterface.__init__(
-            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
+        self.hostname = hostname
+        self.portNumber = portNumber
+
+        if connectNow:
+            logging.debug(f&#34;Connecting to {hostname}&#34;)
+            server_address = (hostname, portNumber)
+            sock = socket.create_connection(server_address)
+            self.socket = sock
+        else:
+            self.socket = None
+
+        StreamInterface.__init__(self, debugOut=debugOut, noProto=noProto,
+                                 connectNow=connectNow)
+
+    def myConnect(self):
+        &#34;&#34;&#34;Connect to socket&#34;&#34;&#34;
+        server_address = (self.hostname, self.portNumber)
+        sock = socket.create_connection(server_address)
+        self.socket = sock
 
     def close(self):
         &#34;&#34;&#34;Close a connection to the device&#34;&#34;&#34;
@@ -155,6 +177,25 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <li><a title="meshtastic.stream_interface.StreamInterface" href="stream_interface.html#meshtastic.stream_interface.StreamInterface">StreamInterface</a></li>
 <li><a title="meshtastic.mesh_interface.MeshInterface" href="mesh_interface.html#meshtastic.mesh_interface.MeshInterface">MeshInterface</a></li>
 </ul>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.tcp_interface.TCPInterface.myConnect"><code class="name flex">
+<span>def <span class="ident">myConnect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Connect to socket</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def myConnect(self):
+    &#34;&#34;&#34;Connect to socket&#34;&#34;&#34;
+    server_address = (self.hostname, self.portNumber)
+    sock = socket.create_connection(server_address)
+    self.socket = sock</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="meshtastic.stream_interface.StreamInterface" href="stream_interface.html#meshtastic.stream_interface.StreamInterface">StreamInterface</a></b></code>:
@@ -194,6 +235,9 @@ hostname {string} &ndash; Hostname/IP address of the device to connect to</p></d
 <ul>
 <li>
 <h4><code><a title="meshtastic.tcp_interface.TCPInterface" href="#meshtastic.tcp_interface.TCPInterface">TCPInterface</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.tcp_interface.TCPInterface.myConnect" href="#meshtastic.tcp_interface.TCPInterface.myConnect">myConnect</a></code></li>
+</ul>
 </li>
 </ul>
 </li>

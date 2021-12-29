@@ -133,7 +133,7 @@ def test_smoke1_debug():
     &#34;&#34;&#34;Test --debug&#34;&#34;&#34;
     return_value, out = subprocess.getstatusoutput(&#39;meshtastic --info --debug&#39;)
     assert re.search(r&#39;^Owner&#39;, out, re.MULTILINE)
-    assert re.search(r&#39;^DEBUG:root&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;^DEBUG file&#39;, out, re.MULTILINE)
     assert return_value == 0
 
 
@@ -296,11 +296,11 @@ def test_smoke1_ch_values():
     &#34;&#34;&#34;
     exp = {
             &#39;--ch-longslow&#39;: &#39;Bw125Cr48Sf4096&#39;,
-            # TODO: not sure why these fail thru tests, but ok manually
-            #&#39;--ch-longfast&#39;: &#39;Bw31_25Cr48Sf512&#39;,
-            #&#39;--ch-mediumslow&#39;: &#39;Bw250Cr46Sf2048&#39;,
-            #&#39;--ch-mediumfast&#39;: &#39;Bw250Cr47Sf1024&#39;,
-            # TODO &#39;--ch-shortslow&#39;: &#39;?&#39;,
+            &#39;--ch-longfast&#39;: &#39;Bw31_25Cr48Sf512&#39;,
+            &#39;--ch-mediumslow&#39;: &#39;Bw250Cr46Sf2048&#39;,
+            &#39;--ch-mediumfast&#39;: &#39;Bw250Cr47Sf1024&#39;,
+            # for some reason, this value does not show any modemConfig
+            &#39;--ch-shortslow&#39;: &#39;{ &#34;psk&#39;,
             &#39;--ch-shortfast&#39;: &#39;Bw500Cr45Sf128&#39;
           }
 
@@ -1106,11 +1106,11 @@ def test_smoke1_ch_values():
     &#34;&#34;&#34;
     exp = {
             &#39;--ch-longslow&#39;: &#39;Bw125Cr48Sf4096&#39;,
-            # TODO: not sure why these fail thru tests, but ok manually
-            #&#39;--ch-longfast&#39;: &#39;Bw31_25Cr48Sf512&#39;,
-            #&#39;--ch-mediumslow&#39;: &#39;Bw250Cr46Sf2048&#39;,
-            #&#39;--ch-mediumfast&#39;: &#39;Bw250Cr47Sf1024&#39;,
-            # TODO &#39;--ch-shortslow&#39;: &#39;?&#39;,
+            &#39;--ch-longfast&#39;: &#39;Bw31_25Cr48Sf512&#39;,
+            &#39;--ch-mediumslow&#39;: &#39;Bw250Cr46Sf2048&#39;,
+            &#39;--ch-mediumfast&#39;: &#39;Bw250Cr47Sf1024&#39;,
+            # for some reason, this value does not show any modemConfig
+            &#39;--ch-shortslow&#39;: &#39;{ &#34;psk&#39;,
             &#39;--ch-shortfast&#39;: &#39;Bw500Cr45Sf128&#39;
           }
 
@@ -1172,7 +1172,7 @@ def test_smoke1_debug():
     &#34;&#34;&#34;Test --debug&#34;&#34;&#34;
     return_value, out = subprocess.getstatusoutput(&#39;meshtastic --info --debug&#39;)
     assert re.search(r&#39;^Owner&#39;, out, re.MULTILINE)
-    assert re.search(r&#39;^DEBUG:root&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;^DEBUG file&#39;, out, re.MULTILINE)
     assert return_value == 0</code></pre>
 </details>
 </dd>

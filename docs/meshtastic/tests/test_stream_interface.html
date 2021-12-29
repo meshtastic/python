@@ -29,7 +29,10 @@
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Meshtastic unit tests for stream_interface.py&#34;&#34;&#34;
 
+import logging
+import re
 
+from unittest.mock import MagicMock
 import pytest
 
 from ..stream_interface import StreamInterface
@@ -37,10 +40,74 @@ from ..stream_interface import StreamInterface
 
 @pytest.mark.unit
 def test_StreamInterface():
-    &#34;&#34;&#34;Test that we can instantiate a StreamInterface&#34;&#34;&#34;
+    &#34;&#34;&#34;Test that we cannot instantiate a StreamInterface based on noProto&#34;&#34;&#34;
     with pytest.raises(Exception) as pytest_wrapped_e:
-        StreamInterface(noProto=True)
-    assert pytest_wrapped_e.type == Exception</code></pre>
+        StreamInterface()
+    assert pytest_wrapped_e.type == Exception
+
+
+# Note: This takes a bit, so moving from unit to slow
+@pytest.mark.unitslow
+def test_StreamInterface_with_noProto(caplog, reset_globals):
+    &#34;&#34;&#34;Test that we can instantiate a StreamInterface based on nonProto
+       and we can read/write bytes from a mocked stream
+    &#34;&#34;&#34;
+    stream = MagicMock()
+    test_data = b&#39;hello&#39;
+    stream.read.return_value = test_data
+    with caplog.at_level(logging.DEBUG):
+        iface = StreamInterface(noProto=True, connectNow=False)
+        iface.stream = stream
+        iface._writeBytes(test_data)
+        data = iface._readBytes(len(test_data))
+        assert data == test_data
+
+
+# Note: This takes a bit, so moving from unit to slow
+# Tip: If you want to see the print output, run with &#39;-s&#39; flag:
+#      pytest -s meshtastic/tests/test_stream_interface.py::test_sendToRadioImpl
+@pytest.mark.unitslow
+def test_sendToRadioImpl(caplog, reset_globals):
+    &#34;&#34;&#34;Test _sendToRadioImpl()&#34;&#34;&#34;
+
+#    def add_header(b):
+#        &#34;&#34;&#34;Add header stuffs for radio&#34;&#34;&#34;
+#        bufLen = len(b)
+#        header = bytes([START1, START2, (bufLen &gt;&gt; 8) &amp; 0xff,  bufLen &amp; 0xff])
+#        return header + b
+
+    # captured raw bytes of a Heltec2.1 radio with 2 channels (primary and a secondary channel named &#34;gpio&#34;)
+    raw_1_my_info = b&#39;\x1a,\x08\xdc\x8c\xd5\xc5\x02\x18\r2\x0e1.2.49.5354c49P\x15]\xe1%\x17Eh\xe0\xa7\x12p\xe8\x9d\x01x\x08\x90\x01\x01&#39;
+    raw_2_node_info = b&#39;&#34;9\x08\xdc\x8c\xd5\xc5\x02\x12(\n\t!28b5465c\x12\x0cUnknown 465c\x1a\x03?5C&#34;\x06$o(\xb5F\\0\n\x1a\x02 1%M&lt;\xc6a&#39;
+    # pylint: disable=C0301
+    raw_3_node_info = b&#39;&#34;C\x08\xa4\x8c\xd5\xc5\x02\x12(\n\t!28b54624\x12\x0cUnknown 4624\x1a\x03?24&#34;\x06$o(\xb5F$0\n\x1a\x07 5MH&lt;\xc6a%G&lt;\xc6a=\x00\x00\xc0@&#39;
+    raw_4_complete = b&#39;@\xcf\xe5\xd1\x8c\x0e&#39;
+    # pylint: disable=C0301
+    raw_5_prefs = b&#39;Z6\r\\F\xb5(\x15\\F\xb5(&#34;\x1c\x08\x06\x12\x13*\x11\n\x0f0\x84\x07P\xac\x02\x88\x01\x01\xb0\t#\xb8\t\x015]$\xddk5\xd5\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    # pylint: disable=C0301
+    raw_6_channel0 = b&#39;Z.\r\\F\xb5(\x15\\F\xb5(&#34;\x14\x08\x06\x12\x0b:\t\x12\x05\x18\x01&#34;\x01\x01\x18\x015^$\xddk5\xd6\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    # pylint: disable=C0301
+    raw_7_channel1 = b&#39;ZS\r\\F\xb5(\x15\\F\xb5(&#34;9\x08\x06\x120:.\x08\x01\x12(&#34; \xb4&amp;\xb3\xc7\x06\xd8\xe39%\xba\xa5\xee\x8eH\x06\xf6\xf4H\xe8\xd5\xc1[ao\xb5Y\\\xb4&#34;\xafmi*\x04gpio\x18\x025_$\xddk5\xd7\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    raw_8_channel2 = b&#39;Z)\r\\F\xb5(\x15\\F\xb5(&#34;\x0f\x08\x06\x12\x06:\x04\x08\x02\x12\x005`$\xddk5\xd8\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    raw_blank = b&#39;&#39;
+
+    test_data = b&#39;hello&#39;
+    stream = MagicMock()
+    #stream.read.return_value = add_header(test_data)
+    stream.read.side_effect = [ raw_1_my_info, raw_2_node_info, raw_3_node_info, raw_4_complete,
+                                raw_5_prefs, raw_6_channel0, raw_7_channel1, raw_8_channel2,
+                                raw_blank, raw_blank]
+    toRadio = MagicMock()
+    toRadio.SerializeToString.return_value = test_data
+    with caplog.at_level(logging.DEBUG):
+        iface = StreamInterface(noProto=True, connectNow=False)
+        iface.stream = stream
+        iface.connect()
+        iface._sendToRadioImpl(toRadio)
+        assert re.search(r&#39;Sending: &#39;, caplog.text, re.MULTILINE)
+        assert re.search(r&#39;reading character&#39;, caplog.text, re.MULTILINE)
+        assert re.search(r&#39;In reader loop&#39;, caplog.text, re.MULTILINE)
+        print(caplog.text)</code></pre>
 </details>
 </section>
 <section>
@@ -54,17 +121,96 @@ def test_StreamInterface():
 <span>def <span class="ident">test_StreamInterface</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Test that we can instantiate a StreamInterface</p></div>
+<div class="desc"><p>Test that we cannot instantiate a StreamInterface based on noProto</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@pytest.mark.unit
 def test_StreamInterface():
-    &#34;&#34;&#34;Test that we can instantiate a StreamInterface&#34;&#34;&#34;
+    &#34;&#34;&#34;Test that we cannot instantiate a StreamInterface based on noProto&#34;&#34;&#34;
     with pytest.raises(Exception) as pytest_wrapped_e:
-        StreamInterface(noProto=True)
+        StreamInterface()
     assert pytest_wrapped_e.type == Exception</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_stream_interface.test_StreamInterface_with_noProto"><code class="name flex">
+<span>def <span class="ident">test_StreamInterface_with_noProto</span></span>(<span>caplog, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that we can instantiate a StreamInterface based on nonProto
+and we can read/write bytes from a mocked stream</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unitslow
+def test_StreamInterface_with_noProto(caplog, reset_globals):
+    &#34;&#34;&#34;Test that we can instantiate a StreamInterface based on nonProto
+       and we can read/write bytes from a mocked stream
+    &#34;&#34;&#34;
+    stream = MagicMock()
+    test_data = b&#39;hello&#39;
+    stream.read.return_value = test_data
+    with caplog.at_level(logging.DEBUG):
+        iface = StreamInterface(noProto=True, connectNow=False)
+        iface.stream = stream
+        iface._writeBytes(test_data)
+        data = iface._readBytes(len(test_data))
+        assert data == test_data</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_stream_interface.test_sendToRadioImpl"><code class="name flex">
+<span>def <span class="ident">test_sendToRadioImpl</span></span>(<span>caplog, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test _sendToRadioImpl()</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unitslow
+def test_sendToRadioImpl(caplog, reset_globals):
+    &#34;&#34;&#34;Test _sendToRadioImpl()&#34;&#34;&#34;
+
+#    def add_header(b):
+#        &#34;&#34;&#34;Add header stuffs for radio&#34;&#34;&#34;
+#        bufLen = len(b)
+#        header = bytes([START1, START2, (bufLen &gt;&gt; 8) &amp; 0xff,  bufLen &amp; 0xff])
+#        return header + b
+
+    # captured raw bytes of a Heltec2.1 radio with 2 channels (primary and a secondary channel named &#34;gpio&#34;)
+    raw_1_my_info = b&#39;\x1a,\x08\xdc\x8c\xd5\xc5\x02\x18\r2\x0e1.2.49.5354c49P\x15]\xe1%\x17Eh\xe0\xa7\x12p\xe8\x9d\x01x\x08\x90\x01\x01&#39;
+    raw_2_node_info = b&#39;&#34;9\x08\xdc\x8c\xd5\xc5\x02\x12(\n\t!28b5465c\x12\x0cUnknown 465c\x1a\x03?5C&#34;\x06$o(\xb5F\\0\n\x1a\x02 1%M&lt;\xc6a&#39;
+    # pylint: disable=C0301
+    raw_3_node_info = b&#39;&#34;C\x08\xa4\x8c\xd5\xc5\x02\x12(\n\t!28b54624\x12\x0cUnknown 4624\x1a\x03?24&#34;\x06$o(\xb5F$0\n\x1a\x07 5MH&lt;\xc6a%G&lt;\xc6a=\x00\x00\xc0@&#39;
+    raw_4_complete = b&#39;@\xcf\xe5\xd1\x8c\x0e&#39;
+    # pylint: disable=C0301
+    raw_5_prefs = b&#39;Z6\r\\F\xb5(\x15\\F\xb5(&#34;\x1c\x08\x06\x12\x13*\x11\n\x0f0\x84\x07P\xac\x02\x88\x01\x01\xb0\t#\xb8\t\x015]$\xddk5\xd5\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    # pylint: disable=C0301
+    raw_6_channel0 = b&#39;Z.\r\\F\xb5(\x15\\F\xb5(&#34;\x14\x08\x06\x12\x0b:\t\x12\x05\x18\x01&#34;\x01\x01\x18\x015^$\xddk5\xd6\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    # pylint: disable=C0301
+    raw_7_channel1 = b&#39;ZS\r\\F\xb5(\x15\\F\xb5(&#34;9\x08\x06\x120:.\x08\x01\x12(&#34; \xb4&amp;\xb3\xc7\x06\xd8\xe39%\xba\xa5\xee\x8eH\x06\xf6\xf4H\xe8\xd5\xc1[ao\xb5Y\\\xb4&#34;\xafmi*\x04gpio\x18\x025_$\xddk5\xd7\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    raw_8_channel2 = b&#39;Z)\r\\F\xb5(\x15\\F\xb5(&#34;\x0f\x08\x06\x12\x06:\x04\x08\x02\x12\x005`$\xddk5\xd8\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    raw_blank = b&#39;&#39;
+
+    test_data = b&#39;hello&#39;
+    stream = MagicMock()
+    #stream.read.return_value = add_header(test_data)
+    stream.read.side_effect = [ raw_1_my_info, raw_2_node_info, raw_3_node_info, raw_4_complete,
+                                raw_5_prefs, raw_6_channel0, raw_7_channel1, raw_8_channel2,
+                                raw_blank, raw_blank]
+    toRadio = MagicMock()
+    toRadio.SerializeToString.return_value = test_data
+    with caplog.at_level(logging.DEBUG):
+        iface = StreamInterface(noProto=True, connectNow=False)
+        iface.stream = stream
+        iface.connect()
+        iface._sendToRadioImpl(toRadio)
+        assert re.search(r&#39;Sending: &#39;, caplog.text, re.MULTILINE)
+        assert re.search(r&#39;reading character&#39;, caplog.text, re.MULTILINE)
+        assert re.search(r&#39;In reader loop&#39;, caplog.text, re.MULTILINE)
+        print(caplog.text)</code></pre>
 </details>
 </dd>
 </dl>
@@ -86,6 +232,8 @@ def test_StreamInterface():
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="meshtastic.tests.test_stream_interface.test_StreamInterface" href="#meshtastic.tests.test_stream_interface.test_StreamInterface">test_StreamInterface</a></code></li>
+<li><code><a title="meshtastic.tests.test_stream_interface.test_StreamInterface_with_noProto" href="#meshtastic.tests.test_stream_interface.test_StreamInterface_with_noProto">test_StreamInterface_with_noProto</a></code></li>
+<li><code><a title="meshtastic.tests.test_stream_interface.test_sendToRadioImpl" href="#meshtastic.tests.test_stream_interface.test_sendToRadioImpl">test_sendToRadioImpl</a></code></li>
 </ul>
 </li>
 </ul>

@@ -37,26 +37,31 @@ from . import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
 from .util import pskToString, stripnl, Timeout, our_exit, fromPSK
 
 
+
+
 class Node:
     &#34;&#34;&#34;A model of a (local or remote) node in the mesh
 
     Includes methods for radioConfig and channels
     &#34;&#34;&#34;
 
-    def __init__(self, iface, nodeNum):
+    def __init__(self, iface, nodeNum, noProto=False):
         &#34;&#34;&#34;Constructor&#34;&#34;&#34;
         self.iface = iface
         self.nodeNum = nodeNum
         self.radioConfig = None
         self.channels = None
-        self._timeout = Timeout(maxSecs=60)
+        self._timeout = Timeout(maxSecs=300)
         self.partialChannels = None
+        self.noProto = noProto
 
     def showChannels(self):
         &#34;&#34;&#34;Show human readable description of our channels.&#34;&#34;&#34;
         print(&#34;Channels:&#34;)
         if self.channels:
+            logging.debug(f&#39;self.channels:{self.channels}&#39;)
             for c in self.channels:
+                #print(&#39;c.settings.psk:&#39;, c.settings.psk)
                 cStr = stripnl(MessageToJson(c.settings))
                 # only show if there is no psk (meaning disabled channel)
                 if c.settings.psk:
@@ -77,6 +82,7 @@ class Node:
 
     def requestConfig(self):
         &#34;&#34;&#34;Send regular MeshPackets to ask for settings and channels.&#34;&#34;&#34;
+        logging.debug(f&#34;requestConfig for nodeNum:{self.nodeNum}&#34;)
         self.radioConfig = None
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
@@ -113,6 +119,16 @@ class Node:
         self._sendAdmin(p, adminIndex=adminIndex)
         logging.debug(f&#34;Wrote channel {channelIndex}&#34;)
 
+    def getChannelByChannelIndex(self, channelIndex):
+        &#34;&#34;&#34;Get channel by channelIndex
+            channelIndex: number, typically 0-7; based on max number channels
+            returns: None if there is no channel found
+        &#34;&#34;&#34;
+        ch = None
+        if self.channels and 0 &lt;= channelIndex &lt; len(self.channels):
+            ch = self.channels[channelIndex]
+        return ch
+
     def deleteChannel(self, channelIndex):
         &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
         ch = self.channels[channelIndex]
@@ -135,7 +151,7 @@ class Node:
             # *moving* the admin channel index as we are writing
             if (self.iface.localNode == self) and index &gt;= adminIndex:
                 # We&#39;ve now passed the old location for admin index
-                # (and writen it), so we can start finding it by name again
+                # (and written it), so we can start finding it by name again
                 adminIndex = 0
 
     def getChannelByName(self, name):
@@ -162,6 +178,7 @@ class Node:
 
     def setOwner(self, long_name=None, short_name=None, is_licensed=False, team=None):
         &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
+        logging.debug(f&#34;in setOwner nodeNum:{self.nodeNum}&#34;)
         nChars = 3
         minChars = 2
         if long_name is not None:
@@ -191,6 +208,11 @@ class Node:
         if team is not None:
             p.set_owner.team = team
 
+        # Note: These debug lines are used in unit tests
+        logging.debug(f&#39;p.set_owner.long_name:{p.set_owner.long_name}:&#39;)
+        logging.debug(f&#39;p.set_owner.short_name:{p.set_owner.short_name}:&#39;)
+        logging.debug(f&#39;p.set_owner.is_licensed:{p.set_owner.is_licensed}&#39;)
+        logging.debug(f&#39;p.set_owner.team:{p.set_owner.team}&#39;)
         return self._sendAdmin(p)
 
     def getURL(self, includeAll: bool = True):
@@ -226,6 +248,7 @@ class Node:
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
 
+
         if len(channelSet.settings) == 0:
             our_exit(&#34;Warning: There were no settings.&#34;)
 
@@ -236,8 +259,26 @@ class Node:
             ch.index = i
             ch.settings.CopyFrom(chs)
             self.channels[ch.index] = ch
+            logging.debug(f&#39;Channel i:{i} ch:{ch}&#39;)
             self.writeChannel(ch.index)
             i = i + 1
+
+
+    def onResponseRequestSettings(self, p):
+        &#34;&#34;&#34;Handle the response packet for requesting settings _requestSettings()&#34;&#34;&#34;
+        logging.debug(f&#39;onResponseRequestSetting() p:{p}&#39;)
+        errorFound = False
+        if &#39;routing&#39; in p[&#34;decoded&#34;]:
+            if p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;] != &#34;NONE&#34;:
+                errorFound = True
+                print(f&#39;Error on response: {p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;]}&#39;)
+        if errorFound is False:
+            self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
+            logging.debug(f&#39;self.radioConfig:{self.radioConfig}&#39;)
+            logging.debug(&#34;Received radio config, now fetching channels...&#34;)
+            self._timeout.reset()  # We made foreward progress
+            self._requestChannel(0)  # now start fetching channels
+
 
     def _requestSettings(self):
         &#34;&#34;&#34;Done with initial config messages, now send regular
@@ -245,30 +286,24 @@ class Node:
         p = admin_pb2.AdminMessage()
         p.get_radio_request = True
 
-        def onResponse(p):
-            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
-            errorFound = False
-            if &#39;routing&#39; in p[&#34;decoded&#34;]:
-                if p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;] != &#34;NONE&#34;:
-                    errorFound = True
-                    print(f&#39;Error on response: {p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;]}&#39;)
-            if errorFound is False:
-                self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
-                logging.debug(&#34;Received radio config, now fetching channels...&#34;)
-                self._timeout.reset()  # We made foreward progress
-                self._requestChannel(0)  # now start fetching channels
-
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            print(&#34;Requesting preferences from remote node (this could take a while)&#34;)
+            print(&#34;Requesting preferences from remote node.&#34;)
+            print(&#34;Be sure:&#34;)
+            print(&#34; 1. There is a SECONDARY channel named &#39;admin&#39;.&#34;)
+            print(&#34; 2. The &#39;--seturl&#39; was used to configure.&#34;)
+            print(&#34; 3. All devices have the same modem config. (i.e., &#39;--ch-longfast&#39;)&#34;)
+            print(&#34; 4. All devices have been rebooted after all of the above. (optional, but recommended)&#34;)
+            print(&#34;Note: This could take a while (it requests remote channel configs, then writes config)&#34;)
 
-        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
+        return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestSettings)
 
     def exitSimulator(self):
         &#34;&#34;&#34;Tell a simulator node to exit (this message
            is ignored for other nodes)&#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.exit_simulator = True
+        logging.debug(&#39;in exitSimulator()&#39;)
 
         return self._sendAdmin(p)
 
@@ -302,6 +337,34 @@ class Node:
             self.channels.append(ch)
             index += 1
 
+
+    def onResponseRequestChannel(self, p):
+        &#34;&#34;&#34;Handle the response packet for requesting a channel _requestChannel()&#34;&#34;&#34;
+        logging.debug(f&#39;onResponseRequestChannel() p:{p}&#39;)
+        c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
+        self.partialChannels.append(c)
+        self._timeout.reset()  # We made foreward progress
+        logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
+        index = c.index
+
+        # for stress testing, we can always download all channels
+        fastChannelDownload = True
+
+        # Once we see a response that has NO settings, assume
+        # we are at the end of channels and stop fetching
+        quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+
+        if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
+            logging.debug(&#34;Finished downloading channels&#34;)
+
+            self.channels = self.partialChannels
+            self._fixupChannels()
+
+            # FIXME, the following should only be called after we have settings and channels
+            self.iface._connected()  # Tell everyone else we are ready to go
+        else:
+            self._requestChannel(index + 1)
+
     def _requestChannel(self, channelNum: int):
         &#34;&#34;&#34;Done with initial config messages, now send regular
            MeshPackets to ask for settings&#34;&#34;&#34;
@@ -310,51 +373,32 @@ class Node:
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            logging.info(f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
+            print(f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
+            logging.debug(f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
         else:
             logging.debug(f&#34;Requesting channel {channelNum}&#34;)
 
-        def onResponse(p):
-            &#34;&#34;&#34;A closure to handle the response packet for requesting a channel&#34;&#34;&#34;
-            c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
-            self.partialChannels.append(c)
-            self._timeout.reset()  # We made foreward progress
-            logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
-            index = c.index
+        return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestChannel)
 
-            # for stress testing, we can always download all channels
-            fastChannelDownload = True
 
-            # Once we see a response that has NO settings, assume
-            # we are at the end of channels and stop fetching
-            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
-
-            if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
-                logging.debug(&#34;Finished downloading channels&#34;)
-
-                self.channels = self.partialChannels
-                self._fixupChannels()
-
-                # FIXME, the following should only be called after we have settings and channels
-                self.iface._connected()  # Tell everone else we are ready to go
-            else:
-                self._requestChannel(index + 1)
-
-        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
-
+    # pylint: disable=R1710
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
                    onResponse=None, adminIndex=0):
         &#34;&#34;&#34;Send an admin message to the specified node (or the local node if destNodeNum is zero)&#34;&#34;&#34;
 
-        if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
-            adminIndex = self.iface.localNode._getAdminChannelIndex()
+        if self.noProto:
+            logging.warning(f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
+        else:
+            if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
+                adminIndex = self.iface.localNode._getAdminChannelIndex()
+            logging.debug(f&#39;adminIndex:{adminIndex}&#39;)
 
-        return self.iface.sendData(p, self.nodeNum,
-                                   portNum=portnums_pb2.PortNum.ADMIN_APP,
-                                   wantAck=True,
-                                   wantResponse=wantResponse,
-                                   onResponse=onResponse,
-                                   channelIndex=adminIndex)</code></pre>
+            return self.iface.sendData(p, self.nodeNum,
+                                       portNum=portnums_pb2.PortNum.ADMIN_APP,
+                                       wantAck=True,
+                                       wantResponse=wantResponse,
+                                       onResponse=onResponse,
+                                       channelIndex=adminIndex)</code></pre>
 </details>
 </section>
 <section>
@@ -368,7 +412,7 @@ class Node:
 <dl>
 <dt id="meshtastic.node.Node"><code class="flex name class">
 <span>class <span class="ident">Node</span></span>
-<span>(</span><span>iface, nodeNum)</span>
+<span>(</span><span>iface, nodeNum, noProto=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A model of a (local or remote) node in the mesh</p>
@@ -384,20 +428,23 @@ class Node:
     Includes methods for radioConfig and channels
     &#34;&#34;&#34;
 
-    def __init__(self, iface, nodeNum):
+    def __init__(self, iface, nodeNum, noProto=False):
         &#34;&#34;&#34;Constructor&#34;&#34;&#34;
         self.iface = iface
         self.nodeNum = nodeNum
         self.radioConfig = None
         self.channels = None
-        self._timeout = Timeout(maxSecs=60)
+        self._timeout = Timeout(maxSecs=300)
         self.partialChannels = None
+        self.noProto = noProto
 
     def showChannels(self):
         &#34;&#34;&#34;Show human readable description of our channels.&#34;&#34;&#34;
         print(&#34;Channels:&#34;)
         if self.channels:
+            logging.debug(f&#39;self.channels:{self.channels}&#39;)
             for c in self.channels:
+                #print(&#39;c.settings.psk:&#39;, c.settings.psk)
                 cStr = stripnl(MessageToJson(c.settings))
                 # only show if there is no psk (meaning disabled channel)
                 if c.settings.psk:
@@ -418,6 +465,7 @@ class Node:
 
     def requestConfig(self):
         &#34;&#34;&#34;Send regular MeshPackets to ask for settings and channels.&#34;&#34;&#34;
+        logging.debug(f&#34;requestConfig for nodeNum:{self.nodeNum}&#34;)
         self.radioConfig = None
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
@@ -454,6 +502,16 @@ class Node:
         self._sendAdmin(p, adminIndex=adminIndex)
         logging.debug(f&#34;Wrote channel {channelIndex}&#34;)
 
+    def getChannelByChannelIndex(self, channelIndex):
+        &#34;&#34;&#34;Get channel by channelIndex
+            channelIndex: number, typically 0-7; based on max number channels
+            returns: None if there is no channel found
+        &#34;&#34;&#34;
+        ch = None
+        if self.channels and 0 &lt;= channelIndex &lt; len(self.channels):
+            ch = self.channels[channelIndex]
+        return ch
+
     def deleteChannel(self, channelIndex):
         &#34;&#34;&#34;Delete the specifed channelIndex and shift other channels up&#34;&#34;&#34;
         ch = self.channels[channelIndex]
@@ -476,7 +534,7 @@ class Node:
             # *moving* the admin channel index as we are writing
             if (self.iface.localNode == self) and index &gt;= adminIndex:
                 # We&#39;ve now passed the old location for admin index
-                # (and writen it), so we can start finding it by name again
+                # (and written it), so we can start finding it by name again
                 adminIndex = 0
 
     def getChannelByName(self, name):
@@ -503,6 +561,7 @@ class Node:
 
     def setOwner(self, long_name=None, short_name=None, is_licensed=False, team=None):
         &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
+        logging.debug(f&#34;in setOwner nodeNum:{self.nodeNum}&#34;)
         nChars = 3
         minChars = 2
         if long_name is not None:
@@ -532,6 +591,11 @@ class Node:
         if team is not None:
             p.set_owner.team = team
 
+        # Note: These debug lines are used in unit tests
+        logging.debug(f&#39;p.set_owner.long_name:{p.set_owner.long_name}:&#39;)
+        logging.debug(f&#39;p.set_owner.short_name:{p.set_owner.short_name}:&#39;)
+        logging.debug(f&#39;p.set_owner.is_licensed:{p.set_owner.is_licensed}&#39;)
+        logging.debug(f&#39;p.set_owner.team:{p.set_owner.team}&#39;)
         return self._sendAdmin(p)
 
     def getURL(self, includeAll: bool = True):
@@ -567,6 +631,7 @@ class Node:
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
 
+
         if len(channelSet.settings) == 0:
             our_exit(&#34;Warning: There were no settings.&#34;)
 
@@ -577,8 +642,26 @@ class Node:
             ch.index = i
             ch.settings.CopyFrom(chs)
             self.channels[ch.index] = ch
+            logging.debug(f&#39;Channel i:{i} ch:{ch}&#39;)
             self.writeChannel(ch.index)
             i = i + 1
+
+
+    def onResponseRequestSettings(self, p):
+        &#34;&#34;&#34;Handle the response packet for requesting settings _requestSettings()&#34;&#34;&#34;
+        logging.debug(f&#39;onResponseRequestSetting() p:{p}&#39;)
+        errorFound = False
+        if &#39;routing&#39; in p[&#34;decoded&#34;]:
+            if p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;] != &#34;NONE&#34;:
+                errorFound = True
+                print(f&#39;Error on response: {p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;]}&#39;)
+        if errorFound is False:
+            self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
+            logging.debug(f&#39;self.radioConfig:{self.radioConfig}&#39;)
+            logging.debug(&#34;Received radio config, now fetching channels...&#34;)
+            self._timeout.reset()  # We made foreward progress
+            self._requestChannel(0)  # now start fetching channels
+
 
     def _requestSettings(self):
         &#34;&#34;&#34;Done with initial config messages, now send regular
@@ -586,30 +669,24 @@ class Node:
         p = admin_pb2.AdminMessage()
         p.get_radio_request = True
 
-        def onResponse(p):
-            &#34;&#34;&#34;A closure to handle the response packet&#34;&#34;&#34;
-            errorFound = False
-            if &#39;routing&#39; in p[&#34;decoded&#34;]:
-                if p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;] != &#34;NONE&#34;:
-                    errorFound = True
-                    print(f&#39;Error on response: {p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;]}&#39;)
-            if errorFound is False:
-                self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
-                logging.debug(&#34;Received radio config, now fetching channels...&#34;)
-                self._timeout.reset()  # We made foreward progress
-                self._requestChannel(0)  # now start fetching channels
-
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            print(&#34;Requesting preferences from remote node (this could take a while)&#34;)
+            print(&#34;Requesting preferences from remote node.&#34;)
+            print(&#34;Be sure:&#34;)
+            print(&#34; 1. There is a SECONDARY channel named &#39;admin&#39;.&#34;)
+            print(&#34; 2. The &#39;--seturl&#39; was used to configure.&#34;)
+            print(&#34; 3. All devices have the same modem config. (i.e., &#39;--ch-longfast&#39;)&#34;)
+            print(&#34; 4. All devices have been rebooted after all of the above. (optional, but recommended)&#34;)
+            print(&#34;Note: This could take a while (it requests remote channel configs, then writes config)&#34;)
 
-        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
+        return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestSettings)
 
     def exitSimulator(self):
         &#34;&#34;&#34;Tell a simulator node to exit (this message
            is ignored for other nodes)&#34;&#34;&#34;
         p = admin_pb2.AdminMessage()
         p.exit_simulator = True
+        logging.debug(&#39;in exitSimulator()&#39;)
 
         return self._sendAdmin(p)
 
@@ -643,6 +720,34 @@ class Node:
             self.channels.append(ch)
             index += 1
 
+
+    def onResponseRequestChannel(self, p):
+        &#34;&#34;&#34;Handle the response packet for requesting a channel _requestChannel()&#34;&#34;&#34;
+        logging.debug(f&#39;onResponseRequestChannel() p:{p}&#39;)
+        c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
+        self.partialChannels.append(c)
+        self._timeout.reset()  # We made foreward progress
+        logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
+        index = c.index
+
+        # for stress testing, we can always download all channels
+        fastChannelDownload = True
+
+        # Once we see a response that has NO settings, assume
+        # we are at the end of channels and stop fetching
+        quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+
+        if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
+            logging.debug(&#34;Finished downloading channels&#34;)
+
+            self.channels = self.partialChannels
+            self._fixupChannels()
+
+            # FIXME, the following should only be called after we have settings and channels
+            self.iface._connected()  # Tell everyone else we are ready to go
+        else:
+            self._requestChannel(index + 1)
+
     def _requestChannel(self, channelNum: int):
         &#34;&#34;&#34;Done with initial config messages, now send regular
            MeshPackets to ask for settings&#34;&#34;&#34;
@@ -651,51 +756,32 @@ class Node:
 
         # Show progress message for super slow operations
         if self != self.iface.localNode:
-            logging.info(f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
+            print(f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
+            logging.debug(f&#34;Requesting channel {channelNum} info from remote node (this could take a while)&#34;)
         else:
             logging.debug(f&#34;Requesting channel {channelNum}&#34;)
 
-        def onResponse(p):
-            &#34;&#34;&#34;A closure to handle the response packet for requesting a channel&#34;&#34;&#34;
-            c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
-            self.partialChannels.append(c)
-            self._timeout.reset()  # We made foreward progress
-            logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
-            index = c.index
+        return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestChannel)
 
-            # for stress testing, we can always download all channels
-            fastChannelDownload = True
 
-            # Once we see a response that has NO settings, assume
-            # we are at the end of channels and stop fetching
-            quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
-
-            if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
-                logging.debug(&#34;Finished downloading channels&#34;)
-
-                self.channels = self.partialChannels
-                self._fixupChannels()
-
-                # FIXME, the following should only be called after we have settings and channels
-                self.iface._connected()  # Tell everone else we are ready to go
-            else:
-                self._requestChannel(index + 1)
-
-        return self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
-
+    # pylint: disable=R1710
     def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
                    onResponse=None, adminIndex=0):
         &#34;&#34;&#34;Send an admin message to the specified node (or the local node if destNodeNum is zero)&#34;&#34;&#34;
 
-        if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
-            adminIndex = self.iface.localNode._getAdminChannelIndex()
+        if self.noProto:
+            logging.warning(f&#34;Not sending packet because protocol use is disabled by noProto&#34;)
+        else:
+            if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
+                adminIndex = self.iface.localNode._getAdminChannelIndex()
+            logging.debug(f&#39;adminIndex:{adminIndex}&#39;)
 
-        return self.iface.sendData(p, self.nodeNum,
-                                   portNum=portnums_pb2.PortNum.ADMIN_APP,
-                                   wantAck=True,
-                                   wantResponse=wantResponse,
-                                   onResponse=onResponse,
-                                   channelIndex=adminIndex)</code></pre>
+            return self.iface.sendData(p, self.nodeNum,
+                                       portNum=portnums_pb2.PortNum.ADMIN_APP,
+                                       wantAck=True,
+                                       wantResponse=wantResponse,
+                                       onResponse=onResponse,
+                                       channelIndex=adminIndex)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -730,7 +816,7 @@ class Node:
         # *moving* the admin channel index as we are writing
         if (self.iface.localNode == self) and index &gt;= adminIndex:
             # We&#39;ve now passed the old location for admin index
-            # (and writen it), so we can start finding it by name again
+            # (and written it), so we can start finding it by name again
             adminIndex = 0</code></pre>
 </details>
 </dd>
@@ -749,8 +835,31 @@ is ignored for other nodes)</p></div>
        is ignored for other nodes)&#34;&#34;&#34;
     p = admin_pb2.AdminMessage()
     p.exit_simulator = True
+    logging.debug(&#39;in exitSimulator()&#39;)
 
     return self._sendAdmin(p)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.node.Node.getChannelByChannelIndex"><code class="name flex">
+<span>def <span class="ident">getChannelByChannelIndex</span></span>(<span>self, channelIndex)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get channel by channelIndex
+channelIndex: number, typically 0-7; based on max number channels
+returns: None if there is no channel found</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getChannelByChannelIndex(self, channelIndex):
+    &#34;&#34;&#34;Get channel by channelIndex
+        channelIndex: number, typically 0-7; based on max number channels
+        returns: None if there is no channel found
+    &#34;&#34;&#34;
+    ch = None
+    if self.channels and 0 &lt;= channelIndex &lt; len(self.channels):
+        ch = self.channels[channelIndex]
+    return ch</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.node.Node.getChannelByName"><code class="name flex">
@@ -809,6 +918,68 @@ is ignored for other nodes)</p></div>
     return f&#34;https://www.meshtastic.org/d/#{s}&#34;.replace(&#34;=&#34;, &#34;&#34;)</code></pre>
 </details>
 </dd>
+<dt id="meshtastic.node.Node.onResponseRequestChannel"><code class="name flex">
+<span>def <span class="ident">onResponseRequestChannel</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Handle the response packet for requesting a channel _requestChannel()</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def onResponseRequestChannel(self, p):
+    &#34;&#34;&#34;Handle the response packet for requesting a channel _requestChannel()&#34;&#34;&#34;
+    logging.debug(f&#39;onResponseRequestChannel() p:{p}&#39;)
+    c = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_channel_response
+    self.partialChannels.append(c)
+    self._timeout.reset()  # We made foreward progress
+    logging.debug(f&#34;Received channel {stripnl(c)}&#34;)
+    index = c.index
+
+    # for stress testing, we can always download all channels
+    fastChannelDownload = True
+
+    # Once we see a response that has NO settings, assume
+    # we are at the end of channels and stop fetching
+    quitEarly = (c.role == channel_pb2.Channel.Role.DISABLED) and fastChannelDownload
+
+    if quitEarly or index &gt;= self.iface.myInfo.max_channels - 1:
+        logging.debug(&#34;Finished downloading channels&#34;)
+
+        self.channels = self.partialChannels
+        self._fixupChannels()
+
+        # FIXME, the following should only be called after we have settings and channels
+        self.iface._connected()  # Tell everyone else we are ready to go
+    else:
+        self._requestChannel(index + 1)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.node.Node.onResponseRequestSettings"><code class="name flex">
+<span>def <span class="ident">onResponseRequestSettings</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Handle the response packet for requesting settings _requestSettings()</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def onResponseRequestSettings(self, p):
+    &#34;&#34;&#34;Handle the response packet for requesting settings _requestSettings()&#34;&#34;&#34;
+    logging.debug(f&#39;onResponseRequestSetting() p:{p}&#39;)
+    errorFound = False
+    if &#39;routing&#39; in p[&#34;decoded&#34;]:
+        if p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;] != &#34;NONE&#34;:
+            errorFound = True
+            print(f&#39;Error on response: {p[&#34;decoded&#34;][&#34;routing&#34;][&#34;errorReason&#34;]}&#39;)
+    if errorFound is False:
+        self.radioConfig = p[&#34;decoded&#34;][&#34;admin&#34;][&#34;raw&#34;].get_radio_response
+        logging.debug(f&#39;self.radioConfig:{self.radioConfig}&#39;)
+        logging.debug(&#34;Received radio config, now fetching channels...&#34;)
+        self._timeout.reset()  # We made foreward progress
+        self._requestChannel(0)  # now start fetching channels</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.node.Node.reboot"><code class="name flex">
 <span>def <span class="ident">reboot</span></span>(<span>self, secs: int = 10)</span>
 </code></dt>
@@ -838,6 +1009,7 @@ is ignored for other nodes)</p></div>
 </summary>
 <pre><code class="python">def requestConfig(self):
     &#34;&#34;&#34;Send regular MeshPackets to ask for settings and channels.&#34;&#34;&#34;
+    logging.debug(f&#34;requestConfig for nodeNum:{self.nodeNum}&#34;)
     self.radioConfig = None
     self.channels = None
     self.partialChannels = []  # We keep our channels in a temp array until finished
@@ -856,6 +1028,7 @@ is ignored for other nodes)</p></div>
 </summary>
 <pre><code class="python">def setOwner(self, long_name=None, short_name=None, is_licensed=False, team=None):
     &#34;&#34;&#34;Set device owner name&#34;&#34;&#34;
+    logging.debug(f&#34;in setOwner nodeNum:{self.nodeNum}&#34;)
     nChars = 3
     minChars = 2
     if long_name is not None:
@@ -885,6 +1058,11 @@ is ignored for other nodes)</p></div>
     if team is not None:
         p.set_owner.team = team
 
+    # Note: These debug lines are used in unit tests
+    logging.debug(f&#39;p.set_owner.long_name:{p.set_owner.long_name}:&#39;)
+    logging.debug(f&#39;p.set_owner.short_name:{p.set_owner.short_name}:&#39;)
+    logging.debug(f&#39;p.set_owner.is_licensed:{p.set_owner.is_licensed}&#39;)
+    logging.debug(f&#39;p.set_owner.team:{p.set_owner.team}&#39;)
     return self._sendAdmin(p)</code></pre>
 </details>
 </dd>
@@ -918,6 +1096,7 @@ is ignored for other nodes)</p></div>
     channelSet = apponly_pb2.ChannelSet()
     channelSet.ParseFromString(decodedURL)
 
+
     if len(channelSet.settings) == 0:
         our_exit(&#34;Warning: There were no settings.&#34;)
 
@@ -928,6 +1107,7 @@ is ignored for other nodes)</p></div>
         ch.index = i
         ch.settings.CopyFrom(chs)
         self.channels[ch.index] = ch
+        logging.debug(f&#39;Channel i:{i} ch:{ch}&#39;)
         self.writeChannel(ch.index)
         i = i + 1</code></pre>
 </details>
@@ -945,7 +1125,9 @@ is ignored for other nodes)</p></div>
     &#34;&#34;&#34;Show human readable description of our channels.&#34;&#34;&#34;
     print(&#34;Channels:&#34;)
     if self.channels:
+        logging.debug(f&#39;self.channels:{self.channels}&#39;)
         for c in self.channels:
+            #print(&#39;c.settings.psk:&#39;, c.settings.psk)
             cStr = stripnl(MessageToJson(c.settings))
             # only show if there is no psk (meaning disabled channel)
             if c.settings.psk:
@@ -1068,9 +1250,12 @@ is ignored for other nodes)</p></div>
 <ul class="">
 <li><code><a title="meshtastic.node.Node.deleteChannel" href="#meshtastic.node.Node.deleteChannel">deleteChannel</a></code></li>
 <li><code><a title="meshtastic.node.Node.exitSimulator" href="#meshtastic.node.Node.exitSimulator">exitSimulator</a></code></li>
+<li><code><a title="meshtastic.node.Node.getChannelByChannelIndex" href="#meshtastic.node.Node.getChannelByChannelIndex">getChannelByChannelIndex</a></code></li>
 <li><code><a title="meshtastic.node.Node.getChannelByName" href="#meshtastic.node.Node.getChannelByName">getChannelByName</a></code></li>
 <li><code><a title="meshtastic.node.Node.getDisabledChannel" href="#meshtastic.node.Node.getDisabledChannel">getDisabledChannel</a></code></li>
 <li><code><a title="meshtastic.node.Node.getURL" href="#meshtastic.node.Node.getURL">getURL</a></code></li>
+<li><code><a title="meshtastic.node.Node.onResponseRequestChannel" href="#meshtastic.node.Node.onResponseRequestChannel">onResponseRequestChannel</a></code></li>
+<li><code><a title="meshtastic.node.Node.onResponseRequestSettings" href="#meshtastic.node.Node.onResponseRequestSettings">onResponseRequestSettings</a></code></li>
 <li><code><a title="meshtastic.node.Node.reboot" href="#meshtastic.node.Node.reboot">reboot</a></code></li>
 <li><code><a title="meshtastic.node.Node.requestConfig" href="#meshtastic.node.Node.requestConfig">requestConfig</a></code></li>
 <li><code><a title="meshtastic.node.Node.setOwner" href="#meshtastic.node.Node.setOwner">setOwner</a></code></li>

@@ -37,6 +37,7 @@ unicode scripts they can be different.
 # Example Usage
 ```
 import meshtastic
+import meshtastic.serial_interface
 from pubsub import pub
 
 def onReceive(packet, interface): # called when a packet arrives
@@ -49,7 +50,7 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # called when we (re)connect 
 pub.subscribe(onReceive, "meshtastic.receive")
 pub.subscribe(onConnection, "meshtastic.connection.established")
 # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
-interface = meshtastic.SerialInterface()
+interface = meshtastic.serial_interface.SerialInterface()
 
 ```
 
@@ -80,23 +81,23 @@ from .util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
 from .node import Node
 from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
 
+# Note: To follow PEP224, comments should be after the module variable.
 
-"""A special ID that means the local node"""
 LOCAL_ADDR = "^local"
+"""A special ID that means the local node"""
 
-# if using 8 bit nodenums this will be shortend on the target
 BROADCAST_NUM = 0xffffffff
+"""if using 8 bit nodenums this will be shortend on the target"""
 
-"""A special ID that means broadcast"""
 BROADCAST_ADDR = "^all"
+"""A special ID that means broadcast"""
 
-
+OUR_APP_VERSION = 20200
 """The numeric buildnumber (shared with android apps) specifying the
    level of device code we are guaranteed to understand
 
    format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 """
-OUR_APP_VERSION = 20200
 
 publishingThread = DeferredExecution("publishing")
 

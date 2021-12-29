@@ -30,10 +30,13 @@
 <pre><code class="python">&#34;&#34;&#34;Meshtastic unit tests for util.py&#34;&#34;&#34;
 
 import re
+import logging
 
 import pytest
 
-from meshtastic.util import fixme, stripnl, pskToString, our_exit, support_info, genPSK256, fromStr, fromPSK
+from meshtastic.util import (fixme, stripnl, pskToString, our_exit,
+                             support_info, genPSK256, fromStr, fromPSK,
+                             quoteBooleans, catchAndIgnore)
 
 
 @pytest.mark.unit
@@ -63,6 +66,16 @@ def test_fromStr():
     assert fromStr(&#39;123&#39;) == 123
     assert fromStr(&#39;abc&#39;) == &#39;abc&#39;
 
+
+@pytest.mark.unit
+def test_quoteBooleans():
+    &#34;&#34;&#34;Test quoteBooleans&#34;&#34;&#34;
+    assert quoteBooleans(&#39;&#39;) == &#39;&#39;
+    assert quoteBooleans(&#39;foo&#39;) == &#39;foo&#39;
+    assert quoteBooleans(&#39;true&#39;) == &#39;true&#39;
+    assert quoteBooleans(&#39;false&#39;) == &#39;false&#39;
+    assert quoteBooleans(&#39;: true&#39;) == &#34;: &#39;true&#39;&#34;
+    assert quoteBooleans(&#39;: false&#39;) == &#34;: &#39;false&#39;&#34;
 
 @pytest.mark.unit
 def test_fromPSK():
@@ -139,7 +152,7 @@ def test_our_exit_non_zero_return_value():
 
 @pytest.mark.unit
 def test_fixme():
-    &#34;&#34;&#34;Test fixme&#34;&#34;&#34;
+    &#34;&#34;&#34;Test fixme()&#34;&#34;&#34;
     with pytest.raises(Exception) as pytest_wrapped_e:
         fixme(&#34;some exception&#34;)
     assert pytest_wrapped_e.type == Exception
@@ -154,7 +167,17 @@ def test_support_info(capsys):
     assert re.search(r&#39;Platform&#39;, out, re.MULTILINE)
     assert re.search(r&#39;Machine&#39;, out, re.MULTILINE)
     assert re.search(r&#39;Executable&#39;, out, re.MULTILINE)
-    assert err == &#39;&#39;</code></pre>
+    assert err == &#39;&#39;
+
+
+@pytest.mark.unit
+def test_catchAndIgnore(caplog):
+    &#34;&#34;&#34;Test catchAndIgnore() does not actually throw an exception, but just logs&#34;&#34;&#34;
+    def some_closure():
+        raise Exception(&#39;foo&#39;)
+    with caplog.at_level(logging.DEBUG):
+        catchAndIgnore(&#34;something&#34;, some_closure)
+    assert re.search(r&#39;Exception thrown in something&#39;, caplog.text, re.MULTILINE)</code></pre>
 </details>
 </section>
 <section>
@@ -164,18 +187,37 @@ def test_support_info(capsys):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="meshtastic.tests.test_util.test_catchAndIgnore"><code class="name flex">
+<span>def <span class="ident">test_catchAndIgnore</span></span>(<span>caplog)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test catchAndIgnore() does not actually throw an exception, but just logs</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_catchAndIgnore(caplog):
+    &#34;&#34;&#34;Test catchAndIgnore() does not actually throw an exception, but just logs&#34;&#34;&#34;
+    def some_closure():
+        raise Exception(&#39;foo&#39;)
+    with caplog.at_level(logging.DEBUG):
+        catchAndIgnore(&#34;something&#34;, some_closure)
+    assert re.search(r&#39;Exception thrown in something&#39;, caplog.text, re.MULTILINE)</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.tests.test_util.test_fixme"><code class="name flex">
 <span>def <span class="ident">test_fixme</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Test fixme</p></div>
+<div class="desc"><p>Test fixme()</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@pytest.mark.unit
 def test_fixme():
-    &#34;&#34;&#34;Test fixme&#34;&#34;&#34;
+    &#34;&#34;&#34;Test fixme()&#34;&#34;&#34;
     with pytest.raises(Exception) as pytest_wrapped_e:
         fixme(&#34;some exception&#34;)
     assert pytest_wrapped_e.type == Exception</code></pre>
@@ -372,6 +414,26 @@ def test_pskToString_string():
     assert pskToString(&#39;hunter123&#39;) == &#39;secret&#39;</code></pre>
 </details>
 </dd>
+<dt id="meshtastic.tests.test_util.test_quoteBooleans"><code class="name flex">
+<span>def <span class="ident">test_quoteBooleans</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test quoteBooleans</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_quoteBooleans():
+    &#34;&#34;&#34;Test quoteBooleans&#34;&#34;&#34;
+    assert quoteBooleans(&#39;&#39;) == &#39;&#39;
+    assert quoteBooleans(&#39;foo&#39;) == &#39;foo&#39;
+    assert quoteBooleans(&#39;true&#39;) == &#39;true&#39;
+    assert quoteBooleans(&#39;false&#39;) == &#39;false&#39;
+    assert quoteBooleans(&#39;: true&#39;) == &#34;: &#39;true&#39;&#34;
+    assert quoteBooleans(&#39;: false&#39;) == &#34;: &#39;false&#39;&#34;</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.tests.test_util.test_stripnl"><code class="name flex">
 <span>def <span class="ident">test_stripnl</span></span>(<span>)</span>
 </code></dt>
@@ -429,6 +491,7 @@ def test_support_info(capsys):
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="meshtastic.tests.test_util.test_catchAndIgnore" href="#meshtastic.tests.test_util.test_catchAndIgnore">test_catchAndIgnore</a></code></li>
 <li><code><a title="meshtastic.tests.test_util.test_fixme" href="#meshtastic.tests.test_util.test_fixme">test_fixme</a></code></li>
 <li><code><a title="meshtastic.tests.test_util.test_fromPSK" href="#meshtastic.tests.test_util.test_fromPSK">test_fromPSK</a></code></li>
 <li><code><a title="meshtastic.tests.test_util.test_fromStr" href="#meshtastic.tests.test_util.test_fromStr">test_fromStr</a></code></li>
@@ -441,6 +504,7 @@ def test_support_info(capsys):
 <li><code><a title="meshtastic.tests.test_util.test_pskToString_one_byte_zero_value" href="#meshtastic.tests.test_util.test_pskToString_one_byte_zero_value">test_pskToString_one_byte_zero_value</a></code></li>
 <li><code><a title="meshtastic.tests.test_util.test_pskToString_simple" href="#meshtastic.tests.test_util.test_pskToString_simple">test_pskToString_simple</a></code></li>
 <li><code><a title="meshtastic.tests.test_util.test_pskToString_string" href="#meshtastic.tests.test_util.test_pskToString_string">test_pskToString_string</a></code></li>
+<li><code><a title="meshtastic.tests.test_util.test_quoteBooleans" href="#meshtastic.tests.test_util.test_quoteBooleans">test_quoteBooleans</a></code></li>
 <li><code><a title="meshtastic.tests.test_util.test_stripnl" href="#meshtastic.tests.test_util.test_stripnl">test_stripnl</a></code></li>
 <li><code><a title="meshtastic.tests.test_util.test_support_info" href="#meshtastic.tests.test_util.test_support_info">test_support_info</a></code></li>
 </ul>

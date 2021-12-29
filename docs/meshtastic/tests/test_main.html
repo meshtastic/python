@@ -28,21 +28,25 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Meshtastic unit tests for __main__.py&#34;&#34;&#34;
+# pylint: disable=C0302
 
 import sys
 import os
 import re
+import logging
 
 from unittest.mock import patch, MagicMock
 import pytest
 
-from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection
+from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config, getPref, setPref
+#from ..radioconfig_pb2 import UserPreferences
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
 from ..tcp_interface import TCPInterface
 from ..ble_interface import BLEInterface
 from ..node import Node
 from ..channel_pb2 import Channel
+from ..remote_hardware import onGPIOreceive
 
 
 @pytest.mark.unit
@@ -432,7 +436,7 @@ def test_main_sendtext(capsys, reset_globals):
     Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
-    def mock_sendText(text, dest, wantAck):
+    def mock_sendText(text, dest, wantAck, channelIndex):
         print(&#39;inside mocked sendText&#39;)
     iface.sendText.side_effect = mock_sendText
 
@@ -447,13 +451,74 @@ def test_main_sendtext(capsys, reset_globals):
 
 
 @pytest.mark.unit
+def test_main_sendtext_with_channel(capsys, reset_globals):
+    &#34;&#34;&#34;Test --sendtext&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--sendtext&#39;, &#39;hello&#39;, &#39;--ch-index&#39;, &#39;1&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_sendText(text, dest, wantAck, channelIndex):
+        print(&#39;inside mocked sendText&#39;)
+    iface.sendText.side_effect = mock_sendText
+
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;Connected to radio&#39;, out, re.MULTILINE)
+        assert re.search(r&#39;Sending text message&#39;, out, re.MULTILINE)
+        assert re.search(r&#39;on channelIndex:1&#39;, out, re.MULTILINE)
+        assert re.search(r&#39;inside mocked sendText&#39;, out, re.MULTILINE)
+        assert err == &#39;&#39;
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_sendtext_with_invalid_channel(capsys, reset_globals):
+    &#34;&#34;&#34;Test --sendtext&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--sendtext&#39;, &#39;hello&#39;, &#39;--ch-index&#39;, &#39;-1&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getChannelByChannelIndex.return_value = None
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        iface.getNode.return_value.getChannelByChannelIndex.return_value = None
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;is not a valid channel&#39;, out, re.MULTILINE)
+        assert err == &#39;&#39;
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_sendtext_with_invalid_channel_nine(capsys, reset_globals):
+    &#34;&#34;&#34;Test --sendtext&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--sendtext&#39;, &#39;hello&#39;, &#39;--ch-index&#39;, &#39;9&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        iface.getNode.return_value.getChannelByChannelIndex.return_value = None
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;is not a valid channel&#39;, out, re.MULTILINE)
+        assert err == &#39;&#39;
+        mo.assert_called()
+
+
+@pytest.mark.unit
 def test_main_sendtext_with_dest(capsys, reset_globals):
     &#34;&#34;&#34;Test --sendtext with --dest&#34;&#34;&#34;
     sys.argv = [&#39;&#39;, &#39;--sendtext&#39;, &#39;hello&#39;, &#39;--dest&#39;, &#39;foo&#39;]
     Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
-    def mock_sendText(text, dest, wantAck):
+    def mock_sendText(text, dest, wantAck, channelIndex):
         print(&#39;inside mocked sendText&#39;)
     iface.sendText.side_effect = mock_sendText
 
@@ -1199,14 +1264,113 @@ def test_main_setchan(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_onReceive_empty(reset_globals):
+def test_main_onReceive_empty(caplog, reset_globals):
     &#34;&#34;&#34;Test onReceive&#34;&#34;&#34;
     sys.argv = [&#39;&#39;]
     Globals.getInstance().set_args(sys.argv)
     iface = MagicMock(autospec=SerialInterface)
     packet = {&#39;decoded&#39;: &#39;foo&#39;}
-    onReceive(packet, iface)
-    # TODO: how do we know we actually called it?
+    with caplog.at_level(logging.DEBUG):
+        onReceive(packet, iface)
+    assert re.search(r&#39;in onReceive&#39;, caplog.text, re.MULTILINE)
+
+
+#    TODO: use this captured position app message (might want/need in the future)
+#    packet = {
+#            &#39;to&#39;: 4294967295,
+#            &#39;decoded&#39;: {
+#                &#39;portnum&#39;: &#39;POSITION_APP&#39;,
+#                &#39;payload&#39;: &#34;M69\306a&#34;
+#                },
+#            &#39;id&#39;: 334776976,
+#            &#39;hop_limit&#39;: 3
+#            }
+
+@pytest.mark.unit
+def test_main_onReceive_with_sendtext(caplog, reset_globals):
+    &#34;&#34;&#34;Test onReceive with sendtext
+       The entire point of this test is to make sure the interface.close() call
+       is made in onReceive().
+    &#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--sendtext&#39;, &#39;hello&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    # Note: &#39;TEXT_MESSAGE_APP&#39; value is 1
+    packet = {
+            &#39;to&#39;: 4294967295,
+            &#39;decoded&#39;: {
+                &#39;portnum&#39;: 1,
+                &#39;payload&#39;: &#34;hello&#34;
+                },
+            &#39;id&#39;: 334776977,
+            &#39;hop_limit&#39;: 3,
+            &#39;want_ack&#39;: True
+            }
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.myInfo.my_node_num = 4294967295
+
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        with caplog.at_level(logging.DEBUG):
+            main()
+            onReceive(packet, iface)
+        assert re.search(r&#39;in onReceive&#39;, caplog.text, re.MULTILINE)
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_onReceive_with_reply(caplog, capsys, reset_globals):
+    &#34;&#34;&#34;Test onReceive with a reply
+       To capture: on one device run &#39;--sendtext aaa --reply&#39; and on another
+       device run &#39;--sendtext bbb --reply&#39;, then back to the first device and
+       run &#39;--sendtext aaa2 --reply&#39;. You should now see a &#34;Sending reply&#34; message.
+    &#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--sendtext&#39;, &#39;hello&#39;, &#39;--reply&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    # Note: &#39;TEXT_MESSAGE_APP&#39; value is 1
+
+    send_packet = {
+            &#39;to&#39;: 4294967295,
+            &#39;decoded&#39;: {
+                &#39;portnum&#39;: 1,
+                &#39;payload&#39;: &#34;hello&#34;
+                },
+            &#39;id&#39;: 334776977,
+            &#39;hop_limit&#39;: 3,
+            &#39;want_ack&#39;: True
+            }
+
+    reply_packet = {
+            &#39;from&#39;: 682968668,
+            &#39;to&#39;: 4294967295,
+            &#39;decoded&#39;: {
+                &#39;portnum&#39;: &#39;TEXT_MESSAGE_APP&#39;,
+                &#39;payload&#39;: b&#39;bbb&#39;,
+                &#39;text&#39;: &#39;bbb&#39;
+                },
+            &#39;id&#39;: 1709936182,
+            &#39;rxTime&#39;: 1640381999,
+            &#39;rxSnr&#39;: 6.0,
+            &#39;hopLimit&#39;: 3,
+            &#39;raw&#39;: &#39;faked&#39;,
+            &#39;fromId&#39;: &#39;!28b5465c&#39;,
+            &#39;toId&#39;: &#39;^all&#39;
+            }
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.myInfo.my_node_num = 4294967295
+
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        with caplog.at_level(logging.DEBUG):
+            main()
+            onReceive(send_packet, iface)
+            onReceive(reply_packet, iface)
+        assert re.search(r&#39;in onReceive&#39;, caplog.text, re.MULTILINE)
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;got msg &#39;, out, re.MULTILINE)
+        assert err == &#39;&#39;
+        mo.assert_called()
 
 
 @pytest.mark.unit
@@ -1224,6 +1388,250 @@ def test_main_onConnection(reset_globals, capsys):
     onConnection(iface, mytopic)
     out, err = capsys.readouterr()
     assert re.search(r&#39;Connection changed: foo&#39;, out, re.MULTILINE)
+    assert err == &#39;&#39;
+
+
+@pytest.mark.unit
+def test_main_export_config(reset_globals, capsys):
+    &#34;&#34;&#34;Test export_config() function directly&#34;&#34;&#34;
+    iface = MagicMock(autospec=SerialInterface)
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        mo.getLongName.return_value = &#39;foo&#39;
+        mo.localNode.getURL.return_value = &#39;bar&#39;
+        mo.getMyNodeInfo().get.return_value = { &#39;latitudeI&#39;: 1100000000, &#39;longitudeI&#39;: 1200000000,
+                                                &#39;altitude&#39;: 100, &#39;batteryLevel&#39;: 34, &#39;latitude&#39;: 110.0,
+                                                &#39;longitude&#39;: 120.0}
+        mo.localNode.radioConfig.preferences = &#34;&#34;&#34;phone_timeout_secs: 900
+ls_secs: 300
+position_broadcast_smart: true
+fixed_position: true
+position_flags: 35&#34;&#34;&#34;
+        export_config(mo)
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;owner: foo&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;channel_url: bar&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;location:&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;lat: 110.0&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;lon: 120.0&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;alt: 100&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;user_prefs:&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;phone_timeout_secs: 900&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;ls_secs: 300&#39;, out, re.MULTILINE)
+    assert re.search(r&#34;position_broadcast_smart: &#39;true&#39;&#34;, out, re.MULTILINE)
+    assert re.search(r&#34;fixed_position: &#39;true&#39;&#34;, out, re.MULTILINE)
+    assert re.search(r&#34;position_flags: 35&#34;, out, re.MULTILINE)
+    assert err == &#39;&#39;
+
+
+@pytest.mark.unit
+def test_main_export_config_called_from_main(capsys, reset_globals):
+    &#34;&#34;&#34;Test --export-config&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--export-config&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;Connected to radio&#39;, out, re.MULTILINE)
+        assert re.search(r&#39;# start of Meshtastic configure yaml&#39;, out, re.MULTILINE)
+        assert err == &#39;&#39;
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_gpio_rd_no_gpio_channel(capsys, reset_globals):
+    &#34;&#34;&#34;Test --gpio_rd with no named gpio channel&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--gpio-rd&#39;, &#39;0x10&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode.getChannelByName.return_value = None
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;Warning: No channel named&#39;, out)
+        assert err == &#39;&#39;
+
+
+@pytest.mark.unit
+def test_main_gpio_rd_no_dest(capsys, reset_globals):
+    &#34;&#34;&#34;Test --gpio_rd with a named gpio channel but no dest was specified&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--gpio-rd&#39;, &#39;0x2000&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    channel = Channel(index=1, role=1)
+    channel.settings.modem_config = 3
+    channel.settings.psk = b&#39;\x01&#39;
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode.getChannelByName.return_value = channel
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;Warning: Must use a destination node ID&#39;, out)
+        assert err == &#39;&#39;
+
+
+@pytest.mark.unit
+def test_main_gpio_rd(caplog, capsys, reset_globals):
+    &#34;&#34;&#34;Test --gpio_rd with a named gpio channel&#34;&#34;&#34;
+    # Note: On the Heltec v2.1, there is a GPIO pin GPIO 13 that does not have a
+    # red arrow (meaning ok to use for our purposes)
+    # See https://resource.heltec.cn/download/WiFi_LoRa_32/WIFI_LoRa_32_V2.pdf
+    # To find out the mask for GPIO 13, let us assign n as 13.
+    # 1. Subtract 1 from n (n is now 12)
+    # 2. Find the 2^n or 2^12 (4096)
+    # 3. Convert 4096 decimal to hex (0x1000)
+    # You can use python:
+    # &gt;&gt;&gt; print(hex(2**12))
+    # 0x1000
+    sys.argv = [&#39;&#39;, &#39;--gpio-rd&#39;, &#39;0x1000&#39;, &#39;--dest&#39;, &#39;!1234&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    channel = Channel(index=1, role=1)
+    channel.settings.modem_config = 3
+    channel.settings.psk = b&#39;\x01&#39;
+
+    packet = {
+
+            &#39;from&#39;: 682968668,
+            &#39;to&#39;: 682968612,
+            &#39;channel&#39;: 1,
+            &#39;decoded&#39;: {
+                &#39;portnum&#39;: &#39;REMOTE_HARDWARE_APP&#39;,
+                &#39;payload&#39;: b&#39;\x08\x05\x18\x80 &#39;,
+                &#39;requestId&#39;: 1629980484,
+                &#39;remotehw&#39;: {
+                    &#39;typ&#39;: &#39;READ_GPIOS_REPLY&#39;,
+                    &#39;gpioValue&#39;: &#39;4096&#39;,
+                    &#39;raw&#39;: &#39;faked&#39;,
+                    &#39;id&#39;: 1693085229,
+                    &#39;rxTime&#39;: 1640294262,
+                    &#39;rxSnr&#39;: 4.75,
+                    &#39;hopLimit&#39;: 3,
+                    &#39;wantAck&#39;: True,
+                    }
+                }
+            }
+
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode.getChannelByName.return_value = channel
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        with caplog.at_level(logging.DEBUG):
+            main()
+            onGPIOreceive(packet, mo)
+    assert re.search(r&#39;readGPIOs nodeid:!1234 mask:4096&#39;, caplog.text, re.MULTILINE)
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;Connected to radio&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;Reading GPIO mask 0x1000 &#39;, out, re.MULTILINE)
+    assert re.search(r&#39;Received RemoteHardware typ=READ_GPIOS_REPLY, gpio_value=4096&#39;, out, re.MULTILINE)
+    assert err == &#39;&#39;
+
+
+@pytest.mark.unit
+def test_main_getPref_valid_field(capsys, reset_globals):
+    &#34;&#34;&#34;Test getPref() with a valid field&#34;&#34;&#34;
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = &#39;ls_secs&#39;
+    prefs.wifi_ssid = &#39;foo&#39;
+    prefs.ls_secs = 300
+    prefs.fixed_position = False
+
+    getPref(prefs, &#39;ls_secs&#39;)
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;ls_secs: 300&#39;, out, re.MULTILINE)
+    assert err == &#39;&#39;
+
+
+@pytest.mark.unit
+def test_main_getPref_invalid_field(capsys, reset_globals):
+    &#34;&#34;&#34;Test getPref() with an invalid field&#34;&#34;&#34;
+
+    class Field:
+        &#34;&#34;&#34;Simple class for testing.&#34;&#34;&#34;
+
+        def __init__(self, name):
+            &#34;&#34;&#34;constructor&#34;&#34;&#34;
+            self.name = name
+
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = None
+
+    # Note: This is a subset of the real fields
+    ls_secs_field = Field(&#39;ls_secs&#39;)
+    is_router = Field(&#39;is_router&#39;)
+    fixed_position = Field(&#39;fixed_position&#39;)
+
+    fields = [ ls_secs_field, is_router, fixed_position ]
+    prefs.DESCRIPTOR.fields = fields
+
+    getPref(prefs, &#39;foo&#39;)
+
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;does not have an attribute called foo&#39;, out, re.MULTILINE)
+    # ensure they are sorted
+    assert re.search(r&#39;fixed_position\s+is_router\s+ls_secs&#39;, out, re.MULTILINE)
+    assert err == &#39;&#39;
+
+
+@pytest.mark.unit
+def test_main_setPref_valid_field(capsys, reset_globals):
+    &#34;&#34;&#34;Test setPref() with a valid field&#34;&#34;&#34;
+
+    class Field:
+        &#34;&#34;&#34;Simple class for testing.&#34;&#34;&#34;
+
+        def __init__(self, name, enum_type):
+            &#34;&#34;&#34;constructor&#34;&#34;&#34;
+            self.name = name
+            self.enum_type = enum_type
+
+    ls_secs_field = Field(&#39;ls_secs&#39;, &#39;int&#39;)
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = ls_secs_field
+
+    setPref(prefs, &#39;ls_secs&#39;, &#39;300&#39;)
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;Set ls_secs to 300&#39;, out, re.MULTILINE)
+    assert err == &#39;&#39;
+
+
+@pytest.mark.unit
+def test_main_setPref_invalid_field(capsys, reset_globals):
+    &#34;&#34;&#34;Test setPref() with a invalid field&#34;&#34;&#34;
+
+
+    class Field:
+        &#34;&#34;&#34;Simple class for testing.&#34;&#34;&#34;
+
+        def __init__(self, name):
+            &#34;&#34;&#34;constructor&#34;&#34;&#34;
+            self.name = name
+
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = None
+
+    # Note: This is a subset of the real fields
+    ls_secs_field = Field(&#39;ls_secs&#39;)
+    is_router = Field(&#39;is_router&#39;)
+    fixed_position = Field(&#39;fixed_position&#39;)
+
+    fields = [ ls_secs_field, is_router, fixed_position ]
+    prefs.DESCRIPTOR.fields = fields
+
+    setPref(prefs, &#39;foo&#39;, &#39;300&#39;)
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;does not have an attribute called foo&#39;, out, re.MULTILINE)
+    # ensure they are sorted
+    assert re.search(r&#39;fixed_position\s+is_router\s+ls_secs&#39;, out, re.MULTILINE)
     assert err == &#39;&#39;</code></pre>
 </details>
 </section>
@@ -1724,6 +2132,136 @@ def test_main_configure(capsys, reset_globals):
         mo.assert_called()</code></pre>
 </details>
 </dd>
+<dt id="meshtastic.tests.test_main.test_main_export_config"><code class="name flex">
+<span>def <span class="ident">test_main_export_config</span></span>(<span>reset_globals, capsys)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test export_config() function directly</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_export_config(reset_globals, capsys):
+    &#34;&#34;&#34;Test export_config() function directly&#34;&#34;&#34;
+    iface = MagicMock(autospec=SerialInterface)
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        mo.getLongName.return_value = &#39;foo&#39;
+        mo.localNode.getURL.return_value = &#39;bar&#39;
+        mo.getMyNodeInfo().get.return_value = { &#39;latitudeI&#39;: 1100000000, &#39;longitudeI&#39;: 1200000000,
+                                                &#39;altitude&#39;: 100, &#39;batteryLevel&#39;: 34, &#39;latitude&#39;: 110.0,
+                                                &#39;longitude&#39;: 120.0}
+        mo.localNode.radioConfig.preferences = &#34;&#34;&#34;phone_timeout_secs: 900
+ls_secs: 300
+position_broadcast_smart: true
+fixed_position: true
+position_flags: 35&#34;&#34;&#34;
+        export_config(mo)
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;owner: foo&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;channel_url: bar&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;location:&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;lat: 110.0&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;lon: 120.0&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;alt: 100&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;user_prefs:&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;phone_timeout_secs: 900&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;ls_secs: 300&#39;, out, re.MULTILINE)
+    assert re.search(r&#34;position_broadcast_smart: &#39;true&#39;&#34;, out, re.MULTILINE)
+    assert re.search(r&#34;fixed_position: &#39;true&#39;&#34;, out, re.MULTILINE)
+    assert re.search(r&#34;position_flags: 35&#34;, out, re.MULTILINE)
+    assert err == &#39;&#39;</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_export_config_called_from_main"><code class="name flex">
+<span>def <span class="ident">test_main_export_config_called_from_main</span></span>(<span>capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test &ndash;export-config</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_export_config_called_from_main(capsys, reset_globals):
+    &#34;&#34;&#34;Test --export-config&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--export-config&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;Connected to radio&#39;, out, re.MULTILINE)
+        assert re.search(r&#39;# start of Meshtastic configure yaml&#39;, out, re.MULTILINE)
+        assert err == &#39;&#39;
+        mo.assert_called()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_getPref_invalid_field"><code class="name flex">
+<span>def <span class="ident">test_main_getPref_invalid_field</span></span>(<span>capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test getPref() with an invalid field</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_getPref_invalid_field(capsys, reset_globals):
+    &#34;&#34;&#34;Test getPref() with an invalid field&#34;&#34;&#34;
+
+    class Field:
+        &#34;&#34;&#34;Simple class for testing.&#34;&#34;&#34;
+
+        def __init__(self, name):
+            &#34;&#34;&#34;constructor&#34;&#34;&#34;
+            self.name = name
+
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = None
+
+    # Note: This is a subset of the real fields
+    ls_secs_field = Field(&#39;ls_secs&#39;)
+    is_router = Field(&#39;is_router&#39;)
+    fixed_position = Field(&#39;fixed_position&#39;)
+
+    fields = [ ls_secs_field, is_router, fixed_position ]
+    prefs.DESCRIPTOR.fields = fields
+
+    getPref(prefs, &#39;foo&#39;)
+
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;does not have an attribute called foo&#39;, out, re.MULTILINE)
+    # ensure they are sorted
+    assert re.search(r&#39;fixed_position\s+is_router\s+ls_secs&#39;, out, re.MULTILINE)
+    assert err == &#39;&#39;</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_getPref_valid_field"><code class="name flex">
+<span>def <span class="ident">test_main_getPref_valid_field</span></span>(<span>capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test getPref() with a valid field</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_getPref_valid_field(capsys, reset_globals):
+    &#34;&#34;&#34;Test getPref() with a valid field&#34;&#34;&#34;
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = &#39;ls_secs&#39;
+    prefs.wifi_ssid = &#39;foo&#39;
+    prefs.ls_secs = 300
+    prefs.fixed_position = False
+
+    getPref(prefs, &#39;ls_secs&#39;)
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;ls_secs: 300&#39;, out, re.MULTILINE)
+    assert err == &#39;&#39;</code></pre>
+</details>
+</dd>
 <dt id="meshtastic.tests.test_main.test_main_get_with_invalid"><code class="name flex">
 <span>def <span class="ident">test_main_get_with_invalid</span></span>(<span>capsys, reset_globals)</span>
 </code></dt>
@@ -1792,6 +2330,130 @@ def test_main_get_with_valid_values(capsys, reset_globals):
         assert re.search(r&#39;ls_secs: 300&#39;, out, re.MULTILINE)
         assert re.search(r&#39;wifi_ssid: foo&#39;, out, re.MULTILINE)
         assert re.search(r&#39;fixed_position: False&#39;, out, re.MULTILINE)
+        assert err == &#39;&#39;</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_gpio_rd"><code class="name flex">
+<span>def <span class="ident">test_main_gpio_rd</span></span>(<span>caplog, capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test &ndash;gpio_rd with a named gpio channel</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_gpio_rd(caplog, capsys, reset_globals):
+    &#34;&#34;&#34;Test --gpio_rd with a named gpio channel&#34;&#34;&#34;
+    # Note: On the Heltec v2.1, there is a GPIO pin GPIO 13 that does not have a
+    # red arrow (meaning ok to use for our purposes)
+    # See https://resource.heltec.cn/download/WiFi_LoRa_32/WIFI_LoRa_32_V2.pdf
+    # To find out the mask for GPIO 13, let us assign n as 13.
+    # 1. Subtract 1 from n (n is now 12)
+    # 2. Find the 2^n or 2^12 (4096)
+    # 3. Convert 4096 decimal to hex (0x1000)
+    # You can use python:
+    # &gt;&gt;&gt; print(hex(2**12))
+    # 0x1000
+    sys.argv = [&#39;&#39;, &#39;--gpio-rd&#39;, &#39;0x1000&#39;, &#39;--dest&#39;, &#39;!1234&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    channel = Channel(index=1, role=1)
+    channel.settings.modem_config = 3
+    channel.settings.psk = b&#39;\x01&#39;
+
+    packet = {
+
+            &#39;from&#39;: 682968668,
+            &#39;to&#39;: 682968612,
+            &#39;channel&#39;: 1,
+            &#39;decoded&#39;: {
+                &#39;portnum&#39;: &#39;REMOTE_HARDWARE_APP&#39;,
+                &#39;payload&#39;: b&#39;\x08\x05\x18\x80 &#39;,
+                &#39;requestId&#39;: 1629980484,
+                &#39;remotehw&#39;: {
+                    &#39;typ&#39;: &#39;READ_GPIOS_REPLY&#39;,
+                    &#39;gpioValue&#39;: &#39;4096&#39;,
+                    &#39;raw&#39;: &#39;faked&#39;,
+                    &#39;id&#39;: 1693085229,
+                    &#39;rxTime&#39;: 1640294262,
+                    &#39;rxSnr&#39;: 4.75,
+                    &#39;hopLimit&#39;: 3,
+                    &#39;wantAck&#39;: True,
+                    }
+                }
+            }
+
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode.getChannelByName.return_value = channel
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        with caplog.at_level(logging.DEBUG):
+            main()
+            onGPIOreceive(packet, mo)
+    assert re.search(r&#39;readGPIOs nodeid:!1234 mask:4096&#39;, caplog.text, re.MULTILINE)
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;Connected to radio&#39;, out, re.MULTILINE)
+    assert re.search(r&#39;Reading GPIO mask 0x1000 &#39;, out, re.MULTILINE)
+    assert re.search(r&#39;Received RemoteHardware typ=READ_GPIOS_REPLY, gpio_value=4096&#39;, out, re.MULTILINE)
+    assert err == &#39;&#39;</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_gpio_rd_no_dest"><code class="name flex">
+<span>def <span class="ident">test_main_gpio_rd_no_dest</span></span>(<span>capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test &ndash;gpio_rd with a named gpio channel but no dest was specified</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_gpio_rd_no_dest(capsys, reset_globals):
+    &#34;&#34;&#34;Test --gpio_rd with a named gpio channel but no dest was specified&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--gpio-rd&#39;, &#39;0x2000&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    channel = Channel(index=1, role=1)
+    channel.settings.modem_config = 3
+    channel.settings.psk = b&#39;\x01&#39;
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode.getChannelByName.return_value = channel
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;Warning: Must use a destination node ID&#39;, out)
+        assert err == &#39;&#39;</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_gpio_rd_no_gpio_channel"><code class="name flex">
+<span>def <span class="ident">test_main_gpio_rd_no_gpio_channel</span></span>(<span>capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test &ndash;gpio_rd with no named gpio channel</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_gpio_rd_no_gpio_channel(capsys, reset_globals):
+    &#34;&#34;&#34;Test --gpio_rd with no named gpio channel&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--gpio-rd&#39;, &#39;0x10&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode.getChannelByName.return_value = None
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;Warning: No channel named&#39;, out)
         assert err == &#39;&#39;</code></pre>
 </details>
 </dd>
@@ -2118,7 +2780,7 @@ def test_main_onConnection(reset_globals, capsys):
 </details>
 </dd>
 <dt id="meshtastic.tests.test_main.test_main_onReceive_empty"><code class="name flex">
-<span>def <span class="ident">test_main_onReceive_empty</span></span>(<span>reset_globals)</span>
+<span>def <span class="ident">test_main_onReceive_empty</span></span>(<span>caplog, reset_globals)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Test onReceive</p></div>
@@ -2127,14 +2789,125 @@ def test_main_onConnection(reset_globals, capsys):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@pytest.mark.unit
-def test_main_onReceive_empty(reset_globals):
+def test_main_onReceive_empty(caplog, reset_globals):
     &#34;&#34;&#34;Test onReceive&#34;&#34;&#34;
     sys.argv = [&#39;&#39;]
     Globals.getInstance().set_args(sys.argv)
     iface = MagicMock(autospec=SerialInterface)
     packet = {&#39;decoded&#39;: &#39;foo&#39;}
-    onReceive(packet, iface)
-    # TODO: how do we know we actually called it?</code></pre>
+    with caplog.at_level(logging.DEBUG):
+        onReceive(packet, iface)
+    assert re.search(r&#39;in onReceive&#39;, caplog.text, re.MULTILINE)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_onReceive_with_reply"><code class="name flex">
+<span>def <span class="ident">test_main_onReceive_with_reply</span></span>(<span>caplog, capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test onReceive with a reply
+To capture: on one device run '&ndash;sendtext aaa &ndash;reply' and on another
+device run '&ndash;sendtext bbb &ndash;reply', then back to the first device and
+run '&ndash;sendtext aaa2 &ndash;reply'. You should now see a "Sending reply" message.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_onReceive_with_reply(caplog, capsys, reset_globals):
+    &#34;&#34;&#34;Test onReceive with a reply
+       To capture: on one device run &#39;--sendtext aaa --reply&#39; and on another
+       device run &#39;--sendtext bbb --reply&#39;, then back to the first device and
+       run &#39;--sendtext aaa2 --reply&#39;. You should now see a &#34;Sending reply&#34; message.
+    &#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--sendtext&#39;, &#39;hello&#39;, &#39;--reply&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    # Note: &#39;TEXT_MESSAGE_APP&#39; value is 1
+
+    send_packet = {
+            &#39;to&#39;: 4294967295,
+            &#39;decoded&#39;: {
+                &#39;portnum&#39;: 1,
+                &#39;payload&#39;: &#34;hello&#34;
+                },
+            &#39;id&#39;: 334776977,
+            &#39;hop_limit&#39;: 3,
+            &#39;want_ack&#39;: True
+            }
+
+    reply_packet = {
+            &#39;from&#39;: 682968668,
+            &#39;to&#39;: 4294967295,
+            &#39;decoded&#39;: {
+                &#39;portnum&#39;: &#39;TEXT_MESSAGE_APP&#39;,
+                &#39;payload&#39;: b&#39;bbb&#39;,
+                &#39;text&#39;: &#39;bbb&#39;
+                },
+            &#39;id&#39;: 1709936182,
+            &#39;rxTime&#39;: 1640381999,
+            &#39;rxSnr&#39;: 6.0,
+            &#39;hopLimit&#39;: 3,
+            &#39;raw&#39;: &#39;faked&#39;,
+            &#39;fromId&#39;: &#39;!28b5465c&#39;,
+            &#39;toId&#39;: &#39;^all&#39;
+            }
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.myInfo.my_node_num = 4294967295
+
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        with caplog.at_level(logging.DEBUG):
+            main()
+            onReceive(send_packet, iface)
+            onReceive(reply_packet, iface)
+        assert re.search(r&#39;in onReceive&#39;, caplog.text, re.MULTILINE)
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;got msg &#39;, out, re.MULTILINE)
+        assert err == &#39;&#39;
+        mo.assert_called()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_onReceive_with_sendtext"><code class="name flex">
+<span>def <span class="ident">test_main_onReceive_with_sendtext</span></span>(<span>caplog, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test onReceive with sendtext
+The entire point of this test is to make sure the interface.close() call
+is made in onReceive().</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_onReceive_with_sendtext(caplog, reset_globals):
+    &#34;&#34;&#34;Test onReceive with sendtext
+       The entire point of this test is to make sure the interface.close() call
+       is made in onReceive().
+    &#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--sendtext&#39;, &#39;hello&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    # Note: &#39;TEXT_MESSAGE_APP&#39; value is 1
+    packet = {
+            &#39;to&#39;: 4294967295,
+            &#39;decoded&#39;: {
+                &#39;portnum&#39;: 1,
+                &#39;payload&#39;: &#34;hello&#34;
+                },
+            &#39;id&#39;: 334776977,
+            &#39;hop_limit&#39;: 3,
+            &#39;want_ack&#39;: True
+            }
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.myInfo.my_node_num = 4294967295
+
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        with caplog.at_level(logging.DEBUG):
+            main()
+            onReceive(packet, iface)
+        assert re.search(r&#39;in onReceive&#39;, caplog.text, re.MULTILINE)
+        mo.assert_called()</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.tests.test_main.test_main_pos_fields_arg_of_zero"><code class="name flex">
@@ -2363,7 +3136,7 @@ def test_main_sendtext(capsys, reset_globals):
     Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
-    def mock_sendText(text, dest, wantAck):
+    def mock_sendText(text, dest, wantAck, channelIndex):
         print(&#39;inside mocked sendText&#39;)
     iface.sendText.side_effect = mock_sendText
 
@@ -2372,6 +3145,37 @@ def test_main_sendtext(capsys, reset_globals):
         out, err = capsys.readouterr()
         assert re.search(r&#39;Connected to radio&#39;, out, re.MULTILINE)
         assert re.search(r&#39;Sending text message&#39;, out, re.MULTILINE)
+        assert re.search(r&#39;inside mocked sendText&#39;, out, re.MULTILINE)
+        assert err == &#39;&#39;
+        mo.assert_called()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_sendtext_with_channel"><code class="name flex">
+<span>def <span class="ident">test_main_sendtext_with_channel</span></span>(<span>capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test &ndash;sendtext</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_sendtext_with_channel(capsys, reset_globals):
+    &#34;&#34;&#34;Test --sendtext&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--sendtext&#39;, &#39;hello&#39;, &#39;--ch-index&#39;, &#39;1&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    def mock_sendText(text, dest, wantAck, channelIndex):
+        print(&#39;inside mocked sendText&#39;)
+    iface.sendText.side_effect = mock_sendText
+
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;Connected to radio&#39;, out, re.MULTILINE)
+        assert re.search(r&#39;Sending text message&#39;, out, re.MULTILINE)
+        assert re.search(r&#39;on channelIndex:1&#39;, out, re.MULTILINE)
         assert re.search(r&#39;inside mocked sendText&#39;, out, re.MULTILINE)
         assert err == &#39;&#39;
         mo.assert_called()</code></pre>
@@ -2393,7 +3197,7 @@ def test_main_sendtext_with_dest(capsys, reset_globals):
     Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
-    def mock_sendText(text, dest, wantAck):
+    def mock_sendText(text, dest, wantAck, channelIndex):
         print(&#39;inside mocked sendText&#39;)
     iface.sendText.side_effect = mock_sendText
 
@@ -2405,6 +3209,134 @@ def test_main_sendtext_with_dest(capsys, reset_globals):
         assert re.search(r&#39;inside mocked sendText&#39;, out, re.MULTILINE)
         assert err == &#39;&#39;
         mo.assert_called()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_sendtext_with_invalid_channel"><code class="name flex">
+<span>def <span class="ident">test_main_sendtext_with_invalid_channel</span></span>(<span>capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test &ndash;sendtext</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_sendtext_with_invalid_channel(capsys, reset_globals):
+    &#34;&#34;&#34;Test --sendtext&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--sendtext&#39;, &#39;hello&#39;, &#39;--ch-index&#39;, &#39;-1&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getChannelByChannelIndex.return_value = None
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        iface.getNode.return_value.getChannelByChannelIndex.return_value = None
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;is not a valid channel&#39;, out, re.MULTILINE)
+        assert err == &#39;&#39;
+        mo.assert_called()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_sendtext_with_invalid_channel_nine"><code class="name flex">
+<span>def <span class="ident">test_main_sendtext_with_invalid_channel_nine</span></span>(<span>capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test &ndash;sendtext</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_sendtext_with_invalid_channel_nine(capsys, reset_globals):
+    &#34;&#34;&#34;Test --sendtext&#34;&#34;&#34;
+    sys.argv = [&#39;&#39;, &#39;--sendtext&#39;, &#39;hello&#39;, &#39;--ch-index&#39;, &#39;9&#39;]
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch(&#39;meshtastic.serial_interface.SerialInterface&#39;, return_value=iface) as mo:
+        iface.getNode.return_value.getChannelByChannelIndex.return_value = None
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r&#39;is not a valid channel&#39;, out, re.MULTILINE)
+        assert err == &#39;&#39;
+        mo.assert_called()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_setPref_invalid_field"><code class="name flex">
+<span>def <span class="ident">test_main_setPref_invalid_field</span></span>(<span>capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test setPref() with a invalid field</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_setPref_invalid_field(capsys, reset_globals):
+    &#34;&#34;&#34;Test setPref() with a invalid field&#34;&#34;&#34;
+
+
+    class Field:
+        &#34;&#34;&#34;Simple class for testing.&#34;&#34;&#34;
+
+        def __init__(self, name):
+            &#34;&#34;&#34;constructor&#34;&#34;&#34;
+            self.name = name
+
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = None
+
+    # Note: This is a subset of the real fields
+    ls_secs_field = Field(&#39;ls_secs&#39;)
+    is_router = Field(&#39;is_router&#39;)
+    fixed_position = Field(&#39;fixed_position&#39;)
+
+    fields = [ ls_secs_field, is_router, fixed_position ]
+    prefs.DESCRIPTOR.fields = fields
+
+    setPref(prefs, &#39;foo&#39;, &#39;300&#39;)
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;does not have an attribute called foo&#39;, out, re.MULTILINE)
+    # ensure they are sorted
+    assert re.search(r&#39;fixed_position\s+is_router\s+ls_secs&#39;, out, re.MULTILINE)
+    assert err == &#39;&#39;</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_main.test_main_setPref_valid_field"><code class="name flex">
+<span>def <span class="ident">test_main_setPref_valid_field</span></span>(<span>capsys, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test setPref() with a valid field</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_main_setPref_valid_field(capsys, reset_globals):
+    &#34;&#34;&#34;Test setPref() with a valid field&#34;&#34;&#34;
+
+    class Field:
+        &#34;&#34;&#34;Simple class for testing.&#34;&#34;&#34;
+
+        def __init__(self, name, enum_type):
+            &#34;&#34;&#34;constructor&#34;&#34;&#34;
+            self.name = name
+            self.enum_type = enum_type
+
+    ls_secs_field = Field(&#39;ls_secs&#39;, &#39;int&#39;)
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = ls_secs_field
+
+    setPref(prefs, &#39;ls_secs&#39;, &#39;300&#39;)
+    out, err = capsys.readouterr()
+    assert re.search(r&#39;Set ls_secs to 300&#39;, out, re.MULTILINE)
+    assert err == &#39;&#39;</code></pre>
 </details>
 </dd>
 <dt id="meshtastic.tests.test_main.test_main_set_ham_to_KI123"><code class="name flex">
@@ -2894,16 +3826,13 @@ def test_main_test_two_ports_success(patched_find_ports, patched_test_all, reset
 <dl>
 <dt id="meshtastic.tests.test_main.Channel"><code class="flex name class">
 <span>class <span class="ident">Channel</span></span>
-<span>(</span><span>**kwargs)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Abstract base class for protocol messages.</p>
-<p>Protocol message classes are almost always generated by the protocol
-compiler.
-These generated types subclass Message and implement the methods
-shown below.</p></div>
+<div class="desc"><p>A ProtocolMessage</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li>google.protobuf.pyext._message.CMessage</li>
 <li>google.protobuf.message.Message</li>
 </ul>
 <h3>Class variables</h3>
@@ -2916,15 +3845,7 @@ shown below.</p></div>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.tests.test_main.Channel.INDEX_FIELD_NUMBER"><code class="name">var <span class="ident">INDEX_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="meshtastic.tests.test_main.Channel.PRIMARY"><code class="name">var <span class="ident">PRIMARY</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.ROLE_FIELD_NUMBER"><code class="name">var <span class="ident">ROLE_FIELD_NUMBER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -2936,554 +3857,20 @@ shown below.</p></div>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="meshtastic.tests.test_main.Channel.SETTINGS_FIELD_NUMBER"><code class="name">var <span class="ident">SETTINGS_FIELD_NUMBER</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-<h3>Static methods</h3>
-<dl>
-<dt id="meshtastic.tests.test_main.Channel.FromString"><code class="name flex">
-<span>def <span class="ident">FromString</span></span>(<span>s)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def FromString(s):
-  message = cls()
-  message.MergeFromString(s)
-  return message</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.RegisterExtension"><code class="name flex">
-<span>def <span class="ident">RegisterExtension</span></span>(<span>extension_handle)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def RegisterExtension(extension_handle):
-  extension_handle.containing_type = cls.DESCRIPTOR
-  # TODO(amauryfa): Use cls.MESSAGE_FACTORY.pool when available.
-  # pylint: disable=protected-access
-  cls.DESCRIPTOR.file.pool._AddExtensionDescriptor(extension_handle)
-  _AttachFieldHelpers(cls, extension_handle)</code></pre>
-</details>
-</dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="meshtastic.tests.test_main.Channel.index"><code class="name">var <span class="ident">index</span></code></dt>
 <dd>
-<div class="desc"><p>Getter for index.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getter(self):
-  # TODO(protobuf-team): This may be broken since there may not be
-  # default_value.  Combine with has_default_value somehow.
-  return self._fields.get(field, default_value)</code></pre>
-</details>
+<div class="desc"><p>Field Channel.index</p></div>
 </dd>
 <dt id="meshtastic.tests.test_main.Channel.role"><code class="name">var <span class="ident">role</span></code></dt>
 <dd>
-<div class="desc"><p>Getter for role.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getter(self):
-  # TODO(protobuf-team): This may be broken since there may not be
-  # default_value.  Combine with has_default_value somehow.
-  return self._fields.get(field, default_value)</code></pre>
-</details>
+<div class="desc"><p>Field Channel.role</p></div>
 </dd>
 <dt id="meshtastic.tests.test_main.Channel.settings"><code class="name">var <span class="ident">settings</span></code></dt>
 <dd>
-<div class="desc"><p>Getter for settings.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getter(self):
-  field_value = self._fields.get(field)
-  if field_value is None:
-    # Construct a new object to represent this field.
-    field_value = field._default_constructor(self)
-
-    # Atomically check if another thread has preempted us and, if not, swap
-    # in the new object we just created.  If someone has preempted us, we
-    # take that object and discard ours.
-    # WARNING:  We are relying on setdefault() being atomic.  This is true
-    #   in CPython but we haven&#39;t investigated others.  This warning appears
-    #   in several other locations in this file.
-    field_value = self._fields.setdefault(field, field_value)
-  return field_value</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="meshtastic.tests.test_main.Channel.ByteSize"><code class="name flex">
-<span>def <span class="ident">ByteSize</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ByteSize(self):
-  if not self._cached_byte_size_dirty:
-    return self._cached_byte_size
-
-  size = 0
-  descriptor = self.DESCRIPTOR
-  if descriptor.GetOptions().map_entry:
-    # Fields of map entry should always be serialized.
-    size = descriptor.fields_by_name[&#39;key&#39;]._sizer(self.key)
-    size += descriptor.fields_by_name[&#39;value&#39;]._sizer(self.value)
-  else:
-    for field_descriptor, field_value in self.ListFields():
-      size += field_descriptor._sizer(field_value)
-    for tag_bytes, value_bytes in self._unknown_fields:
-      size += len(tag_bytes) + len(value_bytes)
-
-  self._cached_byte_size = size
-  self._cached_byte_size_dirty = False
-  self._listener_for_children.dirty = False
-  return size</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.Clear"><code class="name flex">
-<span>def <span class="ident">Clear</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def _Clear(self):
-  # Clear fields.
-  self._fields = {}
-  self._unknown_fields = ()
-  # pylint: disable=protected-access
-  if self._unknown_field_set is not None:
-    self._unknown_field_set._clear()
-    self._unknown_field_set = None
-
-  self._oneofs = {}
-  self._Modified()</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.ClearField"><code class="name flex">
-<span>def <span class="ident">ClearField</span></span>(<span>self, field_name)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ClearField(self, field_name):
-  try:
-    field = message_descriptor.fields_by_name[field_name]
-  except KeyError:
-    try:
-      field = message_descriptor.oneofs_by_name[field_name]
-      if field in self._oneofs:
-        field = self._oneofs[field]
-      else:
-        return
-    except KeyError:
-      raise ValueError(&#39;Protocol message %s has no &#34;%s&#34; field.&#39; %
-                       (message_descriptor.name, field_name))
-
-  if field in self._fields:
-    # To match the C++ implementation, we need to invalidate iterators
-    # for map fields when ClearField() happens.
-    if hasattr(self._fields[field], &#39;InvalidateIterators&#39;):
-      self._fields[field].InvalidateIterators()
-
-    # Note:  If the field is a sub-message, its listener will still point
-    #   at us.  That&#39;s fine, because the worst than can happen is that it
-    #   will call _Modified() and invalidate our byte size.  Big deal.
-    del self._fields[field]
-
-    if self._oneofs.get(field.containing_oneof, None) is field:
-      del self._oneofs[field.containing_oneof]
-
-  # Always call _Modified() -- even if nothing was changed, this is
-  # a mutating method, and thus calling it should cause the field to become
-  # present in the parent message.
-  self._Modified()</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.DiscardUnknownFields"><code class="name flex">
-<span>def <span class="ident">DiscardUnknownFields</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def _DiscardUnknownFields(self):
-  self._unknown_fields = []
-  self._unknown_field_set = None      # pylint: disable=protected-access
-  for field, value in self.ListFields():
-    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      if _IsMapField(field):
-        if _IsMessageMapField(field):
-          for key in value:
-            value[key].DiscardUnknownFields()
-      elif field.label == _FieldDescriptor.LABEL_REPEATED:
-        for sub_message in value:
-          sub_message.DiscardUnknownFields()
-      else:
-        value.DiscardUnknownFields()</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.FindInitializationErrors"><code class="name flex">
-<span>def <span class="ident">FindInitializationErrors</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Finds required fields which are not initialized.</p>
-<h2 id="returns">Returns</h2>
-<p>A list of strings.
-Each string is a path to an uninitialized field from
-the top-level message, e.g. "foo.bar[5].baz".</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def FindInitializationErrors(self):
-  &#34;&#34;&#34;Finds required fields which are not initialized.
-
-  Returns:
-    A list of strings.  Each string is a path to an uninitialized field from
-    the top-level message, e.g. &#34;foo.bar[5].baz&#34;.
-  &#34;&#34;&#34;
-
-  errors = []  # simplify things
-
-  for field in required_fields:
-    if not self.HasField(field.name):
-      errors.append(field.name)
-
-  for field, value in self.ListFields():
-    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      if field.is_extension:
-        name = &#39;(%s)&#39; % field.full_name
-      else:
-        name = field.name
-
-      if _IsMapField(field):
-        if _IsMessageMapField(field):
-          for key in value:
-            element = value[key]
-            prefix = &#39;%s[%s].&#39; % (name, key)
-            sub_errors = element.FindInitializationErrors()
-            errors += [prefix + error for error in sub_errors]
-        else:
-          # ScalarMaps can&#39;t have any initialization errors.
-          pass
-      elif field.label == _FieldDescriptor.LABEL_REPEATED:
-        for i in range(len(value)):
-          element = value[i]
-          prefix = &#39;%s[%d].&#39; % (name, i)
-          sub_errors = element.FindInitializationErrors()
-          errors += [prefix + error for error in sub_errors]
-      else:
-        prefix = name + &#39;.&#39;
-        sub_errors = value.FindInitializationErrors()
-        errors += [prefix + error for error in sub_errors]
-
-  return errors</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.HasField"><code class="name flex">
-<span>def <span class="ident">HasField</span></span>(<span>self, field_name)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def HasField(self, field_name):
-  try:
-    field = hassable_fields[field_name]
-  except KeyError:
-    raise ValueError(error_msg % (message_descriptor.full_name, field_name))
-
-  if isinstance(field, descriptor_mod.OneofDescriptor):
-    try:
-      return HasField(self, self._oneofs[field].name)
-    except KeyError:
-      return False
-  else:
-    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      value = self._fields.get(field)
-      return value is not None and value._is_present_in_parent
-    else:
-      return field in self._fields</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.IsInitialized"><code class="name flex">
-<span>def <span class="ident">IsInitialized</span></span>(<span>self, errors=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Checks if all required fields of a message are set.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>errors</code></strong></dt>
-<dd>A list which, if provided, will be populated with the field
-paths of all missing required fields.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>True iff the specified message has all required fields set.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def IsInitialized(self, errors=None):
-  &#34;&#34;&#34;Checks if all required fields of a message are set.
-
-  Args:
-    errors:  A list which, if provided, will be populated with the field
-             paths of all missing required fields.
-
-  Returns:
-    True iff the specified message has all required fields set.
-  &#34;&#34;&#34;
-
-  # Performance is critical so we avoid HasField() and ListFields().
-
-  for field in required_fields:
-    if (field not in self._fields or
-        (field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE and
-         not self._fields[field]._is_present_in_parent)):
-      if errors is not None:
-        errors.extend(self.FindInitializationErrors())
-      return False
-
-  for field, value in list(self._fields.items()):  # dict can change size!
-    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      if field.label == _FieldDescriptor.LABEL_REPEATED:
-        if (field.message_type.has_options and
-            field.message_type.GetOptions().map_entry):
-          continue
-        for element in value:
-          if not element.IsInitialized():
-            if errors is not None:
-              errors.extend(self.FindInitializationErrors())
-            return False
-      elif value._is_present_in_parent and not value.IsInitialized():
-        if errors is not None:
-          errors.extend(self.FindInitializationErrors())
-        return False
-
-  return True</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.ListFields"><code class="name flex">
-<span>def <span class="ident">ListFields</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ListFields(self):
-  all_fields = [item for item in self._fields.items() if _IsPresent(item)]
-  all_fields.sort(key = lambda item: item[0].number)
-  return all_fields</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.MergeFrom"><code class="name flex">
-<span>def <span class="ident">MergeFrom</span></span>(<span>self, msg)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def MergeFrom(self, msg):
-  if not isinstance(msg, cls):
-    raise TypeError(
-        &#39;Parameter to MergeFrom() must be instance of same class: &#39;
-        &#39;expected %s got %s.&#39; % (_FullyQualifiedClassName(cls),
-                                 _FullyQualifiedClassName(msg.__class__)))
-
-  assert msg is not self
-  self._Modified()
-
-  fields = self._fields
-
-  for field, value in msg._fields.items():
-    if field.label == LABEL_REPEATED:
-      field_value = fields.get(field)
-      if field_value is None:
-        # Construct a new object to represent this field.
-        field_value = field._default_constructor(self)
-        fields[field] = field_value
-      field_value.MergeFrom(value)
-    elif field.cpp_type == CPPTYPE_MESSAGE:
-      if value._is_present_in_parent:
-        field_value = fields.get(field)
-        if field_value is None:
-          # Construct a new object to represent this field.
-          field_value = field._default_constructor(self)
-          fields[field] = field_value
-        field_value.MergeFrom(value)
-    else:
-      self._fields[field] = value
-      if field.containing_oneof:
-        self._UpdateOneofState(field)
-
-  if msg._unknown_fields:
-    if not self._unknown_fields:
-      self._unknown_fields = []
-    self._unknown_fields.extend(msg._unknown_fields)
-    # pylint: disable=protected-access
-    if self._unknown_field_set is None:
-      self._unknown_field_set = containers.UnknownFieldSet()
-    self._unknown_field_set._extend(msg._unknown_field_set)</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.MergeFromString"><code class="name flex">
-<span>def <span class="ident">MergeFromString</span></span>(<span>self, serialized)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def MergeFromString(self, serialized):
-  serialized = memoryview(serialized)
-  length = len(serialized)
-  try:
-    if self._InternalParse(serialized, 0, length) != length:
-      # The only reason _InternalParse would return early is if it
-      # encountered an end-group tag.
-      raise message_mod.DecodeError(&#39;Unexpected end-group tag.&#39;)
-  except (IndexError, TypeError):
-    # Now ord(buf[p:p+1]) == ord(&#39;&#39;) gets TypeError.
-    raise message_mod.DecodeError(&#39;Truncated message.&#39;)
-  except struct.error as e:
-    raise message_mod.DecodeError(e)
-  return length   # Return this for legacy reasons.</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.SerializePartialToString"><code class="name flex">
-<span>def <span class="ident">SerializePartialToString</span></span>(<span>self, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def SerializePartialToString(self, **kwargs):
-  out = BytesIO()
-  self._InternalSerialize(out.write, **kwargs)
-  return out.getvalue()</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.SerializeToString"><code class="name flex">
-<span>def <span class="ident">SerializeToString</span></span>(<span>self, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def SerializeToString(self, **kwargs):
-  # Check if the message has all of its required fields set.
-  if not self.IsInitialized():
-    raise message_mod.EncodeError(
-        &#39;Message %s is missing required fields: %s&#39; % (
-        self.DESCRIPTOR.full_name, &#39;,&#39;.join(self.FindInitializationErrors())))
-  return self.SerializePartialToString(**kwargs)</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.SetInParent"><code class="name flex">
-<span>def <span class="ident">SetInParent</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Sets the _cached_byte_size_dirty bit to true,
-and propagates this to our listener iff this was a state change.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def Modified(self):
-  &#34;&#34;&#34;Sets the _cached_byte_size_dirty bit to true,
-  and propagates this to our listener iff this was a state change.
-  &#34;&#34;&#34;
-
-  # Note:  Some callers check _cached_byte_size_dirty before calling
-  #   _Modified() as an extra optimization.  So, if this method is ever
-  #   changed such that it does stuff even when _cached_byte_size_dirty is
-  #   already true, the callers need to be updated.
-  if not self._cached_byte_size_dirty:
-    self._cached_byte_size_dirty = True
-    self._listener_for_children.dirty = True
-    self._is_present_in_parent = True
-    self._listener.Modified()</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.UnknownFields"><code class="name flex">
-<span>def <span class="ident">UnknownFields</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def _UnknownFields(self):
-  if self._unknown_field_set is None:  # pylint: disable=protected-access
-    # pylint: disable=protected-access
-    self._unknown_field_set = containers.UnknownFieldSet()
-  return self._unknown_field_set    # pylint: disable=protected-access</code></pre>
-</details>
-</dd>
-<dt id="meshtastic.tests.test_main.Channel.WhichOneof"><code class="name flex">
-<span>def <span class="ident">WhichOneof</span></span>(<span>self, oneof_name)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Returns the name of the currently set field inside a oneof, or None.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def WhichOneof(self, oneof_name):
-  &#34;&#34;&#34;Returns the name of the currently set field inside a oneof, or None.&#34;&#34;&#34;
-  try:
-    field = message_descriptor.oneofs_by_name[oneof_name]
-  except KeyError:
-    raise ValueError(
-        &#39;Protocol message has no oneof &#34;%s&#34; field.&#39; % oneof_name)
-
-  nested_field = self._oneofs.get(field, None)
-  if nested_field is not None and self.HasField(nested_field.name):
-    return nested_field.name
-  else:
-    return None</code></pre>
-</details>
+<div class="desc"><p>Field Channel.settings</p></div>
 </dd>
 </dl>
 </dd>
@@ -3518,8 +3905,15 @@ and propagates this to our listener iff this was a state change.</p></div>
 <li><code><a title="meshtastic.tests.test_main.test_main_ch_longsfast_on_non_primary_channel" href="#meshtastic.tests.test_main.test_main_ch_longsfast_on_non_primary_channel">test_main_ch_longsfast_on_non_primary_channel</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_ch_range_options" href="#meshtastic.tests.test_main.test_main_ch_range_options">test_main_ch_range_options</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_configure" href="#meshtastic.tests.test_main.test_main_configure">test_main_configure</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_export_config" href="#meshtastic.tests.test_main.test_main_export_config">test_main_export_config</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_export_config_called_from_main" href="#meshtastic.tests.test_main.test_main_export_config_called_from_main">test_main_export_config_called_from_main</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_getPref_invalid_field" href="#meshtastic.tests.test_main.test_main_getPref_invalid_field">test_main_getPref_invalid_field</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_getPref_valid_field" href="#meshtastic.tests.test_main.test_main_getPref_valid_field">test_main_getPref_valid_field</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_get_with_invalid" href="#meshtastic.tests.test_main.test_main_get_with_invalid">test_main_get_with_invalid</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_get_with_valid_values" href="#meshtastic.tests.test_main.test_main_get_with_valid_values">test_main_get_with_valid_values</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_gpio_rd" href="#meshtastic.tests.test_main.test_main_gpio_rd">test_main_gpio_rd</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_gpio_rd_no_dest" href="#meshtastic.tests.test_main.test_main_gpio_rd_no_dest">test_main_gpio_rd_no_dest</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_gpio_rd_no_gpio_channel" href="#meshtastic.tests.test_main.test_main_gpio_rd_no_gpio_channel">test_main_gpio_rd_no_gpio_channel</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_info" href="#meshtastic.tests.test_main.test_main_info">test_main_info</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_info_with_ble_interface" href="#meshtastic.tests.test_main.test_main_info_with_ble_interface">test_main_info_with_ble_interface</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_info_with_seriallog_output_txt" href="#meshtastic.tests.test_main.test_main_info_with_seriallog_output_txt">test_main_info_with_seriallog_output_txt</a></code></li>
@@ -3533,6 +3927,8 @@ and propagates this to our listener iff this was a state change.</p></div>
 <li><code><a title="meshtastic.tests.test_main.test_main_nodes" href="#meshtastic.tests.test_main.test_main_nodes">test_main_nodes</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_onConnection" href="#meshtastic.tests.test_main.test_main_onConnection">test_main_onConnection</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_onReceive_empty" href="#meshtastic.tests.test_main.test_main_onReceive_empty">test_main_onReceive_empty</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_onReceive_with_reply" href="#meshtastic.tests.test_main.test_main_onReceive_with_reply">test_main_onReceive_with_reply</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_onReceive_with_sendtext" href="#meshtastic.tests.test_main.test_main_onReceive_with_sendtext">test_main_onReceive_with_sendtext</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_pos_fields_arg_of_zero" href="#meshtastic.tests.test_main.test_main_pos_fields_arg_of_zero">test_main_pos_fields_arg_of_zero</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_pos_fields_no_args" href="#meshtastic.tests.test_main.test_main_pos_fields_no_args">test_main_pos_fields_no_args</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_pos_fields_valid_values" href="#meshtastic.tests.test_main.test_main_pos_fields_valid_values">test_main_pos_fields_valid_values</a></code></li>
@@ -3540,7 +3936,12 @@ and propagates this to our listener iff this was a state change.</p></div>
 <li><code><a title="meshtastic.tests.test_main.test_main_reboot" href="#meshtastic.tests.test_main.test_main_reboot">test_main_reboot</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_sendping" href="#meshtastic.tests.test_main.test_main_sendping">test_main_sendping</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_sendtext" href="#meshtastic.tests.test_main.test_main_sendtext">test_main_sendtext</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_sendtext_with_channel" href="#meshtastic.tests.test_main.test_main_sendtext_with_channel">test_main_sendtext_with_channel</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_sendtext_with_dest" href="#meshtastic.tests.test_main.test_main_sendtext_with_dest">test_main_sendtext_with_dest</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_sendtext_with_invalid_channel" href="#meshtastic.tests.test_main.test_main_sendtext_with_invalid_channel">test_main_sendtext_with_invalid_channel</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_sendtext_with_invalid_channel_nine" href="#meshtastic.tests.test_main.test_main_sendtext_with_invalid_channel_nine">test_main_sendtext_with_invalid_channel_nine</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_setPref_invalid_field" href="#meshtastic.tests.test_main.test_main_setPref_invalid_field">test_main_setPref_invalid_field</a></code></li>
+<li><code><a title="meshtastic.tests.test_main.test_main_setPref_valid_field" href="#meshtastic.tests.test_main.test_main_setPref_valid_field">test_main_setPref_valid_field</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_set_ham_to_KI123" href="#meshtastic.tests.test_main.test_main_set_ham_to_KI123">test_main_set_ham_to_KI123</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_set_owner_to_bob" href="#meshtastic.tests.test_main.test_main_set_owner_to_bob">test_main_set_owner_to_bob</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.test_main_set_team_invalid" href="#meshtastic.tests.test_main.test_main_set_team_invalid">test_main_set_team_invalid</a></code></li>
@@ -3563,32 +3964,12 @@ and propagates this to our listener iff this was a state change.</p></div>
 <ul>
 <li>
 <h4><code><a title="meshtastic.tests.test_main.Channel" href="#meshtastic.tests.test_main.Channel">Channel</a></code></h4>
-<ul class="">
-<li><code><a title="meshtastic.tests.test_main.Channel.ByteSize" href="#meshtastic.tests.test_main.Channel.ByteSize">ByteSize</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.Clear" href="#meshtastic.tests.test_main.Channel.Clear">Clear</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.ClearField" href="#meshtastic.tests.test_main.Channel.ClearField">ClearField</a></code></li>
+<ul class="two-column">
 <li><code><a title="meshtastic.tests.test_main.Channel.DESCRIPTOR" href="#meshtastic.tests.test_main.Channel.DESCRIPTOR">DESCRIPTOR</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.Channel.DISABLED" href="#meshtastic.tests.test_main.Channel.DISABLED">DISABLED</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.DiscardUnknownFields" href="#meshtastic.tests.test_main.Channel.DiscardUnknownFields">DiscardUnknownFields</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.FindInitializationErrors" href="#meshtastic.tests.test_main.Channel.FindInitializationErrors">FindInitializationErrors</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.FromString" href="#meshtastic.tests.test_main.Channel.FromString">FromString</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.HasField" href="#meshtastic.tests.test_main.Channel.HasField">HasField</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.INDEX_FIELD_NUMBER" href="#meshtastic.tests.test_main.Channel.INDEX_FIELD_NUMBER">INDEX_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.IsInitialized" href="#meshtastic.tests.test_main.Channel.IsInitialized">IsInitialized</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.ListFields" href="#meshtastic.tests.test_main.Channel.ListFields">ListFields</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.MergeFrom" href="#meshtastic.tests.test_main.Channel.MergeFrom">MergeFrom</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.MergeFromString" href="#meshtastic.tests.test_main.Channel.MergeFromString">MergeFromString</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.Channel.PRIMARY" href="#meshtastic.tests.test_main.Channel.PRIMARY">PRIMARY</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.ROLE_FIELD_NUMBER" href="#meshtastic.tests.test_main.Channel.ROLE_FIELD_NUMBER">ROLE_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.RegisterExtension" href="#meshtastic.tests.test_main.Channel.RegisterExtension">RegisterExtension</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.Channel.Role" href="#meshtastic.tests.test_main.Channel.Role">Role</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.Channel.SECONDARY" href="#meshtastic.tests.test_main.Channel.SECONDARY">SECONDARY</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.SETTINGS_FIELD_NUMBER" href="#meshtastic.tests.test_main.Channel.SETTINGS_FIELD_NUMBER">SETTINGS_FIELD_NUMBER</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.SerializePartialToString" href="#meshtastic.tests.test_main.Channel.SerializePartialToString">SerializePartialToString</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.SerializeToString" href="#meshtastic.tests.test_main.Channel.SerializeToString">SerializeToString</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.SetInParent" href="#meshtastic.tests.test_main.Channel.SetInParent">SetInParent</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.UnknownFields" href="#meshtastic.tests.test_main.Channel.UnknownFields">UnknownFields</a></code></li>
-<li><code><a title="meshtastic.tests.test_main.Channel.WhichOneof" href="#meshtastic.tests.test_main.Channel.WhichOneof">WhichOneof</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.Channel.index" href="#meshtastic.tests.test_main.Channel.index">index</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.Channel.role" href="#meshtastic.tests.test_main.Channel.role">role</a></code></li>
 <li><code><a title="meshtastic.tests.test_main.Channel.settings" href="#meshtastic.tests.test_main.Channel.settings">settings</a></code></li>
