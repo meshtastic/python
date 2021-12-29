@@ -17,4 +17,4 @@ pytest-cov
 pyyaml
 pytap2
 pdoc3
-pubsub
+pypubsub
