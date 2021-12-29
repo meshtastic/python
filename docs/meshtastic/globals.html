@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>meshtastic.globals API documentation</title>
+<meta name="description" content="Globals singleton class …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>meshtastic.globals</code></h1>
+</header>
+<section id="section-intro">
+<p>Globals singleton class.</p>
+<p>Instead of using a global, stuff your variables in this "trash can".
+This is not much better than using python's globals, but it allows
+us to better test meshtastic. Plus, there are some weird python
+global issues/gotcha that we can hopefully avoid by using this
+class instead.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Globals singleton class.
+
+   Instead of using a global, stuff your variables in this &#34;trash can&#34;.
+   This is not much better than using python&#39;s globals, but it allows
+   us to better test meshtastic. Plus, there are some weird python
+   global issues/gotcha that we can hopefully avoid by using this
+   class instead.
+
+&#34;&#34;&#34;
+
+class Globals:
+    &#34;&#34;&#34;Globals class is a Singleton.&#34;&#34;&#34;
+    __instance = None
+
+    @staticmethod
+    def getInstance():
+        &#34;&#34;&#34;Get an instance of the Globals class.&#34;&#34;&#34;
+        if Globals.__instance is None:
+            Globals()
+        return Globals.__instance
+
+    def __init__(self):
+        &#34;&#34;&#34;Constructor for the Globals CLass&#34;&#34;&#34;
+        if Globals.__instance is not None:
+            raise Exception(&#34;This class is a singleton&#34;)
+        else:
+            Globals.__instance = self
+        self.args = None
+        self.parser = None
+        self.target_node = None
+        self.channel_index = None
+
+    def reset(self):
+        &#34;&#34;&#34;Reset all of our globals. If you add a member, add it to this method, too.&#34;&#34;&#34;
+        self.args = None
+        self.parser = None
+        self.target_node = None
+        self.channel_index = None
+
+    def set_args(self, args):
+        &#34;&#34;&#34;Set the args&#34;&#34;&#34;
+        self.args = args
+
+    def set_parser(self, parser):
+        &#34;&#34;&#34;Set the parser&#34;&#34;&#34;
+        self.parser = parser
+
+    def set_target_node(self, target_node):
+        &#34;&#34;&#34;Set the target_node&#34;&#34;&#34;
+        self.target_node = target_node
+
+    def set_channel_index(self, channel_index):
+        &#34;&#34;&#34;Set the channel_index&#34;&#34;&#34;
+        self.channel_index = channel_index
+
+    def get_args(self):
+        &#34;&#34;&#34;Get args&#34;&#34;&#34;
+        return self.args
+
+    def get_parser(self):
+        &#34;&#34;&#34;Get parser&#34;&#34;&#34;
+        return self.parser
+
+    def get_target_node(self):
+        &#34;&#34;&#34;Get target_node&#34;&#34;&#34;
+        return self.target_node
+
+    def get_channel_index(self):
+        &#34;&#34;&#34;Get channel_index&#34;&#34;&#34;
+        return self.channel_index</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="meshtastic.globals.Globals"><code class="flex name class">
+<span>class <span class="ident">Globals</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Globals class is a Singleton.</p>
+<p>Constructor for the Globals CLass</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Globals:
+    &#34;&#34;&#34;Globals class is a Singleton.&#34;&#34;&#34;
+    __instance = None
+
+    @staticmethod
+    def getInstance():
+        &#34;&#34;&#34;Get an instance of the Globals class.&#34;&#34;&#34;
+        if Globals.__instance is None:
+            Globals()
+        return Globals.__instance
+
+    def __init__(self):
+        &#34;&#34;&#34;Constructor for the Globals CLass&#34;&#34;&#34;
+        if Globals.__instance is not None:
+            raise Exception(&#34;This class is a singleton&#34;)
+        else:
+            Globals.__instance = self
+        self.args = None
+        self.parser = None
+        self.target_node = None
+        self.channel_index = None
+
+    def reset(self):
+        &#34;&#34;&#34;Reset all of our globals. If you add a member, add it to this method, too.&#34;&#34;&#34;
+        self.args = None
+        self.parser = None
+        self.target_node = None
+        self.channel_index = None
+
+    def set_args(self, args):
+        &#34;&#34;&#34;Set the args&#34;&#34;&#34;
+        self.args = args
+
+    def set_parser(self, parser):
+        &#34;&#34;&#34;Set the parser&#34;&#34;&#34;
+        self.parser = parser
+
+    def set_target_node(self, target_node):
+        &#34;&#34;&#34;Set the target_node&#34;&#34;&#34;
+        self.target_node = target_node
+
+    def set_channel_index(self, channel_index):
+        &#34;&#34;&#34;Set the channel_index&#34;&#34;&#34;
+        self.channel_index = channel_index
+
+    def get_args(self):
+        &#34;&#34;&#34;Get args&#34;&#34;&#34;
+        return self.args
+
+    def get_parser(self):
+        &#34;&#34;&#34;Get parser&#34;&#34;&#34;
+        return self.parser
+
+    def get_target_node(self):
+        &#34;&#34;&#34;Get target_node&#34;&#34;&#34;
+        return self.target_node
+
+    def get_channel_index(self):
+        &#34;&#34;&#34;Get channel_index&#34;&#34;&#34;
+        return self.channel_index</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="meshtastic.globals.Globals.getInstance"><code class="name flex">
+<span>def <span class="ident">getInstance</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get an instance of the Globals class.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def getInstance():
+    &#34;&#34;&#34;Get an instance of the Globals class.&#34;&#34;&#34;
+    if Globals.__instance is None:
+        Globals()
+    return Globals.__instance</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.globals.Globals.get_args"><code class="name flex">
+<span>def <span class="ident">get_args</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get args</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_args(self):
+    &#34;&#34;&#34;Get args&#34;&#34;&#34;
+    return self.args</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.globals.Globals.get_channel_index"><code class="name flex">
+<span>def <span class="ident">get_channel_index</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get channel_index</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_channel_index(self):
+    &#34;&#34;&#34;Get channel_index&#34;&#34;&#34;
+    return self.channel_index</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.globals.Globals.get_parser"><code class="name flex">
+<span>def <span class="ident">get_parser</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get parser</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_parser(self):
+    &#34;&#34;&#34;Get parser&#34;&#34;&#34;
+    return self.parser</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.globals.Globals.get_target_node"><code class="name flex">
+<span>def <span class="ident">get_target_node</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get target_node</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_target_node(self):
+    &#34;&#34;&#34;Get target_node&#34;&#34;&#34;
+    return self.target_node</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.globals.Globals.reset"><code class="name flex">
+<span>def <span class="ident">reset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Reset all of our globals. If you add a member, add it to this method, too.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reset(self):
+    &#34;&#34;&#34;Reset all of our globals. If you add a member, add it to this method, too.&#34;&#34;&#34;
+    self.args = None
+    self.parser = None
+    self.target_node = None
+    self.channel_index = None</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.globals.Globals.set_args"><code class="name flex">
+<span>def <span class="ident">set_args</span></span>(<span>self, args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the args</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_args(self, args):
+    &#34;&#34;&#34;Set the args&#34;&#34;&#34;
+    self.args = args</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.globals.Globals.set_channel_index"><code class="name flex">
+<span>def <span class="ident">set_channel_index</span></span>(<span>self, channel_index)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the channel_index</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_channel_index(self, channel_index):
+    &#34;&#34;&#34;Set the channel_index&#34;&#34;&#34;
+    self.channel_index = channel_index</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.globals.Globals.set_parser"><code class="name flex">
+<span>def <span class="ident">set_parser</span></span>(<span>self, parser)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the parser</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_parser(self, parser):
+    &#34;&#34;&#34;Set the parser&#34;&#34;&#34;
+    self.parser = parser</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.globals.Globals.set_target_node"><code class="name flex">
+<span>def <span class="ident">set_target_node</span></span>(<span>self, target_node)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the target_node</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_target_node(self, target_node):
+    &#34;&#34;&#34;Set the target_node&#34;&#34;&#34;
+    self.target_node = target_node</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="meshtastic" href="index.html">meshtastic</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="meshtastic.globals.Globals" href="#meshtastic.globals.Globals">Globals</a></code></h4>
+<ul class="two-column">
+<li><code><a title="meshtastic.globals.Globals.getInstance" href="#meshtastic.globals.Globals.getInstance">getInstance</a></code></li>
+<li><code><a title="meshtastic.globals.Globals.get_args" href="#meshtastic.globals.Globals.get_args">get_args</a></code></li>
+<li><code><a title="meshtastic.globals.Globals.get_channel_index" href="#meshtastic.globals.Globals.get_channel_index">get_channel_index</a></code></li>
+<li><code><a title="meshtastic.globals.Globals.get_parser" href="#meshtastic.globals.Globals.get_parser">get_parser</a></code></li>
+<li><code><a title="meshtastic.globals.Globals.get_target_node" href="#meshtastic.globals.Globals.get_target_node">get_target_node</a></code></li>
+<li><code><a title="meshtastic.globals.Globals.reset" href="#meshtastic.globals.Globals.reset">reset</a></code></li>
+<li><code><a title="meshtastic.globals.Globals.set_args" href="#meshtastic.globals.Globals.set_args">set_args</a></code></li>
+<li><code><a title="meshtastic.globals.Globals.set_channel_index" href="#meshtastic.globals.Globals.set_channel_index">set_channel_index</a></code></li>
+<li><code><a title="meshtastic.globals.Globals.set_parser" href="#meshtastic.globals.Globals.set_parser">set_parser</a></code></li>
+<li><code><a title="meshtastic.globals.Globals.set_target_node" href="#meshtastic.globals.Globals.set_target_node">set_target_node</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

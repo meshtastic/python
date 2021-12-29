@@ -1,0 +1,1118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>meshtastic.admin_pb2 API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>meshtastic.admin_pb2</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python"># -*- coding: utf-8 -*-
+# Generated by the protocol buffer compiler.  DO NOT EDIT!
+# source: admin.proto
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf import reflection as _reflection
+from google.protobuf import symbol_database as _symbol_database
+# @@protoc_insertion_point(imports)
+
+_sym_db = _symbol_database.Default()
+
+
+from . import channel_pb2 as channel__pb2
+from . import radioconfig_pb2 as radioconfig__pb2
+from . import mesh_pb2 as mesh__pb2
+
+
+DESCRIPTOR = _descriptor.FileDescriptor(
+  name=&#39;admin.proto&#39;,
+  package=&#39;&#39;,
+  syntax=&#39;proto3&#39;,
+  serialized_options=b&#39;\n\023com.geeksville.meshB\013AdminProtosH\003Z!github.com/meshtastic/gomeshproto&#39;,
+  serialized_pb=b&#39;\n\x0b\x61\x64min.proto\x1a\rchannel.proto\x1a\x11radioconfig.proto\x1a\nmesh.proto\&#34;\xbd\x03\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_owner_request\x18\x08 \x01(\x08H\x00\x12#\n\x12get_owner_response\x18\t \x01(\x0b\x32\x05.UserH\x00\x12\x1d\n\x13\x63onfirm_set_channel\x18  \x01(\x08H\x00\x12\x1b\n\x11\x63onfirm_set_radio\x18! \x01(\x08H\x00\x12\x18\n\x0e\x65xit_simulator\x18\&#34; \x01(\x08H\x00\x12\x18\n\x0ereboot_seconds\x18# \x01(\x05H\x00\x42\t\n\x07variantBG\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3&#39;
+  ,
+  dependencies=[channel__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,mesh__pb2.DESCRIPTOR,])
+
+
+
+
+_ADMINMESSAGE = _descriptor.Descriptor(
+  name=&#39;AdminMessage&#39;,
+  full_name=&#39;AdminMessage&#39;,
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name=&#39;set_radio&#39;, full_name=&#39;AdminMessage.set_radio&#39;, index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;set_owner&#39;, full_name=&#39;AdminMessage.set_owner&#39;, index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;set_channel&#39;, full_name=&#39;AdminMessage.set_channel&#39;, index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;get_radio_request&#39;, full_name=&#39;AdminMessage.get_radio_request&#39;, index=3,
+      number=4, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;get_radio_response&#39;, full_name=&#39;AdminMessage.get_radio_response&#39;, index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;get_channel_request&#39;, full_name=&#39;AdminMessage.get_channel_request&#39;, index=5,
+      number=6, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;get_channel_response&#39;, full_name=&#39;AdminMessage.get_channel_response&#39;, index=6,
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;get_owner_request&#39;, full_name=&#39;AdminMessage.get_owner_request&#39;, index=7,
+      number=8, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;get_owner_response&#39;, full_name=&#39;AdminMessage.get_owner_response&#39;, index=8,
+      number=9, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;confirm_set_channel&#39;, full_name=&#39;AdminMessage.confirm_set_channel&#39;, index=9,
+      number=32, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;confirm_set_radio&#39;, full_name=&#39;AdminMessage.confirm_set_radio&#39;, index=10,
+      number=33, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;exit_simulator&#39;, full_name=&#39;AdminMessage.exit_simulator&#39;, index=11,
+      number=34, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name=&#39;reboot_seconds&#39;, full_name=&#39;AdminMessage.reboot_seconds&#39;, index=12,
+      number=35, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax=&#39;proto3&#39;,
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name=&#39;variant&#39;, full_name=&#39;AdminMessage.variant&#39;,
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=62,
+  serialized_end=507,
+)
+
+_ADMINMESSAGE.fields_by_name[&#39;set_radio&#39;].message_type = radioconfig__pb2._RADIOCONFIG
+_ADMINMESSAGE.fields_by_name[&#39;set_owner&#39;].message_type = mesh__pb2._USER
+_ADMINMESSAGE.fields_by_name[&#39;set_channel&#39;].message_type = channel__pb2._CHANNEL
+_ADMINMESSAGE.fields_by_name[&#39;get_radio_response&#39;].message_type = radioconfig__pb2._RADIOCONFIG
+_ADMINMESSAGE.fields_by_name[&#39;get_channel_response&#39;].message_type = channel__pb2._CHANNEL
+_ADMINMESSAGE.fields_by_name[&#39;get_owner_response&#39;].message_type = mesh__pb2._USER
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;set_radio&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;set_radio&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;set_owner&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;set_owner&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;set_channel&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;set_channel&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;get_radio_request&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;get_radio_request&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;get_radio_response&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;get_radio_response&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;get_channel_request&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;get_channel_request&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;get_channel_response&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;get_channel_response&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;get_owner_request&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;get_owner_request&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;get_owner_response&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;get_owner_response&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;confirm_set_channel&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;confirm_set_channel&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;confirm_set_radio&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;confirm_set_radio&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;exit_simulator&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;exit_simulator&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+_ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;].fields.append(
+  _ADMINMESSAGE.fields_by_name[&#39;reboot_seconds&#39;])
+_ADMINMESSAGE.fields_by_name[&#39;reboot_seconds&#39;].containing_oneof = _ADMINMESSAGE.oneofs_by_name[&#39;variant&#39;]
+DESCRIPTOR.message_types_by_name[&#39;AdminMessage&#39;] = _ADMINMESSAGE
+_sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+AdminMessage = _reflection.GeneratedProtocolMessageType(&#39;AdminMessage&#39;, (_message.Message,), {
+  &#39;DESCRIPTOR&#39; : _ADMINMESSAGE,
+  &#39;__module__&#39; : &#39;admin_pb2&#39;
+  # @@protoc_insertion_point(class_scope:AdminMessage)
+  })
+_sym_db.RegisterMessage(AdminMessage)
+
+
+DESCRIPTOR._options = None
+# @@protoc_insertion_point(module_scope)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="meshtastic.admin_pb2.AdminMessage"><code class="flex name class">
+<span>class <span class="ident">AdminMessage</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstract base class for protocol messages.</p>
+<p>Protocol message classes are almost always generated by the protocol
+compiler.
+These generated types subclass Message and implement the methods
+shown below.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>google.protobuf.message.Message</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="meshtastic.admin_pb2.AdminMessage.CONFIRM_SET_CHANNEL_FIELD_NUMBER"><code class="name">var <span class="ident">CONFIRM_SET_CHANNEL_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.CONFIRM_SET_RADIO_FIELD_NUMBER"><code class="name">var <span class="ident">CONFIRM_SET_RADIO_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.DESCRIPTOR"><code class="name">var <span class="ident">DESCRIPTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.EXIT_SIMULATOR_FIELD_NUMBER"><code class="name">var <span class="ident">EXIT_SIMULATOR_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.GET_CHANNEL_REQUEST_FIELD_NUMBER"><code class="name">var <span class="ident">GET_CHANNEL_REQUEST_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.GET_CHANNEL_RESPONSE_FIELD_NUMBER"><code class="name">var <span class="ident">GET_CHANNEL_RESPONSE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.GET_OWNER_REQUEST_FIELD_NUMBER"><code class="name">var <span class="ident">GET_OWNER_REQUEST_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.GET_OWNER_RESPONSE_FIELD_NUMBER"><code class="name">var <span class="ident">GET_OWNER_RESPONSE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.GET_RADIO_REQUEST_FIELD_NUMBER"><code class="name">var <span class="ident">GET_RADIO_REQUEST_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.GET_RADIO_RESPONSE_FIELD_NUMBER"><code class="name">var <span class="ident">GET_RADIO_RESPONSE_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.REBOOT_SECONDS_FIELD_NUMBER"><code class="name">var <span class="ident">REBOOT_SECONDS_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.SET_CHANNEL_FIELD_NUMBER"><code class="name">var <span class="ident">SET_CHANNEL_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.SET_OWNER_FIELD_NUMBER"><code class="name">var <span class="ident">SET_OWNER_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.SET_RADIO_FIELD_NUMBER"><code class="name">var <span class="ident">SET_RADIO_FIELD_NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="meshtastic.admin_pb2.AdminMessage.FromString"><code class="name flex">
+<span>def <span class="ident">FromString</span></span>(<span>s)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def FromString(s):
+  message = cls()
+  message.MergeFromString(s)
+  return message</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.RegisterExtension"><code class="name flex">
+<span>def <span class="ident">RegisterExtension</span></span>(<span>extension_handle)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def RegisterExtension(extension_handle):
+  extension_handle.containing_type = cls.DESCRIPTOR
+  # TODO(amauryfa): Use cls.MESSAGE_FACTORY.pool when available.
+  # pylint: disable=protected-access
+  cls.DESCRIPTOR.file.pool._AddExtensionDescriptor(extension_handle)
+  _AttachFieldHelpers(cls, extension_handle)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="meshtastic.admin_pb2.AdminMessage.confirm_set_channel"><code class="name">var <span class="ident">confirm_set_channel</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for confirm_set_channel.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  # TODO(protobuf-team): This may be broken since there may not be
+  # default_value.  Combine with has_default_value somehow.
+  return self._fields.get(field, default_value)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.confirm_set_radio"><code class="name">var <span class="ident">confirm_set_radio</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for confirm_set_radio.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  # TODO(protobuf-team): This may be broken since there may not be
+  # default_value.  Combine with has_default_value somehow.
+  return self._fields.get(field, default_value)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.exit_simulator"><code class="name">var <span class="ident">exit_simulator</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for exit_simulator.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  # TODO(protobuf-team): This may be broken since there may not be
+  # default_value.  Combine with has_default_value somehow.
+  return self._fields.get(field, default_value)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.get_channel_request"><code class="name">var <span class="ident">get_channel_request</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for get_channel_request.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  # TODO(protobuf-team): This may be broken since there may not be
+  # default_value.  Combine with has_default_value somehow.
+  return self._fields.get(field, default_value)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.get_channel_response"><code class="name">var <span class="ident">get_channel_response</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for get_channel_response.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  field_value = self._fields.get(field)
+  if field_value is None:
+    # Construct a new object to represent this field.
+    field_value = field._default_constructor(self)
+
+    # Atomically check if another thread has preempted us and, if not, swap
+    # in the new object we just created.  If someone has preempted us, we
+    # take that object and discard ours.
+    # WARNING:  We are relying on setdefault() being atomic.  This is true
+    #   in CPython but we haven&#39;t investigated others.  This warning appears
+    #   in several other locations in this file.
+    field_value = self._fields.setdefault(field, field_value)
+  return field_value</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.get_owner_request"><code class="name">var <span class="ident">get_owner_request</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for get_owner_request.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  # TODO(protobuf-team): This may be broken since there may not be
+  # default_value.  Combine with has_default_value somehow.
+  return self._fields.get(field, default_value)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.get_owner_response"><code class="name">var <span class="ident">get_owner_response</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for get_owner_response.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  field_value = self._fields.get(field)
+  if field_value is None:
+    # Construct a new object to represent this field.
+    field_value = field._default_constructor(self)
+
+    # Atomically check if another thread has preempted us and, if not, swap
+    # in the new object we just created.  If someone has preempted us, we
+    # take that object and discard ours.
+    # WARNING:  We are relying on setdefault() being atomic.  This is true
+    #   in CPython but we haven&#39;t investigated others.  This warning appears
+    #   in several other locations in this file.
+    field_value = self._fields.setdefault(field, field_value)
+  return field_value</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.get_radio_request"><code class="name">var <span class="ident">get_radio_request</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for get_radio_request.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  # TODO(protobuf-team): This may be broken since there may not be
+  # default_value.  Combine with has_default_value somehow.
+  return self._fields.get(field, default_value)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.get_radio_response"><code class="name">var <span class="ident">get_radio_response</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for get_radio_response.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  field_value = self._fields.get(field)
+  if field_value is None:
+    # Construct a new object to represent this field.
+    field_value = field._default_constructor(self)
+
+    # Atomically check if another thread has preempted us and, if not, swap
+    # in the new object we just created.  If someone has preempted us, we
+    # take that object and discard ours.
+    # WARNING:  We are relying on setdefault() being atomic.  This is true
+    #   in CPython but we haven&#39;t investigated others.  This warning appears
+    #   in several other locations in this file.
+    field_value = self._fields.setdefault(field, field_value)
+  return field_value</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.reboot_seconds"><code class="name">var <span class="ident">reboot_seconds</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for reboot_seconds.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  # TODO(protobuf-team): This may be broken since there may not be
+  # default_value.  Combine with has_default_value somehow.
+  return self._fields.get(field, default_value)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.set_channel"><code class="name">var <span class="ident">set_channel</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for set_channel.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  field_value = self._fields.get(field)
+  if field_value is None:
+    # Construct a new object to represent this field.
+    field_value = field._default_constructor(self)
+
+    # Atomically check if another thread has preempted us and, if not, swap
+    # in the new object we just created.  If someone has preempted us, we
+    # take that object and discard ours.
+    # WARNING:  We are relying on setdefault() being atomic.  This is true
+    #   in CPython but we haven&#39;t investigated others.  This warning appears
+    #   in several other locations in this file.
+    field_value = self._fields.setdefault(field, field_value)
+  return field_value</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.set_owner"><code class="name">var <span class="ident">set_owner</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for set_owner.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  field_value = self._fields.get(field)
+  if field_value is None:
+    # Construct a new object to represent this field.
+    field_value = field._default_constructor(self)
+
+    # Atomically check if another thread has preempted us and, if not, swap
+    # in the new object we just created.  If someone has preempted us, we
+    # take that object and discard ours.
+    # WARNING:  We are relying on setdefault() being atomic.  This is true
+    #   in CPython but we haven&#39;t investigated others.  This warning appears
+    #   in several other locations in this file.
+    field_value = self._fields.setdefault(field, field_value)
+  return field_value</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.set_radio"><code class="name">var <span class="ident">set_radio</span></code></dt>
+<dd>
+<div class="desc"><p>Getter for set_radio.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getter(self):
+  field_value = self._fields.get(field)
+  if field_value is None:
+    # Construct a new object to represent this field.
+    field_value = field._default_constructor(self)
+
+    # Atomically check if another thread has preempted us and, if not, swap
+    # in the new object we just created.  If someone has preempted us, we
+    # take that object and discard ours.
+    # WARNING:  We are relying on setdefault() being atomic.  This is true
+    #   in CPython but we haven&#39;t investigated others.  This warning appears
+    #   in several other locations in this file.
+    field_value = self._fields.setdefault(field, field_value)
+  return field_value</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="meshtastic.admin_pb2.AdminMessage.ByteSize"><code class="name flex">
+<span>def <span class="ident">ByteSize</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ByteSize(self):
+  if not self._cached_byte_size_dirty:
+    return self._cached_byte_size
+
+  size = 0
+  descriptor = self.DESCRIPTOR
+  if descriptor.GetOptions().map_entry:
+    # Fields of map entry should always be serialized.
+    size = descriptor.fields_by_name[&#39;key&#39;]._sizer(self.key)
+    size += descriptor.fields_by_name[&#39;value&#39;]._sizer(self.value)
+  else:
+    for field_descriptor, field_value in self.ListFields():
+      size += field_descriptor._sizer(field_value)
+    for tag_bytes, value_bytes in self._unknown_fields:
+      size += len(tag_bytes) + len(value_bytes)
+
+  self._cached_byte_size = size
+  self._cached_byte_size_dirty = False
+  self._listener_for_children.dirty = False
+  return size</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.Clear"><code class="name flex">
+<span>def <span class="ident">Clear</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _Clear(self):
+  # Clear fields.
+  self._fields = {}
+  self._unknown_fields = ()
+  # pylint: disable=protected-access
+  if self._unknown_field_set is not None:
+    self._unknown_field_set._clear()
+    self._unknown_field_set = None
+
+  self._oneofs = {}
+  self._Modified()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.ClearField"><code class="name flex">
+<span>def <span class="ident">ClearField</span></span>(<span>self, field_name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ClearField(self, field_name):
+  try:
+    field = message_descriptor.fields_by_name[field_name]
+  except KeyError:
+    try:
+      field = message_descriptor.oneofs_by_name[field_name]
+      if field in self._oneofs:
+        field = self._oneofs[field]
+      else:
+        return
+    except KeyError:
+      raise ValueError(&#39;Protocol message %s has no &#34;%s&#34; field.&#39; %
+                       (message_descriptor.name, field_name))
+
+  if field in self._fields:
+    # To match the C++ implementation, we need to invalidate iterators
+    # for map fields when ClearField() happens.
+    if hasattr(self._fields[field], &#39;InvalidateIterators&#39;):
+      self._fields[field].InvalidateIterators()
+
+    # Note:  If the field is a sub-message, its listener will still point
+    #   at us.  That&#39;s fine, because the worst than can happen is that it
+    #   will call _Modified() and invalidate our byte size.  Big deal.
+    del self._fields[field]
+
+    if self._oneofs.get(field.containing_oneof, None) is field:
+      del self._oneofs[field.containing_oneof]
+
+  # Always call _Modified() -- even if nothing was changed, this is
+  # a mutating method, and thus calling it should cause the field to become
+  # present in the parent message.
+  self._Modified()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.DiscardUnknownFields"><code class="name flex">
+<span>def <span class="ident">DiscardUnknownFields</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _DiscardUnknownFields(self):
+  self._unknown_fields = []
+  self._unknown_field_set = None      # pylint: disable=protected-access
+  for field, value in self.ListFields():
+    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
+      if _IsMapField(field):
+        if _IsMessageMapField(field):
+          for key in value:
+            value[key].DiscardUnknownFields()
+      elif field.label == _FieldDescriptor.LABEL_REPEATED:
+        for sub_message in value:
+          sub_message.DiscardUnknownFields()
+      else:
+        value.DiscardUnknownFields()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.FindInitializationErrors"><code class="name flex">
+<span>def <span class="ident">FindInitializationErrors</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Finds required fields which are not initialized.</p>
+<h2 id="returns">Returns</h2>
+<p>A list of strings.
+Each string is a path to an uninitialized field from
+the top-level message, e.g. "foo.bar[5].baz".</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def FindInitializationErrors(self):
+  &#34;&#34;&#34;Finds required fields which are not initialized.
+
+  Returns:
+    A list of strings.  Each string is a path to an uninitialized field from
+    the top-level message, e.g. &#34;foo.bar[5].baz&#34;.
+  &#34;&#34;&#34;
+
+  errors = []  # simplify things
+
+  for field in required_fields:
+    if not self.HasField(field.name):
+      errors.append(field.name)
+
+  for field, value in self.ListFields():
+    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
+      if field.is_extension:
+        name = &#39;(%s)&#39; % field.full_name
+      else:
+        name = field.name
+
+      if _IsMapField(field):
+        if _IsMessageMapField(field):
+          for key in value:
+            element = value[key]
+            prefix = &#39;%s[%s].&#39; % (name, key)
+            sub_errors = element.FindInitializationErrors()
+            errors += [prefix + error for error in sub_errors]
+        else:
+          # ScalarMaps can&#39;t have any initialization errors.
+          pass
+      elif field.label == _FieldDescriptor.LABEL_REPEATED:
+        for i in range(len(value)):
+          element = value[i]
+          prefix = &#39;%s[%d].&#39; % (name, i)
+          sub_errors = element.FindInitializationErrors()
+          errors += [prefix + error for error in sub_errors]
+      else:
+        prefix = name + &#39;.&#39;
+        sub_errors = value.FindInitializationErrors()
+        errors += [prefix + error for error in sub_errors]
+
+  return errors</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.HasField"><code class="name flex">
+<span>def <span class="ident">HasField</span></span>(<span>self, field_name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def HasField(self, field_name):
+  try:
+    field = hassable_fields[field_name]
+  except KeyError:
+    raise ValueError(error_msg % (message_descriptor.full_name, field_name))
+
+  if isinstance(field, descriptor_mod.OneofDescriptor):
+    try:
+      return HasField(self, self._oneofs[field].name)
+    except KeyError:
+      return False
+  else:
+    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
+      value = self._fields.get(field)
+      return value is not None and value._is_present_in_parent
+    else:
+      return field in self._fields</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.IsInitialized"><code class="name flex">
+<span>def <span class="ident">IsInitialized</span></span>(<span>self, errors=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if all required fields of a message are set.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>errors</code></strong></dt>
+<dd>A list which, if provided, will be populated with the field
+paths of all missing required fields.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>True iff the specified message has all required fields set.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def IsInitialized(self, errors=None):
+  &#34;&#34;&#34;Checks if all required fields of a message are set.
+
+  Args:
+    errors:  A list which, if provided, will be populated with the field
+             paths of all missing required fields.
+
+  Returns:
+    True iff the specified message has all required fields set.
+  &#34;&#34;&#34;
+
+  # Performance is critical so we avoid HasField() and ListFields().
+
+  for field in required_fields:
+    if (field not in self._fields or
+        (field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE and
+         not self._fields[field]._is_present_in_parent)):
+      if errors is not None:
+        errors.extend(self.FindInitializationErrors())
+      return False
+
+  for field, value in list(self._fields.items()):  # dict can change size!
+    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
+      if field.label == _FieldDescriptor.LABEL_REPEATED:
+        if (field.message_type.has_options and
+            field.message_type.GetOptions().map_entry):
+          continue
+        for element in value:
+          if not element.IsInitialized():
+            if errors is not None:
+              errors.extend(self.FindInitializationErrors())
+            return False
+      elif value._is_present_in_parent and not value.IsInitialized():
+        if errors is not None:
+          errors.extend(self.FindInitializationErrors())
+        return False
+
+  return True</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.ListFields"><code class="name flex">
+<span>def <span class="ident">ListFields</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ListFields(self):
+  all_fields = [item for item in self._fields.items() if _IsPresent(item)]
+  all_fields.sort(key = lambda item: item[0].number)
+  return all_fields</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.MergeFrom"><code class="name flex">
+<span>def <span class="ident">MergeFrom</span></span>(<span>self, msg)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def MergeFrom(self, msg):
+  if not isinstance(msg, cls):
+    raise TypeError(
+        &#39;Parameter to MergeFrom() must be instance of same class: &#39;
+        &#39;expected %s got %s.&#39; % (_FullyQualifiedClassName(cls),
+                                 _FullyQualifiedClassName(msg.__class__)))
+
+  assert msg is not self
+  self._Modified()
+
+  fields = self._fields
+
+  for field, value in msg._fields.items():
+    if field.label == LABEL_REPEATED:
+      field_value = fields.get(field)
+      if field_value is None:
+        # Construct a new object to represent this field.
+        field_value = field._default_constructor(self)
+        fields[field] = field_value
+      field_value.MergeFrom(value)
+    elif field.cpp_type == CPPTYPE_MESSAGE:
+      if value._is_present_in_parent:
+        field_value = fields.get(field)
+        if field_value is None:
+          # Construct a new object to represent this field.
+          field_value = field._default_constructor(self)
+          fields[field] = field_value
+        field_value.MergeFrom(value)
+    else:
+      self._fields[field] = value
+      if field.containing_oneof:
+        self._UpdateOneofState(field)
+
+  if msg._unknown_fields:
+    if not self._unknown_fields:
+      self._unknown_fields = []
+    self._unknown_fields.extend(msg._unknown_fields)
+    # pylint: disable=protected-access
+    if self._unknown_field_set is None:
+      self._unknown_field_set = containers.UnknownFieldSet()
+    self._unknown_field_set._extend(msg._unknown_field_set)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.MergeFromString"><code class="name flex">
+<span>def <span class="ident">MergeFromString</span></span>(<span>self, serialized)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def MergeFromString(self, serialized):
+  serialized = memoryview(serialized)
+  length = len(serialized)
+  try:
+    if self._InternalParse(serialized, 0, length) != length:
+      # The only reason _InternalParse would return early is if it
+      # encountered an end-group tag.
+      raise message_mod.DecodeError(&#39;Unexpected end-group tag.&#39;)
+  except (IndexError, TypeError):
+    # Now ord(buf[p:p+1]) == ord(&#39;&#39;) gets TypeError.
+    raise message_mod.DecodeError(&#39;Truncated message.&#39;)
+  except struct.error as e:
+    raise message_mod.DecodeError(e)
+  return length   # Return this for legacy reasons.</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.SerializePartialToString"><code class="name flex">
+<span>def <span class="ident">SerializePartialToString</span></span>(<span>self, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def SerializePartialToString(self, **kwargs):
+  out = BytesIO()
+  self._InternalSerialize(out.write, **kwargs)
+  return out.getvalue()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.SerializeToString"><code class="name flex">
+<span>def <span class="ident">SerializeToString</span></span>(<span>self, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def SerializeToString(self, **kwargs):
+  # Check if the message has all of its required fields set.
+  if not self.IsInitialized():
+    raise message_mod.EncodeError(
+        &#39;Message %s is missing required fields: %s&#39; % (
+        self.DESCRIPTOR.full_name, &#39;,&#39;.join(self.FindInitializationErrors())))
+  return self.SerializePartialToString(**kwargs)</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.SetInParent"><code class="name flex">
+<span>def <span class="ident">SetInParent</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sets the _cached_byte_size_dirty bit to true,
+and propagates this to our listener iff this was a state change.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Modified(self):
+  &#34;&#34;&#34;Sets the _cached_byte_size_dirty bit to true,
+  and propagates this to our listener iff this was a state change.
+  &#34;&#34;&#34;
+
+  # Note:  Some callers check _cached_byte_size_dirty before calling
+  #   _Modified() as an extra optimization.  So, if this method is ever
+  #   changed such that it does stuff even when _cached_byte_size_dirty is
+  #   already true, the callers need to be updated.
+  if not self._cached_byte_size_dirty:
+    self._cached_byte_size_dirty = True
+    self._listener_for_children.dirty = True
+    self._is_present_in_parent = True
+    self._listener.Modified()</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.UnknownFields"><code class="name flex">
+<span>def <span class="ident">UnknownFields</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _UnknownFields(self):
+  if self._unknown_field_set is None:  # pylint: disable=protected-access
+    # pylint: disable=protected-access
+    self._unknown_field_set = containers.UnknownFieldSet()
+  return self._unknown_field_set    # pylint: disable=protected-access</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.admin_pb2.AdminMessage.WhichOneof"><code class="name flex">
+<span>def <span class="ident">WhichOneof</span></span>(<span>self, oneof_name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the name of the currently set field inside a oneof, or None.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def WhichOneof(self, oneof_name):
+  &#34;&#34;&#34;Returns the name of the currently set field inside a oneof, or None.&#34;&#34;&#34;
+  try:
+    field = message_descriptor.oneofs_by_name[oneof_name]
+  except KeyError:
+    raise ValueError(
+        &#39;Protocol message has no oneof &#34;%s&#34; field.&#39; % oneof_name)
+
+  nested_field = self._oneofs.get(field, None)
+  if nested_field is not None and self.HasField(nested_field.name):
+    return nested_field.name
+  else:
+    return None</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="meshtastic" href="index.html">meshtastic</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="meshtastic.admin_pb2.AdminMessage" href="#meshtastic.admin_pb2.AdminMessage">AdminMessage</a></code></h4>
+<ul class="">
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.ByteSize" href="#meshtastic.admin_pb2.AdminMessage.ByteSize">ByteSize</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.CONFIRM_SET_CHANNEL_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.CONFIRM_SET_CHANNEL_FIELD_NUMBER">CONFIRM_SET_CHANNEL_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.CONFIRM_SET_RADIO_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.CONFIRM_SET_RADIO_FIELD_NUMBER">CONFIRM_SET_RADIO_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.Clear" href="#meshtastic.admin_pb2.AdminMessage.Clear">Clear</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.ClearField" href="#meshtastic.admin_pb2.AdminMessage.ClearField">ClearField</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.DESCRIPTOR" href="#meshtastic.admin_pb2.AdminMessage.DESCRIPTOR">DESCRIPTOR</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.DiscardUnknownFields" href="#meshtastic.admin_pb2.AdminMessage.DiscardUnknownFields">DiscardUnknownFields</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.EXIT_SIMULATOR_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.EXIT_SIMULATOR_FIELD_NUMBER">EXIT_SIMULATOR_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.FindInitializationErrors" href="#meshtastic.admin_pb2.AdminMessage.FindInitializationErrors">FindInitializationErrors</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.FromString" href="#meshtastic.admin_pb2.AdminMessage.FromString">FromString</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.GET_CHANNEL_REQUEST_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.GET_CHANNEL_REQUEST_FIELD_NUMBER">GET_CHANNEL_REQUEST_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.GET_CHANNEL_RESPONSE_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.GET_CHANNEL_RESPONSE_FIELD_NUMBER">GET_CHANNEL_RESPONSE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.GET_OWNER_REQUEST_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.GET_OWNER_REQUEST_FIELD_NUMBER">GET_OWNER_REQUEST_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.GET_OWNER_RESPONSE_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.GET_OWNER_RESPONSE_FIELD_NUMBER">GET_OWNER_RESPONSE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.GET_RADIO_REQUEST_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.GET_RADIO_REQUEST_FIELD_NUMBER">GET_RADIO_REQUEST_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.GET_RADIO_RESPONSE_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.GET_RADIO_RESPONSE_FIELD_NUMBER">GET_RADIO_RESPONSE_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.HasField" href="#meshtastic.admin_pb2.AdminMessage.HasField">HasField</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.IsInitialized" href="#meshtastic.admin_pb2.AdminMessage.IsInitialized">IsInitialized</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.ListFields" href="#meshtastic.admin_pb2.AdminMessage.ListFields">ListFields</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.MergeFrom" href="#meshtastic.admin_pb2.AdminMessage.MergeFrom">MergeFrom</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.MergeFromString" href="#meshtastic.admin_pb2.AdminMessage.MergeFromString">MergeFromString</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.REBOOT_SECONDS_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.REBOOT_SECONDS_FIELD_NUMBER">REBOOT_SECONDS_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.RegisterExtension" href="#meshtastic.admin_pb2.AdminMessage.RegisterExtension">RegisterExtension</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.SET_CHANNEL_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.SET_CHANNEL_FIELD_NUMBER">SET_CHANNEL_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.SET_OWNER_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.SET_OWNER_FIELD_NUMBER">SET_OWNER_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.SET_RADIO_FIELD_NUMBER" href="#meshtastic.admin_pb2.AdminMessage.SET_RADIO_FIELD_NUMBER">SET_RADIO_FIELD_NUMBER</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.SerializePartialToString" href="#meshtastic.admin_pb2.AdminMessage.SerializePartialToString">SerializePartialToString</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.SerializeToString" href="#meshtastic.admin_pb2.AdminMessage.SerializeToString">SerializeToString</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.SetInParent" href="#meshtastic.admin_pb2.AdminMessage.SetInParent">SetInParent</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.UnknownFields" href="#meshtastic.admin_pb2.AdminMessage.UnknownFields">UnknownFields</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.WhichOneof" href="#meshtastic.admin_pb2.AdminMessage.WhichOneof">WhichOneof</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.confirm_set_channel" href="#meshtastic.admin_pb2.AdminMessage.confirm_set_channel">confirm_set_channel</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.confirm_set_radio" href="#meshtastic.admin_pb2.AdminMessage.confirm_set_radio">confirm_set_radio</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.exit_simulator" href="#meshtastic.admin_pb2.AdminMessage.exit_simulator">exit_simulator</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.get_channel_request" href="#meshtastic.admin_pb2.AdminMessage.get_channel_request">get_channel_request</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.get_channel_response" href="#meshtastic.admin_pb2.AdminMessage.get_channel_response">get_channel_response</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.get_owner_request" href="#meshtastic.admin_pb2.AdminMessage.get_owner_request">get_owner_request</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.get_owner_response" href="#meshtastic.admin_pb2.AdminMessage.get_owner_response">get_owner_response</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.get_radio_request" href="#meshtastic.admin_pb2.AdminMessage.get_radio_request">get_radio_request</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.get_radio_response" href="#meshtastic.admin_pb2.AdminMessage.get_radio_response">get_radio_response</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.reboot_seconds" href="#meshtastic.admin_pb2.AdminMessage.reboot_seconds">reboot_seconds</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.set_channel" href="#meshtastic.admin_pb2.AdminMessage.set_channel">set_channel</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.set_owner" href="#meshtastic.admin_pb2.AdminMessage.set_owner">set_owner</a></code></li>
+<li><code><a title="meshtastic.admin_pb2.AdminMessage.set_radio" href="#meshtastic.admin_pb2.AdminMessage.set_radio">set_radio</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

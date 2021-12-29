@@ -12,8 +12,8 @@ _sym_db = _symbol_database.Default()
 
 
 from . import channel_pb2 as channel__pb2
-from . import mesh_pb2 as mesh__pb2
 from . import radioconfig_pb2 as radioconfig__pb2
+from . import mesh_pb2 as mesh__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -21,9 +21,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\013AdminProtosH\003Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\x0b\x61\x64min.proto\x1a\rchannel.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\"\xfb\x02\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1d\n\x13\x63onfirm_set_channel\x18  \x01(\x08H\x00\x12\x1b\n\x11\x63onfirm_set_radio\x18! \x01(\x08H\x00\x12\x18\n\x0e\x65xit_simulator\x18\" \x01(\x08H\x00\x12\x18\n\x0ereboot_seconds\x18# \x01(\x05H\x00\x42\t\n\x07variantBG\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\x0b\x61\x64min.proto\x1a\rchannel.proto\x1a\x11radioconfig.proto\x1a\nmesh.proto\"\xbd\x03\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_owner_request\x18\x08 \x01(\x08H\x00\x12#\n\x12get_owner_response\x18\t \x01(\x0b\x32\x05.UserH\x00\x12\x1d\n\x13\x63onfirm_set_channel\x18  \x01(\x08H\x00\x12\x1b\n\x11\x63onfirm_set_radio\x18! \x01(\x08H\x00\x12\x18\n\x0e\x65xit_simulator\x18\" \x01(\x08H\x00\x12\x18\n\x0ereboot_seconds\x18# \x01(\x05H\x00\x42\t\n\x07variantBG\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
   ,
-  dependencies=[channel__pb2.DESCRIPTOR,mesh__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,])
+  dependencies=[channel__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,mesh__pb2.DESCRIPTOR,])
 
 
 
@@ -85,28 +85,42 @@ _ADMINMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='confirm_set_channel', full_name='AdminMessage.confirm_set_channel', index=7,
+      name='get_owner_request', full_name='AdminMessage.get_owner_request', index=7,
+      number=8, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='get_owner_response', full_name='AdminMessage.get_owner_response', index=8,
+      number=9, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='confirm_set_channel', full_name='AdminMessage.confirm_set_channel', index=9,
       number=32, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='confirm_set_radio', full_name='AdminMessage.confirm_set_radio', index=8,
+      name='confirm_set_radio', full_name='AdminMessage.confirm_set_radio', index=10,
       number=33, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='exit_simulator', full_name='AdminMessage.exit_simulator', index=9,
+      name='exit_simulator', full_name='AdminMessage.exit_simulator', index=11,
       number=34, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='reboot_seconds', full_name='AdminMessage.reboot_seconds', index=10,
+      name='reboot_seconds', full_name='AdminMessage.reboot_seconds', index=12,
       number=35, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -128,7 +142,7 @@ _ADMINMESSAGE = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=62,
-  serialized_end=441,
+  serialized_end=507,
 )
 
 _ADMINMESSAGE.fields_by_name['set_radio'].message_type = radioconfig__pb2._RADIOCONFIG
@@ -136,6 +150,7 @@ _ADMINMESSAGE.fields_by_name['set_owner'].message_type = mesh__pb2._USER
 _ADMINMESSAGE.fields_by_name['set_channel'].message_type = channel__pb2._CHANNEL
 _ADMINMESSAGE.fields_by_name['get_radio_response'].message_type = radioconfig__pb2._RADIOCONFIG
 _ADMINMESSAGE.fields_by_name['get_channel_response'].message_type = channel__pb2._CHANNEL
+_ADMINMESSAGE.fields_by_name['get_owner_response'].message_type = mesh__pb2._USER
 _ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
   _ADMINMESSAGE.fields_by_name['set_radio'])
 _ADMINMESSAGE.fields_by_name['set_radio'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
@@ -157,6 +172,12 @@ _ADMINMESSAGE.fields_by_name['get_channel_request'].containing_oneof = _ADMINMES
 _ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
   _ADMINMESSAGE.fields_by_name['get_channel_response'])
 _ADMINMESSAGE.fields_by_name['get_channel_response'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['get_owner_request'])
+_ADMINMESSAGE.fields_by_name['get_owner_request'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['get_owner_response'])
+_ADMINMESSAGE.fields_by_name['get_owner_response'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
 _ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
   _ADMINMESSAGE.fields_by_name['confirm_set_channel'])
 _ADMINMESSAGE.fields_by_name['confirm_set_channel'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']

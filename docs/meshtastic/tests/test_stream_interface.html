@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>meshtastic.tests.test_stream_interface API documentation</title>
+<meta name="description" content="Meshtastic unit tests for stream_interface.py" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>meshtastic.tests.test_stream_interface</code></h1>
+</header>
+<section id="section-intro">
+<p>Meshtastic unit tests for stream_interface.py</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Meshtastic unit tests for stream_interface.py&#34;&#34;&#34;
+
+import logging
+import re
+
+from unittest.mock import MagicMock
+import pytest
+
+from ..stream_interface import StreamInterface
+
+
+@pytest.mark.unit
+def test_StreamInterface():
+    &#34;&#34;&#34;Test that we cannot instantiate a StreamInterface based on noProto&#34;&#34;&#34;
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        StreamInterface()
+    assert pytest_wrapped_e.type == Exception
+
+
+# Note: This takes a bit, so moving from unit to slow
+@pytest.mark.unitslow
+def test_StreamInterface_with_noProto(caplog, reset_globals):
+    &#34;&#34;&#34;Test that we can instantiate a StreamInterface based on nonProto
+       and we can read/write bytes from a mocked stream
+    &#34;&#34;&#34;
+    stream = MagicMock()
+    test_data = b&#39;hello&#39;
+    stream.read.return_value = test_data
+    with caplog.at_level(logging.DEBUG):
+        iface = StreamInterface(noProto=True, connectNow=False)
+        iface.stream = stream
+        iface._writeBytes(test_data)
+        data = iface._readBytes(len(test_data))
+        assert data == test_data
+
+
+# Note: This takes a bit, so moving from unit to slow
+# Tip: If you want to see the print output, run with &#39;-s&#39; flag:
+#      pytest -s meshtastic/tests/test_stream_interface.py::test_sendToRadioImpl
+@pytest.mark.unitslow
+def test_sendToRadioImpl(caplog, reset_globals):
+    &#34;&#34;&#34;Test _sendToRadioImpl()&#34;&#34;&#34;
+
+#    def add_header(b):
+#        &#34;&#34;&#34;Add header stuffs for radio&#34;&#34;&#34;
+#        bufLen = len(b)
+#        header = bytes([START1, START2, (bufLen &gt;&gt; 8) &amp; 0xff,  bufLen &amp; 0xff])
+#        return header + b
+
+    # captured raw bytes of a Heltec2.1 radio with 2 channels (primary and a secondary channel named &#34;gpio&#34;)
+    raw_1_my_info = b&#39;\x1a,\x08\xdc\x8c\xd5\xc5\x02\x18\r2\x0e1.2.49.5354c49P\x15]\xe1%\x17Eh\xe0\xa7\x12p\xe8\x9d\x01x\x08\x90\x01\x01&#39;
+    raw_2_node_info = b&#39;&#34;9\x08\xdc\x8c\xd5\xc5\x02\x12(\n\t!28b5465c\x12\x0cUnknown 465c\x1a\x03?5C&#34;\x06$o(\xb5F\\0\n\x1a\x02 1%M&lt;\xc6a&#39;
+    # pylint: disable=C0301
+    raw_3_node_info = b&#39;&#34;C\x08\xa4\x8c\xd5\xc5\x02\x12(\n\t!28b54624\x12\x0cUnknown 4624\x1a\x03?24&#34;\x06$o(\xb5F$0\n\x1a\x07 5MH&lt;\xc6a%G&lt;\xc6a=\x00\x00\xc0@&#39;
+    raw_4_complete = b&#39;@\xcf\xe5\xd1\x8c\x0e&#39;
+    # pylint: disable=C0301
+    raw_5_prefs = b&#39;Z6\r\\F\xb5(\x15\\F\xb5(&#34;\x1c\x08\x06\x12\x13*\x11\n\x0f0\x84\x07P\xac\x02\x88\x01\x01\xb0\t#\xb8\t\x015]$\xddk5\xd5\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    # pylint: disable=C0301
+    raw_6_channel0 = b&#39;Z.\r\\F\xb5(\x15\\F\xb5(&#34;\x14\x08\x06\x12\x0b:\t\x12\x05\x18\x01&#34;\x01\x01\x18\x015^$\xddk5\xd6\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    # pylint: disable=C0301
+    raw_7_channel1 = b&#39;ZS\r\\F\xb5(\x15\\F\xb5(&#34;9\x08\x06\x120:.\x08\x01\x12(&#34; \xb4&amp;\xb3\xc7\x06\xd8\xe39%\xba\xa5\xee\x8eH\x06\xf6\xf4H\xe8\xd5\xc1[ao\xb5Y\\\xb4&#34;\xafmi*\x04gpio\x18\x025_$\xddk5\xd7\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    raw_8_channel2 = b&#39;Z)\r\\F\xb5(\x15\\F\xb5(&#34;\x0f\x08\x06\x12\x06:\x04\x08\x02\x12\x005`$\xddk5\xd8\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    raw_blank = b&#39;&#39;
+
+    test_data = b&#39;hello&#39;
+    stream = MagicMock()
+    #stream.read.return_value = add_header(test_data)
+    stream.read.side_effect = [ raw_1_my_info, raw_2_node_info, raw_3_node_info, raw_4_complete,
+                                raw_5_prefs, raw_6_channel0, raw_7_channel1, raw_8_channel2,
+                                raw_blank, raw_blank]
+    toRadio = MagicMock()
+    toRadio.SerializeToString.return_value = test_data
+    with caplog.at_level(logging.DEBUG):
+        iface = StreamInterface(noProto=True, connectNow=False)
+        iface.stream = stream
+        iface.connect()
+        iface._sendToRadioImpl(toRadio)
+        assert re.search(r&#39;Sending: &#39;, caplog.text, re.MULTILINE)
+        assert re.search(r&#39;reading character&#39;, caplog.text, re.MULTILINE)
+        assert re.search(r&#39;In reader loop&#39;, caplog.text, re.MULTILINE)
+        print(caplog.text)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="meshtastic.tests.test_stream_interface.test_StreamInterface"><code class="name flex">
+<span>def <span class="ident">test_StreamInterface</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that we cannot instantiate a StreamInterface based on noProto</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unit
+def test_StreamInterface():
+    &#34;&#34;&#34;Test that we cannot instantiate a StreamInterface based on noProto&#34;&#34;&#34;
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        StreamInterface()
+    assert pytest_wrapped_e.type == Exception</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_stream_interface.test_StreamInterface_with_noProto"><code class="name flex">
+<span>def <span class="ident">test_StreamInterface_with_noProto</span></span>(<span>caplog, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that we can instantiate a StreamInterface based on nonProto
+and we can read/write bytes from a mocked stream</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unitslow
+def test_StreamInterface_with_noProto(caplog, reset_globals):
+    &#34;&#34;&#34;Test that we can instantiate a StreamInterface based on nonProto
+       and we can read/write bytes from a mocked stream
+    &#34;&#34;&#34;
+    stream = MagicMock()
+    test_data = b&#39;hello&#39;
+    stream.read.return_value = test_data
+    with caplog.at_level(logging.DEBUG):
+        iface = StreamInterface(noProto=True, connectNow=False)
+        iface.stream = stream
+        iface._writeBytes(test_data)
+        data = iface._readBytes(len(test_data))
+        assert data == test_data</code></pre>
+</details>
+</dd>
+<dt id="meshtastic.tests.test_stream_interface.test_sendToRadioImpl"><code class="name flex">
+<span>def <span class="ident">test_sendToRadioImpl</span></span>(<span>caplog, reset_globals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test _sendToRadioImpl()</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@pytest.mark.unitslow
+def test_sendToRadioImpl(caplog, reset_globals):
+    &#34;&#34;&#34;Test _sendToRadioImpl()&#34;&#34;&#34;
+
+#    def add_header(b):
+#        &#34;&#34;&#34;Add header stuffs for radio&#34;&#34;&#34;
+#        bufLen = len(b)
+#        header = bytes([START1, START2, (bufLen &gt;&gt; 8) &amp; 0xff,  bufLen &amp; 0xff])
+#        return header + b
+
+    # captured raw bytes of a Heltec2.1 radio with 2 channels (primary and a secondary channel named &#34;gpio&#34;)
+    raw_1_my_info = b&#39;\x1a,\x08\xdc\x8c\xd5\xc5\x02\x18\r2\x0e1.2.49.5354c49P\x15]\xe1%\x17Eh\xe0\xa7\x12p\xe8\x9d\x01x\x08\x90\x01\x01&#39;
+    raw_2_node_info = b&#39;&#34;9\x08\xdc\x8c\xd5\xc5\x02\x12(\n\t!28b5465c\x12\x0cUnknown 465c\x1a\x03?5C&#34;\x06$o(\xb5F\\0\n\x1a\x02 1%M&lt;\xc6a&#39;
+    # pylint: disable=C0301
+    raw_3_node_info = b&#39;&#34;C\x08\xa4\x8c\xd5\xc5\x02\x12(\n\t!28b54624\x12\x0cUnknown 4624\x1a\x03?24&#34;\x06$o(\xb5F$0\n\x1a\x07 5MH&lt;\xc6a%G&lt;\xc6a=\x00\x00\xc0@&#39;
+    raw_4_complete = b&#39;@\xcf\xe5\xd1\x8c\x0e&#39;
+    # pylint: disable=C0301
+    raw_5_prefs = b&#39;Z6\r\\F\xb5(\x15\\F\xb5(&#34;\x1c\x08\x06\x12\x13*\x11\n\x0f0\x84\x07P\xac\x02\x88\x01\x01\xb0\t#\xb8\t\x015]$\xddk5\xd5\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    # pylint: disable=C0301
+    raw_6_channel0 = b&#39;Z.\r\\F\xb5(\x15\\F\xb5(&#34;\x14\x08\x06\x12\x0b:\t\x12\x05\x18\x01&#34;\x01\x01\x18\x015^$\xddk5\xd6\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    # pylint: disable=C0301
+    raw_7_channel1 = b&#39;ZS\r\\F\xb5(\x15\\F\xb5(&#34;9\x08\x06\x120:.\x08\x01\x12(&#34; \xb4&amp;\xb3\xc7\x06\xd8\xe39%\xba\xa5\xee\x8eH\x06\xf6\xf4H\xe8\xd5\xc1[ao\xb5Y\\\xb4&#34;\xafmi*\x04gpio\x18\x025_$\xddk5\xd7\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    raw_8_channel2 = b&#39;Z)\r\\F\xb5(\x15\\F\xb5(&#34;\x0f\x08\x06\x12\x06:\x04\x08\x02\x12\x005`$\xddk5\xd8\x7f!b=M&lt;\xc6aP\x03`F&#39;
+    raw_blank = b&#39;&#39;
+
+    test_data = b&#39;hello&#39;
+    stream = MagicMock()
+    #stream.read.return_value = add_header(test_data)
+    stream.read.side_effect = [ raw_1_my_info, raw_2_node_info, raw_3_node_info, raw_4_complete,
+                                raw_5_prefs, raw_6_channel0, raw_7_channel1, raw_8_channel2,
+                                raw_blank, raw_blank]
+    toRadio = MagicMock()
+    toRadio.SerializeToString.return_value = test_data
+    with caplog.at_level(logging.DEBUG):
+        iface = StreamInterface(noProto=True, connectNow=False)
+        iface.stream = stream
+        iface.connect()
+        iface._sendToRadioImpl(toRadio)
+        assert re.search(r&#39;Sending: &#39;, caplog.text, re.MULTILINE)
+        assert re.search(r&#39;reading character&#39;, caplog.text, re.MULTILINE)
+        assert re.search(r&#39;In reader loop&#39;, caplog.text, re.MULTILINE)
+        print(caplog.text)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="meshtastic.tests" href="index.html">meshtastic.tests</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="meshtastic.tests.test_stream_interface.test_StreamInterface" href="#meshtastic.tests.test_stream_interface.test_StreamInterface">test_StreamInterface</a></code></li>
+<li><code><a title="meshtastic.tests.test_stream_interface.test_StreamInterface_with_noProto" href="#meshtastic.tests.test_stream_interface.test_StreamInterface_with_noProto">test_StreamInterface_with_noProto</a></code></li>
+<li><code><a title="meshtastic.tests.test_stream_interface.test_sendToRadioImpl" href="#meshtastic.tests.test_stream_interface.test_sendToRadioImpl">test_sendToRadioImpl</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
