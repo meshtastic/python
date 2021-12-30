@@ -41,7 +41,7 @@ class SerialInterface(StreamInterface):
         # first we need to set the HUPCL so the device will not reboot based on RTS and/or DTR
         # see https://github.com/pyserial/pyserial/issues/124
         if not self.noProto:
-            if platform.system() != 'windows':
+            if platform.system() != 'Windows':
                 with open(devPath, encoding='utf8') as f:
                     attrs = termios.tcgetattr(f)
                     attrs[2] = attrs[2] & ~termios.HUPCL
