@@ -18,7 +18,7 @@ from google.protobuf.json_format import MessageToJson
 
 import meshtastic.node
 from . import portnums_pb2, mesh_pb2
-from .util import stripnl, Timeout, our_exit
+from .util import stripnl, Timeout, our_exit, remove_keys_from_dict
 from .__init__ import LOCAL_ADDR, BROADCAST_NUM, BROADCAST_ADDR, ResponseHandler, publishingThread, OUR_APP_VERSION, protocols
 
 class MeshInterface:
@@ -84,7 +84,10 @@ class MeshInterface:
         nodes = ""
         if self.nodes:
             for n in self.nodes.values():
-                nodes = nodes + f"  {stripnl(n)}"
+                # when the TBeam is first booted, it sometimes shows the 'raw' data
+                # so, we will just remove any raw keys
+                n2 = remove_keys_from_dict('raw', n)
+                nodes = nodes + f"  {stripnl(n2)}"
         infos = owner + myinfo + mesh + nodes
         print(infos)
         return infos

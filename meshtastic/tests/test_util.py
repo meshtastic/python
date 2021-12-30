@@ -7,7 +7,8 @@ import pytest
 
 from meshtastic.util import (fixme, stripnl, pskToString, our_exit,
                              support_info, genPSK256, fromStr, fromPSK,
-                             quoteBooleans, catchAndIgnore)
+                             quoteBooleans, catchAndIgnore,
+                             remove_keys_from_dict)
 
 
 @pytest.mark.unit
@@ -149,3 +150,27 @@ def test_catchAndIgnore(caplog):
     with caplog.at_level(logging.DEBUG):
         catchAndIgnore("something", some_closure)
     assert re.search(r'Exception thrown in something', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_remove_keys_from_dict_empty_keys_empty_dict():
+    """Test when keys and dict both are empty"""
+    assert not remove_keys_from_dict((), {})
+
+
+@pytest.mark.unit
+def test_remove_keys_from_dict_empty_dict():
+    """Test when dict is empty"""
+    assert not remove_keys_from_dict(('a'), {})
+
+
+@pytest.mark.unit
+def test_remove_keys_from_dict_empty_keys():
+    """Test when keys is empty"""
+    assert remove_keys_from_dict((), {'a':1}) == {'a':1}
+
+
+@pytest.mark.unit
+def test_remove_keys_from_dict():
+    """Test remove_keys_from_dict()"""
+    assert remove_keys_from_dict(('b'), {'a':1, 'b':2}) == {'a':1}
