@@ -201,3 +201,12 @@ def support_info():
           platform.python_implementation(), platform.python_compiler()))
     print('')
     print('Please add the output from the command: meshtastic --info')
+
+
+def remove_keys_from_dict(keys, adict):
+    """Return a dictionary without some keys in it."""
+    newdict = adict
+    for key in keys:
+        if key in adict:
+            del newdict[key]
+    return newdict
