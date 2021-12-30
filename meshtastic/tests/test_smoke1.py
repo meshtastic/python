@@ -140,8 +140,9 @@ def test_smoke1_nodes():
     """Test --nodes"""
     return_value, out = subprocess.getstatusoutput('meshtastic --nodes')
     assert re.match(r'Connected to radio', out)
-    assert re.search(r'^│   N │ User', out.encode('utf-8'), re.MULTILINE)
-    assert re.search(r'^│   1 │', out.encode('utf-8'), re.MULTILINE)
+    output = f'{out}'
+    assert re.search(r'^│   N │ User', output, re.MULTILINE)
+    assert re.search(r'^│   1 │', output, re.MULTILINE)
     assert return_value == 0
 
 
