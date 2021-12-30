@@ -640,7 +640,7 @@ def common():
             #if logfile:
                 #logfile.close()
 
-            if args.noproto or (have_tunnel and args.tunnel):  # loop until someone presses ctrlc
+            if args.noproto or args.reply or (have_tunnel and args.tunnel):  # loop until someone presses ctrlc
                 while True:
                     time.sleep(1000)
 
