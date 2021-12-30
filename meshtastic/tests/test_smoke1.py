@@ -2,6 +2,7 @@
 import re
 import subprocess
 import time
+import platform
 import os
 
 # Do not like using hard coded sleeps, but it probably makes
@@ -140,8 +141,9 @@ def test_smoke1_nodes():
     """Test --nodes"""
     return_value, out = subprocess.getstatusoutput('meshtastic --nodes')
     assert re.match(r'Connected to radio', out)
-    assert re.search(r' User ', out, re.MULTILINE)
-    assert re.search(r'  1 ', out, re.MULTILINE)
+    if platform.system() != 'Windows':
+        assert re.search(r' User ', out, re.MULTILINE)
+        assert re.search(r'  1 ', out, re.MULTILINE)
     assert return_value == 0
 
 
