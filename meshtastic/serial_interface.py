@@ -49,7 +49,7 @@ class SerialInterface(StreamInterface):
                     f.close()
                 time.sleep(0.1)
 
-        self.stream = serial.Serial(devPath, 921600, exclusive=True, timeout=0.5)
+        self.stream = serial.Serial(devPath, 921600, exclusive=True, timeout=0.5, write_timeout=0)
         if not self.noProto:
             self.stream.flush()
             time.sleep(0.1)
