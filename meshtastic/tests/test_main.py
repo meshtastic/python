@@ -9,7 +9,7 @@ import logging
 from unittest.mock import patch, MagicMock
 import pytest
 
-from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config, getPref, setPref
+from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config, getPref, setPref, onNode
 #from ..radioconfig_pb2 import UserPreferences
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
@@ -1617,4 +1617,65 @@ def test_main_setPref_invalid_field(capsys, reset_globals):
     assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
     # ensure they are sorted
     assert re.search(r'fixed_position\s+is_router\s+ls_secs', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+def test_main_ch_set_psk_no_ch_index(capsys, reset_globals):
+    """Test --ch-set psk """
+    sys.argv = ['', '--ch-set', 'psk', 'foo', '--host', 'meshtastic.local']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=TCPInterface)
+    with patch('meshtastic.tcp_interface.TCPInterface', return_value=iface) as mo:
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r"Warning: Need to specify '--ch-index'", out, re.MULTILINE)
+        assert err == ''
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_set_psk_with_ch_index(capsys, reset_globals):
+    """Test --ch-set psk """
+    sys.argv = ['', '--ch-set', 'psk', 'foo', '--host', 'meshtastic.local', '--ch-index', '0']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=TCPInterface)
+    with patch('meshtastic.tcp_interface.TCPInterface', return_value=iface) as mo:
+        main()
+    out, err = capsys.readouterr()
+    assert re.search(r'Connected to radio', out, re.MULTILINE)
+    assert re.search(r"Writing modified channels to device", out, re.MULTILINE)
+    assert err == ''
+    mo.assert_called()
+
+
+@pytest.mark.unit
+def test_main_ch_set_name_with_ch_index(capsys, reset_globals):
+    """Test --ch-set setting other than psk"""
+    sys.argv = ['', '--ch-set', 'name', 'foo', '--host', 'meshtastic.local', '--ch-index', '0']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=TCPInterface)
+    with patch('meshtastic.tcp_interface.TCPInterface', return_value=iface) as mo:
+        main()
+    out, err = capsys.readouterr()
+    assert re.search(r'Connected to radio', out, re.MULTILINE)
+    assert re.search(r'Set name to foo', out, re.MULTILINE)
+    assert re.search(r"Writing modified channels to device", out, re.MULTILINE)
+    assert err == ''
+    mo.assert_called()
+
+
+@pytest.mark.unit
+def test_onNode(capsys, reset_globals):
+    """Test onNode"""
+    onNode('foo')
+    out, err = capsys.readouterr()
+    assert re.search(r'Node changed', out, re.MULTILINE)
     assert err == ''
