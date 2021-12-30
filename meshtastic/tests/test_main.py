@@ -1289,61 +1289,43 @@ def test_main_onReceive_with_sendtext(caplog, reset_globals):
         mo.assert_called()
 
 
-# TODO: re-write this with updated
-# temp disable this test as we need to have a separate thread going with '--reply'
-#@pytest.mark.unit
-#def test_main_onReceive_with_reply(caplog, capsys, reset_globals):
-#    """Test onReceive with a reply
-#       To capture: on one device run '--sendtext aaa --reply' and on another
-#       device run '--sendtext bbb --reply', then back to the first device and
-#       run '--sendtext aaa2 --reply'. You should now see a "Sending reply" message.
-#    """
-#    sys.argv = ['', '--sendtext', 'hello', '--reply']
-#    Globals.getInstance().set_args(sys.argv)
-#
-#    # Note: 'TEXT_MESSAGE_APP' value is 1
-#
-#    send_packet = {
-#            'to': 4294967295,
-#            'decoded': {
-#                'portnum': 1,
-#                'payload': "hello"
-#                },
-#            'id': 334776977,
-#            'hop_limit': 3,
-#            'want_ack': True
-#            }
-#
-#    reply_packet = {
-#            'from': 682968668,
-#            'to': 4294967295,
-#            'decoded': {
-#                'portnum': 'TEXT_MESSAGE_APP',
-#                'payload': b'bbb',
-#                'text': 'bbb'
-#                },
-#            'id': 1709936182,
-#            'rxTime': 1640381999,
-#            'rxSnr': 6.0,
-#            'hopLimit': 3,
-#            'raw': 'faked',
-#            'fromId': '!28b5465c',
-#            'toId': '^all'
-#            }
-#
-#    iface = MagicMock(autospec=SerialInterface)
-#    iface.myInfo.my_node_num = 4294967295
-#
-#    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-#        with caplog.at_level(logging.DEBUG):
-#            main()
-#            onReceive(send_packet, iface)
-#            onReceive(reply_packet, iface)
-#        assert re.search(r'in onReceive', caplog.text, re.MULTILINE)
-#        out, err = capsys.readouterr()
-#        assert re.search(r'got msg ', out, re.MULTILINE)
-#        assert err == ''
-#        mo.assert_called()
+@pytest.mark.unit
+def test_main_onReceive_with_text(caplog, capsys, reset_globals):
+    """Test onReceive with text
+    """
+    args = MagicMock()
+    args.sendtext.return_value = 'foo'
+    Globals.getInstance().set_args(args)
+
+    # Note: 'TEXT_MESSAGE_APP' value is 1
+    # Note: Some of this is faked below.
+    packet = {
+            'to': 4294967295,
+            'decoded': {
+                'portnum': 1,
+                'payload': "hello",
+                'text': "faked"
+                },
+            'id': 334776977,
+            'hop_limit': 3,
+            'want_ack': True,
+            'rxSnr': 6.0,
+            'hopLimit': 3,
+            'raw': 'faked',
+            'fromId': '!28b5465c',
+            'toId': '^all'
+            }
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.myInfo.my_node_num = 4294967295
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
+        with caplog.at_level(logging.DEBUG):
+            onReceive(packet, iface)
+        assert re.search(r'in onReceive', caplog.text, re.MULTILINE)
+        out, err = capsys.readouterr()
+        assert re.search(r'Sending reply', out, re.MULTILINE)
+        assert err == ''
 
 
 @pytest.mark.unit
@@ -1525,6 +1507,36 @@ def test_main_getPref_valid_field(capsys, reset_globals):
 
 
 @pytest.mark.unit
+def test_main_getPref_valid_field_string(capsys, reset_globals):
+    """Test getPref() with a valid field and value as a string"""
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = 'wifi_ssid'
+    prefs.wifi_ssid = 'foo'
+    prefs.ls_secs = 300
+    prefs.fixed_position = False
+
+    getPref(prefs, 'wifi_ssid')
+    out, err = capsys.readouterr()
+    assert re.search(r'wifi_ssid: foo', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+def test_main_getPref_valid_field_bool(capsys, reset_globals):
+    """Test getPref() with a valid field and value as a bool"""
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = 'fixed_position'
+    prefs.wifi_ssid = 'foo'
+    prefs.ls_secs = 300
+    prefs.fixed_position = False
+
+    getPref(prefs, 'fixed_position')
+    out, err = capsys.readouterr()
+    assert re.search(r'fixed_position: False', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
 def test_main_getPref_invalid_field(capsys, reset_globals):
     """Test getPref() with an invalid field"""
 
@@ -1556,7 +1568,7 @@ def test_main_getPref_invalid_field(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_setPref_valid_field(capsys, reset_globals):
+def test_main_setPref_valid_field_int(capsys, reset_globals):
     """Test setPref() with a valid field"""
 
     class Field:
