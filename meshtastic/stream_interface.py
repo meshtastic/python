@@ -62,7 +62,8 @@ class StreamInterface(MeshInterface):
         # because we want to ensure it is looking for START1)
         p = bytearray([START2] * 32)
         self._writeBytes(p)
-        time.sleep(0.1)  # wait 100ms to give device time to start running
+        if not self.noProto:
+            time.sleep(0.1)  # wait 100ms to give device time to start running
 
         self._rxThread.start()
 
@@ -88,6 +89,9 @@ class StreamInterface(MeshInterface):
         if self.stream:  # ignore writes when stream is closed
             self.stream.write(b)
             self.stream.flush()
+            # we sleep here to give the TBeam a chance to work
+            if not self.noProto:
+                time.sleep(0.1)
 
     def _readBytes(self, length):
         """Read an array of bytes from our stream"""

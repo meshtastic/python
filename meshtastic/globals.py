@@ -29,6 +29,7 @@ class Globals:
         self.parser = None
         self.target_node = None
         self.channel_index = None
+        self.logfile = None
 
     def reset(self):
         """Reset all of our globals. If you add a member, add it to this method, too."""
@@ -37,6 +38,7 @@ class Globals:
         self.target_node = None
         self.channel_index = None
 
+    # setters
     def set_args(self, args):
         """Set the args"""
         self.args = args
@@ -53,6 +55,11 @@ class Globals:
         """Set the channel_index"""
         self.channel_index = channel_index
 
+    def set_logfile(self, logfile):
+        """Set the logfile"""
+        self.logfile = logfile
+
+    # getters
     def get_args(self):
         """Get args"""
         return self.args
@@ -68,3 +75,7 @@ class Globals:
     def get_channel_index(self):
         """Get channel_index"""
         return self.channel_index
+
+    def get_logfile(self):
+        """Get logfile"""
+        return self.logfile

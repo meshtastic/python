@@ -567,6 +567,7 @@ def export_config(interface):
 
 def common():
     """Shared code for all of our command line wrappers"""
+    logfile = None
     our_globals = Globals.getInstance()
     args = our_globals.get_args()
     parser = our_globals.get_parser()
@@ -621,8 +622,8 @@ def common():
                 logging.info(f"Logging serial output to {args.seriallog}")
                 # Note: using "line buffering"
                 # pylint: disable=R1732
-                logfile = open(args.seriallog, 'w+',
-                               buffering=1, encoding='utf8')
+                logfile = open(args.seriallog, 'w+', buffering=1, encoding='utf8')
+                our_globals.set_logfile(logfile)
 
             subscribe()
             if args.ble:
@@ -636,6 +637,8 @@ def common():
 
             # We assume client is fully connected now
             onConnected(client)
+            #if logfile:
+                #logfile.close()
 
             if args.noproto or (have_tunnel and args.tunnel):  # loop until someone presses ctrlc
                 while True:
@@ -828,6 +831,10 @@ def main():
     our_globals.set_parser(parser)
     initParser()
     common()
+    logfile = our_globals.get_logfile()
+    if logfile:
+        logfile.close()
+
 
 
 def tunnelMain():
