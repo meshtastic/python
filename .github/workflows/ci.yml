@@ -32,6 +32,18 @@ jobs:
         run: pylint meshtastic
       - name: Run tests with pytest
         run: pytest --cov=meshtastic
+      - name: Generate coverage report
+        run: |
+          pytest --cov=meshtastic --cov-report=xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          yml: ./codecov.yml
+          fail_ci_if_error: true
   validate:
     runs-on: ubuntu-latest
     steps:
