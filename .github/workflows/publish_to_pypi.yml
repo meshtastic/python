@@ -29,7 +29,6 @@ jobs:
           --outdir dist/
           .
       - name: Publish to PyPI
-        if: startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master
         with:
           username: __token__
