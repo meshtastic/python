@@ -2,11 +2,14 @@
 """
 import logging
 import time
-import termios
+import platform
 import serial
 
 import meshtastic.util
 from .stream_interface import StreamInterface
+
+if platform.system() != 'Windows':
+    import termios
 
 class SerialInterface(StreamInterface):
     """Interface class for meshtastic devices over a serial link"""
@@ -38,12 +41,13 @@ class SerialInterface(StreamInterface):
         # first we need to set the HUPCL so the device will not reboot based on RTS and/or DTR
         # see https://github.com/pyserial/pyserial/issues/124
         if not self.noProto:
-            with open(devPath, encoding='utf8') as f:
-                attrs = termios.tcgetattr(f)
-                attrs[2] = attrs[2] & ~termios.HUPCL
-                termios.tcsetattr(f, termios.TCSAFLUSH, attrs)
-                f.close()
-            time.sleep(0.1)
+            if platform.system() != 'windows':
+                with open(devPath, encoding='utf8') as f:
+                    attrs = termios.tcgetattr(f)
+                    attrs[2] = attrs[2] & ~termios.HUPCL
+                    termios.tcsetattr(f, termios.TCSAFLUSH, attrs)
+                    f.close()
+                time.sleep(0.1)
 
         self.stream = serial.Serial(devPath, 921600, exclusive=True, timeout=0.5)
         if not self.noProto:
