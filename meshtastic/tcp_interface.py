@@ -17,8 +17,6 @@ class TCPInterface(StreamInterface):
             hostname {string} -- Hostname/IP address of the device to connect to
         """
 
-        # Instead of wrapping as a stream, we use the native socket API
-        # self.stream = sock.makefile('rw')
         self.stream = None
 
         self.hostname = hostname

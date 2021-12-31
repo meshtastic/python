@@ -17,61 +17,28 @@
 
 import logging
 import threading
+import platform
 from pubsub import pub
 
 from pytap2 import TapDevice
 
 from . import portnums_pb2
-
-# A new non standard log level that is lower level than DEBUG
-LOG_TRACE = 5
-
-# fixme - find a way to move onTunnelReceive inside of the class
-tunnelInstance = None
-
-"""A list of chatty UDP services we should never accidentally
-forward to our slow network"""
-udpBlacklist = {
-    1900,  # SSDP
-    5353,  # multicast DNS
-}
-
-"""A list of TCP services to block"""
-tcpBlacklist = {}
-
-"""A list of protocols we ignore"""
-protocolBlacklist = {
-    0x02,  # IGMP
-    0x80,  # Service-Specific Connection-Oriented Protocol in a Multilink and Connectionless Environment
-}
-
-
-def hexstr(barray):
-    """Print a string of hex digits"""
-    return ":".join('{:02x}'.format(x) for x in barray)
-
-
-def ipstr(barray):
-    """Print a string of ip digits"""
-    return ".".join('{}'.format(x) for x in barray)
-
-
-def readnet_u16(p, offset):
-    """Read big endian u16 (network byte order)"""
-    return p[offset] * 256 + p[offset + 1]
+from .util import ipstr, readnet_u16
+from .globals import Globals
 
 
 def onTunnelReceive(packet, interface):
-    """Callback for received tunneled messages from mesh
-
-    FIXME figure out how to do closures with methods in python"""
+    """Callback for received tunneled messages from mesh."""
+    logging.debug(f'in onTunnelReceive()')
+    our_globals = Globals.getInstance()
+    tunnelInstance = our_globals.get_tunnelInstance()
     tunnelInstance.onReceive(packet)
 
 
 class Tunnel:
     """A TUN based IP tunnel over meshtastic"""
 
-    def __init__(self, iface, subnet=None, netmask="255.255.0.0"):
+    def __init__(self, iface, subnet='10.115', netmask="255.255.0.0"):
         """
         Constructor
 
@@ -79,35 +46,67 @@ class Tunnel:
         subnet is used to construct our network number (normally 10.115.x.x)
         """
 
-        if subnet is None:
-            subnet = "10.115"
+        if not iface:
+            raise Exception("Tunnel() must have a interface")
 
         self.iface = iface
         self.subnetPrefix = subnet
 
-        global tunnelInstance
-        tunnelInstance = self
+        if platform.system() != 'Linux':
+            raise Exception("Tunnel() can only be run instantiated on a Linux system")
 
+        our_globals = Globals.getInstance()
+        our_globals.set_tunnelInstance(self)
+
+        """A list of chatty UDP services we should never accidentally
+        forward to our slow network"""
+        self.udpBlacklist = {
+            1900,  # SSDP
+            5353,  # multicast DNS
+        }
+
+        """A list of TCP services to block"""
+        self.tcpBlacklist = {}
+
+        """A list of protocols we ignore"""
+        self.protocolBlacklist = {
+            0x02,  # IGMP
+            0x80,  # Service-Specific Connection-Oriented Protocol in a Multilink and Connectionless Environment
+        }
+
+        # A new non standard log level that is lower level than DEBUG
+        self.LOG_TRACE = 5
+
+        # TODO: check if root?
         logging.info("Starting IP to mesh tunnel (you must be root for this *pre-alpha* "\
                      "feature to work).  Mesh members:")
 
         pub.subscribe(onTunnelReceive, "meshtastic.receive.data.IP_TUNNEL_APP")
         myAddr = self._nodeNumToIp(self.iface.myInfo.my_node_num)
 
-        for node in self.iface.nodes.values():
-            nodeId = node["user"]["id"]
-            ip = self._nodeNumToIp(node["num"])
-            logging.info(f"Node { nodeId } has IP address { ip }")
+        if self.iface.nodes:
+            for node in self.iface.nodes.values():
+                nodeId = node["user"]["id"]
+                ip = self._nodeNumToIp(node["num"])
+                logging.info(f"Node { nodeId } has IP address { ip }")
 
         logging.debug("creating TUN device with MTU=200")
         # FIXME - figure out real max MTU, it should be 240 - the overhead bytes for SubPacket and Data
-        self.tun = TapDevice(name="mesh")
-        self.tun.up()
-        self.tun.ifconfig(address=myAddr, netmask=netmask, mtu=200)
-        logging.debug(f"starting TUN reader, our IP address is {myAddr}")
-        self._rxThread = threading.Thread(
-            target=self.__tunReader, args=(), daemon=True)
-        self._rxThread.start()
+        self.tun = None
+        if self.iface.noProto:
+            logging.warning(f"Not creating a TapDevice() because it is disabled by noProto")
+        else:
+            self.tun = TapDevice(name="mesh")
+            self.tun.up()
+            self.tun.ifconfig(address=myAddr, netmask=netmask, mtu=200)
+
+        self._rxThread = None
+        if self.iface.noProto:
+            logging.warning(f"Not starting TUN reader because it is disabled by noProto")
+        else:
+            logging.debug(f"starting TUN reader, our IP address is {myAddr}")
+            self._rxThread = threading.Thread(target=self.__tunReader, args=(), daemon=True)
+            self._rxThread.start()
 
     def onReceive(self, packet):
         """onReceive"""
@@ -115,12 +114,12 @@ class Tunnel:
         if packet["from"] == self.iface.myInfo.my_node_num:
             logging.debug("Ignoring message we sent")
         else:
-            logging.debug(
-                f"Received mesh tunnel message type={type(p)} len={len(p)}")
+            logging.debug(f"Received mesh tunnel message type={type(p)} len={len(p)}")
             # we don't really need to check for filtering here (sender should have checked),
             # but this provides useful debug printing on types of packets received
-            if not self._shouldFilterPacket(p):
-                self.tun.write(p)
+            if not self.iface.noProto: # could move this one line down later
+                if not self._shouldFilterPacket(p):
+                    self.tun.write(p)
 
     def _shouldFilterPacket(self, p):
         """Given a packet, decode it and return true if it should be ignored"""
@@ -129,10 +128,9 @@ class Tunnel:
         destAddr = p[16:20]
         subheader = 20
         ignore = False  # Assume we will be forwarding the packet
-        if protocol in protocolBlacklist:
+        if protocol in self.protocolBlacklist:
             ignore = True
-            logging.log(
-                LOG_TRACE, f"Ignoring blacklisted protocol 0x{protocol:02x}")
+            logging.log(self.LOG_TRACE, f"Ignoring blacklisted protocol 0x{protocol:02x}")
         elif protocol == 0x01:  # ICMP
             icmpType = p[20]
             icmpCode = p[21]
@@ -145,19 +143,17 @@ class Tunnel:
         elif protocol == 0x11:  # UDP
             srcport = readnet_u16(p, subheader)
             destport = readnet_u16(p, subheader + 2)
-            if destport in udpBlacklist:
+            if destport in self.udpBlacklist:
                 ignore = True
-                logging.log(
-                    LOG_TRACE, f"ignoring blacklisted UDP port {destport}")
+                logging.log(self.LOG_TRACE, f"ignoring blacklisted UDP port {destport}")
             else:
-                logging.debug(
-                    f"forwarding udp srcport={srcport}, destport={destport}")
+                logging.debug(f"forwarding udp srcport={srcport}, destport={destport}")
         elif protocol == 0x06:  # TCP
             srcport = readnet_u16(p, subheader)
             destport = readnet_u16(p, subheader + 2)
-            if destport in tcpBlacklist:
+            if destport in self.tcpBlacklist:
                 ignore = True
-                logging.log(LOG_TRACE, f"ignoring blacklisted TCP port {destport}")
+                logging.log(self.LOG_TRACE, f"ignoring blacklisted TCP port {destport}")
             else:
                 logging.debug(f"forwarding tcp srcport={srcport}, destport={destport}")
         else:

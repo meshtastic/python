@@ -169,8 +169,7 @@ class DeferredExecution():
                 o = self.queue.get()
                 o()
             except:
-                logging.error(
-                    f"Unexpected error in deferred execution {sys.exc_info()[0]}")
+                logging.error(f"Unexpected error in deferred execution {sys.exc_info()[0]}")
                 print(traceback.format_exc())
 
 
@@ -210,3 +209,18 @@ def remove_keys_from_dict(keys, adict):
         if key in adict:
             del newdict[key]
     return newdict
+
+
+def hexstr(barray):
+    """Print a string of hex digits"""
+    return ":".join('{:02x}'.format(x) for x in barray)
+
+
+def ipstr(barray):
+    """Print a string of ip digits"""
+    return ".".join('{}'.format(x) for x in barray)
+
+
+def readnet_u16(p, offset):
+    """Read big endian u16 (network byte order)"""
+    return p[offset] * 256 + p[offset + 1]

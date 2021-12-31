@@ -5,11 +5,12 @@ import sys
 import os
 import re
 import logging
+import platform
 
 from unittest.mock import patch, MagicMock
 import pytest
 
-from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config, getPref, setPref, onNode
+from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config, getPref, setPref, onNode, tunnelMain
 #from ..radioconfig_pb2 import UserPreferences
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
@@ -1679,3 +1680,55 @@ def test_onNode(capsys, reset_globals):
     out, err = capsys.readouterr()
     assert re.search(r'Node changed', out, re.MULTILINE)
     assert err == ''
+
+
+@pytest.mark.unit
+def test_tunnel_no_args(capsys, reset_globals):
+    """Test tunnel no arguments"""
+    sys.argv = ['']
+    Globals.getInstance().set_args(sys.argv)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        tunnelMain()
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+    _, err = capsys.readouterr()
+    assert re.search(r'usage: ', err, re.MULTILINE)
+
+
+@pytest.mark.unit
+@patch('platform.system')
+def test_tunnel_tunnel_arg(mock_platform_system, capsys, reset_globals):
+    """Test tunnel with tunnel arg (act like we are on a linux system)"""
+    a_mock = MagicMock()
+    a_mock.return_value = 'Linux'
+    mock_platform_system.side_effect = a_mock
+    sys.argv = ['', '--tunnel']
+    Globals.getInstance().set_args(sys.argv)
+    print(f'platform.system():{platform.system()}')
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        tunnelMain()
+    mock_platform_system.assert_called()
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+    _, err = capsys.readouterr()
+    assert not re.search(r'usage: ', err, re.MULTILINE)
+
+
+@pytest.mark.unit
+@patch('platform.system')
+def test_tunnel_subnet_arg(mock_platform_system, capsys, reset_globals):
+    """Test tunnel with subnet arg (act like we are on a linux system)"""
+    a_mock = MagicMock()
+    a_mock.return_value = 'Linux'
+    mock_platform_system.side_effect = a_mock
+    sys.argv = ['', '--subnet', 'foo']
+    Globals.getInstance().set_args(sys.argv)
+    print(f'platform.system():{platform.system()}')
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        tunnelMain()
+    mock_platform_system.assert_called()
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+    out, err = capsys.readouterr()
+    assert not re.search(r'usage: ', err, re.MULTILINE)
+    assert re.search(r'Warning: No Meshtastic devices detected', out, re.MULTILINE)

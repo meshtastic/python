@@ -8,7 +8,8 @@ import pytest
 from meshtastic.util import (fixme, stripnl, pskToString, our_exit,
                              support_info, genPSK256, fromStr, fromPSK,
                              quoteBooleans, catchAndIgnore,
-                             remove_keys_from_dict)
+                             remove_keys_from_dict, Timeout, hexstr,
+                             ipstr, readnet_u16)
 
 
 @pytest.mark.unit
@@ -174,3 +175,39 @@ def test_remove_keys_from_dict_empty_keys():
 def test_remove_keys_from_dict():
     """Test remove_keys_from_dict()"""
     assert remove_keys_from_dict(('b'), {'a':1, 'b':2}) == {'a':1}
+
+
+@pytest.mark.unit
+def test_Timeout_not_found():
+    """Test Timeout()"""
+    to = Timeout(0.2)
+    attrs = ('foo')
+    to.waitForSet('bar', attrs)
+
+
+@pytest.mark.unit
+def test_Timeout_found():
+    """Test Timeout()"""
+    to = Timeout(0.2)
+    attrs = ()
+    to.waitForSet('bar', attrs)
+
+
+@pytest.mark.unit
+def test_hexstr():
+    """Test hexstr()"""
+    assert hexstr(b'123') == '31:32:33'
+    assert hexstr(b'') == ''
+
+
+@pytest.mark.unit
+def test_ipstr():
+    """Test ipstr()"""
+    assert ipstr(b'1234') == '49.50.51.52'
+    assert ipstr(b'') == ''
+
+
+@pytest.mark.unit
+def test_readnet_u16():
+    """Test readnet_u16()"""
+    assert readnet_u16(b'123456', 2) == 13108
