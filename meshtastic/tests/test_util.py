@@ -3,13 +3,14 @@
 import re
 import logging
 
+from unittest.mock import patch
 import pytest
 
 from meshtastic.util import (fixme, stripnl, pskToString, our_exit,
                              support_info, genPSK256, fromStr, fromPSK,
                              quoteBooleans, catchAndIgnore,
                              remove_keys_from_dict, Timeout, hexstr,
-                             ipstr, readnet_u16)
+                             ipstr, readnet_u16, findPorts)
 
 
 @pytest.mark.unit
@@ -211,3 +212,10 @@ def test_ipstr():
 def test_readnet_u16():
     """Test readnet_u16()"""
     assert readnet_u16(b'123456', 2) == 13108
+
+
+@pytest.mark.unit
+@patch('serial.tools.list_ports.comports', return_value=[])
+def test_findPorts_when_none_found(patch_comports):
+    """Test findPorts()"""
+    assert not findPorts()

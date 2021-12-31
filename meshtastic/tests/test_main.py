@@ -1696,8 +1696,9 @@ def test_tunnel_no_args(capsys, reset_globals):
 
 
 @pytest.mark.unit
+@patch('meshtastic.util.findPorts', return_value=[])
 @patch('platform.system')
-def test_tunnel_tunnel_arg(mock_platform_system, capsys, reset_globals):
+def test_tunnel_tunnel_arg_with_no_devices(mock_platform_system, patched_find_ports, caplog, capsys, reset_globals):
     """Test tunnel with tunnel arg (act like we are on a linux system)"""
     a_mock = MagicMock()
     a_mock.return_value = 'Linux'
@@ -1705,18 +1706,21 @@ def test_tunnel_tunnel_arg(mock_platform_system, capsys, reset_globals):
     sys.argv = ['', '--tunnel']
     Globals.getInstance().set_args(sys.argv)
     print(f'platform.system():{platform.system()}')
-    with pytest.raises(SystemExit) as pytest_wrapped_e:
-        tunnelMain()
-    mock_platform_system.assert_called()
-    assert pytest_wrapped_e.type == SystemExit
-    assert pytest_wrapped_e.value.code == 1
-    _, err = capsys.readouterr()
-    assert not re.search(r'usage: ', err, re.MULTILINE)
+    with caplog.at_level(logging.DEBUG):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            tunnelMain()
+        mock_platform_system.assert_called()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r'Warning: No Meshtastic devices detected', out, re.MULTILINE)
+        assert err == ''
 
 
 @pytest.mark.unit
+@patch('meshtastic.util.findPorts', return_value=[])
 @patch('platform.system')
-def test_tunnel_subnet_arg(mock_platform_system, capsys, reset_globals):
+def test_tunnel_subnet_arg_with_no_devices(mock_platform_system, patched_find_ports, caplog, capsys, reset_globals):
     """Test tunnel with subnet arg (act like we are on a linux system)"""
     a_mock = MagicMock()
     a_mock.return_value = 'Linux'
@@ -1724,11 +1728,41 @@ def test_tunnel_subnet_arg(mock_platform_system, capsys, reset_globals):
     sys.argv = ['', '--subnet', 'foo']
     Globals.getInstance().set_args(sys.argv)
     print(f'platform.system():{platform.system()}')
-    with pytest.raises(SystemExit) as pytest_wrapped_e:
-        tunnelMain()
-    mock_platform_system.assert_called()
-    assert pytest_wrapped_e.type == SystemExit
-    assert pytest_wrapped_e.value.code == 1
-    out, err = capsys.readouterr()
-    assert not re.search(r'usage: ', err, re.MULTILINE)
-    assert re.search(r'Warning: No Meshtastic devices detected', out, re.MULTILINE)
+    with caplog.at_level(logging.DEBUG):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            tunnelMain()
+        mock_platform_system.assert_called()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r'Warning: No Meshtastic devices detected', out, re.MULTILINE)
+        assert err == ''
+
+
+@pytest.mark.unit
+@patch('platform.system')
+def test_tunnel_tunnel_arg(mock_platform_system, caplog, reset_globals, iface_with_nodes):
+    """Test tunnel with tunnel arg (act like we are on a linux system)"""
+    # Override the time.sleep so there is no loop
+    def my_sleep(amount):
+        sys.exit(3)
+
+    a_mock = MagicMock()
+    a_mock.return_value = 'Linux'
+    mock_platform_system.side_effect = a_mock
+    sys.argv = ['', '--tunnel']
+    Globals.getInstance().set_args(sys.argv)
+    print(f'platform.system():{platform.system()}')
+
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
+
+    with caplog.at_level(logging.DEBUG):
+        with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
+            with patch('time.sleep', side_effect=my_sleep):
+                with pytest.raises(SystemExit) as pytest_wrapped_e:
+                    tunnelMain()
+                    mock_platform_system.assert_called()
+                assert pytest_wrapped_e.type == SystemExit
+                assert pytest_wrapped_e.value.code == 3
+                assert re.search(r'Not starting Tunnel', caplog.text, re.MULTILINE)
