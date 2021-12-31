@@ -29,7 +29,7 @@ def test_node(capsys):
 
 
 @pytest.mark.unit
-def test_node_reqquestConfig():
+def test_node_requestConfig(capsys):
     """Test run requestConfig"""
     iface = MagicMock(autospec=SerialInterface)
     amesg = MagicMock(autospec=AdminMessage)
@@ -37,6 +37,9 @@ def test_node_reqquestConfig():
         with patch('meshtastic.admin_pb2.AdminMessage', return_value=amesg):
             anode = Node(mo, 'bar')
             anode.requestConfig()
+    out, err = capsys.readouterr()
+    assert re.search(r'Requesting preferences from remote node', out, re.MULTILINE)
+    assert err == ''
 
 
 @pytest.mark.unit
@@ -106,13 +109,16 @@ def test_reboot(caplog):
 
 
 @pytest.mark.unit
-def test_setURL_empty_url():
+def test_setURL_empty_url(capsys):
     """Test reboot"""
     anode = Node('foo', 'bar', noProto=True)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         anode.setURL('')
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: No RadioConfig has been read', out, re.MULTILINE)
+    assert err == ''
 
 
 @pytest.mark.unit
@@ -133,7 +139,7 @@ def test_setURL_valid_URL(caplog):
 
 
 @pytest.mark.unit
-def test_setURL_valid_URL_but_no_settings(caplog):
+def test_setURL_valid_URL_but_no_settings(caplog, capsys):
     """Test setURL"""
     iface = MagicMock(autospec=SerialInterface)
     url = "https://www.meshtastic.org/d/#"
@@ -143,6 +149,9 @@ def test_setURL_valid_URL_but_no_settings(caplog):
         anode.setURL(url)
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: There were no settings', out, re.MULTILINE)
+    assert err == ''
 
 
 @pytest.mark.unit
@@ -623,7 +632,7 @@ def test_writeConfig(caplog):
 
 
 @pytest.mark.unit
-def test_requestChannel_not_localNode(caplog):
+def test_requestChannel_not_localNode(caplog, capsys):
     """Test _requestChannel()"""
     iface = MagicMock(autospec=SerialInterface)
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
@@ -633,6 +642,9 @@ def test_requestChannel_not_localNode(caplog):
         with caplog.at_level(logging.DEBUG):
             anode._requestChannel(0)
             assert re.search(r'Requesting channel 0 info from remote node', caplog.text, re.MULTILINE)
+        out, err = capsys.readouterr()
+        assert re.search(r'Requesting channel 0 info', out, re.MULTILINE)
+        assert err == ''
 
 
 @pytest.mark.unit

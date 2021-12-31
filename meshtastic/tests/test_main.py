@@ -63,7 +63,7 @@ def test_main_main_version(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_main_no_args(reset_globals):
+def test_main_main_no_args(reset_globals, capsys):
     """Test with no args"""
     sys.argv = ['']
     Globals.getInstance().set_args(sys.argv)
@@ -72,6 +72,8 @@ def test_main_main_no_args(reset_globals):
         main()
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
+    _, err = capsys.readouterr()
+    assert re.search(r'usage:', err, re.MULTILINE)
 
 
 @pytest.mark.unit
@@ -112,7 +114,7 @@ def test_main_ch_index_no_devices(patched_find_ports, capsys, reset_globals):
 
 @pytest.mark.unit
 @patch('meshtastic.util.findPorts', return_value=[])
-def test_main_test_no_ports(patched_find_ports, reset_globals):
+def test_main_test_no_ports(patched_find_ports, reset_globals, capsys):
     """Test --test with no hardware"""
     sys.argv = ['', '--test']
     Globals.getInstance().set_args(sys.argv)
@@ -123,11 +125,14 @@ def test_main_test_no_ports(patched_find_ports, reset_globals):
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     patched_find_ports.assert_called()
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: Must have at least two devices connected to USB', out, re.MULTILINE)
+    assert err == ''
 
 
 @pytest.mark.unit
 @patch('meshtastic.util.findPorts', return_value=['/dev/ttyFake1'])
-def test_main_test_one_port(patched_find_ports, reset_globals):
+def test_main_test_one_port(patched_find_ports, reset_globals, capsys):
     """Test --test with one fake port"""
     sys.argv = ['', '--test']
     Globals.getInstance().set_args(sys.argv)
@@ -138,12 +143,14 @@ def test_main_test_one_port(patched_find_ports, reset_globals):
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     patched_find_ports.assert_called()
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: Must have at least two devices connected to USB', out, re.MULTILINE)
+    assert err == ''
 
 
 @pytest.mark.unit
 @patch('meshtastic.test.testAll', return_value=True)
-@patch('meshtastic.util.findPorts', return_value=['/dev/ttyFake1', '/dev/ttyFake2'])
-def test_main_test_two_ports_success(patched_find_ports, patched_test_all, reset_globals):
+def test_main_test_two_ports_success(patched_test_all, reset_globals, capsys):
     """Test --test two fake ports and testAll() is a simulated success"""
     sys.argv = ['', '--test']
     Globals.getInstance().set_args(sys.argv)
@@ -152,14 +159,15 @@ def test_main_test_two_ports_success(patched_find_ports, patched_test_all, reset
         main()
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 0
-    # TODO: why does this fail? patched_find_ports.assert_called()
     patched_test_all.assert_called()
+    out, err = capsys.readouterr()
+    assert re.search(r'Test was a success.', out, re.MULTILINE)
+    assert err == ''
 
 
 @pytest.mark.unit
 @patch('meshtastic.test.testAll', return_value=False)
-@patch('meshtastic.util.findPorts', return_value=['/dev/ttyFake1', '/dev/ttyFake2'])
-def test_main_test_two_ports_fails(patched_find_ports, patched_test_all, reset_globals):
+def test_main_test_two_ports_fails(patched_test_all, reset_globals, capsys):
     """Test --test two fake ports and testAll() is a simulated failure"""
     sys.argv = ['', '--test']
     Globals.getInstance().set_args(sys.argv)
@@ -168,8 +176,10 @@ def test_main_test_two_ports_fails(patched_find_ports, patched_test_all, reset_g
         main()
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
-    # TODO: why does this fail? patched_find_ports.assert_called()
     patched_test_all.assert_called()
+    out, err = capsys.readouterr()
+    assert re.search(r'Test was not successful.', out, re.MULTILINE)
+    assert err == ''
 
 
 @pytest.mark.unit
@@ -1233,18 +1243,23 @@ def test_main_setchan(capsys, reset_globals):
             main()
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
+        _, err = capsys.readouterr()
+        assert re.search(r'usage:', err, re.MULTILINE)
 
 
 @pytest.mark.unit
-def test_main_onReceive_empty(caplog, reset_globals):
+def test_main_onReceive_empty(caplog, reset_globals, capsys):
     """Test onReceive"""
-    sys.argv = ['']
-    Globals.getInstance().set_args(sys.argv)
+    args = MagicMock()
+    Globals.getInstance().set_args(args)
     iface = MagicMock(autospec=SerialInterface)
-    packet = {'decoded': 'foo'}
+    packet = {}
     with caplog.at_level(logging.DEBUG):
         onReceive(packet, iface)
     assert re.search(r'in onReceive', caplog.text, re.MULTILINE)
+    out, err = capsys.readouterr()
+    assert re.search(r"Warning: There is no field 'to' in the packet.", out, re.MULTILINE)
+    assert err == ''
 
 
 #    TODO: use this captured position app message (might want/need in the future)
@@ -1259,7 +1274,7 @@ def test_main_onReceive_empty(caplog, reset_globals):
 #            }
 
 @pytest.mark.unit
-def test_main_onReceive_with_sendtext(caplog, reset_globals):
+def test_main_onReceive_with_sendtext(caplog, capsys, reset_globals):
     """Test onReceive with sendtext
        The entire point of this test is to make sure the interface.close() call
        is made in onReceive().
@@ -1288,6 +1303,9 @@ def test_main_onReceive_with_sendtext(caplog, reset_globals):
             onReceive(packet, iface)
         assert re.search(r'in onReceive', caplog.text, re.MULTILINE)
         mo.assert_called()
+        out, err = capsys.readouterr()
+        assert re.search(r'Sending text message hello to', out, re.MULTILINE)
+        assert err == ''
 
 
 @pytest.mark.unit
@@ -1741,7 +1759,7 @@ def test_tunnel_subnet_arg_with_no_devices(mock_platform_system, patched_find_po
 
 @pytest.mark.unit
 @patch('platform.system')
-def test_tunnel_tunnel_arg(mock_platform_system, caplog, reset_globals, iface_with_nodes):
+def test_tunnel_tunnel_arg(mock_platform_system, caplog, reset_globals, iface_with_nodes, capsys):
     """Test tunnel with tunnel arg (act like we are on a linux system)"""
     # Override the time.sleep so there is no loop
     def my_sleep(amount):
@@ -1752,7 +1770,6 @@ def test_tunnel_tunnel_arg(mock_platform_system, caplog, reset_globals, iface_wi
     mock_platform_system.side_effect = a_mock
     sys.argv = ['', '--tunnel']
     Globals.getInstance().set_args(sys.argv)
-    print(f'platform.system():{platform.system()}')
 
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
@@ -1766,3 +1783,6 @@ def test_tunnel_tunnel_arg(mock_platform_system, caplog, reset_globals, iface_wi
                 assert pytest_wrapped_e.type == SystemExit
                 assert pytest_wrapped_e.value.code == 3
                 assert re.search(r'Not starting Tunnel', caplog.text, re.MULTILINE)
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert err == ''

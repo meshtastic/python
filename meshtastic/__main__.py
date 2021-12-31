@@ -42,7 +42,7 @@ def onReceive(packet, interface):
                 interface.sendText(reply)
 
     except Exception as ex:
-        print(ex)
+        print(f'Warning: There is no field {ex} in the packet.')
 
 
 def onConnection(interface, topic=pub.AUTO_TOPIC):

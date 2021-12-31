@@ -11,7 +11,7 @@ from ..serial_interface import SerialInterface
 @pytest.mark.unit
 @patch('serial.Serial')
 @patch('meshtastic.util.findPorts', return_value=['/dev/ttyUSBfake'])
-def test_SerialInterface_single_port(mocked_findPorts, mocked_serial):
+def test_SerialInterface_single_port(mocked_findPorts, mocked_serial, capsys):
     """Test that we can instantiate a SerialInterface with a single port"""
     iface = SerialInterface(noProto=True)
     iface.showInfo()
@@ -19,6 +19,12 @@ def test_SerialInterface_single_port(mocked_findPorts, mocked_serial):
     iface.close()
     mocked_findPorts.assert_called()
     mocked_serial.assert_called()
+    out, err = capsys.readouterr()
+    assert re.search(r'Nodes in mesh', out, re.MULTILINE)
+    assert re.search(r'Preferences', out, re.MULTILINE)
+    assert re.search(r'Channels', out, re.MULTILINE)
+    assert re.search(r'Primary channel', out, re.MULTILINE)
+    assert err == ''
 
 
 @pytest.mark.unit

@@ -78,4 +78,3 @@ def test_sendToRadioImpl(caplog, reset_globals):
         assert re.search(r'Sending: ', caplog.text, re.MULTILINE)
         assert re.search(r'reading character', caplog.text, re.MULTILINE)
         assert re.search(r'In reader loop', caplog.text, re.MULTILINE)
-        print(caplog.text)

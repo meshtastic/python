@@ -107,19 +107,25 @@ def test_pskToString_simple():
 
 
 @pytest.mark.unitslow
-def test_our_exit_zero_return_value():
+def test_our_exit_zero_return_value(capsys):
     """Test our_exit with a zero return value"""
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         our_exit("Warning: Some message", 0)
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: Some message', out, re.MULTILINE)
+    assert err == ''
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 0
 
 
 @pytest.mark.unit
-def test_our_exit_non_zero_return_value():
+def test_our_exit_non_zero_return_value(capsys):
     """Test our_exit with a non-zero return value"""
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         our_exit("Error: Some message", 1)
+    out, err = capsys.readouterr()
+    assert re.search(r'Error: Some message', out, re.MULTILINE)
+    assert err == ''
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
 

@@ -60,7 +60,6 @@ def test_getMyUser(reset_globals, iface_with_nodes):
 
     iface.myInfo.my_node_num = 2475227164
     myuser = iface.getMyUser()
-    print(f'myuser:{myuser}')
     assert myuser is not None
     assert myuser["id"] == '!9388f81c'
 

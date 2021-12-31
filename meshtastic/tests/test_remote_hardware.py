@@ -79,7 +79,7 @@ def test_watchGPIOs(caplog):
 
 
 @pytest.mark.unit
-def test_sendHardware_no_nodeid():
+def test_sendHardware_no_nodeid(capsys):
     """Test sending no nodeid to _sendHardware()"""
     iface = MagicMock(autospec=SerialInterface)
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
@@ -87,3 +87,6 @@ def test_sendHardware_no_nodeid():
             rhw = RemoteHardwareClient(mo)
             rhw._sendHardware(None, None)
         assert pytest_wrapped_e.type == SystemExit
+    out, err = capsys.readouterr()
+    assert re.search(r'Warning: Must use a destination node ID', out)
+    assert err == ''
