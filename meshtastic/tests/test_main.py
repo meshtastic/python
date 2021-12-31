@@ -9,7 +9,7 @@ import logging
 from unittest.mock import patch, MagicMock
 import pytest
 
-from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config, getPref, setPref, onNode
+from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config, getPref, setPref, onNode, tunnelMain
 #from ..radioconfig_pb2 import UserPreferences
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
@@ -1679,3 +1679,16 @@ def test_onNode(capsys, reset_globals):
     out, err = capsys.readouterr()
     assert re.search(r'Node changed', out, re.MULTILINE)
     assert err == ''
+
+
+@pytest.mark.unit
+def test_tunnel_no_args(capsys, reset_globals):
+    """Test tunnel no arguments"""
+    sys.argv = ['']
+    Globals.getInstance().set_args(sys.argv)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        tunnelMain()
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+    _, err = capsys.readouterr()
+    assert re.search(r'usage: ', err, re.MULTILINE)

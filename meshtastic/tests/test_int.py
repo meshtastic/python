@@ -6,10 +6,18 @@ import pytest
 
 
 @pytest.mark.int
-def test_int_no_args():
-    """Test without any args"""
+def test_int_meshtastic_no_args():
+    """Test meshtastic without any args"""
     return_value, out = subprocess.getstatusoutput('meshtastic')
     assert re.match(r'usage: meshtastic', out)
+    assert return_value == 1
+
+
+@pytest.mark.int
+def test_int_mesh_tunnel_no_args():
+    """Test mesh-tunnel without any args"""
+    return_value, out = subprocess.getstatusoutput('mesh-tunnel')
+    assert re.match(r'usage: mesh-tunnel', out)
     assert return_value == 1
 
 
