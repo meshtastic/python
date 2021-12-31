@@ -57,7 +57,6 @@ def test_MeshInterface(capsys, reset_globals):
 def test_getMyUser(reset_globals, iface_with_nodes):
     """Test getMyUser()"""
     iface = iface_with_nodes
-
     iface.myInfo.my_node_num = 2475227164
     myuser = iface.getMyUser()
     assert myuser is not None
@@ -459,3 +458,88 @@ def test_generatePacketId(capsys, reset_globals):
         assert re.search(r'Not connected yet, can not generate packet', out, re.MULTILINE)
         assert err == ''
     assert pytest_wrapped_e.type == Exception
+
+
+@pytest.mark.unit
+def test_fixupPosition_empty_pos(capsys, reset_globals):
+    """Test _fixupPosition()"""
+    iface = MeshInterface(noProto=True)
+    pos = {}
+    newpos = iface._fixupPosition(pos)
+    assert newpos == pos
+
+
+@pytest.mark.unit
+def test_fixupPosition_no_changes_needed(capsys, reset_globals):
+    """Test _fixupPosition()"""
+    iface = MeshInterface(noProto=True)
+    pos = {"latitude": 101, "longitude": 102}
+    newpos = iface._fixupPosition(pos)
+    assert newpos == pos
+
+
+@pytest.mark.unit
+def test_fixupPosition(capsys, reset_globals):
+    """Test _fixupPosition()"""
+    iface = MeshInterface(noProto=True)
+    pos = {"latitudeI": 1010000000, "longitudeI": 1020000000}
+    newpos = iface._fixupPosition(pos)
+    assert newpos == {"latitude": 101.0,
+                      "latitudeI": 1010000000,
+                      "longitude": 102.0,
+                      "longitudeI": 1020000000}
+
+
+@pytest.mark.unit
+def test_nodeNumToId(capsys, reset_globals, iface_with_nodes):
+    """Test _nodeNumToId()"""
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
+    someid = iface._nodeNumToId(2475227164)
+    assert someid == '!9388f81c'
+
+
+@pytest.mark.unit
+def test_nodeNumToId_not_found(capsys, reset_globals, iface_with_nodes):
+    """Test _nodeNumToId()"""
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
+    someid = iface._nodeNumToId(123)
+    assert someid is None
+
+
+@pytest.mark.unit
+def test_nodeNumToId_to_all(capsys, reset_globals, iface_with_nodes):
+    """Test _nodeNumToId()"""
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
+    someid = iface._nodeNumToId(0xffffffff)
+    assert someid == '^all'
+
+
+@pytest.mark.unit
+def test_getOrCreateByNum_minimal(capsys, reset_globals, iface_with_nodes):
+    """Test _getOrCreateByNum()"""
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
+    tmp = iface._getOrCreateByNum(123)
+    assert tmp == {'num': 123}
+
+
+@pytest.mark.unit
+def test_getOrCreateByNum_not_found(capsys, reset_globals, iface_with_nodes):
+    """Test _getOrCreateByNum()"""
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        iface._getOrCreateByNum(0xffffffff)
+    assert pytest_wrapped_e.type == Exception
+
+
+@pytest.mark.unit
+def test_getOrCreateByNum(capsys, reset_globals, iface_with_nodes):
+    """Test _getOrCreateByNum()"""
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
+    tmp = iface._getOrCreateByNum(2475227164)
+    assert tmp['num'] == 2475227164

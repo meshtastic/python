@@ -507,7 +507,8 @@ class MeshInterface:
         elif fromRadio.HasField("node_info"):
             node = asDict["nodeInfo"]
             try:
-                self._fixupPosition(node["position"])
+                newpos = self._fixupPosition(node["position"])
+                node["position"] = newpos
             except:
                 logging.debug("Node without position")
 
@@ -539,12 +540,14 @@ class MeshInterface:
         """Convert integer lat/lon into floats
 
         Arguments:
-            position {Position dictionary} -- object ot fix up
+            position {Position dictionary} -- object to fix up
+        Returns the position with the updated keys
         """
         if "latitudeI" in position:
             position["latitude"] = position["latitudeI"] * 1e-7
         if "longitudeI" in position:
             position["longitude"] = position["longitudeI"] * 1e-7
+        return position
 
     def _nodeNumToId(self, num):
         """Map a node node number to a node ID
