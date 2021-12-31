@@ -498,7 +498,10 @@ def onConnected(interface):
             from . import tunnel
             # Even if others said we could close, stay open if the user asked for a tunnel
             closeNow = False
-            tunnel.Tunnel(interface, subnet=args.tunnel_net)
+            if interface.noProto:
+                logging.warning(f"Not starting Tunnel - disabled by noProto")
+            else:
+                tunnel.Tunnel(interface, subnet=args.tunnel_net)
 
         # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
         if (not args.seriallog) and closeNow:
