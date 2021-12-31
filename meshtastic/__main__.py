@@ -18,9 +18,6 @@ from . import portnums_pb2, channel_pb2, radioconfig_pb2
 from .globals import Globals
 
 
-have_tunnel = platform.system() == 'Linux'
-"""We only import the tunnel code if we are on a platform that can run it. """
-
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
     our_globals = Globals.getInstance()
@@ -495,6 +492,7 @@ def onConnected(interface):
             qr = pyqrcode.create(url)
             print(qr.terminal())
 
+        have_tunnel = platform.system() == 'Linux'
         if have_tunnel and args.tunnel:
             # pylint: disable=C0415
             from . import tunnel
@@ -640,6 +638,7 @@ def common():
             #if logfile:
                 #logfile.close()
 
+            have_tunnel = platform.system() == 'Linux'
             if args.noproto or args.reply or (have_tunnel and args.tunnel):  # loop until someone presses ctrlc
                 while True:
                     time.sleep(1000)
@@ -805,6 +804,7 @@ def initParser():
     parser.add_argument('--unset-router', dest='deprecated',
                         action='store_false', help='Deprecated, use "--set is_router false" instead')
 
+    have_tunnel = platform.system() == 'Linux'
     if have_tunnel:
         parser.add_argument('--tunnel',
                             action='store_true', help="Create a TUN tunnel device for forwarding IP packets over the mesh")
