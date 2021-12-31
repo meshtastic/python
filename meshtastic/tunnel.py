@@ -66,7 +66,9 @@ class Tunnel:
         }
 
         """A list of TCP services to block"""
-        self.tcpBlacklist = {}
+        self.tcpBlacklist = {
+            5900,  # VNC (Note: Only adding for testing purposes.)
+        }
 
         """A list of protocols we ignore"""
         self.protocolBlacklist = {
@@ -117,7 +119,7 @@ class Tunnel:
             logging.debug(f"Received mesh tunnel message type={type(p)} len={len(p)}")
             # we don't really need to check for filtering here (sender should have checked),
             # but this provides useful debug printing on types of packets received
-            if not self.iface.noProto: # could move this one line down later
+            if not self.iface.noProto:
                 if not self._shouldFilterPacket(p):
                     self.tun.write(p)
 
