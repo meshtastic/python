@@ -169,8 +169,7 @@ class DeferredExecution():
                 o = self.queue.get()
                 o()
             except:
-                logging.error(
-                    f"Unexpected error in deferred execution {sys.exc_info()[0]}")
+                logging.error(f"Unexpected error in deferred execution {sys.exc_info()[0]}")
                 print(traceback.format_exc())
 
 
