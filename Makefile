@@ -16,7 +16,7 @@ lint:
 
 # show the slowest unit tests
 slow:
-	pytest --durations=0
+	pytest --durations=5
 
 # run the coverage report and open results in a browser
 cov:

@@ -39,7 +39,7 @@ def test_Tunnel_without_interface(mock_platform_system, reset_globals):
     assert pytest_wrapped_e.type == Exception
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 @patch('platform.system')
 def test_Tunnel_with_interface(mock_platform_system, caplog, reset_globals, iface_with_nodes):
     """Test that we can not instantiate a Tunnel without a valid interface"""
@@ -58,7 +58,7 @@ def test_Tunnel_with_interface(mock_platform_system, caplog, reset_globals, ifac
     assert re.search(r'Not sending packet', caplog.text, re.MULTILINE)
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 @patch('platform.system')
 def test_onTunnelReceive_from_ourselves(mock_platform_system, caplog, reset_globals, iface_with_nodes):
     """Test onTunnelReceive"""

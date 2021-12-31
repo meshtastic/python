@@ -41,7 +41,7 @@ def test_fromStr():
     assert fromStr('abc') == 'abc'
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_quoteBooleans():
     """Test quoteBooleans"""
     assert quoteBooleans('') == ''
@@ -94,7 +94,7 @@ def test_pskToString_one_byte_non_zero_value():
     assert pskToString(bytes([0x01])) == 'default'
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_pskToString_many_bytes():
     """Test pskToString many bytes"""
     assert pskToString(bytes([0x02, 0x01])) == 'secret'
@@ -106,7 +106,7 @@ def test_pskToString_simple():
     assert pskToString(bytes([0x03])) == 'simple2'
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_our_exit_zero_return_value():
     """Test our_exit with a zero return value"""
     with pytest.raises(SystemExit) as pytest_wrapped_e:
@@ -154,7 +154,7 @@ def test_catchAndIgnore(caplog):
     assert re.search(r'Exception thrown in something', caplog.text, re.MULTILINE)
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_remove_keys_from_dict_empty_keys_empty_dict():
     """Test when keys and dict both are empty"""
     assert not remove_keys_from_dict((), {})
@@ -178,7 +178,7 @@ def test_remove_keys_from_dict():
     assert remove_keys_from_dict(('b'), {'a':1, 'b':2}) == {'a':1}
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_Timeout_not_found():
     """Test Timeout()"""
     to = Timeout(0.2)
@@ -186,7 +186,7 @@ def test_Timeout_not_found():
     to.waitForSet('bar', attrs)
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_Timeout_found():
     """Test Timeout()"""
     to = Timeout(0.2)
@@ -194,7 +194,7 @@ def test_Timeout_found():
     to.waitForSet('bar', attrs)
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_hexstr():
     """Test hexstr()"""
     assert hexstr(b'123') == '31:32:33'
@@ -208,7 +208,7 @@ def test_ipstr():
     assert ipstr(b'') == ''
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_readnet_u16():
     """Test readnet_u16()"""
     assert readnet_u16(b'123456', 2) == 13108
