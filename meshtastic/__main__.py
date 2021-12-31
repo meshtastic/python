@@ -806,10 +806,11 @@ def initParser():
 
     have_tunnel = platform.system() == 'Linux'
     if have_tunnel:
-        parser.add_argument('--tunnel',
-                            action='store_true', help="Create a TUN tunnel device for forwarding IP packets over the mesh")
-        parser.add_argument(
-            "--subnet", dest='tunnel_net', help="Sets the local-end subnet address for the TUN IP bridge", default=None)
+        parser.add_argument('--tunnel', action='store_true',
+                            help="Create a TUN tunnel device for forwarding IP packets over the mesh")
+        parser.add_argument("--subnet", dest='tunnel_net',
+                            help="Sets the local-end subnet address for the TUN IP bridge. (ex: 10.115' which is the default)",
+                            default=None)
 
     parser.set_defaults(deprecated=None)
 

@@ -30,6 +30,7 @@ class Globals:
         self.target_node = None
         self.channel_index = None
         self.logfile = None
+        self.tunnelInstance = None
 
     def reset(self):
         """Reset all of our globals. If you add a member, add it to this method, too."""
@@ -37,6 +38,8 @@ class Globals:
         self.parser = None
         self.target_node = None
         self.channel_index = None
+        self.logfile = None
+        self.tunnelInstance = None
 
     # setters
     def set_args(self, args):
@@ -59,6 +62,10 @@ class Globals:
         """Set the logfile"""
         self.logfile = logfile
 
+    def set_tunnelInstance(self, tunnelInstance):
+        """Set the tunnelInstance"""
+        self.tunnelInstance = tunnelInstance
+
     # getters
     def get_args(self):
         """Get args"""
@@ -79,3 +86,7 @@ class Globals:
     def get_logfile(self):
         """Get logfile"""
         return self.logfile
+
+    def get_tunnelInstance(self):
+        """Get tunnelInstance"""
+        return self.tunnelInstance
