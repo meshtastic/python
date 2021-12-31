@@ -29,6 +29,7 @@ from .globals import Globals
 
 def onTunnelReceive(packet, interface):
     """Callback for received tunneled messages from mesh."""
+    logging.debug(f'in onTunnelReceive()')
     our_globals = Globals.getInstance()
     tunnelInstance = our_globals.get_tunnelInstance()
     tunnelInstance.onReceive(packet)
@@ -116,8 +117,9 @@ class Tunnel:
             logging.debug(f"Received mesh tunnel message type={type(p)} len={len(p)}")
             # we don't really need to check for filtering here (sender should have checked),
             # but this provides useful debug printing on types of packets received
-            if not self._shouldFilterPacket(p):
-                self.tun.write(p)
+            if not self.iface.noProto: # could move this one line down later
+                if not self._shouldFilterPacket(p):
+                    self.tun.write(p)
 
     def _shouldFilterPacket(self, p):
         """Given a packet, decode it and return true if it should be ignored"""
