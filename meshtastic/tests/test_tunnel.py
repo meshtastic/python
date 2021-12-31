@@ -232,3 +232,35 @@ def test_shouldFilterPacket_tcp_blacklisted(mock_platform_system, caplog, reset_
             ignore = tun._shouldFilterPacket(packet)
             assert re.search(r'ignoring blacklisted TCP', caplog.text, re.MULTILINE)
             assert ignore
+
+
+@pytest.mark.unit
+@patch('platform.system')
+def test_ipToNodeId_none(mock_platform_system, caplog, reset_globals, iface_with_nodes):
+    """Test _ipToNodeId()"""
+    iface = iface_with_nodes
+    iface.noProto = True
+    a_mock = MagicMock()
+    a_mock.return_value = 'Linux'
+    mock_platform_system.side_effect = a_mock
+    with caplog.at_level(logging.DEBUG):
+        with patch('socket.socket'):
+            tun = Tunnel(iface)
+            nodeid = tun._ipToNodeId('something not useful')
+            assert nodeid is None
+
+
+@pytest.mark.unit
+@patch('platform.system')
+def test_ipToNodeId_all(mock_platform_system, caplog, reset_globals, iface_with_nodes):
+    """Test _ipToNodeId()"""
+    iface = iface_with_nodes
+    iface.noProto = True
+    a_mock = MagicMock()
+    a_mock.return_value = 'Linux'
+    mock_platform_system.side_effect = a_mock
+    with caplog.at_level(logging.DEBUG):
+        with patch('socket.socket'):
+            tun = Tunnel(iface)
+            nodeid = tun._ipToNodeId(b'\x00\x00\xff\xff')
+            assert nodeid == '^all'
