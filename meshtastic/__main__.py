@@ -14,6 +14,7 @@ import pkg_resources
 import meshtastic.util
 import meshtastic.test
 from . import remote_hardware
+from .ble_interface import BLEInterface
 from . import portnums_pb2, channel_pb2, radioconfig_pb2
 from .globals import Globals
 
@@ -134,7 +135,9 @@ def onConnected(interface):
         our_globals = Globals.getInstance()
         args = our_globals.get_args()
 
-        print("Connected to radio")
+        # do not print this line if we are exporting the config
+        if not args.export_config:
+            print("Connected to radio")
 
         def getNode():
             """This operation could be expensive, so we try to cache the results"""
@@ -628,13 +631,11 @@ def common():
 
             subscribe()
             if args.ble:
-                client = meshtastic.ble_interface.BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto)
+                client = BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto)
             elif args.host:
-                client = meshtastic.tcp_interface.TCPInterface(
-                    args.host, debugOut=logfile, noProto=args.noproto)
+                client = meshtastic.tcp_interface.TCPInterface(args.host, debugOut=logfile, noProto=args.noproto)
             else:
-                client = meshtastic.serial_interface.SerialInterface(
-                    args.port, debugOut=logfile, noProto=args.noproto)
+                client = meshtastic.serial_interface.SerialInterface(args.port, debugOut=logfile, noProto=args.noproto)
 
             # We assume client is fully connected now
             onConnected(client)
