@@ -87,6 +87,7 @@ class MeshInterface:
                 # when the TBeam is first booted, it sometimes shows the 'raw' data
                 # so, we will just remove any raw keys
                 n2 = remove_keys_from_dict('raw', n)
+                n2 = remove_keys_from_dict('decode', n2)
 
                 # if we have 'macaddr', re-format it
                 if 'macaddr' in n2['user']:

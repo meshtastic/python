@@ -15,7 +15,7 @@ from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnecti
 import meshtastic.radioconfig_pb2
 from ..serial_interface import SerialInterface
 from ..tcp_interface import TCPInterface
-from ..ble_interface import BLEInterface
+#from ..ble_interface import BLEInterface
 from ..node import Node
 from ..channel_pb2 import Channel
 from ..remote_hardware import onGPIOreceive
@@ -220,23 +220,24 @@ def test_main_info_with_tcp_interface(capsys, reset_globals):
         mo.assert_called()
 
 
-@pytest.mark.unit
-def test_main_info_with_ble_interface(capsys, reset_globals):
-    """Test --info"""
-    sys.argv = ['', '--info', '--ble', 'foo']
-    Globals.getInstance().set_args(sys.argv)
-
-    iface = MagicMock(autospec=BLEInterface)
-    def mock_showInfo():
-        print('inside mocked showInfo')
-    iface.showInfo.side_effect = mock_showInfo
-    with patch('meshtastic.ble_interface.BLEInterface', return_value=iface) as mo:
-        main()
-        out, err = capsys.readouterr()
-        assert re.search(r'Connected to radio', out, re.MULTILINE)
-        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
-        assert err == ''
-        mo.assert_called()
+# TODO: comment out ble (for now)
+#@pytest.mark.unit
+#def test_main_info_with_ble_interface(capsys, reset_globals):
+#    """Test --info"""
+#    sys.argv = ['', '--info', '--ble', 'foo']
+#    Globals.getInstance().set_args(sys.argv)
+#
+#    iface = MagicMock(autospec=BLEInterface)
+#    def mock_showInfo():
+#        print('inside mocked showInfo')
+#    iface.showInfo.side_effect = mock_showInfo
+#    with patch('meshtastic.ble_interface.BLEInterface', return_value=iface) as mo:
+#        main()
+#        out, err = capsys.readouterr()
+#        assert re.search(r'Connected to radio', out, re.MULTILINE)
+#        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+#        assert err == ''
+#        mo.assert_called()
 
 
 @pytest.mark.unit
@@ -1382,6 +1383,10 @@ fixed_position: true
 position_flags: 35"""
         export_config(mo)
     out, err = capsys.readouterr()
+
+    # ensure we do not output this line
+    assert not re.search(r'Connected to radio', out, re.MULTILINE)
+
     assert re.search(r'owner: foo', out, re.MULTILINE)
     assert re.search(r'channel_url: bar', out, re.MULTILINE)
     assert re.search(r'location:', out, re.MULTILINE)
@@ -1407,7 +1412,7 @@ def test_main_export_config_called_from_main(capsys, reset_globals):
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
-        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert not re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'# start of Meshtastic configure yaml', out, re.MULTILINE)
         assert err == ''
         mo.assert_called()
