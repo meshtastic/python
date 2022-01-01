@@ -10,6 +10,8 @@ from ..mesh_interface import MeshInterface
 from ..node import Node
 from .. import mesh_pb2
 from ..__init__ import LOCAL_ADDR, BROADCAST_ADDR
+from ..radioconfig_pb2 import RadioConfig
+from ..util import Timeout
 
 
 @pytest.mark.unit
@@ -162,6 +164,22 @@ def test_sendPosition(reset_globals, caplog):
         iface.sendPosition()
     iface.close()
     assert re.search(r'p.time:', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_close_with_heartbeatTimer(reset_globals, caplog):
+    """Test close() with heartbeatTimer"""
+    iface = MeshInterface(noProto=True)
+    anode = Node('foo', 'bar')
+    radioConfig = RadioConfig()
+    radioConfig.preferences.phone_timeout_secs = 10
+    anode.radioConfig = radioConfig
+    iface.localNode = anode
+    assert iface.heartbeatTimer is None
+    with caplog.at_level(logging.DEBUG):
+        iface._startHeartbeat()
+        assert iface.heartbeatTimer is not None
+        iface.close()
 
 
 @pytest.mark.unit
@@ -543,3 +561,70 @@ def test_getOrCreateByNum(capsys, reset_globals, iface_with_nodes):
     iface.myInfo.my_node_num = 2475227164
     tmp = iface._getOrCreateByNum(2475227164)
     assert tmp['num'] == 2475227164
+
+
+@pytest.mark.unit
+def test_enter():
+    """Test __enter__()"""
+    iface = MeshInterface(noProto=True)
+    assert iface == iface.__enter__()
+
+
+@pytest.mark.unit
+def test_exit_with_exception(caplog):
+    """Test __exit__()"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.ERROR):
+        iface.__exit__('foo', 'bar', 'baz')
+        assert re.search(r'An exception of type foo with value bar has occurred', caplog.text, re.MULTILINE)
+        assert re.search(r'Traceback: baz', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_showNodes_exclude_self(capsys, caplog, reset_globals, iface_with_nodes):
+    """Test that we hit that continue statement"""
+    with caplog.at_level(logging.DEBUG):
+        iface = iface_with_nodes
+        iface.localNode.nodeNum = 2475227164
+        iface.showNodes()
+        iface.showNodes(includeSelf=False)
+        capsys.readouterr()
+
+
+@pytest.mark.unit
+def test_waitForConfig(caplog, capsys):
+    """Test waitForConfig()"""
+    iface = MeshInterface(noProto=True)
+    # override how long to wait
+    iface._timeout = Timeout(0.01)
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        iface.waitForConfig()
+        assert pytest_wrapped_e.type == Exception
+        out, err = capsys.readouterr()
+        assert re.search(r'Exception: Timed out waiting for interface config', err, re.MULTILINE)
+        assert out == ''
+
+
+@pytest.mark.unit
+def test_waitConnected_raises_an_exception(caplog, capsys):
+    """Test waitConnected()"""
+    iface = MeshInterface(noProto=True)
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        iface.failure = "warn about something"
+        iface._waitConnected(0.01)
+        assert pytest_wrapped_e.type == Exception
+        out, err = capsys.readouterr()
+        assert re.search(r'warn about something', err, re.MULTILINE)
+        assert out == ''
+
+
+@pytest.mark.unit
+def test_waitConnected_isConnected_timeout(caplog, capsys):
+    """Test waitConnected()"""
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        iface = MeshInterface()
+        iface._waitConnected(0.01)
+        assert pytest_wrapped_e.type == Exception
+        out, err = capsys.readouterr()
+        assert re.search(r'warn about something', err, re.MULTILINE)
+        assert out == ''

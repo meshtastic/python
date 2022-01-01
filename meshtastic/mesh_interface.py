@@ -68,8 +68,7 @@ class MeshInterface:
 
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is not None and exc_value is not None:
-            logging.error(
-                f'An exception of type {exc_type} with value {exc_value} has occurred')
+            logging.error(f'An exception of type {exc_type} with value {exc_value} has occurred')
         if traceback is not None:
             logging.error(f'Traceback: {traceback}')
         self.close()
@@ -394,11 +393,11 @@ class MeshInterface:
             return user.get('shortName', None)
         return None
 
-    def _waitConnected(self):
+    def _waitConnected(self, timeout=15.0):
         """Block until the initial node db download is complete, or timeout
         and raise an exception"""
         if not self.noProto:
-            if not self.isConnected.wait(15.0):  # timeout after x seconds
+            if not self.isConnected.wait(timeout):  # timeout after x seconds
                 raise Exception("Timed out waiting for connection completion")
 
         # If we failed while connecting, raise the connection to the client
@@ -416,8 +415,7 @@ class MeshInterface:
     def _disconnected(self):
         """Called by subclasses to tell clients this interface has disconnected"""
         self.isConnected.clear()
-        publishingThread.queueWork(lambda: pub.sendMessage(
-            "meshtastic.connection.lost", interface=self))
+        publishingThread.queueWork(lambda: pub.sendMessage("meshtastic.connection.lost", interface=self))
 
     def _startHeartbeat(self):
         """We need to send a heartbeat message to the device every X seconds"""
@@ -443,8 +441,7 @@ class MeshInterface:
         if not self.isConnected.is_set():
             self.isConnected.set()
             self._startHeartbeat()
-            publishingThread.queueWork(lambda: pub.sendMessage(
-                "meshtastic.connection.established", interface=self))
+            publishingThread.queueWork(lambda: pub.sendMessage("meshtastic.connection.established", interface=self))
 
     def _startConfig(self):
         """Start device packets flowing"""
