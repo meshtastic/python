@@ -11,6 +11,7 @@ from ..node import Node
 from .. import mesh_pb2
 from ..__init__ import LOCAL_ADDR, BROADCAST_ADDR
 from ..radioconfig_pb2 import RadioConfig
+from ..util import Timeout
 
 
 @pytest.mark.unit
@@ -588,3 +589,42 @@ def test_showNodes_exclude_self(capsys, caplog, reset_globals, iface_with_nodes)
         iface.showNodes()
         iface.showNodes(includeSelf=False)
         capsys.readouterr()
+
+
+@pytest.mark.unit
+def test_waitForConfig(caplog, capsys):
+    """Test waitForConfig()"""
+    iface = MeshInterface(noProto=True)
+    # override how long to wait
+    iface._timeout = Timeout(0.01)
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        iface.waitForConfig()
+        assert pytest_wrapped_e.type == Exception
+        out, err = capsys.readouterr()
+        assert re.search(r'Exception: Timed out waiting for interface config', err, re.MULTILINE)
+        assert out == ''
+
+
+@pytest.mark.unit
+def test_waitConnected_raises_an_exception(caplog, capsys):
+    """Test waitConnected()"""
+    iface = MeshInterface(noProto=True)
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        iface.failure = "warn about something"
+        iface._waitConnected(0.01)
+        assert pytest_wrapped_e.type == Exception
+        out, err = capsys.readouterr()
+        assert re.search(r'warn about something', err, re.MULTILINE)
+        assert out == ''
+
+
+@pytest.mark.unit
+def test_waitConnected_isConnected_timeout(caplog, capsys):
+    """Test waitConnected()"""
+    with pytest.raises(Exception) as pytest_wrapped_e:
+        iface = MeshInterface()
+        iface._waitConnected(0.01)
+        assert pytest_wrapped_e.type == Exception
+        out, err = capsys.readouterr()
+        assert re.search(r'warn about something', err, re.MULTILINE)
+        assert out == ''

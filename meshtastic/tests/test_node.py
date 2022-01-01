@@ -888,6 +888,6 @@ def test_waitForConfig():
     anode = Node('foo', 'bar')
     radioConfig = RadioConfig()
     anode.radioConfig = radioConfig
-    anode._timeout = Timeout(0.1)
+    anode._timeout = Timeout(0.01)
     result = anode.waitForConfig()
     assert not result
