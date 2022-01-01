@@ -560,3 +560,31 @@ def test_getOrCreateByNum(capsys, reset_globals, iface_with_nodes):
     iface.myInfo.my_node_num = 2475227164
     tmp = iface._getOrCreateByNum(2475227164)
     assert tmp['num'] == 2475227164
+
+
+@pytest.mark.unit
+def test_enter():
+    """Test __enter__()"""
+    iface = MeshInterface(noProto=True)
+    assert iface == iface.__enter__()
+
+
+@pytest.mark.unit
+def test_exit_with_exception(caplog):
+    """Test __exit__()"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.ERROR):
+        iface.__exit__('foo', 'bar', 'baz')
+        assert re.search(r'An exception of type foo with value bar has occurred', caplog.text, re.MULTILINE)
+        assert re.search(r'Traceback: baz', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_showNodes_exclude_self(capsys, caplog, reset_globals, iface_with_nodes):
+    """Test that we hit that continue statement"""
+    with caplog.at_level(logging.DEBUG):
+        iface = iface_with_nodes
+        iface.localNode.nodeNum = 2475227164
+        iface.showNodes()
+        iface.showNodes(includeSelf=False)
+        capsys.readouterr()
