@@ -11,6 +11,7 @@ from ..serial_interface import SerialInterface
 from ..admin_pb2 import AdminMessage
 from ..channel_pb2 import Channel
 from ..radioconfig_pb2 import RadioConfig
+from ..util import Timeout
 
 
 @pytest.mark.unit
@@ -88,6 +89,16 @@ def test_setOwner_no_short_name_and_long_name_has_words(caplog):
     assert re.search(r'p.set_owner.short_name:ABC:', caplog.text, re.MULTILINE)
     assert re.search(r'p.set_owner.is_licensed:True', caplog.text, re.MULTILINE)
     assert re.search(r'p.set_owner.team:0', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_setOwner_long_name_no_short(caplog):
+    """Test setOwner"""
+    anode = Node('foo', 'bar', noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        anode.setOwner(long_name ='Aabo', is_licensed=True)
+    assert re.search(r'p.set_owner.long_name:Aabo:', caplog.text, re.MULTILINE)
+    assert re.search(r'p.set_owner.short_name:Aab:', caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
@@ -869,3 +880,14 @@ def test_onResponseRequestSetting_with_error(capsys):
         out, err = capsys.readouterr()
         assert re.search(r'Error on response', out)
         assert err == ''
+
+
+@pytest.mark.unit
+def test_waitForConfig():
+    """Test waitForConfig()"""
+    anode = Node('foo', 'bar')
+    radioConfig = RadioConfig()
+    anode.radioConfig = radioConfig
+    anode._timeout = Timeout(0.1)
+    result = anode.waitForConfig()
+    assert not result
