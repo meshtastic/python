@@ -10,6 +10,7 @@ from ..mesh_interface import MeshInterface
 from ..node import Node
 from .. import mesh_pb2
 from ..__init__ import LOCAL_ADDR, BROADCAST_ADDR
+from ..radioconfig_pb2 import RadioConfig
 
 
 @pytest.mark.unit
@@ -162,6 +163,22 @@ def test_sendPosition(reset_globals, caplog):
         iface.sendPosition()
     iface.close()
     assert re.search(r'p.time:', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+def test_close_with_heartbeatTimer(reset_globals, caplog):
+    """Test close() with heartbeatTimer"""
+    iface = MeshInterface(noProto=True)
+    anode = Node('foo', 'bar')
+    radioConfig = RadioConfig()
+    radioConfig.preferences.phone_timeout_secs = 10
+    anode.radioConfig = radioConfig
+    iface.localNode = anode
+    assert iface.heartbeatTimer is None
+    with caplog.at_level(logging.DEBUG):
+        iface._startHeartbeat()
+        assert iface.heartbeatTimer is not None
+        iface.close()
 
 
 @pytest.mark.unit
