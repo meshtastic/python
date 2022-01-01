@@ -4,6 +4,7 @@ import traceback
 from queue import Queue
 import os
 import sys
+import base64
 import time
 import platform
 import logging
@@ -224,3 +225,12 @@ def ipstr(barray):
 def readnet_u16(p, offset):
     """Read big endian u16 (network byte order)"""
     return p[offset] * 256 + p[offset + 1]
+
+
+def convert_mac_addr(val):
+    """Convert the base 64 encoded value to a mac address
+       val - base64 encoded value (ex: '/c0gFyhb'))
+       returns: a string formatted like a mac address (ex: 'fd:cd:20:17:28:5b')
+    """
+    val_as_bytes = base64.b64decode(val)
+    return hexstr(val_as_bytes)

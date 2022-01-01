@@ -10,7 +10,7 @@ from meshtastic.util import (fixme, stripnl, pskToString, our_exit,
                              support_info, genPSK256, fromStr, fromPSK,
                              quoteBooleans, catchAndIgnore,
                              remove_keys_from_dict, Timeout, hexstr,
-                             ipstr, readnet_u16, findPorts)
+                             ipstr, readnet_u16, findPorts, convert_mac_addr)
 
 
 @pytest.mark.unit
@@ -225,3 +225,10 @@ def test_readnet_u16():
 def test_findPorts_when_none_found(patch_comports):
     """Test findPorts()"""
     assert not findPorts()
+
+
+@pytest.mark.unit
+def test_convert_mac_addr():
+    """Test convert_mac_addr()"""
+    assert convert_mac_addr('/c0gFyhb') == 'fd:cd:20:17:28:5b'
+    assert convert_mac_addr('') == ''
