@@ -83,10 +83,10 @@ class MeshInterface:
         nodes = ""
         if self.nodes:
             for n in self.nodes.values():
-                # when the TBeam is first booted, it sometimes shows the 'raw' data
+                # when the TBeam is first booted, it sometimes shows the raw data
                 # so, we will just remove any raw keys
-                n2 = remove_keys_from_dict('raw', n)
-                n2 = remove_keys_from_dict('decode', n2)
+                keys_to_remove = ('raw', 'decode', 'payload')
+                n2 = remove_keys_from_dict(keys_to_remove, n)
 
                 # if we have 'macaddr', re-format it
                 if 'macaddr' in n2['user']:

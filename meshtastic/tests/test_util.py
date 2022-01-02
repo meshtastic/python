@@ -184,6 +184,23 @@ def test_remove_keys_from_dict():
     assert remove_keys_from_dict(('b'), {'a':1, 'b':2}) == {'a':1}
 
 
+@pytest.mark.unit
+def test_remove_keys_from_dict_multiple_keys():
+    """Test remove_keys_from_dict()"""
+    keys = ('a', 'b')
+    adict = {'a': 1, 'b': 2, 'c': 3}
+    assert remove_keys_from_dict(keys, adict) == {'c':3}
+
+
+@pytest.mark.unit
+def test_remove_keys_from_dict_nested():
+    """Test remove_keys_from_dict()"""
+    keys = ('b')
+    adict = {'a': {'b': 1}, 'b': 2, 'c': 3}
+    exp = {'a': {}, 'c': 3}
+    assert remove_keys_from_dict(keys, adict) == exp
+
+
 @pytest.mark.unitslow
 def test_Timeout_not_found():
     """Test Timeout()"""
