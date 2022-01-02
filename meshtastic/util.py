@@ -204,12 +204,18 @@ def support_info():
 
 
 def remove_keys_from_dict(keys, adict):
-    """Return a dictionary without some keys in it."""
-    newdict = adict
+    """Return a dictionary without some keys in it.
+       Will removed nested keys.
+    """
     for key in keys:
-        if key in adict:
-            del newdict[key]
-    return newdict
+        try:
+            del adict[key]
+        except:
+            pass
+    for val in adict.values():
+        if isinstance(val, dict):
+            remove_keys_from_dict(keys, val)
+    return adict
 
 
 def hexstr(barray):
