@@ -19,6 +19,7 @@ jobs:
         run: |
           pip install pyinstaller
           pip install -r requirements.txt
+          pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic meshtastic/__main__.py
       - uses: actions/upload-artifact@v2
         with:
