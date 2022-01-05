@@ -13,10 +13,10 @@ import pyqrcode
 import pkg_resources
 import meshtastic.util
 import meshtastic.test
-from . import remote_hardware
-from .ble_interface import BLEInterface
-from . import portnums_pb2, channel_pb2, radioconfig_pb2
-from .globals import Globals
+from meshtastic import remote_hardware
+from meshtastic.ble_interface import BLEInterface
+from meshtastic import portnums_pb2, channel_pb2, radioconfig_pb2
+from meshtastic.globals import Globals
 
 
 def onReceive(packet, interface):

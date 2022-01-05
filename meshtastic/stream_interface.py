@@ -7,8 +7,8 @@ import traceback
 import serial
 
 
-from .mesh_interface import MeshInterface
-from .util import stripnl
+from meshtastic.mesh_interface import MeshInterface
+from meshtastic.util import stripnl
 
 
 START1 = 0x94

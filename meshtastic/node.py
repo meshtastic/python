@@ -4,8 +4,8 @@
 import logging
 import base64
 from google.protobuf.json_format import MessageToJson
-from . import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
-from .util import pskToString, stripnl, Timeout, our_exit, fromPSK
+from meshtastic import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
+from meshtastic.util import pskToString, stripnl, Timeout, our_exit, fromPSK
 
 
 

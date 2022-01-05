@@ -10,12 +10,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.6"
+          - "3.7"
+          - "3.8"
+          - "3.9"
     steps:
       - uses: actions/checkout@v2
       - name: Install Python 3
         uses: actions/setup-python@v1
-        with:
-          python-version: 3.9
       - name: Uninstall meshtastic
         run: |
           pip3 uninstall meshtastic
@@ -46,12 +51,17 @@ jobs:
           fail_ci_if_error: true
   validate:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.6"
+          - "3.7"
+          - "3.8"
+          - "3.9"
     steps:
       - uses: actions/checkout@v2
       - name: Install Python 3
         uses: actions/setup-python@v1
-        with:
-          python-version: 3.9
       - name: Install meshtastic from local
         run: |
           pip3 install .

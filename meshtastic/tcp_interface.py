@@ -4,7 +4,7 @@ import logging
 import socket
 from typing import AnyStr
 
-from .stream_interface import StreamInterface
+from meshtastic.stream_interface import StreamInterface
 
 class TCPInterface(StreamInterface):
     """Interface class for meshtastic devices over a TCP link"""

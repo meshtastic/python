@@ -4,7 +4,7 @@ import logging
 import pygatt
 
 
-from .mesh_interface import MeshInterface
+from meshtastic.mesh_interface import MeshInterface
 
 # Our standard BLE characteristics
 TORADIO_UUID = "f75c76d2-129e-4dad-a1dd-7866124401e7"

@@ -6,7 +6,7 @@ import platform
 import serial
 
 import meshtastic.util
-from .stream_interface import StreamInterface
+from meshtastic.stream_interface import StreamInterface
 
 if platform.system() != 'Windows':
     import termios
