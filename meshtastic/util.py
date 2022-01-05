@@ -195,7 +195,8 @@ def support_info():
     print('   Machine: {0}'.format(platform.uname().machine))
     print('   Encoding (stdin): {0}'.format(sys.stdin.encoding))
     print('   Encoding (stdout): {0}'.format(sys.stdout.encoding))
-    print(' meshtastic: v{0}'.format(pkg_resources.require('meshtastic')[0].version))
+    the_version = pkg_resources.get_distribution("meshtastic").version
+    print(' meshtastic: v{0}'.format(the_version))
     print(' Executable: {0}'.format(sys.argv[0]))
     print(' Python: {0} {1} {2}'.format(platform.python_version(),
           platform.python_implementation(), platform.python_compiler()))

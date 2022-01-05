@@ -14,3 +14,4 @@ venv/
 .DS_Store
 __pycache__
 examples/__pycache__
+meshtastic.spec
