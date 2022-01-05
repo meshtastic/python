@@ -17,9 +17,9 @@ from google.protobuf.json_format import MessageToJson
 
 
 import meshtastic.node
-from . import portnums_pb2, mesh_pb2
-from .util import stripnl, Timeout, our_exit, remove_keys_from_dict, convert_mac_addr
-from .__init__ import LOCAL_ADDR, BROADCAST_NUM, BROADCAST_ADDR, ResponseHandler, publishingThread, OUR_APP_VERSION, protocols
+from meshtastic import portnums_pb2, mesh_pb2
+from meshtastic.util import stripnl, Timeout, our_exit, remove_keys_from_dict, convert_mac_addr
+from meshtastic.__init__ import LOCAL_ADDR, BROADCAST_NUM, BROADCAST_ADDR, ResponseHandler, publishingThread, OUR_APP_VERSION, protocols
 
 class MeshInterface:
     """Interface class for meshtastic devices

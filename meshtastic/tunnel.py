@@ -22,9 +22,9 @@ from pubsub import pub
 
 from pytap2 import TapDevice
 
-from . import portnums_pb2
-from .util import ipstr, readnet_u16
-from .globals import Globals
+from meshtastic import portnums_pb2
+from meshtastic.util import ipstr, readnet_u16
+from meshtastic.globals import Globals
 
 
 def onTunnelReceive(packet, interface):

@@ -77,9 +77,11 @@ from pubsub import pub
 from dotmap import DotMap
 from tabulate import tabulate
 from google.protobuf.json_format import MessageToJson
-from .util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
-from .node import Node
-from . import mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2, environmental_measurement_pb2, remote_hardware_pb2, channel_pb2, radioconfig_pb2, util
+from meshtastic.util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
+from meshtastic.node import Node
+from meshtastic import (mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2,
+                        environmental_measurement_pb2, remote_hardware_pb2,
+                        channel_pb2, radioconfig_pb2, util)
 
 # Note: To follow PEP224, comments should be after the module variable.
 

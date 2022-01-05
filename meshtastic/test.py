@@ -8,9 +8,9 @@ import traceback
 from dotmap import DotMap
 from pubsub import pub
 import meshtastic.util
-from .__init__ import BROADCAST_NUM
-from .serial_interface import SerialInterface
-from .tcp_interface import TCPInterface
+from meshtastic.__init__ import BROADCAST_NUM
+from meshtastic.serial_interface import SerialInterface
+from meshtastic.tcp_interface import TCPInterface
 
 
 """The interfaces we are using for our tests"""
