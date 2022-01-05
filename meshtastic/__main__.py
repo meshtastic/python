@@ -5,6 +5,7 @@
 import argparse
 import platform
 import logging
+import os
 import sys
 import time
 import yaml
@@ -635,12 +636,19 @@ def common():
             elif args.host:
                 client = meshtastic.tcp_interface.TCPInterface(args.host, debugOut=logfile, noProto=args.noproto)
             else:
-                client = meshtastic.serial_interface.SerialInterface(args.port, debugOut=logfile, noProto=args.noproto)
+                try:
+                    client = meshtastic.serial_interface.SerialInterface(args.port, debugOut=logfile, noProto=args.noproto)
+                except PermissionError as ex:
+                    username = os.getlogin()
+                    message = "Permission Error:\n"
+                    message += "  Need to add yourself to the 'dialout' group by running:\n"
+                    message += f"     sudo usermod -a -G dialout {username}\n"
+                    message += "  After running that command, log out and re-login for it to take effect.\n"
+                    message += f"Error was:{ex}"
+                    meshtastic.util.our_exit(message)
 
             # We assume client is fully connected now
             onConnected(client)
-            #if logfile:
-                #logfile.close()
 
             have_tunnel = platform.system() == 'Linux'
             if args.noproto or args.reply or (have_tunnel and args.tunnel):  # loop until someone presses ctrlc
