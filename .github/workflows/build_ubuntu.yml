@@ -1,10 +1,10 @@
-name: Build and publish Windows .exe
+name: Build and publish ubuntu standalone executable
 
 on: workflow_dispatch
 
 jobs:
   build-and-publish:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout

@@ -818,8 +818,8 @@ def initParser():
 
     parser.set_defaults(deprecated=None)
 
-    parser.add_argument('--version', action='version',
-                        version=f"{pkg_resources.require('meshtastic')[0].version}")
+    the_version = pkg_resources.get_distribution("meshtastic").version
+    parser.add_argument('--version', action='version', version=f"{the_version}")
 
     parser.add_argument(
         "--support", action='store_true', help="Show support info (useful when troubleshooting an issue)")
