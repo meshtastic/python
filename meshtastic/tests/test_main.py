@@ -202,6 +202,25 @@ def test_main_info(capsys, reset_globals):
 
 
 @pytest.mark.unit
+def test_main_info_with_permission_error(capsys, caplog, reset_globals):
+    """Test --info"""
+    sys.argv = ['', '--info']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    with caplog.at_level(logging.DEBUG):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+                mo.side_effect = PermissionError('bla bla')
+                main()
+            assert pytest_wrapped_e.type == SystemExit
+            assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert re.search(r'Need to add yourself', out, re.MULTILINE)
+        assert err == ''
+
+
+@pytest.mark.unit
 def test_main_info_with_tcp_interface(capsys, reset_globals):
     """Test --info"""
     sys.argv = ['', '--info', '--host', 'meshtastic.local']
