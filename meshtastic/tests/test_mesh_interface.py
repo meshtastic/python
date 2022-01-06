@@ -591,7 +591,7 @@ def test_showNodes_exclude_self(capsys, caplog, reset_globals, iface_with_nodes)
         capsys.readouterr()
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_waitForConfig(caplog, capsys):
     """Test waitForConfig()"""
     iface = MeshInterface(noProto=True)

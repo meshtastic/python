@@ -88,7 +88,7 @@ def test_pskToString_one_byte_zero_value():
     assert pskToString(bytes([0x00])) == 'unencrypted'
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_pskToString_one_byte_non_zero_value():
     """Test pskToString one byte that is non-zero"""
     assert pskToString(bytes([0x01])) == 'default'
@@ -118,7 +118,7 @@ def test_our_exit_zero_return_value(capsys):
     assert pytest_wrapped_e.value.code == 0
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_our_exit_non_zero_return_value(capsys):
     """Test our_exit with a non-zero return value"""
     with pytest.raises(SystemExit) as pytest_wrapped_e:
@@ -130,7 +130,7 @@ def test_our_exit_non_zero_return_value(capsys):
     assert pytest_wrapped_e.value.code == 1
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_fixme():
     """Test fixme()"""
     with pytest.raises(Exception) as pytest_wrapped_e:
@@ -166,7 +166,7 @@ def test_remove_keys_from_dict_empty_keys_empty_dict():
     assert not remove_keys_from_dict((), {})
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_remove_keys_from_dict_empty_dict():
     """Test when dict is empty"""
     assert not remove_keys_from_dict(('a'), {})
@@ -178,13 +178,13 @@ def test_remove_keys_from_dict_empty_keys():
     assert remove_keys_from_dict((), {'a':1}) == {'a':1}
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_remove_keys_from_dict():
     """Test remove_keys_from_dict()"""
     assert remove_keys_from_dict(('b'), {'a':1, 'b':2}) == {'a':1}
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_remove_keys_from_dict_multiple_keys():
     """Test remove_keys_from_dict()"""
     keys = ('a', 'b')
@@ -224,7 +224,7 @@ def test_hexstr():
     assert hexstr(b'') == ''
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_ipstr():
     """Test ipstr()"""
     assert ipstr(b'1234') == '49.50.51.52'
@@ -237,14 +237,14 @@ def test_readnet_u16():
     assert readnet_u16(b'123456', 2) == 13108
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 @patch('serial.tools.list_ports.comports', return_value=[])
 def test_findPorts_when_none_found(patch_comports):
     """Test findPorts()"""
     assert not findPorts()
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_convert_mac_addr():
     """Test convert_mac_addr()"""
     assert convert_mac_addr('/c0gFyhb') == 'fd:cd:20:17:28:5b'
