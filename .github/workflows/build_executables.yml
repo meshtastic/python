@@ -1,9 +1,10 @@
-name: Build and publish mac standalone executable
+name: Build and publish standalone executables
 
 on: workflow_dispatch
 
 jobs:
-  build-and-publish:
+
+  build-and-publish-mac:
     runs-on: macos-latest
 
     steps:
@@ -16,7 +17,7 @@ jobs:
           python-version: 3.9
 
       - name: Setup code signing
-        env: 
+        env:
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
           MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
           MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
@@ -29,7 +30,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_KEYCHAIN_PASSWORD" meshtastic.keychain
 
       - name: Build
-        env: 
+        env:
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
         run: |
           pip install pyinstaller
@@ -38,5 +39,52 @@ jobs:
           pyinstaller -F -n meshtastic --collect-all meshtastic --codesign-identity "$MACOS_SIGNING_IDENTITY" meshtastic/__main__.py
       - uses: actions/upload-artifact@v2
         with:
-          name: meshtastic
+          name: meshtastic_mac
+          path: dist
+
+  build-and-publish-ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Build
+        run: |
+          pip install pyinstaller
+          pip install -r requirements.txt
+          pip install .
+          pyinstaller -F -n meshtastic --collect-all meshtastic meshtastic/__main__.py
+      - uses: actions/upload-artifact@v2
+        with:
+          name: meshtastic_ubuntu
+          path: dist
+
+
+  build-and-publish-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Build
+        run: |
+          pip install pyinstaller
+          pip install -r requirements.txt
+          pip install .
+          pyinstaller -F -n meshtastic --collect-all meshtastic meshtastic/__main__.py
+      - uses: actions/upload-artifact@v2
+        with:
+          name: meshtastic_windows
           path: dist
