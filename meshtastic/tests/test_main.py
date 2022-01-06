@@ -202,10 +202,13 @@ def test_main_info(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_info_with_permission_error(capsys, caplog, reset_globals):
+@patch('os.getlogin')
+def test_main_info_with_permission_error(patched_getlogin, capsys, caplog, reset_globals):
     """Test --info"""
     sys.argv = ['', '--info']
     Globals.getInstance().set_args(sys.argv)
+
+    patched_getlogin.return_value = 'me'
 
     iface = MagicMock(autospec=SerialInterface)
     with caplog.at_level(logging.DEBUG):
@@ -216,6 +219,7 @@ def test_main_info_with_permission_error(capsys, caplog, reset_globals):
             assert pytest_wrapped_e.type == SystemExit
             assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
+        patched_getlogin.assert_called()
         assert re.search(r'Need to add yourself', out, re.MULTILINE)
         assert err == ''
 
