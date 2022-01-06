@@ -456,63 +456,71 @@ def test_main_sendtext_with_channel(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_sendtext_with_invalid_channel(capsys, reset_globals):
+def test_main_sendtext_with_invalid_channel(caplog, capsys, reset_globals):
     """Test --sendtext"""
     sys.argv = ['', '--sendtext', 'hello', '--ch-index', '-1']
     Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
-    iface.getChannelByChannelIndex.return_value = None
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        iface.getNode.return_value.getChannelByChannelIndex.return_value = None
-        with pytest.raises(SystemExit) as pytest_wrapped_e:
-            main()
-        assert pytest_wrapped_e.type == SystemExit
-        assert pytest_wrapped_e.value.code == 1
-        out, err = capsys.readouterr()
-        assert re.search(r'is not a valid channel', out, re.MULTILINE)
-        assert err == ''
-        mo.assert_called()
+    iface.localNode.getChannelByChannelIndex.return_value = None
+
+    with caplog.at_level(logging.DEBUG):
+        with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+            with pytest.raises(SystemExit) as pytest_wrapped_e:
+                main()
+            assert pytest_wrapped_e.type == SystemExit
+            assert pytest_wrapped_e.value.code == 1
+            out, err = capsys.readouterr()
+            assert re.search(r'is not a valid channel', out, re.MULTILINE)
+            assert err == ''
+            mo.assert_called()
 
 
 @pytest.mark.unit
-def test_main_sendtext_with_invalid_channel_nine(capsys, reset_globals):
+def test_main_sendtext_with_invalid_channel_nine(caplog, capsys, reset_globals):
     """Test --sendtext"""
     sys.argv = ['', '--sendtext', 'hello', '--ch-index', '9']
     Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        iface.getNode.return_value.getChannelByChannelIndex.return_value = None
-        with pytest.raises(SystemExit) as pytest_wrapped_e:
-            main()
-        assert pytest_wrapped_e.type == SystemExit
-        assert pytest_wrapped_e.value.code == 1
-        out, err = capsys.readouterr()
-        assert re.search(r'is not a valid channel', out, re.MULTILINE)
-        assert err == ''
-        mo.assert_called()
+    iface.localNode.getChannelByChannelIndex.return_value = None
+
+    with caplog.at_level(logging.DEBUG):
+        with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+            with pytest.raises(SystemExit) as pytest_wrapped_e:
+                main()
+            assert pytest_wrapped_e.type == SystemExit
+            assert pytest_wrapped_e.value.code == 1
+            out, err = capsys.readouterr()
+            assert re.search(r'is not a valid channel', out, re.MULTILINE)
+            assert err == ''
+            mo.assert_called()
 
 
 @pytest.mark.unit
-def test_main_sendtext_with_dest(capsys, reset_globals):
+def test_main_sendtext_with_dest(capsys, caplog, reset_globals, iface_with_nodes):
     """Test --sendtext with --dest"""
     sys.argv = ['', '--sendtext', 'hello', '--dest', 'foo']
     Globals.getInstance().set_args(sys.argv)
 
-    iface = MagicMock(autospec=SerialInterface)
-    def mock_sendText(text, dest, wantAck, channelIndex):
-        print('inside mocked sendText')
-    iface.sendText.side_effect = mock_sendText
+    iface = iface_with_nodes
+    iface.myInfo.my_node_num = 2475227164
+    mocked_channel = MagicMock(autospec=Channel)
+    iface.localNode.getChannelByChannelIndex = mocked_channel
 
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        main()
-        out, err = capsys.readouterr()
-        assert re.search(r'Connected to radio', out, re.MULTILINE)
-        assert re.search(r'Sending text message', out, re.MULTILINE)
-        assert re.search(r'inside mocked sendText', out, re.MULTILINE)
-        assert err == ''
-        mo.assert_called()
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
+        with caplog.at_level(logging.DEBUG):
+
+            with pytest.raises(SystemExit) as pytest_wrapped_e:
+                main()
+            assert pytest_wrapped_e.type == SystemExit
+            assert pytest_wrapped_e.value.code == 1
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert not re.search(r"Warning: 0 is not a valid channel", out, re.MULTILINE)
+            assert not re.search(r"There is a SECONDARY channel named 'admin'", out, re.MULTILINE)
+            assert re.search(r'Warning: NodeId foo not found in DB', out, re.MULTILINE)
+            assert err == ''
 
 
 @pytest.mark.unit
