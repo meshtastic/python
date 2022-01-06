@@ -882,7 +882,7 @@ def test_onResponseRequestSetting_with_error(capsys):
         assert err == ''
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 def test_waitForConfig():
     """Test waitForConfig()"""
     anode = Node('foo', 'bar')

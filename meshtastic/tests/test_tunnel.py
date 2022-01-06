@@ -99,7 +99,7 @@ def test_onTunnelReceive_from_someone_else(mock_platform_system, caplog, reset_g
     assert re.search(r'in onTunnelReceive', caplog.text, re.MULTILINE)
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 @patch('platform.system')
 def test_shouldFilterPacket_random(mock_platform_system, caplog, reset_globals, iface_with_nodes):
     """Test _shouldFilterPacket()"""
@@ -117,7 +117,7 @@ def test_shouldFilterPacket_random(mock_platform_system, caplog, reset_globals, 
             assert not ignore
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 @patch('platform.system')
 def test_shouldFilterPacket_in_blacklist(mock_platform_system, caplog, reset_globals, iface_with_nodes):
     """Test _shouldFilterPacket()"""
@@ -135,7 +135,7 @@ def test_shouldFilterPacket_in_blacklist(mock_platform_system, caplog, reset_glo
             assert ignore
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 @patch('platform.system')
 def test_shouldFilterPacket_icmp(mock_platform_system, caplog, reset_globals, iface_with_nodes):
     """Test _shouldFilterPacket()"""
@@ -173,7 +173,7 @@ def test_shouldFilterPacket_udp(mock_platform_system, caplog, reset_globals, ifa
             assert not ignore
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 @patch('platform.system')
 def test_shouldFilterPacket_udp_blacklisted(mock_platform_system, caplog, reset_globals, iface_with_nodes):
     """Test _shouldFilterPacket()"""
@@ -213,7 +213,7 @@ def test_shouldFilterPacket_tcp(mock_platform_system, caplog, reset_globals, ifa
             assert not ignore
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 @patch('platform.system')
 def test_shouldFilterPacket_tcp_blacklisted(mock_platform_system, caplog, reset_globals, iface_with_nodes):
     """Test _shouldFilterPacket()"""
@@ -234,7 +234,7 @@ def test_shouldFilterPacket_tcp_blacklisted(mock_platform_system, caplog, reset_
             assert ignore
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 @patch('platform.system')
 def test_ipToNodeId_none(mock_platform_system, caplog, reset_globals, iface_with_nodes):
     """Test _ipToNodeId()"""
@@ -250,7 +250,7 @@ def test_ipToNodeId_none(mock_platform_system, caplog, reset_globals, iface_with
             assert nodeid is None
 
 
-@pytest.mark.unit
+@pytest.mark.unitslow
 @patch('platform.system')
 def test_ipToNodeId_all(mock_platform_system, caplog, reset_globals, iface_with_nodes):
     """Test _ipToNodeId()"""
