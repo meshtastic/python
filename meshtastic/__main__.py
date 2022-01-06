@@ -243,7 +243,12 @@ def onConnected(interface):
             channelIndex = 0
             if args.ch_index is not None:
                 channelIndex = int(args.ch_index)
+            logging.debug(f'channelIndex:{channelIndex}')
+            logging.debug(f'interface.localNode:{interface.localNode}')
+            logging.debug(f'interface.localNode.channels:{interface.localNode.channels}')
+            our_globals.set_target_node(interface.localNode)
             ch = getNode().getChannelByChannelIndex(channelIndex)
+            logging.debug(f'ch:{ch}')
             if ch and ch.role != channel_pb2.Channel.Role.DISABLED:
                 print(f"Sending text message {args.sendtext} to {args.destOrAll} on channelIndex:{channelIndex}")
                 interface.sendText(args.sendtext, args.destOrAll, wantAck=True, channelIndex=channelIndex)
