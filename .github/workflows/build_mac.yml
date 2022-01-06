@@ -22,10 +22,11 @@ jobs:
           MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
         run: |
           echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-          security create-keychain -p $MACOS_KEYCHAIN_PASSWORD build.keychain security default-keychain -s build.keychain
-          security unlock-keychain -p $MACOS_KEYCHAIN_PASSWORD build.keychain
-          security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_KEYCHAIN_PASSWORD build.keychain
+          security create-keychain -p "$MACOS_KEYCHAIN_PASSWORD" meshtastic.keychain
+          security default-keychain -s meshtastic.keychain
+          security unlock-keychain -p "$MACOS_KEYCHAIN_PASSWORD" meshtastic.keychain
+          security import certificate.p12 -k meshtastic.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_KEYCHAIN_PASSWORD" meshtastic.keychain
 
       - name: Build
         env: 
