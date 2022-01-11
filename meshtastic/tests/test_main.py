@@ -119,7 +119,6 @@ def test_main_test_no_ports(patched_find_ports, reset_globals, capsys):
     sys.argv = ['', '--test']
     Globals.getInstance().set_args(sys.argv)
 
-    assert Globals.getInstance().get_target_node() is None
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
     assert pytest_wrapped_e.type == SystemExit
@@ -137,7 +136,6 @@ def test_main_test_one_port(patched_find_ports, reset_globals, capsys):
     sys.argv = ['', '--test']
     Globals.getInstance().set_args(sys.argv)
 
-    assert Globals.getInstance().get_target_node() is None
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
     assert pytest_wrapped_e.type == SystemExit
@@ -183,7 +181,7 @@ def test_main_test_two_ports_fails(patched_test_all, reset_globals, capsys):
 
 
 @pytest.mark.unit
-def test_main_info(capsys, reset_globals):
+def test_main_info(capsys, caplog, reset_globals):
     """Test --info"""
     sys.argv = ['', '--info']
     Globals.getInstance().set_args(sys.argv)
@@ -192,13 +190,14 @@ def test_main_info(capsys, reset_globals):
     def mock_showInfo():
         print('inside mocked showInfo')
     iface.showInfo.side_effect = mock_showInfo
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        main()
-        out, err = capsys.readouterr()
-        assert re.search(r'Connected to radio', out, re.MULTILINE)
-        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
-        assert err == ''
-        mo.assert_called()
+    with caplog.at_level(logging.DEBUG):
+        with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+            main()
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
+            assert err == ''
+            mo.assert_called()
 
 
 @pytest.mark.unit
@@ -1125,18 +1124,14 @@ def test_main_pos_fields_no_args(capsys, reset_globals):
     pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
 
     with patch('meshtastic.serial_interface.SerialInterface') as mo:
+        mo().getNode().radioConfig.preferences.position_flags = 35
         with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
-            # kind of cheating here, we are setting up the node
-            mocked_node = MagicMock(autospec=Node)
-            anode = mocked_node()
-            anode.radioConfig.preferences.position_flags = 35
-            Globals.getInstance().set_target_node(anode)
 
             mrc.values.return_value = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256]
             # Note: When you use side_effect and a list, each call will use a value from the front of the list then
             # remove that value from the list. If there are three values in the list, we expect it to be called
             # three times.
-            mrc.Name.side_effect = [ 'POS_ALTITUDE', 'POS_ALT_MSL', 'POS_BATTERY' ]
+            mrc.Name.side_effect = ['POS_ALTITUDE', 'POS_ALT_MSL', 'POS_BATTERY']
 
             main()
 
@@ -1217,13 +1212,9 @@ def test_main_get_with_valid_values(capsys, reset_globals):
 
     with patch('meshtastic.serial_interface.SerialInterface') as mo:
 
-        # kind of cheating here, we are setting up the node
-        mocked_node = MagicMock(autospec=Node)
-        anode = mocked_node()
-        anode.radioConfig.preferences.wifi_ssid = 'foo'
-        anode.radioConfig.preferences.ls_secs = 300
-        anode.radioConfig.preferences.fixed_position = False
-        Globals.getInstance().set_target_node(anode)
+        mo().getNode().radioConfig.preferences.wifi_ssid = 'foo'
+        mo().getNode().radioConfig.preferences.ls_secs = 300
+        mo().getNode().radioConfig.preferences.fixed_position = False
 
         main()
 
@@ -1452,7 +1443,7 @@ def test_main_export_config_called_from_main(capsys, reset_globals):
 @pytest.mark.unit
 def test_main_gpio_rd_no_gpio_channel(capsys, reset_globals):
     """Test --gpio_rd with no named gpio channel"""
-    sys.argv = ['', '--gpio-rd', '0x10']
+    sys.argv = ['', '--gpio-rd', '0x10', '--dest', '!foo']
     Globals.getInstance().set_args(sys.argv)
 
     iface = MagicMock(autospec=SerialInterface)
@@ -1473,9 +1464,9 @@ def test_main_gpio_rd_no_dest(capsys, reset_globals):
     sys.argv = ['', '--gpio-rd', '0x2000']
     Globals.getInstance().set_args(sys.argv)
 
-    channel = Channel(index=1, role=1)
-    channel.settings.modem_config = 3
-    channel.settings.psk = b'\x01'
+    channel = Channel(index=2, role=2)
+    channel.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
+    channel.settings.name = 'gpio'
 
     iface = MagicMock(autospec=SerialInterface)
     iface.localNode.getChannelByName.return_value = channel

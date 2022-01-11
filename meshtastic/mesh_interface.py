@@ -159,7 +159,7 @@ class MeshInterface:
 
     def getNode(self, nodeId):
         """Return a node object which contains device settings and channel info"""
-        if nodeId == LOCAL_ADDR:
+        if nodeId in (LOCAL_ADDR, BROADCAST_ADDR):
             return self.localNode
         else:
             n = meshtastic.node.Node(self, nodeId)
