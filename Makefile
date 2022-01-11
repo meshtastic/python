@@ -2,6 +2,10 @@
 test:
 	pytest -m unit
 
+# only run the smoke tests against the virtual device
+virt:
+	pytest -m smokevirt
+
 # local install
 install:
 	pip install .
