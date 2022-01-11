@@ -27,7 +27,6 @@ class Globals:
             Globals.__instance = self
         self.args = None
         self.parser = None
-        self.target_node = None
         self.channel_index = None
         self.logfile = None
         self.tunnelInstance = None
@@ -36,7 +35,6 @@ class Globals:
         """Reset all of our globals. If you add a member, add it to this method, too."""
         self.args = None
         self.parser = None
-        self.target_node = None
         self.channel_index = None
         self.logfile = None
         self.tunnelInstance = None
@@ -49,10 +47,6 @@ class Globals:
     def set_parser(self, parser):
         """Set the parser"""
         self.parser = parser
-
-    def set_target_node(self, target_node):
-        """Set the target_node"""
-        self.target_node = target_node
 
     def set_channel_index(self, channel_index):
         """Set the channel_index"""
@@ -74,10 +68,6 @@ class Globals:
     def get_parser(self):
         """Get parser"""
         return self.parser
-
-    def get_target_node(self):
-        """Get target_node"""
-        return self.target_node
 
     def get_channel_index(self):
         """Get channel_index"""

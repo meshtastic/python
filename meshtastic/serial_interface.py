@@ -40,28 +40,25 @@ class SerialInterface(StreamInterface):
 
         # first we need to set the HUPCL so the device will not reboot based on RTS and/or DTR
         # see https://github.com/pyserial/pyserial/issues/124
-        if not self.noProto:
-            if platform.system() != 'Windows':
-                with open(devPath, encoding='utf8') as f:
-                    attrs = termios.tcgetattr(f)
-                    attrs[2] = attrs[2] & ~termios.HUPCL
-                    termios.tcsetattr(f, termios.TCSAFLUSH, attrs)
-                    f.close()
-                time.sleep(0.1)
+        if platform.system() != 'Windows':
+            with open(devPath, encoding='utf8') as f:
+                attrs = termios.tcgetattr(f)
+                attrs[2] = attrs[2] & ~termios.HUPCL
+                termios.tcsetattr(f, termios.TCSAFLUSH, attrs)
+                f.close()
+            time.sleep(0.1)
 
         self.stream = serial.Serial(devPath, 921600, exclusive=True, timeout=0.5, write_timeout=0)
-        if not self.noProto:
-            self.stream.flush()
-            time.sleep(0.1)
+        self.stream.flush()
+        time.sleep(0.1)
 
         StreamInterface.__init__(self, debugOut=debugOut, noProto=noProto, connectNow=connectNow)
 
     def close(self):
         """Close a connection to the device"""
-        if not self.noProto:
-            self.stream.flush()
-            time.sleep(0.1)
-            self.stream.flush()
-            time.sleep(0.1)
+        self.stream.flush()
+        time.sleep(0.1)
+        self.stream.flush()
+        time.sleep(0.1)
         logging.debug("Closing Serial stream")
         StreamInterface.close(self)

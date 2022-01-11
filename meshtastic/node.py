@@ -257,6 +257,7 @@ class Node:
         p = admin_pb2.AdminMessage()
         p.get_radio_request = True
 
+        # TODO: should we check that localNode has an 'admin' channel?
         # Show progress message for super slow operations
         if self != self.iface.localNode:
             print("Requesting preferences from remote node.")

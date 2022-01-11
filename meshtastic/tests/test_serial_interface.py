@@ -3,15 +3,19 @@
 import re
 
 
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
 import pytest
 
 from ..serial_interface import SerialInterface
 
 @pytest.mark.unit
+@patch("time.sleep")
+@patch("termios.tcsetattr")
+@patch("termios.tcgetattr")
+@patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch('serial.Serial')
 @patch('meshtastic.util.findPorts', return_value=['/dev/ttyUSBfake'])
-def test_SerialInterface_single_port(mocked_findPorts, mocked_serial, capsys):
+def test_SerialInterface_single_port(mocked_findPorts, mocked_serial, mocked_open, mock_get, mock_set, mock_sleep, capsys):
     """Test that we can instantiate a SerialInterface with a single port"""
     iface = SerialInterface(noProto=True)
     iface.showInfo()
