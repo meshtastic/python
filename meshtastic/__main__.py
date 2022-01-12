@@ -40,7 +40,7 @@ def onReceive(packet, interface):
                 rxSnr = packet['rxSnr']
                 hopLimit = packet['hopLimit']
                 print(f"message: {msg}")
-                reply = "got msg \'{}\' with rxSnr: {} and hopLimit: {}".format(msg, rxSnr, hopLimit)
+                reply = f"got msg \'{msg}\' with rxSnr: {rxSnr} and hopLimit: {hopLimit}"
                 print("Sending reply: ", reply)
                 interface.sendText(reply)
 
@@ -192,7 +192,7 @@ def onConnected(interface):
 
             else:
                 print(f"Setting position fields to {allFields}")
-                setPref(prefs, 'position_flags', ('%d' % allFields))
+                setPref(prefs, 'position_flags', f'{allFields:d}')
                 print("Writing modified preferences to device")
                 interface.getNode(args.dest).writeConfig()
 

@@ -189,17 +189,16 @@ def support_info():
     print('or wish to make feature requests, visit:')
     print('https://github.com/meshtastic/Meshtastic-python/issues')
     print('When adding an issue, be sure to include the following info:')
-    print(' System: {0}'.format(platform.system()))
-    print('   Platform: {0}'.format(platform.platform()))
-    print('   Release: {0}'.format(platform.uname().release))
-    print('   Machine: {0}'.format(platform.uname().machine))
-    print('   Encoding (stdin): {0}'.format(sys.stdin.encoding))
-    print('   Encoding (stdout): {0}'.format(sys.stdout.encoding))
+    print(f' System: {platform.system()}')
+    print(f'   Platform: {platform.platform()}')
+    print(f'   Release: {platform.uname().release}')
+    print(f'   Machine: {platform.uname().machine}')
+    print(f'   Encoding (stdin): {sys.stdin.encoding}')
+    print(f'   Encoding (stdout): {sys.stdout.encoding}')
     the_version = pkg_resources.get_distribution("meshtastic").version
-    print(' meshtastic: v{0}'.format(the_version))
-    print(' Executable: {0}'.format(sys.argv[0]))
-    print(' Python: {0} {1} {2}'.format(platform.python_version(),
-          platform.python_implementation(), platform.python_compiler()))
+    print(f' meshtastic: v{the_version}')
+    print(f' Executable: {sys.argv[0]}')
+    print(f' Python: {platform.python_version()} {platform.python_implementation()} {platform.python_compiler()}')
     print('')
     print('Please add the output from the command: meshtastic --info')
 
@@ -221,12 +220,12 @@ def remove_keys_from_dict(keys, adict):
 
 def hexstr(barray):
     """Print a string of hex digits"""
-    return ":".join('{:02x}'.format(x) for x in barray)
+    return ":".join(f'{x:02x}' for x in barray)
 
 
 def ipstr(barray):
     """Print a string of ip digits"""
-    return ".".join('{}'.format(x) for x in barray)
+    return ".".join(f'{x}' for x in barray)
 
 
 def readnet_u16(p, offset):
