@@ -82,9 +82,6 @@ from meshtastic import (mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2,
                         environmental_measurement_pb2, remote_hardware_pb2,
                         channel_pb2, radioconfig_pb2, util)
 
-if platform.system() == 'Linux':
-    # pylint: disable=E0401
-    import pygatt
 
 # Note: To follow PEP224, comments should be after the module variable.
 
