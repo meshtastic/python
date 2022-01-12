@@ -1,10 +1,16 @@
 """Bluetooth interface
 """
 import logging
-import pygatt
-
+import platform
 
 from meshtastic.mesh_interface import MeshInterface
+from meshtastic.util import our_exit
+
+if platform.system() == 'Linux':
+    # pylint: disable=E0401
+    import pygatt
+
+
 
 # Our standard BLE characteristics
 TORADIO_UUID = "f75c76d2-129e-4dad-a1dd-7866124401e7"
@@ -16,6 +22,8 @@ class BLEInterface(MeshInterface):
     """A not quite ready - FIXME - BLE interface to devices"""
 
     def __init__(self, address, noProto=False, debugOut=None):
+        if platform.system() != 'Linux':
+            our_exit("Linux is the only platform with experimental BLE support.", 1)
         self.address = address
         if not noProto:
             self.adapter = pygatt.GATTToolBackend()  # BGAPIBackend()
