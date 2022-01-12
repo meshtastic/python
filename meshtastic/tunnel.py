@@ -27,7 +27,7 @@ from meshtastic.util import ipstr, readnet_u16
 from meshtastic.globals import Globals
 
 
-def onTunnelReceive(packet, interface):
+def onTunnelReceive(packet, interface): # pylint: disable=W0613
     """Callback for received tunneled messages from mesh."""
     logging.debug(f'in onTunnelReceive()')
     our_globals = Globals.getInstance()

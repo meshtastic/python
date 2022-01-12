@@ -22,7 +22,8 @@ from ..remote_hardware import onGPIOreceive
 
 
 @pytest.mark.unit
-def test_main_init_parser_no_args(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_init_parser_no_args(capsys):
     """Test no arguments"""
     sys.argv = ['']
     Globals.getInstance().set_args(sys.argv)
@@ -33,7 +34,8 @@ def test_main_init_parser_no_args(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_init_parser_version(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_init_parser_version(capsys):
     """Test --version"""
     sys.argv = ['', '--version']
     Globals.getInstance().set_args(sys.argv)
@@ -48,7 +50,8 @@ def test_main_init_parser_version(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_main_version(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_main_version(capsys):
     """Test --version"""
     sys.argv = ['', '--version']
     Globals.getInstance().set_args(sys.argv)
@@ -63,7 +66,8 @@ def test_main_main_version(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_main_no_args(reset_globals, capsys):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_main_no_args(capsys):
     """Test with no args"""
     sys.argv = ['']
     Globals.getInstance().set_args(sys.argv)
@@ -77,7 +81,8 @@ def test_main_main_no_args(reset_globals, capsys):
 
 
 @pytest.mark.unit
-def test_main_support(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_support(capsys):
     """Test --support"""
     sys.argv = ['', '--support']
     Globals.getInstance().set_args(sys.argv)
@@ -95,8 +100,9 @@ def test_main_support(capsys, reset_globals):
 
 
 @pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 @patch('meshtastic.util.findPorts', return_value=[])
-def test_main_ch_index_no_devices(patched_find_ports, capsys, reset_globals):
+def test_main_ch_index_no_devices(patched_find_ports, capsys):
     """Test --ch-index 1"""
     sys.argv = ['', '--ch-index', '1']
     Globals.getInstance().set_args(sys.argv)
@@ -113,8 +119,9 @@ def test_main_ch_index_no_devices(patched_find_ports, capsys, reset_globals):
 
 
 @pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 @patch('meshtastic.util.findPorts', return_value=[])
-def test_main_test_no_ports(patched_find_ports, reset_globals, capsys):
+def test_main_test_no_ports(patched_find_ports, capsys):
     """Test --test with no hardware"""
     sys.argv = ['', '--test']
     Globals.getInstance().set_args(sys.argv)
@@ -130,8 +137,9 @@ def test_main_test_no_ports(patched_find_ports, reset_globals, capsys):
 
 
 @pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 @patch('meshtastic.util.findPorts', return_value=['/dev/ttyFake1'])
-def test_main_test_one_port(patched_find_ports, reset_globals, capsys):
+def test_main_test_one_port(patched_find_ports, capsys):
     """Test --test with one fake port"""
     sys.argv = ['', '--test']
     Globals.getInstance().set_args(sys.argv)
@@ -147,8 +155,9 @@ def test_main_test_one_port(patched_find_ports, reset_globals, capsys):
 
 
 @pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 @patch('meshtastic.test.testAll', return_value=True)
-def test_main_test_two_ports_success(patched_test_all, reset_globals, capsys):
+def test_main_test_two_ports_success(patched_test_all, capsys):
     """Test --test two fake ports and testAll() is a simulated success"""
     sys.argv = ['', '--test']
     Globals.getInstance().set_args(sys.argv)
@@ -164,8 +173,9 @@ def test_main_test_two_ports_success(patched_test_all, reset_globals, capsys):
 
 
 @pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 @patch('meshtastic.test.testAll', return_value=False)
-def test_main_test_two_ports_fails(patched_test_all, reset_globals, capsys):
+def test_main_test_two_ports_fails(patched_test_all, capsys):
     """Test --test two fake ports and testAll() is a simulated failure"""
     sys.argv = ['', '--test']
     Globals.getInstance().set_args(sys.argv)
@@ -181,7 +191,8 @@ def test_main_test_two_ports_fails(patched_test_all, reset_globals, capsys):
 
 
 @pytest.mark.unit
-def test_main_info(capsys, caplog, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_info(capsys, caplog):
     """Test --info"""
     sys.argv = ['', '--info']
     Globals.getInstance().set_args(sys.argv)
@@ -201,8 +212,9 @@ def test_main_info(capsys, caplog, reset_globals):
 
 
 @pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 @patch('os.getlogin')
-def test_main_info_with_permission_error(patched_getlogin, capsys, caplog, reset_globals):
+def test_main_info_with_permission_error(patched_getlogin, capsys, caplog):
     """Test --info"""
     sys.argv = ['', '--info']
     Globals.getInstance().set_args(sys.argv)
@@ -224,7 +236,8 @@ def test_main_info_with_permission_error(patched_getlogin, capsys, caplog, reset
 
 
 @pytest.mark.unit
-def test_main_info_with_tcp_interface(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_info_with_tcp_interface(capsys):
     """Test --info"""
     sys.argv = ['', '--info', '--host', 'meshtastic.local']
     Globals.getInstance().set_args(sys.argv)
@@ -244,7 +257,7 @@ def test_main_info_with_tcp_interface(capsys, reset_globals):
 
 # TODO: comment out ble (for now)
 #@pytest.mark.unit
-#def test_main_info_with_ble_interface(capsys, reset_globals):
+#def test_main_info_with_ble_interface(capsys):
 #    """Test --info"""
 #    sys.argv = ['', '--info', '--ble', 'foo']
 #    Globals.getInstance().set_args(sys.argv)
@@ -263,7 +276,8 @@ def test_main_info_with_tcp_interface(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_no_proto(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_no_proto(capsys):
     """Test --noproto (using --info for output)"""
     sys.argv = ['', '--info', '--noproto']
     Globals.getInstance().set_args(sys.argv)
@@ -275,6 +289,7 @@ def test_main_no_proto(capsys, reset_globals):
 
     # Override the time.sleep so there is no loop
     def my_sleep(amount):
+        print(f'amount:{amount}')
         sys.exit(0)
 
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
@@ -290,7 +305,8 @@ def test_main_no_proto(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_info_with_seriallog_stdout(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_info_with_seriallog_stdout(capsys):
     """Test --info"""
     sys.argv = ['', '--info', '--seriallog', 'stdout']
     Globals.getInstance().set_args(sys.argv)
@@ -309,7 +325,8 @@ def test_main_info_with_seriallog_stdout(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_info_with_seriallog_output_txt(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_info_with_seriallog_output_txt(capsys):
     """Test --info"""
     sys.argv = ['', '--info', '--seriallog', 'output.txt']
     Globals.getInstance().set_args(sys.argv)
@@ -330,7 +347,8 @@ def test_main_info_with_seriallog_output_txt(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_qr(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_qr(capsys):
     """Test --qr"""
     sys.argv = ['', '--qr']
     Globals.getInstance().set_args(sys.argv)
@@ -349,7 +367,8 @@ def test_main_qr(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_nodes(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_nodes(capsys):
     """Test --nodes"""
     sys.argv = ['', '--nodes']
     Globals.getInstance().set_args(sys.argv)
@@ -368,7 +387,8 @@ def test_main_nodes(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_set_owner_to_bob(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_set_owner_to_bob(capsys):
     """Test --set-owner bob"""
     sys.argv = ['', '--set-owner', 'bob']
     Globals.getInstance().set_args(sys.argv)
@@ -384,7 +404,8 @@ def test_main_set_owner_to_bob(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_set_ham_to_KI123(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_set_ham_to_KI123(capsys):
     """Test --set-ham KI123"""
     sys.argv = ['', '--set-ham', 'KI123']
     Globals.getInstance().set_args(sys.argv)
@@ -393,7 +414,7 @@ def test_main_set_ham_to_KI123(capsys, reset_globals):
     def mock_turnOffEncryptionOnPrimaryChannel():
         print('inside mocked turnOffEncryptionOnPrimaryChannel')
     def mock_setOwner(name, is_licensed):
-        print('inside mocked setOwner')
+        print(f'inside mocked setOwner name:{name} is_licensed:{is_licensed}')
     mocked_node.turnOffEncryptionOnPrimaryChannel.side_effect = mock_turnOffEncryptionOnPrimaryChannel
     mocked_node.setOwner.side_effect = mock_setOwner
 
@@ -412,7 +433,8 @@ def test_main_set_ham_to_KI123(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_reboot(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_reboot(capsys):
     """Test --reboot"""
     sys.argv = ['', '--reboot']
     Globals.getInstance().set_args(sys.argv)
@@ -435,7 +457,8 @@ def test_main_reboot(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_sendtext(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_sendtext(capsys):
     """Test --sendtext"""
     sys.argv = ['', '--sendtext', 'hello']
     Globals.getInstance().set_args(sys.argv)
@@ -443,6 +466,7 @@ def test_main_sendtext(capsys, reset_globals):
     iface = MagicMock(autospec=SerialInterface)
     def mock_sendText(text, dest, wantAck, channelIndex):
         print('inside mocked sendText')
+        print(f'{text} {dest} {wantAck} {channelIndex}')
     iface.sendText.side_effect = mock_sendText
 
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
@@ -456,7 +480,8 @@ def test_main_sendtext(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_sendtext_with_channel(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_sendtext_with_channel(capsys):
     """Test --sendtext"""
     sys.argv = ['', '--sendtext', 'hello', '--ch-index', '1']
     Globals.getInstance().set_args(sys.argv)
@@ -464,6 +489,7 @@ def test_main_sendtext_with_channel(capsys, reset_globals):
     iface = MagicMock(autospec=SerialInterface)
     def mock_sendText(text, dest, wantAck, channelIndex):
         print('inside mocked sendText')
+        print(f'{text} {dest} {wantAck} {channelIndex}')
     iface.sendText.side_effect = mock_sendText
 
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
@@ -478,7 +504,8 @@ def test_main_sendtext_with_channel(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_sendtext_with_invalid_channel(caplog, capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_sendtext_with_invalid_channel(caplog, capsys):
     """Test --sendtext"""
     sys.argv = ['', '--sendtext', 'hello', '--ch-index', '-1']
     Globals.getInstance().set_args(sys.argv)
@@ -499,7 +526,8 @@ def test_main_sendtext_with_invalid_channel(caplog, capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_sendtext_with_invalid_channel_nine(caplog, capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_sendtext_with_invalid_channel_nine(caplog, capsys):
     """Test --sendtext"""
     sys.argv = ['', '--sendtext', 'hello', '--ch-index', '9']
     Globals.getInstance().set_args(sys.argv)
@@ -520,7 +548,8 @@ def test_main_sendtext_with_invalid_channel_nine(caplog, capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_sendtext_with_dest(capsys, caplog, reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_sendtext_with_dest(capsys, caplog, iface_with_nodes):
     """Test --sendtext with --dest"""
     sys.argv = ['', '--sendtext', 'hello', '--dest', 'foo']
     Globals.getInstance().set_args(sys.argv)
@@ -546,7 +575,8 @@ def test_main_sendtext_with_dest(capsys, caplog, reset_globals, iface_with_nodes
 
 
 @pytest.mark.unit
-def test_main_sendping(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_sendping(capsys):
     """Test --sendping"""
     sys.argv = ['', '--sendping']
     Globals.getInstance().set_args(sys.argv)
@@ -554,6 +584,7 @@ def test_main_sendping(capsys, reset_globals):
     iface = MagicMock(autospec=SerialInterface)
     def mock_sendData(payload, dest, portNum, wantAck, wantResponse):
         print('inside mocked sendData')
+        print(f'{payload} {dest} {portNum} {wantAck} {wantResponse}')
     iface.sendData.side_effect = mock_sendData
 
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
@@ -567,7 +598,8 @@ def test_main_sendping(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_setlat(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_setlat(capsys):
     """Test --sendlat"""
     sys.argv = ['', '--setlat', '37.5']
     Globals.getInstance().set_args(sys.argv)
@@ -580,6 +612,7 @@ def test_main_setlat(capsys, reset_globals):
     iface = MagicMock(autospec=SerialInterface)
     def mock_sendPosition(lat, lon, alt):
         print('inside mocked sendPosition')
+        print(f'{lat} {lon} {alt}')
     iface.sendPosition.side_effect = mock_sendPosition
     iface.localNode.return_value = mocked_node
 
@@ -596,7 +629,8 @@ def test_main_setlat(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_setlon(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_setlon(capsys):
     """Test --setlon"""
     sys.argv = ['', '--setlon', '-122.1']
     Globals.getInstance().set_args(sys.argv)
@@ -609,6 +643,7 @@ def test_main_setlon(capsys, reset_globals):
     iface = MagicMock(autospec=SerialInterface)
     def mock_sendPosition(lat, lon, alt):
         print('inside mocked sendPosition')
+        print(f'{lat} {lon} {alt}')
     iface.sendPosition.side_effect = mock_sendPosition
     iface.localNode.return_value = mocked_node
 
@@ -625,7 +660,8 @@ def test_main_setlon(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_setalt(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_setalt(capsys):
     """Test --setalt"""
     sys.argv = ['', '--setalt', '51']
     Globals.getInstance().set_args(sys.argv)
@@ -638,6 +674,7 @@ def test_main_setalt(capsys, reset_globals):
     iface = MagicMock(autospec=SerialInterface)
     def mock_sendPosition(lat, lon, alt):
         print('inside mocked sendPosition')
+        print(f'{lat} {lon} {alt}')
     iface.sendPosition.side_effect = mock_sendPosition
     iface.localNode.return_value = mocked_node
 
@@ -654,7 +691,8 @@ def test_main_setalt(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_set_team_valid(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_set_team_valid(capsys):
     """Test --set-team"""
     sys.argv = ['', '--set-team', 'CYAN']
     Globals.getInstance().set_args(sys.argv)
@@ -662,6 +700,7 @@ def test_main_set_team_valid(capsys, reset_globals):
     mocked_node = MagicMock(autospec=Node)
     def mock_setOwner(team):
         print('inside mocked setOwner')
+        print(f'{team}')
     mocked_node.setOwner.side_effect = mock_setOwner
 
     iface = MagicMock(autospec=SerialInterface)
@@ -682,7 +721,8 @@ def test_main_set_team_valid(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_set_team_invalid(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_set_team_invalid(capsys):
     """Test --set-team using an invalid team name"""
     sys.argv = ['', '--set-team', 'NOTCYAN']
     Globals.getInstance().set_args(sys.argv)
@@ -705,7 +745,8 @@ def test_main_set_team_invalid(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_seturl(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_seturl(capsys):
     """Test --seturl (url used below is what is generated after a factory_reset)"""
     sys.argv = ['', '--seturl', 'https://www.meshtastic.org/d/#CgUYAyIBAQ']
     Globals.getInstance().set_args(sys.argv)
@@ -720,7 +761,8 @@ def test_main_seturl(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_set_valid(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_set_valid(capsys):
     """Test --set with valid field"""
     sys.argv = ['', '--set', 'wifi_ssid', 'foo']
     Globals.getInstance().set_args(sys.argv)
@@ -740,7 +782,8 @@ def test_main_set_valid(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_set_with_invalid(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_set_with_invalid(capsys):
     """Test --set with invalid field"""
     sys.argv = ['', '--set', 'foo', 'foo']
     Globals.getInstance().set_args(sys.argv)
@@ -765,7 +808,8 @@ def test_main_set_with_invalid(capsys, reset_globals):
 
 # TODO: write some negative --configure tests
 @pytest.mark.unit
-def test_main_configure(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_configure(capsys):
     """Test --configure with valid file"""
     sys.argv = ['', '--configure', 'example_config.yaml']
     Globals.getInstance().set_args(sys.argv)
@@ -790,7 +834,8 @@ def test_main_configure(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_add_valid(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_add_valid(capsys):
     """Test --ch-add with valid channel name, and that channel name does not already exist"""
     sys.argv = ['', '--ch-add', 'testing']
     Globals.getInstance().set_args(sys.argv)
@@ -817,7 +862,8 @@ def test_main_ch_add_valid(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_add_invalid_name_too_long(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_add_invalid_name_too_long(capsys):
     """Test --ch-add with invalid channel name, name too long"""
     sys.argv = ['', '--ch-add', 'testingtestingtesting']
     Globals.getInstance().set_args(sys.argv)
@@ -847,7 +893,8 @@ def test_main_ch_add_invalid_name_too_long(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_add_but_name_already_exists(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_add_but_name_already_exists(capsys):
     """Test --ch-add with a channel name that already exists"""
     sys.argv = ['', '--ch-add', 'testing']
     Globals.getInstance().set_args(sys.argv)
@@ -872,7 +919,8 @@ def test_main_ch_add_but_name_already_exists(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_add_but_no_more_channels(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_add_but_no_more_channels(capsys):
     """Test --ch-add with but there are no more channels"""
     sys.argv = ['', '--ch-add', 'testing']
     Globals.getInstance().set_args(sys.argv)
@@ -899,7 +947,8 @@ def test_main_ch_add_but_no_more_channels(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_del(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_del(capsys):
     """Test --ch-del with valid secondary channel to be deleted"""
     sys.argv = ['', '--ch-del', '--ch-index', '1']
     Globals.getInstance().set_args(sys.argv)
@@ -919,7 +968,8 @@ def test_main_ch_del(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_del_no_ch_index_specified(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_del_no_ch_index_specified(capsys):
     """Test --ch-del without a valid ch-index"""
     sys.argv = ['', '--ch-del']
     Globals.getInstance().set_args(sys.argv)
@@ -942,7 +992,8 @@ def test_main_ch_del_no_ch_index_specified(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_del_primary_channel(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_del_primary_channel(capsys):
     """Test --ch-del on ch-index=0"""
     sys.argv = ['', '--ch-del', '--ch-index', '0']
     Globals.getInstance().set_args(sys.argv)
@@ -966,7 +1017,8 @@ def test_main_ch_del_primary_channel(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_enable_valid_secondary_channel(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_enable_valid_secondary_channel(capsys):
     """Test --ch-enable with --ch-index"""
     sys.argv = ['', '--ch-enable', '--ch-index', '1']
     Globals.getInstance().set_args(sys.argv)
@@ -987,7 +1039,8 @@ def test_main_ch_enable_valid_secondary_channel(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_disable_valid_secondary_channel(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_disable_valid_secondary_channel(capsys):
     """Test --ch-disable with --ch-index"""
     sys.argv = ['', '--ch-disable', '--ch-index', '1']
     Globals.getInstance().set_args(sys.argv)
@@ -1008,7 +1061,8 @@ def test_main_ch_disable_valid_secondary_channel(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_enable_without_a_ch_index(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_enable_without_a_ch_index(capsys):
     """Test --ch-enable without --ch-index"""
     sys.argv = ['', '--ch-enable']
     Globals.getInstance().set_args(sys.argv)
@@ -1032,7 +1086,8 @@ def test_main_ch_enable_without_a_ch_index(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_enable_primary_channel(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_enable_primary_channel(capsys):
     """Test --ch-enable with --ch-index = 0"""
     sys.argv = ['', '--ch-enable', '--ch-index', '0']
     Globals.getInstance().set_args(sys.argv)
@@ -1056,7 +1111,8 @@ def test_main_ch_enable_primary_channel(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_range_options(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_range_options(capsys):
     """Test changing the various range options."""
     range_options = ['--ch-longslow', '--ch-longfast', '--ch-mediumslow',
                      '--ch-mediumfast', '--ch-shortslow', '--ch-shortfast']
@@ -1079,7 +1135,8 @@ def test_main_ch_range_options(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_longsfast_on_non_primary_channel(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_longsfast_on_non_primary_channel(capsys):
     """Test --ch-longfast --ch-index 1"""
     sys.argv = ['', '--ch-longfast', '--ch-index', '1']
     Globals.getInstance().set_args(sys.argv)
@@ -1116,7 +1173,8 @@ def test_main_ch_longsfast_on_non_primary_channel(capsys, reset_globals):
 # POS_TIMESTAMP 256
 
 @pytest.mark.unit
-def test_main_pos_fields_no_args(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_pos_fields_no_args(capsys):
     """Test --pos-fields no args (which shows settings)"""
     sys.argv = ['', '--pos-fields']
     Globals.getInstance().set_args(sys.argv)
@@ -1146,7 +1204,8 @@ def test_main_pos_fields_no_args(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_pos_fields_arg_of_zero(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_pos_fields_arg_of_zero(capsys):
     """Test --pos-fields an arg of 0 (which shows list)"""
     sys.argv = ['', '--pos-fields', '0']
     Globals.getInstance().set_args(sys.argv)
@@ -1179,7 +1238,8 @@ def test_main_pos_fields_arg_of_zero(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_pos_fields_valid_values(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_pos_fields_valid_values(capsys):
     """Test --pos-fields with valid values"""
     sys.argv = ['', '--pos-fields', 'POS_GEO_SEP', 'POS_ALT_MSL']
     Globals.getInstance().set_args(sys.argv)
@@ -1205,7 +1265,8 @@ def test_main_pos_fields_valid_values(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_get_with_valid_values(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_get_with_valid_values(capsys):
     """Test --get with valid values (with string, number, boolean)"""
     sys.argv = ['', '--get', 'ls_secs', '--get', 'wifi_ssid', '--get', 'fixed_position']
     Globals.getInstance().set_args(sys.argv)
@@ -1229,7 +1290,8 @@ def test_main_get_with_valid_values(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_get_with_invalid(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_get_with_invalid(capsys):
     """Test --get with invalid field"""
     sys.argv = ['', '--get', 'foo']
     Globals.getInstance().set_args(sys.argv)
@@ -1254,7 +1316,8 @@ def test_main_get_with_invalid(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_setchan(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_setchan(capsys):
     """Test --setchan (deprecated)"""
     sys.argv = ['', '--setchan', 'a', 'b']
     Globals.getInstance().set_args(sys.argv)
@@ -1271,7 +1334,8 @@ def test_main_setchan(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_onReceive_empty(caplog, reset_globals, capsys):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_onReceive_empty(caplog, capsys):
     """Test onReceive"""
     args = MagicMock()
     Globals.getInstance().set_args(args)
@@ -1297,7 +1361,8 @@ def test_main_onReceive_empty(caplog, reset_globals, capsys):
 #            }
 
 @pytest.mark.unit
-def test_main_onReceive_with_sendtext(caplog, capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_onReceive_with_sendtext(caplog, capsys):
     """Test onReceive with sendtext
        The entire point of this test is to make sure the interface.close() call
        is made in onReceive().
@@ -1332,7 +1397,8 @@ def test_main_onReceive_with_sendtext(caplog, capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_onReceive_with_text(caplog, capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_onReceive_with_text(caplog, capsys):
     """Test onReceive with text
     """
     args = MagicMock()
@@ -1371,7 +1437,8 @@ def test_main_onReceive_with_text(caplog, capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_onConnection(reset_globals, capsys):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_onConnection(capsys):
     """Test onConnection"""
     sys.argv = ['']
     Globals.getInstance().set_args(sys.argv)
@@ -1389,7 +1456,8 @@ def test_main_onConnection(reset_globals, capsys):
 
 
 @pytest.mark.unit
-def test_main_export_config(reset_globals, capsys):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_export_config(capsys):
     """Test export_config() function directly"""
     iface = MagicMock(autospec=SerialInterface)
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
@@ -1425,7 +1493,8 @@ position_flags: 35"""
 
 
 @pytest.mark.unit
-def test_main_export_config_called_from_main(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_export_config_called_from_main(capsys):
     """Test --export-config"""
     sys.argv = ['', '--export-config']
     Globals.getInstance().set_args(sys.argv)
@@ -1441,7 +1510,8 @@ def test_main_export_config_called_from_main(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_gpio_rd_no_gpio_channel(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_gpio_rd_no_gpio_channel(capsys):
     """Test --gpio_rd with no named gpio channel"""
     sys.argv = ['', '--gpio-rd', '0x10', '--dest', '!foo']
     Globals.getInstance().set_args(sys.argv)
@@ -1459,7 +1529,8 @@ def test_main_gpio_rd_no_gpio_channel(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_gpio_rd_no_dest(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_gpio_rd_no_dest(capsys):
     """Test --gpio_rd with a named gpio channel but no dest was specified"""
     sys.argv = ['', '--gpio-rd', '0x2000']
     Globals.getInstance().set_args(sys.argv)
@@ -1481,7 +1552,8 @@ def test_main_gpio_rd_no_dest(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_gpio_rd(caplog, capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_gpio_rd(caplog, capsys):
     """Test --gpio_rd with a named gpio channel"""
     # Note: On the Heltec v2.1, there is a GPIO pin GPIO 13 that does not have a
     # red arrow (meaning ok to use for our purposes)
@@ -1538,7 +1610,8 @@ def test_main_gpio_rd(caplog, capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_getPref_valid_field(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_getPref_valid_field(capsys):
     """Test getPref() with a valid field"""
     prefs = MagicMock()
     prefs.DESCRIPTOR.fields_by_name.get.return_value = 'ls_secs'
@@ -1553,7 +1626,8 @@ def test_main_getPref_valid_field(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_getPref_valid_field_string(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_getPref_valid_field_string(capsys):
     """Test getPref() with a valid field and value as a string"""
     prefs = MagicMock()
     prefs.DESCRIPTOR.fields_by_name.get.return_value = 'wifi_ssid'
@@ -1568,7 +1642,8 @@ def test_main_getPref_valid_field_string(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_getPref_valid_field_bool(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_getPref_valid_field_bool(capsys):
     """Test getPref() with a valid field and value as a bool"""
     prefs = MagicMock()
     prefs.DESCRIPTOR.fields_by_name.get.return_value = 'fixed_position'
@@ -1583,7 +1658,8 @@ def test_main_getPref_valid_field_bool(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_getPref_invalid_field(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_getPref_invalid_field(capsys):
     """Test getPref() with an invalid field"""
 
     class Field:
@@ -1614,7 +1690,8 @@ def test_main_getPref_invalid_field(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_setPref_valid_field_int(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_setPref_valid_field_int(capsys):
     """Test setPref() with a valid field"""
 
     class Field:
@@ -1636,7 +1713,8 @@ def test_main_setPref_valid_field_int(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_setPref_invalid_field(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_setPref_invalid_field(capsys):
     """Test setPref() with a invalid field"""
 
 
@@ -1667,7 +1745,8 @@ def test_main_setPref_invalid_field(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_set_psk_no_ch_index(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_set_psk_no_ch_index(capsys):
     """Test --ch-set psk """
     sys.argv = ['', '--ch-set', 'psk', 'foo', '--host', 'meshtastic.local']
     Globals.getInstance().set_args(sys.argv)
@@ -1686,7 +1765,8 @@ def test_main_ch_set_psk_no_ch_index(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_set_psk_with_ch_index(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_set_psk_with_ch_index(capsys):
     """Test --ch-set psk """
     sys.argv = ['', '--ch-set', 'psk', 'foo', '--host', 'meshtastic.local', '--ch-index', '0']
     Globals.getInstance().set_args(sys.argv)
@@ -1702,7 +1782,8 @@ def test_main_ch_set_psk_with_ch_index(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_main_ch_set_name_with_ch_index(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_main_ch_set_name_with_ch_index(capsys):
     """Test --ch-set setting other than psk"""
     sys.argv = ['', '--ch-set', 'name', 'foo', '--host', 'meshtastic.local', '--ch-index', '0']
     Globals.getInstance().set_args(sys.argv)
@@ -1719,7 +1800,8 @@ def test_main_ch_set_name_with_ch_index(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_onNode(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_onNode(capsys):
     """Test onNode"""
     onNode('foo')
     out, err = capsys.readouterr()
@@ -1728,7 +1810,8 @@ def test_onNode(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_tunnel_no_args(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_tunnel_no_args(capsys):
     """Test tunnel no arguments"""
     sys.argv = ['']
     Globals.getInstance().set_args(sys.argv)
@@ -1741,9 +1824,10 @@ def test_tunnel_no_args(capsys, reset_globals):
 
 
 @pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 @patch('meshtastic.util.findPorts', return_value=[])
 @patch('platform.system')
-def test_tunnel_tunnel_arg_with_no_devices(mock_platform_system, patched_find_ports, caplog, capsys, reset_globals):
+def test_tunnel_tunnel_arg_with_no_devices(mock_platform_system, caplog, capsys):
     """Test tunnel with tunnel arg (act like we are on a linux system)"""
     a_mock = MagicMock()
     a_mock.return_value = 'Linux'
@@ -1763,9 +1847,10 @@ def test_tunnel_tunnel_arg_with_no_devices(mock_platform_system, patched_find_po
 
 
 @pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 @patch('meshtastic.util.findPorts', return_value=[])
 @patch('platform.system')
-def test_tunnel_subnet_arg_with_no_devices(mock_platform_system, patched_find_ports, caplog, capsys, reset_globals):
+def test_tunnel_subnet_arg_with_no_devices(mock_platform_system, caplog, capsys):
     """Test tunnel with subnet arg (act like we are on a linux system)"""
     a_mock = MagicMock()
     a_mock.return_value = 'Linux'
@@ -1785,11 +1870,13 @@ def test_tunnel_subnet_arg_with_no_devices(mock_platform_system, patched_find_po
 
 
 @pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 @patch('platform.system')
-def test_tunnel_tunnel_arg(mock_platform_system, caplog, reset_globals, iface_with_nodes, capsys):
+def test_tunnel_tunnel_arg(mock_platform_system, caplog, iface_with_nodes, capsys):
     """Test tunnel with tunnel arg (act like we are on a linux system)"""
     # Override the time.sleep so there is no loop
     def my_sleep(amount):
+        print(f'{amount}')
         sys.exit(3)
 
     a_mock = MagicMock()

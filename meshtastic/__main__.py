@@ -48,7 +48,7 @@ def onReceive(packet, interface):
         print(f'Warning: There is no field {ex} in the packet.')
 
 
-def onConnection(interface, topic=pub.AUTO_TOPIC):
+def onConnection(interface, topic=pub.AUTO_TOPIC): # pylint: disable=W0613
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
 

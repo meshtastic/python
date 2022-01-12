@@ -150,7 +150,7 @@ def test_setURL_valid_URL(caplog):
 
 
 @pytest.mark.unit
-def test_setURL_valid_URL_but_no_settings(caplog, capsys):
+def test_setURL_valid_URL_but_no_settings(capsys):
     """Test setURL"""
     iface = MagicMock(autospec=SerialInterface)
     url = "https://www.meshtastic.org/d/#"
@@ -430,7 +430,7 @@ def test_deleteChannel_secondary_with_admin_channel_before_testing():
 
 
 @pytest.mark.unit
-def test_getChannelByName(capsys):
+def test_getChannelByName():
     """Get a channel by the name."""
     anode = Node('foo', 'bar')
 
@@ -457,7 +457,7 @@ def test_getChannelByName(capsys):
 
 
 @pytest.mark.unit
-def test_getChannelByName_invalid_name(capsys):
+def test_getChannelByName_invalid_name():
     """Get a channel by the name but one that is not present."""
     anode = Node('foo', 'bar')
 
@@ -484,7 +484,7 @@ def test_getChannelByName_invalid_name(capsys):
 
 
 @pytest.mark.unit
-def test_getDisabledChannel(capsys):
+def test_getDisabledChannel():
     """Get the first disabled channel."""
     anode = Node('foo', 'bar')
 
@@ -514,7 +514,7 @@ def test_getDisabledChannel(capsys):
 
 
 @pytest.mark.unit
-def test_getDisabledChannel_where_all_channels_are_used(capsys):
+def test_getDisabledChannel_where_all_channels_are_used():
     """Get the first disabled channel."""
     anode = Node('foo', 'bar')
 
@@ -538,7 +538,7 @@ def test_getDisabledChannel_where_all_channels_are_used(capsys):
 
 
 @pytest.mark.unit
-def test_getAdminChannelIndex(capsys):
+def test_getAdminChannelIndex():
     """Get the 'admin' channel index."""
     anode = Node('foo', 'bar')
 
@@ -565,7 +565,7 @@ def test_getAdminChannelIndex(capsys):
 
 
 @pytest.mark.unit
-def test_getAdminChannelIndex_when_no_admin_named_channel(capsys):
+def test_getAdminChannelIndex_when_no_admin_named_channel():
     """Get the 'admin' channel when there is not one."""
     anode = Node('foo', 'bar')
 

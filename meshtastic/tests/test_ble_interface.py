@@ -12,3 +12,4 @@ def test_BLEInterface(mock_platform):
     """Test that we can instantiate a BLEInterface"""
     iface = BLEInterface('foo', debugOut=True, noProto=True)
     iface.close()
+    mock_platform.assert_called()

@@ -28,7 +28,7 @@ def test_TCPInterface(capsys):
 
 
 @pytest.mark.unit
-def test_TCPInterface_without_connecting(capsys):
+def test_TCPInterface_without_connecting():
     """Test that we can instantiate a TCPInterface with connectNow as false"""
     with patch('socket.socket'):
         iface = TCPInterface(hostname='localhost', noProto=True, connectNow=False)

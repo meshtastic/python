@@ -73,7 +73,7 @@ class MeshInterface:
             logging.error(f'Traceback: {traceback}')
         self.close()
 
-    def showInfo(self, file=sys.stdout):
+    def showInfo(self, file=sys.stdout): # pylint: disable=W0613
         """Show human readable summary about this object"""
         owner = f"Owner: {self.getLongName()} ({self.getShortName()})"
         myinfo = ''
@@ -100,7 +100,7 @@ class MeshInterface:
         print(infos)
         return infos
 
-    def showNodes(self, includeSelf=True, file=sys.stdout):
+    def showNodes(self, includeSelf=True, file=sys.stdout): # pylint: disable=W0613
         """Show table summary of nodes in mesh"""
         def formatFloat(value, precision=2, unit=''):
             """Format a float value with precsion."""

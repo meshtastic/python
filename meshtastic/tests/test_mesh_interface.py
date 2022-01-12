@@ -15,7 +15,8 @@ from ..util import Timeout
 
 
 @pytest.mark.unit
-def test_MeshInterface(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_MeshInterface(capsys):
     """Test that we can instantiate a MeshInterface"""
     iface = MeshInterface(noProto=True)
     anode = Node('foo', 'bar')
@@ -56,7 +57,8 @@ def test_MeshInterface(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_getMyUser(reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_getMyUser(iface_with_nodes):
     """Test getMyUser()"""
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
@@ -66,7 +68,8 @@ def test_getMyUser(reset_globals, iface_with_nodes):
 
 
 @pytest.mark.unit
-def test_getLongName(reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_getLongName(iface_with_nodes):
     """Test getLongName()"""
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
@@ -75,7 +78,8 @@ def test_getLongName(reset_globals, iface_with_nodes):
 
 
 @pytest.mark.unit
-def test_getShortName(reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_getShortName(iface_with_nodes):
     """Test getShortName()."""
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
@@ -84,7 +88,8 @@ def test_getShortName(reset_globals, iface_with_nodes):
 
 
 @pytest.mark.unit
-def test_handlePacketFromRadio_no_from(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_handlePacketFromRadio_no_from(capsys):
     """Test _handlePacketFromRadio with no 'from' in the mesh packet."""
     iface = MeshInterface(noProto=True)
     meshPacket = mesh_pb2.MeshPacket()
@@ -95,7 +100,8 @@ def test_handlePacketFromRadio_no_from(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_handlePacketFromRadio_with_a_portnum(caplog, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_handlePacketFromRadio_with_a_portnum(caplog):
     """Test _handlePacketFromRadio with a portnum
        Since we have an attribute called 'from', we cannot simply 'set' it.
        Had to implement a hack just to be able to test some code.
@@ -110,7 +116,8 @@ def test_handlePacketFromRadio_with_a_portnum(caplog, reset_globals):
 
 
 @pytest.mark.unit
-def test_handlePacketFromRadio_no_portnum(caplog, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_handlePacketFromRadio_no_portnum(caplog):
     """Test _handlePacketFromRadio without a portnum"""
     iface = MeshInterface(noProto=True)
     meshPacket = mesh_pb2.MeshPacket()
@@ -121,7 +128,8 @@ def test_handlePacketFromRadio_no_portnum(caplog, reset_globals):
 
 
 @pytest.mark.unit
-def test_getNode_with_local(reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_getNode_with_local():
     """Test getNode"""
     iface = MeshInterface(noProto=True)
     anode = iface.getNode(LOCAL_ADDR)
@@ -129,7 +137,8 @@ def test_getNode_with_local(reset_globals):
 
 
 @pytest.mark.unit
-def test_getNode_not_local(reset_globals, caplog):
+@pytest.mark.usefixtures("reset_globals")
+def test_getNode_not_local(caplog):
     """Test getNode not local"""
     iface = MeshInterface(noProto=True)
     anode = MagicMock(autospec=Node)
@@ -141,7 +150,8 @@ def test_getNode_not_local(reset_globals, caplog):
 
 
 @pytest.mark.unit
-def test_getNode_not_local_timeout(reset_globals, capsys):
+@pytest.mark.usefixtures("reset_globals")
+def test_getNode_not_local_timeout(capsys):
     """Test getNode not local, simulate timeout"""
     iface = MeshInterface(noProto=True)
     anode = MagicMock(autospec=Node)
@@ -157,7 +167,8 @@ def test_getNode_not_local_timeout(reset_globals, capsys):
 
 
 @pytest.mark.unit
-def test_sendPosition(reset_globals, caplog):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendPosition(caplog):
     """Test sendPosition"""
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
@@ -167,7 +178,8 @@ def test_sendPosition(reset_globals, caplog):
 
 
 @pytest.mark.unit
-def test_close_with_heartbeatTimer(reset_globals, caplog):
+@pytest.mark.usefixtures("reset_globals")
+def test_close_with_heartbeatTimer(caplog):
     """Test close() with heartbeatTimer"""
     iface = MeshInterface(noProto=True)
     anode = Node('foo', 'bar')
@@ -183,7 +195,8 @@ def test_close_with_heartbeatTimer(reset_globals, caplog):
 
 
 @pytest.mark.unit
-def test_handleFromRadio_empty_payload(reset_globals, caplog):
+@pytest.mark.usefixtures("reset_globals")
+def test_handleFromRadio_empty_payload(caplog):
     """Test _handleFromRadio"""
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
@@ -193,7 +206,8 @@ def test_handleFromRadio_empty_payload(reset_globals, caplog):
 
 
 @pytest.mark.unit
-def test_handleFromRadio_with_my_info(reset_globals, caplog):
+@pytest.mark.usefixtures("reset_globals")
+def test_handleFromRadio_with_my_info(caplog):
     """Test _handleFromRadio with my_info"""
     # Note: I captured the '--debug --info' for the bytes below.
     # It "translates" to this:
@@ -218,7 +232,8 @@ def test_handleFromRadio_with_my_info(reset_globals, caplog):
 
 
 @pytest.mark.unit
-def test_handleFromRadio_with_node_info(reset_globals, caplog, capsys):
+@pytest.mark.usefixtures("reset_globals")
+def test_handleFromRadio_with_node_info(caplog, capsys):
     """Test _handleFromRadio with node_info"""
     # Note: I captured the '--debug --info' for the bytes below.
     # It "translates" to this:
@@ -254,7 +269,8 @@ def test_handleFromRadio_with_node_info(reset_globals, caplog, capsys):
 
 
 @pytest.mark.unit
-def test_handleFromRadio_with_node_info_tbeam1(reset_globals, caplog, capsys):
+@pytest.mark.usefixtures("reset_globals")
+def test_handleFromRadio_with_node_info_tbeam1(caplog, capsys):
     """Test _handleFromRadio with node_info"""
     # Note: Captured the '--debug --info' for the bytes below.
     # pylint: disable=C0301
@@ -277,7 +293,8 @@ def test_handleFromRadio_with_node_info_tbeam1(reset_globals, caplog, capsys):
 
 
 @pytest.mark.unit
-def test_handleFromRadio_with_node_info_tbeam_with_bad_data(reset_globals, caplog, capsys):
+@pytest.mark.usefixtures("reset_globals")
+def test_handleFromRadio_with_node_info_tbeam_with_bad_data(caplog):
     """Test _handleFromRadio with node_info with some bad data (issue#172) - ensure we do not throw exception"""
     # Note: Captured the '--debug --info' for the bytes below.
     from_radio_bytes = b'"\x17\x08\xdc\x8a\x8a\xae\x02\x12\x08"\x06\x00\x00\x00\x00\x00\x00\x1a\x00=\x00\x00\xb8@'
@@ -288,7 +305,8 @@ def test_handleFromRadio_with_node_info_tbeam_with_bad_data(reset_globals, caplo
 
 
 @pytest.mark.unit
-def test_MeshInterface_sendToRadioImpl(caplog, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_MeshInterface_sendToRadioImpl(caplog):
     """Test _sendToRadioImp()"""
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
@@ -298,7 +316,8 @@ def test_MeshInterface_sendToRadioImpl(caplog, reset_globals):
 
 
 @pytest.mark.unit
-def test_MeshInterface_sendToRadio_no_proto(caplog, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_MeshInterface_sendToRadio_no_proto(caplog):
     """Test sendToRadio()"""
     iface = MeshInterface()
     with caplog.at_level(logging.DEBUG):
@@ -308,7 +327,8 @@ def test_MeshInterface_sendToRadio_no_proto(caplog, reset_globals):
 
 
 @pytest.mark.unit
-def test_sendData_too_long(caplog, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendData_too_long(caplog):
     """Test when data payload is too big"""
     iface = MeshInterface(noProto=True)
     some_large_text = b'This is a long text that will be too long for send text.'
@@ -332,7 +352,8 @@ def test_sendData_too_long(caplog, reset_globals):
 
 
 @pytest.mark.unit
-def test_sendData_unknown_app(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendData_unknown_app(capsys):
     """Test sendData when unknown app"""
     iface = MeshInterface(noProto=True)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
@@ -345,7 +366,8 @@ def test_sendData_unknown_app(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_sendPosition_with_a_position(caplog, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendPosition_with_a_position(caplog):
     """Test sendPosition when lat/long/alt"""
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
@@ -356,7 +378,8 @@ def test_sendPosition_with_a_position(caplog, reset_globals):
 
 
 @pytest.mark.unit
-def test_sendPacket_with_no_destination(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendPacket_with_no_destination(capsys):
     """Test _sendPacket()"""
     iface = MeshInterface(noProto=True)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
@@ -369,7 +392,8 @@ def test_sendPacket_with_no_destination(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_sendPacket_with_destination_as_int(caplog, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendPacket_with_destination_as_int(caplog):
     """Test _sendPacket() with int as a destination"""
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
@@ -379,7 +403,8 @@ def test_sendPacket_with_destination_as_int(caplog, reset_globals):
 
 
 @pytest.mark.unit
-def test_sendPacket_with_destination_starting_with_a_bang(caplog, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendPacket_with_destination_starting_with_a_bang(caplog):
     """Test _sendPacket() with int as a destination"""
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
@@ -389,7 +414,8 @@ def test_sendPacket_with_destination_starting_with_a_bang(caplog, reset_globals)
 
 
 @pytest.mark.unit
-def test_sendPacket_with_destination_as_BROADCAST_ADDR(caplog, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendPacket_with_destination_as_BROADCAST_ADDR(caplog):
     """Test _sendPacket() with BROADCAST_ADDR as a destination"""
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
@@ -399,7 +425,8 @@ def test_sendPacket_with_destination_as_BROADCAST_ADDR(caplog, reset_globals):
 
 
 @pytest.mark.unit
-def test_sendPacket_with_destination_as_LOCAL_ADDR_no_myInfo(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendPacket_with_destination_as_LOCAL_ADDR_no_myInfo(capsys):
     """Test _sendPacket() with LOCAL_ADDR as a destination with no myInfo"""
     iface = MeshInterface(noProto=True)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
@@ -413,7 +440,8 @@ def test_sendPacket_with_destination_as_LOCAL_ADDR_no_myInfo(capsys, reset_globa
 
 
 @pytest.mark.unit
-def test_sendPacket_with_destination_as_LOCAL_ADDR_with_myInfo(caplog, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendPacket_with_destination_as_LOCAL_ADDR_with_myInfo(caplog):
     """Test _sendPacket() with LOCAL_ADDR as a destination with myInfo"""
     iface = MeshInterface(noProto=True)
     myInfo = MagicMock()
@@ -426,7 +454,8 @@ def test_sendPacket_with_destination_as_LOCAL_ADDR_with_myInfo(caplog, reset_glo
 
 
 @pytest.mark.unit
-def test_sendPacket_with_destination_is_blank_with_nodes(capsys, reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendPacket_with_destination_is_blank_with_nodes(capsys, iface_with_nodes):
     """Test _sendPacket() with '' as a destination with myInfo"""
     iface = iface_with_nodes
     meshPacket = mesh_pb2.MeshPacket()
@@ -440,7 +469,8 @@ def test_sendPacket_with_destination_is_blank_with_nodes(capsys, reset_globals, 
 
 
 @pytest.mark.unit
-def test_sendPacket_with_destination_is_blank_without_nodes(caplog, reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_sendPacket_with_destination_is_blank_without_nodes(caplog, iface_with_nodes):
     """Test _sendPacket() with '' as a destination with myInfo"""
     iface = iface_with_nodes
     iface.nodes = None
@@ -451,7 +481,8 @@ def test_sendPacket_with_destination_is_blank_without_nodes(caplog, reset_global
 
 
 @pytest.mark.unit
-def test_getMyNodeInfo(reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_getMyNodeInfo():
     """Test getMyNodeInfo()"""
     iface = MeshInterface(noProto=True)
     anode = iface.getNode(LOCAL_ADDR)
@@ -465,7 +496,8 @@ def test_getMyNodeInfo(reset_globals):
 
 
 @pytest.mark.unit
-def test_generatePacketId(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_generatePacketId(capsys):
     """Test _generatePacketId() when no currentPacketId (not connected)"""
     iface = MeshInterface(noProto=True)
     # not sure when this condition would ever happen... but we can simulate it
@@ -480,7 +512,8 @@ def test_generatePacketId(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_fixupPosition_empty_pos(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_fixupPosition_empty_pos():
     """Test _fixupPosition()"""
     iface = MeshInterface(noProto=True)
     pos = {}
@@ -489,7 +522,8 @@ def test_fixupPosition_empty_pos(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_fixupPosition_no_changes_needed(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_fixupPosition_no_changes_needed():
     """Test _fixupPosition()"""
     iface = MeshInterface(noProto=True)
     pos = {"latitude": 101, "longitude": 102}
@@ -498,7 +532,8 @@ def test_fixupPosition_no_changes_needed(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_fixupPosition(capsys, reset_globals):
+@pytest.mark.usefixtures("reset_globals")
+def test_fixupPosition():
     """Test _fixupPosition()"""
     iface = MeshInterface(noProto=True)
     pos = {"latitudeI": 1010000000, "longitudeI": 1020000000}
@@ -510,7 +545,8 @@ def test_fixupPosition(capsys, reset_globals):
 
 
 @pytest.mark.unit
-def test_nodeNumToId(capsys, reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_nodeNumToId(iface_with_nodes):
     """Test _nodeNumToId()"""
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
@@ -519,7 +555,8 @@ def test_nodeNumToId(capsys, reset_globals, iface_with_nodes):
 
 
 @pytest.mark.unit
-def test_nodeNumToId_not_found(capsys, reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_nodeNumToId_not_found(iface_with_nodes):
     """Test _nodeNumToId()"""
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
@@ -528,7 +565,8 @@ def test_nodeNumToId_not_found(capsys, reset_globals, iface_with_nodes):
 
 
 @pytest.mark.unit
-def test_nodeNumToId_to_all(capsys, reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_nodeNumToId_to_all(iface_with_nodes):
     """Test _nodeNumToId()"""
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
@@ -537,7 +575,8 @@ def test_nodeNumToId_to_all(capsys, reset_globals, iface_with_nodes):
 
 
 @pytest.mark.unit
-def test_getOrCreateByNum_minimal(capsys, reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_getOrCreateByNum_minimal(iface_with_nodes):
     """Test _getOrCreateByNum()"""
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
@@ -546,7 +585,8 @@ def test_getOrCreateByNum_minimal(capsys, reset_globals, iface_with_nodes):
 
 
 @pytest.mark.unit
-def test_getOrCreateByNum_not_found(capsys, reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_getOrCreateByNum_not_found(iface_with_nodes):
     """Test _getOrCreateByNum()"""
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
@@ -556,7 +596,8 @@ def test_getOrCreateByNum_not_found(capsys, reset_globals, iface_with_nodes):
 
 
 @pytest.mark.unit
-def test_getOrCreateByNum(capsys, reset_globals, iface_with_nodes):
+@pytest.mark.usefixtures("reset_globals")
+def test_getOrCreateByNum(iface_with_nodes):
     """Test _getOrCreateByNum()"""
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
@@ -582,7 +623,7 @@ def test_exit_with_exception(caplog):
 
 
 @pytest.mark.unit
-def test_showNodes_exclude_self(capsys, caplog, reset_globals, iface_with_nodes):
+def test_showNodes_exclude_self(capsys, caplog, iface_with_nodes):
     """Test that we hit that continue statement"""
     with caplog.at_level(logging.DEBUG):
         iface = iface_with_nodes
@@ -593,7 +634,7 @@ def test_showNodes_exclude_self(capsys, caplog, reset_globals, iface_with_nodes)
 
 
 @pytest.mark.unitslow
-def test_waitForConfig(caplog, capsys):
+def test_waitForConfig(capsys):
     """Test waitForConfig()"""
     iface = MeshInterface(noProto=True)
     # override how long to wait
@@ -607,7 +648,7 @@ def test_waitForConfig(caplog, capsys):
 
 
 @pytest.mark.unit
-def test_waitConnected_raises_an_exception(caplog, capsys):
+def test_waitConnected_raises_an_exception(capsys):
     """Test waitConnected()"""
     iface = MeshInterface(noProto=True)
     with pytest.raises(Exception) as pytest_wrapped_e:
@@ -620,7 +661,7 @@ def test_waitConnected_raises_an_exception(caplog, capsys):
 
 
 @pytest.mark.unit
-def test_waitConnected_isConnected_timeout(caplog, capsys):
+def test_waitConnected_isConnected_timeout(capsys):
     """Test waitConnected()"""
     with pytest.raises(Exception) as pytest_wrapped_e:
         iface = MeshInterface()
