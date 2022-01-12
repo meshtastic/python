@@ -63,6 +63,7 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False, want
     Returns:
         boolean -- True for success
     """
+    # pylint: disable=W0603
     global receivedPackets
     receivedPackets = []
     fromNode = fromInterface.myInfo.my_node_num
@@ -74,6 +75,7 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False, want
 
     logging.debug(
         f"Sending test wantAck={wantAck} packet from {fromNode} to {toNode}")
+    # pylint: disable=W0603
     global sendingInterface
     sendingInterface = fromInterface
     if not asBinary:
@@ -94,6 +96,7 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
     numFail = 0
     numSuccess = 0
     for _ in range(numTests):
+        # pylint: disable=W0603
         global testNumber
         testNumber = testNumber + 1
         isBroadcast = True
@@ -152,6 +155,7 @@ def testAll(numTests=5):
 
     pub.subscribe(onConnection, "meshtastic.connection")
     pub.subscribe(onReceive, "meshtastic.receive")
+    # pylint: disable=W0603
     global interfaces
     interfaces = list(map(lambda port: SerialInterface(
         port, debugOut=openDebugLog(port), connectNow=True), ports))

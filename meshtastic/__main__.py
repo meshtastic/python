@@ -40,7 +40,7 @@ def onReceive(packet, interface):
                 rxSnr = packet['rxSnr']
                 hopLimit = packet['hopLimit']
                 print(f"message: {msg}")
-                reply = "got msg \'{}\' with rxSnr: {} and hopLimit: {}".format(msg, rxSnr, hopLimit)
+                reply = f"got msg \'{msg}\' with rxSnr: {rxSnr} and hopLimit: {hopLimit}"
                 print("Sending reply: ", reply)
                 interface.sendText(reply)
 
@@ -48,7 +48,7 @@ def onReceive(packet, interface):
         print(f'Warning: There is no field {ex} in the packet.')
 
 
-def onConnection(interface, topic=pub.AUTO_TOPIC):
+def onConnection(interface, topic=pub.AUTO_TOPIC): # pylint: disable=W0613
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
 
@@ -192,7 +192,7 @@ def onConnected(interface):
 
             else:
                 print(f"Setting position fields to {allFields}")
-                setPref(prefs, 'position_flags', ('%d' % allFields))
+                setPref(prefs, 'position_flags', f'{allFields:d}')
                 print("Writing modified preferences to device")
                 interface.getNode(args.dest).writeConfig()
 

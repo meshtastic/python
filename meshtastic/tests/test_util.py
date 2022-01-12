@@ -242,6 +242,7 @@ def test_readnet_u16():
 def test_findPorts_when_none_found(patch_comports):
     """Test findPorts()"""
     assert not findPorts()
+    patch_comports.assert_called()
 
 
 @pytest.mark.unitslow

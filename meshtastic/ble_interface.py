@@ -39,7 +39,7 @@ class BLEInterface(MeshInterface):
 
         self._readFromRadio()  # read the initial responses
 
-        def handle_data(handle, data):
+        def handle_data(handle, data): # pylint: disable=W0613
             self._handleFromRadio(data)
 
         if self.device:
