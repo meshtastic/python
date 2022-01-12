@@ -132,6 +132,7 @@ def _onTextReceive(iface, asDict):
     #
     # Usually btw this problem is caused by apps sending binary data but setting the payload type to
     # text.
+    logging.debug(f'in _onTextReceive() asDict:{asDict}')
     try:
         asBytes = asDict["decoded"]["payload"]
         asDict["decoded"]["text"] = asBytes.decode("utf-8")
@@ -142,22 +143,30 @@ def _onTextReceive(iface, asDict):
 
 def _onPositionReceive(iface, asDict):
     """Special auto parsing for received messages"""
-    p = asDict["decoded"]["position"]
-    iface._fixupPosition(p)
-    # update node DB as needed
-    iface._getOrCreateByNum(asDict["from"])["position"] = p
+    logging.debug(f'in _onPositionReceive() asDict:{asDict}')
+    if 'decoded' in asDict:
+        if 'position' in asDict['decoded'] and 'from' in asDict:
+            p = asDict["decoded"]["position"]
+            logging.debug(f'p:{p}')
+            p = iface._fixupPosition(p)
+            logging.debug(f'after fixup p:{p}')
+            # update node DB as needed
+            iface._getOrCreateByNum(asDict["from"])["position"] = p
 
 
 def _onNodeInfoReceive(iface, asDict):
     """Special auto parsing for received messages"""
-    p = asDict["decoded"]["user"]
-    # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
-    # update node DB as needed
-    n = iface._getOrCreateByNum(asDict["from"])
-    n["user"] = p
-    # We now have a node ID, make sure it is uptodate in that table
-    iface.nodes[p["id"]] = n
-    _receiveInfoUpdate(iface, asDict)
+    logging.debug(f'in _onNodeInfoReceive() asDict:{asDict}')
+    if 'decoded' in asDict:
+        if 'user' in asDict['decoded'] and 'from' in asDict:
+            p = asDict["decoded"]["user"]
+            # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
+            # update node DB as needed
+            n = iface._getOrCreateByNum(asDict["from"])
+            n["user"] = p
+            # We now have a node ID, make sure it is uptodate in that table
+            iface.nodes[p["id"]] = n
+            _receiveInfoUpdate(iface, asDict)
 
 
 def _receiveInfoUpdate(iface, asDict):
