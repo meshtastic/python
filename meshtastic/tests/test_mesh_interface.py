@@ -418,6 +418,7 @@ def test_sendPacket_with_destination_as_LOCAL_ADDR_with_myInfo(caplog, reset_glo
     iface = MeshInterface(noProto=True)
     myInfo = MagicMock()
     iface.myInfo = myInfo
+    iface.myInfo.my_node_num = 1
     with caplog.at_level(logging.DEBUG):
         meshPacket = mesh_pb2.MeshPacket()
         iface._sendPacket(meshPacket, destinationId=LOCAL_ADDR)
