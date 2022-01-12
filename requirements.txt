@@ -17,4 +17,4 @@ pyyaml
 pytap2
 pdoc3
 pypubsub
-pygatt
+pygatt; platform_system == "Linux"
