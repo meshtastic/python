@@ -28,6 +28,23 @@ def test_TCPInterface(capsys):
 
 
 @pytest.mark.unit
+def test_TCPInterface_exception():
+    """Test that we can instantiate a TCPInterface"""
+
+    def throw_an_exception():
+        raise ValueError("Fake exception.")
+
+    with patch('meshtastic.tcp_interface.TCPInterface._socket_shutdown') as mock_shutdown:
+        mock_shutdown.side_effect = throw_an_exception
+        with patch('socket.socket') as mock_socket:
+            iface = TCPInterface(hostname='localhost', noProto=True)
+            iface.myConnect()
+            iface.close()
+            assert mock_socket.called
+            assert mock_shutdown.called
+
+
+@pytest.mark.unit
 def test_TCPInterface_without_connecting():
     """Test that we can instantiate a TCPInterface with connectNow as false"""
     with patch('socket.socket'):

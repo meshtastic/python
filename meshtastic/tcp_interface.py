@@ -33,6 +33,12 @@ class TCPInterface(StreamInterface):
         StreamInterface.__init__(self, debugOut=debugOut, noProto=noProto,
                                  connectNow=connectNow)
 
+    def _socket_shutdown(self):
+        """Shutdown the socket.
+           Note: Broke out this line so the exception could be unit tested.
+        """
+        self.socket.shutdown(socket.SHUT_RDWR)
+
     def myConnect(self):
         """Connect to socket"""
         server_address = (self.hostname, self.portNumber)
@@ -48,7 +54,7 @@ class TCPInterface(StreamInterface):
         self._wantExit = True
         if not self.socket is None:
             try:
-                self.socket.shutdown(socket.SHUT_RDWR)
+                self._socket_shutdown()
             except:
                 pass  # Ignore errors in shutdown, because we might have a race with the server
             self.socket.close()
