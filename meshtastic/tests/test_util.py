@@ -249,4 +249,5 @@ def test_findPorts_when_none_found(patch_comports):
 def test_convert_mac_addr():
     """Test convert_mac_addr()"""
     assert convert_mac_addr('/c0gFyhb') == 'fd:cd:20:17:28:5b'
+    assert convert_mac_addr('fd:cd:20:17:28:5b') == 'fd:cd:20:17:28:5b'
     assert convert_mac_addr('') == ''

@@ -3,6 +3,7 @@
 import traceback
 from queue import Queue
 import os
+import re
 import sys
 import base64
 import time
@@ -238,5 +239,7 @@ def convert_mac_addr(val):
        val - base64 encoded value (ex: '/c0gFyhb'))
        returns: a string formatted like a mac address (ex: 'fd:cd:20:17:28:5b')
     """
-    val_as_bytes = base64.b64decode(val)
-    return hexstr(val_as_bytes)
+    if not re.match("[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", val):
+        val_as_bytes = base64.b64decode(val)
+        return hexstr(val_as_bytes)
+    return val
