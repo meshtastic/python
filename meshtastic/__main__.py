@@ -20,7 +20,6 @@ from meshtastic import portnums_pb2, channel_pb2, radioconfig_pb2
 from meshtastic.globals import Globals
 from meshtastic.__init__ import BROADCAST_ADDR
 
-
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
     our_globals = Globals.getInstance()
@@ -56,43 +55,63 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # pylint: disable=W0613
 def getPref(attributes, name):
     """Get a channel or preferences value"""
 
+    camel_name = meshtastic.util.snake_to_camel(name)
+    # Note: protobufs has the keys in snake_case, so snake internally
+    snake_name = meshtastic.util.camel_to_snake(name)
+    logging.debug(f'snake_name:{snake_name} camel_name:{camel_name}')
+    logging.debug(f'use camel:{Globals.getInstance().get_camel_case()}')
+
     objDesc = attributes.DESCRIPTOR
-    field = objDesc.fields_by_name.get(name)
+    field = objDesc.fields_by_name.get(snake_name)
     if not field:
-        print(f"{attributes.__class__.__name__} does not have an attribute called {name}, so you can not get it.")
+        if Globals.getInstance().get_camel_case():
+            print(f"{attributes.__class__.__name__} does not have an attribute called {camel_name}, so you can not get it.")
+        else:
+            print(f"{attributes.__class__.__name__} does not have an attribute called {snake_name}, so you can not get it.")
         print(f"Choices in sorted order are:")
         names = []
         for f in objDesc.fields:
-            names.append(f'{f.name}')
+            tmp_name = f'{f.name}'
+            if Globals.getInstance().get_camel_case():
+                tmp_name = meshtastic.util.snake_to_camel(tmp_name)
+            names.append(tmp_name)
         for temp_name in sorted(names):
             print(f"    {temp_name}")
         return
 
-    # okay - try to read the value
-    try:
-        try:
-            val = getattr(attributes, name)
-        except TypeError:
-            # The getter didn't like our arg type guess try again as a string
-            val = getattr(attributes, name)
+    # read the value
+    val = getattr(attributes, snake_name)
 
-        # succeeded!
-        print(f"{name}: {str(val)}")
-    except Exception as ex:
-        print(f"Can't get {name} due to {ex}")
+    if Globals.getInstance().get_camel_case():
+        print(f"{camel_name}: {str(val)}")
+        logging.debug(f"{camel_name}: {str(val)}")
+    else:
+        print(f"{snake_name}: {str(val)}")
+        logging.debug(f"{snake_name}: {str(val)}")
 
 
 def setPref(attributes, name, valStr):
     """Set a channel or preferences value"""
 
+    snake_name = meshtastic.util.camel_to_snake(name)
+    camel_name = meshtastic.util.snake_to_camel(name)
+    logging.debug(f'snake_name:{snake_name}')
+    logging.debug(f'camel_name:{camel_name}')
+
     objDesc = attributes.DESCRIPTOR
-    field = objDesc.fields_by_name.get(name)
+    field = objDesc.fields_by_name.get(snake_name)
     if not field:
-        print(f"{attributes.__class__.__name__} does not have an attribute called {name}, so you can not set it.")
+        if Globals.getInstance().get_camel_case():
+            print(f"{attributes.__class__.__name__} does not have an attribute called {camel_name}, so you can not set it.")
+        else:
+            print(f"{attributes.__class__.__name__} does not have an attribute called {snake_name}, so you can not set it.")
         print(f"Choices in sorted order are:")
         names = []
         for f in objDesc.fields:
-            names.append(f'{f.name}')
+            tmp_name = f'{f.name}'
+            if Globals.getInstance().get_camel_case():
+                tmp_name = meshtastic.util.snake_to_camel(tmp_name)
+            names.append(tmp_name)
         for temp_name in sorted(names):
             print(f"    {temp_name}")
         return
@@ -107,27 +126,27 @@ def setPref(attributes, name, valStr):
         if e:
             val = e.number
         else:
-            print(f"{name} does not have an enum called {val}, so you can not set it.")
+            if Globals.getInstance().get_camel_case():
+                print(f"{camel_name} does not have an enum called {val}, so you can not set it.")
+            else:
+                print(f"{snake_name} does not have an enum called {val}, so you can not set it.")
             print(f"Choices in sorted order are:")
             names = []
             for f in enumType.values:
-                names.append(f'{f.name}')
+                tmp_name = f'{f.name}'
+                if Globals.getInstance().get_camel_case():
+                    tmp_name = meshtastic.util.snake_to_camel(tmp_name)
+                names.append(name)
             for temp_name in sorted(names):
                 print(f"    {temp_name}")
             return
 
-    # okay - try to read the value
-    try:
-        try:
-            setattr(attributes, name, val)
-        except TypeError:
-            # The setter didn't like our arg type guess try again as a string
-            setattr(attributes, name, valStr)
+    setattr(attributes, snake_name, val)
 
-        # succeeded!
-        print(f"Set {name} to {valStr}")
-    except Exception as ex:
-        print(f"Can't set {name} due to {ex}")
+    if Globals.getInstance().get_camel_case():
+        print(f"Set {camel_name} to {valStr}")
+    else:
+        print(f"Set {snake_name} to {valStr}")
 
 
 def onConnected(interface):
@@ -311,6 +330,10 @@ def onConnected(interface):
                     print("Setting channel url to", configuration['channel_url'])
                     interface.getNode(args.dest).setURL(configuration['channel_url'])
 
+                if 'channelUrl' in configuration:
+                    print("Setting channel url to", configuration['channelUrl'])
+                    interface.getNode(args.dest).setURL(configuration['channelUrl'])
+
                 if 'location' in configuration:
                     alt = 0
                     lat = 0.0
@@ -337,6 +360,13 @@ def onConnected(interface):
                     prefs = interface.getNode(args.dest).radioConfig.preferences
                     for pref in configuration['user_prefs']:
                         setPref(prefs, pref, str(configuration['user_prefs'][pref]))
+                    print("Writing modified preferences to device")
+                    interface.getNode(args.dest).writeConfig()
+
+                if 'userPrefs' in configuration:
+                    prefs = interface.getNode(args.dest).radioConfig.preferences
+                    for pref in configuration['userPrefs']:
+                        setPref(prefs, pref, str(configuration['userPrefs'][pref]))
                     print("Writing modified preferences to device")
                     interface.getNode(args.dest).writeConfig()
 
@@ -548,7 +578,10 @@ def export_config(interface):
     if owner:
         config += f"owner: {owner}\n\n"
     if channel_url:
-        config += f"channel_url: {channel_url}\n\n"
+        if Globals.getInstance().get_camel_case():
+            config += f"channelUrl: {channel_url}\n\n"
+        else:
+            config += f"channel_url: {channel_url}\n\n"
     if lat or lon or alt:
         config += "location:\n"
         if lat:
@@ -561,9 +594,16 @@ def export_config(interface):
     preferences = f'{interface.localNode.radioConfig.preferences}'
     prefs = preferences.splitlines()
     if prefs:
-        config += "user_prefs:\n"
+        if Globals.getInstance().get_camel_case():
+            config += "userPrefs:\n"
+        else:
+            config += "user_prefs:\n"
         for pref in prefs:
-            config += f"  {meshtastic.util.quoteBooleans(pref)}\n"
+            if Globals.getInstance().get_camel_case():
+                # Note: This may not work if the value has '_'
+                config += f"  {meshtastic.util.snake_to_camel(meshtastic.util.quoteBooleans(pref))}\n"
+            else:
+                config += f"  {meshtastic.util.quoteBooleans(pref)}\n"
     print(config)
     return config
 
@@ -692,10 +732,12 @@ def initParser():
                         action="store_true")
 
     parser.add_argument(
-        "--get", help="Get a preferences field. Use an invalid field such as '0' to get a list of all fields.", nargs=1, action='append')
+        "--get", help=("Get a preferences field. Use an invalid field such as '0' to get a list of all fields."
+                       " Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')"),
+                       nargs=1, action='append')
 
     parser.add_argument(
-        "--set", help="Set a preferences field", nargs=2, action='append')
+        "--set", help="Set a preferences field. Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')", nargs=2, action='append')
 
     parser.add_argument(
         "--seturl", help="Set a channel URL", action="store")

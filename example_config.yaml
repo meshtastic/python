@@ -1,3 +1,4 @@
+# example configuration file with snake_case keys
 owner: Bob TBeam
 
 channel_url: https://www.meshtastic.org/d/#CgUYAyIBAQ

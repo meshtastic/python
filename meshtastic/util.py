@@ -243,3 +243,17 @@ def convert_mac_addr(val):
         val_as_bytes = base64.b64decode(val)
         return hexstr(val_as_bytes)
     return val
+
+
+def snake_to_camel(a_string):
+    """convert snake_case to camelCase"""
+    # split underscore using split
+    temp = a_string.split('_')
+    # joining result
+    result = temp[0] + ''.join(ele.title() for ele in temp[1:])
+    return result
+
+
+def camel_to_snake(a_string):
+    """convert camelCase to snake_case"""
+    return ''.join(['_'+i.lower() if i.isupper() else i for i in a_string]).lstrip('_')
