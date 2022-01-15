@@ -1740,6 +1740,22 @@ def test_main_getPref_valid_field(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_getPref_valid_field_camel(capsys):
+    """Test getPref() with a valid field"""
+    Globals.getInstance().set_camel_case()
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = 'ls_secs'
+    prefs.wifi_ssid = 'foo'
+    prefs.ls_secs = 300
+    prefs.fixed_position = False
+
+    getPref(prefs, 'ls_secs')
+    out, err = capsys.readouterr()
+    assert re.search(r'lsSecs: 300', out, re.MULTILINE)
+    assert err == ''
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_getPref_valid_field_string(capsys):
     """Test getPref() with a valid field and value as a string"""
     prefs = MagicMock()
@@ -1756,6 +1772,23 @@ def test_main_getPref_valid_field_string(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_getPref_valid_field_string_camel(capsys):
+    """Test getPref() with a valid field and value as a string"""
+    Globals.getInstance().set_camel_case()
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = 'wifi_ssid'
+    prefs.wifi_ssid = 'foo'
+    prefs.ls_secs = 300
+    prefs.fixed_position = False
+
+    getPref(prefs, 'wifi_ssid')
+    out, err = capsys.readouterr()
+    assert re.search(r'wifiSsid: foo', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_getPref_valid_field_bool(capsys):
     """Test getPref() with a valid field and value as a bool"""
     prefs = MagicMock()
@@ -1767,6 +1800,23 @@ def test_main_getPref_valid_field_bool(capsys):
     getPref(prefs, 'fixed_position')
     out, err = capsys.readouterr()
     assert re.search(r'fixed_position: False', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
+def test_main_getPref_valid_field_bool_camel(capsys):
+    """Test getPref() with a valid field and value as a bool"""
+    Globals.getInstance().set_camel_case()
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = 'fixed_position'
+    prefs.wifi_ssid = 'foo'
+    prefs.ls_secs = 300
+    prefs.fixed_position = False
+
+    getPref(prefs, 'fixed_position')
+    out, err = capsys.readouterr()
+    assert re.search(r'fixedPosition: False', out, re.MULTILINE)
     assert err == ''
 
 
@@ -1804,7 +1854,40 @@ def test_main_getPref_invalid_field(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
-def test_main_setPref_valid_field_int(capsys):
+def test_main_getPref_invalid_field_camel(capsys):
+    """Test getPref() with an invalid field"""
+    Globals.getInstance().set_camel_case()
+
+    class Field:
+        """Simple class for testing."""
+
+        def __init__(self, name):
+            """constructor"""
+            self.name = name
+
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = None
+
+    # Note: This is a subset of the real fields
+    ls_secs_field = Field('ls_secs')
+    is_router = Field('is_router')
+    fixed_position = Field('fixed_position')
+
+    fields = [ ls_secs_field, is_router, fixed_position ]
+    prefs.DESCRIPTOR.fields = fields
+
+    getPref(prefs, 'foo')
+
+    out, err = capsys.readouterr()
+    assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
+    # ensure they are sorted
+    assert re.search(r'fixedPosition\s+isRouter\s+lsSecs', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
+def test_main_setPref_valid_field_int_as_string(capsys):
     """Test setPref() with a valid field"""
 
     class Field:
@@ -1854,6 +1937,38 @@ def test_main_setPref_invalid_field(capsys):
     assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
     # ensure they are sorted
     assert re.search(r'fixed_position\s+is_router\s+ls_secs', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
+def test_main_setPref_invalid_field_camel(capsys):
+    """Test setPref() with a invalid field"""
+    Globals.getInstance().set_camel_case()
+
+    class Field:
+        """Simple class for testing."""
+
+        def __init__(self, name):
+            """constructor"""
+            self.name = name
+
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = None
+
+    # Note: This is a subset of the real fields
+    ls_secs_field = Field('ls_secs')
+    is_router = Field('is_router')
+    fixed_position = Field('fixed_position')
+
+    fields = [ ls_secs_field, is_router, fixed_position ]
+    prefs.DESCRIPTOR.fields = fields
+
+    setPref(prefs, 'foo', '300')
+    out, err = capsys.readouterr()
+    assert re.search(r'does not have an attribute called foo', out, re.MULTILINE)
+    # ensure they are sorted
+    assert re.search(r'fixedPosition\s+isRouter\s+lsSecs', out, re.MULTILINE)
     assert err == ''
 
 

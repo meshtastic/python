@@ -79,26 +79,15 @@ def getPref(attributes, name):
             print(f"    {temp_name}")
         return
 
-    # okay - try to read the value
-    try:
-        try:
-            val = getattr(attributes, snake_name)
-        except TypeError:
-            # The getter didn't like our arg type guess try again as a string
-            val = getattr(attributes, snake_name)
+    # read the value
+    val = getattr(attributes, snake_name)
 
-        # succeeded!
-        if Globals.getInstance().get_camel_case():
-            print(f"{camel_name}: {str(val)}")
-            logging.debug(f"{camel_name}: {str(val)}")
-        else:
-            print(f"{snake_name}: {str(val)}")
-            logging.debug(f"{snake_name}: {str(val)}")
-    except Exception as ex:
-        if Globals.getInstance().get_camel_case():
-            print(f"Can't get {camel_name} due to {ex}")
-        else:
-            print(f"Can't get {snake_name} due to {ex}")
+    if Globals.getInstance().get_camel_case():
+        print(f"{camel_name}: {str(val)}")
+        logging.debug(f"{camel_name}: {str(val)}")
+    else:
+        print(f"{snake_name}: {str(val)}")
+        logging.debug(f"{snake_name}: {str(val)}")
 
 
 def setPref(attributes, name, valStr):
