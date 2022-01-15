@@ -369,6 +369,27 @@ def test_main_qr(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_onConnected_exception(capsys):
+    """Test the exception in onConnected"""
+    sys.argv = ['', '--qr']
+    Globals.getInstance().set_args(sys.argv)
+
+    def throw_an_exception(junk):
+        raise Exception("Fake exception.")
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
+        with patch('pyqrcode.create', side_effect=throw_an_exception):
+            with pytest.raises(Exception) as pytest_wrapped_e:
+                main()
+                out, err = capsys.readouterr()
+                assert re.search('Aborting due to: Fake exception', out, re.MULTILINE)
+                assert err == ''
+                assert pytest_wrapped_e.type == Exception
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_nodes(capsys):
     """Test --nodes"""
     sys.argv = ['', '--nodes']
