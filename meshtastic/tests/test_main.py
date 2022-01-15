@@ -783,6 +783,28 @@ def test_main_set_valid(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_set_valid_camel_case(capsys):
+    """Test --set with valid field"""
+    sys.argv = ['', '--set', 'wifi_ssid', 'foo']
+    Globals.getInstance().set_args(sys.argv)
+    Globals.getInstance().set_camel_case()
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Set wifiSsid to foo', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_set_with_invalid(capsys):
     """Test --set with invalid field"""
     sys.argv = ['', '--set', 'foo', 'foo']
@@ -809,7 +831,7 @@ def test_main_set_with_invalid(capsys):
 # TODO: write some negative --configure tests
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
-def test_main_configure(capsys):
+def test_main_configure_with_snake_case(capsys):
     """Test --configure with valid file"""
     sys.argv = ['', '--configure', 'example_config.yaml']
     Globals.getInstance().set_args(sys.argv)
@@ -832,6 +854,31 @@ def test_main_configure(capsys):
         assert err == ''
         mo.assert_called()
 
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
+def test_main_configure_with_camel_case_keys(capsys):
+    """Test --configure with valid file"""
+    sys.argv = ['', '--configure', 'exampleConfig.yaml']
+    Globals.getInstance().set_args(sys.argv)
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Setting device owner', out, re.MULTILINE)
+        assert re.search(r'Setting channel url', out, re.MULTILINE)
+        assert re.search(r'Fixing altitude', out, re.MULTILINE)
+        assert re.search(r'Fixing latitude', out, re.MULTILINE)
+        assert re.search(r'Fixing longitude', out, re.MULTILINE)
+        assert re.search(r'Writing modified preferences', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
@@ -1291,6 +1338,33 @@ def test_main_get_with_valid_values(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_get_with_valid_values_camel(capsys, caplog):
+    """Test --get with valid values (with string, number, boolean)"""
+    sys.argv = ['', '--get', 'lsSecs', '--get', 'wifiSsid', '--get', 'fixedPosition']
+    Globals.getInstance().set_args(sys.argv)
+    Globals.getInstance().set_camel_case()
+
+    with caplog.at_level(logging.DEBUG):
+        with patch('meshtastic.serial_interface.SerialInterface') as mo:
+
+            mo().getNode().radioConfig.preferences.wifi_ssid = 'foo'
+            mo().getNode().radioConfig.preferences.ls_secs = 300
+            mo().getNode().radioConfig.preferences.fixed_position = False
+
+            main()
+
+            mo.assert_called()
+
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'lsSecs: 300', out, re.MULTILINE)
+            assert re.search(r'wifiSsid: foo', out, re.MULTILINE)
+            assert re.search(r'fixedPosition: False', out, re.MULTILINE)
+            assert err == ''
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_get_with_invalid(capsys):
     """Test --get with invalid field"""
     sys.argv = ['', '--get', 'foo']
@@ -1489,6 +1563,45 @@ position_flags: 35"""
     assert re.search(r"position_broadcast_smart: 'true'", out, re.MULTILINE)
     assert re.search(r"fixed_position: 'true'", out, re.MULTILINE)
     assert re.search(r"position_flags: 35", out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
+def test_main_export_config_use_camel(capsys):
+    """Test export_config() function directly"""
+    Globals.getInstance().set_camel_case()
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        mo.getLongName.return_value = 'foo'
+        mo.localNode.getURL.return_value = 'bar'
+        mo.getMyNodeInfo().get.return_value = { 'latitudeI': 1100000000, 'longitudeI': 1200000000,
+                                                'altitude': 100, 'batteryLevel': 34, 'latitude': 110.0,
+                                                'longitude': 120.0}
+        mo.localNode.radioConfig.preferences = """phone_timeout_secs: 900
+ls_secs: 300
+position_broadcast_smart: true
+fixed_position: true
+position_flags: 35"""
+        export_config(mo)
+    out, err = capsys.readouterr()
+
+    # ensure we do not output this line
+    assert not re.search(r'Connected to radio', out, re.MULTILINE)
+
+    assert re.search(r'owner: foo', out, re.MULTILINE)
+    assert re.search(r'channelUrl: bar', out, re.MULTILINE)
+    assert re.search(r'location:', out, re.MULTILINE)
+    assert re.search(r'lat: 110.0', out, re.MULTILINE)
+    assert re.search(r'lon: 120.0', out, re.MULTILINE)
+    assert re.search(r'alt: 100', out, re.MULTILINE)
+    assert re.search(r'userPrefs:', out, re.MULTILINE)
+    assert re.search(r'phoneTimeoutSecs: 900', out, re.MULTILINE)
+    assert re.search(r'lsSecs: 300', out, re.MULTILINE)
+    # TODO: should True be capitalized here?
+    assert re.search(r"positionBroadcastSmart: 'True'", out, re.MULTILINE)
+    assert re.search(r"fixedPosition: 'True'", out, re.MULTILINE)
+    assert re.search(r"positionFlags: 35", out, re.MULTILINE)
     assert err == ''
 
 

@@ -30,6 +30,8 @@ class Globals:
         self.channel_index = None
         self.logfile = None
         self.tunnelInstance = None
+        # TODO: to migrate to camel_case for v1.3 change this value to True
+        self.camel_case = False
 
     def reset(self):
         """Reset all of our globals. If you add a member, add it to this method, too."""
@@ -38,6 +40,8 @@ class Globals:
         self.channel_index = None
         self.logfile = None
         self.tunnelInstance = None
+        # TODO: to migrate to camel_case for v1.3 change this value to True
+        self.camel_case = False
 
     # setters
     def set_args(self, args):
@@ -60,6 +64,10 @@ class Globals:
         """Set the tunnelInstance"""
         self.tunnelInstance = tunnelInstance
 
+    def set_camel_case(self):
+        """Force using camelCase for things like prefs/set/set"""
+        self.camel_case = True
+
     # getters
     def get_args(self):
         """Get args"""
@@ -80,3 +88,7 @@ class Globals:
     def get_tunnelInstance(self):
         """Get tunnelInstance"""
         return self.tunnelInstance
+
+    def get_camel_case(self):
+        """Get whether or not to use camelCase"""
+        return self.camel_case

@@ -10,7 +10,8 @@ from meshtastic.util import (fixme, stripnl, pskToString, our_exit,
                              support_info, genPSK256, fromStr, fromPSK,
                              quoteBooleans, catchAndIgnore,
                              remove_keys_from_dict, Timeout, hexstr,
-                             ipstr, readnet_u16, findPorts, convert_mac_addr)
+                             ipstr, readnet_u16, findPorts, convert_mac_addr,
+                             snake_to_camel, camel_to_snake)
 
 
 @pytest.mark.unit
@@ -251,3 +252,22 @@ def test_convert_mac_addr():
     assert convert_mac_addr('/c0gFyhb') == 'fd:cd:20:17:28:5b'
     assert convert_mac_addr('fd:cd:20:17:28:5b') == 'fd:cd:20:17:28:5b'
     assert convert_mac_addr('') == ''
+
+
+@pytest.mark.unit
+def test_snake_to_camel():
+    """Test snake_to_camel"""
+    assert snake_to_camel('') == ''
+    assert snake_to_camel('foo') == 'foo'
+    assert snake_to_camel('foo_bar') == 'fooBar'
+    assert snake_to_camel('fooBar') == 'fooBar'
+
+
+@pytest.mark.unit
+def test_camel_to_snake():
+    """Test camel_to_snake"""
+    assert camel_to_snake('') == ''
+    assert camel_to_snake('foo') == 'foo'
+    assert camel_to_snake('Foo') == 'foo'
+    assert camel_to_snake('fooBar') == 'foo_bar'
+    assert camel_to_snake('fooBarBaz') == 'foo_bar_baz'
