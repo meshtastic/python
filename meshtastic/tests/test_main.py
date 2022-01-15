@@ -805,6 +805,27 @@ def test_main_set_valid(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_set_valid_wifi_passwd(capsys):
+    """Test --set with valid field"""
+    sys.argv = ['', '--set', 'wifi_password', '123456789']
+    Globals.getInstance().set_args(sys.argv)
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Set wifi_password to 123456789', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_set_valid_camel_case(capsys):
     """Test --set with valid field"""
     sys.argv = ['', '--set', 'wifi_ssid', 'foo']

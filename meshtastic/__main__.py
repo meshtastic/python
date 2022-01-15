@@ -117,6 +117,7 @@ def setPref(attributes, name, valStr):
         return
 
     val = meshtastic.util.fromStr(valStr)
+    logging.debug(f'valStr:{valStr} val:{val}')
 
     enumType = field.enum_type
     # pylint: disable=C0123
@@ -140,8 +141,11 @@ def setPref(attributes, name, valStr):
             for temp_name in sorted(names):
                 print(f"    {temp_name}")
             return
-
-    setattr(attributes, snake_name, val)
+    try:
+        setattr(attributes, snake_name, val)
+    except TypeError:
+        # The setter didn't like our arg type guess try again as a string
+        setattr(attributes, snake_name, valStr)
 
     if Globals.getInstance().get_camel_case():
         print(f"Set {camel_name} to {valStr}")
