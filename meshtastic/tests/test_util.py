@@ -40,6 +40,7 @@ def test_fromStr():
     assert fromStr('100.01') == 100.01
     assert fromStr('123') == 123
     assert fromStr('abc') == 'abc'
+    assert fromStr('123456789') == 123456789
 
 
 @pytest.mark.unitslow
