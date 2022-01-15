@@ -141,24 +141,12 @@ def setPref(attributes, name, valStr):
                 print(f"    {temp_name}")
             return
 
-    # okay - try to read the value
-    try:
-        try:
-            setattr(attributes, snake_name, val)
-        except TypeError:
-            # The setter didn't like our arg type guess try again as a string
-            setattr(attributes, snake_name, valStr)
+    setattr(attributes, snake_name, val)
 
-        # succeeded!
-        if Globals.getInstance().get_camel_case():
-            print(f"Set {camel_name} to {valStr}")
-        else:
-            print(f"Set {snake_name} to {valStr}")
-    except Exception as ex:
-        if Globals.getInstance().get_camel_case():
-            print(f"Can't set {camel_name} due to {ex}")
-        else:
-            print(f"Can't set {snake_name} due to {ex}")
+    if Globals.getInstance().get_camel_case():
+        print(f"Set {camel_name} to {valStr}")
+    else:
+        print(f"Set {snake_name} to {valStr}")
 
 
 def onConnected(interface):
