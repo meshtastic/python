@@ -95,6 +95,8 @@ def setPref(attributes, name, valStr):
 
     snake_name = meshtastic.util.camel_to_snake(name)
     camel_name = meshtastic.util.snake_to_camel(name)
+    logging.debug(f'snake_name:{snake_name}')
+    logging.debug(f'camel_name:{camel_name}')
 
     objDesc = attributes.DESCRIPTOR
     field = objDesc.fields_by_name.get(snake_name)
@@ -125,9 +127,9 @@ def setPref(attributes, name, valStr):
             val = e.number
         else:
             if Globals.getInstance().get_camel_case():
-                print(f"{snake_name} does not have an enum called {val}, so you can not set it.")
-            else:
                 print(f"{camel_name} does not have an enum called {val}, so you can not set it.")
+            else:
+                print(f"{snake_name} does not have an enum called {val}, so you can not set it.")
             print(f"Choices in sorted order are:")
             names = []
             for f in enumType.values:
