@@ -14,3 +14,4 @@ user_prefs:
   send_owner_interval: 2
   screen_on_secs: 31536000
   wait_bluetooth_secs: 31536000
+  location_share: 'LocEnabled'

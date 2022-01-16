@@ -134,10 +134,8 @@ def setPref(attributes, name, valStr):
             print(f"Choices in sorted order are:")
             names = []
             for f in enumType.values:
-                tmp_name = f'{f.name}'
-                if Globals.getInstance().get_camel_case():
-                    tmp_name = meshtastic.util.snake_to_camel(tmp_name)
-                names.append(name)
+                # Note: We must use the value of the enum (regardless if camel or snake case)
+                names.append(f'{f.name}')
             for temp_name in sorted(names):
                 print(f"    {temp_name}")
             return
