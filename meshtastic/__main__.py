@@ -504,8 +504,6 @@ def onConnected(interface):
             closeNow = True
             print("")
             interface.getNode(args.dest).get_canned_message()
-            #if not interface.getNode(args.dest).waitForConfig('canned_message_plugin_message_part1'):
-                #our_exit("Error: Timed out waiting for get_canned_message")
 
         if args.info:
             print("")
