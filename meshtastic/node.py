@@ -23,6 +23,7 @@ class Node:
         self._timeout = Timeout(maxSecs=300)
         self.partialChannels = None
         self.noProto = noProto
+        self.cannedPluginMessage = None
 
     def showChannels(self):
         """Show human readable description of our channels."""
@@ -55,6 +56,7 @@ class Node:
         self.radioConfig = None
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
+        self.cannedPluginMessage = None
 
         self._requestSettings()
 
@@ -267,6 +269,39 @@ class Node:
             print("Note: This could take a while (it requests remote channel configs, then writes config)")
 
         return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestSettings)
+
+    # TODO: add parts 2-5
+    def onResponseRequestCannedMessagePluginMessagePart1(self, p):
+        """Handle the response packet for requesting canned message plugin message part 1"""
+        logging.debug(f'onResponseRequestCannedMessagePluginMessagePart1() p:{p}')
+        errorFound = False
+        if 'routing' in p["decoded"]:
+            if p["decoded"]["routing"]["errorReason"] != "NONE":
+                errorFound = True
+                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+        if errorFound is False:
+            self.cannedPluginMessage = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part1_response.text
+            logging.debug(f'self.cannedPluginMessage:{self.cannedPluginMessage}')
+
+
+    def _requestCannedMessagePluginMessagePart1(self):
+        """Get part 1 of the canned message plugin."""
+        p = admin_pb2.AdminMessage()
+        p.get_canned_message_plugin_part1 = True
+        return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestCannedMessagePluginMessagePart1)
+
+    # TODO: get parts 2-5
+    def get_canned_message(self):
+        """Get the canned message. Concatenate all pieces and return a single string."""
+        self._requestCannedMessagePluginMessagePart1()
+
+    # TODO: set parts 2-5
+    def set_canned_message(self, message):
+        """Set the canned message. Might need to split into parts of 200 chars each."""
+        p = admin_pb2.AdminMessage()
+        p.set_canned_message_part1 = message
+        logging.info(f"Setting canned message part 1")
+        return self._sendAdmin(p)
 
     def exitSimulator(self):
         """Tell a simulator node to exit (this message
