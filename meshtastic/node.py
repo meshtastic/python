@@ -66,9 +66,9 @@ class Node:
         print("Writing modified channels to device")
         self.writeChannel(0)
 
-    def waitForConfig(self):
+    def waitForConfig(self, attribute='channels'):
         """Block until radio config is received. Returns True if config has been received."""
-        return self._timeout.waitForSet(self, attrs=('radioConfig', 'channels'))
+        return self._timeout.waitForSet(self, attrs=('radioConfig', attribute))
 
     def writeConfig(self):
         """Write the current (edited) radioConfig to the device"""
@@ -273,6 +273,7 @@ class Node:
     # TODO: add parts 2-5
     def onResponseRequestCannedMessagePluginMessagePart1(self, p):
         """Handle the response packet for requesting canned message plugin message part 1"""
+        print(f'mike in onResponseRequestCannedMessagePluginMessagePart1 p:{p}')
         logging.debug(f'onResponseRequestCannedMessagePluginMessagePart1() p:{p}')
         errorFound = False
         if 'routing' in p["decoded"]:
@@ -281,25 +282,22 @@ class Node:
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
         if errorFound is False:
             self.cannedPluginMessage = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part1_response.text
+            print(f'mike self.cannedPluginMessage:{self.cannedPluginMessage}')
             logging.debug(f'self.cannedPluginMessage:{self.cannedPluginMessage}')
-
-
-    def _requestCannedMessagePluginMessagePart1(self):
-        """Get part 1 of the canned message plugin."""
-        p = admin_pb2.AdminMessage()
-        p.get_canned_message_plugin_part1 = True
-        return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestCannedMessagePluginMessagePart1)
 
     # TODO: get parts 2-5
     def get_canned_message(self):
-        """Get the canned message. Concatenate all pieces and return a single string."""
-        self._requestCannedMessagePluginMessagePart1()
+        """Get the canned message. TODO: Concatenate all pieces and return a single string."""
+        p = admin_pb2.AdminMessage()
+        p.get_canned_message_plugin_part1_request = True
+        print(f'mike p:{p}')
+        return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestCannedMessagePluginMessagePart1)
 
     # TODO: set parts 2-5
     def set_canned_message(self, message):
-        """Set the canned message. Might need to split into parts of 200 chars each."""
+        """Set the canned message. TODO: Might need to split into parts of 200 chars each."""
         p = admin_pb2.AdminMessage()
-        p.set_canned_message_part1 = message
+        p.set_canned_message_plugin_part1 = message
         logging.info(f"Setting canned message part 1")
         return self._sendAdmin(p)
 
@@ -382,6 +380,8 @@ class Node:
             logging.debug(f"Requesting channel {channelNum} info from remote node (this could take a while)")
         else:
             logging.debug(f"Requesting channel {channelNum}")
+
+        print(f'mike _requestChannel p:{p}')
 
         return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestChannel)
 
