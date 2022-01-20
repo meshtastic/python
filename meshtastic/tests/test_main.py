@@ -427,6 +427,43 @@ def test_main_set_owner_to_bob(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_set_canned_messages(capsys):
+    """Test --set-canned-message """
+    sys.argv = ['', '--set-canned-message', 'foo']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Setting canned plugin message to foo', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
+def test_main_get_canned_messages(capsys, caplog, iface_with_nodes):
+    """Test --get-canned-message """
+    sys.argv = ['', '--get-canned-message']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = iface_with_nodes
+    iface.localNode.cannedPluginMessage = 'foo'
+
+    with caplog.at_level(logging.DEBUG):
+        with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+            main()
+            out, err = capsys.readouterr()
+            assert re.search(r'Connected to radio', out, re.MULTILINE)
+            assert re.search(r'canned_plugin_message:foo', out, re.MULTILINE)
+            assert err == ''
+            mo.assert_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_set_ham_to_KI123(capsys):
     """Test --set-ham KI123"""
     sys.argv = ['', '--set-ham', 'KI123']

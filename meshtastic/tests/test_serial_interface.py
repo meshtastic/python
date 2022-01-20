@@ -1,4 +1,13 @@
-"""Meshtastic unit tests for serial_interface.py"""
+"""Meshtastic unit tests for serial_interface.py
+
+Note:
+ If you get a pylint warning like this:
+    meshtastic/serial_interface.py:45:24: I1101: Module 'termios' has no 'tcgetattr' member, but source is unavailable.
+    Consider adding this module to extension-pkg-allow-list if you want to perform analysis based on
+    run-time introspection of living objects. (c-extension-no-member)
+ then you need to "pip install -r requirements.txt"
+
+"""
 
 import re
 

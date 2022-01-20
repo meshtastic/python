@@ -348,6 +348,7 @@ class Node:
 
     def get_canned_message(self):
         """Get the canned message string. Concatenate all pieces together and return a single string."""
+        logging.debug(f'in get_canned_message()')
         if not self.cannedPluginMessage:
 
             p1 = admin_pb2.AdminMessage()
@@ -374,19 +375,27 @@ class Node:
             # all requests are complete? Perhaps change to a while loop any parts are None... maybe?
             time.sleep(1)
 
-            self.cannedPluginMessage = (self.cannedPluginMessagePart1 +
-                                        self.cannedPluginMessagePart2 +
-                                        self.cannedPluginMessagePart3 +
-                                        self.cannedPluginMessagePart4 +
-                                        self.cannedPluginMessagePart5)
+            self.cannedPluginMessage = ""
+            if self.cannedPluginMessagePart1:
+                self.cannedPluginMessage += self.cannedPluginMessagePart1
+            if self.cannedPluginMessagePart2:
+                self.cannedPluginMessage += self.cannedPluginMessagePart2
+            if self.cannedPluginMessagePart3:
+                self.cannedPluginMessage += self.cannedPluginMessagePart3
+            if self.cannedPluginMessagePart4:
+                self.cannedPluginMessage += self.cannedPluginMessagePart4
+            if self.cannedPluginMessagePart5:
+                self.cannedPluginMessage += self.cannedPluginMessagePart5
 
         print(f'canned_plugin_message:{self.cannedPluginMessage}')
+        logging.debug(f'canned_plugin_message:{self.cannedPluginMessage}')
         return self.cannedPluginMessage
 
     def set_canned_message(self, message):
         """Set the canned message. Split into parts of 200 chars each."""
 
-        # TODO what if over 1000?
+        if len(message) > 1000:
+            our_exit("Warning: The canned message must be less than 1,000 characters.")
 
         # split into chunks
         chunks = []
