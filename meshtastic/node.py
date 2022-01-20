@@ -255,7 +255,7 @@ class Node:
         """Handle the response packet for requesting settings _requestSettings()"""
         logging.debug(f'onResponseRequestSetting() p:{p}')
         errorFound = False
-        if 'routing' in p["decoded"]:
+        if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
@@ -289,20 +289,22 @@ class Node:
     def onResponseRequestCannedMessagePluginMessagePart1(self, p):
         """Handle the response packet for requesting canned message plugin message part 1"""
         logging.debug(f'onResponseRequestCannedMessagePluginMessagePart1() p:{p}')
+        print(f'MIKE onResponseRequestCannedMessagePluginMessagePart1() p:{p}')
         errorFound = False
-        if 'routing' in p["decoded"]:
+        if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
         if errorFound is False:
             self.cannedPluginMessagePart1 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part1_response.text
+            print(f'MIKE *** self.cannedPluginMessagePart1:{self.cannedPluginMessagePart1}')
             logging.debug(f'self.cannedPluginMessagePart1:{self.cannedPluginMessagePart1}')
 
     def onResponseRequestCannedMessagePluginMessagePart2(self, p):
         """Handle the response packet for requesting canned message plugin message part 2"""
         logging.debug(f'onResponseRequestCannedMessagePluginMessagePart2() p:{p}')
         errorFound = False
-        if 'routing' in p["decoded"]:
+        if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
@@ -314,7 +316,7 @@ class Node:
         """Handle the response packet for requesting canned message plugin message part 3"""
         logging.debug(f'onResponseRequestCannedMessagePluginMessagePart3() p:{p}')
         errorFound = False
-        if 'routing' in p["decoded"]:
+        if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
@@ -326,7 +328,7 @@ class Node:
         """Handle the response packet for requesting canned message plugin message part 4"""
         logging.debug(f'onResponseRequestCannedMessagePluginMessagePart4() p:{p}')
         errorFound = False
-        if 'routing' in p["decoded"]:
+        if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
@@ -338,7 +340,7 @@ class Node:
         """Handle the response packet for requesting canned message plugin message part 5"""
         logging.debug(f'onResponseRequestCannedMessagePluginMessagePart5() p:{p}')
         errorFound = False
-        if 'routing' in p["decoded"]:
+        if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
@@ -374,6 +376,12 @@ class Node:
             # TODO: This feels wrong to have a sleep here. Is there a way to ensure that
             # all requests are complete? Perhaps change to a while loop any parts are None... maybe?
             time.sleep(1)
+
+            logging.debug(f'self.cannedPluginMessagePart1:{self.cannedPluginMessagePart1}')
+            logging.debug(f'self.cannedPluginMessagePart2:{self.cannedPluginMessagePart2}')
+            logging.debug(f'self.cannedPluginMessagePart3:{self.cannedPluginMessagePart3}')
+            logging.debug(f'self.cannedPluginMessagePart4:{self.cannedPluginMessagePart4}')
+            logging.debug(f'self.cannedPluginMessagePart5:{self.cannedPluginMessagePart5}')
 
             self.cannedPluginMessage = ""
             if self.cannedPluginMessagePart1:
