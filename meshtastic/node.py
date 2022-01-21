@@ -289,16 +289,17 @@ class Node:
     def onResponseRequestCannedMessagePluginMessagePart1(self, p):
         """Handle the response packet for requesting canned message plugin message part 1"""
         logging.debug(f'onResponseRequestCannedMessagePluginMessagePart1() p:{p}')
-        print(f'MIKE onResponseRequestCannedMessagePluginMessagePart1() p:{p}')
         errorFound = False
         if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
         if errorFound is False:
-            self.cannedPluginMessagePart1 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part1_response.text
-            print(f'MIKE *** self.cannedPluginMessagePart1:{self.cannedPluginMessagePart1}')
-            logging.debug(f'self.cannedPluginMessagePart1:{self.cannedPluginMessagePart1}')
+            if "decoded" in p:
+                if "admin" in p["decoded"]:
+                    if "raw" in p["decoded"]["admin"]:
+                        self.cannedPluginMessagePart1 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part1_response.text
+                        logging.debug(f'self.cannedPluginMessagePart1:{self.cannedPluginMessagePart1}')
 
     def onResponseRequestCannedMessagePluginMessagePart2(self, p):
         """Handle the response packet for requesting canned message plugin message part 2"""
@@ -309,8 +310,11 @@ class Node:
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
         if errorFound is False:
-            self.cannedPluginMessagePart2 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part2_response.text
-            logging.debug(f'self.cannedPluginMessagePart2:{self.cannedPluginMessagePart2}')
+            if "decoded" in p:
+                if "admin" in p["decoded"]:
+                    if "raw" in p["decoded"]["admin"]:
+                        self.cannedPluginMessagePart2 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part2_response.text
+                        logging.debug(f'self.cannedPluginMessagePart2:{self.cannedPluginMessagePart2}')
 
     def onResponseRequestCannedMessagePluginMessagePart3(self, p):
         """Handle the response packet for requesting canned message plugin message part 3"""
@@ -321,8 +325,11 @@ class Node:
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
         if errorFound is False:
-            self.cannedPluginMessagePart3 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part3_response.text
-            logging.debug(f'self.cannedPluginMessagePart3:{self.cannedPluginMessagePart3}')
+            if "decoded" in p:
+                if "admin" in p["decoded"]:
+                    if "raw" in p["decoded"]["admin"]:
+                        self.cannedPluginMessagePart3 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part3_response.text
+                        logging.debug(f'self.cannedPluginMessagePart3:{self.cannedPluginMessagePart3}')
 
     def onResponseRequestCannedMessagePluginMessagePart4(self, p):
         """Handle the response packet for requesting canned message plugin message part 4"""
@@ -333,8 +340,11 @@ class Node:
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
         if errorFound is False:
-            self.cannedPluginMessagePart4 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part4_response.text
-            logging.debug(f'self.cannedPluginMessagePart4:{self.cannedPluginMessagePart4}')
+            if "decoded" in p:
+                if "admin" in p["decoded"]:
+                    if "raw" in p["decoded"]["admin"]:
+                        self.cannedPluginMessagePart4 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part4_response.text
+                        logging.debug(f'self.cannedPluginMessagePart4:{self.cannedPluginMessagePart4}')
 
     def onResponseRequestCannedMessagePluginMessagePart5(self, p):
         """Handle the response packet for requesting canned message plugin message part 5"""
@@ -345,8 +355,11 @@ class Node:
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
         if errorFound is False:
-            self.cannedPluginMessagePart5 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part5_response.text
-            logging.debug(f'self.cannedPluginMessagePart5:{self.cannedPluginMessagePart5}')
+            if "decoded" in p:
+                if "admin" in p["decoded"]:
+                    if "raw" in p["decoded"]["admin"]:
+                        self.cannedPluginMessagePart5 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part5_response.text
+                        logging.debug(f'self.cannedPluginMessagePart5:{self.cannedPluginMessagePart5}')
 
     def get_canned_message(self):
         """Get the canned message string. Concatenate all pieces together and return a single string."""
