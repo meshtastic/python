@@ -99,6 +99,21 @@ def test_node_set_canned_message_one_part(caplog):
 
 
 @pytest.mark.unit
+def test_node_set_canned_message_199(caplog):
+    """Test run set_canned_message() 199 characters long"""
+    iface = MagicMock(autospec=SerialInterface)
+    amesg = MagicMock(autospec=AdminMessage)
+    with caplog.at_level(logging.DEBUG):
+        with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+            with patch('meshtastic.admin_pb2.AdminMessage', return_value=amesg):
+                anode = Node(mo, 'bar')
+                message_199_chars_long = 'a' * 199
+                anode.set_canned_message(message_199_chars_long)
+    assert re.search(r" part 1", caplog.text, re.MULTILINE)
+    assert not re.search(r"Setting canned message '' part 2", caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
 def test_node_set_canned_message_200(caplog):
     """Test run set_canned_message() 200 characters long"""
     iface = MagicMock(autospec=SerialInterface)
@@ -110,35 +125,20 @@ def test_node_set_canned_message_200(caplog):
                 message_200_chars_long = 'a' * 200
                 anode.set_canned_message(message_200_chars_long)
     assert re.search(r" part 1", caplog.text, re.MULTILINE)
-    assert not re.search(r"Setting canned message '' part 2", caplog.text, re.MULTILINE)
-
-
-@pytest.mark.unit
-def test_node_set_canned_message_201(caplog):
-    """Test run set_canned_message() 201 characters long"""
-    iface = MagicMock(autospec=SerialInterface)
-    amesg = MagicMock(autospec=AdminMessage)
-    with caplog.at_level(logging.DEBUG):
-        with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-            with patch('meshtastic.admin_pb2.AdminMessage', return_value=amesg):
-                anode = Node(mo, 'bar')
-                message_201_chars_long = 'a' * 201
-                anode.set_canned_message(message_201_chars_long)
-    assert re.search(r" part 1", caplog.text, re.MULTILINE)
     assert re.search(r"Setting canned message 'a' part 2", caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
-def test_node_set_canned_message_1000(caplog):
-    """Test run set_canned_message() 1000 characters long"""
+def test_node_set_canned_message_995(caplog):
+    """Test run set_canned_message() 995 characters long"""
     iface = MagicMock(autospec=SerialInterface)
     amesg = MagicMock(autospec=AdminMessage)
     with caplog.at_level(logging.DEBUG):
         with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
             with patch('meshtastic.admin_pb2.AdminMessage', return_value=amesg):
                 anode = Node(mo, 'bar')
-                message_1000_chars_long = 'a' * 1000
-                anode.set_canned_message(message_1000_chars_long)
+                message_995_chars_long = 'a' * 995
+                anode.set_canned_message(message_995_chars_long)
     assert re.search(r" part 1", caplog.text, re.MULTILINE)
     assert re.search(r" part 2", caplog.text, re.MULTILINE)
     assert re.search(r" part 3", caplog.text, re.MULTILINE)
@@ -147,14 +147,14 @@ def test_node_set_canned_message_1000(caplog):
 
 
 @pytest.mark.unit
-def test_node_set_canned_message_1001(capsys):
-    """Test run set_canned_message() 1001 characters long"""
+def test_node_set_canned_message_996(capsys):
+    """Test run set_canned_message() 996 characters long"""
     iface = MagicMock(autospec=SerialInterface)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
             anode = Node(mo, 'bar')
-            message_1001_chars_long = 'a' * 1001
-            anode.set_canned_message(message_1001_chars_long)
+            message_996_chars_long = 'a' * 996
+            anode.set_canned_message(message_996_chars_long)
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()

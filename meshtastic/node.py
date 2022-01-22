@@ -413,14 +413,14 @@ class Node:
         return self.cannedPluginMessage
 
     def set_canned_message(self, message):
-        """Set the canned message. Split into parts of 200 chars each."""
+        """Set the canned message. Split into parts of 199 chars each."""
 
-        if len(message) > 1000:
-            our_exit("Warning: The canned message must be less than 1,000 characters.")
+        if len(message) > 995:
+            our_exit("Warning: The canned message must be less than 995 characters.")
 
         # split into chunks
         chunks = []
-        chunks_size = 200
+        chunks_size = 199
         for i in range(0, len(message), chunks_size):
             chunks.append(message[i: i + chunks_size])
 
