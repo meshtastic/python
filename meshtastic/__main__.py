@@ -252,6 +252,10 @@ def onConnected(interface):
             closeNow = True
             interface.getNode(args.dest).reboot()
 
+        if args.shutdown:
+            closeNow = True
+            interface.getNode(args.dest).shutdown()
+
         if args.sendtext:
             closeNow = True
             channelIndex = 0
@@ -802,6 +806,9 @@ def initParser():
 
     parser.add_argument(
         "--reboot", help="Tell the destination node to reboot", action="store_true")
+
+    parser.add_argument(
+        "--shutdown", help="Tell the destination node to shutdown", action="store_true")
 
     parser.add_argument(
         "--reply", help="Reply to received messages",
