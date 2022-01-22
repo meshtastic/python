@@ -461,6 +461,14 @@ class Node:
 
         return self._sendAdmin(p)
 
+    def shutdown(self, secs: int = 10):
+        """Tell the node to shutdown."""
+        p = admin_pb2.AdminMessage()
+        p.shutdown_seconds = secs
+        logging.info(f"Telling node to shutdown in {secs} seconds")
+
+        return self._sendAdmin(p)
+
     def _fixupChannels(self):
         """Fixup indexes and add disabled channels as needed"""
 

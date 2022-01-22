@@ -517,6 +517,30 @@ def test_main_reboot(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_shutdown(capsys):
+    """Test --shutdown"""
+    sys.argv = ['', '--shutdown']
+    Globals.getInstance().set_args(sys.argv)
+
+    mocked_node = MagicMock(autospec=Node)
+    def mock_shutdown():
+        print('inside mocked shutdown')
+    mocked_node.shutdown.side_effect = mock_shutdown
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'inside mocked shutdown', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_sendtext(capsys):
     """Test --sendtext"""
     sys.argv = ['', '--sendtext', 'hello']
