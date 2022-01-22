@@ -237,6 +237,7 @@ def test_reboot(caplog):
         anode.reboot()
     assert re.search(r'Telling node to reboot', caplog.text, re.MULTILINE)
 
+
 @pytest.mark.unit
 def test_shutdown(caplog):
     """Test shutdown"""
