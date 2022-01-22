@@ -237,6 +237,14 @@ def test_reboot(caplog):
         anode.reboot()
     assert re.search(r'Telling node to reboot', caplog.text, re.MULTILINE)
 
+@pytest.mark.unit
+def test_shutdown(caplog):
+    """Test shutdown"""
+    anode = Node('foo', 'bar', noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        anode.shutdown()
+    assert re.search(r'Telling node to shutdown', caplog.text, re.MULTILINE)
+
 
 @pytest.mark.unit
 def test_setURL_empty_url(capsys):
