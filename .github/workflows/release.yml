@@ -71,15 +71,7 @@ jobs:
   build-and-publish-mac:
     runs-on: macos-latest
     needs: release_create
-    steps:     
-
-      - name: get upload_url
-        id: get_upload_url
-        uses: noobly314/share-data@v1
-        with:
-          share-id: release_url
-          mode: get
-          key: url
+    steps:
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -110,7 +102,15 @@ jobs:
           pip install -r requirements.txt
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic --codesign-identity "$MACOS_SIGNING_IDENTITY" meshtastic/__main__.py
-    
+  
+      - name: get upload_url
+        id: get_upload_url
+        uses: noobly314/share-data@v1
+        with:
+          share-id: release_url
+          mode: get
+          key: url
+  
       - name: Add mac to release
         uses: actions/upload-release-asset@v1
         env:
@@ -125,14 +125,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: release_create
     steps:
-    
-      - name: get upload_url
-        id: get_upload_url
-        uses: noobly314/share-data@v1
-        with:
-          share-id: release_url
-          mode: get
-          key: url
           
       - name: Checkout
         uses: actions/checkout@v2
@@ -149,6 +141,14 @@ jobs:
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic meshtastic/__main__.py
   
+      - name: get upload_url
+        id: get_upload_url
+        uses: noobly314/share-data@v1
+        with:
+          share-id: release_url
+          mode: get
+          key: url
+  
       - name: Add ubuntu to release
         uses: actions/upload-release-asset@v1
         env:
@@ -164,14 +164,6 @@ jobs:
     needs: release_create
     steps:
 
-      - name: get upload_url
-        id: get_upload_url
-        uses: noobly314/share-data@v1
-        with:
-          share-id: release_url
-          mode: get
-          key: url
-          
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -186,6 +178,14 @@ jobs:
           pip install -r requirements.txt
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic meshtastic/__main__.py
+
+      - name: get upload_url
+        id: get_upload_url
+        uses: noobly314/share-data@v1
+        with:
+          share-id: release_url
+          mode: get
+          key: url
 
       - name: Add windows to release
         uses: actions/upload-release-asset@v1
