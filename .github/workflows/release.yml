@@ -93,6 +93,11 @@ jobs:
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic --codesign-identity "$MACOS_SIGNING_IDENTITY" meshtastic/__main__.py
           
+      - uses: actions/upload-artifact@v2
+        with:
+          name: meshtastic_mac
+          path: dist          
+          
       - name: Add mac to release
         uses: actions/upload-release-asset@v1
         env:
@@ -121,6 +126,11 @@ jobs:
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic meshtastic/__main__.py
           
+      - uses: actions/upload-artifact@v2
+        with:
+          name: meshtastic_ubuntu
+          path: dist          
+          
       - name: Add ubuntu to release
         uses: actions/upload-release-asset@v1
         env:
@@ -148,6 +158,11 @@ jobs:
           pip install -r requirements.txt
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic meshtastic/__main__.py
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: meshtastic_windows
+          path: dist
           
       - name: Add windows to release
         uses: actions/upload-release-asset@v1
