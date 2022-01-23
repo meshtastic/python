@@ -341,6 +341,10 @@ def onConnected(interface):
                     print(f"Setting device owner short to {configuration['owner_short']}")
                     interface.getNode(args.dest).setOwner(long_name=None, short_owner=configuration['owner_short'])
 
+                if 'ownerShort' in configuration:
+                    print(f"Setting device owner short to {configuration['ownerShort']}")
+                    interface.getNode(args.dest).setOwner(long_name=None, short_owner=configuration['ownerShort'])
+
                 if 'channel_url' in configuration:
                     print("Setting channel url to", configuration['channel_url'])
                     interface.getNode(args.dest).setURL(configuration['channel_url'])
