@@ -15,6 +15,17 @@ jobs:
         run: |
           git pull --recurse-submodules
           git submodule update --remote --recursive
+          
+      - name: Download nanopb
+        run: |
+          wget https://jpa.kapsi.fi/nanopb/download/nanopb-0.4.4-linux-x86.tar.gz
+          tar xvzf nanopb-0.4.4-linux-x86.tar.gz
+          mv nanopb-0.4.4-linux-x86 nanopb-0.4.4
+          
+      - name: Re-generate protocol buffers
+        run: |
+          ./bin/regen-protos.sh  
+          
       - name: Commit update
         run: |
           git config --global user.name 'github-actions'
