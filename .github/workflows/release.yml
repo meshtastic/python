@@ -104,7 +104,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.release_create.outputs.upload_url }}
-          asset_path: dist/meshtastic_mac
+          asset_path: dist/meshtastic
           asset_name: meshtastic_mac
           asset_content_type: application/zip
   
@@ -134,7 +134,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.release_create.outputs.upload_url }}
-          asset_path: dist/meshtastic_ubuntu
+          asset_path: dist/meshtastic
           asset_name: meshtastic_ubuntu
           asset_content_type: application/zip
 
@@ -164,6 +164,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.release_create.outputs.upload_url }}
-          asset_path: dist/meshtastic_windows
+          asset_path: dist/meshtastic.exe
           asset_name: meshtastic_windows
           asset_content_type: application/zip
