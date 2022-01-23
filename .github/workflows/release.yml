@@ -7,12 +7,11 @@ on:
         required: true
         default: '1.0.0'
 
-
-on: workflow_dispatch
-
 jobs:
 
-  Create_Release:
+  release_build:
+    runs-on: ubuntu-latest
+    steps:
 
     - name: Create GitHub release
       uses: actions/create-release@v1
@@ -29,7 +28,6 @@ jobs:
 
   Publish_to_PyPI:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -64,7 +62,6 @@ jobs:
 
   build-and-publish-mac:
     runs-on: macos-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -102,7 +99,6 @@ jobs:
 
   build-and-publish-ubuntu:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -126,7 +122,6 @@ jobs:
 
   build-and-publish-windows:
     runs-on: windows-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
