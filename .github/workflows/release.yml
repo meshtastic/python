@@ -26,7 +26,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  Publish_to_PyPI:
+  publish_to_pypi:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -92,18 +92,13 @@ jobs:
           pip install -r requirements.txt
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic --codesign-identity "$MACOS_SIGNING_IDENTITY" meshtastic/__main__.py
-          
-      - uses: actions/upload-artifact@v2
-        with:
-          name: meshtastic_mac
-          path: dist          
-          
+        
       - name: Add mac to release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ jobs.create_release.outputs.upload_url }}
           asset_path: dist/meshtastic_mac
           asset_name: meshtastic_mac
           asset_content_type: application/zip    
@@ -125,18 +120,13 @@ jobs:
           pip install -r requirements.txt
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic meshtastic/__main__.py
-          
-      - uses: actions/upload-artifact@v2
-        with:
-          name: meshtastic_ubuntu
-          path: dist          
-          
+  
       - name: Add ubuntu to release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ jobs.create_release.outputs.upload_url }}
           asset_path: dist/meshtastic_ubuntu
           asset_name: meshtastic_ubuntu
           asset_content_type: application/zip    
@@ -158,18 +148,13 @@ jobs:
           pip install -r requirements.txt
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic meshtastic/__main__.py
-          
-      - uses: actions/upload-artifact@v2
-        with:
-          name: meshtastic_windows
-          path: dist
-          
+
       - name: Add windows to release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ jobs.create_release.outputs.upload_url }}
           asset_path: dist/meshtastic_windows
           asset_name: meshtastic_windows
           asset_content_type: application/zip           
