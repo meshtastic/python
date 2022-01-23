@@ -92,10 +92,16 @@ jobs:
           pip install -r requirements.txt
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic --codesign-identity "$MACOS_SIGNING_IDENTITY" meshtastic/__main__.py
-      - uses: actions/upload-artifact@v2
+          
+      - name: Add mac to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: meshtastic_mac
-          path: dist
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/meshtastic_mac
+          asset_name: meshtastic_mac
+          asset_content_type: application/zip    
 
   build-and-publish-ubuntu:
     runs-on: ubuntu-latest
@@ -114,11 +120,16 @@ jobs:
           pip install -r requirements.txt
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic meshtastic/__main__.py
-      - uses: actions/upload-artifact@v2
+          
+      - name: Add ubuntu to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: meshtastic_ubuntu
-          path: dist
-
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/meshtastic_ubuntu
+          asset_name: meshtastic_ubuntu
+          asset_content_type: application/zip    
 
   build-and-publish-windows:
     runs-on: windows-latest
@@ -137,7 +148,13 @@ jobs:
           pip install -r requirements.txt
           pip install .
           pyinstaller -F -n meshtastic --collect-all meshtastic meshtastic/__main__.py
-      - uses: actions/upload-artifact@v2
+          
+      - name: Add windows to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: meshtastic_windows
-          path: dist
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/meshtastic_windows
+          asset_name: meshtastic_windows
+          asset_content_type: application/zip           
