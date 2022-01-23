@@ -26,16 +26,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Add readme.txt to release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: standalone_readme.txt
-        asset_name: readme.txt
-        asset_content_type: text/plain
-
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
 
@@ -147,6 +137,16 @@ jobs:
           asset_path: dist/meshtastic
           asset_name: meshtastic_ubuntu
           asset_content_type: application/zip
+          
+      - name: Add readme.txt to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release_create.outputs.upload_url }}
+          asset_path: standalone_readme.txt
+          asset_name: readme.txt
+          asset_content_type: text/plain          
 
   build-and-publish-windows:
     runs-on: windows-latest
