@@ -427,6 +427,23 @@ def test_main_set_owner_to_bob(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_set_owner_short_to_bob(capsys):
+    """Test --set-owner-short bob"""
+    sys.argv = ['', '--set-owner-short', 'bob']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Setting device owner short to bob', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_set_ham_to_KI123(capsys):
     """Test --set-ham KI123"""
     sys.argv = ['', '--set-ham', 'KI123']
