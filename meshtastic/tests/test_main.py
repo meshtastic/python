@@ -427,6 +427,23 @@ def test_main_set_owner_to_bob(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_set_owner_short_to_bob(capsys):
+    """Test --set-owner-short bob"""
+    sys.argv = ['', '--set-owner-short', 'bob']
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert re.search(r'Setting device owner short to bob', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_set_ham_to_KI123(capsys):
     """Test --set-ham KI123"""
     sys.argv = ['', '--set-ham', 'KI123']
@@ -913,6 +930,7 @@ def test_main_configure_with_snake_case(capsys):
         out, err = capsys.readouterr()
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Setting device owner', out, re.MULTILINE)
+        assert re.search(r'Setting device owner short', out, re.MULTILINE)
         assert re.search(r'Setting channel url', out, re.MULTILINE)
         assert re.search(r'Fixing altitude', out, re.MULTILINE)
         assert re.search(r'Fixing latitude', out, re.MULTILINE)
@@ -940,6 +958,7 @@ def test_main_configure_with_camel_case_keys(capsys):
         out, err = capsys.readouterr()
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Setting device owner', out, re.MULTILINE)
+        assert re.search(r'Setting device owner short', out, re.MULTILINE)
         assert re.search(r'Setting channel url', out, re.MULTILINE)
         assert re.search(r'Fixing altitude', out, re.MULTILINE)
         assert re.search(r'Fixing latitude', out, re.MULTILINE)
@@ -1604,6 +1623,7 @@ def test_main_export_config(capsys):
     iface = MagicMock(autospec=SerialInterface)
     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
         mo.getLongName.return_value = 'foo'
+        mo.getShortName.return_value = 'oof'
         mo.localNode.getURL.return_value = 'bar'
         mo.getMyNodeInfo().get.return_value = { 'latitudeI': 1100000000, 'longitudeI': 1200000000,
                                                 'altitude': 100, 'batteryLevel': 34, 'latitude': 110.0,
@@ -1620,6 +1640,7 @@ position_flags: 35"""
     assert not re.search(r'Connected to radio', out, re.MULTILINE)
 
     assert re.search(r'owner: foo', out, re.MULTILINE)
+    assert re.search(r'owner_short: oof', out, re.MULTILINE)
     assert re.search(r'channel_url: bar', out, re.MULTILINE)
     assert re.search(r'location:', out, re.MULTILINE)
     assert re.search(r'lat: 110.0', out, re.MULTILINE)
