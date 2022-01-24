@@ -804,29 +804,13 @@ def initParser():
 
     parser.add_argument("--ch-shortfast", help="Change to the short-range and fast channel", action='store_true')
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     parser.add_argument("--set-owner", help="Set device owner name", action="store")
 
+    parser.add_argument("--set-owner-short", help="Set device owner short name", action="store")
+
     parser.add_argument("--set-canned-message", help="Set the canned messages plugin message (up to 1000 characters).", action="store")
-=======
-=======
->>>>>>> upstream/master
-    parser.add_argument(
-        "--set-owner", help="Set device owner name", action="store")
->>>>>>> aa5af53 (add option to configure just the owner short name)
 
-    parser.add_argument(
-        "--set-owner-short", help="Set device owner short name", action="store")
-<<<<<<< HEAD
-=======
-
-    parser.add_argument(
-        "--set-team", help="Set team affiliation (an invalid team will list valid values)", action="store")
->>>>>>> upstream/master
-
-    parser.add_argument(
-        "--set-team", help="Set team affiliation (an invalid team will list valid values)", action="store")
+    parser.add_argument("--set-team", help="Set team affiliation (an invalid team will list valid values)", action="store")
 
     parser.add_argument("--set-ham", help="Set licensed Ham ID and turn off encryption", action="store")
 
