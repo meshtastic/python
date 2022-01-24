@@ -175,6 +175,15 @@ def test_setOwner_and_team(caplog):
 
 
 @pytest.mark.unit
+def test_setOwnerShort(caplog):
+    """Test setOwner"""
+    anode = Node('foo', 'bar', noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        anode.setOwner(long_name=None, short_name='123')
+    assert re.search(r'p.set_owner.short_name:123:', caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
 def test_setOwner_no_short_name(caplog):
     """Test setOwner"""
     anode = Node('foo', 'bar', noProto=True)

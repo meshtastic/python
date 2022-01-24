@@ -195,6 +195,11 @@ def onConnected(interface):
             print(f"Setting device owner to {args.set_owner}")
             interface.getNode(args.dest).setOwner(args.set_owner)
 
+        if args.set_owner_short:
+            closeNow = True
+            print(f"Setting device owner short to {args.set_owner_short}")
+            interface.getNode(args.dest).setOwner(long_name=None, short_name=args.set_owner_short)
+
         # TODO: add to export-config and configure
         if args.set_canned_message:
             closeNow = True
@@ -337,6 +342,10 @@ def onConnected(interface):
                 if 'owner' in configuration:
                     print(f"Setting device owner to {configuration['owner']}")
                     interface.getNode(args.dest).setOwner(configuration['owner'])
+
+                if 'owner_short' in configuration:
+                    print(f"Setting device owner short to {configuration['owner_short']}")
+                    interface.getNode(args.dest).setOwner(long_name=None, short_owner=configuration['owner_short'])
 
                 if 'channel_url' in configuration:
                     print("Setting channel url to", configuration['channel_url'])
@@ -580,6 +589,7 @@ def subscribe():
 def export_config(interface):
     """used in--export-config"""
     owner = interface.getLongName()
+    owner_short = interface.getShortName()
     channel_url = interface.localNode.getURL()
     myinfo = interface.getMyNodeInfo()
     pos = myinfo.get('position')
@@ -594,6 +604,8 @@ def export_config(interface):
     config = "# start of Meshtastic configure yaml\n"
     if owner:
         config += f"owner: {owner}\n\n"
+    if owner_short:
+        config += f"owner_short: {owner_short}\n\n"
     if channel_url:
         if Globals.getInstance().get_camel_case():
             config += f"channelUrl: {channel_url}\n\n"
@@ -788,9 +800,17 @@ def initParser():
 
     parser.add_argument("--ch-shortfast", help="Change to the short-range and fast channel", action='store_true')
 
+<<<<<<< HEAD
     parser.add_argument("--set-owner", help="Set device owner name", action="store")
 
     parser.add_argument("--set-canned-message", help="Set the canned messages plugin message (up to 1000 characters).", action="store")
+=======
+    parser.add_argument(
+        "--set-owner", help="Set device owner name", action="store")
+>>>>>>> aa5af53 (add option to configure just the owner short name)
+
+    parser.add_argument(
+        "--set-owner-short", help="Set device owner short name", action="store")
 
     parser.add_argument(
         "--set-team", help="Set team affiliation (an invalid team will list valid values)", action="store")
