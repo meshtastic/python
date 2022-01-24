@@ -13,4 +13,3 @@ else
   # automate the current workaround (may be related to Meshtastic-protobufs issue #27 https://github.com/meshtastic/Meshtastic-protobufs/issues/27)
   sed -i -E "s/^None = 0/globals()['None'] = 0/" meshtastic/mesh_pb2.py
 fi
-
