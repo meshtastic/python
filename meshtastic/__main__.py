@@ -200,7 +200,6 @@ def onConnected(interface):
             print(f"Setting device owner short to {args.set_owner_short}")
             interface.getNode(args.dest).setOwner(long_name=None, short_name=args.set_owner_short)
 
-        # TODO: add to export-config and configure
         if args.set_canned_message:
             closeNow = True
             print(f"Setting canned plugin message to {args.set_canned_message}")
@@ -350,6 +349,14 @@ def onConnected(interface):
                 if 'ownerShort' in configuration:
                     print(f"Setting device owner short to {configuration['ownerShort']}")
                     interface.getNode(args.dest).setOwner(long_name=None, short_owner=configuration['ownerShort'])
+
+                if 'canned_message' in configuration:
+                    print(f"Setting canned message to {configuration['canned_message']}")
+                    interface.getNode(args.dest).set_canned_message(configuration['canned_message'])
+
+                if 'cannedMessage' in configuration:
+                    print(f"Setting canned message to {configuration['cannedMessage']}")
+                    interface.getNode(args.dest).set_canned_message(configuration['cannedMessage'])
 
                 if 'channel_url' in configuration:
                     print("Setting channel url to", configuration['channel_url'])

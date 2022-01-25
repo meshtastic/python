@@ -4,6 +4,8 @@ ownerShort: BOB
 
 channelUrl: https://www.meshtastic.org/d/#CgUYAyIBAQ
 
+cannedMessage: "Need helping hand|Help me with saw|I need an alpinist|I need ambulance|I'm fine|Keep Calm|Roger|On my way|Need 5 mins|I will be late|I'm already waiting|I couldn't join|We have company|Beer is cold|I am cold|I am tired|I am groot|Sale at Penny's|I want my $2|Ready to leave?|Yes|No|Maybe|OK|0|1|2|3|4|5|6|7|8|9|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|.|!|?|-|Over|Repeat|Lost|Outlook not so good|What would Kevin do?|Ready to go?|Are you hungry?|About time|LOL|ROFL|Where's the beef?|How many?|When?|Where?|Why?|How?|Who?|Stop|Go|Left|Right|Up|Down|Slow|Fast|Tired|Hungry|Thanks for the fish|Just testing|Playing|Hiking|Biking|Flat tire|Out of gas|Battery dead"
+
 location:
   lat: 35.88888
   lon: -93.88888

@@ -12,8 +12,7 @@ from ..admin_pb2 import AdminMessage
 from ..channel_pb2 import Channel
 from ..radioconfig_pb2 import RadioConfig
 from ..cannedmessages_pb2 import (CannedMessagePluginMessagePart1, CannedMessagePluginMessagePart2,
-                                  CannedMessagePluginMessagePart3, CannedMessagePluginMessagePart4,
-                                  CannedMessagePluginMessagePart5)
+                                  CannedMessagePluginMessagePart3, CannedMessagePluginMessagePart4)
 from ..util import Timeout
 
 
@@ -60,10 +59,9 @@ def test_node_get_canned_message_with_all_parts(capsys):
                 anode.cannedPluginMessagePart2 = 'b'
                 anode.cannedPluginMessagePart3 = 'c'
                 anode.cannedPluginMessagePart4 = 'd'
-                anode.cannedPluginMessagePart5 = 'e'
                 anode.get_canned_message()
     out, err = capsys.readouterr()
-    assert re.search(r'canned_plugin_message:abcde', out, re.MULTILINE)
+    assert re.search(r'canned_plugin_message:abcd', out, re.MULTILINE)
     assert err == ''
 
 
@@ -99,62 +97,61 @@ def test_node_set_canned_message_one_part(caplog):
 
 
 @pytest.mark.unit
-def test_node_set_canned_message_199(caplog):
-    """Test run set_canned_message() 199 characters long"""
+def test_node_set_canned_message_180(caplog):
+    """Test run set_canned_message() 180 characters long"""
     iface = MagicMock(autospec=SerialInterface)
     amesg = MagicMock(autospec=AdminMessage)
     with caplog.at_level(logging.DEBUG):
         with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
             with patch('meshtastic.admin_pb2.AdminMessage', return_value=amesg):
                 anode = Node(mo, 'bar')
-                message_199_chars_long = 'a' * 199
-                anode.set_canned_message(message_199_chars_long)
+                message_180_chars_long = 'a' * 180
+                anode.set_canned_message(message_180_chars_long)
     assert re.search(r" part 1", caplog.text, re.MULTILINE)
     assert not re.search(r"Setting canned message '' part 2", caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
-def test_node_set_canned_message_200(caplog):
-    """Test run set_canned_message() 200 characters long"""
+def test_node_set_canned_message_181(caplog):
+    """Test run set_canned_message() 181 characters long"""
     iface = MagicMock(autospec=SerialInterface)
     amesg = MagicMock(autospec=AdminMessage)
     with caplog.at_level(logging.DEBUG):
         with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
             with patch('meshtastic.admin_pb2.AdminMessage', return_value=amesg):
                 anode = Node(mo, 'bar')
-                message_200_chars_long = 'a' * 200
-                anode.set_canned_message(message_200_chars_long)
+                message_181_chars_long = 'a' * 181
+                anode.set_canned_message(message_181_chars_long)
     assert re.search(r" part 1", caplog.text, re.MULTILINE)
     assert re.search(r"Setting canned message 'a' part 2", caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
-def test_node_set_canned_message_995(caplog):
-    """Test run set_canned_message() 995 characters long"""
+def test_node_set_canned_message_720(caplog):
+    """Test run set_canned_message() 720 characters long"""
     iface = MagicMock(autospec=SerialInterface)
     amesg = MagicMock(autospec=AdminMessage)
     with caplog.at_level(logging.DEBUG):
         with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
             with patch('meshtastic.admin_pb2.AdminMessage', return_value=amesg):
                 anode = Node(mo, 'bar')
-                message_995_chars_long = 'a' * 995
-                anode.set_canned_message(message_995_chars_long)
+                message_720_chars_long = 'a' * 720
+                anode.set_canned_message(message_720_chars_long)
     assert re.search(r" part 1", caplog.text, re.MULTILINE)
     assert re.search(r" part 2", caplog.text, re.MULTILINE)
     assert re.search(r" part 3", caplog.text, re.MULTILINE)
     assert re.search(r" part 4", caplog.text, re.MULTILINE)
-    assert re.search(r" part 5", caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
-def test_node_set_canned_message_996(capsys):
-    """Test run set_canned_message() 996 characters long"""
+def test_node_set_canned_message_721(capsys):
+    """Test run set_canned_message() 721 characters long"""
     iface = MagicMock(autospec=SerialInterface)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
             anode = Node(mo, 'bar')
-            message_996_chars_long = 'a' * 996
-            anode.set_canned_message(message_996_chars_long)
+            message_721_chars_long = 'a' * 721
+            anode.set_canned_message(message_721_chars_long)
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()
@@ -986,50 +983,6 @@ def test_onResponseRequestCannedMessagePluginMesagePart4(caplog):
 
 
 @pytest.mark.unit
-def test_onResponseRequestCannedMessagePluginMesagePart5(caplog):
-    """Test onResponseRequestCannedMessagePluginMessagePart5()"""
-
-    part5 = CannedMessagePluginMessagePart5()
-    part5.text = 'foo5'
-
-    msg5 = MagicMock(autospec=AdminMessage)
-    msg5.get_canned_message_plugin_part5_response = part5
-
-
-    packet = {
-            'from': 682968612,
-            'to': 682968612,
-            'decoded': {
-                'portnum': 'ADMIN_APP',
-                'payload': 'faked',
-                'requestId': 927039000,
-                'admin': {
-                    'getCannedMessagePluginPart5Response': {'text': 'foo5'},
-                    'raw': msg5
-                    }
-                },
-            'id': 589440320,
-            'rxTime': 1642710843,
-            'hopLimit': 3,
-            'priority': 'RELIABLE',
-            'raw': 'faked',
-            'fromId': '!28b54624',
-            'toId': '!28b54624'
-            }
-
-    iface = MagicMock(autospec=SerialInterface)
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        anode = Node(mo, 'bar', noProto=True)
-        # Note: Have to do this next line because every call to MagicMock object/method returns a new magic mock
-        mo.localNode = anode
-
-        with caplog.at_level(logging.DEBUG):
-            anode.onResponseRequestCannedMessagePluginMessagePart5(packet)
-            assert re.search(r'onResponseRequestCannedMessagePluginMessagePart5', caplog.text, re.MULTILINE)
-            assert anode.cannedPluginMessagePart5 == 'foo5'
-
-
-@pytest.mark.unit
 def test_onResponseRequestCannedMessagePluginMesagePart1_error(caplog, capsys):
     """Test onResponseRequestCannedMessagePluginMessagePart1() with error"""
 
@@ -1128,32 +1081,6 @@ def test_onResponseRequestCannedMessagePluginMesagePart4_error(caplog, capsys):
         with caplog.at_level(logging.DEBUG):
             anode.onResponseRequestCannedMessagePluginMessagePart4(packet)
             assert re.search(r'onResponseRequestCannedMessagePluginMessagePart4', caplog.text, re.MULTILINE)
-        out, err = capsys.readouterr()
-        assert re.search(r'Error on response', out)
-        assert err == ''
-
-
-@pytest.mark.unit
-def test_onResponseRequestCannedMessagePluginMesagePart5_error(caplog, capsys):
-    """Test onResponseRequestCannedMessagePluginMessagePart5() with error"""
-
-    packet = {
-            'decoded': {
-                'routing': {
-                    'errorReason': 'some made up error',
-                    },
-                },
-            }
-
-    iface = MagicMock(autospec=SerialInterface)
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        anode = Node(mo, 'bar', noProto=True)
-        # Note: Have to do this next line because every call to MagicMock object/method returns a new magic mock
-        mo.localNode = anode
-
-        with caplog.at_level(logging.DEBUG):
-            anode.onResponseRequestCannedMessagePluginMessagePart5(packet)
-            assert re.search(r'onResponseRequestCannedMessagePluginMessagePart5', caplog.text, re.MULTILINE)
         out, err = capsys.readouterr()
         assert re.search(r'Error on response', out)
         assert err == ''

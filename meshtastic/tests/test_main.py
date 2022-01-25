@@ -951,6 +951,7 @@ def test_main_configure_with_snake_case(capsys):
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Setting device owner', out, re.MULTILINE)
         assert re.search(r'Setting device owner short', out, re.MULTILINE)
+        assert re.search(r'Setting canned message', out, re.MULTILINE)
         assert re.search(r'Setting channel url', out, re.MULTILINE)
         assert re.search(r'Fixing altitude', out, re.MULTILINE)
         assert re.search(r'Fixing latitude', out, re.MULTILINE)
@@ -979,6 +980,17 @@ def test_main_configure_with_camel_case_keys(capsys):
         assert re.search(r'Connected to radio', out, re.MULTILINE)
         assert re.search(r'Setting device owner', out, re.MULTILINE)
         assert re.search(r'Setting device owner short', out, re.MULTILINE)
+        assert re.search(r'Setting canned message', out, re.MULTILINE)
+        # TODO: finish this
+        # pylint: disable=line-too-long
+        #assert re.search(r"Need helping hand|Help me with saw|I need an alpinist|I need ambulance|I'm fine|Keep Calm|Roger|On my way|Need 5 mins|I will be late|I'm already waiting|I couldn't join|We have company|Beer is cold|I ", out, re.MULTILINE)
+        # pylint: disable=line-too-long
+        #assert re.search(r"'am cold|I am tired|I am groot|Sale at Penny's|I want my $2|Ready to leave?|Yes|No|Maybe|OK|0|1|2|3|4|5|6|7|8|9|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|.|!|?|-|Over|Repeat|Lost|Outlook not'", out, re.MULTILINE)
+        # pylint: disable=line-too-long
+        #assert re.search(r"' so good|What would Kevin do?|Ready to go?|Are you hungry?|About time|LOL|ROFL|Where's the beef?|How many?|When?|Where?|Why?|How?|Who?|Stop|Go|Left|Right|Up|Down|Slow|Fast|Tired|Hungry|Thanks for the '", out, re.MULTILINE)
+        # pylint: disable=line-too-long
+        #assert re.search(r"'fish|Just testing|Playing|Hiking|Biking|Flat tire|Out of gas|Battery dead'", out, re.MULTILINE)
+        assert re.search(r'', out, re.MULTILINE)
         assert re.search(r'Setting channel url', out, re.MULTILINE)
         assert re.search(r'Fixing altitude', out, re.MULTILINE)
         assert re.search(r'Fixing latitude', out, re.MULTILINE)
