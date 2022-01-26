@@ -781,7 +781,12 @@ def initParser():
         "--ch-disable", help="Disable the specified channel", action="store_true", dest="ch_disable", default=False)
 
     parser.add_argument(
-        "--ch-set", help="Set a channel parameter", nargs=2, action='append')
+        "--ch-set", help=("Set a channel parameter. To see channel settings available:'--ch-set all all --ch-index 0'. "
+                          "Can set the 'psk' using this command. To disable encryption on primary channel:'--ch-set psk none --ch-index 0'. "
+                          "To set encryption with a new random key on second channel:'--ch-set psk random --ch-index 1'. "
+                          "To set encryption back to the default:'--ch-set default --ch-index 0'. To set encryption with your "
+                          "own key: '--ch-set psk 0x1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b --ch-index 0'."),
+                          nargs=2, action='append')
 
     parser.add_argument(
         "--ch-longslow", help="Change to the long-range and slow channel", action='store_true')
