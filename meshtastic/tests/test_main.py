@@ -1811,6 +1811,53 @@ def test_main_gpio_rd(caplog, capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+@patch('time.sleep')
+def test_main_gpio_rd_with_no_gpioMask(caplog, capsys):
+    """Test --gpio_rd with a named gpio channel"""
+    sys.argv = ['', '--gpio-rd', '0x1000', '--dest', '!1234']
+    Globals.getInstance().set_args(sys.argv)
+
+    channel = Channel(index=1, role=1)
+    channel.settings.modem_config = 3
+    channel.settings.psk = b'\x01'
+
+    # Note: Intentionally do not have gpioValue in response as that is the
+    # default value
+    packet = {
+            'from': 682968668,
+            'to': 682968612,
+            'channel': 1,
+            'decoded': {
+                'portnum': 'REMOTE_HARDWARE_APP',
+                'payload': b'\x08\x05\x18\x80 ',
+                'requestId': 1629980484,
+                'remotehw': {
+                    'typ': 'READ_GPIOS_REPLY',
+                    'raw': 'faked',
+                    'id': 1693085229,
+                    'rxTime': 1640294262,
+                    'rxSnr': 4.75,
+                    'hopLimit': 3,
+                    'wantAck': True,
+                    }
+                }
+            }
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode.getChannelByName.return_value = channel
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        with caplog.at_level(logging.DEBUG):
+            main()
+            onGPIOreceive(packet, mo)
+    out, err = capsys.readouterr()
+    assert re.search(r'Connected to radio', out, re.MULTILINE)
+    assert re.search(r'Reading GPIO mask 0x1000 ', out, re.MULTILINE)
+    assert re.search(r'Received RemoteHardware typ=READ_GPIOS_REPLY, gpio_value=0', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_gpio_watch(caplog, capsys):
     """Test --gpio_watch with a named gpio channel"""
     sys.argv = ['', '--gpio-watch', '0x1000', '--dest', '!1234']
