@@ -1802,7 +1802,6 @@ def test_main_gpio_rd(caplog, capsys):
         with caplog.at_level(logging.DEBUG):
             main()
             onGPIOreceive(packet, mo)
-    assert re.search(r'readGPIOs nodeid:!1234 mask:4096', caplog.text, re.MULTILINE)
     out, err = capsys.readouterr()
     assert re.search(r'Connected to radio', out, re.MULTILINE)
     assert re.search(r'Reading GPIO mask 0x1000 ', out, re.MULTILINE)
