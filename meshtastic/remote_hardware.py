@@ -15,7 +15,7 @@ def onGPIOreceive(packet, interface):
     if "gpioValue" in hw:
         gpioValue = hw["gpioValue"]
     else:
-        if "gpioMask" in hw:
+        if not "gpioMask" in hw:
             # we did get a reply, but due to protobufs, 0 for numeric value is not sent
             # see https://developers.google.com/protocol-buffers/docs/proto3#default
             # so, we set it here
