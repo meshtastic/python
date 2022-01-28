@@ -10,8 +10,17 @@ def onGPIOreceive(packet, interface):
     """Callback for received GPIO responses
     """
     logging.debug(f"packet:{packet} interface:{interface}")
+    gpioValue = 0
     hw = packet["decoded"]["remotehw"]
-    gpioValue = hw["gpioValue"]
+    if "gpioValue" in hw:
+        gpioValue = hw["gpioValue"]
+    else:
+        if "gpioMask" in hw:
+            # we did get a reply, but due to protobufs, 0 for numeric value is not sent
+            # see https://developers.google.com/protocol-buffers/docs/proto3#default
+            # so, we set it here
+            gpioValue = 0
+
     #print(f'mask:{interface.mask}')
     value = int(gpioValue) & int(interface.mask)
     print(f'Received RemoteHardware typ={hw["typ"]}, gpio_value={gpioValue} value={value}')
