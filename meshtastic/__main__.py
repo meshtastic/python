@@ -301,12 +301,11 @@ def onConnected(interface):
                     print(f"Reading GPIO mask 0x{bitmask:x} from {args.dest}")
                     interface.mask = bitmask
                     rhc.readGPIOs(args.dest, bitmask, None)
-                    if not interface.noProto:
-                        # wait up to X seconds for a response
-                        for _ in range(10):
-                            time.sleep(1)
-                            if interface.gotResponse:
-                                break
+                    # wait up to X seconds for a response
+                    for _ in range(10):
+                        time.sleep(1)
+                        if interface.gotResponse:
+                            break
                     logging.debug(f'end of gpio_rd')
 
                 if args.gpio_watch:
