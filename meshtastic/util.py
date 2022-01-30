@@ -300,10 +300,32 @@ def detect_supported_devices():
         pass
 
     elif system == "Darwin":
-        # if mac, run ioreg
-        # could also run: system_profiler SPUSBDataType
+        # run: system_profiler SPUSBDataType
+        # could also run ioreg
         # if mac air (eg: arm m1) do not know how to get info TODO: research
-        pass
+
+        _, sp_output = subprocess.getstatusoutput('system_profiler SPUSBDataType')
+        vids = get_unique_vendor_ids()
+        for vid in vids:
+            #print(f'looking for {vid}...')
+            search = f'Vendor ID: 0x{vid}'
+            #print(f'search:"{search}"')
+            if re.search(search, sp_output, re.MULTILINE):
+                #print(f'Found vendor id that matches')
+                devices = get_devices_with_vendor_id(vid)
+                # check device id
+                for device in devices:
+                    #print(f'device:{device} device.usb_product_id_in_hex:{device.usb_product_id_in_hex}')
+                    if device.usb_product_id_in_hex:
+                        search = f'Product ID: 0x{device.usb_product_id_in_hex}'
+                        #print(f'search:"{search}"')
+                        if re.search(search, sp_output, re.MULTILINE):
+                            # concatenate the devices with vendor id to possibles
+                            possible_devices.add(device)
+                    else:
+                        # if there is a supported device witout a product id, then it
+                        # might be a match... so, concatenate
+                        possible_devices.add(device)
 
         # ls -al /dev/{tty,cu}.*
         # crw-rw-rw-  1 root  wheel  0x9000003 Jan 13 02:46 /dev/cu.Bluetooth-Incoming-Port

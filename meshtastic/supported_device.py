@@ -57,13 +57,13 @@ tlora_v2_1_1_6 = SupportedDevice(name="T-Lora", version="2.1-1.6", for_firmware=
                              baseport_on_linux="ttyACM", baseport_on_mac="cu.usbmodem",
                              usb_vendor_id_in_hex="1a86", usb_product_id_in_hex="55d4")
 heltec_v1 = SupportedDevice(name="Heltec", version="1", for_firmware="heltec-v1",
-                            baseport_on_linux="ttyUSB", baseport_on_mac="ttyUSB",
+                            baseport_on_linux="ttyUSB", baseport_on_mac="cu.usbserial-",
                             usb_vendor_id_in_hex="10c4", usb_product_id_in_hex="ea60")
 heltec_v2_0 = SupportedDevice(name="Heltec", version="2.0", for_firmware="heltec-v2.0",
-                              baseport_on_linux="ttyUSB", baseport_on_mac="ttyUSB",
+                              baseport_on_linux="ttyUSB", baseport_on_mac="cu.usbserial-",
                               usb_vendor_id_in_hex="10c4", usb_product_id_in_hex="ea60")
 heltec_v2_1 = SupportedDevice(name="Heltec", version="2.1", for_firmware="heltec-v2.1",
-                              baseport_on_linux="ttyUSB", baseport_on_mac="ttyUSB",
+                              baseport_on_linux="ttyUSB", baseport_on_mac="cu.usbserial-",
                               usb_vendor_id_in_hex="10c4", usb_product_id_in_hex="ea60")
 # TODO: get info on diy
 meshtastic_diy_v1 = SupportedDevice(name="Meshtastic DIY", version="1", for_firmware="meshtastic-diy-v1")
@@ -117,6 +117,24 @@ def active_ports_on_supported_devices(sds):
 
     for bp in baseports:
         if system == "Linux":
+            # see if we have any devices (ignoring any stderr output)
+            command = f'ls -al /dev/{bp}* 2> /dev/null'
+            #print(f'command:{command}')
+            _, ls_output = subprocess.getstatusoutput(command)
+            #print(f'ls_output:{ls_output}')
+            # if we got output, there are ports
+            if len(ls_output) > 0:
+                #print('got output')
+                # for each line of output
+                lines = ls_output.split('\n')
+                #print(f'lines:{lines}')
+                for line in lines:
+                    parts = line.split(' ')
+                    #print(f'parts:{parts}')
+                    port = parts[-1]
+                    #print(f'port:{port}')
+                    ports.add(port)
+        elif system == "Darwin":
             # see if we have any devices (ignoring any stderr output)
             command = f'ls -al /dev/{bp}* 2> /dev/null'
             #print(f'command:{command}')
