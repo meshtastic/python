@@ -10,9 +10,11 @@ import time
 import platform
 import logging
 import threading
+import subprocess
 import serial
 import serial.tools.list_ports
 import pkg_resources
+from meshtastic.supported_device import get_unique_vendor_ids, get_devices_with_vendor_id
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
@@ -257,3 +259,65 @@ def snake_to_camel(a_string):
 def camel_to_snake(a_string):
     """convert camelCase to snake_case"""
     return ''.join(['_'+i.lower() if i.isupper() else i for i in a_string]).lstrip('_')
+
+
+def detect_supported_devices():
+    """detect supported devices"""
+    system = platform.system()
+    #print(f'system:{system}')
+
+    possible_devices = set()
+    if system == "Linux":
+        # if linux, run lsusb and list ports
+
+        # linux: use lsusb
+        # Bus 001 Device 091: ID 10c4:ea60 Silicon Labs CP210x UART Bridge
+        _, lsusb_output = subprocess.getstatusoutput('lsusb')
+        vids = get_unique_vendor_ids()
+        for vid in vids:
+            #print(f'looking for {vid}...')
+            search = f' {vid}:'
+            #print(f'search:"{search}"')
+            if re.search(search, lsusb_output, re.MULTILINE):
+                #print(f'Found vendor id that matches')
+                devices = get_devices_with_vendor_id(vid)
+                # check device id
+                for device in devices:
+                    #print(f'device:{device} device.usb_product_id_in_hex:{device.usb_product_id_in_hex}')
+                    if device.usb_product_id_in_hex:
+                        search = f' {vid}:{device.usb_product_id_in_hex} '
+                        #print(f'search:"{search}"')
+                        if re.search(search, lsusb_output, re.MULTILINE):
+                            # concatenate the devices with vendor id to possibles
+                            possible_devices.add(device)
+                    else:
+                        # if there is a supported device witout a product id, then it
+                        # might be a match... so, concatenate
+                        possible_devices.add(device)
+
+    elif system == "Windows":
+        # if windows, run Get-PnpDevice
+        pass
+
+    elif system == "Darwin":
+        # if mac, run ioreg
+        # could also run: system_profiler SPUSBDataType
+        # if mac air (eg: arm m1) do not know how to get info TODO: research
+        pass
+
+        # ls -al /dev/{tty,cu}.*
+        # crw-rw-rw-  1 root  wheel  0x9000003 Jan 13 02:46 /dev/cu.Bluetooth-Incoming-Port
+        # crw-rw-rw-  1 root  wheel  0x9000005 Jan 29 12:00 /dev/cu.usbserial-0001
+        # crw-rw-rw-  1 root  wheel  0x9000001 Jan 13 02:45 /dev/cu.wlan-debug
+        # crw-rw-rw-  1 root  wheel  0x9000002 Jan 13 02:46 /dev/tty.Bluetooth-Incoming-Port
+        # crw-rw-rw-  1 root  wheel  0x9000004 Jan 29 12:00 /dev/tty.usbserial-0001
+        # crw-rw-rw-  1 root  wheel  0x9000000 Jan 13 02:45 /dev/tty.wlan-debug
+        # and exclude any "Bluetooth" or "wlan" files
+        # TODO: which should we prefer: cu or tty devices?
+
+        # mac: ioreg -p IOUSB
+        # +-o Root  <class IORegistryEntry, id 0x100000100, retain 27>
+        #   +-o AppleT8103USBXHCI@00000000  <class AppleT8103USBXHCI, id 0x10000031c, registered, matched, active, busy 0 (9$
+        #   +-o AppleT8103USBXHCI@01000000  <class AppleT8103USBXHCI, id 0x100000320, registered, matched, active, busy 0 (8$
+        #     +-o CP2102 USB to UART Bridge Controller@01100000  <class IOUSBHostDevice, id 0x10000d096, registered, matched$
+    return possible_devices
