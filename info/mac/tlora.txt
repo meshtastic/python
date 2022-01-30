@@ -1,0 +1,16 @@
+diff of ioreg -p IOUSB
+
+>   | +-o USB Single Serial@14300000  <class AppleUSBDevice, id 0x10005bf0f, registered, matched, active, busy 0 (18 ms), retain 14>
+
+
+Diff of system_profiler SPUSBDataType
+<         USB Single Serial:
+<
+<           Product ID: 0x55d4
+<           Vendor ID: 0x1a86
+<           Version: 4.43
+<           Speed: Up to 12 Mb/s
+<           Location ID: 0x14300000 / 46
+<           Current Available (mA): 500
+<           Current Required (mA): 134
+<           Extra Operating Current (mA): 0

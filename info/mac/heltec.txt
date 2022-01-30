@@ -1,0 +1,20 @@
+ioreg -p IOUSB > /tmp/d
+
+>   | +-o CP2102 USB to UART Bridge Controller@14400000  <class AppleUSBDevice, id 0x10005c048, registered, matched, active, busy 0 (9 ms), retain 12>
+
+
+system_profiler SPUSBDataType > /tmp/b
+
+37a38,50
+>         CP2102 USB to UART Bridge Controller:
+>
+>           Product ID: 0xea60
+>           Vendor ID: 0x10c4  (Silicon Laboratories, Inc.)
+>           Version: 1.00
+>           Serial Number: 0001
+>           Speed: Up to 12 Mb/s
+>           Manufacturer: Silicon Labs
+>           Location ID: 0x14400000 / 53
+>           Current Available (mA): 500
+>           Current Required (mA): 100
+>           Extra Operating Current (mA): 0

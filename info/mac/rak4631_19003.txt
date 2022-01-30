@@ -1,0 +1,10 @@
+
+
+>   | +-o WisCore RAK4631 Board@14400000  <class AppleUSBDevice, id 0x10005c158, registered, matched, active, busy 0 (18 ms), retain 14>
+
+
+/dev/cu.usbmodem14401
+
+% ls -al /dev/*modem*
+crw-rw-rw-  1 root  wheel  0x9000005 Jan 29 15:32 /dev/cu.usbmodem14401
+crw-rw-rw-  1 root  wheel  0x9000004 Jan 29 15:31 /dev/tty.usbmodem14401

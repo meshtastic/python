@@ -1,0 +1,18 @@
+
+no device plugged in
+% ioreg -p IOUSB > /tmp/a
+
+device plugged in, in "boot" mode
+% ioreg -p IOUSB > /tmp/b
+
+device plugged in, botted to Meshtastic firmware
+% ioreg -p IOUSB > /tmp/c
+
+(venv) sweet Meshtastic-python % diff /tmp/a /tmp/b (with most info removed)
+>   | +-o Feather nRF52840 Express@14400000  <class AppleUSBDevice, id 0x10005c0ff, registered, matched, active, busy 0 (22 ms), retain 16>
+
+diff /tmp/a /tmp/c (with most info removed)
+>   | +-o WisCore RAK4631 Board@14400000  <class AppleUSBDevice, id 0x10005c134, registered, matched, active, busy 0 (17 ms), retain 14>
+
+
+Meshtastic detected port on /dev/cu.usbmodem14401
