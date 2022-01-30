@@ -66,3 +66,41 @@ Status     Class           FriendlyName                                         
 ------     -----           ------------                                                                     ----------
 Error                      CP2102 USB to UART Bridge Controller                                             USB\VID_...
 
+
+
+If need to install driver
+Get-PnpDevice -DeviceID 'USB\VID_10C4&PID_EA60\0001' | Format-List
+
+
+Caption                     : CP2102 USB to UART Bridge Controller
+Description                 : CP2102 USB to UART Bridge Controller
+InstallDate                 :
+Name                        : CP2102 USB to UART Bridge Controller
+Status                      : Error
+Availability                :
+ConfigManagerErrorCode      : CM_PROB_FAILED_INSTALL
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_PnPEntity
+DeviceID                    : USB\VID_10C4&PID_EA60\0001
+ErrorCleared                :
+ErrorDescription            :
+LastErrorCode               :
+PNPDeviceID                 : USB\VID_10C4&PID_EA60\0001
+PowerManagementCapabilities :
+PowerManagementSupported    :
+StatusInfo                  :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-FRFQN8H
+ClassGuid                   :
+CompatibleID                : {USB\Class_FF&SubClass_00&Prot_00, USB\Class_FF&SubClass_00, USB\Class_FF}
+HardwareID                  : {USB\VID_10C4&PID_EA60&REV_0100, USB\VID_10C4&PID_EA60}
+Manufacturer                :
+PNPClass                    :
+Present                     : True
+Service                     :
+PSComputerName              :
+Class                       :
+FriendlyName                : CP2102 USB to UART Bridge Controller
+InstanceId                  : USB\VID_10C4&PID_EA60\0001
+Problem                     : CM_PROB_FAILED_INSTALL
+ProblemDescription          :

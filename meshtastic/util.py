@@ -380,5 +380,3 @@ def detect_windows_needs_driver(sd, print_reason=False):
                 if print_reason:
                     print(sp_output)
     return need_to_install_driver
-
-

@@ -180,7 +180,7 @@ def detect_windows_port(sd):
             #print(f'command:{command}')
             _, sp_output = subprocess.getstatusoutput(command)
             #print(f'sp_output:{sp_output}')
-            p = re.compile('\(COM(.*)\)')
+            p = re.compile(r'\(COM(.*)\)')
             for x in p.findall(sp_output):
                 #print(f'x:{x}')
                 ports.add(f'COM{x}')
