@@ -297,11 +297,36 @@ def detect_supported_devices():
 
     elif system == "Windows":
         # if windows, run Get-PnpDevice
-        pass
+        _, sp_output = subprocess.getstatusoutput('powershell.exe "Get-PnpDevice -PresentOnly | Format-List"')
+        #print(f'sp_output:{sp_output}')
+        vids = get_unique_vendor_ids()
+        for vid in vids:
+            #print(f'looking for {vid.upper()}...')
+            search = f'DeviceID.*{vid.upper()}&'
+            #search = f'{vid.upper()}'
+            #print(f'search:"{search}"')
+            if re.search(search, sp_output, re.MULTILINE):
+                #print(f'Found vendor id that matches')
+                devices = get_devices_with_vendor_id(vid)
+                # check device id
+                for device in devices:
+                    #print(f'device:{device} device.usb_product_id_in_hex:{device.usb_product_id_in_hex}')
+                    if device.usb_product_id_in_hex:
+                        search = f'DeviceID.*{vid.upper()}&PID_{device.usb_product_id_in_hex.upper()}'
+                        #print(f'search:"{search}"')
+                        if re.search(search, sp_output, re.MULTILINE):
+                            # concatenate the devices with vendor id to possibles
+                            possible_devices.add(device)
+                        # do a check to see if there is a Windows driver issue
+                        if detect_windows_needs_driver(device, False):
+                            print("WARNING: Need to install driver.")
+                    else:
+                        # if there is a supported device witout a product id, then it
+                        # might be a match... so, concatenate
+                        possible_devices.add(device)
 
     elif system == "Darwin":
         # run: system_profiler SPUSBDataType
-        # could also run ioreg
         # if mac air (eg: arm m1) do not know how to get info TODO: research
 
         _, sp_output = subprocess.getstatusoutput('system_profiler SPUSBDataType')
@@ -326,20 +351,34 @@ def detect_supported_devices():
                         # if there is a supported device witout a product id, then it
                         # might be a match... so, concatenate
                         possible_devices.add(device)
-
-        # ls -al /dev/{tty,cu}.*
-        # crw-rw-rw-  1 root  wheel  0x9000003 Jan 13 02:46 /dev/cu.Bluetooth-Incoming-Port
-        # crw-rw-rw-  1 root  wheel  0x9000005 Jan 29 12:00 /dev/cu.usbserial-0001
-        # crw-rw-rw-  1 root  wheel  0x9000001 Jan 13 02:45 /dev/cu.wlan-debug
-        # crw-rw-rw-  1 root  wheel  0x9000002 Jan 13 02:46 /dev/tty.Bluetooth-Incoming-Port
-        # crw-rw-rw-  1 root  wheel  0x9000004 Jan 29 12:00 /dev/tty.usbserial-0001
-        # crw-rw-rw-  1 root  wheel  0x9000000 Jan 13 02:45 /dev/tty.wlan-debug
-        # and exclude any "Bluetooth" or "wlan" files
-        # TODO: which should we prefer: cu or tty devices?
-
-        # mac: ioreg -p IOUSB
-        # +-o Root  <class IORegistryEntry, id 0x100000100, retain 27>
-        #   +-o AppleT8103USBXHCI@00000000  <class AppleT8103USBXHCI, id 0x10000031c, registered, matched, active, busy 0 (9$
-        #   +-o AppleT8103USBXHCI@01000000  <class AppleT8103USBXHCI, id 0x100000320, registered, matched, active, busy 0 (8$
-        #     +-o CP2102 USB to UART Bridge Controller@01100000  <class IOUSBHostDevice, id 0x10000d096, registered, matched$
     return possible_devices
+
+
+def detect_windows_needs_driver(sd, print_reason=False):
+    """detect if Windows user needs to install driver for a supported device"""
+    need_to_install_driver = False
+
+    if sd:
+        system = platform.system()
+        #print(f'in detect_windows_needs_driver system:{system}')
+
+        if system == "Windows":
+            # if windows, see if we can find a DeviceId with the vendor id
+            # Get-PnpDevice  | Where-Object{ ($_.DeviceId -like '*10C4*')} | Format-List
+            command = 'powershell.exe "Get-PnpDevice | Where-Object{ ($_.DeviceId -like '
+            command += f"'*{sd.usb_vendor_id_in_hex.upper()}*'"
+            command += ')} | Format-List"'
+
+            #print(f'command:{command}')
+            _, sp_output = subprocess.getstatusoutput(command)
+            #print(f'sp_output:{sp_output}')
+            search = f'CM_PROB_FAILED_INSTALL'
+            #print(f'search:"{search}"')
+            if re.search(search, sp_output, re.MULTILINE):
+                need_to_install_driver = True
+                # if the want to see the reason
+                if print_reason:
+                    print(sp_output)
+    return need_to_install_driver
+
+

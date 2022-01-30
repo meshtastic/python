@@ -4,6 +4,7 @@
 
 import platform
 import subprocess
+import re
 
 # Goal is to detect which device and port to use from the supported devices
 # without installing any libraries that are not currently in the python meshtastic library
@@ -152,4 +153,35 @@ def active_ports_on_supported_devices(sds):
                     port = parts[-1]
                     #print(f'port:{port}')
                     ports.add(port)
+        elif system == "Windows":
+            # for each device in supported devices found
+            for d in sds:
+                # find the port(s)
+                com_ports = detect_windows_port(d)
+                #print(f'com_ports:{com_ports}')
+                # add all ports
+                for com_port in com_ports:
+                    ports.add(com_port)
+    return ports
+
+
+def detect_windows_port(sd):
+    """detect if Windows port"""
+    ports = set()
+
+    if sd:
+        system = platform.system()
+
+        if system == "Windows":
+            command = 'powershell.exe "Get-PnpDevice | Where-Object{ ($_.DeviceId -like '
+            command += f"'*{sd.usb_vendor_id_in_hex.upper()}*'"
+            command += ')} | Format-List"'
+
+            #print(f'command:{command}')
+            _, sp_output = subprocess.getstatusoutput(command)
+            #print(f'sp_output:{sp_output}')
+            p = re.compile('\(COM(.*)\)')
+            for x in p.findall(sp_output):
+                #print(f'x:{x}')
+                ports.add(f'COM{x}')
     return ports
