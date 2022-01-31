@@ -327,7 +327,7 @@ def detect_supported_devices():
 
     elif system == "Darwin":
         # run: system_profiler SPUSBDataType
-        # if mac air (eg: arm m1) do not know how to get info TODO: research
+        # Note: If in boot mode, the 19003 reports same product ID as 5005.
 
         _, sp_output = subprocess.getstatusoutput('system_profiler SPUSBDataType')
         vids = get_unique_vendor_ids()

@@ -75,6 +75,7 @@ rak4631_5005 = SupportedDevice(name="RAK 4631 5005", version="", for_firmware="r
                                device_class="nrf52",
                                baseport_on_linux="ttyACM", baseport_on_mac="cu.usbmodem",
                                usb_vendor_id_in_hex="239a", usb_product_id_in_hex="0029")
+# Note: The 19003 reports same product id as 5005 in boot mode
 rak4631_19003 = SupportedDevice(name="RAK 4631 19003", version="", for_firmware="rak4631_19003",
                                 device_class="nrf52",
                                 baseport_on_linux="ttyACM", baseport_on_mac="cu.usbmodem",
