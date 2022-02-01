@@ -297,7 +297,7 @@ def detect_supported_devices():
 
     elif system == "Windows":
         # if windows, run Get-PnpDevice
-        _, sp_output = subprocess.getstatusoutput('powershell.exe /c 65001 "Get-PnpDevice -PresentOnly | Format-List"')
+        _, sp_output = subprocess.getstatusoutput('powershell.exe "[Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8; Get-PnpDevice -PresentOnly | Format-List"')
         #print(f'sp_output:{sp_output}')
         vids = get_unique_vendor_ids()
         for vid in vids:
@@ -365,8 +365,7 @@ def detect_windows_needs_driver(sd, print_reason=False):
         if system == "Windows":
             # if windows, see if we can find a DeviceId with the vendor id
             # Get-PnpDevice  | Where-Object{ ($_.DeviceId -like '*10C4*')} | Format-List
-            # Note: Change '/c 65001' changes to code page 65001 which is mostly utf-8
-            command = 'powershell.exe /c 65001 "Get-PnpDevice | Where-Object{ ($_.DeviceId -like '
+            command = 'powershell.exe "[Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8; Get-PnpDevice | Where-Object{ ($_.DeviceId -like '
             command += f"'*{sd.usb_vendor_id_in_hex.upper()}*'"
             command += ')} | Format-List"'
 
