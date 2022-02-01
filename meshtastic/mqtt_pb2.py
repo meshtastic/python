@@ -12,7 +12,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-from . import mesh_pb2 as mesh__pb2
+from . 0
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nmqtt.proto\x1a\nmesh.proto\"V\n\x0fServiceEnvelope\x12\x1b\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacket\x12\x12\n\nchannel_id\x18\x02 \x01(\t\x12\x12\n\ngateway_id\x18\x03 \x01(\tBF\n\x13\x63om.geeksville.meshB\nMQTTProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3')

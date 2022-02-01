@@ -6,6 +6,11 @@ test:
 virt:
 	pytest -m smokevirt
 
+# update protobufs
+proto: FORCE
+	git submodule update --remote proto
+	./bin/regen-protos.sh
+
 # local install
 install:
 	pip install .

@@ -12,7 +12,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-from . import channel_pb2 as channel__pb2
+from . 0
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rapponly.proto\x1a\rchannel.proto\"0\n\nChannelSet\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.ChannelSettingsBI\n\x13\x63om.geeksville.meshB\rAppOnlyProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3')
