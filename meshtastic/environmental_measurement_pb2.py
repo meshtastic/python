@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x65nvironmental_measurement.proto\"g\n\x18\x45nvironmentalMeasurement\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x12\x19\n\x11relative_humidity\x18\x02 \x01(\x02\x12\x1b\n\x13\x62\x61rometric_pressure\x18\x03 \x01(\x02\x42#Z!github.com/meshtastic/gomeshprotob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x65nvironmental_measurement.proto\"\xa1\x01\n\x18\x45nvironmentalMeasurement\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x12\x19\n\x11relative_humidity\x18\x02 \x01(\x02\x12\x1b\n\x13\x62\x61rometric_pressure\x18\x03 \x01(\x02\x12\x16\n\x0egas_resistance\x18\x04 \x01(\x02\x12\x0f\n\x07voltage\x18\x05 \x01(\x02\x12\x0f\n\x07\x63urrent\x18\x06 \x01(\x02\x42#Z!github.com/meshtastic/gomeshprotob\x06proto3')
 
 
 
@@ -30,6 +30,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z!github.com/meshtastic/gomeshproto'
-  _ENVIRONMENTALMEASUREMENT._serialized_start=35
-  _ENVIRONMENTALMEASUREMENT._serialized_end=138
+  _ENVIRONMENTALMEASUREMENT._serialized_start=36
+  _ENVIRONMENTALMEASUREMENT._serialized_end=197
 # @@protoc_insertion_point(module_scope)
