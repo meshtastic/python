@@ -297,7 +297,8 @@ def detect_supported_devices():
 
     elif system == "Windows":
         # if windows, run Get-PnpDevice
-        _, sp_output = subprocess.getstatusoutput('powershell.exe "[Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8; Get-PnpDevice -PresentOnly | Format-List"')
+        _, sp_output = subprocess.getstatusoutput('powershell.exe "[Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8;'
+                                                  'Get-PnpDevice -PresentOnly | Format-List"')
         #print(f'sp_output:{sp_output}')
         vids = get_unique_vendor_ids()
         for vid in vids:
