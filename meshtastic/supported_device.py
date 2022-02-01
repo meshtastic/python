@@ -175,7 +175,7 @@ def detect_windows_port(sd):
         system = platform.system()
 
         if system == "Windows":
-            command = 'powershell.exe "Get-PnpDevice -PresentOnly | Where-Object{ ($_.DeviceId -like '
+            command = 'powershell.exe /c chcp65001 "Get-PnpDevice -PresentOnly | Where-Object{ ($_.DeviceId -like '
             command += f"'*{sd.usb_vendor_id_in_hex.upper()}*'"
             command += ')} | Format-List"'
 
