@@ -1,0 +1,302 @@
+PS > Get-PnpDevice -PresentOnly | Format-List >a
+PS > Get-PnpDevice -PresentOnly | Format-List >b
+PS > Compare-Object (get-content a) (get-content b)
+
+
+Note: Not in boot mode
+
+InputObject                                                                                                        Side
+                                                                                                                   Indi
+                                                                                                                   cato
+                                                                                                                   r
+-----------                                                                                                        ----
+DeviceID                    : USB\VID_239A&PID_4405\D02012062C578951                                               =>
+PNPDeviceID                 : USB\VID_239A&PID_4405\D02012062C578951                                               =>
+HardwareID                  : {USB\VID_239A&PID_4405&REV_0100, USB\VID_239A&PID_4405}                              =>
+InstanceId                  : USB\VID_239A&PID_4405\D02012062C578951                                               =>
+Caption                     : USB Composite Device                                                                 =>
+Description                 : USB Composite Device                                                                 =>
+Name                        : USB Composite Device                                                                 =>
+ClassGuid                   : {36fc9e60-c465-11cf-8056-444553540000}                                               =>
+CompatibleID                : {USB\DevClass_00&SubClass_00&Prot_00, USB\DevClass_00&SubClass_00, USB\DevClass_00,  =>
+                              USB\COMPOSITE}                                                                       =>
+Manufacturer                : (Standard USB Host Controller)                                                       =>
+PNPClass                    : USB                                                                                  =>
+Service                     : usbccgp                                                                              =>
+Class                       : USB                                                                                  =>
+FriendlyName                : USB Composite Device                                                                 =>
+Caption                     : USB Serial Device (COM10)                                                            =>
+Description                 : USB Serial Device                                                                    =>
+Name                        : USB Serial Device (COM10)                                                            =>
+DeviceID                    : USB\VID_239A&PID_4405&MI_00\6&1B68A3E6&0&0000                                        =>
+PNPDeviceID                 : USB\VID_239A&PID_4405&MI_00\6&1B68A3E6&0&0000                                        =>
+ClassGuid                   : {4d36e978-e325-11ce-bfc1-08002be10318}                                               =>
+CompatibleID                : {USB\Class_02&SubClass_02&Prot_00, USB\Class_02&SubClass_02, USB\Class_02}           =>
+HardwareID                  : {USB\VID_239A&PID_4405&REV_0100&MI_00, USB\VID_239A&PID_4405&MI_00}                  =>
+PNPClass                    : Ports                                                                                =>
+Service                     : usbser                                                                               =>
+Class                       : Ports                                                                                =>
+FriendlyName                : USB Serial Device (COM10)                                                            =>
+InstanceId                  : USB\VID_239A&PID_4405&MI_00\6&1B68A3E6&0&0000                                        =>
+InstallDate                 :                                                                                      =>
+Status                      : OK                                                                                   =>
+Availability                :                                                                                      =>
+ConfigManagerErrorCode      : CM_PROB_NONE                                                                         =>
+ConfigManagerUserConfig     : False                                                                                =>
+CreationClassName           : Win32_PnPEntity                                                                      =>
+ErrorCleared                :                                                                                      =>
+ErrorDescription            :                                                                                      =>
+LastErrorCode               :                                                                                      =>
+PowerManagementCapabilities :                                                                                      =>
+PowerManagementSupported    :                                                                                      =>
+StatusInfo                  :                                                                                      =>
+SystemCreationClassName     : Win32_ComputerSystem                                                                 =>
+SystemName                  : DESKTOP-FRFQN8H                                                                      =>
+Present                     : True                                                                                 =>
+PSComputerName              :                                                                                      =>
+Problem                     : CM_PROB_NONE                                                                         =>
+ProblemDescription          :                                                                                      =>
+InstallDate                 :                                                                                      =>
+Status                      : OK                                                                                   =>
+Availability                :                                                                                      =>
+ConfigManagerErrorCode      : CM_PROB_NONE                                                                         =>
+ConfigManagerUserConfig     : False                                                                                =>
+CreationClassName           : Win32_PnPEntity                                                                      =>
+ErrorCleared                :                                                                                      =>
+ErrorDescription            :                                                                                      =>
+LastErrorCode               :                                                                                      =>
+PowerManagementCapabilities :                                                                                      =>
+PowerManagementSupported    :                                                                                      =>
+StatusInfo                  :                                                                                      =>
+SystemCreationClassName     : Win32_ComputerSystem                                                                 =>
+SystemName                  : DESKTOP-FRFQN8H                                                                      =>
+Manufacturer                : Microsoft                                                                            =>
+Present                     : True                                                                                 =>
+PSComputerName              :                                                                                      =>
+Problem                     : CM_PROB_NONE                                                                         =>
+ProblemDescription          :                                                                                      =>
+                                                                                                                   =>
+
+in boot mode
+
+PS > Get-PnpDevice -PresentOnly | Format-List >c
+PS > Compare-Object (get-content a) (get-content c)
+
+InputObject
+-----------
+Caption                     : Adafruit nRF UF2 USB Device
+Name                        : Adafruit nRF UF2 USB Device
+DeviceID                    : USBSTOR\DISK&VEN_ADAFRUIT&PROD_NRF_UF2&REV_1.0\7&10304CB2&0&D02012062C578951&0
+PNPDeviceID                 : USBSTOR\DISK&VEN_ADAFRUIT&PROD_NRF_UF2&REV_1.0\7&10304CB2&0&D02012062C578951&0
+CompatibleID                : {USBSTOR\Disk, USBSTOR\RAW, GenDisk}
+HardwareID                  : {USBSTOR\DiskAdafruitnRF_UF2_________1.0_, USBSTOR\DiskAdafruitnRF_UF2_________,
+                              USBSTOR\DiskAdafruit, USBSTOR\AdafruitnRF_UF2_________1...}
+FriendlyName                : Adafruit nRF UF2 USB Device
+InstanceId                  : USBSTOR\DISK&VEN_ADAFRUIT&PROD_NRF_UF2&REV_1.0\7&10304CB2&0&D02012062C578951&0
+Caption                     : USB Mass Storage Device
+Description                 : USB Mass Storage Device
+Name                        : USB Mass Storage Device
+DeviceID                    : USB\VID_239A&PID_0029&MI_02\6&2AE8D65&0&0002
+PNPDeviceID                 : USB\VID_239A&PID_0029&MI_02\6&2AE8D65&0&0002
+CompatibleID                : {USB\Class_08&SubClass_06&Prot_50, USB\Class_08&SubClass_06, USB\Class_08}
+HardwareID                  : {USB\VID_239A&PID_0029&REV_0100&MI_02, USB\VID_239A&PID_0029&MI_02}
+Manufacturer                : Compatible USB storage device
+Service                     : USBSTOR
+FriendlyName                : USB Mass Storage Device
+InstanceId                  : USB\VID_239A&PID_0029&MI_02\6&2AE8D65&0&0002
+Caption                     : USB Serial Device (COM11)
+Description                 : USB Serial Device
+Name                        : USB Serial Device (COM11)
+DeviceID                    : USB\VID_239A&PID_0029&MI_00\6&2AE8D65&0&0000
+PNPDeviceID                 : USB\VID_239A&PID_0029&MI_00\6&2AE8D65&0&0000
+ClassGuid                   : {4d36e978-e325-11ce-bfc1-08002be10318}
+CompatibleID                : {USB\Class_02&SubClass_02&Prot_00, USB\Class_02&SubClass_02, USB\Class_02}
+HardwareID                  : {USB\VID_239A&PID_0029&REV_0100&MI_00, USB\VID_239A&PID_0029&MI_00}
+PNPClass                    : Ports
+Service                     : usbser
+Class                       : Ports
+FriendlyName                : USB Serial Device (COM11)
+InstanceId                  : USB\VID_239A&PID_0029&MI_00\6&2AE8D65&0&0000
+ClassGuid                   : {36fc9e60-c465-11cf-8056-444553540000}
+PNPClass                    : USB
+Class                       : USB
+Caption                     : USB Composite Device
+Description                 : USB Composite Device
+Name                        : USB Composite Device
+DeviceID                    : USB\VID_239A&PID_0029\D02012062C578951
+PNPDeviceID                 : USB\VID_239A&PID_0029\D02012062C578951
+ClassGuid                   : {36fc9e60-c465-11cf-8056-444553540000}
+CompatibleID                : {USB\DevClass_00&SubClass_00&Prot_00, USB\DevClass_00&SubClass_00, USB\DevClass_00,
+                              USB\COMPOSITE}
+HardwareID                  : {USB\VID_239A&PID_0029&REV_0100, USB\VID_239A&PID_0029}
+Manufacturer                : (Standard USB Host Controller)
+PNPClass                    : USB
+Service                     : usbccgp
+Class                       : USB
+FriendlyName                : USB Composite Device
+InstanceId                  : USB\VID_239A&PID_0029\D02012062C578951
+DeviceID                    : STORAGE\VOLUME\_??_USBSTOR#DISK&VEN_ADAFRUIT&PROD_NRF_UF2&REV_1.0#7&10304CB2&0&D02012062C
+                              578951&0#{53F56307-B6BF-11D0-94F2-00A0C91EFB8B}
+PNPDeviceID                 : STORAGE\VOLUME\_??_USBSTOR#DISK&VEN_ADAFRUIT&PROD_NRF_UF2&REV_1.0#7&10304CB2&0&D02012062C
+                              578951&0#{53F56307-B6BF-11D0-94F2-00A0C91EFB8B}
+InstanceId                  : STORAGE\VOLUME\_??_USBSTOR#DISK&VEN_ADAFRUIT&PROD_NRF_UF2&REV_1.0#7&10304CB2&0&D02012062C
+                              578951&0#{53F56307-B6BF-11D0-94F2-00A0C91EFB8B}
+Caption                     : Volume
+Description                 : Volume
+Name                        : Volume
+ClassGuid                   : {71a27cdd-812a-11d0-bec7-08002be2092f}
+HardwareID                  : {STORAGE\Volume}
+PNPClass                    : Volume
+Service                     : volume
+Class                       : Volume
+FriendlyName                : Volume
+Description                 : Disk drive
+ClassGuid                   : {4d36e967-e325-11ce-bfc1-08002be10318}
+Manufacturer                : (Standard disk drives)
+PNPClass                    : DiskDrive
+Service                     : disk
+Class                       : DiskDrive
+Caption                     : TECHOBOOT
+Description                 : nRF UF2
+Name                        : TECHOBOOT
+DeviceID                    : SWD\WPDBUSENUM\_??_USBSTOR#DISK&VEN_ADAFRUIT&PROD_NRF_UF2&REV_1.0#7&10304CB2&0&D02012062C
+                              578951&0#{53F56307-B6BF-11D0-94F2-00A0C91EFB8B}
+PNPDeviceID                 : SWD\WPDBUSENUM\_??_USBSTOR#DISK&VEN_ADAFRUIT&PROD_NRF_UF2&REV_1.0#7&10304CB2&0&D02012062C
+                              578951&0#{53F56307-B6BF-11D0-94F2-00A0C91EFB8B}
+ClassGuid                   : {eec5ad98-8080-425f-922a-dabf3de3f69a}
+CompatibleID                : {wpdbusenum\fs, SWD\Generic}
+HardwareID                  :
+Manufacturer                : Adafruit
+PNPClass                    : WPD
+Service                     : WUDFWpdFs
+Class                       : WPD
+FriendlyName                : TECHOBOOT
+InstanceId                  : SWD\WPDBUSENUM\_??_USBSTOR#DISK&VEN_ADAFRUIT&PROD_NRF_UF2&REV_1.0#7&10304CB2&0&D02012062C
+                              578951&0#{53F56307-B6BF-11D0-94F2-00A0C91EFB8B}
+CompatibleID                :
+InstallDate                 :
+Status                      : OK
+Availability                :
+ConfigManagerErrorCode      : CM_PROB_NONE
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_PnPEntity
+ErrorCleared                :
+ErrorDescription            :
+LastErrorCode               :
+PowerManagementCapabilities :
+PowerManagementSupported    :
+StatusInfo                  :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-FRFQN8H
+Present                     : True
+PSComputerName              :
+Problem                     : CM_PROB_NONE
+ProblemDescription          :
+InstallDate                 :
+Status                      : OK
+Availability                :
+ConfigManagerErrorCode      : CM_PROB_NONE
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_PnPEntity
+ErrorCleared                :
+ErrorDescription            :
+LastErrorCode               :
+PowerManagementCapabilities :
+PowerManagementSupported    :
+StatusInfo                  :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-FRFQN8H
+Present                     : True
+PSComputerName              :
+Problem                     : CM_PROB_NONE
+ProblemDescription          :
+InstallDate                 :
+Status                      : OK
+Availability                :
+ConfigManagerErrorCode      : CM_PROB_NONE
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_PnPEntity
+ErrorCleared                :
+ErrorDescription            :
+LastErrorCode               :
+PowerManagementCapabilities :
+PowerManagementSupported    :
+StatusInfo                  :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-FRFQN8H
+Present                     : True
+PSComputerName              :
+Problem                     : CM_PROB_NONE
+ProblemDescription          :
+
+InstallDate                 :
+Status                      : OK
+Availability                :
+ConfigManagerErrorCode      : CM_PROB_NONE
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_PnPEntity
+ErrorCleared                :
+ErrorDescription            :
+LastErrorCode               :
+PowerManagementCapabilities :
+PowerManagementSupported    :
+StatusInfo                  :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-FRFQN8H
+Manufacturer                : Microsoft
+Present                     : True
+PSComputerName              :
+Problem                     : CM_PROB_NONE
+ProblemDescription          :
+
+InstallDate                 :
+Status                      : OK
+Availability                :
+ConfigManagerErrorCode      : CM_PROB_NONE
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_PnPEntity
+ErrorCleared                :
+ErrorDescription            :
+LastErrorCode               :
+PowerManagementCapabilities :
+PowerManagementSupported    :
+StatusInfo                  :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-FRFQN8H
+Present                     : True
+PSComputerName              :
+Problem                     : CM_PROB_NONE
+ProblemDescription          :
+
+InstallDate                 :
+Status                      : OK
+Availability                :
+ConfigManagerErrorCode      : CM_PROB_NONE
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_PnPEntity
+ErrorCleared                :
+ErrorDescription            :
+LastErrorCode               :
+PowerManagementCapabilities :
+PowerManagementSupported    :
+StatusInfo                  :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-FRFQN8H
+Manufacturer                : Microsoft
+Present                     : True
+PSComputerName              :
+Problem                     : CM_PROB_NONE
+ProblemDescription          :
+
+
+
+
+
+PS > Get-Volume
+
+DriveLetter FriendlyName FileSystemType DriveType HealthStatus OperationalStatus SizeRemaining     Size
+----------- ------------ -------------- --------- ------------ ----------------- -------------     ----
+            Recovery     NTFS           Fixed     Healthy      OK                    301.99 MB   854 MB
+C                        NTFS           Fixed     Healthy      OK                      22.3 GB 56.67 GB
+D           TECHOBOOT    FAT            Removable Healthy      OK                     30.05 MB 31.88 MB
+

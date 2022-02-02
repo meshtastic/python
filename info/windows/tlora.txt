@@ -1,8 +1,8 @@
 Run from Windows 10
 
-PS C:\Users\mikekinney> Get-PnpDevice -PresentOnly | Format-List > a
-PS C:\Users\mikekinney> Get-PnpDevice -PresentOnly | Format-List > b
-PS C:\Users\mikekinney> Compare-Object (get-content a) (Get-Content b)
+PS > Get-PnpDevice -PresentOnly | Format-List > a
+PS > Get-PnpDevice -PresentOnly | Format-List > b
+PS > Compare-Object (get-content a) (Get-Content b)
 
 InputObject                                                                                              SideIndicator
 -----------                                                                                              -------------

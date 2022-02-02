@@ -69,8 +69,10 @@ heltec_v2_1 = SupportedDevice(name="Heltec", version="2.1", for_firmware="heltec
 meshtastic_diy_v1 = SupportedDevice(name="Meshtastic DIY", version="1", for_firmware="meshtastic-diy-v1",
                               baseport_on_linux="ttyUSB", baseport_on_mac="cu.usbserial-",
                               usb_vendor_id_in_hex="10c4", usb_product_id_in_hex="ea60")
-# TODO: get info on TEcho
-techo_1 = SupportedDevice(name="T-Echo", version="1", for_firmware="t-echo-1", device_class="nrf52")
+# Note: The T-Echo reports product id in boot mode
+techo_1 = SupportedDevice(name="T-Echo", version="1", for_firmware="t-echo-1", device_class="nrf52",
+                              baseport_on_linux="ttyACM", baseport_on_mac="cu.usbmodem",
+                              usb_vendor_id_in_hex="239a", usb_product_id_in_hex="0029")
 rak4631_5005 = SupportedDevice(name="RAK 4631 5005", version="", for_firmware="rak4631_5005",
                                device_class="nrf52",
                                baseport_on_linux="ttyACM", baseport_on_mac="cu.usbmodem",
