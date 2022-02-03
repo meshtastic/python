@@ -3,7 +3,6 @@
 # source: cannedmessages.proto
 """Generated protocol buffer code."""
 from google.protobuf import descriptor as _descriptor
-from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
@@ -14,15 +13,184 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x63\x61nnedmessages.proto\"/\n\x1f\x43\x61nnedMessagePluginMessagePart1\x12\x0c\n\x04text\x18\x01 \x01(\t\"/\n\x1f\x43\x61nnedMessagePluginMessagePart2\x12\x0c\n\x04text\x18\x01 \x01(\t\"/\n\x1f\x43\x61nnedMessagePluginMessagePart3\x12\x0c\n\x04text\x18\x01 \x01(\t\"/\n\x1f\x43\x61nnedMessagePluginMessagePart4\x12\x0c\n\x04text\x18\x01 \x01(\t\"/\n\x1f\x43\x61nnedMessagePluginMessagePart5\x12\x0c\n\x04text\x18\x01 \x01(\tBU\n\x13\x63om.geeksville.meshB\x19\x43\x61nnedMessageConfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3')
+DESCRIPTOR = _descriptor.FileDescriptor(
+  name='cannedmessages.proto',
+  package='',
+  syntax='proto3',
+  serialized_options=b'\n\023com.geeksville.meshB\031CannedMessageConfigProtosH\003Z!github.com/meshtastic/gomeshproto',
+  create_key=_descriptor._internal_create_key,
+  serialized_pb=b'\n\x14\x63\x61nnedmessages.proto\"/\n\x1f\x43\x61nnedMessagePluginMessagePart1\x12\x0c\n\x04text\x18\x01 \x01(\t\"/\n\x1f\x43\x61nnedMessagePluginMessagePart2\x12\x0c\n\x04text\x18\x01 \x01(\t\"/\n\x1f\x43\x61nnedMessagePluginMessagePart3\x12\x0c\n\x04text\x18\x01 \x01(\t\"/\n\x1f\x43\x61nnedMessagePluginMessagePart4\x12\x0c\n\x04text\x18\x01 \x01(\t\"/\n\x1f\x43\x61nnedMessagePluginMessagePart5\x12\x0c\n\x04text\x18\x01 \x01(\tBU\n\x13\x63om.geeksville.meshB\x19\x43\x61nnedMessageConfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+)
 
 
 
-_CANNEDMESSAGEPLUGINMESSAGEPART1 = DESCRIPTOR.message_types_by_name['CannedMessagePluginMessagePart1']
-_CANNEDMESSAGEPLUGINMESSAGEPART2 = DESCRIPTOR.message_types_by_name['CannedMessagePluginMessagePart2']
-_CANNEDMESSAGEPLUGINMESSAGEPART3 = DESCRIPTOR.message_types_by_name['CannedMessagePluginMessagePart3']
-_CANNEDMESSAGEPLUGINMESSAGEPART4 = DESCRIPTOR.message_types_by_name['CannedMessagePluginMessagePart4']
-_CANNEDMESSAGEPLUGINMESSAGEPART5 = DESCRIPTOR.message_types_by_name['CannedMessagePluginMessagePart5']
+
+_CANNEDMESSAGEPLUGINMESSAGEPART1 = _descriptor.Descriptor(
+  name='CannedMessagePluginMessagePart1',
+  full_name='CannedMessagePluginMessagePart1',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='text', full_name='CannedMessagePluginMessagePart1.text', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=24,
+  serialized_end=71,
+)
+
+
+_CANNEDMESSAGEPLUGINMESSAGEPART2 = _descriptor.Descriptor(
+  name='CannedMessagePluginMessagePart2',
+  full_name='CannedMessagePluginMessagePart2',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='text', full_name='CannedMessagePluginMessagePart2.text', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=73,
+  serialized_end=120,
+)
+
+
+_CANNEDMESSAGEPLUGINMESSAGEPART3 = _descriptor.Descriptor(
+  name='CannedMessagePluginMessagePart3',
+  full_name='CannedMessagePluginMessagePart3',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='text', full_name='CannedMessagePluginMessagePart3.text', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=122,
+  serialized_end=169,
+)
+
+
+_CANNEDMESSAGEPLUGINMESSAGEPART4 = _descriptor.Descriptor(
+  name='CannedMessagePluginMessagePart4',
+  full_name='CannedMessagePluginMessagePart4',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='text', full_name='CannedMessagePluginMessagePart4.text', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=171,
+  serialized_end=218,
+)
+
+
+_CANNEDMESSAGEPLUGINMESSAGEPART5 = _descriptor.Descriptor(
+  name='CannedMessagePluginMessagePart5',
+  full_name='CannedMessagePluginMessagePart5',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='text', full_name='CannedMessagePluginMessagePart5.text', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=220,
+  serialized_end=267,
+)
+
+DESCRIPTOR.message_types_by_name['CannedMessagePluginMessagePart1'] = _CANNEDMESSAGEPLUGINMESSAGEPART1
+DESCRIPTOR.message_types_by_name['CannedMessagePluginMessagePart2'] = _CANNEDMESSAGEPLUGINMESSAGEPART2
+DESCRIPTOR.message_types_by_name['CannedMessagePluginMessagePart3'] = _CANNEDMESSAGEPLUGINMESSAGEPART3
+DESCRIPTOR.message_types_by_name['CannedMessagePluginMessagePart4'] = _CANNEDMESSAGEPLUGINMESSAGEPART4
+DESCRIPTOR.message_types_by_name['CannedMessagePluginMessagePart5'] = _CANNEDMESSAGEPLUGINMESSAGEPART5
+_sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
 CannedMessagePluginMessagePart1 = _reflection.GeneratedProtocolMessageType('CannedMessagePluginMessagePart1', (_message.Message,), {
   'DESCRIPTOR' : _CANNEDMESSAGEPLUGINMESSAGEPART1,
   '__module__' : 'cannedmessages_pb2'
@@ -58,18 +226,6 @@ CannedMessagePluginMessagePart5 = _reflection.GeneratedProtocolMessageType('Cann
   })
 _sym_db.RegisterMessage(CannedMessagePluginMessagePart5)
 
-if _descriptor._USE_C_DESCRIPTORS == False:
 
-  DESCRIPTOR._options = None
-  DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\031CannedMessageConfigProtosH\003Z!github.com/meshtastic/gomeshproto'
-  _CANNEDMESSAGEPLUGINMESSAGEPART1._serialized_start=24
-  _CANNEDMESSAGEPLUGINMESSAGEPART1._serialized_end=71
-  _CANNEDMESSAGEPLUGINMESSAGEPART2._serialized_start=73
-  _CANNEDMESSAGEPLUGINMESSAGEPART2._serialized_end=120
-  _CANNEDMESSAGEPLUGINMESSAGEPART3._serialized_start=122
-  _CANNEDMESSAGEPLUGINMESSAGEPART3._serialized_end=169
-  _CANNEDMESSAGEPLUGINMESSAGEPART4._serialized_start=171
-  _CANNEDMESSAGEPLUGINMESSAGEPART4._serialized_end=218
-  _CANNEDMESSAGEPLUGINMESSAGEPART5._serialized_start=220
-  _CANNEDMESSAGEPLUGINMESSAGEPART5._serialized_end=267
+DESCRIPTOR._options = None
 # @@protoc_insertion_point(module_scope)
