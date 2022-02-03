@@ -32,4 +32,5 @@ jobs:
           git config --global user.email 'bot@noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git add proto
+          git add meshtastic
           git commit -m "Update protobuf submodule" && git push || echo "No changes to commit"
