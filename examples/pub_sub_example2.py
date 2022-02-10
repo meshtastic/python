@@ -14,11 +14,11 @@ if len(sys.argv) < 2:
     print(f"usage: {sys.argv[0]} host")
     sys.exit(1)
 
-def onReceive(packet, interface):
+def onReceive(packet, interface): # pylint: disable=unused-argument
     """called when a packet arrives"""
     print(f"Received: {packet}")
 
-def onConnection(interface, topic=pub.AUTO_TOPIC):
+def onConnection(interface, topic=pub.AUTO_TOPIC): # pylint: disable=unused-argument
     """called when we (re)connect to the radio"""
     # defaults to broadcast, specify a destination ID if you wish
     interface.sendText("hello mesh")

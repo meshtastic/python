@@ -16,7 +16,7 @@ docs:
 
 # lint the codebase
 lint:
-	pylint meshtastic
+	pylint meshtastic examples
 
 # show the slowest unit tests
 slow:

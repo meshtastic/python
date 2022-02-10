@@ -35,7 +35,7 @@ jobs:
           which meshtastic
           meshtastic --version
       - name: Run pylint
-        run: pylint meshtastic
+        run: pylint meshtastic examples/
       - name: Run tests with pytest
         run: pytest --cov=meshtastic
       - name: Generate coverage report
