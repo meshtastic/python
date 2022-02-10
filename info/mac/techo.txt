@@ -30,3 +30,11 @@ drwxrwxrwx  1 bob         staff      512 Feb  1 16:47 .fseventsd
 % diff /tmp/a /tmp/c
 <snip>
 >   | +-o T-Echo v1@14300000  <class AppleUSBDevice, id 0x100061000, registered, matched, active, busy 0 (25 ms), retain 16>
+
+contents of: INFO_UF2.TXT
+
+UF2 Bootloader 0.6.1-2-g1224915 lib/nrfx (v2.0.0) lib/tinyusb (0.10.1-293-gaf8e5a90) lib/uf2 (remotes/origin/configupdate-9-gadbb8c7)
+Model: LilyGo T-Echo
+Board-ID: nRF52840-TEcho-v1
+SoftDevice: S140 version 6.1.1
+Date: Oct 13 2021
