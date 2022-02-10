@@ -66,6 +66,9 @@ heltec_v2_0 = SupportedDevice(name="Heltec", version="2.0", for_firmware="heltec
 heltec_v2_1 = SupportedDevice(name="Heltec", version="2.1", for_firmware="heltec-v2.1",
                               baseport_on_linux="ttyUSB", baseport_on_mac="cu.usbserial-",
                               usb_vendor_id_in_hex="10c4", usb_product_id_in_hex="ea60")
+rak11200 = SupportedDevice(name="RAK 11200", version="", for_firmware="rak11200",
+                              baseport_on_linux="ttyUSB", baseport_on_mac="cu.usbserial-",
+                              usb_vendor_id_in_hex="1a86", usb_product_id_in_hex="7523")
 meshtastic_diy_v1 = SupportedDevice(name="Meshtastic DIY", version="1", for_firmware="meshtastic-diy-v1",
                               baseport_on_linux="ttyUSB", baseport_on_mac="cu.usbserial-",
                               usb_vendor_id_in_hex="10c4", usb_product_id_in_hex="ea60")
@@ -86,7 +89,8 @@ rak4631_19003 = SupportedDevice(name="RAK 4631 19003", version="", for_firmware=
 supported_devices = [tbeam_v0_7, tbeam_v1_1, tbeam_M8N, tbeam_M8N_SX1262,
                      tlora_v1_1, tlora_v1_3, tlora_v2_0, tlora_v2_1, tlora_v2_1_1_6,
                      heltec_v1, heltec_v2_0, heltec_v2_1,
-                     meshtastic_diy_v1, techo_1, rak4631_5005, rak4631_19003]
+                     meshtastic_diy_v1, techo_1, rak4631_5005, rak4631_19003,
+                     rak11200]
 
 
 def get_unique_vendor_ids():
