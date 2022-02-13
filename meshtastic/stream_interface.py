@@ -89,7 +89,8 @@ class StreamInterface(MeshInterface):
             self.stream.write(b)
             self.stream.flush()
             # we sleep here to give the TBeam a chance to work
-            time.sleep(0.1)
+            # also win11 might need a bit more time, too
+            time.sleep(1.0)
 
     def _readBytes(self, length):
         """Read an array of bytes from our stream"""
