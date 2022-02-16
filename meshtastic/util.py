@@ -401,13 +401,11 @@ def eliminate_duplicate_port(ports):
         if 'usbserial' in ports[0] and 'wchusbserial' in ports[1]:
             first = ports[0].replace("usbserial-", "")
             second = ports[1].replace("wchusbserial", "")
-            print(f'first:{first} second:{second}')
             if first == second:
                 new_ports.append(ports[1])
         elif 'usbmodem' in ports[0] and 'wchusbserial' in ports[1]:
             first = ports[0].replace("usbmodem", "")
             second = ports[1].replace("wchusbserial", "")
-            print(f'first:{first} second:{second}')
             if first == second:
                 new_ports.append(ports[1])
         elif 'SLAB_USBtoUART' in ports[0] and 'usbserial' in ports[1]:
