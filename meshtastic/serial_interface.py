@@ -30,9 +30,13 @@ class SerialInterface(StreamInterface):
             if len(ports) == 0:
                 meshtastic.util.our_exit("Warning: No Meshtastic devices detected.")
             elif len(ports) > 1:
-                message = "Warning: Multiple serial ports were detected so one serial port must be specified with the '--port'.\n"
-                message += f"  Ports detected:{ports}"
-                meshtastic.util.our_exit(message)
+                tmp_ports = meshtastic.util.eliminate_duplicate_port(ports)
+                if len(tmp_ports) != 1:
+                    message = "Warning: Multiple serial ports were detected so one serial port must be specified with the '--port'.\n"
+                    message += f"  Ports detected:{ports}"
+                    meshtastic.util.our_exit(message)
+                else:
+                    devPath = tmp_ports[0]
             else:
                 devPath = ports[0]
 
