@@ -381,3 +381,37 @@ def detect_windows_needs_driver(sd, print_reason=False):
                 if print_reason:
                     print(sp_output)
     return need_to_install_driver
+
+
+def eliminate_duplicate_port(ports):
+    """Sometimes we detect 2 serial ports, but we really only need to use one of the ports.
+
+       ports is a list of ports
+       return a list with a single port to use, if it meets the duplicate port conditions
+
+        examples:
+            Ports: ['/dev/cu.usbserial-1430', '/dev/cu.wchusbserial1430'] => ['/dev/cu.wchusbserial1430']
+            Ports: ['/dev/cu.usbmodem11301', '/dev/cu.wchusbserial11301'] => ['/dev/cu.wchusbserial11301']
+            Ports: ['/dev/cu.SLAB_USBtoUART', '/dev/cu.usbserial-0001'] => ['/dev/cu.usbserial-0001']
+    """
+    new_ports = []
+    if len(ports) != 2:
+        new_ports = ports
+    else:
+        if 'usbserial' in ports[0] and 'wchusbserial' in ports[1]:
+            first = ports[0].replace("usbserial-", "")
+            second = ports[1].replace("wchusbserial", "")
+            print(f'first:{first} second:{second}')
+            if first == second:
+                new_ports.append(ports[1])
+        elif 'usbmodem' in ports[0] and 'wchusbserial' in ports[1]:
+            first = ports[0].replace("usbmodem", "")
+            second = ports[1].replace("wchusbserial", "")
+            print(f'first:{first} second:{second}')
+            if first == second:
+                new_ports.append(ports[1])
+        elif 'SLAB_USBtoUART' in ports[0] and 'usbserial' in ports[1]:
+            new_ports.append(ports[1])
+        else:
+            new_ports = ports
+    return new_ports

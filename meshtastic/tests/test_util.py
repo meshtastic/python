@@ -11,7 +11,7 @@ from meshtastic.util import (fixme, stripnl, pskToString, our_exit,
                              quoteBooleans, catchAndIgnore,
                              remove_keys_from_dict, Timeout, hexstr,
                              ipstr, readnet_u16, findPorts, convert_mac_addr,
-                             snake_to_camel, camel_to_snake)
+                             snake_to_camel, camel_to_snake, eliminate_duplicate_port)
 
 
 @pytest.mark.unit
@@ -272,3 +272,15 @@ def test_camel_to_snake():
     assert camel_to_snake('Foo') == 'foo'
     assert camel_to_snake('fooBar') == 'foo_bar'
     assert camel_to_snake('fooBarBaz') == 'foo_bar_baz'
+
+
+@pytest.mark.unit
+def test_eliminate_duplicate_port():
+    """Test eliminate_duplicate_port()"""
+    assert not eliminate_duplicate_port([])
+    assert eliminate_duplicate_port(['/dev/fake']) == ['/dev/fake']
+    assert eliminate_duplicate_port(['/dev/fake', '/dev/fake1']) == ['/dev/fake', '/dev/fake1']
+    assert eliminate_duplicate_port(['/dev/fake', '/dev/fake1', '/dev/fake2']) == ['/dev/fake', '/dev/fake1', '/dev/fake2']
+    assert eliminate_duplicate_port(['/dev/cu.usbserial-1430', '/dev/cu.wchusbserial1430']) == ['/dev/cu.wchusbserial1430']
+    assert eliminate_duplicate_port(['/dev/cu.SLAB_USBtoUART', '/dev/cu.usbserial-0001']) == ['/dev/cu.usbserial-0001']
+    assert eliminate_duplicate_port(['/dev/cu.usbmodem11301', '/dev/cu.wchusbserial11301']) == ['/dev/cu.wchusbserial11301']
