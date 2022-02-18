@@ -160,7 +160,7 @@ def test_smoke1_send_hello():
 def test_smoke1_port():
     """Test --port"""
     # first, get the ports
-    ports = findPorts()
+    ports = findPorts(True)
     # hopefully there is just one
     assert len(ports) == 1
     port = ports[0]

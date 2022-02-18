@@ -249,6 +249,38 @@ def test_findPorts_when_none_found(patch_comports):
 
 
 @pytest.mark.unitslow
+@patch('serial.tools.list_ports.comports')
+def test_findPorts_when_duplicate_found_and_duplicate_option_used(patch_comports):
+    """Test findPorts()"""
+    class TempPort:
+        """ temp class for port"""
+        def __init__(self, device=None, vid=None):
+            self.device = device
+            self.vid = vid
+    fake1 = TempPort('/dev/cu.usbserial-1430', vid='fake1')
+    fake2 = TempPort('/dev/cu.wchusbserial1430', vid='fake2')
+    patch_comports.return_value = [fake1, fake2]
+    assert findPorts(eliminate_duplicates=True) == ['/dev/cu.wchusbserial1430']
+    patch_comports.assert_called()
+
+
+@pytest.mark.unitslow
+@patch('serial.tools.list_ports.comports')
+def test_findPorts_when_duplicate_found_and_duplicate_option_not_used(patch_comports):
+    """Test findPorts()"""
+    class TempPort:
+        """ temp class for port"""
+        def __init__(self, device=None, vid=None):
+            self.device = device
+            self.vid = vid
+    fake1 = TempPort('/dev/cu.usbserial-1430', vid='fake1')
+    fake2 = TempPort('/dev/cu.wchusbserial1430', vid='fake2')
+    patch_comports.return_value = [fake1, fake2]
+    assert findPorts() == ['/dev/cu.usbserial-1430', '/dev/cu.wchusbserial1430']
+    patch_comports.assert_called()
+
+
+@pytest.mark.unitslow
 def test_convert_mac_addr():
     """Test convert_mac_addr()"""
     assert convert_mac_addr('/c0gFyhb') == 'fd:cd:20:17:28:5b'

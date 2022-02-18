@@ -149,7 +149,7 @@ def testAll(numTests=5):
     This is called from the cli with the "--test" option.
 
     """
-    ports = meshtastic.util.findPorts()
+    ports = meshtastic.util.findPorts(True)
     if len(ports) < 2:
         meshtastic.util.our_exit("Warning: Must have at least two devices connected to USB.")
 

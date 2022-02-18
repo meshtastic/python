@@ -24,21 +24,17 @@ class SerialInterface(StreamInterface):
         """
         self.noProto = noProto
 
-        self.devPath = None
+        self.devPath = devPath
 
-        if devPath is None:
-            ports = meshtastic.util.findPorts()
+        if self.devPath is None:
+            ports = meshtastic.util.findPorts(True)
             logging.debug(f"ports:{ports}")
             if len(ports) == 0:
                 meshtastic.util.our_exit("Warning: No Meshtastic devices detected.")
             elif len(ports) > 1:
-                tmp_ports = meshtastic.util.eliminate_duplicate_port(ports)
-                if len(tmp_ports) != 1:
-                    message = "Warning: Multiple serial ports were detected so one serial port must be specified with the '--port'.\n"
-                    message += f"  Ports detected:{ports}"
-                    meshtastic.util.our_exit(message)
-                else:
-                    self.devPath = tmp_ports[0]
+                message = "Warning: Multiple serial ports were detected so one serial port must be specified with the '--port'.\n"
+                message += f"  Ports detected:{ports}"
+                meshtastic.util.our_exit(message)
             else:
                 self.devPath = ports[0]
 
