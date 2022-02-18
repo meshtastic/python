@@ -113,8 +113,9 @@ def catchAndIgnore(reason, closure):
         logging.error(f"Exception thrown in {reason}: {ex}")
 
 
-def findPorts():
+def findPorts(eliminate_duplicates=False):
     """Find all ports that might have meshtastic devices
+       eliminate_duplicates will run the eliminate_duplicate_port() on the collection
 
     Returns:
         list -- a list of device paths
@@ -123,6 +124,8 @@ def findPorts():
                  filter(lambda port: port.vid is not None and port.vid not in blacklistVids,
                         serial.tools.list_ports.comports())))
     l.sort()
+    if eliminate_duplicates:
+        l = eliminate_duplicate_port(l)
     return l
 
 
@@ -421,7 +424,6 @@ def is_windows11():
     if platform.system() == "Windows":
         if float(platform.release()) >= 10.0:
             patch = platform.version().split('.')[2]
-            print(f'patch:{patch}')
             # in case they add some number suffix later, just get first 5 chars of patch
             patch = patch[:5]
             try:
@@ -429,5 +431,4 @@ def is_windows11():
                     is_win11 = True
             except Exception as e:
                 print(f'problem detecting win11 e:{e}')
-    print(f'is_win11:{is_win11}')
     return is_win11
