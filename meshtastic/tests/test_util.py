@@ -11,7 +11,8 @@ from meshtastic.util import (fixme, stripnl, pskToString, our_exit,
                              quoteBooleans, catchAndIgnore,
                              remove_keys_from_dict, Timeout, hexstr,
                              ipstr, readnet_u16, findPorts, convert_mac_addr,
-                             snake_to_camel, camel_to_snake, eliminate_duplicate_port)
+                             snake_to_camel, camel_to_snake, eliminate_duplicate_port,
+                             is_windows11)
 
 
 @pytest.mark.unit
@@ -284,3 +285,44 @@ def test_eliminate_duplicate_port():
     assert eliminate_duplicate_port(['/dev/cu.usbserial-1430', '/dev/cu.wchusbserial1430']) == ['/dev/cu.wchusbserial1430']
     assert eliminate_duplicate_port(['/dev/cu.SLAB_USBtoUART', '/dev/cu.usbserial-0001']) == ['/dev/cu.usbserial-0001']
     assert eliminate_duplicate_port(['/dev/cu.usbmodem11301', '/dev/cu.wchusbserial11301']) == ['/dev/cu.wchusbserial11301']
+
+@patch('platform.version', return_value='10.0.22000.194')
+@patch('platform.release', return_value='10')
+@patch('platform.system', return_value='Windows')
+def test_is_windows11_true(patched_platform, patched_release, patched_version):
+    """Test is_windows11()"""
+    assert is_windows11() is True
+    patched_platform.assert_called()
+    patched_release.assert_called()
+    patched_version.assert_called()
+
+
+@patch('platform.version', return_value='10.0.a2200.foo') # made up
+@patch('platform.release', return_value='10')
+@patch('platform.system', return_value='Windows')
+def test_is_windows11_true2(patched_platform, patched_release, patched_version):
+    """Test is_windows11()"""
+    assert is_windows11() is False
+    patched_platform.assert_called()
+    patched_release.assert_called()
+    patched_version.assert_called()
+
+
+@patch('platform.version', return_value='10.0.17763') # windows 10 home
+@patch('platform.release', return_value='10')
+@patch('platform.system', return_value='Windows')
+def test_is_windows11_false(patched_platform, patched_release, patched_version):
+    """Test is_windows11()"""
+    assert is_windows11() is False
+    patched_platform.assert_called()
+    patched_release.assert_called()
+    patched_version.assert_called()
+
+
+@patch('platform.release', return_value='8.1')
+@patch('platform.system', return_value='Windows')
+def test_is_windows11_false_win8_1(patched_platform, patched_release):
+    """Test is_windows11()"""
+    assert is_windows11() is False
+    patched_platform.assert_called()
+    patched_release.assert_called()
