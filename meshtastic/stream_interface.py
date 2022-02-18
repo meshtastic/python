@@ -8,7 +8,7 @@ import serial
 
 
 from meshtastic.mesh_interface import MeshInterface
-from meshtastic.util import stripnl
+from meshtastic.util import stripnl, is_windows11
 
 
 START1 = 0x94
@@ -37,6 +37,8 @@ class StreamInterface(MeshInterface):
                 "StreamInterface is now abstract (to update existing code create SerialInterface instead)")
         self._rxBuf = bytes()  # empty
         self._wantExit = False
+
+        self.is_windows11 = is_windows11()
 
         # FIXME, figure out why daemon=True causes reader thread to exit too early
         self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
@@ -88,9 +90,12 @@ class StreamInterface(MeshInterface):
         if self.stream:  # ignore writes when stream is closed
             self.stream.write(b)
             self.stream.flush()
-            # we sleep here to give the TBeam a chance to work
-            # also win11 might need a bit more time, too
-            time.sleep(1.0)
+            # win11 might need a bit more time, too
+            if self.is_windows11:
+                time.sleep(1.0)
+            else:
+                # we sleep here to give the TBeam a chance to work
+                time.sleep(0.1)
 
     def _readBytes(self, length):
         """Read an array of bytes from our stream"""

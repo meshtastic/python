@@ -413,3 +413,21 @@ def eliminate_duplicate_port(ports):
         else:
             new_ports = ports
     return new_ports
+
+
+def is_windows11():
+    """Detect if Windows 11"""
+    is_win11 = False
+    if platform.system() == "Windows":
+        if float(platform.release()) >= 10.0:
+            patch = platform.version().split('.')[2]
+            print(f'patch:{patch}')
+            # in case they add some number suffix later, just get first 5 chars of patch
+            patch = patch[:5]
+            try:
+                if int(patch) >= 22000:
+                    is_win11 = True
+            except Exception as e:
+                print(f'problem detecting win11 e:{e}')
+    print(f'is_win11:{is_win11}')
+    return is_win11
