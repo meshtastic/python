@@ -24,6 +24,8 @@ class SerialInterface(StreamInterface):
         """
         self.noProto = noProto
 
+        self.devPath = None
+
         if devPath is None:
             ports = meshtastic.util.findPorts()
             logging.debug(f"ports:{ports}")
@@ -36,23 +38,23 @@ class SerialInterface(StreamInterface):
                     message += f"  Ports detected:{ports}"
                     meshtastic.util.our_exit(message)
                 else:
-                    devPath = tmp_ports[0]
+                    self.devPath = tmp_ports[0]
             else:
-                devPath = ports[0]
+                self.devPath = ports[0]
 
-        logging.debug(f"Connecting to {devPath}")
+        logging.debug(f"Connecting to {self.devPath}")
 
         # first we need to set the HUPCL so the device will not reboot based on RTS and/or DTR
         # see https://github.com/pyserial/pyserial/issues/124
         if platform.system() != 'Windows':
-            with open(devPath, encoding='utf8') as f:
+            with open(self.devPath, encoding='utf8') as f:
                 attrs = termios.tcgetattr(f)
                 attrs[2] = attrs[2] & ~termios.HUPCL
                 termios.tcsetattr(f, termios.TCSAFLUSH, attrs)
                 f.close()
             time.sleep(0.1)
 
-        self.stream = serial.Serial(devPath, 921600, exclusive=True, timeout=0.5, write_timeout=0)
+        self.stream = serial.Serial(self.devPath, 921600, exclusive=True, timeout=0.5, write_timeout=0)
         self.stream.flush()
         time.sleep(0.1)
 
