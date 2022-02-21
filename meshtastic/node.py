@@ -3,6 +3,7 @@
 
 import logging
 import base64
+import time
 from google.protobuf.json_format import MessageToJson
 from meshtastic import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
 from meshtastic.util import pskToString, stripnl, Timeout, our_exit, fromPSK
@@ -23,6 +24,13 @@ class Node:
         self._timeout = Timeout(maxSecs=300)
         self.partialChannels = None
         self.noProto = noProto
+
+        self.cannedPluginMessage = None
+
+        self.cannedPluginMessagePart1 = None
+        self.cannedPluginMessagePart2 = None
+        self.cannedPluginMessagePart3 = None
+        self.cannedPluginMessagePart4 = None
 
     def showChannels(self):
         """Show human readable description of our channels."""
@@ -56,6 +64,14 @@ class Node:
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
 
+        # Note: We do not get the canned plugin message, unless get_canned_message() is called
+        self.cannedPluginMessage = None
+
+        self.cannedPluginMessagePart1 = None
+        self.cannedPluginMessagePart2 = None
+        self.cannedPluginMessagePart3 = None
+        self.cannedPluginMessagePart4 = None
+
         self._requestSettings()
 
     def turnOffEncryptionOnPrimaryChannel(self):
@@ -64,9 +80,9 @@ class Node:
         print("Writing modified channels to device")
         self.writeChannel(0)
 
-    def waitForConfig(self):
+    def waitForConfig(self, attribute='channels'):
         """Block until radio config is received. Returns True if config has been received."""
-        return self._timeout.waitForSet(self, attrs=('radioConfig', 'channels'))
+        return self._timeout.waitForSet(self, attrs=('radioConfig', attribute))
 
     def writeConfig(self):
         """Write the current (edited) radioConfig to the device"""
@@ -237,7 +253,7 @@ class Node:
         """Handle the response packet for requesting settings _requestSettings()"""
         logging.debug(f'onResponseRequestSetting() p:{p}')
         errorFound = False
-        if 'routing' in p["decoded"]:
+        if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
@@ -267,6 +283,156 @@ class Node:
             print("Note: This could take a while (it requests remote channel configs, then writes config)")
 
         return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestSettings)
+
+    def onResponseRequestCannedMessagePluginMessagePart1(self, p):
+        """Handle the response packet for requesting canned message plugin message part 1"""
+        logging.debug(f'onResponseRequestCannedMessagePluginMessagePart1() p:{p}')
+        errorFound = False
+        if "routing" in p["decoded"]:
+            if p["decoded"]["routing"]["errorReason"] != "NONE":
+                errorFound = True
+                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+        if errorFound is False:
+            if "decoded" in p:
+                if "admin" in p["decoded"]:
+                    if "raw" in p["decoded"]["admin"]:
+                        self.cannedPluginMessagePart1 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part1_response
+                        logging.debug(f'self.cannedPluginMessagePart1:{self.cannedPluginMessagePart1}')
+                        self.gotResponse = True
+
+    def onResponseRequestCannedMessagePluginMessagePart2(self, p):
+        """Handle the response packet for requesting canned message plugin message part 2"""
+        logging.debug(f'onResponseRequestCannedMessagePluginMessagePart2() p:{p}')
+        errorFound = False
+        if "routing" in p["decoded"]:
+            if p["decoded"]["routing"]["errorReason"] != "NONE":
+                errorFound = True
+                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+        if errorFound is False:
+            if "decoded" in p:
+                if "admin" in p["decoded"]:
+                    if "raw" in p["decoded"]["admin"]:
+                        self.cannedPluginMessagePart2 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part2_response
+                        logging.debug(f'self.cannedPluginMessagePart2:{self.cannedPluginMessagePart2}')
+                        self.gotResponse = True
+
+    def onResponseRequestCannedMessagePluginMessagePart3(self, p):
+        """Handle the response packet for requesting canned message plugin message part 3"""
+        logging.debug(f'onResponseRequestCannedMessagePluginMessagePart3() p:{p}')
+        errorFound = False
+        if "routing" in p["decoded"]:
+            if p["decoded"]["routing"]["errorReason"] != "NONE":
+                errorFound = True
+                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+        if errorFound is False:
+            if "decoded" in p:
+                if "admin" in p["decoded"]:
+                    if "raw" in p["decoded"]["admin"]:
+                        self.cannedPluginMessagePart3 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part3_response
+                        logging.debug(f'self.cannedPluginMessagePart3:{self.cannedPluginMessagePart3}')
+                        self.gotResponse = True
+
+    def onResponseRequestCannedMessagePluginMessagePart4(self, p):
+        """Handle the response packet for requesting canned message plugin message part 4"""
+        logging.debug(f'onResponseRequestCannedMessagePluginMessagePart4() p:{p}')
+        errorFound = False
+        if "routing" in p["decoded"]:
+            if p["decoded"]["routing"]["errorReason"] != "NONE":
+                errorFound = True
+                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+        if errorFound is False:
+            if "decoded" in p:
+                if "admin" in p["decoded"]:
+                    if "raw" in p["decoded"]["admin"]:
+                        self.cannedPluginMessagePart4 = p["decoded"]["admin"]["raw"].get_canned_message_plugin_part4_response
+                        logging.debug(f'self.cannedPluginMessagePart4:{self.cannedPluginMessagePart4}')
+                        self.gotResponse = True
+
+    def get_canned_message(self):
+        """Get the canned message string. Concatenate all pieces together and return a single string."""
+        logging.debug(f'in get_canned_message()')
+        if not self.cannedPluginMessage:
+
+            p1 = admin_pb2.AdminMessage()
+            p1.get_canned_message_plugin_part1_request = True
+            self.gotResponse = False
+            self._sendAdmin(p1, wantResponse=True, onResponse=self.onResponseRequestCannedMessagePluginMessagePart1)
+            while self.gotResponse is False:
+                time.sleep(0.1)
+
+            p2 = admin_pb2.AdminMessage()
+            p2.get_canned_message_plugin_part2_request = True
+            self.gotResponse = False
+            self._sendAdmin(p2, wantResponse=True, onResponse=self.onResponseRequestCannedMessagePluginMessagePart2)
+            while self.gotResponse is False:
+                time.sleep(0.1)
+
+            p3 = admin_pb2.AdminMessage()
+            p3.get_canned_message_plugin_part3_request = True
+            self.gotResponse = False
+            self._sendAdmin(p3, wantResponse=True, onResponse=self.onResponseRequestCannedMessagePluginMessagePart3)
+            while self.gotResponse is False:
+                time.sleep(0.1)
+
+            p4 = admin_pb2.AdminMessage()
+            p4.get_canned_message_plugin_part4_request = True
+            self.gotResponse = False
+            self._sendAdmin(p4, wantResponse=True, onResponse=self.onResponseRequestCannedMessagePluginMessagePart4)
+            while self.gotResponse is False:
+                time.sleep(0.1)
+
+            # TODO: This feels wrong to have a sleep here. Is there a way to ensure that
+            # all requests are complete? Perhaps change to a while loop any parts are None... maybe?
+            time.sleep(3)
+
+            logging.debug(f'self.cannedPluginMessagePart1:{self.cannedPluginMessagePart1}')
+            logging.debug(f'self.cannedPluginMessagePart2:{self.cannedPluginMessagePart2}')
+            logging.debug(f'self.cannedPluginMessagePart3:{self.cannedPluginMessagePart3}')
+            logging.debug(f'self.cannedPluginMessagePart4:{self.cannedPluginMessagePart4}')
+
+            self.cannedPluginMessage = ""
+            if self.cannedPluginMessagePart1:
+                self.cannedPluginMessage += self.cannedPluginMessagePart1
+            if self.cannedPluginMessagePart2:
+                self.cannedPluginMessage += self.cannedPluginMessagePart2
+            if self.cannedPluginMessagePart3:
+                self.cannedPluginMessage += self.cannedPluginMessagePart3
+            if self.cannedPluginMessagePart4:
+                self.cannedPluginMessage += self.cannedPluginMessagePart4
+
+        print(f'canned_plugin_message:{self.cannedPluginMessage}')
+        logging.debug(f'canned_plugin_message:{self.cannedPluginMessage}')
+        return self.cannedPluginMessage
+
+    def set_canned_message(self, message):
+        """Set the canned message. Split into parts of 200 chars each."""
+
+        if len(message) > 800:
+            our_exit("Warning: The canned message must be less than 800 characters.")
+
+        # split into chunks
+        chunks = []
+        chunks_size = 200
+        for i in range(0, len(message), chunks_size):
+            chunks.append(message[i: i + chunks_size])
+
+        # for each chunk, send a message to set the values
+        #for i in range(0, len(chunks)):
+        for i, chunk in enumerate(chunks):
+            p = admin_pb2.AdminMessage()
+
+            # TODO: should be a way to improve this
+            if i == 0:
+                p.set_canned_message_plugin_part1 = chunk
+            elif i == 1:
+                p.set_canned_message_plugin_part2 = chunk
+            elif i == 2:
+                p.set_canned_message_plugin_part3 = chunk
+            elif i == 3:
+                p.set_canned_message_plugin_part4 = chunk
+
+            logging.debug(f"Setting canned message '{chunk}' part {i+1}")
+            self._sendAdmin(p)
 
     def exitSimulator(self):
         """Tell a simulator node to exit (this message
