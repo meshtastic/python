@@ -41,7 +41,7 @@ bad-names=foo,bar,baz,toto,tutu,tata
 max-line-length=150
 
 # Maximum number of lines in a module
-max-module-lines=1200
+max-module-lines=1400
 
 
 

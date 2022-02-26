@@ -32,6 +32,8 @@ class Node:
         self.cannedPluginMessagePart3 = None
         self.cannedPluginMessagePart4 = None
 
+        self.gotResponse = None
+
     def showChannels(self):
         """Show human readable description of our channels."""
         print("Channels:")
