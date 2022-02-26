@@ -22,6 +22,12 @@ lint:
 slow:
 	pytest -m unit --durations=5
 
+proto: FORCE
+	git submodule update --init --recursive
+	git pull --rebase
+	git submodule update --remote --merge
+	./bin/regen-protos.sh
+
 # run the coverage report and open results in a browser
 cov:
 	pytest --cov-report html --cov=meshtastic

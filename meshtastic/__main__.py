@@ -200,6 +200,12 @@ def onConnected(interface):
             print(f"Setting device owner short to {args.set_owner_short}")
             interface.getNode(args.dest).setOwner(long_name=None, short_name=args.set_owner_short)
 
+        # TODO: add to export-config and configure
+        if args.set_canned_message:
+            closeNow = True
+            print(f"Setting canned plugin message to {args.set_canned_message}")
+            interface.getNode(args.dest).set_canned_message(args.set_canned_message)
+
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
             closeNow = True
@@ -510,6 +516,11 @@ def onConnected(interface):
             print(f"Writing modified channels to device")
             interface.getNode(args.dest).writeChannel(channelIndex)
 
+        if args.get_canned_message:
+            closeNow = True
+            print("")
+            interface.getNode(args.dest).get_canned_message()
+
         if args.info:
             print("")
             # If we aren't trying to talk to our local node, don't show it
@@ -746,6 +757,9 @@ def initParser():
     parser.add_argument("--info", help="Read and display the radio config information",
                         action="store_true")
 
+    parser.add_argument("--get-canned-message", help="Show the canned message plugin message",
+                        action="store_true")
+
     parser.add_argument("--nodes", help="Print Node List in a pretty formatted table",
                         action="store_true")
 
@@ -807,6 +821,9 @@ def initParser():
 
     parser.add_argument(
         "--set-owner", help="Set device owner name", action="store")
+
+    parser.add_argument(
+        "--set-canned-message", help="Set the canned messages plugin message (up to 1000 characters).", action="store")
 
     parser.add_argument(
         "--set-owner-short", help="Set device owner short name", action="store")

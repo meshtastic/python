@@ -254,11 +254,12 @@ class MeshInterface:
         meshPacket.decoded.payload = data
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
+        meshPacket.id = self._generatePacketId()
 
+        if onResponse is not None:
+            self._addResponseHandler(meshPacket.id, onResponse)
         p = self._sendPacket(meshPacket, destinationId,
                              wantAck=wantAck, hopLimit=hopLimit)
-        if onResponse is not None:
-            self._addResponseHandler(p.id, onResponse)
         return p
 
     def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0,
