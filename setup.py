@@ -11,8 +11,8 @@ with open("README.md", "r") as fh:
 
 # This call to setup() does all the work
 setup(
-    name="meshtastic-future",
-    version="1.3.0",
+    name="meshtastic",
+    version="1.3alpha.0",
     description="Python API & client shell for talking to Meshtastic devices",
     long_description=long_description,
     long_description_content_type="text/markdown",
