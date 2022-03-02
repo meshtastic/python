@@ -440,7 +440,7 @@ def onConnected(interface):
                     ch = interface.getNode(args.dest).deleteChannel(channelIndex)
 
         ch_changes = [args.ch_vlongslow, args.ch_longslow, args.ch_longfast,
-                      args.ch_mediumslow, args.ch_mediumfast,
+                      args.ch_midslow, args.ch_midfast,
                       args.ch_shortslow, args.ch_shortfast]
         any_primary_channel_changes = any(x for x in ch_changes)
         if args.ch_set or any_primary_channel_changes or args.ch_enable or args.ch_disable:
@@ -490,10 +490,10 @@ def onConnected(interface):
                 if args.ch_longfast:
                     setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.LongFast)
 
-                if args.ch_mediumslow:
+                if args.ch_midslow:
                     setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.MidSlow)
 
-                if args.ch_mediumfast:
+                if args.ch_midfast:
                     setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.MidFast)
 
                 if args.ch_shortslow:
@@ -814,10 +814,10 @@ def initParser():
         "--ch-longfast", help="Change to the long-range and fast channel", action='store_true')
 
     parser.add_argument(
-        "--ch-mediumslow", help="Change to the mid-range and slow channel", action='store_true')
+        "--ch-midslow", help="Change to the mid-range and slow channel", action='store_true')
 
     parser.add_argument(
-        "--ch-mediumfast", help="Change to the mid-range and fast channel", action='store_true')
+        "--ch-midfast", help="Change to the mid-range and fast channel", action='store_true')
 
     parser.add_argument(
         "--ch-shortslow", help="Change to the short-range and slow channel", action='store_true')
