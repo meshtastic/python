@@ -439,7 +439,7 @@ def onConnected(interface):
                     print(f"Deleting channel {channelIndex}")
                     ch = interface.getNode(args.dest).deleteChannel(channelIndex)
 
-        ch_changes = [args.ch_longslow, args.ch_longfast,
+        ch_changes = [args.ch_vlongslow, args.ch_longslow, args.ch_longfast,
                       args.ch_mediumslow, args.ch_mediumfast,
                       args.ch_shortslow, args.ch_shortfast]
         any_primary_channel_changes = any(x for x in ch_changes)
@@ -481,23 +481,26 @@ def onConnected(interface):
                     ch.settings.CopyFrom(chs)
 
                 # handle the simple channel set commands
+                if args.ch_vlongslow:
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.VLongSlow)
+
                 if args.ch_longslow:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw125Cr48Sf4096)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.LongSlow)
 
                 if args.ch_longfast:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw31_25Cr48Sf512)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.LongFast)
 
                 if args.ch_mediumslow:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw250Cr46Sf2048)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.MidSlow)
 
                 if args.ch_mediumfast:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw250Cr47Sf1024)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.MidFast)
 
                 if args.ch_shortslow:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw125Cr45Sf128)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.ShortSlow)
 
                 if args.ch_shortfast:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.Bw500Cr45Sf128)
+                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.ShortFast)
 
             # Handle the channel settings
             for pref in (args.ch_set or []):
@@ -802,16 +805,19 @@ def initParser():
                           nargs=2, action='append')
 
     parser.add_argument(
+        "--ch-vlongslow", help="Change to the very long-range and slow channel", action='store_true')
+
+    parser.add_argument(
         "--ch-longslow", help="Change to the long-range and slow channel", action='store_true')
 
     parser.add_argument(
         "--ch-longfast", help="Change to the long-range and fast channel", action='store_true')
 
     parser.add_argument(
-        "--ch-mediumslow", help="Change to the medium-range and slow channel", action='store_true')
+        "--ch-mediumslow", help="Change to the mid-range and slow channel", action='store_true')
 
     parser.add_argument(
-        "--ch-mediumfast", help="Change to the medium-range and fast channel", action='store_true')
+        "--ch-mediumfast", help="Change to the mid-range and fast channel", action='store_true')
 
     parser.add_argument(
         "--ch-shortslow", help="Change to the short-range and slow channel", action='store_true')

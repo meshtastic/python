@@ -213,13 +213,13 @@ def test_handleFromRadio_with_my_info(caplog):
     # It "translates" to this:
     # my_info {
     #  my_node_num: 682584012
-    #  num_bands: 13
     #  firmware_version: "1.2.49.5354c49"
     #  reboot_count: 13
     #  bitrate: 17.088470458984375
     #  message_timeout_msec: 300000
     #  min_app_version: 20200
     #  max_channels: 8
+    #  has_wifi: true
     # }
     from_radio_bytes = b'\x1a,\x08\xcc\xcf\xbd\xc5\x02\x18\r2\x0e1.2.49.5354c49P\r]0\xb5\x88Ah\xe0\xa7\x12p\xe8\x9d\x01x\x08\x90\x01\x01'
     iface = MeshInterface(noProto=True)
@@ -227,7 +227,6 @@ def test_handleFromRadio_with_my_info(caplog):
         iface._handleFromRadio(from_radio_bytes)
     iface.close()
     assert re.search(r'Received myinfo', caplog.text, re.MULTILINE)
-    assert re.search(r'num_bands: 13', caplog.text, re.MULTILINE)
     assert re.search(r'max_channels: 8', caplog.text, re.MULTILINE)
 
 

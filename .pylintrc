@@ -7,7 +7,7 @@
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=mqtt_pb2.py,channel_pb2.py,environmental_measurement_pb2.py,admin_pb2.py,radioconfig_pb2.py,deviceonly_pb2.py,apponly_pb2.py,remote_hardware_pb2.py,portnums_pb2.py,mesh_pb2.py,storeforward_pb2.py,cannedmessages_pb2.py
+ignore-patterns=mqtt_pb2.py,channel_pb2.py,telemetry_pb2.py,admin_pb2.py,radioconfig_pb2.py,deviceonly_pb2.py,apponly_pb2.py,remote_hardware_pb2.py,portnums_pb2.py,mesh_pb2.py,storeforward_pb2.py,cannedmessages_pb2.py
 
 
 

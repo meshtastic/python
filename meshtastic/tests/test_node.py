@@ -281,7 +281,7 @@ def test_setURL_valid_URL(caplog):
         anode.channels = channels
         anode.setURL(url)
     assert re.search(r'Channel i:0', caplog.text, re.MULTILINE)
-    assert re.search(r'modem_config: Bw125Cr48Sf4096', caplog.text, re.MULTILINE)
+    assert re.search(r'modem_config: MidSlow', caplog.text, re.MULTILINE)
     assert re.search(r'psk: "\\001"', caplog.text, re.MULTILINE)
     assert re.search(r'role: PRIMARY', caplog.text, re.MULTILINE)
 
@@ -335,7 +335,7 @@ def test_showChannels(capsys):
     # primary channel
     assert re.search(r'Primary channel URL', out, re.MULTILINE)
     assert re.search(r'PRIMARY psk=default ', out, re.MULTILINE)
-    assert re.search(r'"modemConfig": "Bw125Cr48Sf4096"', out, re.MULTILINE)
+    assert re.search(r'"modemConfig": "MidSlow"', out, re.MULTILINE)
     assert re.search(r'"psk": "AQ=="', out, re.MULTILINE)
     # secondary channel
     assert re.search(r'SECONDARY psk=secret ', out, re.MULTILINE)
