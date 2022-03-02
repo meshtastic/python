@@ -21,7 +21,7 @@ from ..util import findPorts
 
 # seconds to pause after running a meshtastic command
 PAUSE_AFTER_COMMAND = 0.1
-PAUSE_AFTER_REBOOT = 0.1
+PAUSE_AFTER_REBOOT = 0.2
 
 
 #TODO: need to fix the virtual device to have a reboot. When you issue the command
@@ -358,6 +358,11 @@ def test_smokevirt_ch_set_downlink_and_uplink():
 @pytest.mark.smokevirt
 def test_smokevirt_ch_add_and_ch_del():
     """Test --ch-add"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --ch-index 1 --ch-del')
+    assert re.search(r'Deleting channel 1', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_REBOOT)
     return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --ch-add testing')
     assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
     assert return_value == 0
@@ -375,7 +380,7 @@ def test_smokevirt_ch_add_and_ch_del():
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_REBOOT)
-    # make sure the secondar channel is not there
+    # make sure the secondary channel is not there
     return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --info')
     assert re.match(r'Connected to radio', out)
     assert not re.search(r'SECONDARY', out, re.MULTILINE)
@@ -386,6 +391,11 @@ def test_smokevirt_ch_add_and_ch_del():
 @pytest.mark.smokevirt
 def test_smokevirt_ch_enable_and_disable():
     """Test --ch-enable and --ch-disable"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --ch-index 1 --ch-del')
+    assert re.search(r'Deleting channel 1', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_REBOOT)
     return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --ch-add testing')
     assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
     assert return_value == 0
@@ -434,6 +444,11 @@ def test_smokevirt_ch_enable_and_disable():
 @pytest.mark.smokevirt
 def test_smokevirt_ch_del_a_disabled_non_primary_channel():
     """Test --ch-del will work on a disabled non-primary channel."""
+    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --ch-index 1 --ch-del')
+    assert re.search(r'Deleting channel 1', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_REBOOT)
     return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --ch-add testing')
     assert re.search(r'Writing modified channels to device', out, re.MULTILINE)
     assert return_value == 0

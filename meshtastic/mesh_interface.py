@@ -632,11 +632,13 @@ class MeshInterface:
         # asObj = DotMap(asDict)
         topic = "meshtastic.receive"  # Generic unknown packet type
 
-        decoded = asDict["decoded"]
-        # The default MessageToDict converts byte arrays into base64 strings.
-        # We don't want that - it messes up data payload.  So slam in the correct
-        # byte array.
-        decoded["payload"] = meshPacket.decoded.payload
+        decoded = None
+        if 'decoded' in asDict:
+            decoded = asDict["decoded"]
+            # The default MessageToDict converts byte arrays into base64 strings.
+            # We don't want that - it messes up data payload.  So slam in the correct
+            # byte array.
+            decoded["payload"] = meshPacket.decoded.payload
 
         # UNKNOWN_APP is the default protobuf portnum value, and therefore if not
         # set it will not be populated at all to make API usage easier, set
