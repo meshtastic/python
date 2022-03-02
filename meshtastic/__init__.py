@@ -79,7 +79,7 @@ from google.protobuf.json_format import MessageToJson
 from meshtastic.util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
 from meshtastic.node import Node
 from meshtastic import (mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2,
-                        environmental_measurement_pb2, remote_hardware_pb2,
+                        telemetry_pb2, remote_hardware_pb2,
                         channel_pb2, radioconfig_pb2, util)
 
 
@@ -181,7 +181,6 @@ protocols = {
     portnums_pb2.PortNum.NODEINFO_APP: KnownProtocol("user", mesh_pb2.User, _onNodeInfoReceive),
     portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage),
     portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
-    portnums_pb2.PortNum.ENVIRONMENTAL_MEASUREMENT_APP: KnownProtocol("environmental", environmental_measurement_pb2.EnvironmentalMeasurement),
-    portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol(
-        "remotehw", remote_hardware_pb2.HardwareMessage)
+    portnums_pb2.PortNum.TELEMETRY_APP: KnownProtocol("telemetry", telemetry_pb2.Telemetry),
+    portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol("remotehw", remote_hardware_pb2.HardwareMessage)
 }

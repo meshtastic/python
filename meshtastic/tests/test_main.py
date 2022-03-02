@@ -46,7 +46,7 @@ def test_main_init_parser_version(capsys):
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 0
     out, err = capsys.readouterr()
-    assert re.match(r'[0-9]+\.[0-9]+\.[0-9]', out)
+    assert re.match(r'[0-9]+\.[0-9a-z]+\.[0-9]', out)
     assert err == ''
 
 
@@ -62,7 +62,7 @@ def test_main_main_version(capsys):
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 0
     out, err = capsys.readouterr()
-    assert re.match(r'[0-9]+\.[0-9]+\.[0-9]', out)
+    assert re.match(r'[0-9]+\.[0-9a-z]+\.[0-9]', out)
     assert err == ''
 
 
@@ -1285,8 +1285,8 @@ def test_main_ch_enable_primary_channel(capsys):
 @pytest.mark.usefixtures("reset_globals")
 def test_main_ch_range_options(capsys):
     """Test changing the various range options."""
-    range_options = ['--ch-longslow', '--ch-longfast', '--ch-mediumslow',
-                     '--ch-mediumfast', '--ch-shortslow', '--ch-shortfast']
+    range_options = ['--ch-vlongslow', '--ch-longslow', '--ch-longfast', '--ch-midslow',
+                     '--ch-midfast', '--ch-shortslow', '--ch-shortfast']
     for range_option in range_options:
         sys.argv = ['', f"{range_option}" ]
         Globals.getInstance().set_args(sys.argv)
