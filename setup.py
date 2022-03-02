@@ -11,7 +11,7 @@ with open("README.md", "r") as fh:
 
 # This call to setup() does all the work
 setup(
-    name="meshtastic",
+    name="meshtastic-future",
     version="1.3.0",
     description="Python API & client shell for talking to Meshtastic devices",
     long_description=long_description,
@@ -30,7 +30,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    packages=["meshtastic-future"],
+    packages=["meshtastic"],
     include_package_data=True,
     install_requires=["pyserial>=3.4", "protobuf>=3.13.0",
                       "pypubsub>=4.0.3", "dotmap>=1.3.14", "pexpect>=4.6.0", "pyqrcode>=1.2.1",
