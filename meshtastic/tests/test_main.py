@@ -46,7 +46,7 @@ def test_main_init_parser_version(capsys):
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 0
     out, err = capsys.readouterr()
-    assert re.match(r'[0-9]+\.[0-9]+\.[0-9]', out)
+    assert re.match(r'[0-9]+\.[0-9a-z]+\.[0-9]', out)
     assert err == ''
 
 
@@ -62,7 +62,7 @@ def test_main_main_version(capsys):
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 0
     out, err = capsys.readouterr()
-    assert re.match(r'[0-9]+\.[0-9]+\.[0-9]', out)
+    assert re.match(r'[0-9]+\.[0-9a-z]+\.[0-9]', out)
     assert err == ''
 
 
