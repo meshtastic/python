@@ -2333,6 +2333,54 @@ def test_main_setPref_invalid_field_camel(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_setPref_ignore_incoming_123(capsys):
+    """Test setPref() with ignore_incoming"""
+
+    class Field:
+        """Simple class for testing."""
+
+        def __init__(self, name, enum_type):
+            """constructor"""
+            self.name = name
+            self.enum_type = enum_type
+
+    ignore_incoming_field = Field('ignore_incoming', 'list')
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = ignore_incoming_field
+
+    setPref(prefs, 'ignore_incoming', '123')
+    out, err = capsys.readouterr()
+    assert re.search(r"Adding '123' to the ignore_incoming list", out, re.MULTILINE)
+    assert re.search(r'Set ignore_incoming to 123', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
+def test_main_setPref_ignore_incoming_0(capsys):
+    """Test setPref() with ignore_incoming"""
+
+    class Field:
+        """Simple class for testing."""
+
+        def __init__(self, name, enum_type):
+            """constructor"""
+            self.name = name
+            self.enum_type = enum_type
+
+    ignore_incoming_field = Field('ignore_incoming', 'list')
+    prefs = MagicMock()
+    prefs.DESCRIPTOR.fields_by_name.get.return_value = ignore_incoming_field
+
+    setPref(prefs, 'ignore_incoming', '0')
+    out, err = capsys.readouterr()
+    assert re.search(r'Clearing ignore_incoming list', out, re.MULTILINE)
+    assert re.search(r'Set ignore_incoming to 0', out, re.MULTILINE)
+    assert err == ''
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_ch_set_psk_no_ch_index(capsys):
     """Test --ch-set psk """
     sys.argv = ['', '--ch-set', 'psk', 'foo', '--host', 'meshtastic.local']

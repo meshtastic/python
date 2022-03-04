@@ -139,11 +139,22 @@ def setPref(attributes, name, valStr):
             for temp_name in sorted(names):
                 print(f"    {temp_name}")
             return
-    try:
-        setattr(attributes, snake_name, val)
-    except TypeError:
-        # The setter didn't like our arg type guess try again as a string
-        setattr(attributes, snake_name, valStr)
+
+    # note: 'ignore_incoming' is a repeating field
+    if snake_name != 'ignore_incoming':
+        try:
+            setattr(attributes, snake_name, val)
+        except TypeError:
+            # The setter didn't like our arg type guess try again as a string
+            setattr(attributes, snake_name, valStr)
+    else:
+        if val == 0:
+            # clear values
+            print("Clearing ignore_incoming list")
+            del attributes.ignore_incoming[:]
+        else:
+            print(f"Adding '{val}' to the ignore_incoming list")
+            attributes.ignore_incoming.extend([val])
 
     if Globals.getInstance().get_camel_case():
         print(f"Set {camel_name} to {valStr}")
