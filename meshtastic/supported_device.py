@@ -6,6 +6,8 @@ import platform
 import subprocess
 import re
 
+import meshtastic.util
+
 # Goal is to detect which device and port to use from the supported devices
 # without installing any libraries that are not currently in the python meshtastic library
 
@@ -109,7 +111,7 @@ def get_devices_with_vendor_id(vid):
             sd.add(d)
     return sd
 
-def active_ports_on_supported_devices(sds):
+def active_ports_on_supported_devices(sds, eliminate_duplicates=False):
     """Return a set of active ports based on the supplied supported devices"""
     ports = set()
     baseports = set()
@@ -170,6 +172,10 @@ def active_ports_on_supported_devices(sds):
                 # add all ports
                 for com_port in com_ports:
                     ports.add(com_port)
+    if eliminate_duplicates:
+        ports = meshtastic.util.eliminate_duplicate_port(list(ports))
+        ports.sort()
+        ports = set(ports)
     return ports
 
 
