@@ -266,6 +266,22 @@ def test_findPorts_when_duplicate_found_and_duplicate_option_used(patch_comports
 
 @pytest.mark.unitslow
 @patch('serial.tools.list_ports.comports')
+def test_findPorts_when_duplicate_found_and_duplicate_option_used_ports_reversed(patch_comports):
+    """Test findPorts()"""
+    class TempPort:
+        """ temp class for port"""
+        def __init__(self, device=None, vid=None):
+            self.device = device
+            self.vid = vid
+    fake1 = TempPort('/dev/cu.usbserial-1430', vid='fake1')
+    fake2 = TempPort('/dev/cu.wchusbserial1430', vid='fake2')
+    patch_comports.return_value = [fake2, fake1]
+    assert findPorts(eliminate_duplicates=True) == ['/dev/cu.wchusbserial1430']
+    patch_comports.assert_called()
+
+
+@pytest.mark.unitslow
+@patch('serial.tools.list_ports.comports')
 def test_findPorts_when_duplicate_found_and_duplicate_option_not_used(patch_comports):
     """Test findPorts()"""
     class TempPort:
@@ -315,8 +331,11 @@ def test_eliminate_duplicate_port():
     assert eliminate_duplicate_port(['/dev/fake', '/dev/fake1']) == ['/dev/fake', '/dev/fake1']
     assert eliminate_duplicate_port(['/dev/fake', '/dev/fake1', '/dev/fake2']) == ['/dev/fake', '/dev/fake1', '/dev/fake2']
     assert eliminate_duplicate_port(['/dev/cu.usbserial-1430', '/dev/cu.wchusbserial1430']) == ['/dev/cu.wchusbserial1430']
+    assert eliminate_duplicate_port(['/dev/cu.wchusbserial1430', '/dev/cu.usbserial-1430']) == ['/dev/cu.wchusbserial1430']
     assert eliminate_duplicate_port(['/dev/cu.SLAB_USBtoUART', '/dev/cu.usbserial-0001']) == ['/dev/cu.usbserial-0001']
+    assert eliminate_duplicate_port(['/dev/cu.usbserial-0001', '/dev/cu.SLAB_USBtoUART']) == ['/dev/cu.usbserial-0001']
     assert eliminate_duplicate_port(['/dev/cu.usbmodem11301', '/dev/cu.wchusbserial11301']) == ['/dev/cu.wchusbserial11301']
+    assert eliminate_duplicate_port(['/dev/cu.wchusbserial11301', '/dev/cu.usbmodem11301']) == ['/dev/cu.wchusbserial11301']
 
 @patch('platform.version', return_value='10.0.22000.194')
 @patch('platform.release', return_value='10')
