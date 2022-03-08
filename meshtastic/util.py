@@ -401,6 +401,7 @@ def eliminate_duplicate_port(ports):
     if len(ports) != 2:
         new_ports = ports
     else:
+        ports.sort()
         if 'usbserial' in ports[0] and 'wchusbserial' in ports[1]:
             first = ports[0].replace("usbserial-", "")
             second = ports[1].replace("wchusbserial", "")
