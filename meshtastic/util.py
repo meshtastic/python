@@ -14,7 +14,8 @@ import subprocess
 import serial
 import serial.tools.list_ports
 import pkg_resources
-from meshtastic.supported_device import get_unique_vendor_ids, get_devices_with_vendor_id
+
+from meshtastic.supported_device import supported_devices
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
@@ -433,3 +434,112 @@ def is_windows11():
             except Exception as e:
                 print(f'problem detecting win11 e:{e}')
     return is_win11
+
+
+def get_unique_vendor_ids():
+    """Return a set of unique vendor ids"""
+    vids = set()
+    for d in supported_devices:
+        if d.usb_vendor_id_in_hex:
+            vids.add(d.usb_vendor_id_in_hex)
+    return vids
+
+
+def get_devices_with_vendor_id(vid):
+    """Return a set of unique devices with the vendor id"""
+    sd = set()
+    for d in supported_devices:
+        if d.usb_vendor_id_in_hex == vid:
+            sd.add(d)
+    return sd
+
+
+def active_ports_on_supported_devices(sds, eliminate_duplicates=False):
+    """Return a set of active ports based on the supplied supported devices"""
+    ports = set()
+    baseports = set()
+    system = platform.system()
+
+    # figure out what possible base ports there are
+    for d in sds:
+        if system == "Linux":
+            baseports.add(d.baseport_on_linux)
+        elif system == "Darwin":
+            baseports.add(d.baseport_on_mac)
+        elif system == "Windows":
+            baseports.add(d.baseport_on_windows)
+
+    for bp in baseports:
+        if system == "Linux":
+            # see if we have any devices (ignoring any stderr output)
+            command = f'ls -al /dev/{bp}* 2> /dev/null'
+            #print(f'command:{command}')
+            _, ls_output = subprocess.getstatusoutput(command)
+            #print(f'ls_output:{ls_output}')
+            # if we got output, there are ports
+            if len(ls_output) > 0:
+                #print('got output')
+                # for each line of output
+                lines = ls_output.split('\n')
+                #print(f'lines:{lines}')
+                for line in lines:
+                    parts = line.split(' ')
+                    #print(f'parts:{parts}')
+                    port = parts[-1]
+                    #print(f'port:{port}')
+                    ports.add(port)
+        elif system == "Darwin":
+            # see if we have any devices (ignoring any stderr output)
+            command = f'ls -al /dev/{bp}* 2> /dev/null'
+            #print(f'command:{command}')
+            _, ls_output = subprocess.getstatusoutput(command)
+            #print(f'ls_output:{ls_output}')
+            # if we got output, there are ports
+            if len(ls_output) > 0:
+                #print('got output')
+                # for each line of output
+                lines = ls_output.split('\n')
+                #print(f'lines:{lines}')
+                for line in lines:
+                    parts = line.split(' ')
+                    #print(f'parts:{parts}')
+                    port = parts[-1]
+                    #print(f'port:{port}')
+                    ports.add(port)
+        elif system == "Windows":
+            # for each device in supported devices found
+            for d in sds:
+                # find the port(s)
+                com_ports = detect_windows_port(d)
+                #print(f'com_ports:{com_ports}')
+                # add all ports
+                for com_port in com_ports:
+                    ports.add(com_port)
+    if eliminate_duplicates:
+        ports = eliminate_duplicate_port(list(ports))
+        ports.sort()
+        ports = set(ports)
+    return ports
+
+
+def detect_windows_port(sd):
+    """detect if Windows port"""
+    ports = set()
+
+    if sd:
+        system = platform.system()
+
+        if system == "Windows":
+            command = ('powershell.exe "[Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8;'
+                       'Get-PnpDevice -PresentOnly | Where-Object{ ($_.DeviceId -like ')
+            command += f"'*{sd.usb_vendor_id_in_hex.upper()}*'"
+            command += ')} | Format-List"'
+
+            #print(f'command:{command}')
+            _, sp_output = subprocess.getstatusoutput(command)
+            #print(f'sp_output:{sp_output}')
+            p = re.compile(r'\(COM(.*)\)')
+            for x in p.findall(sp_output):
+                #print(f'x:{x}')
+                ports.add(f'COM{x}')
+    return ports
