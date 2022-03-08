@@ -45,9 +45,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Checkout
-      uses: actions/checkout@v2
-
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
