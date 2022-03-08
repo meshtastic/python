@@ -3,8 +3,7 @@
 """
 
 import sys
-from meshtastic.supported_device import get_unique_vendor_ids, active_ports_on_supported_devices
-from meshtastic.util import detect_supported_devices
+from meshtastic.util import detect_supported_devices, get_unique_vendor_ids, active_ports_on_supported_devices
 
 # simple arg check
 if len(sys.argv) != 1:
