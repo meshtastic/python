@@ -40,7 +40,7 @@ tbeam_M8N_SX1262 = SupportedDevice(name="T-Beam", version="M8N_SX1262", for_firm
                                    usb_vendor_id_in_hex="1a86", usb_product_id_in_hex="55d4")
 tlora_v1 = SupportedDevice(name="T-Lora", version="1", for_firmware="tlora-v1",
                              baseport_on_linux="ttyUSB", baseport_on_mac="cu.usbserial",
-                             usb_vendor_id_in_hex="10c4", usb_product_id_in_hex="ea60")
+                             usb_vendor_id_in_hex="1a86", usb_product_id_in_hex="55d4")
 tlora_v1_3 = SupportedDevice(name="T-Lora", version="1.3", for_firmware="tlora-v1-3",
                              baseport_on_linux="ttyUSB", baseport_on_mac="cu.usbserial",
                              usb_vendor_id_in_hex="10c4", usb_product_id_in_hex="ea60")
