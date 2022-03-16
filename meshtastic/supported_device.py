@@ -38,13 +38,13 @@ tbeam_M8N = SupportedDevice(name="T-Beam", version="M8N", for_firmware="tbeam",
 tbeam_M8N_SX1262 = SupportedDevice(name="T-Beam", version="M8N_SX1262", for_firmware="tbeam",
                                    baseport_on_linux="ttyACM", baseport_on_mac="cu.usbmodem",
                                    usb_vendor_id_in_hex="1a86", usb_product_id_in_hex="55d4")
-tlora_v1_1 = SupportedDevice(name="T-Lora", version="1.1", for_firmware="tlora-v1",
+tlora_v1 = SupportedDevice(name="T-Lora", version="1", for_firmware="tlora-v1",
                              baseport_on_linux="ttyUSB", baseport_on_mac="cu.usbserial",
                              usb_vendor_id_in_hex="10c4", usb_product_id_in_hex="ea60")
 tlora_v1_3 = SupportedDevice(name="T-Lora", version="1.3", for_firmware="tlora-v1-3",
                              baseport_on_linux="ttyUSB", baseport_on_mac="cu.usbserial",
                              usb_vendor_id_in_hex="10c4", usb_product_id_in_hex="ea60")
-tlora_v2_0 = SupportedDevice(name="T-Lora", version="2.0", for_firmware="tlora-v2-1",
+tlora_v2 = SupportedDevice(name="T-Lora", version="2", for_firmware="tlora-v2",
                              baseport_on_linux="ttyACM", baseport_on_mac="cu.usbmodem",
                              usb_vendor_id_in_hex="1a86", usb_product_id_in_hex="55d4")
 tlora_v2_1 = SupportedDevice(name="T-Lora", version="2.1", for_firmware="tlora-v2-1",
@@ -83,7 +83,7 @@ rak4631_19003 = SupportedDevice(name="RAK 4631 19003", version="", for_firmware=
                                 usb_vendor_id_in_hex="239a", usb_product_id_in_hex="8029")
 
 supported_devices = [tbeam_v0_7, tbeam_v1_1, tbeam_M8N, tbeam_M8N_SX1262,
-                     tlora_v1_1, tlora_v1_3, tlora_v2_0, tlora_v2_1, tlora_v2_1_1_6,
+                     tlora_v1, tlora_v1_3, tlora_v2, tlora_v2_1, tlora_v2_1_1_6,
                      heltec_v1, heltec_v2_0, heltec_v2_1,
                      meshtastic_diy_v1, techo_1, rak4631_5005, rak4631_19003,
                      rak11200]
