@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\nMeshProtosH\003Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\nmesh.proto\x1a\x0eportnums.proto\"\xa2\x06\n\x08Position\x12\x12\n\nlatitude_i\x18\x01 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x02 \x01(\x0f\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x15\n\rbattery_level\x18\x04 \x01(\x05\x12\x18\n\x10router_heartbeat\x18\x05 \x01(\x08\x12\x0c\n\x04time\x18\t \x01(\x07\x12,\n\x0flocation_source\x18\n \x01(\x0e\x32\x13.Position.LocSource\x12,\n\x0f\x61ltitude_source\x18\x0b \x01(\x0e\x32\x13.Position.AltSource\x12\x15\n\rpos_timestamp\x18\x0c \x01(\x07\x12\x17\n\x0fpos_time_millis\x18\r \x01(\x05\x12\x14\n\x0c\x61ltitude_hae\x18\x0e \x01(\x11\x12\x15\n\ralt_geoid_sep\x18\x0f \x01(\x11\x12\x0c\n\x04PDOP\x18\x10 \x01(\r\x12\x0c\n\x04HDOP\x18\x11 \x01(\r\x12\x0c\n\x04VDOP\x18\x12 \x01(\r\x12\x14\n\x0cgps_accuracy\x18\x13 \x01(\r\x12\x14\n\x0cground_speed\x18\x14 \x01(\r\x12\x14\n\x0cground_track\x18\x15 \x01(\r\x12\x13\n\x0b\x66ix_quality\x18\x16 \x01(\r\x12\x10\n\x08\x66ix_type\x18\x17 \x01(\r\x12\x14\n\x0csats_in_view\x18\x18 \x01(\r\x12\x11\n\tsensor_id\x18\x19 \x01(\r\x12\x17\n\x0fpos_next_update\x18( \x01(\r\x12\x16\n\x0epos_seq_number\x18) \x01(\r\"n\n\tLocSource\x12\x16\n\x12LOCSRC_UNSPECIFIED\x10\x00\x12\x17\n\x13LOCSRC_MANUAL_ENTRY\x10\x01\x12\x17\n\x13LOCSRC_GPS_INTERNAL\x10\x02\x12\x17\n\x13LOCSRC_GPS_EXTERNAL\x10\x03\"\x85\x01\n\tAltSource\x12\x16\n\x12\x41LTSRC_UNSPECIFIED\x10\x00\x12\x17\n\x13\x41LTSRC_MANUAL_ENTRY\x10\x01\x12\x17\n\x13\x41LTSRC_GPS_INTERNAL\x10\x02\x12\x17\n\x13\x41LTSRC_GPS_EXTERNAL\x10\x03\x12\x15\n\x11\x41LTSRC_BAROMETRIC\x10\x04\"\xd7\x01\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x0f\n\x07macaddr\x18\x04 \x01(\x0c\x12 \n\x08hw_model\x18\x06 \x01(\x0e\x32\x0e.HardwareModel\x12\x13\n\x0bis_licensed\x18\x07 \x01(\x08\x12\x13\n\x04team\x18\x08 \x01(\x0e\x32\x05.Team\x12\x14\n\x0ctx_power_dbm\x18\n \x01(\r\x12\x14\n\x0c\x61nt_gain_dbi\x18\x0b \x01(\r\x12\x13\n\x0b\x61nt_azimuth\x18\x0c \x01(\r\"\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x02 \x03(\x07\"\xc5\x02\n\x07Routing\x12(\n\rroute_request\x18\x01 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&\n\x0broute_reply\x18\x02 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&\n\x0c\x65rror_reason\x18\x03 \x01(\x0e\x32\x0e.Routing.ErrorH\x00\"\xb4\x01\n\x05\x45rror\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03\x12\x10\n\x0cNO_INTERFACE\x10\x04\x12\x12\n\x0eMAX_RETRANSMIT\x10\x05\x12\x0e\n\nNO_CHANNEL\x10\x06\x12\r\n\tTOO_LARGE\x10\x07\x12\x0f\n\x0bNO_RESPONSE\x10\x08\x12\x0f\n\x0b\x42\x41\x44_REQUEST\x10 \x12\x12\n\x0eNOT_AUTHORIZED\x10!B\t\n\x07variant\"\xa1\x01\n\x04\x44\x61ta\x12\x19\n\x07portnum\x18\x01 \x01(\x0e\x32\x08.PortNum\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\x12\x15\n\rwant_response\x18\x03 \x01(\x08\x12\x0c\n\x04\x64\x65st\x18\x04 \x01(\x07\x12\x0e\n\x06source\x18\x05 \x01(\x07\x12\x12\n\nrequest_id\x18\x06 \x01(\x07\x12\x10\n\x08reply_id\x18\x07 \x01(\x07\x12\x12\n\nis_tapback\x18\x08 \x01(\x08\"\xca\x03\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x07\x12\n\n\x02to\x18\x02 \x01(\x07\x12\x0f\n\x07\x63hannel\x18\x03 \x01(\r\x12\x18\n\x07\x64\x65\x63oded\x18\x04 \x01(\x0b\x32\x05.DataH\x00\x12\x13\n\tencrypted\x18\x05 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\x07\x12\x0f\n\x07rx_time\x18\x07 \x01(\x07\x12\x0e\n\x06rx_snr\x18\x08 \x01(\x02\x12\x11\n\thop_limit\x18\n \x01(\r\x12\x10\n\x08want_ack\x18\x0b \x01(\x08\x12&\n\x08priority\x18\x0c \x01(\x0e\x32\x14.MeshPacket.Priority\x12\x0f\n\x07rx_rssi\x18\r \x01(\x05\x12$\n\x07\x64\x65layed\x18\x0f \x01(\x0e\x32\x13.MeshPacket.Delayed\"[\n\x08Priority\x12\t\n\x05UNSET\x10\x00\x12\x07\n\x03MIN\x10\x01\x12\x0e\n\nBACKGROUND\x10\n\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10@\x12\x0c\n\x08RELIABLE\x10\x46\x12\x07\n\x03\x41\x43K\x10x\x12\x07\n\x03MAX\x10\x7f\"B\n\x07\x44\x65layed\x12\x0c\n\x08NO_DELAY\x10\x00\x12\x15\n\x11\x44\x45LAYED_BROADCAST\x10\x01\x12\x12\n\x0e\x44\x45LAYED_DIRECT\x10\x02\x42\x10\n\x0epayloadVariant\"j\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x07 \x01(\x02\x12\x12\n\nlast_heard\x18\x04 \x01(\x07\"\xd2\x03\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x0f\n\x07has_gps\x18\x02 \x01(\x08\x12\x14\n\x0cmax_channels\x18\x0f \x01(\r\x12\x12\n\x06region\x18\x04 \x01(\tB\x02\x18\x01\x12\x18\n\x10\x66irmware_version\x18\x06 \x01(\t\x12&\n\nerror_code\x18\x07 \x01(\x0e\x32\x12.CriticalErrorCode\x12\x15\n\rerror_address\x18\x08 \x01(\r\x12\x13\n\x0b\x65rror_count\x18\t \x01(\r\x12\x14\n\x0creboot_count\x18\n \x01(\r\x12\x0f\n\x07\x62itrate\x18\x0b \x01(\x02\x12\x1c\n\x14message_timeout_msec\x18\r \x01(\r\x12\x17\n\x0fmin_app_version\x18\x0e \x01(\r\x12\x15\n\rair_period_tx\x18\x10 \x03(\r\x12\x15\n\rair_period_rx\x18\x11 \x03(\r\x12\x10\n\x08has_wifi\x18\x12 \x01(\x08\x12\x1b\n\x13\x63hannel_utilization\x18\x13 \x01(\x02\x12\x13\n\x0b\x61ir_util_tx\x18\x14 \x01(\x02\x12\x0e\n\x06router\x18\x15 \x03(\r\x12\x12\n\nrouter_snr\x18\x16 \x03(\x02\x12\x12\n\nrouter_sec\x18\x17 \x03(\r\"\xb5\x01\n\tLogRecord\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\x07\x12\x0e\n\x06source\x18\x03 \x01(\t\x12\x1f\n\x05level\x18\x04 \x01(\x0e\x32\x10.LogRecord.Level\"X\n\x05Level\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08\x43RITICAL\x10\x32\x12\t\n\x05\x45RROR\x10(\x12\x0b\n\x07WARNING\x10\x1e\x12\x08\n\x04INFO\x10\x14\x12\t\n\x05\x44\x45\x42UG\x10\n\x12\t\n\x05TRACE\x10\x05\"\xe9\x01\n\tFromRadio\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x0b \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12 \n\nlog_record\x18\x07 \x01(\x0b\x32\n.LogRecordH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x08 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\t \x01(\x08H\x00\x42\x10\n\x0epayloadVariantJ\x04\x08\x02\x10\x03J\x04\x08\x06\x10\x07\"\xe1\x01\n\x07ToRadio\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12&\n\tpeer_info\x18\x03 \x01(\x0b\x32\x11.ToRadio.PeerInfoH\x00\x12\x18\n\x0ewant_config_id\x18\x64 \x01(\rH\x00\x12\x14\n\ndisconnect\x18h \x01(\x08H\x00\x1a\x35\n\x08PeerInfo\x12\x13\n\x0b\x61pp_version\x18\x01 \x01(\r\x12\x14\n\x0cmqtt_gateway\x18\x02 \x01(\x08\x42\x10\n\x0epayloadVariantJ\x04\x08\x01\x10\x02J\x04\x08\x65\x10\x66J\x04\x08\x66\x10gJ\x04\x08g\x10h*\xda\x02\n\rHardwareModel\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08TLORA_V2\x10\x01\x12\x0c\n\x08TLORA_V1\x10\x02\x12\x12\n\x0eTLORA_V2_1_1p6\x10\x03\x12\t\n\x05TBEAM\x10\x04\x12\x0f\n\x0bHELTEC_V2_0\x10\x05\x12\x0c\n\x08TBEAM0p7\x10\x06\x12\n\n\x06T_ECHO\x10\x07\x12\x10\n\x0cTLORA_V1_1p3\x10\x08\x12\x0b\n\x07RAK4631\x10\t\x12\x0f\n\x0bHELTEC_V2_1\x10\n\x12\r\n\tHELTEC_V1\x10\x0b\x12\x11\n\rLORA_RELAY_V1\x10 \x12\x0e\n\nNRF52840DK\x10!\x12\x07\n\x03PPR\x10\"\x12\x0f\n\x0bGENIEBLOCKS\x10#\x12\x11\n\rNRF52_UNKNOWN\x10$\x12\r\n\tPORTDUINO\x10%\x12\x0f\n\x0b\x41NDROID_SIM\x10&\x12\n\n\x06\x44IY_V1\x10\'\x12\x0c\n\x08RAK11200\x10(\x12\x0f\n\nPRIVATE_HW\x10\xff\x01*\xb5\x01\n\x04Team\x12\t\n\x05\x43LEAR\x10\x00\x12\x08\n\x04\x43YAN\x10\x01\x12\t\n\x05WHITE\x10\x02\x12\n\n\x06YELLOW\x10\x03\x12\n\n\x06ORANGE\x10\x04\x12\x0b\n\x07MAGENTA\x10\x05\x12\x07\n\x03RED\x10\x06\x12\n\n\x06MAROON\x10\x07\x12\n\n\x06PURPLE\x10\x08\x12\r\n\tDARK_BLUE\x10\t\x12\x08\n\x04\x42LUE\x10\n\x12\x08\n\x04TEAL\x10\x0b\x12\t\n\x05GREEN\x10\x0c\x12\x0e\n\nDARK_GREEN\x10\r\x12\t\n\x05\x42ROWN\x10\x0e*.\n\tConstants\x12\n\n\x06Unused\x10\x00\x12\x15\n\x10\x44\x41TA_PAYLOAD_LEN\x10\xed\x01*\xe1\x01\n\x11\x43riticalErrorCode\x12\x08\n\x04None\x10\x00\x12\x0e\n\nTxWatchdog\x10\x01\x12\x12\n\x0eSleepEnterWait\x10\x02\x12\x0b\n\x07NoRadio\x10\x03\x12\x0f\n\x0bUnspecified\x10\x04\x12\x13\n\x0fUBloxInitFailed\x10\x05\x12\x0c\n\x08NoAXP192\x10\x06\x12\x17\n\x13InvalidRadioSetting\x10\x07\x12\x12\n\x0eTransmitFailed\x10\x08\x12\x0c\n\x08\x42rownout\x10\t\x12\x11\n\rSX1262Failure\x10\n\x12\x0f\n\x0bRadioSpiBug\x10\x0b\x42\x46\n\x13\x63om.geeksville.meshB\nMeshProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\nmesh.proto\x1a\x0eportnums.proto\"\x88\x06\n\x08Position\x12\x12\n\nlatitude_i\x18\x01 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x02 \x01(\x0f\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x15\n\rbattery_level\x18\x04 \x01(\x05\x12\x0c\n\x04time\x18\t \x01(\x07\x12,\n\x0flocation_source\x18\n \x01(\x0e\x32\x13.Position.LocSource\x12,\n\x0f\x61ltitude_source\x18\x0b \x01(\x0e\x32\x13.Position.AltSource\x12\x15\n\rpos_timestamp\x18\x0c \x01(\x07\x12\x17\n\x0fpos_time_millis\x18\r \x01(\x05\x12\x14\n\x0c\x61ltitude_hae\x18\x0e \x01(\x11\x12\x15\n\ralt_geoid_sep\x18\x0f \x01(\x11\x12\x0c\n\x04PDOP\x18\x10 \x01(\r\x12\x0c\n\x04HDOP\x18\x11 \x01(\r\x12\x0c\n\x04VDOP\x18\x12 \x01(\r\x12\x14\n\x0cgps_accuracy\x18\x13 \x01(\r\x12\x14\n\x0cground_speed\x18\x14 \x01(\r\x12\x14\n\x0cground_track\x18\x15 \x01(\r\x12\x13\n\x0b\x66ix_quality\x18\x16 \x01(\r\x12\x10\n\x08\x66ix_type\x18\x17 \x01(\r\x12\x14\n\x0csats_in_view\x18\x18 \x01(\r\x12\x11\n\tsensor_id\x18\x19 \x01(\r\x12\x17\n\x0fpos_next_update\x18( \x01(\r\x12\x16\n\x0epos_seq_number\x18) \x01(\r\"n\n\tLocSource\x12\x16\n\x12LOCSRC_UNSPECIFIED\x10\x00\x12\x17\n\x13LOCSRC_MANUAL_ENTRY\x10\x01\x12\x17\n\x13LOCSRC_GPS_INTERNAL\x10\x02\x12\x17\n\x13LOCSRC_GPS_EXTERNAL\x10\x03\"\x85\x01\n\tAltSource\x12\x16\n\x12\x41LTSRC_UNSPECIFIED\x10\x00\x12\x17\n\x13\x41LTSRC_MANUAL_ENTRY\x10\x01\x12\x17\n\x13\x41LTSRC_GPS_INTERNAL\x10\x02\x12\x17\n\x13\x41LTSRC_GPS_EXTERNAL\x10\x03\x12\x15\n\x11\x41LTSRC_BAROMETRIC\x10\x04\"\xd7\x01\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x0f\n\x07macaddr\x18\x04 \x01(\x0c\x12 \n\x08hw_model\x18\x06 \x01(\x0e\x32\x0e.HardwareModel\x12\x13\n\x0bis_licensed\x18\x07 \x01(\x08\x12\x13\n\x04team\x18\x08 \x01(\x0e\x32\x05.Team\x12\x14\n\x0ctx_power_dbm\x18\n \x01(\r\x12\x14\n\x0c\x61nt_gain_dbi\x18\x0b \x01(\r\x12\x13\n\x0b\x61nt_azimuth\x18\x0c \x01(\r\"\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x02 \x03(\x07\"\xc5\x02\n\x07Routing\x12(\n\rroute_request\x18\x01 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&\n\x0broute_reply\x18\x02 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&\n\x0c\x65rror_reason\x18\x03 \x01(\x0e\x32\x0e.Routing.ErrorH\x00\"\xb4\x01\n\x05\x45rror\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03\x12\x10\n\x0cNO_INTERFACE\x10\x04\x12\x12\n\x0eMAX_RETRANSMIT\x10\x05\x12\x0e\n\nNO_CHANNEL\x10\x06\x12\r\n\tTOO_LARGE\x10\x07\x12\x0f\n\x0bNO_RESPONSE\x10\x08\x12\x0f\n\x0b\x42\x41\x44_REQUEST\x10 \x12\x12\n\x0eNOT_AUTHORIZED\x10!B\t\n\x07variant\"\xa1\x01\n\x04\x44\x61ta\x12\x19\n\x07portnum\x18\x01 \x01(\x0e\x32\x08.PortNum\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\x12\x15\n\rwant_response\x18\x03 \x01(\x08\x12\x0c\n\x04\x64\x65st\x18\x04 \x01(\x07\x12\x0e\n\x06source\x18\x05 \x01(\x07\x12\x12\n\nrequest_id\x18\x06 \x01(\x07\x12\x10\n\x08reply_id\x18\x07 \x01(\x07\x12\x12\n\nis_tapback\x18\x08 \x01(\x08\"\xca\x03\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x07\x12\n\n\x02to\x18\x02 \x01(\x07\x12\x0f\n\x07\x63hannel\x18\x03 \x01(\r\x12\x18\n\x07\x64\x65\x63oded\x18\x04 \x01(\x0b\x32\x05.DataH\x00\x12\x13\n\tencrypted\x18\x05 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\x07\x12\x0f\n\x07rx_time\x18\x07 \x01(\x07\x12\x0e\n\x06rx_snr\x18\x08 \x01(\x02\x12\x11\n\thop_limit\x18\n \x01(\r\x12\x10\n\x08want_ack\x18\x0b \x01(\x08\x12&\n\x08priority\x18\x0c \x01(\x0e\x32\x14.MeshPacket.Priority\x12\x0f\n\x07rx_rssi\x18\r \x01(\x05\x12$\n\x07\x64\x65layed\x18\x0f \x01(\x0e\x32\x13.MeshPacket.Delayed\"[\n\x08Priority\x12\t\n\x05UNSET\x10\x00\x12\x07\n\x03MIN\x10\x01\x12\x0e\n\nBACKGROUND\x10\n\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10@\x12\x0c\n\x08RELIABLE\x10\x46\x12\x07\n\x03\x41\x43K\x10x\x12\x07\n\x03MAX\x10\x7f\"B\n\x07\x44\x65layed\x12\x0c\n\x08NO_DELAY\x10\x00\x12\x15\n\x11\x44\x45LAYED_BROADCAST\x10\x01\x12\x12\n\x0e\x44\x45LAYED_DIRECT\x10\x02\x42\x10\n\x0epayloadVariant\"j\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x07 \x01(\x02\x12\x12\n\nlast_heard\x18\x04 \x01(\x07\"\x9a\x03\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x0f\n\x07has_gps\x18\x02 \x01(\x08\x12\x14\n\x0cmax_channels\x18\x0f \x01(\r\x12\x12\n\x06region\x18\x04 \x01(\tB\x02\x18\x01\x12\x18\n\x10\x66irmware_version\x18\x06 \x01(\t\x12&\n\nerror_code\x18\x07 \x01(\x0e\x32\x12.CriticalErrorCode\x12\x15\n\rerror_address\x18\x08 \x01(\r\x12\x13\n\x0b\x65rror_count\x18\t \x01(\r\x12\x14\n\x0creboot_count\x18\n \x01(\r\x12\x0f\n\x07\x62itrate\x18\x0b \x01(\x02\x12\x1c\n\x14message_timeout_msec\x18\r \x01(\r\x12\x17\n\x0fmin_app_version\x18\x0e \x01(\r\x12\x15\n\rair_period_tx\x18\x10 \x03(\r\x12\x15\n\rair_period_rx\x18\x11 \x03(\r\x12\x10\n\x08has_wifi\x18\x12 \x01(\x08\x12\x1b\n\x13\x63hannel_utilization\x18\x13 \x01(\x02\x12\x13\n\x0b\x61ir_util_tx\x18\x14 \x01(\x02\"\xb5\x01\n\tLogRecord\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\x07\x12\x0e\n\x06source\x18\x03 \x01(\t\x12\x1f\n\x05level\x18\x04 \x01(\x0e\x32\x10.LogRecord.Level\"X\n\x05Level\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08\x43RITICAL\x10\x32\x12\t\n\x05\x45RROR\x10(\x12\x0b\n\x07WARNING\x10\x1e\x12\x08\n\x04INFO\x10\x14\x12\t\n\x05\x44\x45\x42UG\x10\n\x12\t\n\x05TRACE\x10\x05\"\xe9\x01\n\tFromRadio\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x0b \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12 \n\nlog_record\x18\x07 \x01(\x0b\x32\n.LogRecordH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x08 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\t \x01(\x08H\x00\x42\x10\n\x0epayloadVariantJ\x04\x08\x02\x10\x03J\x04\x08\x06\x10\x07\"\xe1\x01\n\x07ToRadio\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12&\n\tpeer_info\x18\x03 \x01(\x0b\x32\x11.ToRadio.PeerInfoH\x00\x12\x18\n\x0ewant_config_id\x18\x64 \x01(\rH\x00\x12\x14\n\ndisconnect\x18h \x01(\x08H\x00\x1a\x35\n\x08PeerInfo\x12\x13\n\x0b\x61pp_version\x18\x01 \x01(\r\x12\x14\n\x0cmqtt_gateway\x18\x02 \x01(\x08\x42\x10\n\x0epayloadVariantJ\x04\x08\x01\x10\x02J\x04\x08\x65\x10\x66J\x04\x08\x66\x10gJ\x04\x08g\x10h*\xda\x02\n\rHardwareModel\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08TLORA_V2\x10\x01\x12\x0c\n\x08TLORA_V1\x10\x02\x12\x12\n\x0eTLORA_V2_1_1p6\x10\x03\x12\t\n\x05TBEAM\x10\x04\x12\x0f\n\x0bHELTEC_V2_0\x10\x05\x12\x0c\n\x08TBEAM0p7\x10\x06\x12\n\n\x06T_ECHO\x10\x07\x12\x10\n\x0cTLORA_V1_1p3\x10\x08\x12\x0b\n\x07RAK4631\x10\t\x12\x0f\n\x0bHELTEC_V2_1\x10\n\x12\r\n\tHELTEC_V1\x10\x0b\x12\x11\n\rLORA_RELAY_V1\x10 \x12\x0e\n\nNRF52840DK\x10!\x12\x07\n\x03PPR\x10\"\x12\x0f\n\x0bGENIEBLOCKS\x10#\x12\x11\n\rNRF52_UNKNOWN\x10$\x12\r\n\tPORTDUINO\x10%\x12\x0f\n\x0b\x41NDROID_SIM\x10&\x12\n\n\x06\x44IY_V1\x10\'\x12\x0c\n\x08RAK11200\x10(\x12\x0f\n\nPRIVATE_HW\x10\xff\x01*\xb5\x01\n\x04Team\x12\t\n\x05\x43LEAR\x10\x00\x12\x08\n\x04\x43YAN\x10\x01\x12\t\n\x05WHITE\x10\x02\x12\n\n\x06YELLOW\x10\x03\x12\n\n\x06ORANGE\x10\x04\x12\x0b\n\x07MAGENTA\x10\x05\x12\x07\n\x03RED\x10\x06\x12\n\n\x06MAROON\x10\x07\x12\n\n\x06PURPLE\x10\x08\x12\r\n\tDARK_BLUE\x10\t\x12\x08\n\x04\x42LUE\x10\n\x12\x08\n\x04TEAL\x10\x0b\x12\t\n\x05GREEN\x10\x0c\x12\x0e\n\nDARK_GREEN\x10\r\x12\t\n\x05\x42ROWN\x10\x0e*.\n\tConstants\x12\n\n\x06Unused\x10\x00\x12\x15\n\x10\x44\x41TA_PAYLOAD_LEN\x10\xed\x01*\xe1\x01\n\x11\x43riticalErrorCode\x12\x08\n\x04None\x10\x00\x12\x0e\n\nTxWatchdog\x10\x01\x12\x12\n\x0eSleepEnterWait\x10\x02\x12\x0b\n\x07NoRadio\x10\x03\x12\x0f\n\x0bUnspecified\x10\x04\x12\x13\n\x0fUBloxInitFailed\x10\x05\x12\x0c\n\x08NoAXP192\x10\x06\x12\x17\n\x13InvalidRadioSetting\x10\x07\x12\x12\n\x0eTransmitFailed\x10\x08\x12\x0c\n\x08\x42rownout\x10\t\x12\x11\n\rSX1262Failure\x10\n\x12\x0f\n\x0bRadioSpiBug\x10\x0b\x42\x46\n\x13\x63om.geeksville.meshB\nMeshProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
   ,
   dependencies=[portnums__pb2.DESCRIPTOR,])
 
@@ -121,8 +121,8 @@ _HARDWAREMODEL = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3265,
-  serialized_end=3611,
+  serialized_start=3183,
+  serialized_end=3529,
 )
 _sym_db.RegisterEnumDescriptor(_HARDWAREMODEL)
 
@@ -196,8 +196,8 @@ _TEAM = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3614,
-  serialized_end=3795,
+  serialized_start=3532,
+  serialized_end=3713,
 )
 _sym_db.RegisterEnumDescriptor(_TEAM)
 
@@ -219,8 +219,8 @@ _CONSTANTS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3797,
-  serialized_end=3843,
+  serialized_start=3715,
+  serialized_end=3761,
 )
 _sym_db.RegisterEnumDescriptor(_CONSTANTS)
 
@@ -282,8 +282,8 @@ _CRITICALERRORCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3846,
-  serialized_end=4071,
+  serialized_start=3764,
+  serialized_end=3989,
 )
 _sym_db.RegisterEnumDescriptor(_CRITICALERRORCODE)
 
@@ -366,8 +366,8 @@ _POSITION_LOCSOURCE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=587,
-  serialized_end=697,
+  serialized_start=561,
+  serialized_end=671,
 )
 _sym_db.RegisterEnumDescriptor(_POSITION_LOCSOURCE)
 
@@ -400,8 +400,8 @@ _POSITION_ALTSOURCE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=700,
-  serialized_end=833,
+  serialized_start=674,
+  serialized_end=807,
 )
 _sym_db.RegisterEnumDescriptor(_POSITION_ALTSOURCE)
 
@@ -458,8 +458,8 @@ _ROUTING_ERROR = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1221,
-  serialized_end=1401,
+  serialized_start=1195,
+  serialized_end=1375,
 )
 _sym_db.RegisterEnumDescriptor(_ROUTING_ERROR)
 
@@ -500,8 +500,8 @@ _MESHPACKET_PRIORITY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1860,
-  serialized_end=1951,
+  serialized_start=1834,
+  serialized_end=1925,
 )
 _sym_db.RegisterEnumDescriptor(_MESHPACKET_PRIORITY)
 
@@ -526,8 +526,8 @@ _MESHPACKET_DELAYED = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1953,
-  serialized_end=2019,
+  serialized_start=1927,
+  serialized_end=1993,
 )
 _sym_db.RegisterEnumDescriptor(_MESHPACKET_DELAYED)
 
@@ -568,8 +568,8 @@ _LOGRECORD_LEVEL = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2710,
-  serialized_end=2798,
+  serialized_start=2628,
+  serialized_end=2716,
 )
 _sym_db.RegisterEnumDescriptor(_LOGRECORD_LEVEL)
 
@@ -610,140 +610,133 @@ _POSITION = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='router_heartbeat', full_name='Position.router_heartbeat', index=4,
-      number=5, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='time', full_name='Position.time', index=5,
+      name='time', full_name='Position.time', index=4,
       number=9, type=7, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='location_source', full_name='Position.location_source', index=6,
+      name='location_source', full_name='Position.location_source', index=5,
       number=10, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='altitude_source', full_name='Position.altitude_source', index=7,
+      name='altitude_source', full_name='Position.altitude_source', index=6,
       number=11, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='pos_timestamp', full_name='Position.pos_timestamp', index=8,
+      name='pos_timestamp', full_name='Position.pos_timestamp', index=7,
       number=12, type=7, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='pos_time_millis', full_name='Position.pos_time_millis', index=9,
+      name='pos_time_millis', full_name='Position.pos_time_millis', index=8,
       number=13, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='altitude_hae', full_name='Position.altitude_hae', index=10,
+      name='altitude_hae', full_name='Position.altitude_hae', index=9,
       number=14, type=17, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='alt_geoid_sep', full_name='Position.alt_geoid_sep', index=11,
+      name='alt_geoid_sep', full_name='Position.alt_geoid_sep', index=10,
       number=15, type=17, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='PDOP', full_name='Position.PDOP', index=12,
+      name='PDOP', full_name='Position.PDOP', index=11,
       number=16, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='HDOP', full_name='Position.HDOP', index=13,
+      name='HDOP', full_name='Position.HDOP', index=12,
       number=17, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='VDOP', full_name='Position.VDOP', index=14,
+      name='VDOP', full_name='Position.VDOP', index=13,
       number=18, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='gps_accuracy', full_name='Position.gps_accuracy', index=15,
+      name='gps_accuracy', full_name='Position.gps_accuracy', index=14,
       number=19, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ground_speed', full_name='Position.ground_speed', index=16,
+      name='ground_speed', full_name='Position.ground_speed', index=15,
       number=20, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ground_track', full_name='Position.ground_track', index=17,
+      name='ground_track', full_name='Position.ground_track', index=16,
       number=21, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='fix_quality', full_name='Position.fix_quality', index=18,
+      name='fix_quality', full_name='Position.fix_quality', index=17,
       number=22, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='fix_type', full_name='Position.fix_type', index=19,
+      name='fix_type', full_name='Position.fix_type', index=18,
       number=23, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='sats_in_view', full_name='Position.sats_in_view', index=20,
+      name='sats_in_view', full_name='Position.sats_in_view', index=19,
       number=24, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='sensor_id', full_name='Position.sensor_id', index=21,
+      name='sensor_id', full_name='Position.sensor_id', index=20,
       number=25, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='pos_next_update', full_name='Position.pos_next_update', index=22,
+      name='pos_next_update', full_name='Position.pos_next_update', index=21,
       number=40, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='pos_seq_number', full_name='Position.pos_seq_number', index=23,
+      name='pos_seq_number', full_name='Position.pos_seq_number', index=22,
       number=41, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -764,7 +757,7 @@ _POSITION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=31,
-  serialized_end=833,
+  serialized_end=807,
 )
 
 
@@ -857,8 +850,8 @@ _USER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=836,
-  serialized_end=1051,
+  serialized_start=810,
+  serialized_end=1025,
 )
 
 
@@ -888,8 +881,8 @@ _ROUTEDISCOVERY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1053,
-  serialized_end=1084,
+  serialized_start=1027,
+  serialized_end=1058,
 )
 
 
@@ -937,8 +930,8 @@ _ROUTING = _descriptor.Descriptor(
       name='variant', full_name='Routing.variant',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=1087,
-  serialized_end=1412,
+  serialized_start=1061,
+  serialized_end=1386,
 )
 
 
@@ -1017,8 +1010,8 @@ _DATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1415,
-  serialized_end=1576,
+  serialized_start=1389,
+  serialized_end=1550,
 )
 
 
@@ -1137,8 +1130,8 @@ _MESHPACKET = _descriptor.Descriptor(
       name='payloadVariant', full_name='MeshPacket.payloadVariant',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=1579,
-  serialized_end=2037,
+  serialized_start=1553,
+  serialized_end=2011,
 )
 
 
@@ -1196,8 +1189,8 @@ _NODEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2039,
-  serialized_end=2145,
+  serialized_start=2013,
+  serialized_end=2119,
 )
 
 
@@ -1327,27 +1320,6 @@ _MYNODEINFO = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='router', full_name='MyNodeInfo.router', index=17,
-      number=21, type=13, cpp_type=3, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='router_snr', full_name='MyNodeInfo.router_snr', index=18,
-      number=22, type=2, cpp_type=6, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='router_sec', full_name='MyNodeInfo.router_sec', index=19,
-      number=23, type=13, cpp_type=3, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -1360,8 +1332,8 @@ _MYNODEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2148,
-  serialized_end=2614,
+  serialized_start=2122,
+  serialized_end=2532,
 )
 
 
@@ -1413,8 +1385,8 @@ _LOGRECORD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2617,
-  serialized_end=2798,
+  serialized_start=2535,
+  serialized_end=2716,
 )
 
 
@@ -1489,8 +1461,8 @@ _FROMRADIO = _descriptor.Descriptor(
       name='payloadVariant', full_name='FromRadio.payloadVariant',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=2801,
-  serialized_end=3034,
+  serialized_start=2719,
+  serialized_end=2952,
 )
 
 
@@ -1527,8 +1499,8 @@ _TORADIO_PEERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3167,
-  serialized_end=3220,
+  serialized_start=3085,
+  serialized_end=3138,
 )
 
 _TORADIO = _descriptor.Descriptor(
@@ -1581,8 +1553,8 @@ _TORADIO = _descriptor.Descriptor(
       name='payloadVariant', full_name='ToRadio.payloadVariant',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=3037,
-  serialized_end=3262,
+  serialized_start=2955,
+  serialized_end=3180,
 )
 
 _POSITION.fields_by_name['location_source'].enum_type = _POSITION_LOCSOURCE
