@@ -119,6 +119,10 @@ def setPref(attributes, name, valStr):
     val = meshtastic.util.fromStr(valStr)
     logging.debug(f'valStr:{valStr} val:{val}')
 
+    if snake_name == 'wifi_password' and len(valStr) < 8:
+        print(f"Warning: wifi_password must be 8 or more characters.")
+        return
+
     enumType = field.enum_type
     # pylint: disable=C0123
     if enumType and type(val) == str:
