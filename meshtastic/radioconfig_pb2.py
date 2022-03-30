@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\021RadioConfigProtosH\003Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\x11radioconfig.proto\"\xb7\x17\n\x0bRadioConfig\x12\x31\n\x0bpreferences\x18\x01 \x01(\x0b\x32\x1c.RadioConfig.UserPreferences\x1a\xf4\x16\n\x0fUserPreferences\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12)\n!position_broadcast_smart_disabled\x18\x11 \x01(\x08\x12\x1b\n\x13send_owner_interval\x18\x02 \x01(\r\x12\x1b\n\x13wait_bluetooth_secs\x18\x04 \x01(\r\x12\x16\n\x0escreen_on_secs\x18\x05 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x06 \x01(\r\x12\x1d\n\x15phone_sds_timeout_sec\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\x08 \x01(\r\x12\x10\n\x08sds_secs\x18\t \x01(\r\x12\x0f\n\x07ls_secs\x18\n \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0b \x01(\r\x12\x11\n\twifi_ssid\x18\x0c \x01(\t\x12\x15\n\rwifi_password\x18\r \x01(\t\x12\x14\n\x0cwifi_ap_mode\x18\x0e \x01(\x08\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\x12&\n\x0e\x63harge_current\x18\x10 \x01(\x0e\x32\x0e.ChargeCurrent\x12\x13\n\x04role\x18\x12 \x01(\x0e\x32\x05.Role\x12\x14\n\x0cis_low_power\x18& \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\' \x01(\x08\x12\x17\n\x0fserial_disabled\x18( \x01(\x08\x12(\n\x0elocation_share\x18  \x01(\x0e\x32\x10.LocationSharing\x12$\n\rgps_operation\x18! \x01(\x0e\x32\r.GpsOperation\x12\x1b\n\x13gps_update_interval\x18\" \x01(\r\x12\x18\n\x10gps_attempt_time\x18$ \x01(\r\x12\x15\n\rgps_accept_2d\x18- \x01(\x08\x12\x13\n\x0bgps_max_dop\x18. \x01(\r\x12\x18\n\x10\x66requency_offset\x18) \x01(\x02\x12\x13\n\x0bmqtt_server\x18* \x01(\t\x12\x15\n\rmqtt_disabled\x18+ \x01(\x08\x12(\n\ngps_format\x18, \x01(\x0e\x32\x14.GpsCoordinateFormat\x12\x15\n\rfactory_reset\x18\x64 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x65 \x01(\x08\x12\x17\n\x0fignore_incoming\x18g \x03(\r\x12\x1d\n\x15serial_module_enabled\x18x \x01(\x08\x12\x1a\n\x12serial_module_echo\x18y \x01(\x08\x12\x19\n\x11serial_module_rxd\x18z \x01(\r\x12\x19\n\x11serial_module_txd\x18{ \x01(\r\x12\x1b\n\x12serial_module_baud\x18\xb0\x01 \x01(\r\x12\x1d\n\x15serial_module_timeout\x18| \x01(\r\x12\x1a\n\x12serial_module_mode\x18} \x01(\r\x12\'\n\x1f\x65xt_notification_module_enabled\x18~ \x01(\x08\x12)\n!ext_notification_module_output_ms\x18\x7f \x01(\r\x12\'\n\x1e\x65xt_notification_module_output\x18\x80\x01 \x01(\r\x12\'\n\x1e\x65xt_notification_module_active\x18\x81\x01 \x01(\x08\x12.\n%ext_notification_module_alert_message\x18\x82\x01 \x01(\x08\x12+\n\"ext_notification_module_alert_bell\x18\x83\x01 \x01(\x08\x12\"\n\x19range_test_module_enabled\x18\x84\x01 \x01(\x08\x12!\n\x18range_test_module_sender\x18\x85\x01 \x01(\r\x12\x1f\n\x16range_test_module_save\x18\x86\x01 \x01(\x08\x12%\n\x1cstore_forward_module_enabled\x18\x94\x01 \x01(\x08\x12\'\n\x1estore_forward_module_heartbeat\x18\x95\x01 \x01(\x08\x12%\n\x1cstore_forward_module_records\x18\x89\x01 \x01(\r\x12\x30\n\'store_forward_module_history_return_max\x18\x8a\x01 \x01(\r\x12\x33\n*store_forward_module_history_return_window\x18\x8b\x01 \x01(\r\x12-\n$telemetry_module_measurement_enabled\x18\x8c\x01 \x01(\x08\x12(\n\x1ftelemetry_module_screen_enabled\x18\x8d\x01 \x01(\x08\x12\x34\n+telemetry_module_read_error_count_threshold\x18\x8e\x01 \x01(\r\x12)\n telemetry_module_update_interval\x18\x8f\x01 \x01(\r\x12+\n\"telemetry_module_recovery_interval\x18\x90\x01 \x01(\r\x12+\n\"telemetry_module_display_farenheit\x18\x91\x01 \x01(\x08\x12W\n\x1ctelemetry_module_sensor_type\x18\x92\x01 \x01(\x0e\x32\x30.RadioConfig.UserPreferences.TelemetrySensorType\x12$\n\x1btelemetry_module_sensor_pin\x18\x93\x01 \x01(\r\x12\x17\n\x0eposition_flags\x18\x96\x01 \x01(\r\x12\x1a\n\x11is_always_powered\x18\x97\x01 \x01(\x08\x12\"\n\x19\x61uto_screen_carousel_secs\x18\x98\x01 \x01(\r\x12\'\n\x1eon_battery_shutdown_after_secs\x18\x99\x01 \x01(\r\x12\x12\n\thop_limit\x18\x9a\x01 \x01(\r\x12\x16\n\rmqtt_username\x18\x9b\x01 \x01(\t\x12\x16\n\rmqtt_password\x18\x9c\x01 \x01(\t\x12\x1c\n\x13is_lora_tx_disabled\x18\x9d\x01 \x01(\x08\x12\x18\n\x0fis_power_saving\x18\x9e\x01 \x01(\x08\x12\x18\n\x0frotary1_enabled\x18\xa0\x01 \x01(\x08\x12\x16\n\rrotary1_pin_a\x18\xa1\x01 \x01(\r\x12\x16\n\rrotary1_pin_b\x18\xa2\x01 \x01(\r\x12\x1a\n\x11rotary1_pin_press\x18\xa3\x01 \x01(\r\x12*\n\x10rotary1_event_cw\x18\xa4\x01 \x01(\x0e\x32\x0f.InputEventChar\x12+\n\x11rotary1_event_ccw\x18\xa5\x01 \x01(\x0e\x32\x0f.InputEventChar\x12-\n\x13rotary1_event_press\x18\xa6\x01 \x01(\x0e\x32\x0f.InputEventChar\x12&\n\x1d\x63\x61nned_message_module_enabled\x18\xaa\x01 \x01(\x08\x12\x31\n(canned_message_module_allow_input_source\x18\xab\x01 \x01(\t\x12(\n\x1f\x63\x61nned_message_module_send_bell\x18\xad\x01 \x01(\x08\x12 \n\x17mqtt_encryption_enabled\x18\xae\x01 \x01(\x08\x12 \n\x17\x61\x64\x63_multiplier_override\x18\xaf\x01 \x01(\x02\"~\n\x13TelemetrySensorType\x12\t\n\x05\x44HT11\x10\x00\x12\x0b\n\x07\x44S18B20\x10\x01\x12\t\n\x05\x44HT12\x10\x02\x12\t\n\x05\x44HT21\x10\x03\x12\t\n\x05\x44HT22\x10\x04\x12\n\n\x06\x42ME280\x10\x05\x12\n\n\x06\x42ME680\x10\x06\x12\x0b\n\x07MCP9808\x10\x07\x12\t\n\x05SHTC3\x10\x08J\x06\x08\x88\x01\x10\x89\x01*\x81\x01\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U868\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08\x12\x06\n\x02RU\x10\t\x12\x06\n\x02IN\x10\n\x12\t\n\x05NZ865\x10\x0b\x12\x06\n\x02TH\x10\x0c*\x1f\n\x04Role\x12\x0b\n\x07\x44\x65\x66\x61ult\x10\x00\x12\n\n\x06Router\x10\x01*\xd1\x01\n\rChargeCurrent\x12\x0b\n\x07MAUnset\x10\x00\x12\t\n\x05MA100\x10\x01\x12\t\n\x05MA190\x10\x02\x12\t\n\x05MA280\x10\x03\x12\t\n\x05MA360\x10\x04\x12\t\n\x05MA450\x10\x05\x12\t\n\x05MA550\x10\x06\x12\t\n\x05MA630\x10\x07\x12\t\n\x05MA700\x10\x08\x12\t\n\x05MA780\x10\t\x12\t\n\x05MA880\x10\n\x12\t\n\x05MA960\x10\x0b\x12\n\n\x06MA1000\x10\x0c\x12\n\n\x06MA1080\x10\r\x12\n\n\x06MA1160\x10\x0e\x12\n\n\x06MA1240\x10\x0f\x12\n\n\x06MA1320\x10\x10*j\n\x0cGpsOperation\x12\x0e\n\nGpsOpUnset\x10\x00\x12\x13\n\x0fGpsOpStationary\x10\x01\x12\x0f\n\x0bGpsOpMobile\x10\x02\x12\x11\n\rGpsOpTimeOnly\x10\x03\x12\x11\n\rGpsOpDisabled\x10\x04*\x83\x01\n\x13GpsCoordinateFormat\x12\x10\n\x0cGpsFormatDec\x10\x00\x12\x10\n\x0cGpsFormatDMS\x10\x01\x12\x10\n\x0cGpsFormatUTM\x10\x02\x12\x11\n\rGpsFormatMGRS\x10\x03\x12\x10\n\x0cGpsFormatOLC\x10\x04\x12\x11\n\rGpsFormatOSGR\x10\x05*@\n\x0fLocationSharing\x12\x0c\n\x08LocUnset\x10\x00\x12\x0e\n\nLocEnabled\x10\x01\x12\x0f\n\x0bLocDisabled\x10\x02*\xbc\x01\n\rPositionFlags\x12\x11\n\rPOS_UNDEFINED\x10\x00\x12\x10\n\x0cPOS_ALTITUDE\x10\x01\x12\x0f\n\x0bPOS_ALT_MSL\x10\x02\x12\x0f\n\x0bPOS_GEO_SEP\x10\x04\x12\x0b\n\x07POS_DOP\x10\x08\x12\r\n\tPOS_HVDOP\x10\x10\x12\x0f\n\x0bPOS_BATTERY\x10 \x12\x11\n\rPOS_SATINVIEW\x10@\x12\x10\n\x0bPOS_SEQ_NOS\x10\x80\x01\x12\x12\n\rPOS_TIMESTAMP\x10\x80\x02*\x83\x01\n\x0eInputEventChar\x12\x0c\n\x08KEY_NONE\x10\x00\x12\n\n\x06KEY_UP\x10\x11\x12\x0c\n\x08KEY_DOWN\x10\x12\x12\x0c\n\x08KEY_LEFT\x10\x13\x12\r\n\tKEY_RIGHT\x10\x14\x12\x0e\n\nKEY_SELECT\x10\n\x12\x0c\n\x08KEY_BACK\x10\x1b\x12\x0e\n\nKEY_CANCEL\x10\x18\x42M\n\x13\x63om.geeksville.meshB\x11RadioConfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\x11radioconfig.proto\"\xd8\x1b\n\x0bRadioConfig\x12\x31\n\x0bpreferences\x18\x01 \x01(\x0b\x32\x1c.RadioConfig.UserPreferences\x1a\x95\x1b\n\x0fUserPreferences\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12)\n!position_broadcast_smart_disabled\x18\x11 \x01(\x08\x12\x1b\n\x13send_owner_interval\x18\x02 \x01(\r\x12\x1b\n\x13wait_bluetooth_secs\x18\x04 \x01(\r\x12\x16\n\x0escreen_on_secs\x18\x05 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x06 \x01(\r\x12\x1d\n\x15phone_sds_timeout_sec\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\x08 \x01(\r\x12\x10\n\x08sds_secs\x18\t \x01(\r\x12\x0f\n\x07ls_secs\x18\n \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0b \x01(\r\x12\x11\n\twifi_ssid\x18\x0c \x01(\t\x12\x15\n\rwifi_password\x18\r \x01(\t\x12\x14\n\x0cwifi_ap_mode\x18\x0e \x01(\x08\x12\x1b\n\x06region\x18\x0f \x01(\x0e\x32\x0b.RegionCode\x12&\n\x0e\x63harge_current\x18\x10 \x01(\x0e\x32\x0e.ChargeCurrent\x12\x13\n\x04role\x18\x12 \x01(\x0e\x32\x05.Role\x12\x14\n\x0cis_low_power\x18& \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\' \x01(\x08\x12\x17\n\x0fserial_disabled\x18( \x01(\x08\x12\x1f\n\x17location_share_disabled\x18  \x01(\x08\x12\x14\n\x0cgps_disabled\x18! \x01(\x08\x12\x1b\n\x13gps_update_interval\x18\" \x01(\r\x12\x18\n\x10gps_attempt_time\x18$ \x01(\r\x12\x15\n\rgps_accept_2d\x18- \x01(\x08\x12\x13\n\x0bgps_max_dop\x18. \x01(\r\x12\x18\n\x10\x66requency_offset\x18) \x01(\x02\x12\x13\n\x0bmqtt_server\x18* \x01(\t\x12\x15\n\rmqtt_disabled\x18+ \x01(\x08\x12(\n\ngps_format\x18, \x01(\x0e\x32\x14.GpsCoordinateFormat\x12\x15\n\rfactory_reset\x18\x64 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x65 \x01(\x08\x12\x17\n\x0fignore_incoming\x18g \x03(\r\x12\x1d\n\x15serial_module_enabled\x18x \x01(\x08\x12\x1a\n\x12serial_module_echo\x18y \x01(\x08\x12\x19\n\x11serial_module_rxd\x18z \x01(\r\x12\x19\n\x11serial_module_txd\x18{ \x01(\r\x12\x45\n\x12serial_module_baud\x18\xb0\x01 \x01(\x0e\x32(.RadioConfig.UserPreferences.Serial_Baud\x12\x1d\n\x15serial_module_timeout\x18| \x01(\r\x12\x44\n\x12serial_module_mode\x18} \x01(\x0e\x32(.RadioConfig.UserPreferences.Serial_Mode\x12\'\n\x1f\x65xt_notification_module_enabled\x18~ \x01(\x08\x12)\n!ext_notification_module_output_ms\x18\x7f \x01(\r\x12\'\n\x1e\x65xt_notification_module_output\x18\x80\x01 \x01(\r\x12\'\n\x1e\x65xt_notification_module_active\x18\x81\x01 \x01(\x08\x12.\n%ext_notification_module_alert_message\x18\x82\x01 \x01(\x08\x12+\n\"ext_notification_module_alert_bell\x18\x83\x01 \x01(\x08\x12\"\n\x19range_test_module_enabled\x18\x84\x01 \x01(\x08\x12!\n\x18range_test_module_sender\x18\x85\x01 \x01(\r\x12\x1f\n\x16range_test_module_save\x18\x86\x01 \x01(\x08\x12%\n\x1cstore_forward_module_enabled\x18\x94\x01 \x01(\x08\x12\'\n\x1estore_forward_module_heartbeat\x18\x95\x01 \x01(\x08\x12%\n\x1cstore_forward_module_records\x18\x89\x01 \x01(\r\x12\x30\n\'store_forward_module_history_return_max\x18\x8a\x01 \x01(\r\x12\x33\n*store_forward_module_history_return_window\x18\x8b\x01 \x01(\r\x12\x39\n0telemetry_module_environment_measurement_enabled\x18\x8c\x01 \x01(\x08\x12\x34\n+telemetry_module_environment_screen_enabled\x18\x8d\x01 \x01(\x08\x12@\n7telemetry_module_environment_read_error_count_threshold\x18\x8e\x01 \x01(\r\x12\x30\n\'telemetry_module_device_update_interval\x18\x8f\x01 \x01(\r\x12\x37\n.telemetry_module_environment_recovery_interval\x18\x90\x01 \x01(\r\x12\x38\n/telemetry_module_environment_display_fahrenheit\x18\x91\x01 \x01(\x08\x12\x63\n(telemetry_module_environment_sensor_type\x18\x92\x01 \x01(\x0e\x32\x30.RadioConfig.UserPreferences.TelemetrySensorType\x12\x30\n\'telemetry_module_environment_sensor_pin\x18\x93\x01 \x01(\r\x12\x17\n\x0eposition_flags\x18\x96\x01 \x01(\r\x12\x1a\n\x11is_always_powered\x18\x97\x01 \x01(\x08\x12\"\n\x19\x61uto_screen_carousel_secs\x18\x98\x01 \x01(\r\x12\'\n\x1eon_battery_shutdown_after_secs\x18\x99\x01 \x01(\r\x12\x12\n\thop_limit\x18\x9a\x01 \x01(\r\x12\x16\n\rmqtt_username\x18\x9b\x01 \x01(\t\x12\x16\n\rmqtt_password\x18\x9c\x01 \x01(\t\x12\x1c\n\x13is_lora_tx_disabled\x18\x9d\x01 \x01(\x08\x12\x18\n\x0fis_power_saving\x18\x9e\x01 \x01(\x08\x12\x18\n\x0frotary1_enabled\x18\xa0\x01 \x01(\x08\x12\x1a\n\x11inputbroker_pin_a\x18\xa1\x01 \x01(\r\x12\x1a\n\x11inputbroker_pin_b\x18\xa2\x01 \x01(\r\x12\x1e\n\x15inputbroker_pin_press\x18\xa3\x01 \x01(\r\x12.\n\x14inputbroker_event_cw\x18\xa4\x01 \x01(\x0e\x32\x0f.InputEventChar\x12/\n\x15inputbroker_event_ccw\x18\xa5\x01 \x01(\x0e\x32\x0f.InputEventChar\x12\x31\n\x17inputbroker_event_press\x18\xa6\x01 \x01(\x0e\x32\x0f.InputEventChar\x12\x18\n\x0fupdown1_enabled\x18\xa7\x01 \x01(\x08\x12&\n\x1d\x63\x61nned_message_module_enabled\x18\xaa\x01 \x01(\x08\x12\x31\n(canned_message_module_allow_input_source\x18\xab\x01 \x01(\t\x12(\n\x1f\x63\x61nned_message_module_send_bell\x18\xad\x01 \x01(\x08\x12 \n\x17mqtt_encryption_enabled\x18\xae\x01 \x01(\x08\x12 \n\x17\x61\x64\x63_multiplier_override\x18\xaf\x01 \x01(\x02\x12\x35\n,telemetry_module_environment_update_interval\x18\xb1\x01 \x01(\r\"\xd1\x01\n\x0bSerial_Baud\x12\x10\n\x0c\x42\x41UD_Default\x10\x00\x12\r\n\tBAUD_2400\x10\x01\x12\r\n\tBAUD_4800\x10\x02\x12\r\n\tBAUD_9600\x10\x03\x12\x0e\n\nBAUD_19200\x10\x04\x12\x0e\n\nBAUD_38400\x10\x05\x12\x0e\n\nBAUD_57600\x10\x06\x12\x0f\n\x0b\x42\x41UD_115200\x10\x07\x12\x0f\n\x0b\x42\x41UD_230400\x10\x08\x12\x0f\n\x0b\x42\x41UD_460800\x10\t\x12\x0f\n\x0b\x42\x41UD_576000\x10\n\x12\x0f\n\x0b\x42\x41UD_921600\x10\x0b\"@\n\x0bSerial_Mode\x12\x10\n\x0cMODE_Default\x10\x00\x12\x0f\n\x0bMODE_SIMPLE\x10\x01\x12\x0e\n\nMODE_PROTO\x10\x02\"\x88\x01\n\x13TelemetrySensorType\x12\x08\n\x04None\x10\x00\x12\t\n\x05\x44HT11\x10\x01\x12\x0b\n\x07\x44S18B20\x10\x02\x12\t\n\x05\x44HT12\x10\x03\x12\t\n\x05\x44HT21\x10\x04\x12\t\n\x05\x44HT22\x10\x05\x12\n\n\x06\x42ME280\x10\x06\x12\n\n\x06\x42ME680\x10\x07\x12\x0b\n\x07MCP9808\x10\x08\x12\t\n\x05SHTC3\x10\tJ\x06\x08\x88\x01\x10\x89\x01*\x81\x01\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U868\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08\x12\x06\n\x02RU\x10\t\x12\x06\n\x02IN\x10\n\x12\t\n\x05NZ865\x10\x0b\x12\x06\n\x02TH\x10\x0c*@\n\x04Role\x12\n\n\x06\x43lient\x10\x00\x12\x0e\n\nClientMute\x10\x01\x12\n\n\x06Router\x10\x02\x12\x10\n\x0cRouterClient\x10\x03*\xd1\x01\n\rChargeCurrent\x12\x0b\n\x07MAUnset\x10\x00\x12\t\n\x05MA100\x10\x01\x12\t\n\x05MA190\x10\x02\x12\t\n\x05MA280\x10\x03\x12\t\n\x05MA360\x10\x04\x12\t\n\x05MA450\x10\x05\x12\t\n\x05MA550\x10\x06\x12\t\n\x05MA630\x10\x07\x12\t\n\x05MA700\x10\x08\x12\t\n\x05MA780\x10\t\x12\t\n\x05MA880\x10\n\x12\t\n\x05MA960\x10\x0b\x12\n\n\x06MA1000\x10\x0c\x12\n\n\x06MA1080\x10\r\x12\n\n\x06MA1160\x10\x0e\x12\n\n\x06MA1240\x10\x0f\x12\n\n\x06MA1320\x10\x10*\x83\x01\n\x13GpsCoordinateFormat\x12\x10\n\x0cGpsFormatDec\x10\x00\x12\x10\n\x0cGpsFormatDMS\x10\x01\x12\x10\n\x0cGpsFormatUTM\x10\x02\x12\x11\n\rGpsFormatMGRS\x10\x03\x12\x10\n\x0cGpsFormatOLC\x10\x04\x12\x11\n\rGpsFormatOSGR\x10\x05*\xbc\x01\n\rPositionFlags\x12\x11\n\rPOS_UNDEFINED\x10\x00\x12\x10\n\x0cPOS_ALTITUDE\x10\x01\x12\x0f\n\x0bPOS_ALT_MSL\x10\x02\x12\x0f\n\x0bPOS_GEO_SEP\x10\x04\x12\x0b\n\x07POS_DOP\x10\x08\x12\r\n\tPOS_HVDOP\x10\x10\x12\x0f\n\x0bPOS_BATTERY\x10 \x12\x11\n\rPOS_SATINVIEW\x10@\x12\x10\n\x0bPOS_SEQ_NOS\x10\x80\x01\x12\x12\n\rPOS_TIMESTAMP\x10\x80\x02*\x83\x01\n\x0eInputEventChar\x12\x0c\n\x08KEY_NONE\x10\x00\x12\n\n\x06KEY_UP\x10\x11\x12\x0c\n\x08KEY_DOWN\x10\x12\x12\x0c\n\x08KEY_LEFT\x10\x13\x12\r\n\tKEY_RIGHT\x10\x14\x12\x0e\n\nKEY_SELECT\x10\n\x12\x0c\n\x08KEY_BACK\x10\x1b\x12\x0e\n\nKEY_CANCEL\x10\x18\x42M\n\x13\x63om.geeksville.meshB\x11RadioConfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
 )
 
 _REGIONCODE = _descriptor.EnumDescriptor(
@@ -83,8 +83,8 @@ _REGIONCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3024,
-  serialized_end=3153,
+  serialized_start=3569,
+  serialized_end=3698,
 )
 _sym_db.RegisterEnumDescriptor(_REGIONCODE)
 
@@ -96,18 +96,26 @@ _ROLE = _descriptor.EnumDescriptor(
   file=DESCRIPTOR,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='Default', index=0, number=0,
+      name='Client', index=0, number=0,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='Router', index=1, number=1,
+      name='ClientMute', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='Router', index=2, number=2,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='RouterClient', index=3, number=3,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3155,
-  serialized_end=3186,
+  serialized_start=3700,
+  serialized_end=3764,
 )
 _sym_db.RegisterEnumDescriptor(_ROLE)
 
@@ -189,47 +197,12 @@ _CHARGECURRENT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3189,
-  serialized_end=3398,
+  serialized_start=3767,
+  serialized_end=3976,
 )
 _sym_db.RegisterEnumDescriptor(_CHARGECURRENT)
 
 ChargeCurrent = enum_type_wrapper.EnumTypeWrapper(_CHARGECURRENT)
-_GPSOPERATION = _descriptor.EnumDescriptor(
-  name='GpsOperation',
-  full_name='GpsOperation',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='GpsOpUnset', index=0, number=0,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='GpsOpStationary', index=1, number=1,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='GpsOpMobile', index=2, number=2,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='GpsOpTimeOnly', index=3, number=3,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='GpsOpDisabled', index=4, number=4,
-      serialized_options=None,
-      type=None),
-  ],
-  containing_type=None,
-  serialized_options=None,
-  serialized_start=3400,
-  serialized_end=3506,
-)
-_sym_db.RegisterEnumDescriptor(_GPSOPERATION)
-
-GpsOperation = enum_type_wrapper.EnumTypeWrapper(_GPSOPERATION)
 _GPSCOORDINATEFORMAT = _descriptor.EnumDescriptor(
   name='GpsCoordinateFormat',
   full_name='GpsCoordinateFormat',
@@ -263,39 +236,12 @@ _GPSCOORDINATEFORMAT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3509,
-  serialized_end=3640,
+  serialized_start=3979,
+  serialized_end=4110,
 )
 _sym_db.RegisterEnumDescriptor(_GPSCOORDINATEFORMAT)
 
 GpsCoordinateFormat = enum_type_wrapper.EnumTypeWrapper(_GPSCOORDINATEFORMAT)
-_LOCATIONSHARING = _descriptor.EnumDescriptor(
-  name='LocationSharing',
-  full_name='LocationSharing',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='LocUnset', index=0, number=0,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='LocEnabled', index=1, number=1,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='LocDisabled', index=2, number=2,
-      serialized_options=None,
-      type=None),
-  ],
-  containing_type=None,
-  serialized_options=None,
-  serialized_start=3642,
-  serialized_end=3706,
-)
-_sym_db.RegisterEnumDescriptor(_LOCATIONSHARING)
-
-LocationSharing = enum_type_wrapper.EnumTypeWrapper(_LOCATIONSHARING)
 _POSITIONFLAGS = _descriptor.EnumDescriptor(
   name='PositionFlags',
   full_name='PositionFlags',
@@ -345,8 +291,8 @@ _POSITIONFLAGS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3709,
-  serialized_end=3897,
+  serialized_start=4113,
+  serialized_end=4301,
 )
 _sym_db.RegisterEnumDescriptor(_POSITIONFLAGS)
 
@@ -392,8 +338,8 @@ _INPUTEVENTCHAR = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3900,
-  serialized_end=4031,
+  serialized_start=4304,
+  serialized_end=4435,
 )
 _sym_db.RegisterEnumDescriptor(_INPUTEVENTCHAR)
 
@@ -411,8 +357,10 @@ RU = 9
 IN = 10
 NZ865 = 11
 TH = 12
-Default = 0
-Router = 1
+Client = 0
+ClientMute = 1
+Router = 2
+RouterClient = 3
 MAUnset = 0
 MA100 = 1
 MA190 = 2
@@ -430,20 +378,12 @@ MA1080 = 13
 MA1160 = 14
 MA1240 = 15
 MA1320 = 16
-GpsOpUnset = 0
-GpsOpStationary = 1
-GpsOpMobile = 2
-GpsOpTimeOnly = 3
-GpsOpDisabled = 4
 GpsFormatDec = 0
 GpsFormatDMS = 1
 GpsFormatUTM = 2
 GpsFormatMGRS = 3
 GpsFormatOLC = 4
 GpsFormatOSGR = 5
-LocUnset = 0
-LocEnabled = 1
-LocDisabled = 2
 POS_UNDEFINED = 0
 POS_ALTITUDE = 1
 POS_ALT_MSL = 2
@@ -464,6 +404,94 @@ KEY_BACK = 27
 KEY_CANCEL = 24
 
 
+_RADIOCONFIG_USERPREFERENCES_SERIAL_BAUD = _descriptor.EnumDescriptor(
+  name='Serial_Baud',
+  full_name='RadioConfig.UserPreferences.Serial_Baud',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_Default', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_2400', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_4800', index=2, number=2,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_9600', index=3, number=3,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_19200', index=4, number=4,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_38400', index=5, number=5,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_57600', index=6, number=6,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_115200', index=7, number=7,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_230400', index=8, number=8,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_460800', index=9, number=9,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_576000', index=10, number=10,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BAUD_921600', index=11, number=11,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=3144,
+  serialized_end=3353,
+)
+_sym_db.RegisterEnumDescriptor(_RADIOCONFIG_USERPREFERENCES_SERIAL_BAUD)
+
+_RADIOCONFIG_USERPREFERENCES_SERIAL_MODE = _descriptor.EnumDescriptor(
+  name='Serial_Mode',
+  full_name='RadioConfig.UserPreferences.Serial_Mode',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='MODE_Default', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='MODE_SIMPLE', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='MODE_PROTO', index=2, number=2,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=3355,
+  serialized_end=3419,
+)
+_sym_db.RegisterEnumDescriptor(_RADIOCONFIG_USERPREFERENCES_SERIAL_MODE)
+
 _RADIOCONFIG_USERPREFERENCES_TELEMETRYSENSORTYPE = _descriptor.EnumDescriptor(
   name='TelemetrySensorType',
   full_name='RadioConfig.UserPreferences.TelemetrySensorType',
@@ -471,46 +499,50 @@ _RADIOCONFIG_USERPREFERENCES_TELEMETRYSENSORTYPE = _descriptor.EnumDescriptor(
   file=DESCRIPTOR,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='DHT11', index=0, number=0,
+      name='None', index=0, number=0,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='DS18B20', index=1, number=1,
+      name='DHT11', index=1, number=1,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='DHT12', index=2, number=2,
+      name='DS18B20', index=2, number=2,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='DHT21', index=3, number=3,
+      name='DHT12', index=3, number=3,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='DHT22', index=4, number=4,
+      name='DHT21', index=4, number=4,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='BME280', index=5, number=5,
+      name='DHT22', index=5, number=5,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='BME680', index=6, number=6,
+      name='BME280', index=6, number=6,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='MCP9808', index=7, number=7,
+      name='BME680', index=7, number=7,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='SHTC3', index=8, number=8,
+      name='MCP9808', index=8, number=8,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SHTC3', index=9, number=9,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2887,
-  serialized_end=3013,
+  serialized_start=3422,
+  serialized_end=3558,
 )
 _sym_db.RegisterEnumDescriptor(_RADIOCONFIG_USERPREFERENCES_TELEMETRYSENSORTYPE)
 
@@ -663,16 +695,16 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='location_share', full_name='RadioConfig.UserPreferences.location_share', index=20,
-      number=32, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
+      name='location_share_disabled', full_name='RadioConfig.UserPreferences.location_share_disabled', index=20,
+      number=32, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='gps_operation', full_name='RadioConfig.UserPreferences.gps_operation', index=21,
-      number=33, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
+      name='gps_disabled', full_name='RadioConfig.UserPreferences.gps_disabled', index=21,
+      number=33, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -783,7 +815,7 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='serial_module_baud', full_name='RadioConfig.UserPreferences.serial_module_baud', index=37,
-      number=176, type=13, cpp_type=3, label=1,
+      number=176, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -797,7 +829,7 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='serial_module_mode', full_name='RadioConfig.UserPreferences.serial_module_mode', index=39,
-      number=125, type=13, cpp_type=3, label=1,
+      number=125, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -901,56 +933,56 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='telemetry_module_measurement_enabled', full_name='RadioConfig.UserPreferences.telemetry_module_measurement_enabled', index=54,
+      name='telemetry_module_environment_measurement_enabled', full_name='RadioConfig.UserPreferences.telemetry_module_environment_measurement_enabled', index=54,
       number=140, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='telemetry_module_screen_enabled', full_name='RadioConfig.UserPreferences.telemetry_module_screen_enabled', index=55,
+      name='telemetry_module_environment_screen_enabled', full_name='RadioConfig.UserPreferences.telemetry_module_environment_screen_enabled', index=55,
       number=141, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='telemetry_module_read_error_count_threshold', full_name='RadioConfig.UserPreferences.telemetry_module_read_error_count_threshold', index=56,
+      name='telemetry_module_environment_read_error_count_threshold', full_name='RadioConfig.UserPreferences.telemetry_module_environment_read_error_count_threshold', index=56,
       number=142, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='telemetry_module_update_interval', full_name='RadioConfig.UserPreferences.telemetry_module_update_interval', index=57,
+      name='telemetry_module_device_update_interval', full_name='RadioConfig.UserPreferences.telemetry_module_device_update_interval', index=57,
       number=143, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='telemetry_module_recovery_interval', full_name='RadioConfig.UserPreferences.telemetry_module_recovery_interval', index=58,
+      name='telemetry_module_environment_recovery_interval', full_name='RadioConfig.UserPreferences.telemetry_module_environment_recovery_interval', index=58,
       number=144, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='telemetry_module_display_farenheit', full_name='RadioConfig.UserPreferences.telemetry_module_display_farenheit', index=59,
+      name='telemetry_module_environment_display_fahrenheit', full_name='RadioConfig.UserPreferences.telemetry_module_environment_display_fahrenheit', index=59,
       number=145, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='telemetry_module_sensor_type', full_name='RadioConfig.UserPreferences.telemetry_module_sensor_type', index=60,
+      name='telemetry_module_environment_sensor_type', full_name='RadioConfig.UserPreferences.telemetry_module_environment_sensor_type', index=60,
       number=146, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='telemetry_module_sensor_pin', full_name='RadioConfig.UserPreferences.telemetry_module_sensor_pin', index=61,
+      name='telemetry_module_environment_sensor_pin', full_name='RadioConfig.UserPreferences.telemetry_module_environment_sensor_pin', index=61,
       number=147, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -1027,79 +1059,93 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rotary1_pin_a', full_name='RadioConfig.UserPreferences.rotary1_pin_a', index=72,
+      name='inputbroker_pin_a', full_name='RadioConfig.UserPreferences.inputbroker_pin_a', index=72,
       number=161, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rotary1_pin_b', full_name='RadioConfig.UserPreferences.rotary1_pin_b', index=73,
+      name='inputbroker_pin_b', full_name='RadioConfig.UserPreferences.inputbroker_pin_b', index=73,
       number=162, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rotary1_pin_press', full_name='RadioConfig.UserPreferences.rotary1_pin_press', index=74,
+      name='inputbroker_pin_press', full_name='RadioConfig.UserPreferences.inputbroker_pin_press', index=74,
       number=163, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rotary1_event_cw', full_name='RadioConfig.UserPreferences.rotary1_event_cw', index=75,
+      name='inputbroker_event_cw', full_name='RadioConfig.UserPreferences.inputbroker_event_cw', index=75,
       number=164, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rotary1_event_ccw', full_name='RadioConfig.UserPreferences.rotary1_event_ccw', index=76,
+      name='inputbroker_event_ccw', full_name='RadioConfig.UserPreferences.inputbroker_event_ccw', index=76,
       number=165, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rotary1_event_press', full_name='RadioConfig.UserPreferences.rotary1_event_press', index=77,
+      name='inputbroker_event_press', full_name='RadioConfig.UserPreferences.inputbroker_event_press', index=77,
       number=166, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='canned_message_module_enabled', full_name='RadioConfig.UserPreferences.canned_message_module_enabled', index=78,
+      name='updown1_enabled', full_name='RadioConfig.UserPreferences.updown1_enabled', index=78,
+      number=167, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='canned_message_module_enabled', full_name='RadioConfig.UserPreferences.canned_message_module_enabled', index=79,
       number=170, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='canned_message_module_allow_input_source', full_name='RadioConfig.UserPreferences.canned_message_module_allow_input_source', index=79,
+      name='canned_message_module_allow_input_source', full_name='RadioConfig.UserPreferences.canned_message_module_allow_input_source', index=80,
       number=171, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='canned_message_module_send_bell', full_name='RadioConfig.UserPreferences.canned_message_module_send_bell', index=80,
+      name='canned_message_module_send_bell', full_name='RadioConfig.UserPreferences.canned_message_module_send_bell', index=81,
       number=173, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='mqtt_encryption_enabled', full_name='RadioConfig.UserPreferences.mqtt_encryption_enabled', index=81,
+      name='mqtt_encryption_enabled', full_name='RadioConfig.UserPreferences.mqtt_encryption_enabled', index=82,
       number=174, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='adc_multiplier_override', full_name='RadioConfig.UserPreferences.adc_multiplier_override', index=82,
+      name='adc_multiplier_override', full_name='RadioConfig.UserPreferences.adc_multiplier_override', index=83,
       number=175, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='telemetry_module_environment_update_interval', full_name='RadioConfig.UserPreferences.telemetry_module_environment_update_interval', index=84,
+      number=177, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -1108,6 +1154,8 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
   ],
   nested_types=[],
   enum_types=[
+    _RADIOCONFIG_USERPREFERENCES_SERIAL_BAUD,
+    _RADIOCONFIG_USERPREFERENCES_SERIAL_MODE,
     _RADIOCONFIG_USERPREFERENCES_TELEMETRYSENSORTYPE,
   ],
   serialized_options=None,
@@ -1117,7 +1165,7 @@ _RADIOCONFIG_USERPREFERENCES = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=89,
-  serialized_end=3021,
+  serialized_end=3566,
 )
 
 _RADIOCONFIG = _descriptor.Descriptor(
@@ -1147,29 +1195,29 @@ _RADIOCONFIG = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=22,
-  serialized_end=3021,
+  serialized_end=3566,
 )
 
 _RADIOCONFIG_USERPREFERENCES.fields_by_name['region'].enum_type = _REGIONCODE
 _RADIOCONFIG_USERPREFERENCES.fields_by_name['charge_current'].enum_type = _CHARGECURRENT
 _RADIOCONFIG_USERPREFERENCES.fields_by_name['role'].enum_type = _ROLE
-_RADIOCONFIG_USERPREFERENCES.fields_by_name['location_share'].enum_type = _LOCATIONSHARING
-_RADIOCONFIG_USERPREFERENCES.fields_by_name['gps_operation'].enum_type = _GPSOPERATION
 _RADIOCONFIG_USERPREFERENCES.fields_by_name['gps_format'].enum_type = _GPSCOORDINATEFORMAT
-_RADIOCONFIG_USERPREFERENCES.fields_by_name['telemetry_module_sensor_type'].enum_type = _RADIOCONFIG_USERPREFERENCES_TELEMETRYSENSORTYPE
-_RADIOCONFIG_USERPREFERENCES.fields_by_name['rotary1_event_cw'].enum_type = _INPUTEVENTCHAR
-_RADIOCONFIG_USERPREFERENCES.fields_by_name['rotary1_event_ccw'].enum_type = _INPUTEVENTCHAR
-_RADIOCONFIG_USERPREFERENCES.fields_by_name['rotary1_event_press'].enum_type = _INPUTEVENTCHAR
+_RADIOCONFIG_USERPREFERENCES.fields_by_name['serial_module_baud'].enum_type = _RADIOCONFIG_USERPREFERENCES_SERIAL_BAUD
+_RADIOCONFIG_USERPREFERENCES.fields_by_name['serial_module_mode'].enum_type = _RADIOCONFIG_USERPREFERENCES_SERIAL_MODE
+_RADIOCONFIG_USERPREFERENCES.fields_by_name['telemetry_module_environment_sensor_type'].enum_type = _RADIOCONFIG_USERPREFERENCES_TELEMETRYSENSORTYPE
+_RADIOCONFIG_USERPREFERENCES.fields_by_name['inputbroker_event_cw'].enum_type = _INPUTEVENTCHAR
+_RADIOCONFIG_USERPREFERENCES.fields_by_name['inputbroker_event_ccw'].enum_type = _INPUTEVENTCHAR
+_RADIOCONFIG_USERPREFERENCES.fields_by_name['inputbroker_event_press'].enum_type = _INPUTEVENTCHAR
 _RADIOCONFIG_USERPREFERENCES.containing_type = _RADIOCONFIG
+_RADIOCONFIG_USERPREFERENCES_SERIAL_BAUD.containing_type = _RADIOCONFIG_USERPREFERENCES
+_RADIOCONFIG_USERPREFERENCES_SERIAL_MODE.containing_type = _RADIOCONFIG_USERPREFERENCES
 _RADIOCONFIG_USERPREFERENCES_TELEMETRYSENSORTYPE.containing_type = _RADIOCONFIG_USERPREFERENCES
 _RADIOCONFIG.fields_by_name['preferences'].message_type = _RADIOCONFIG_USERPREFERENCES
 DESCRIPTOR.message_types_by_name['RadioConfig'] = _RADIOCONFIG
 DESCRIPTOR.enum_types_by_name['RegionCode'] = _REGIONCODE
 DESCRIPTOR.enum_types_by_name['Role'] = _ROLE
 DESCRIPTOR.enum_types_by_name['ChargeCurrent'] = _CHARGECURRENT
-DESCRIPTOR.enum_types_by_name['GpsOperation'] = _GPSOPERATION
 DESCRIPTOR.enum_types_by_name['GpsCoordinateFormat'] = _GPSCOORDINATEFORMAT
-DESCRIPTOR.enum_types_by_name['LocationSharing'] = _LOCATIONSHARING
 DESCRIPTOR.enum_types_by_name['PositionFlags'] = _POSITIONFLAGS
 DESCRIPTOR.enum_types_by_name['InputEventChar'] = _INPUTEVENTCHAR
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)

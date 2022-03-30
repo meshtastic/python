@@ -2226,12 +2226,12 @@ def test_main_setPref_valid_field_invalid_enum_where_enums_are_camel_cased_value
     prefs = radioConfig.preferences
 
     with caplog.at_level(logging.DEBUG):
-        setPref(prefs, 'location_share', 'foo')
+        setPref(prefs, 'region', 'foo')
         out, err = capsys.readouterr()
-        assert re.search(r'location_share does not have an enum called foo', out, re.MULTILINE)
+        assert re.search(r'region does not have an enum called foo', out, re.MULTILINE)
         assert re.search(r'Choices in sorted order are', out, re.MULTILINE)
-        assert re.search(r'LocDisabled', out, re.MULTILINE)
-        assert re.search(r'LocEnabled', out, re.MULTILINE)
+        assert re.search(r'ANZ', out, re.MULTILINE)
+        assert re.search(r'CN', out, re.MULTILINE)
         assert err == ''
 
 
