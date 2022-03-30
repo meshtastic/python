@@ -260,6 +260,7 @@ class MeshInterface:
             self._addResponseHandler(meshPacket.id, onResponse)
         p = self._sendPacket(meshPacket, destinationId,
                              wantAck=wantAck, hopLimit=hopLimit)
+
         return p
 
     def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0,
@@ -685,7 +686,9 @@ class MeshInterface:
                 # we keep the responseHandler in dict until we get a non ack
                 handler = self.responseHandlers.pop(requestId, None)
                 if handler is not None:
-                    handler.callback(asDict)
+                    errorFound = handler.callback(asDict)
+                    if errorFound:
+                        self.responseHandlers[requestId] = ResponseHandler(handler.callback)
 
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         publishingThread.queueWork(lambda: pub.sendMessage(

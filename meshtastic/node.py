@@ -258,7 +258,10 @@ class Node:
         if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 errorFound = True
-                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+        if "portnum" in p["decoded"]:
+            if p["decoded"]["portnum"] == "ROUTING_APP":
+                errorFound = True
+            
         if errorFound is False:
             self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
             logging.debug(f'self.radioConfig:{self.radioConfig}')
@@ -266,6 +269,7 @@ class Node:
             self._timeout.reset()  # We made foreward progress
             self._requestChannel(0)  # now start fetching channels
 
+        return errorFound
 
     def _requestSettings(self):
         """Done with initial config messages, now send regular
@@ -283,7 +287,7 @@ class Node:
             print(" 3. All devices have the same modem config. (i.e., '--ch-longfast')")
             print(" 4. All devices have been rebooted after all of the above. (optional, but recommended)")
             print("Note: This could take a while (it requests remote channel configs, then writes config)")
-
+        
         return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestSettings)
 
     def onResponseRequestCannedMessagePluginMessagePart1(self, p):
@@ -487,6 +491,15 @@ class Node:
     def onResponseRequestChannel(self, p):
         """Handle the response packet for requesting a channel _requestChannel()"""
         logging.debug(f'onResponseRequestChannel() p:{p}')
+        errorFound = True
+        if 'decoded' in p:
+            if 'admin' in p["decoded"]:
+                if 'raw' in p["decoded"]["admin"]:
+                    errorFound = False
+        
+        if errorFound == True:
+            return errorFound
+
         c = p["decoded"]["admin"]["raw"].get_channel_response
         self.partialChannels.append(c)
         self._timeout.reset()  # We made foreward progress
