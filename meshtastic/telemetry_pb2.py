@@ -17,57 +17,109 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='telemetry.proto',
   package='',
   syntax='proto3',
-  serialized_options=b'Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\x0ftelemetry.proto\"\x92\x01\n\tTelemetry\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x12\x19\n\x11relative_humidity\x18\x02 \x01(\x02\x12\x1b\n\x13\x62\x61rometric_pressure\x18\x03 \x01(\x02\x12\x16\n\x0egas_resistance\x18\x04 \x01(\x02\x12\x0f\n\x07voltage\x18\x05 \x01(\x02\x12\x0f\n\x07\x63urrent\x18\x06 \x01(\x02\x42#Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_options=b'\n\023com.geeksville.meshB\017TelemetryProtosH\003Z!github.com/meshtastic/gomeshproto',
+  serialized_pb=b'\n\x0ftelemetry.proto\"i\n\rDeviceMetrics\x12\x15\n\rbattery_level\x18\x01 \x01(\r\x12\x0f\n\x07voltage\x18\x02 \x01(\x02\x12\x1b\n\x13\x63hannel_utilization\x18\x03 \x01(\x02\x12\x13\n\x0b\x61ir_util_tx\x18\x04 \x01(\x02\"\x9b\x01\n\x12\x45nvironmentMetrics\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x12\x19\n\x11relative_humidity\x18\x02 \x01(\x02\x12\x1b\n\x13\x62\x61rometric_pressure\x18\x03 \x01(\x02\x12\x16\n\x0egas_resistance\x18\x04 \x01(\x02\x12\x0f\n\x07voltage\x18\x05 \x01(\x02\x12\x0f\n\x07\x63urrent\x18\x06 \x01(\x02\"\x82\x01\n\tTelemetry\x12\x0c\n\x04time\x18\x01 \x01(\x07\x12(\n\x0e\x64\x65vice_metrics\x18\x02 \x01(\x0b\x32\x0e.DeviceMetricsH\x00\x12\x32\n\x13\x65nvironment_metrics\x18\x03 \x01(\x0b\x32\x13.EnvironmentMetricsH\x00\x42\t\n\x07variantBK\n\x13\x63om.geeksville.meshB\x0fTelemetryProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
 )
 
 
 
 
-_TELEMETRY = _descriptor.Descriptor(
-  name='Telemetry',
-  full_name='Telemetry',
+_DEVICEMETRICS = _descriptor.Descriptor(
+  name='DeviceMetrics',
+  full_name='DeviceMetrics',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='temperature', full_name='Telemetry.temperature', index=0,
-      number=1, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
+      name='battery_level', full_name='DeviceMetrics.battery_level', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='relative_humidity', full_name='Telemetry.relative_humidity', index=1,
+      name='voltage', full_name='DeviceMetrics.voltage', index=1,
       number=2, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='barometric_pressure', full_name='Telemetry.barometric_pressure', index=2,
+      name='channel_utilization', full_name='DeviceMetrics.channel_utilization', index=2,
       number=3, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='gas_resistance', full_name='Telemetry.gas_resistance', index=3,
+      name='air_util_tx', full_name='DeviceMetrics.air_util_tx', index=3,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=19,
+  serialized_end=124,
+)
+
+
+_ENVIRONMENTMETRICS = _descriptor.Descriptor(
+  name='EnvironmentMetrics',
+  full_name='EnvironmentMetrics',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='temperature', full_name='EnvironmentMetrics.temperature', index=0,
+      number=1, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='relative_humidity', full_name='EnvironmentMetrics.relative_humidity', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='barometric_pressure', full_name='EnvironmentMetrics.barometric_pressure', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='gas_resistance', full_name='EnvironmentMetrics.gas_resistance', index=3,
       number=4, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='voltage', full_name='Telemetry.voltage', index=4,
+      name='voltage', full_name='EnvironmentMetrics.voltage', index=4,
       number=5, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='current', full_name='Telemetry.current', index=5,
+      name='current', full_name='EnvironmentMetrics.current', index=5,
       number=6, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
@@ -85,12 +137,84 @@ _TELEMETRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=20,
-  serialized_end=166,
+  serialized_start=127,
+  serialized_end=282,
 )
 
+
+_TELEMETRY = _descriptor.Descriptor(
+  name='Telemetry',
+  full_name='Telemetry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='time', full_name='Telemetry.time', index=0,
+      number=1, type=7, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='device_metrics', full_name='Telemetry.device_metrics', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='environment_metrics', full_name='Telemetry.environment_metrics', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='variant', full_name='Telemetry.variant',
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=285,
+  serialized_end=415,
+)
+
+_TELEMETRY.fields_by_name['device_metrics'].message_type = _DEVICEMETRICS
+_TELEMETRY.fields_by_name['environment_metrics'].message_type = _ENVIRONMENTMETRICS
+_TELEMETRY.oneofs_by_name['variant'].fields.append(
+  _TELEMETRY.fields_by_name['device_metrics'])
+_TELEMETRY.fields_by_name['device_metrics'].containing_oneof = _TELEMETRY.oneofs_by_name['variant']
+_TELEMETRY.oneofs_by_name['variant'].fields.append(
+  _TELEMETRY.fields_by_name['environment_metrics'])
+_TELEMETRY.fields_by_name['environment_metrics'].containing_oneof = _TELEMETRY.oneofs_by_name['variant']
+DESCRIPTOR.message_types_by_name['DeviceMetrics'] = _DEVICEMETRICS
+DESCRIPTOR.message_types_by_name['EnvironmentMetrics'] = _ENVIRONMENTMETRICS
 DESCRIPTOR.message_types_by_name['Telemetry'] = _TELEMETRY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+DeviceMetrics = _reflection.GeneratedProtocolMessageType('DeviceMetrics', (_message.Message,), {
+  'DESCRIPTOR' : _DEVICEMETRICS,
+  '__module__' : 'telemetry_pb2'
+  # @@protoc_insertion_point(class_scope:DeviceMetrics)
+  })
+_sym_db.RegisterMessage(DeviceMetrics)
+
+EnvironmentMetrics = _reflection.GeneratedProtocolMessageType('EnvironmentMetrics', (_message.Message,), {
+  'DESCRIPTOR' : _ENVIRONMENTMETRICS,
+  '__module__' : 'telemetry_pb2'
+  # @@protoc_insertion_point(class_scope:EnvironmentMetrics)
+  })
+_sym_db.RegisterMessage(EnvironmentMetrics)
 
 Telemetry = _reflection.GeneratedProtocolMessageType('Telemetry', (_message.Message,), {
   'DESCRIPTOR' : _TELEMETRY,

@@ -904,6 +904,27 @@ def test_main_set_valid_wifi_passwd(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
+def test_main_set_invalid_wifi_passwd(capsys):
+    """Test --set with an invalid value (password must be 8 or more characters)"""
+    sys.argv = ['', '--set', 'wifi_password', '1234567']
+    Globals.getInstance().set_args(sys.argv)
+
+    mocked_node = MagicMock(autospec=Node)
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+
+    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r'Connected to radio', out, re.MULTILINE)
+        assert not re.search(r'Set wifi_password to 1234567', out, re.MULTILINE)
+        assert re.search(r'Warning: wifi_password must be 8 or more characters.', out, re.MULTILINE)
+        assert err == ''
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
 def test_main_set_valid_camel_case(capsys):
     """Test --set with valid field"""
     sys.argv = ['', '--set', 'wifi_ssid', 'foo']
@@ -2205,12 +2226,12 @@ def test_main_setPref_valid_field_invalid_enum_where_enums_are_camel_cased_value
     prefs = radioConfig.preferences
 
     with caplog.at_level(logging.DEBUG):
-        setPref(prefs, 'location_share', 'foo')
+        setPref(prefs, 'region', 'foo')
         out, err = capsys.readouterr()
-        assert re.search(r'location_share does not have an enum called foo', out, re.MULTILINE)
+        assert re.search(r'region does not have an enum called foo', out, re.MULTILINE)
         assert re.search(r'Choices in sorted order are', out, re.MULTILINE)
-        assert re.search(r'LocDisabled', out, re.MULTILINE)
-        assert re.search(r'LocEnabled', out, re.MULTILINE)
+        assert re.search(r'ANZ', out, re.MULTILINE)
+        assert re.search(r'CN', out, re.MULTILINE)
         assert err == ''
 
 
