@@ -164,10 +164,20 @@ class MeshInterface:
         else:
             n = meshtastic.node.Node(self, nodeId)
             logging.debug("About to requestConfig")
+            # n.requestConfig()
+            # if not n.waitForConfig():
+            #     our_exit("Error: Timed out waiting for node config")
+            return n
+    
+    def getNodeConfig(self, nodeId):
+        n = self.getNode(nodeId)
+        """Return a node object which contains device settings and channel info"""
+        if n != self.localNode:
+            logging.debug("About to requestConfig")
             n.requestConfig()
             if not n.waitForConfig():
                 our_exit("Error: Timed out waiting for node config")
-            return n
+        return n
 
     def sendText(self, text: AnyStr,
                  destinationId=BROADCAST_ADDR,

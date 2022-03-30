@@ -542,7 +542,7 @@ def onConnected(interface):
                 interface.showInfo()
 
             print("")
-            interface.getNode(args.dest).showInfo()
+            interface.getNodeConfig(args.dest).showInfo()
             closeNow = True  # FIXME, for now we leave the link up while talking to remote nodes
             print("")
 
