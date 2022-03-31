@@ -176,20 +176,6 @@ def test_smokevirt_port():
 
 
 @pytest.mark.smokevirt
-def test_smokevirt_set_is_router_true():
-    """Test --set is_router true"""
-    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --set is_router true')
-    assert re.match(r'Connected to radio', out)
-    assert re.search(r'^Set is_router to true', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio
-    time.sleep(PAUSE_AFTER_COMMAND)
-    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --get is_router')
-    assert re.search(r'^is_router: True', out, re.MULTILINE)
-    assert return_value == 0
-
-
-@pytest.mark.smokevirt
 def test_smokevirt_set_location_info():
     """Test --setlat, --setlon and --setalt """
     return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --setlat 32.7767 --setlon -96.7970 --setalt 1337')
@@ -204,20 +190,6 @@ def test_smokevirt_set_location_info():
     assert re.search(r'1337', out2, re.MULTILINE)
     assert re.search(r'32.7767', out2, re.MULTILINE)
     assert re.search(r'-96.797', out2, re.MULTILINE)
-    assert return_value == 0
-
-
-@pytest.mark.smokevirt
-def test_smokevirt_set_is_router_false():
-    """Test --set is_router false"""
-    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --set is_router false')
-    assert re.match(r'Connected to radio', out)
-    assert re.search(r'^Set is_router to false', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio
-    time.sleep(PAUSE_AFTER_COMMAND)
-    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --get is_router')
-    assert re.search(r'^is_router: False', out, re.MULTILINE)
     assert return_value == 0
 
 
@@ -273,12 +245,12 @@ def test_smokevirt_ch_values():
        --ch-shortslow, and --ch-shortfast arguments
     """
     exp = {
-            '--ch-longslow': 'Bw125Cr48Sf4096',
-            '--ch-longfast': 'Bw31_25Cr48Sf512',
-            '--ch-mediumslow': 'Bw250Cr46Sf2048',
-            '--ch-mediumfast': 'Bw250Cr47Sf1024',
-            '--ch-shortslow': '{ "psk',
-            '--ch-shortfast': 'Bw500Cr45Sf128'
+            '--ch-longslow': 'LongSlow',
+            '--ch-longfast': 'LongFast',
+            '--ch-midslow': 'MidSlow',
+            '--ch-midfast': 'MidFast',
+            '--ch-shortslow': 'ShortSlow',
+            '--ch-shortfast': 'ShortFast'
           }
 
     for key, val in exp.items():
@@ -611,14 +583,14 @@ def test_smokevirt_ch_set_modem_config():
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
-    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --ch-set modem_config Bw31_25Cr48Sf512 --ch-index 0')
+    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --ch-set modem_config MidSlow --ch-index 0')
     assert re.match(r'Connected to radio', out)
-    assert re.search(r'^Set modem_config to Bw31_25Cr48Sf512', out, re.MULTILINE)
+    assert re.search(r'^Set modem_config to MidSlow', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --info')
-    assert re.search(r'Bw31_25Cr48Sf512', out, re.MULTILINE)
+    assert re.search(r'MidSlow', out, re.MULTILINE)
     assert return_value == 0
 
 
