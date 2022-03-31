@@ -261,7 +261,7 @@ class Node:
         if "portnum" in p["decoded"]:
             if p["decoded"]["portnum"] == "ROUTING_APP":
                 errorFound = True
-            
+
         if errorFound is False:
             self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
             logging.debug(f'self.radioConfig:{self.radioConfig}')
@@ -287,7 +287,7 @@ class Node:
             print(" 3. All devices have the same modem config. (i.e., '--ch-longfast')")
             print(" 4. All devices have been rebooted after all of the above. (optional, but recommended)")
             print("Note: This could take a while (it requests remote channel configs, then writes config)")
-        
+
         return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestSettings)
 
     def onResponseRequestCannedMessagePluginMessagePart1(self, p):
@@ -496,8 +496,7 @@ class Node:
             if 'admin' in p["decoded"]:
                 if 'raw' in p["decoded"]["admin"]:
                     errorFound = False
-        
-        if errorFound == True:
+        if errorFound:
             return errorFound
 
         c = p["decoded"]["admin"]["raw"].get_channel_response
@@ -523,6 +522,8 @@ class Node:
             self.iface._connected()  # Tell everyone else we are ready to go
         else:
             self._requestChannel(index + 1)
+
+        return errorFound
 
     def _requestChannel(self, channelNum: int):
         """Done with initial config messages, now send regular

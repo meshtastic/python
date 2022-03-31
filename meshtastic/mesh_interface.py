@@ -158,7 +158,7 @@ class MeshInterface:
 
 
     def getNode(self, nodeId):
-        """Return a node object which contains device settings and channel info"""
+        """Return a node object"""
         if nodeId in (LOCAL_ADDR, BROADCAST_ADDR):
             return self.localNode
         else:
@@ -168,10 +168,10 @@ class MeshInterface:
             # if not n.waitForConfig():
             #     our_exit("Error: Timed out waiting for node config")
             return n
-    
+
     def getNodeConfig(self, nodeId):
-        n = self.getNode(nodeId)
         """Return a node object which contains device settings and channel info"""
+        n = self.getNode(nodeId)
         if n != self.localNode:
             logging.debug("About to requestConfig")
             n.requestConfig()
