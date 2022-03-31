@@ -266,7 +266,7 @@ def camel_to_snake(a_string):
 
 
 def detect_supported_devices():
-    """detect supported devices"""
+    """detect supported devices based on vendor id"""
     system = platform.system()
     #print(f'system:{system}')
 
@@ -285,19 +285,8 @@ def detect_supported_devices():
             if re.search(search, lsusb_output, re.MULTILINE):
                 #print(f'Found vendor id that matches')
                 devices = get_devices_with_vendor_id(vid)
-                # check device id
                 for device in devices:
-                    #print(f'device:{device} device.usb_product_id_in_hex:{device.usb_product_id_in_hex}')
-                    if device.usb_product_id_in_hex:
-                        search = f' {vid}:{device.usb_product_id_in_hex} '
-                        #print(f'search:"{search}"')
-                        if re.search(search, lsusb_output, re.MULTILINE):
-                            # concatenate the devices with vendor id to possibles
-                            possible_devices.add(device)
-                    else:
-                        # if there is a supported device witout a product id, then it
-                        # might be a match... so, concatenate
-                        possible_devices.add(device)
+                    possible_devices.add(device)
 
     elif system == "Windows":
         # if windows, run Get-PnpDevice
@@ -313,22 +302,8 @@ def detect_supported_devices():
             if re.search(search, sp_output, re.MULTILINE):
                 #print(f'Found vendor id that matches')
                 devices = get_devices_with_vendor_id(vid)
-                # check device id
                 for device in devices:
-                    #print(f'device:{device} device.usb_product_id_in_hex:{device.usb_product_id_in_hex}')
-                    if device.usb_product_id_in_hex:
-                        search = f'DeviceID.*{vid.upper()}&PID_{device.usb_product_id_in_hex.upper()}'
-                        #print(f'search:"{search}"')
-                        if re.search(search, sp_output, re.MULTILINE):
-                            # concatenate the devices with vendor id to possibles
-                            possible_devices.add(device)
-                        # do a check to see if there is a Windows driver issue
-                        if detect_windows_needs_driver(device, False):
-                            print("WARNING: Need to install driver.")
-                    else:
-                        # if there is a supported device witout a product id, then it
-                        # might be a match... so, concatenate
-                        possible_devices.add(device)
+                    possible_devices.add(device)
 
     elif system == "Darwin":
         # run: system_profiler SPUSBDataType
@@ -343,19 +318,8 @@ def detect_supported_devices():
             if re.search(search, sp_output, re.MULTILINE):
                 #print(f'Found vendor id that matches')
                 devices = get_devices_with_vendor_id(vid)
-                # check device id
                 for device in devices:
-                    #print(f'device:{device} device.usb_product_id_in_hex:{device.usb_product_id_in_hex}')
-                    if device.usb_product_id_in_hex:
-                        search = f'Product ID: 0x{device.usb_product_id_in_hex}'
-                        #print(f'search:"{search}"')
-                        if re.search(search, sp_output, re.MULTILINE):
-                            # concatenate the devices with vendor id to possibles
-                            possible_devices.add(device)
-                    else:
-                        # if there is a supported device witout a product id, then it
-                        # might be a match... so, concatenate
-                        possible_devices.add(device)
+                    possible_devices.add(device)
     return possible_devices
 
 
