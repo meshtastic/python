@@ -163,7 +163,7 @@ class MeshInterface:
             return self.localNode
         else:
             n = meshtastic.node.Node(self, nodeId)
-            logging.debug("About to requestConfig")
+            # logging.debug("About to requestConfig")
             # n.requestConfig()
             # if not n.waitForConfig():
             #     our_exit("Error: Timed out waiting for node config")
