@@ -6,6 +6,10 @@ test:
 virt:
 	pytest -m smokevirt
 
+# run the smoke1 test (after doing a factory reset and unplugging/replugging in device)
+smoke1:
+	pytest -m smoke1 -s -vv
+
 # local install
 install:
 	pip install .
