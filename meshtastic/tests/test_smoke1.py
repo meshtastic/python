@@ -235,6 +235,30 @@ def test_smoke1_set_team():
 
 
 @pytest.mark.smoke1
+def test_smoke1_ch_set_modem_config():
+    """Test --ch-set modem_config"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config MidFast')
+    assert re.search(r'Warning: Need to specify', out, re.MULTILINE)
+    assert return_value == 1
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert not re.search(r'MidFast', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_COMMAND)
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config MidFast --ch-index 0')
+    assert re.match(r'Connected to radio', out)
+    assert re.search(r'^Set modem_config to MidFast', out, re.MULTILINE)
+    assert return_value == 0
+    # pause for the radio
+    time.sleep(PAUSE_AFTER_REBOOT)
+    return_value, out = subprocess.getstatusoutput('meshtastic --info')
+    assert re.search(r'MidFast', out, re.MULTILINE)
+    assert return_value == 0
+
+
+@pytest.mark.smoke1
 def test_smoke1_ch_values():
     """Test --ch-vlongslow --ch-longslow, --ch-longfast, --ch-mediumslow, --ch-mediumsfast,
        --ch-shortslow, and --ch-shortfast arguments
@@ -548,30 +572,6 @@ def test_smoke1_ensure_ch_del_third_of_three_channels():
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
-
-
-@pytest.mark.smoke1
-def test_smoke1_ch_set_modem_config():
-    """Test --ch-set modem_config"""
-    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config Bw31_25Cr48Sf512')
-    assert re.search(r'Warning: Need to specify', out, re.MULTILINE)
-    assert return_value == 1
-    # pause for the radio
-    time.sleep(PAUSE_AFTER_COMMAND)
-    return_value, out = subprocess.getstatusoutput('meshtastic --info')
-    assert not re.search(r'ShortFast', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio
-    time.sleep(PAUSE_AFTER_COMMAND)
-    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config ShortFast --ch-index 0')
-    assert re.match(r'Connected to radio', out)
-    assert re.search(r'^Set modem_config to ShortFast', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio
-    time.sleep(PAUSE_AFTER_COMMAND)
-    return_value, out = subprocess.getstatusoutput('meshtastic --info')
-    assert re.search(r'ShortFast', out, re.MULTILINE)
-    assert return_value == 0
 
 
 @pytest.mark.smoke1
