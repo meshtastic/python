@@ -12,7 +12,7 @@ location:
 user_prefs:
   region: 1
   is_always_powered: 'true'
-  send_owner_interval: 2
   screen_on_secs: 31536000
   wait_bluetooth_secs: 31536000
   location_share: 'LocEnabled'
+canned: "What am I doing?|I'm fine|Don't follow me|I'm out|I'm back|Need helping hand|Help me with saw|I need an alpinist|I need ambulance|Keep Calm|On my way|Need 5 mins|I will be late|I'm already waiting|I couldn't join|We have company|Beer is cold|Roger"

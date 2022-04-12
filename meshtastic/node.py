@@ -383,10 +383,6 @@ class Node:
             while self.gotResponse is False:
                 time.sleep(0.1)
 
-            # TODO: This feels wrong to have a sleep here. Is there a way to ensure that
-            # all requests are complete? Perhaps change to a while loop any parts are None... maybe?
-            time.sleep(3)
-
             logging.debug(f'self.cannedPluginMessagePart1:{self.cannedPluginMessagePart1}')
             logging.debug(f'self.cannedPluginMessagePart2:{self.cannedPluginMessagePart2}')
             logging.debug(f'self.cannedPluginMessagePart3:{self.cannedPluginMessagePart3}')
@@ -418,12 +414,14 @@ class Node:
         for i in range(0, len(message), chunks_size):
             chunks.append(message[i: i + chunks_size])
 
+        # need to ensure there are 4 parts so we clear any old chunks
+        for i in range(len(chunks), 4):
+            chunks.append("")
+
         # for each chunk, send a message to set the values
-        #for i in range(0, len(chunks)):
         for i, chunk in enumerate(chunks):
             p = admin_pb2.AdminMessage()
 
-            # TODO: should be a way to improve this
             if i == 0:
                 p.set_canned_message_module_part1 = chunk
             elif i == 1:
@@ -433,8 +431,9 @@ class Node:
             elif i == 3:
                 p.set_canned_message_module_part4 = chunk
 
-            logging.debug(f"Setting canned message '{chunk}' part {i+1}")
             self._sendAdmin(p)
+            # TODO: really should check if the device got the request
+            time.sleep(1.0)
 
     def exitSimulator(self):
         """Tell a simulator node to exit (this message

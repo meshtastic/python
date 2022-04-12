@@ -215,7 +215,6 @@ def onConnected(interface):
             print(f"Setting device owner short to {args.set_owner_short}")
             interface.getNode(args.dest).setOwner(long_name=None, short_name=args.set_owner_short)
 
-        # TODO: add to export-config and configure
         if args.set_canned_message:
             closeNow = True
             print(f"Setting canned plugin message to {args.set_canned_message}")
@@ -407,6 +406,11 @@ def onConnected(interface):
                     for pref in configuration['userPrefs']:
                         setPref(prefs, pref, str(configuration['userPrefs'][pref]))
                     print("Writing modified preferences to device")
+                    interface.getNode(args.dest).writeConfig()
+
+                if 'canned' in configuration:
+                    print(f'Setting canned: {configuration["canned"]}')
+                    interface.getNode(args.dest).set_canned_message(configuration['canned'])
                     interface.getNode(args.dest).writeConfig()
 
         if args.export_config:
@@ -614,6 +618,7 @@ def export_config(interface):
     channel_url = interface.localNode.getURL()
     myinfo = interface.getMyNodeInfo()
     pos = myinfo.get('position')
+    canned = interface.localNode.get_canned_message()
     lat = None
     lon = None
     alt = None
@@ -654,6 +659,8 @@ def export_config(interface):
                 config += f"  {meshtastic.util.snake_to_camel(meshtastic.util.quoteBooleans(pref))}\n"
             else:
                 config += f"  {meshtastic.util.quoteBooleans(pref)}\n"
+    if canned != "":
+        config += f"canned: {canned}\n"
     print(config)
     return config
 
