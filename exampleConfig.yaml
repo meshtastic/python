@@ -12,6 +12,5 @@ location:
 userPrefs:
   region: 1
   isAlwaysPowered: 'true'
-  sendOwnerInterval: 2
   screenOnSecs: 31536000
   waitBluetoothSecs: 31536000

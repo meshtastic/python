@@ -622,7 +622,6 @@ def test_smoke1_configure():
     assert re.search('^Setting device position', out, re.MULTILINE)
     assert re.search('^Set region to 1', out, re.MULTILINE)
     assert re.search('^Set is_always_powered to true', out, re.MULTILINE)
-    assert re.search('^Set send_owner_interval to 2', out, re.MULTILINE)
     assert re.search('^Set screen_on_secs to 31536000', out, re.MULTILINE)
     assert re.search('^Set wait_bluetooth_secs to 31536000', out, re.MULTILINE)
     assert re.search('^Writing modified preferences to device', out, re.MULTILINE)
