@@ -94,7 +94,7 @@ BROADCAST_NUM = 0xffffffff
 BROADCAST_ADDR = "^all"
 """A special ID that means broadcast"""
 
-OUR_APP_VERSION = 20200
+OUR_APP_VERSION = 20300
 """The numeric buildnumber (shared with android apps) specifying the
    level of device code we are guaranteed to understand
 
