@@ -1,0 +1,30 @@
+meshtastic detected port: /dev/cu.wchusbserial53820208781
+
+ioreg -p IOUSB
+
+shows this:
+
+| +-o USB Single Serial@14300000  <class AppleUSBDevice, id 0x1000407a5, registered, matched, active, busy 0 (18 ms), retain 14>
+
+
+
+
+system_profiler SPUSBDataType > /tmp/a
+	with device plugged in
+
+system_profiler SPUSBDataType > /tmp/b
+	with device not plugged in
+
+diff /tmp/a /tmp/b
+
+<         USB Single Serial:
+<
+<           Product ID: 0x55d4
+<           Vendor ID: 0x1a86
+<           Version: 4.43
+<           Serial Number: 5382020878
+<           Speed: Up to 12 Mb/s
+<           Location ID: 0x14300000 / 63
+<           Current Available (mA): 500
+<           Current Required (mA): 134
+<           Extra Operating Current (mA): 0
