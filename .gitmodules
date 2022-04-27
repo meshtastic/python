@@ -1,3 +1,4 @@
 [submodule "proto"]
 	path = proto
 	url = https://github.com/meshtastic/Meshtastic-protobufs.git
+	branch = 1.2-legacy
