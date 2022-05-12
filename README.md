@@ -17,7 +17,7 @@ Events are delivered using a publish-subscribe model, and you can subscribe to o
 
 **[Getting Started Guide](https://meshtastic.org/docs/software/python/python-installation)**
 
-**[Documentation/API Reference](https://meshtastic-python.vercel.app/meshtastic/index.html)**
+**[Documentation/API Reference](https://python.meshtastic.org/)**
 
 
 ## Stats
