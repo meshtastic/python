@@ -12,8 +12,9 @@ _sym_db = _symbol_database.Default()
 
 
 from . import channel_pb2 as channel__pb2
+from . import config_pb2 as config__pb2
 from . import mesh_pb2 as mesh__pb2
-from . import radioconfig_pb2 as radioconfig__pb2
+from . import module_config_pb2 as module__config__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -21,11 +22,91 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\013AdminProtosH\003Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\x0b\x61\x64min.proto\x1a\rchannel.proto\x1a\nmesh.proto\x1a\x11radioconfig.proto\"\xa1\x08\n\x0c\x41\x64minMessage\x12!\n\tset_radio\x18\x01 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_radio_request\x18\x04 \x01(\x08H\x00\x12*\n\x12get_radio_response\x18\x05 \x01(\x0b\x32\x0c.RadioConfigH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_owner_request\x18\x08 \x01(\x08H\x00\x12#\n\x12get_owner_response\x18\t \x01(\x0b\x32\x05.UserH\x00\x12\x1d\n\x13\x63onfirm_set_channel\x18  \x01(\x08H\x00\x12\x1b\n\x11\x63onfirm_set_radio\x18! \x01(\x08H\x00\x12\x18\n\x0e\x65xit_simulator\x18\" \x01(\x08H\x00\x12\x18\n\x0ereboot_seconds\x18# \x01(\x05H\x00\x12\x31\n\'get_canned_message_module_part1_request\x18$ \x01(\x08H\x00\x12\x32\n(get_canned_message_module_part1_response\x18% \x01(\tH\x00\x12\x31\n\'get_canned_message_module_part2_request\x18& \x01(\x08H\x00\x12\x32\n(get_canned_message_module_part2_response\x18\' \x01(\tH\x00\x12\x31\n\'get_canned_message_module_part3_request\x18( \x01(\x08H\x00\x12\x32\n(get_canned_message_module_part3_response\x18) \x01(\tH\x00\x12\x31\n\'get_canned_message_module_part4_request\x18* \x01(\x08H\x00\x12\x32\n(get_canned_message_module_part4_response\x18+ \x01(\tH\x00\x12)\n\x1fset_canned_message_module_part1\x18, \x01(\tH\x00\x12)\n\x1fset_canned_message_module_part2\x18- \x01(\tH\x00\x12)\n\x1fset_canned_message_module_part3\x18. \x01(\tH\x00\x12)\n\x1fset_canned_message_module_part4\x18/ \x01(\tH\x00\x12\x1a\n\x10shutdown_seconds\x18\x33 \x01(\x05H\x00\x42\t\n\x07variantBG\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\x0b\x61\x64min.proto\x1a\rchannel.proto\x1a\x0c\x63onfig.proto\x1a\nmesh.proto\x1a\x13module_config.proto\"\xc4\x0c\n\x0c\x41\x64minMessage\x12\x1a\n\tset_owner\x18\x02 \x01(\x0b\x32\x05.UserH\x00\x12\x1f\n\x0bset_channel\x18\x03 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1d\n\x13get_channel_request\x18\x06 \x01(\rH\x00\x12(\n\x14get_channel_response\x18\x07 \x01(\x0b\x32\x08.ChannelH\x00\x12\x1b\n\x11get_owner_request\x18\x08 \x01(\x08H\x00\x12#\n\x12get_owner_response\x18\t \x01(\x0b\x32\x05.UserH\x00\x12\x36\n\x12get_config_request\x18\n \x01(\x0e\x32\x18.AdminMessage.ConfigTypeH\x00\x12&\n\x13get_config_response\x18\x0b \x01(\x0b\x32\x07.ConfigH\x00\x12\x1d\n\nset_config\x18\x0c \x01(\x0b\x32\x07.ConfigH\x00\x12\x1c\n\x12\x63onfirm_set_config\x18\r \x01(\x08H\x00\x12\x43\n\x19get_module_config_request\x18\x0e \x01(\x0e\x32\x1e.AdminMessage.ModuleConfigTypeH\x00\x12\x33\n\x1aget_module_config_response\x18\x0f \x01(\x0b\x32\r.ModuleConfigH\x00\x12*\n\x11set_module_config\x18\x10 \x01(\x0b\x32\r.ModuleConfigH\x00\x12#\n\x19\x63onfirm_set_module_config\x18\x11 \x01(\x08H\x00\x12\x1d\n\x13\x63onfirm_set_channel\x18  \x01(\x08H\x00\x12\x1b\n\x11\x63onfirm_set_radio\x18! \x01(\x08H\x00\x12\x18\n\x0e\x65xit_simulator\x18\" \x01(\x08H\x00\x12\x18\n\x0ereboot_seconds\x18# \x01(\x05H\x00\x12\x31\n\'get_canned_message_module_part1_request\x18$ \x01(\x08H\x00\x12\x32\n(get_canned_message_module_part1_response\x18% \x01(\tH\x00\x12\x31\n\'get_canned_message_module_part2_request\x18& \x01(\x08H\x00\x12\x32\n(get_canned_message_module_part2_response\x18\' \x01(\tH\x00\x12\x31\n\'get_canned_message_module_part3_request\x18( \x01(\x08H\x00\x12\x32\n(get_canned_message_module_part3_response\x18) \x01(\tH\x00\x12\x31\n\'get_canned_message_module_part4_request\x18* \x01(\x08H\x00\x12\x32\n(get_canned_message_module_part4_response\x18+ \x01(\tH\x00\x12)\n\x1fset_canned_message_module_part1\x18, \x01(\tH\x00\x12)\n\x1fset_canned_message_module_part2\x18- \x01(\tH\x00\x12)\n\x1fset_canned_message_module_part3\x18. \x01(\tH\x00\x12)\n\x1fset_canned_message_module_part4\x18/ \x01(\tH\x00\x12\x1a\n\x10shutdown_seconds\x18\x33 \x01(\x05H\x00\"|\n\nConfigType\x12\x11\n\rDEVICE_CONFIG\x10\x00\x12\x13\n\x0fPOSITION_CONFIG\x10\x01\x12\x10\n\x0cPOWER_CONFIG\x10\x02\x12\x0f\n\x0bWIFI_CONFIG\x10\x03\x12\x12\n\x0e\x44ISPLAY_CONFIG\x10\x04\x12\x0f\n\x0bLORA_CONFIG\x10\x05\"\xa6\x01\n\x10ModuleConfigType\x12\x0f\n\x0bMQTT_CONFIG\x10\x00\x12\x11\n\rSERIAL_CONFIG\x10\x01\x12\x13\n\x0f\x45XTNOTIF_CONFIG\x10\x02\x12\x17\n\x13STOREFORWARD_CONFIG\x10\x03\x12\x14\n\x10RANGETEST_CONFIG\x10\x04\x12\x14\n\x10TELEMETRY_CONFIG\x10\x05\x12\x14\n\x10\x43\x41NNEDMSG_CONFIG\x10\x06\x42\t\n\x07variantBG\n\x13\x63om.geeksville.meshB\x0b\x41\x64minProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
   ,
-  dependencies=[channel__pb2.DESCRIPTOR,mesh__pb2.DESCRIPTOR,radioconfig__pb2.DESCRIPTOR,])
+  dependencies=[channel__pb2.DESCRIPTOR,config__pb2.DESCRIPTOR,mesh__pb2.DESCRIPTOR,module__config__pb2.DESCRIPTOR,])
 
 
+
+_ADMINMESSAGE_CONFIGTYPE = _descriptor.EnumDescriptor(
+  name='ConfigType',
+  full_name='AdminMessage.ConfigType',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='DEVICE_CONFIG', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='POSITION_CONFIG', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='POWER_CONFIG', index=2, number=2,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='WIFI_CONFIG', index=3, number=3,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='DISPLAY_CONFIG', index=4, number=4,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='LORA_CONFIG', index=5, number=5,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=1378,
+  serialized_end=1502,
+)
+_sym_db.RegisterEnumDescriptor(_ADMINMESSAGE_CONFIGTYPE)
+
+_ADMINMESSAGE_MODULECONFIGTYPE = _descriptor.EnumDescriptor(
+  name='ModuleConfigType',
+  full_name='AdminMessage.ModuleConfigType',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='MQTT_CONFIG', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SERIAL_CONFIG', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='EXTNOTIF_CONFIG', index=2, number=2,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='STOREFORWARD_CONFIG', index=3, number=3,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='RANGETEST_CONFIG', index=4, number=4,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='TELEMETRY_CONFIG', index=5, number=5,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='CANNEDMSG_CONFIG', index=6, number=6,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=1505,
+  serialized_end=1671,
+)
+_sym_db.RegisterEnumDescriptor(_ADMINMESSAGE_MODULECONFIGTYPE)
 
 
 _ADMINMESSAGE = _descriptor.Descriptor(
@@ -36,182 +117,217 @@ _ADMINMESSAGE = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='set_radio', full_name='AdminMessage.set_radio', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='set_owner', full_name='AdminMessage.set_owner', index=1,
+      name='set_owner', full_name='AdminMessage.set_owner', index=0,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='set_channel', full_name='AdminMessage.set_channel', index=2,
+      name='set_channel', full_name='AdminMessage.set_channel', index=1,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_radio_request', full_name='AdminMessage.get_radio_request', index=3,
-      number=4, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='get_radio_response', full_name='AdminMessage.get_radio_response', index=4,
-      number=5, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='get_channel_request', full_name='AdminMessage.get_channel_request', index=5,
+      name='get_channel_request', full_name='AdminMessage.get_channel_request', index=2,
       number=6, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_channel_response', full_name='AdminMessage.get_channel_response', index=6,
+      name='get_channel_response', full_name='AdminMessage.get_channel_response', index=3,
       number=7, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_owner_request', full_name='AdminMessage.get_owner_request', index=7,
+      name='get_owner_request', full_name='AdminMessage.get_owner_request', index=4,
       number=8, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_owner_response', full_name='AdminMessage.get_owner_response', index=8,
+      name='get_owner_response', full_name='AdminMessage.get_owner_response', index=5,
       number=9, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='confirm_set_channel', full_name='AdminMessage.confirm_set_channel', index=9,
+      name='get_config_request', full_name='AdminMessage.get_config_request', index=6,
+      number=10, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='get_config_response', full_name='AdminMessage.get_config_response', index=7,
+      number=11, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='set_config', full_name='AdminMessage.set_config', index=8,
+      number=12, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='confirm_set_config', full_name='AdminMessage.confirm_set_config', index=9,
+      number=13, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='get_module_config_request', full_name='AdminMessage.get_module_config_request', index=10,
+      number=14, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='get_module_config_response', full_name='AdminMessage.get_module_config_response', index=11,
+      number=15, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='set_module_config', full_name='AdminMessage.set_module_config', index=12,
+      number=16, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='confirm_set_module_config', full_name='AdminMessage.confirm_set_module_config', index=13,
+      number=17, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='confirm_set_channel', full_name='AdminMessage.confirm_set_channel', index=14,
       number=32, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='confirm_set_radio', full_name='AdminMessage.confirm_set_radio', index=10,
+      name='confirm_set_radio', full_name='AdminMessage.confirm_set_radio', index=15,
       number=33, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='exit_simulator', full_name='AdminMessage.exit_simulator', index=11,
+      name='exit_simulator', full_name='AdminMessage.exit_simulator', index=16,
       number=34, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='reboot_seconds', full_name='AdminMessage.reboot_seconds', index=12,
+      name='reboot_seconds', full_name='AdminMessage.reboot_seconds', index=17,
       number=35, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_canned_message_module_part1_request', full_name='AdminMessage.get_canned_message_module_part1_request', index=13,
+      name='get_canned_message_module_part1_request', full_name='AdminMessage.get_canned_message_module_part1_request', index=18,
       number=36, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_canned_message_module_part1_response', full_name='AdminMessage.get_canned_message_module_part1_response', index=14,
+      name='get_canned_message_module_part1_response', full_name='AdminMessage.get_canned_message_module_part1_response', index=19,
       number=37, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_canned_message_module_part2_request', full_name='AdminMessage.get_canned_message_module_part2_request', index=15,
+      name='get_canned_message_module_part2_request', full_name='AdminMessage.get_canned_message_module_part2_request', index=20,
       number=38, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_canned_message_module_part2_response', full_name='AdminMessage.get_canned_message_module_part2_response', index=16,
+      name='get_canned_message_module_part2_response', full_name='AdminMessage.get_canned_message_module_part2_response', index=21,
       number=39, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_canned_message_module_part3_request', full_name='AdminMessage.get_canned_message_module_part3_request', index=17,
+      name='get_canned_message_module_part3_request', full_name='AdminMessage.get_canned_message_module_part3_request', index=22,
       number=40, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_canned_message_module_part3_response', full_name='AdminMessage.get_canned_message_module_part3_response', index=18,
+      name='get_canned_message_module_part3_response', full_name='AdminMessage.get_canned_message_module_part3_response', index=23,
       number=41, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_canned_message_module_part4_request', full_name='AdminMessage.get_canned_message_module_part4_request', index=19,
+      name='get_canned_message_module_part4_request', full_name='AdminMessage.get_canned_message_module_part4_request', index=24,
       number=42, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='get_canned_message_module_part4_response', full_name='AdminMessage.get_canned_message_module_part4_response', index=20,
+      name='get_canned_message_module_part4_response', full_name='AdminMessage.get_canned_message_module_part4_response', index=25,
       number=43, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='set_canned_message_module_part1', full_name='AdminMessage.set_canned_message_module_part1', index=21,
+      name='set_canned_message_module_part1', full_name='AdminMessage.set_canned_message_module_part1', index=26,
       number=44, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='set_canned_message_module_part2', full_name='AdminMessage.set_canned_message_module_part2', index=22,
+      name='set_canned_message_module_part2', full_name='AdminMessage.set_canned_message_module_part2', index=27,
       number=45, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='set_canned_message_module_part3', full_name='AdminMessage.set_canned_message_module_part3', index=23,
+      name='set_canned_message_module_part3', full_name='AdminMessage.set_canned_message_module_part3', index=28,
       number=46, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='set_canned_message_module_part4', full_name='AdminMessage.set_canned_message_module_part4', index=24,
+      name='set_canned_message_module_part4', full_name='AdminMessage.set_canned_message_module_part4', index=29,
       number=47, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='shutdown_seconds', full_name='AdminMessage.shutdown_seconds', index=25,
+      name='shutdown_seconds', full_name='AdminMessage.shutdown_seconds', index=30,
       number=51, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -222,6 +338,8 @@ _ADMINMESSAGE = _descriptor.Descriptor(
   ],
   nested_types=[],
   enum_types=[
+    _ADMINMESSAGE_CONFIGTYPE,
+    _ADMINMESSAGE_MODULECONFIGTYPE,
   ],
   serialized_options=None,
   is_extendable=False,
@@ -232,31 +350,28 @@ _ADMINMESSAGE = _descriptor.Descriptor(
       name='variant', full_name='AdminMessage.variant',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=62,
-  serialized_end=1119,
+  serialized_start=78,
+  serialized_end=1682,
 )
 
-_ADMINMESSAGE.fields_by_name['set_radio'].message_type = radioconfig__pb2._RADIOCONFIG
 _ADMINMESSAGE.fields_by_name['set_owner'].message_type = mesh__pb2._USER
 _ADMINMESSAGE.fields_by_name['set_channel'].message_type = channel__pb2._CHANNEL
-_ADMINMESSAGE.fields_by_name['get_radio_response'].message_type = radioconfig__pb2._RADIOCONFIG
 _ADMINMESSAGE.fields_by_name['get_channel_response'].message_type = channel__pb2._CHANNEL
 _ADMINMESSAGE.fields_by_name['get_owner_response'].message_type = mesh__pb2._USER
-_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
-  _ADMINMESSAGE.fields_by_name['set_radio'])
-_ADMINMESSAGE.fields_by_name['set_radio'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.fields_by_name['get_config_request'].enum_type = _ADMINMESSAGE_CONFIGTYPE
+_ADMINMESSAGE.fields_by_name['get_config_response'].message_type = config__pb2._CONFIG
+_ADMINMESSAGE.fields_by_name['set_config'].message_type = config__pb2._CONFIG
+_ADMINMESSAGE.fields_by_name['get_module_config_request'].enum_type = _ADMINMESSAGE_MODULECONFIGTYPE
+_ADMINMESSAGE.fields_by_name['get_module_config_response'].message_type = module__config__pb2._MODULECONFIG
+_ADMINMESSAGE.fields_by_name['set_module_config'].message_type = module__config__pb2._MODULECONFIG
+_ADMINMESSAGE_CONFIGTYPE.containing_type = _ADMINMESSAGE
+_ADMINMESSAGE_MODULECONFIGTYPE.containing_type = _ADMINMESSAGE
 _ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
   _ADMINMESSAGE.fields_by_name['set_owner'])
 _ADMINMESSAGE.fields_by_name['set_owner'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
 _ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
   _ADMINMESSAGE.fields_by_name['set_channel'])
 _ADMINMESSAGE.fields_by_name['set_channel'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
-_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
-  _ADMINMESSAGE.fields_by_name['get_radio_request'])
-_ADMINMESSAGE.fields_by_name['get_radio_request'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
-_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
-  _ADMINMESSAGE.fields_by_name['get_radio_response'])
-_ADMINMESSAGE.fields_by_name['get_radio_response'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
 _ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
   _ADMINMESSAGE.fields_by_name['get_channel_request'])
 _ADMINMESSAGE.fields_by_name['get_channel_request'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
@@ -269,6 +384,30 @@ _ADMINMESSAGE.fields_by_name['get_owner_request'].containing_oneof = _ADMINMESSA
 _ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
   _ADMINMESSAGE.fields_by_name['get_owner_response'])
 _ADMINMESSAGE.fields_by_name['get_owner_response'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['get_config_request'])
+_ADMINMESSAGE.fields_by_name['get_config_request'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['get_config_response'])
+_ADMINMESSAGE.fields_by_name['get_config_response'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['set_config'])
+_ADMINMESSAGE.fields_by_name['set_config'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['confirm_set_config'])
+_ADMINMESSAGE.fields_by_name['confirm_set_config'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['get_module_config_request'])
+_ADMINMESSAGE.fields_by_name['get_module_config_request'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['get_module_config_response'])
+_ADMINMESSAGE.fields_by_name['get_module_config_response'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['set_module_config'])
+_ADMINMESSAGE.fields_by_name['set_module_config'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
+_ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
+  _ADMINMESSAGE.fields_by_name['confirm_set_module_config'])
+_ADMINMESSAGE.fields_by_name['confirm_set_module_config'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
 _ADMINMESSAGE.oneofs_by_name['variant'].fields.append(
   _ADMINMESSAGE.fields_by_name['confirm_set_channel'])
 _ADMINMESSAGE.fields_by_name['confirm_set_channel'].containing_oneof = _ADMINMESSAGE.oneofs_by_name['variant']
