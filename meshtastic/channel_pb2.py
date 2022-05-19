@@ -18,52 +18,10 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\rChannelProtosH\003Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\rchannel.proto\"\xf6\x02\n\x0f\x43hannelSettings\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x32\n\x0cmodem_config\x18\x03 \x01(\x0e\x32\x1c.ChannelSettings.ModemConfig\x12\x11\n\tbandwidth\x18\x06 \x01(\r\x12\x15\n\rspread_factor\x18\x07 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x08 \x01(\r\x12\x13\n\x0b\x63hannel_num\x18\t \x01(\r\x12\x0b\n\x03psk\x18\x04 \x01(\x0c\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\n\n\x02id\x18\n \x01(\x07\x12\x16\n\x0euplink_enabled\x18\x10 \x01(\x08\x12\x18\n\x10\x64ownlink_enabled\x18\x11 \x01(\x08\"p\n\x0bModemConfig\x12\r\n\tVLongSlow\x10\x00\x12\x0c\n\x08LongSlow\x10\x01\x12\x0c\n\x08LongFast\x10\x02\x12\x0b\n\x07MidSlow\x10\x03\x12\x0b\n\x07MidFast\x10\x04\x12\r\n\tShortSlow\x10\x05\x12\r\n\tShortFast\x10\x06\"\x8b\x01\n\x07\x43hannel\x12\r\n\x05index\x18\x01 \x01(\x05\x12\"\n\x08settings\x18\x02 \x01(\x0b\x32\x10.ChannelSettings\x12\x1b\n\x04role\x18\x03 \x01(\x0e\x32\r.Channel.Role\"0\n\x04Role\x12\x0c\n\x08\x44ISABLED\x10\x00\x12\x0b\n\x07PRIMARY\x10\x01\x12\r\n\tSECONDARY\x10\x02\x42I\n\x13\x63om.geeksville.meshB\rChannelProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\rchannel.proto\"\x7f\n\x0f\x43hannelSettings\x12\x13\n\x0b\x63hannel_num\x18\t \x01(\r\x12\x0b\n\x03psk\x18\x04 \x01(\x0c\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\n\n\x02id\x18\n \x01(\x07\x12\x16\n\x0euplink_enabled\x18\x10 \x01(\x08\x12\x18\n\x10\x64ownlink_enabled\x18\x11 \x01(\x08\"\x8b\x01\n\x07\x43hannel\x12\r\n\x05index\x18\x01 \x01(\x05\x12\"\n\x08settings\x18\x02 \x01(\x0b\x32\x10.ChannelSettings\x12\x1b\n\x04role\x18\x03 \x01(\x0e\x32\r.Channel.Role\"0\n\x04Role\x12\x0c\n\x08\x44ISABLED\x10\x00\x12\x0b\n\x07PRIMARY\x10\x01\x12\r\n\tSECONDARY\x10\x02\x42I\n\x13\x63om.geeksville.meshB\rChannelProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
 )
 
 
-
-_CHANNELSETTINGS_MODEMCONFIG = _descriptor.EnumDescriptor(
-  name='ModemConfig',
-  full_name='ChannelSettings.ModemConfig',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='VLongSlow', index=0, number=0,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='LongSlow', index=1, number=1,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='LongFast', index=2, number=2,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='MidSlow', index=3, number=3,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='MidFast', index=4, number=4,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='ShortSlow', index=5, number=5,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='ShortFast', index=6, number=6,
-      serialized_options=None,
-      type=None),
-  ],
-  containing_type=None,
-  serialized_options=None,
-  serialized_start=280,
-  serialized_end=392,
-)
-_sym_db.RegisterEnumDescriptor(_CHANNELSETTINGS_MODEMCONFIG)
 
 _CHANNEL_ROLE = _descriptor.EnumDescriptor(
   name='Role',
@@ -86,8 +44,8 @@ _CHANNEL_ROLE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=486,
-  serialized_end=534,
+  serialized_start=238,
+  serialized_end=286,
 )
 _sym_db.RegisterEnumDescriptor(_CHANNEL_ROLE)
 
@@ -100,77 +58,42 @@ _CHANNELSETTINGS = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='tx_power', full_name='ChannelSettings.tx_power', index=0,
-      number=1, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='modem_config', full_name='ChannelSettings.modem_config', index=1,
-      number=3, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='bandwidth', full_name='ChannelSettings.bandwidth', index=2,
-      number=6, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='spread_factor', full_name='ChannelSettings.spread_factor', index=3,
-      number=7, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='coding_rate', full_name='ChannelSettings.coding_rate', index=4,
-      number=8, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='channel_num', full_name='ChannelSettings.channel_num', index=5,
+      name='channel_num', full_name='ChannelSettings.channel_num', index=0,
       number=9, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='psk', full_name='ChannelSettings.psk', index=6,
+      name='psk', full_name='ChannelSettings.psk', index=1,
       number=4, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='name', full_name='ChannelSettings.name', index=7,
+      name='name', full_name='ChannelSettings.name', index=2,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='id', full_name='ChannelSettings.id', index=8,
+      name='id', full_name='ChannelSettings.id', index=3,
       number=10, type=7, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='uplink_enabled', full_name='ChannelSettings.uplink_enabled', index=9,
+      name='uplink_enabled', full_name='ChannelSettings.uplink_enabled', index=4,
       number=16, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='downlink_enabled', full_name='ChannelSettings.downlink_enabled', index=10,
+      name='downlink_enabled', full_name='ChannelSettings.downlink_enabled', index=5,
       number=17, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
@@ -181,7 +104,6 @@ _CHANNELSETTINGS = _descriptor.Descriptor(
   ],
   nested_types=[],
   enum_types=[
-    _CHANNELSETTINGS_MODEMCONFIG,
   ],
   serialized_options=None,
   is_extendable=False,
@@ -189,8 +111,8 @@ _CHANNELSETTINGS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=18,
-  serialized_end=392,
+  serialized_start=17,
+  serialized_end=144,
 )
 
 
@@ -235,12 +157,10 @@ _CHANNEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=395,
-  serialized_end=534,
+  serialized_start=147,
+  serialized_end=286,
 )
 
-_CHANNELSETTINGS.fields_by_name['modem_config'].enum_type = _CHANNELSETTINGS_MODEMCONFIG
-_CHANNELSETTINGS_MODEMCONFIG.containing_type = _CHANNELSETTINGS
 _CHANNEL.fields_by_name['settings'].message_type = _CHANNELSETTINGS
 _CHANNEL.fields_by_name['role'].enum_type = _CHANNEL_ROLE
 _CHANNEL_ROLE.containing_type = _CHANNEL
