@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\010PortnumsH\003Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\x0eportnums.proto*\xd0\x02\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\x0f\n\x0bROUTING_APP\x10\x05\x12\r\n\tADMIN_APP\x10\x06\x12\r\n\tREPLY_APP\x10 \x12\x11\n\rIP_TUNNEL_APP\x10!\x12\x0e\n\nSERIAL_APP\x10@\x12\x15\n\x11STORE_FORWARD_APP\x10\x41\x12\x12\n\x0eRANGE_TEST_APP\x10\x42\x12\x11\n\rTELEMETRY_APP\x10\x43\x12\x0b\n\x07ZPS_APP\x10\x44\x12\x13\n\x0f\x43OMPRESSION_APP\x10\x45\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x13\n\x0e\x41TAK_FORWARDER\x10\x81\x02\x12\x08\n\x03MAX\x10\xff\x03\x42\x44\n\x13\x63om.geeksville.meshB\x08PortnumsH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\x0eportnums.proto*\xee\x02\n\x07PortNum\x12\x0f\n\x0bUNKNOWN_APP\x10\x00\x12\x14\n\x10TEXT_MESSAGE_APP\x10\x01\x12\x17\n\x13REMOTE_HARDWARE_APP\x10\x02\x12\x10\n\x0cPOSITION_APP\x10\x03\x12\x10\n\x0cNODEINFO_APP\x10\x04\x12\x0f\n\x0bROUTING_APP\x10\x05\x12\r\n\tADMIN_APP\x10\x06\x12\x1f\n\x1bTEXT_MESSAGE_COMPRESSED_APP\x10\x07\x12\x10\n\x0cWAYPOINT_APP\x10\x08\x12\r\n\tREPLY_APP\x10 \x12\x11\n\rIP_TUNNEL_APP\x10!\x12\x0e\n\nSERIAL_APP\x10@\x12\x15\n\x11STORE_FORWARD_APP\x10\x41\x12\x12\n\x0eRANGE_TEST_APP\x10\x42\x12\x11\n\rTELEMETRY_APP\x10\x43\x12\x0b\n\x07ZPS_APP\x10\x44\x12\x10\n\x0bPRIVATE_APP\x10\x80\x02\x12\x13\n\x0e\x41TAK_FORWARDER\x10\x81\x02\x12\x08\n\x03MAX\x10\xff\x03\x42\x44\n\x13\x63om.geeksville.meshB\x08PortnumsH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
 )
 
 _PORTNUM = _descriptor.EnumDescriptor(
@@ -57,54 +57,58 @@ _PORTNUM = _descriptor.EnumDescriptor(
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='REPLY_APP', index=7, number=32,
+      name='TEXT_MESSAGE_COMPRESSED_APP', index=7, number=7,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='IP_TUNNEL_APP', index=8, number=33,
+      name='WAYPOINT_APP', index=8, number=8,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='SERIAL_APP', index=9, number=64,
+      name='REPLY_APP', index=9, number=32,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='STORE_FORWARD_APP', index=10, number=65,
+      name='IP_TUNNEL_APP', index=10, number=33,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='RANGE_TEST_APP', index=11, number=66,
+      name='SERIAL_APP', index=11, number=64,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='TELEMETRY_APP', index=12, number=67,
+      name='STORE_FORWARD_APP', index=12, number=65,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='ZPS_APP', index=13, number=68,
+      name='RANGE_TEST_APP', index=13, number=66,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='COMPRESSION_APP', index=14, number=69,
+      name='TELEMETRY_APP', index=14, number=67,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='PRIVATE_APP', index=15, number=256,
+      name='ZPS_APP', index=15, number=68,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='ATAK_FORWARDER', index=16, number=257,
+      name='PRIVATE_APP', index=16, number=256,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='MAX', index=17, number=511,
+      name='ATAK_FORWARDER', index=17, number=257,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='MAX', index=18, number=511,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=19,
-  serialized_end=355,
+  serialized_end=385,
 )
 _sym_db.RegisterEnumDescriptor(_PORTNUM)
 
@@ -116,6 +120,8 @@ POSITION_APP = 3
 NODEINFO_APP = 4
 ROUTING_APP = 5
 ADMIN_APP = 6
+TEXT_MESSAGE_COMPRESSED_APP = 7
+WAYPOINT_APP = 8
 REPLY_APP = 32
 IP_TUNNEL_APP = 33
 SERIAL_APP = 64
@@ -123,7 +129,6 @@ STORE_FORWARD_APP = 65
 RANGE_TEST_APP = 66
 TELEMETRY_APP = 67
 ZPS_APP = 68
-COMPRESSION_APP = 69
 PRIVATE_APP = 256
 ATAK_FORWARDER = 257
 MAX = 511

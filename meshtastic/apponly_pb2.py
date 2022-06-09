@@ -11,7 +11,8 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-from . import channel_pb2 as channel__pb2
+import channel_pb2 as channel__pb2
+import config_pb2 as config__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -19,9 +20,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\rAppOnlyProtosH\003Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\rapponly.proto\x1a\rchannel.proto\"0\n\nChannelSet\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.ChannelSettingsBI\n\x13\x63om.geeksville.meshB\rAppOnlyProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\rapponly.proto\x1a\rchannel.proto\x1a\x0c\x63onfig.proto\"Y\n\nChannelSet\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.ChannelSettings\x12\'\n\x0blora_config\x18\x02 \x01(\x0b\x32\x12.Config.LoRaConfigBI\n\x13\x63om.geeksville.meshB\rAppOnlyProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
   ,
-  dependencies=[channel__pb2.DESCRIPTOR,])
+  dependencies=[channel__pb2.DESCRIPTOR,config__pb2.DESCRIPTOR,])
 
 
 
@@ -40,6 +41,13 @@ _CHANNELSET = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='lora_config', full_name='ChannelSet.lora_config', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -52,11 +60,12 @@ _CHANNELSET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=32,
-  serialized_end=80,
+  serialized_start=46,
+  serialized_end=135,
 )
 
 _CHANNELSET.fields_by_name['settings'].message_type = channel__pb2._CHANNELSETTINGS
+_CHANNELSET.fields_by_name['lora_config'].message_type = config__pb2._CONFIG_LORACONFIG
 DESCRIPTOR.message_types_by_name['ChannelSet'] = _CHANNELSET
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 

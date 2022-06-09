@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\014ConfigProtosH\003Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\x0c\x63onfig.proto\"\xdd\x12\n\x06\x43onfig\x12&\n\x06\x64\x65vice\x18\x01 \x01(\x0b\x32\x14.Config.DeviceConfigH\x00\x12*\n\x08position\x18\x02 \x01(\x0b\x32\x16.Config.PositionConfigH\x00\x12$\n\x05power\x18\x03 \x01(\x0b\x32\x13.Config.PowerConfigH\x00\x12\"\n\x04wifi\x18\x04 \x01(\x0b\x32\x12.Config.WiFiConfigH\x00\x12(\n\x07\x64isplay\x18\x05 \x01(\x0b\x32\x15.Config.DisplayConfigH\x00\x12\"\n\x04lora\x18\x06 \x01(\x0b\x32\x12.Config.LoRaConfigH\x00\x1a\xd8\x01\n\x0c\x44\x65viceConfig\x12\'\n\x04role\x18\x01 \x01(\x0e\x32\x19.Config.DeviceConfig.Role\x12\x17\n\x0fserial_disabled\x18\x02 \x01(\x08\x12\x15\n\rfactory_reset\x18\x03 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x04 \x01(\x08\x12\x12\n\nntp_server\x18\x05 \x01(\t\"@\n\x04Role\x12\n\n\x06\x43lient\x10\x00\x12\x0e\n\nClientMute\x10\x01\x12\n\n\x06Router\x10\x02\x12\x10\n\x0cRouterClient\x10\x03\x1a\xd3\x03\n\x0ePositionConfig\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12)\n!position_broadcast_smart_disabled\x18\x02 \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\x03 \x01(\x08\x12\x1f\n\x17location_share_disabled\x18\x04 \x01(\x08\x12\x14\n\x0cgps_disabled\x18\x05 \x01(\x08\x12\x1b\n\x13gps_update_interval\x18\x06 \x01(\r\x12\x18\n\x10gps_attempt_time\x18\x07 \x01(\r\x12\x15\n\rgps_accept_2d\x18\x08 \x01(\x08\x12\x13\n\x0bgps_max_dop\x18\t \x01(\r\x12\x16\n\x0eposition_flags\x18\n \x01(\r\"\xaa\x01\n\rPositionFlags\x12\x11\n\rPOS_UNDEFINED\x10\x00\x12\x10\n\x0cPOS_ALTITUDE\x10\x01\x12\x0f\n\x0bPOS_ALT_MSL\x10\x02\x12\x0f\n\x0bPOS_GEO_SEP\x10\x04\x12\x0b\n\x07POS_DOP\x10\x08\x12\r\n\tPOS_HVDOP\x10\x10\x12\x11\n\rPOS_SATINVIEW\x10 \x12\x0f\n\x0bPOS_SEQ_NOS\x10@\x12\x12\n\rPOS_TIMESTAMP\x10\x80\x01\x1a\xc1\x04\n\x0bPowerConfig\x12\x39\n\x0e\x63harge_current\x18\x01 \x01(\x0e\x32!.Config.PowerConfig.ChargeCurrent\x12\x14\n\x0cis_low_power\x18\x02 \x01(\x08\x12\x19\n\x11is_always_powered\x18\x03 \x01(\x08\x12&\n\x1eon_battery_shutdown_after_secs\x18\x04 \x01(\r\x12\x17\n\x0fis_power_saving\x18\x05 \x01(\x08\x12\x1f\n\x17\x61\x64\x63_multiplier_override\x18\x06 \x01(\x02\x12\x1b\n\x13wait_bluetooth_secs\x18\x07 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x08 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\t \x01(\r\x12\x10\n\x08sds_secs\x18\n \x01(\r\x12\x0f\n\x07ls_secs\x18\x0b \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0c \x01(\r\"\xd1\x01\n\rChargeCurrent\x12\x0b\n\x07MAUnset\x10\x00\x12\t\n\x05MA100\x10\x01\x12\t\n\x05MA190\x10\x02\x12\t\n\x05MA280\x10\x03\x12\t\n\x05MA360\x10\x04\x12\t\n\x05MA450\x10\x05\x12\t\n\x05MA550\x10\x06\x12\t\n\x05MA630\x10\x07\x12\t\n\x05MA700\x10\x08\x12\t\n\x05MA780\x10\t\x12\t\n\x05MA880\x10\n\x12\t\n\x05MA960\x10\x0b\x12\n\n\x06MA1000\x10\x0c\x12\n\n\x06MA1080\x10\r\x12\n\n\x06MA1160\x10\x0e\x12\n\n\x06MA1240\x10\x0f\x12\n\n\x06MA1320\x10\x10\x1a\x38\n\nWiFiConfig\x12\x0c\n\x04ssid\x18\x01 \x01(\t\x12\x0b\n\x03psk\x18\x02 \x01(\t\x12\x0f\n\x07\x61p_mode\x18\x03 \x01(\x08\x1a\x8f\x02\n\rDisplayConfig\x12\x16\n\x0escreen_on_secs\x18\x01 \x01(\r\x12=\n\ngps_format\x18\x02 \x01(\x0e\x32).Config.DisplayConfig.GpsCoordinateFormat\x12!\n\x19\x61uto_screen_carousel_secs\x18\x03 \x01(\r\"\x83\x01\n\x13GpsCoordinateFormat\x12\x10\n\x0cGpsFormatDec\x10\x00\x12\x10\n\x0cGpsFormatDMS\x10\x01\x12\x10\n\x0cGpsFormatUTM\x10\x02\x12\x11\n\rGpsFormatMGRS\x10\x03\x12\x10\n\x0cGpsFormatOLC\x10\x04\x12\x11\n\rGpsFormatOSGR\x10\x05\x1a\x93\x04\n\nLoRaConfig\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x34\n\x0cmodem_preset\x18\x02 \x01(\x0e\x32\x1e.Config.LoRaConfig.ModemPreset\x12\x11\n\tbandwidth\x18\x03 \x01(\r\x12\x15\n\rspread_factor\x18\x04 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x05 \x01(\r\x12\x18\n\x10\x66requency_offset\x18\x06 \x01(\x02\x12-\n\x06region\x18\x07 \x01(\x0e\x32\x1d.Config.LoRaConfig.RegionCode\x12\x11\n\thop_limit\x18\x08 \x01(\r\x12\x13\n\x0btx_disabled\x18\t \x01(\x08\x12\x17\n\x0fignore_incoming\x18g \x03(\r\"\x81\x01\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U868\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08\x12\x06\n\x02RU\x10\t\x12\x06\n\x02IN\x10\n\x12\t\n\x05NZ865\x10\x0b\x12\x06\n\x02TH\x10\x0c\"p\n\x0bModemPreset\x12\r\n\tVLongSlow\x10\x00\x12\x0c\n\x08LongSlow\x10\x01\x12\x0c\n\x08LongFast\x10\x02\x12\x0b\n\x07MidSlow\x10\x03\x12\x0b\n\x07MidFast\x10\x04\x12\r\n\tShortSlow\x10\x05\x12\r\n\tShortFast\x10\x06\x42\x10\n\x0epayloadVariantBH\n\x13\x63om.geeksville.meshB\x0c\x43onfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\x0c\x63onfig.proto\"\xa3\x12\n\x06\x43onfig\x12&\n\x06\x64\x65vice\x18\x01 \x01(\x0b\x32\x14.Config.DeviceConfigH\x00\x12*\n\x08position\x18\x02 \x01(\x0b\x32\x16.Config.PositionConfigH\x00\x12$\n\x05power\x18\x03 \x01(\x0b\x32\x13.Config.PowerConfigH\x00\x12\"\n\x04wifi\x18\x04 \x01(\x0b\x32\x12.Config.WiFiConfigH\x00\x12(\n\x07\x64isplay\x18\x05 \x01(\x0b\x32\x15.Config.DisplayConfigH\x00\x12\"\n\x04lora\x18\x06 \x01(\x0b\x32\x12.Config.LoRaConfigH\x00\x1a\xd8\x01\n\x0c\x44\x65viceConfig\x12\'\n\x04role\x18\x01 \x01(\x0e\x32\x19.Config.DeviceConfig.Role\x12\x17\n\x0fserial_disabled\x18\x02 \x01(\x08\x12\x15\n\rfactory_reset\x18\x03 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x04 \x01(\x08\x12\x12\n\nntp_server\x18\x05 \x01(\t\"@\n\x04Role\x12\n\n\x06\x43lient\x10\x00\x12\x0e\n\nClientMute\x10\x01\x12\n\n\x06Router\x10\x02\x12\x10\n\x0cRouterClient\x10\x03\x1a\x86\x03\n\x0ePositionConfig\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12)\n!position_broadcast_smart_disabled\x18\x02 \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\x03 \x01(\x08\x12\x14\n\x0cgps_disabled\x18\x05 \x01(\x08\x12\x1b\n\x13gps_update_interval\x18\x06 \x01(\r\x12\x18\n\x10gps_attempt_time\x18\x07 \x01(\r\x12\x16\n\x0eposition_flags\x18\n \x01(\r\"\xaa\x01\n\rPositionFlags\x12\x11\n\rPOS_UNDEFINED\x10\x00\x12\x10\n\x0cPOS_ALTITUDE\x10\x01\x12\x0f\n\x0bPOS_ALT_MSL\x10\x02\x12\x0f\n\x0bPOS_GEO_SEP\x10\x04\x12\x0b\n\x07POS_DOP\x10\x08\x12\r\n\tPOS_HVDOP\x10\x10\x12\x11\n\rPOS_SATINVIEW\x10 \x12\x0f\n\x0bPOS_SEQ_NOS\x10@\x12\x12\n\rPOS_TIMESTAMP\x10\x80\x01\x1a\xc1\x04\n\x0bPowerConfig\x12\x39\n\x0e\x63harge_current\x18\x01 \x01(\x0e\x32!.Config.PowerConfig.ChargeCurrent\x12\x14\n\x0cis_low_power\x18\x02 \x01(\x08\x12\x19\n\x11is_always_powered\x18\x03 \x01(\x08\x12&\n\x1eon_battery_shutdown_after_secs\x18\x04 \x01(\r\x12\x17\n\x0fis_power_saving\x18\x05 \x01(\x08\x12\x1f\n\x17\x61\x64\x63_multiplier_override\x18\x06 \x01(\x02\x12\x1b\n\x13wait_bluetooth_secs\x18\x07 \x01(\r\x12\x1a\n\x12phone_timeout_secs\x18\x08 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\t \x01(\r\x12\x10\n\x08sds_secs\x18\n \x01(\r\x12\x0f\n\x07ls_secs\x18\x0b \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0c \x01(\r\"\xd1\x01\n\rChargeCurrent\x12\x0b\n\x07MAUnset\x10\x00\x12\t\n\x05MA100\x10\x01\x12\t\n\x05MA190\x10\x02\x12\t\n\x05MA280\x10\x03\x12\t\n\x05MA360\x10\x04\x12\t\n\x05MA450\x10\x05\x12\t\n\x05MA550\x10\x06\x12\t\n\x05MA630\x10\x07\x12\t\n\x05MA700\x10\x08\x12\t\n\x05MA780\x10\t\x12\t\n\x05MA880\x10\n\x12\t\n\x05MA960\x10\x0b\x12\n\n\x06MA1000\x10\x0c\x12\n\n\x06MA1080\x10\r\x12\n\n\x06MA1160\x10\x0e\x12\n\n\x06MA1240\x10\x0f\x12\n\n\x06MA1320\x10\x10\x1aK\n\nWiFiConfig\x12\x0c\n\x04ssid\x18\x01 \x01(\t\x12\x0b\n\x03psk\x18\x02 \x01(\t\x12\x0f\n\x07\x61p_mode\x18\x03 \x01(\x08\x12\x11\n\tap_hidden\x18\x04 \x01(\x08\x1a\x8f\x02\n\rDisplayConfig\x12\x16\n\x0escreen_on_secs\x18\x01 \x01(\r\x12=\n\ngps_format\x18\x02 \x01(\x0e\x32).Config.DisplayConfig.GpsCoordinateFormat\x12!\n\x19\x61uto_screen_carousel_secs\x18\x03 \x01(\r\"\x83\x01\n\x13GpsCoordinateFormat\x12\x10\n\x0cGpsFormatDec\x10\x00\x12\x10\n\x0cGpsFormatDMS\x10\x01\x12\x10\n\x0cGpsFormatUTM\x10\x02\x12\x11\n\rGpsFormatMGRS\x10\x03\x12\x10\n\x0cGpsFormatOLC\x10\x04\x12\x11\n\rGpsFormatOSGR\x10\x05\x1a\x93\x04\n\nLoRaConfig\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x34\n\x0cmodem_preset\x18\x02 \x01(\x0e\x32\x1e.Config.LoRaConfig.ModemPreset\x12\x11\n\tbandwidth\x18\x03 \x01(\r\x12\x15\n\rspread_factor\x18\x04 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x05 \x01(\r\x12\x18\n\x10\x66requency_offset\x18\x06 \x01(\x02\x12-\n\x06region\x18\x07 \x01(\x0e\x32\x1d.Config.LoRaConfig.RegionCode\x12\x11\n\thop_limit\x18\x08 \x01(\r\x12\x13\n\x0btx_disabled\x18\t \x01(\x08\x12\x17\n\x0fignore_incoming\x18g \x03(\r\"\x81\x01\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U868\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08\x12\x06\n\x02RU\x10\t\x12\x06\n\x02IN\x10\n\x12\t\n\x05NZ865\x10\x0b\x12\x06\n\x02TH\x10\x0c\"p\n\x0bModemPreset\x12\x0c\n\x08LongFast\x10\x00\x12\x0c\n\x08LongSlow\x10\x01\x12\r\n\tVLongSlow\x10\x02\x12\x0b\n\x07MidSlow\x10\x03\x12\x0b\n\x07MidFast\x10\x04\x12\r\n\tShortSlow\x10\x05\x12\r\n\tShortFast\x10\x06\x42\x10\n\x0epayloadVariantBH\n\x13\x63om.geeksville.meshB\x0c\x43onfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
 )
 
 
@@ -98,8 +98,8 @@ _CONFIG_POSITIONCONFIG_POSITIONFLAGS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=780,
-  serialized_end=950,
+  serialized_start=703,
+  serialized_end=873,
 )
 _sym_db.RegisterEnumDescriptor(_CONFIG_POSITIONCONFIG_POSITIONFLAGS)
 
@@ -180,8 +180,8 @@ _CONFIG_POWERCONFIG_CHARGECURRENT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1321,
-  serialized_end=1530,
+  serialized_start=1244,
+  serialized_end=1453,
 )
 _sym_db.RegisterEnumDescriptor(_CONFIG_POWERCONFIG_CHARGECURRENT)
 
@@ -218,8 +218,8 @@ _CONFIG_DISPLAYCONFIG_GPSCOORDINATEFORMAT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1731,
-  serialized_end=1862,
+  serialized_start=1673,
+  serialized_end=1804,
 )
 _sym_db.RegisterEnumDescriptor(_CONFIG_DISPLAYCONFIG_GPSCOORDINATEFORMAT)
 
@@ -284,8 +284,8 @@ _CONFIG_LORACONFIG_REGIONCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2153,
-  serialized_end=2282,
+  serialized_start=2095,
+  serialized_end=2224,
 )
 _sym_db.RegisterEnumDescriptor(_CONFIG_LORACONFIG_REGIONCODE)
 
@@ -296,7 +296,7 @@ _CONFIG_LORACONFIG_MODEMPRESET = _descriptor.EnumDescriptor(
   file=DESCRIPTOR,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='VLongSlow', index=0, number=0,
+      name='LongFast', index=0, number=0,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
@@ -304,7 +304,7 @@ _CONFIG_LORACONFIG_MODEMPRESET = _descriptor.EnumDescriptor(
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='LongFast', index=2, number=2,
+      name='VLongSlow', index=2, number=2,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
@@ -326,8 +326,8 @@ _CONFIG_LORACONFIG_MODEMPRESET = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2284,
-  serialized_end=2396,
+  serialized_start=2226,
+  serialized_end=2338,
 )
 _sym_db.RegisterEnumDescriptor(_CONFIG_LORACONFIG_MODEMPRESET)
 
@@ -420,49 +420,28 @@ _CONFIG_POSITIONCONFIG = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='location_share_disabled', full_name='Config.PositionConfig.location_share_disabled', index=3,
-      number=4, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='gps_disabled', full_name='Config.PositionConfig.gps_disabled', index=4,
+      name='gps_disabled', full_name='Config.PositionConfig.gps_disabled', index=3,
       number=5, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='gps_update_interval', full_name='Config.PositionConfig.gps_update_interval', index=5,
+      name='gps_update_interval', full_name='Config.PositionConfig.gps_update_interval', index=4,
       number=6, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='gps_attempt_time', full_name='Config.PositionConfig.gps_attempt_time', index=6,
+      name='gps_attempt_time', full_name='Config.PositionConfig.gps_attempt_time', index=5,
       number=7, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='gps_accept_2d', full_name='Config.PositionConfig.gps_accept_2d', index=7,
-      number=8, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='gps_max_dop', full_name='Config.PositionConfig.gps_max_dop', index=8,
-      number=9, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='position_flags', full_name='Config.PositionConfig.position_flags', index=9,
+      name='position_flags', full_name='Config.PositionConfig.position_flags', index=6,
       number=10, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -482,7 +461,7 @@ _CONFIG_POSITIONCONFIG = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=483,
-  serialized_end=950,
+  serialized_end=873,
 )
 
 _CONFIG_POWERCONFIG = _descriptor.Descriptor(
@@ -589,8 +568,8 @@ _CONFIG_POWERCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=953,
-  serialized_end=1530,
+  serialized_start=876,
+  serialized_end=1453,
 )
 
 _CONFIG_WIFICONFIG = _descriptor.Descriptor(
@@ -621,6 +600,13 @@ _CONFIG_WIFICONFIG = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='ap_hidden', full_name='Config.WiFiConfig.ap_hidden', index=3,
+      number=4, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -633,8 +619,8 @@ _CONFIG_WIFICONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1532,
-  serialized_end=1588,
+  serialized_start=1455,
+  serialized_end=1530,
 )
 
 _CONFIG_DISPLAYCONFIG = _descriptor.Descriptor(
@@ -678,8 +664,8 @@ _CONFIG_DISPLAYCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1591,
-  serialized_end=1862,
+  serialized_start=1533,
+  serialized_end=1804,
 )
 
 _CONFIG_LORACONFIG = _descriptor.Descriptor(
@@ -773,8 +759,8 @@ _CONFIG_LORACONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1865,
-  serialized_end=2396,
+  serialized_start=1807,
+  serialized_end=2338,
 )
 
 _CONFIG = _descriptor.Descriptor(
@@ -842,7 +828,7 @@ _CONFIG = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=17,
-  serialized_end=2414,
+  serialized_end=2356,
 )
 
 _CONFIG_DEVICECONFIG.fields_by_name['role'].enum_type = _CONFIG_DEVICECONFIG_ROLE
