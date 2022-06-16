@@ -11,8 +11,8 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-import config_pb2 as config__pb2
-import module_config_pb2 as module__config__pb2
+from . import config_pb2 as config__pb2
+from . import module_config_pb2 as module__config__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\017LocalOnlyProtosH\003Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\x0flocalonly.proto\x1a\x0c\x63onfig.proto\x1a\x13module_config.proto\"\xed\x01\n\x0bLocalConfig\x12$\n\x06\x64\x65vice\x18\x01 \x01(\x0b\x32\x14.Config.DeviceConfig\x12(\n\x08position\x18\x02 \x01(\x0b\x32\x16.Config.PositionConfig\x12\"\n\x05power\x18\x03 \x01(\x0b\x32\x13.Config.PowerConfig\x12 \n\x04wifi\x18\x04 \x01(\x0b\x32\x12.Config.WiFiConfig\x12&\n\x07\x64isplay\x18\x05 \x01(\x0b\x32\x15.Config.DisplayConfig\x12 \n\x04lora\x18\x06 \x01(\x0b\x32\x12.Config.LoRaConfig\"\x89\x03\n\x11LocalModuleConfig\x12&\n\x04mqtt\x18\x01 \x01(\x0b\x32\x18.ModuleConfig.MQTTConfig\x12*\n\x06serial\x18\x02 \x01(\x0b\x32\x1a.ModuleConfig.SerialConfig\x12G\n\x15\x65xternal_notification\x18\x03 \x01(\x0b\x32(.ModuleConfig.ExternalNotificationConfig\x12\x37\n\rstore_forward\x18\x04 \x01(\x0b\x32 .ModuleConfig.StoreForwardConfig\x12\x31\n\nrange_test\x18\x05 \x01(\x0b\x32\x1d.ModuleConfig.RangeTestConfig\x12\x30\n\ttelemetry\x18\x06 \x01(\x0b\x32\x1d.ModuleConfig.TelemetryConfig\x12\x39\n\x0e\x63\x61nned_message\x18\x07 \x01(\x0b\x32!.ModuleConfig.CannedMessageConfigBK\n\x13\x63om.geeksville.meshB\x0fLocalOnlyProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\x0flocalonly.proto\x1a\x0c\x63onfig.proto\x1a\x13module_config.proto\"\xfe\x01\n\x0bLocalConfig\x12$\n\x06\x64\x65vice\x18\x01 \x01(\x0b\x32\x14.Config.DeviceConfig\x12(\n\x08position\x18\x02 \x01(\x0b\x32\x16.Config.PositionConfig\x12\"\n\x05power\x18\x03 \x01(\x0b\x32\x13.Config.PowerConfig\x12 \n\x04wifi\x18\x04 \x01(\x0b\x32\x12.Config.WiFiConfig\x12&\n\x07\x64isplay\x18\x05 \x01(\x0b\x32\x15.Config.DisplayConfig\x12 \n\x04lora\x18\x06 \x01(\x0b\x32\x12.Config.LoRaConfig\x12\x0f\n\x07version\x18\x07 \x01(\r\"\x9a\x03\n\x11LocalModuleConfig\x12&\n\x04mqtt\x18\x01 \x01(\x0b\x32\x18.ModuleConfig.MQTTConfig\x12*\n\x06serial\x18\x02 \x01(\x0b\x32\x1a.ModuleConfig.SerialConfig\x12G\n\x15\x65xternal_notification\x18\x03 \x01(\x0b\x32(.ModuleConfig.ExternalNotificationConfig\x12\x37\n\rstore_forward\x18\x04 \x01(\x0b\x32 .ModuleConfig.StoreForwardConfig\x12\x31\n\nrange_test\x18\x05 \x01(\x0b\x32\x1d.ModuleConfig.RangeTestConfig\x12\x30\n\ttelemetry\x18\x06 \x01(\x0b\x32\x1d.ModuleConfig.TelemetryConfig\x12\x39\n\x0e\x63\x61nned_message\x18\x07 \x01(\x0b\x32!.ModuleConfig.CannedMessageConfig\x12\x0f\n\x07version\x18\x08 \x01(\rBK\n\x13\x63om.geeksville.meshB\x0fLocalOnlyProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
   ,
   dependencies=[config__pb2.DESCRIPTOR,module__config__pb2.DESCRIPTOR,])
 
@@ -76,6 +76,13 @@ _LOCALCONFIG = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='version', full_name='LocalConfig.version', index=6,
+      number=7, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -89,7 +96,7 @@ _LOCALCONFIG = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=55,
-  serialized_end=292,
+  serialized_end=309,
 )
 
 
@@ -149,6 +156,13 @@ _LOCALMODULECONFIG = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='version', full_name='LocalModuleConfig.version', index=7,
+      number=8, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -161,8 +175,8 @@ _LOCALMODULECONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=295,
-  serialized_end=688,
+  serialized_start=312,
+  serialized_end=722,
 )
 
 _LOCALCONFIG.fields_by_name['device'].message_type = config__pb2._CONFIG_DEVICECONFIG

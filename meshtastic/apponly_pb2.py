@@ -11,8 +11,8 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-import channel_pb2 as channel__pb2
-import config_pb2 as config__pb2
+from . import channel_pb2 as channel__pb2
+from . import config_pb2 as config__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(

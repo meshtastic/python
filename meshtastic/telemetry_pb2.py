@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=b'\n\023com.geeksville.meshB\017TelemetryProtosH\003Z!github.com/meshtastic/gomeshproto',
-  serialized_pb=b'\n\x0ftelemetry.proto\"i\n\rDeviceMetrics\x12\x15\n\rbattery_level\x18\x01 \x01(\r\x12\x0f\n\x07voltage\x18\x02 \x01(\x02\x12\x1b\n\x13\x63hannel_utilization\x18\x03 \x01(\x02\x12\x13\n\x0b\x61ir_util_tx\x18\x04 \x01(\x02\"\x9b\x01\n\x12\x45nvironmentMetrics\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x12\x19\n\x11relative_humidity\x18\x02 \x01(\x02\x12\x1b\n\x13\x62\x61rometric_pressure\x18\x03 \x01(\x02\x12\x16\n\x0egas_resistance\x18\x04 \x01(\x02\x12\x0f\n\x07voltage\x18\x05 \x01(\x02\x12\x0f\n\x07\x63urrent\x18\x06 \x01(\x02\"\x82\x01\n\tTelemetry\x12\x0c\n\x04time\x18\x01 \x01(\x07\x12(\n\x0e\x64\x65vice_metrics\x18\x02 \x01(\x0b\x32\x0e.DeviceMetricsH\x00\x12\x32\n\x13\x65nvironment_metrics\x18\x03 \x01(\x0b\x32\x13.EnvironmentMetricsH\x00\x42\t\n\x07variant*\x8a\x01\n\x13TelemetrySensorType\x12\n\n\x06NotSet\x10\x00\x12\t\n\x05\x44HT11\x10\x01\x12\x0b\n\x07\x44S18B20\x10\x02\x12\t\n\x05\x44HT12\x10\x03\x12\t\n\x05\x44HT21\x10\x04\x12\t\n\x05\x44HT22\x10\x05\x12\n\n\x06\x42ME280\x10\x06\x12\n\n\x06\x42ME680\x10\x07\x12\x0b\n\x07MCP9808\x10\x08\x12\t\n\x05SHTC3\x10\tBK\n\x13\x63om.geeksville.meshB\x0fTelemetryProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
+  serialized_pb=b'\n\x0ftelemetry.proto\"i\n\rDeviceMetrics\x12\x15\n\rbattery_level\x18\x01 \x01(\r\x12\x0f\n\x07voltage\x18\x02 \x01(\x02\x12\x1b\n\x13\x63hannel_utilization\x18\x03 \x01(\x02\x12\x13\n\x0b\x61ir_util_tx\x18\x04 \x01(\x02\"\x9b\x01\n\x12\x45nvironmentMetrics\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x12\x19\n\x11relative_humidity\x18\x02 \x01(\x02\x12\x1b\n\x13\x62\x61rometric_pressure\x18\x03 \x01(\x02\x12\x16\n\x0egas_resistance\x18\x04 \x01(\x02\x12\x0f\n\x07voltage\x18\x05 \x01(\x02\x12\x0f\n\x07\x63urrent\x18\x06 \x01(\x02\"\x82\x01\n\tTelemetry\x12\x0c\n\x04time\x18\x01 \x01(\x07\x12(\n\x0e\x64\x65vice_metrics\x18\x02 \x01(\x0b\x32\x0e.DeviceMetricsH\x00\x12\x32\n\x13\x65nvironment_metrics\x18\x03 \x01(\x0b\x32\x13.EnvironmentMetricsH\x00\x42\t\n\x07variant*\xa2\x01\n\x13TelemetrySensorType\x12\n\n\x06NotSet\x10\x00\x12\t\n\x05\x44HT11\x10\x01\x12\x0b\n\x07\x44S18B20\x10\x02\x12\t\n\x05\x44HT12\x10\x03\x12\t\n\x05\x44HT21\x10\x04\x12\t\n\x05\x44HT22\x10\x05\x12\n\n\x06\x42ME280\x10\x06\x12\n\n\x06\x42ME680\x10\x07\x12\x0b\n\x07MCP9808\x10\x08\x12\t\n\x05SHTC3\x10\t\x12\n\n\x06INA260\x10\n\x12\n\n\x06INA219\x10\x0b\x42K\n\x13\x63om.geeksville.meshB\x0fTelemetryProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3'
 )
 
 _TELEMETRYSENSORTYPE = _descriptor.EnumDescriptor(
@@ -68,11 +68,19 @@ _TELEMETRYSENSORTYPE = _descriptor.EnumDescriptor(
       name='SHTC3', index=9, number=9,
       serialized_options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='INA260', index=10, number=10,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='INA219', index=11, number=11,
+      serialized_options=None,
+      type=None),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=418,
-  serialized_end=556,
+  serialized_end=580,
 )
 _sym_db.RegisterEnumDescriptor(_TELEMETRYSENSORTYPE)
 
@@ -87,6 +95,8 @@ BME280 = 6
 BME680 = 7
 MCP9808 = 8
 SHTC3 = 9
+INA260 = 10
+INA219 = 11
 
 
 
