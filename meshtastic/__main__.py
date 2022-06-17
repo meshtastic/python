@@ -247,7 +247,6 @@ def onConnected(interface):
             # If --pos-fields invoked without args, read and display current value
             closeNow = True
             prefs = interface.getNode(args.dest).localConfig
-            ces
 
             fieldNames = []
             for bit in config_pb2.PositionFlags.values():
