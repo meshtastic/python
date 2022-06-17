@@ -5,22 +5,21 @@ import logging
 import base64
 import time
 from google.protobuf.json_format import MessageToJson
-from meshtastic import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2
+from meshtastic import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2, localonly_pb2
 from meshtastic.util import pskToString, stripnl, Timeout, our_exit, fromPSK
 
 
 class Node:
     """A model of a (local or remote) node in the mesh
 
-    Includes methods for radioConfig and channels
+    Includes methods for localConfig and channels
     """
 
     def __init__(self, iface, nodeNum, noProto=False):
         """Constructor"""
         self.iface = iface
         self.nodeNum = nodeNum
-        self.radioConfig = None
-        self.partialConfig = None
+        self.localConfig = localonly_pb2.LocalConfig()
         self.channels = None
         self._timeout = Timeout(maxSecs=300)
         self.partialChannels = None
@@ -55,15 +54,15 @@ class Node:
     def showInfo(self):
         """Show human readable description of our node"""
         prefs = ""
-        if self.radioConfig and self.radioConfig.preferences:
-            prefs = stripnl(MessageToJson(self.radioConfig.preferences))
+        if self.localConfig:
+            prefs = stripnl(MessageToJson(self.localConfig))
         print(f"Preferences: {prefs}\n")
         self.showChannels()
 
     def requestConfig(self):
         """Send regular MeshPackets to ask for settings and channels."""
         logging.debug(f"requestConfig for nodeNum:{self.nodeNum}")
-        self.radioConfig = None
+        self.localConfig = localonly_pb2.LocalConfig()
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
 
@@ -85,18 +84,48 @@ class Node:
 
     def waitForConfig(self, attribute='channels'):
         """Block until radio config is received. Returns True if config has been received."""
-        return self._timeout.waitForSet(self, attrs=('config', attribute))
+        return self._timeout.waitForSet(self, attrs=('localConfig', attribute))
 
     def writeConfig(self):
-        """Write the current (edited) radioConfig to the device"""
-        if self.radioConfig is None:
-            our_exit("Error: No RadioConfig has been read")
+        """Write the current (edited) localConfig to the device"""
+        if self.localConfig is None:
+            our_exit("Error: No localConfig has been read")
 
-        p = admin_pb2.AdminMessage()
-        p.set_radio.CopyFrom(self.radioConfig)
+        if self.localConfig.device:
+            p = admin_pb2.AdminMessage()
+            p.set_config.device.CopyFrom(self.localConfig.device)
+            self._sendAdmin(p)
+            logging.debug("Wrote device")
 
-        self._sendAdmin(p)
-        logging.debug("Wrote config")
+        if self.localConfig.position:
+            p = admin_pb2.AdminMessage()
+            p.set_config.position.CopyFrom(self.localConfig.position)
+            self._sendAdmin(p)
+            logging.debug("Wrote position")
+
+        if self.localConfig.power:
+            p = admin_pb2.AdminMessage()
+            p.set_config.power.CopyFrom(self.localConfig.power)
+            self._sendAdmin(p)
+            logging.debug("Wrote power")
+
+        if self.localConfig.wifi:
+            p = admin_pb2.AdminMessage()
+            p.set_config.wifi.CopyFrom(self.localConfig.wifi)
+            self._sendAdmin(p)
+            logging.debug("Wrote wifi")
+
+        if self.localConfig.display:
+            p = admin_pb2.AdminMessage()
+            p.set_config.display.CopyFrom(self.localConfig.display)
+            self._sendAdmin(p)
+            logging.debug("Wrote display")
+
+        if self.localConfig.lora:
+            p = admin_pb2.AdminMessage()
+            p.set_config.lora.CopyFrom(self.localConfig.lora)
+            self._sendAdmin(p)
+            logging.debug("Wrote lora")
 
     def writeChannel(self, channelIndex, adminIndex=0):
         """Write the current (edited) channel to the device"""
@@ -214,8 +243,8 @@ class Node:
 
     def setURL(self, url):
         """Set mesh network URL"""
-        if self.radioConfig is None:
-            our_exit("Warning: No RadioConfig has been read")
+        if self.localConfig is None:
+            our_exit("Warning: No Config has been read")
 
         # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
         # Split on '/#' to find the base64 encoded channel settings

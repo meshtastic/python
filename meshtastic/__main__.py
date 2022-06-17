@@ -183,7 +183,7 @@ def onConnected(interface):
             alt = 0
             lat = 0.0
             lon = 0.0
-            prefs = interface.localNode.radioConfig.preferences
+            prefs = interface.localNode.localConfig
             if args.setalt:
                 alt = int(args.setalt)
                 prefs.fixed_position = True
@@ -224,7 +224,7 @@ def onConnected(interface):
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
             closeNow = True
-            prefs = interface.getNode(args.dest).radioConfig.preferences
+            prefs = interface.getNode(args.dest).localConfig
             allFields = 0
 
             try:
@@ -246,7 +246,8 @@ def onConnected(interface):
         elif args.pos_fields is not None:
             # If --pos-fields invoked without args, read and display current value
             closeNow = True
-            prefs = interface.getNode(args.dest).radioConfig.preferences
+            prefs = interface.getNode(args.dest).localConfig
+            ces
 
             fieldNames = []
             for bit in config_pb2.PositionFlags.values():
@@ -326,7 +327,7 @@ def onConnected(interface):
         # handle settings
         if args.set:
             closeNow = True
-            prefs = interface.getNode(args.dest).radioConfig.preferences
+            prefs = interface.getNode(args.dest).localConfig
 
             # Handle the int/float/bool arguments
             for pref in args.set:
@@ -364,7 +365,7 @@ def onConnected(interface):
                     alt = 0
                     lat = 0.0
                     lon = 0.0
-                    prefs = interface.localNode.radioConfig.preferences
+                    prefs = interface.localNode.localConfig
 
                     if 'alt' in configuration['location']:
                         alt = int(configuration['location']['alt'])
@@ -383,14 +384,14 @@ def onConnected(interface):
                     interface.localNode.writeConfig()
 
                 if 'user_prefs' in configuration:
-                    prefs = interface.getNode(args.dest).radioConfig.preferences
+                    prefs = interface.getNode(args.dest).localConfig
                     for pref in configuration['user_prefs']:
                         setPref(prefs, pref, str(configuration['user_prefs'][pref]))
                     print("Writing modified preferences to device")
                     interface.getNode(args.dest).writeConfig()
 
                 if 'userPrefs' in configuration:
-                    prefs = interface.getNode(args.dest).radioConfig.preferences
+                    prefs = interface.getNode(args.dest).localConfig
                     for pref in configuration['userPrefs']:
                         setPref(prefs, pref, str(configuration['userPrefs'][pref]))
                     print("Writing modified preferences to device")
@@ -539,7 +540,7 @@ def onConnected(interface):
 
         if args.get:
             closeNow = True
-            prefs = interface.getNode(args.dest).radioConfig.preferences
+            prefs = interface.getNode(args.dest).localConfig
 
             # Handle the int/float/bool arguments
             for pref in args.get:
@@ -628,7 +629,7 @@ def export_config(interface):
         if alt:
             config += f"  alt: {alt}\n"
         config += "\n"
-    preferences = f'{interface.localNode.radioConfig.preferences}'
+    preferences = f'{interface.localNode.localConfig}'
     prefs = preferences.splitlines()
     if prefs:
         if Globals.getInstance().get_camel_case():

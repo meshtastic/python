@@ -7,7 +7,7 @@ Source code on [github](https://github.com/meshtastic/Meshtastic-python)
 
 properties of SerialInterface:
 
-- radioConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to
+- localConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to
 the device.
 - nodes - The database of received nodes.  Includes always up-to-date location and username information for each
 node in the mesh.  This is a read-only datastructure.
