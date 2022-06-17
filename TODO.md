@@ -34,7 +34,7 @@ Basic functionality is complete now.
 - DONE add fromId and toId to received messages dictionaries
 - make command line options for displaying/changing config
 - update nodedb as nodes change
-- radioConfig - getter/setter syntax: https://www.python-course.eu/python3_properties.php
+- localConfig - getter/setter syntax: https://www.python-course.eu/python3_properties.php
 - let user change radio params via commandline options
 - keep nodedb up-to-date based on received MeshPackets
 - handle radio reboots and redownload db when that happens. Look for a special FromRadio.rebooted packet

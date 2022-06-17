@@ -422,10 +422,8 @@ class MeshInterface:
         """We need to send a heartbeat message to the device every X seconds"""
         def callback():
             self.heartbeatTimer = None
-            # TODO
-            # prefs = self.localNode.radioConfig.preferences
-            #i = prefs.phone_timeout_secs / 2
-            i = 0
+            prefs = self.localNode.localConfig
+            i = prefs.power.ls_secs / 2
             logging.debug(f"Sending heartbeat, interval {i}")
             if i != 0:
                 self.heartbeatTimer = threading.Timer(i, callback)
@@ -543,20 +541,18 @@ class MeshInterface:
 
             self._startConfig()  # redownload the node db etc...
         elif fromRadio.config:
-            logging.debug("Hey! We got some configs")
             if fromRadio.config.HasField("device"):
-                logging.debug("device!")
-                # TODO: do something with this config
+                self.localNode.localConfig.device.CopyFrom(fromRadio.config.device)
             elif fromRadio.config.HasField("position"):
-                logging.debug("position!")
+                self.localNode.localConfig.position.CopyFrom(fromRadio.config.position)
             elif fromRadio.config.HasField("power"):
-                logging.debug("power!")
+                self.localNode.localConfig.power.CopyFrom(fromRadio.config.power)
             elif fromRadio.config.HasField("wifi"):
-                logging.debug("wifi!")
+                self.localNode.localConfig.wifi.CopyFrom(fromRadio.config.wifi)
             elif fromRadio.config.HasField("display"):
-                logging.debug("display!")
+                self.localNode.localConfig.display.CopyFrom(fromRadio.config.display)
             elif fromRadio.config.HasField("lora"):
-                logging.debug("lora!")
+                self.localNode.localConfig.lora.CopyFrom(fromRadio.config.lora)
         else:
             logging.debug("Unexpected FromRadio payload")
 
