@@ -10,7 +10,7 @@ from ..node import Node
 from ..serial_interface import SerialInterface
 from ..admin_pb2 import AdminMessage
 from ..channel_pb2 import Channel
-from ..radioconfig_pb2 import RadioConfig
+from ..config_pb2 import Config
 #from ..cannedmessages_pb2 import (CannedMessagePluginMessagePart1, CannedMessagePluginMessagePart2,
 #                                  CannedMessagePluginMessagePart3, CannedMessagePluginMessagePart4,
 #                                  CannedMessagePluginMessagePart5)

@@ -10,7 +10,7 @@ from ..mesh_interface import MeshInterface
 from ..node import Node
 from .. import mesh_pb2
 from ..__init__ import LOCAL_ADDR, BROADCAST_ADDR
-from ..radioconfig_pb2 import RadioConfig
+from ..config_pb2 import Config
 from ..util import Timeout
 
 

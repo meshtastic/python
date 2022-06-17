@@ -80,7 +80,7 @@ from meshtastic.util import fixme, catchAndIgnore, stripnl, DeferredExecution, T
 from meshtastic.node import Node
 from meshtastic import (mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2,
                         telemetry_pb2, remote_hardware_pb2,
-                        channel_pb2, radioconfig_pb2, util)
+                        channel_pb2, config_pb2, util)
 
 
 # Note: To follow PEP224, comments should be after the module variable.
