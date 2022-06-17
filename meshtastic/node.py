@@ -20,6 +20,7 @@ class Node:
         self.iface = iface
         self.nodeNum = nodeNum
         self.radioConfig = None
+        self.partialConfig = None
         self.channels = None
         self._timeout = Timeout(maxSecs=300)
         self.partialChannels = None
@@ -63,6 +64,7 @@ class Node:
         """Send regular MeshPackets to ask for settings and channels."""
         logging.debug(f"requestConfig for nodeNum:{self.nodeNum}")
         self.radioConfig = None
+        self.partialConfig = []
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
 
@@ -252,7 +254,7 @@ class Node:
 
 
     def onResponseRequestSettings(self, p):
-        """Handle the response packet for requesting settings _requestSettings()"""
+        """Handle the response packets for requesting settings _requestSettings()"""
         logging.debug(f'onResponseRequestSetting() p:{p}')
         errorFound = False
         if "routing" in p["decoded"]:
@@ -260,18 +262,14 @@ class Node:
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
         if errorFound is False:
-            self.radioConfig = p["decoded"]["admin"]["raw"].get_radio_response
-            logging.debug(f'self.radioConfig:{self.radioConfig}')
-            logging.debug("Received radio config, now fetching channels...")
+            self.partialConfig[p["decoded"]["admin"]["payloadVariant"]] = p["decoded"]["admin"]["raw"].get_config_response
+            logging.debug(f'self.partialConfig:{self.partialConfig}')
             self._timeout.reset()  # We made foreward progress
-            self._requestChannel(0)  # now start fetching channels
-
+            self.gotResponse = True
 
     def _requestSettings(self):
         """Done with initial config messages, now send regular
            MeshPackets to ask for settings."""
-        p = admin_pb2.AdminMessage()
-        p.get_radio_request = True
 
         # TODO: should we check that localNode has an 'admin' channel?
         # Show progress message for super slow operations
@@ -283,8 +281,53 @@ class Node:
             print(" 3. All devices have the same modem config. (i.e., '--ch-longfast')")
             print(" 4. All devices have been rebooted after all of the above. (optional, but recommended)")
             print("Note: This could take a while (it requests remote channel configs, then writes config)")
+        
+        p1 = admin_pb2.AdminMessage()
+        p1.get_config_request = admin_pb2.AdminMessage.ConfigType.DEVICE_CONFIG;
+        self.gotResponse = False
+        self._sendAdmin(p1, wantResponse=True, onResponse=self.onResponseRequestSettings)
+        while self.gotResponse is False:
+                time.sleep(0.1)
 
-        return self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestSettings)
+        p2 = admin_pb2.AdminMessage()
+        p2.get_config_request = admin_pb2.AdminMessage.ConfigType.POSITION_CONFIG;
+        self.gotResponse = False
+        self._sendAdmin(p2, wantResponse=True, onResponse=self.onResponseRequestSettings)
+        while self.gotResponse is False:
+                time.sleep(0.1)
+
+        p3 = admin_pb2.AdminMessage()
+        p3.get_config_request = admin_pb2.AdminMessage.ConfigType.POWER_CONFIG;
+        self.gotResponse = False
+        self._sendAdmin(p3, wantResponse=True, onResponse=self.onResponseRequestSettings)
+        while self.gotResponse is False:
+                time.sleep(0.1)
+
+        p4 = admin_pb2.AdminMessage()
+        p4.get_config_request = admin_pb2.AdminMessage.ConfigType.WIFI_CONFIG;
+        self.gotResponse = False
+        self._sendAdmin(p4, wantResponse=True, onResponse=self.onResponseRequestSettings)
+        while self.gotResponse is False:
+                time.sleep(0.1)
+
+        p5 = admin_pb2.AdminMessage()
+        p5.get_config_request = admin_pb2.AdminMessage.ConfigType.DISPLAY_CONFIG;
+        self.gotResponse = False
+        self._sendAdmin(p5, wantResponse=True, onResponse=self.onResponseRequestSettings)
+        while self.gotResponse is False:
+                time.sleep(0.1)
+
+        p6 = admin_pb2.AdminMessage()
+        p6.get_config_request = admin_pb2.AdminMessage.ConfigType.LORA_CONFIG;
+        self.gotResponse = False
+        self._sendAdmin(p6, wantResponse=True, onResponse=self.onResponseRequestSettings)
+        while self.gotResponse is False:
+                time.sleep(0.1)
+
+        # TODO Assemble radioConfig
+
+        logging.debug("Received config, now fetching channels...")
+        self._requestChannel(0)  # now start fetching channels
 
     def onResponseRequestCannedMessagePluginMessagePart1(self, p):
         """Handle the response packet for requesting canned message plugin message part 1"""

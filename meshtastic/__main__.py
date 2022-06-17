@@ -16,7 +16,7 @@ import meshtastic.util
 import meshtastic.test
 from meshtastic import remote_hardware
 from meshtastic.ble_interface import BLEInterface
-from meshtastic import portnums_pb2, channel_pb2, radioconfig_pb2
+from meshtastic import portnums_pb2, channel_pb2, config_pb2
 from meshtastic.globals import Globals
 from meshtastic.__init__ import BROADCAST_ADDR
 
@@ -229,12 +229,12 @@ def onConnected(interface):
 
             try:
                 for field in args.pos_fields:
-                    v_field = radioconfig_pb2.PositionFlags.Value(field)
+                    v_field = config_pb2.PositionFlags.Value(field)
                     allFields |= v_field
 
             except ValueError:
                 print("ERROR: supported position fields are:")
-                print(radioconfig_pb2.PositionFlags.keys())
+                print(config_pb2.PositionFlags.keys())
                 print("If no fields are specified, will read and display current value.")
 
             else:
@@ -249,9 +249,9 @@ def onConnected(interface):
             prefs = interface.getNode(args.dest).radioConfig.preferences
 
             fieldNames = []
-            for bit in radioconfig_pb2.PositionFlags.values():
+            for bit in config_pb2.PositionFlags.values():
                 if prefs.position_flags & bit:
-                    fieldNames.append(radioconfig_pb2.PositionFlags.Name(bit))
+                    fieldNames.append(config_pb2.PositionFlags.Name(bit))
             print(' '.join(fieldNames))
 
         if args.set_team:

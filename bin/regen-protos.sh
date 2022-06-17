@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./nanopb-0.4.5/generator-bin/protoc -I=proto --python_out meshtastic `ls proto/*.proto`
+./nanopb-0.4.6/generator-bin/protoc -I=proto --python_out meshtastic `ls proto/*.proto`
 
 # workaround for import bug in protoc https://github.com/protocolbuffers/protobuf/issues/1491#issuecomment-690618628
 
