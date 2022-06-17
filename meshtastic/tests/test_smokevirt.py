@@ -220,26 +220,6 @@ def test_smokevirt_set_owner():
 
 
 @pytest.mark.smokevirt
-def test_smokevirt_set_team():
-    """Test --set-team """
-    # unset the team
-    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --set-team CLEAR')
-    assert re.match(r'Connected to radio', out)
-    assert re.search(r'^Setting team to CLEAR', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio
-    time.sleep(PAUSE_AFTER_REBOOT)
-    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --set-team CYAN')
-    assert re.search(r'Setting team to CYAN', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio
-    time.sleep(PAUSE_AFTER_REBOOT)
-    return_value, out = subprocess.getstatusoutput('meshtastic --host localhost --info')
-    assert re.search(r'CYAN', out, re.MULTILINE)
-    assert return_value == 0
-
-
-@pytest.mark.smokevirt
 def test_smokevirt_ch_values():
     """Test --ch-longslow, --ch-longfast, --ch-mediumslow, --ch-mediumsfast,
        --ch-shortslow, and --ch-shortfast arguments

@@ -254,19 +254,6 @@ def onConnected(interface):
                     fieldNames.append(config_pb2.PositionFlags.Name(bit))
             print(' '.join(fieldNames))
 
-        if args.set_team:
-            closeNow = True
-            try:
-                v_team = meshtastic.mesh_pb2.Team.Value(args.set_team.upper())
-            except ValueError:
-                v_team = 0
-                print(f"ERROR: Team \'{args.set_team}\' not found.")
-                print("Try a team name from the sorted list below, or use 'CLEAR' for unaffiliated:")
-                print(sorted(meshtastic.mesh_pb2.Team.keys()))
-            else:
-                print(f"Setting team to {meshtastic.mesh_pb2.Team.Name(v_team)}")
-                interface.getNode(args.dest).setOwner(team=v_team)
-
         if args.set_ham:
             closeNow = True
             print(f"Setting Ham ID to {args.set_ham} and turning off encryption")
@@ -850,9 +837,6 @@ def initParser():
         "--set-owner-short", help="Set device owner short name", action="store")
 
     parser.add_argument(
-        "--set-team", help="Set team affiliation (an invalid team will list valid values)", action="store")
-
-    parser.add_argument(
         "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store")
 
     parser.add_argument(
@@ -912,13 +896,6 @@ def initParser():
 
     parser.add_argument("--noproto", help="Don't start the API, just function as a dumb serial terminal.",
                         action="store_true")
-
-    parser.add_argument('--setchan', dest='deprecated', nargs=2, action='append',
-                        help='Deprecated, use "--ch-set param value" instead')
-    parser.add_argument('--set-router', dest='deprecated',
-                        action='store_true', help='Deprecated, use "--set is_router true" instead')
-    parser.add_argument('--unset-router', dest='deprecated',
-                        action='store_false', help='Deprecated, use "--set is_router false" instead')
 
     have_tunnel = platform.system() == 'Linux'
     if have_tunnel:
