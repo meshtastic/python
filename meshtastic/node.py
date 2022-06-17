@@ -86,7 +86,7 @@ class Node:
 
     def waitForConfig(self, attribute='channels'):
         """Block until radio config is received. Returns True if config has been received."""
-        return self._timeout.waitForSet(self, attrs=('radioConfig', attribute))
+        return self._timeout.waitForSet(self, attrs=('config', attribute))
 
     def writeConfig(self):
         """Write the current (edited) radioConfig to the device"""
@@ -214,7 +214,7 @@ class Node:
                     channelSet.settings.append(c.settings)
         some_bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(some_bytes).decode('ascii')
-        return f"https://www.meshtastic.org/d/#{s}".replace("=", "")
+        return f"https://www.meshtastic.org/e/#{s}".replace("=", "")
 
     def setURL(self, url):
         """Set mesh network URL"""
@@ -261,11 +261,12 @@ class Node:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 errorFound = True
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
-        if errorFound is False:
-            self.partialConfig[p["decoded"]["admin"]["payloadVariant"]] = p["decoded"]["admin"]["raw"].get_config_response
-            logging.debug(f'self.partialConfig:{self.partialConfig}')
-            self._timeout.reset()  # We made foreward progress
-            self.gotResponse = True
+        # TODO
+        #if errorFound is False:
+            #self.partialConfig[p["decoded"]["admin"]["payloadVariant"]] = p["decoded"]["admin"]["raw"].get_config_response
+            #logging.debug(f'self.partialConfig:{self.partialConfig}')
+            #self._timeout.reset()  # We made foreward progress
+            #self.gotResponse = True
 
     def _requestSettings(self):
         """Done with initial config messages, now send regular
@@ -281,48 +282,30 @@ class Node:
             print(" 3. All devices have the same modem config. (i.e., '--ch-longfast')")
             print(" 4. All devices have been rebooted after all of the above. (optional, but recommended)")
             print("Note: This could take a while (it requests remote channel configs, then writes config)")
-        
+
         p1 = admin_pb2.AdminMessage()
-        p1.get_config_request = admin_pb2.AdminMessage.ConfigType.DEVICE_CONFIG;
-        self.gotResponse = False
+        p1.get_config_request = admin_pb2.AdminMessage.ConfigType.DEVICE_CONFIG
         self._sendAdmin(p1, wantResponse=True, onResponse=self.onResponseRequestSettings)
-        while self.gotResponse is False:
-                time.sleep(0.1)
 
         p2 = admin_pb2.AdminMessage()
-        p2.get_config_request = admin_pb2.AdminMessage.ConfigType.POSITION_CONFIG;
-        self.gotResponse = False
+        p2.get_config_request = admin_pb2.AdminMessage.ConfigType.POSITION_CONFIG
         self._sendAdmin(p2, wantResponse=True, onResponse=self.onResponseRequestSettings)
-        while self.gotResponse is False:
-                time.sleep(0.1)
 
         p3 = admin_pb2.AdminMessage()
-        p3.get_config_request = admin_pb2.AdminMessage.ConfigType.POWER_CONFIG;
-        self.gotResponse = False
+        p3.get_config_request = admin_pb2.AdminMessage.ConfigType.POWER_CONFIG
         self._sendAdmin(p3, wantResponse=True, onResponse=self.onResponseRequestSettings)
-        while self.gotResponse is False:
-                time.sleep(0.1)
 
         p4 = admin_pb2.AdminMessage()
-        p4.get_config_request = admin_pb2.AdminMessage.ConfigType.WIFI_CONFIG;
-        self.gotResponse = False
+        p4.get_config_request = admin_pb2.AdminMessage.ConfigType.WIFI_CONFIG
         self._sendAdmin(p4, wantResponse=True, onResponse=self.onResponseRequestSettings)
-        while self.gotResponse is False:
-                time.sleep(0.1)
 
         p5 = admin_pb2.AdminMessage()
-        p5.get_config_request = admin_pb2.AdminMessage.ConfigType.DISPLAY_CONFIG;
-        self.gotResponse = False
+        p5.get_config_request = admin_pb2.AdminMessage.ConfigType.DISPLAY_CONFIG
         self._sendAdmin(p5, wantResponse=True, onResponse=self.onResponseRequestSettings)
-        while self.gotResponse is False:
-                time.sleep(0.1)
 
         p6 = admin_pb2.AdminMessage()
-        p6.get_config_request = admin_pb2.AdminMessage.ConfigType.LORA_CONFIG;
-        self.gotResponse = False
+        p6.get_config_request = admin_pb2.AdminMessage.ConfigType.LORA_CONFIG
         self._sendAdmin(p6, wantResponse=True, onResponse=self.onResponseRequestSettings)
-        while self.gotResponse is False:
-                time.sleep(0.1)
 
         # TODO Assemble radioConfig
 
