@@ -1,7 +1,7 @@
 """Meshtastic unit tests for stream_interface.py"""
 
 import logging
-import re
+#import re
 
 from unittest.mock import MagicMock
 import pytest
