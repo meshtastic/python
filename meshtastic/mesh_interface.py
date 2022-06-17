@@ -362,11 +362,9 @@ class MeshInterface:
 
     def waitForConfig(self):
         """Block until radio config is received. Returns True if config has been received."""
-        # TODO
-        return True
-        #success = self._timeout.waitForSet(self, attrs=('myInfo', 'nodes')) and self.localNode.waitForConfig()
-        #if not success:
-            #raise Exception("Timed out waiting for interface config")
+        success = self._timeout.waitForSet(self, attrs=('myInfo', 'nodes')) and self.localNode.waitForConfig()
+        if not success:
+            raise Exception("Timed out waiting for interface config")
 
     def getMyNodeInfo(self):
         """Get info about my node."""

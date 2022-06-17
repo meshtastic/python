@@ -64,7 +64,6 @@ class Node:
         """Send regular MeshPackets to ask for settings and channels."""
         logging.debug(f"requestConfig for nodeNum:{self.nodeNum}")
         self.radioConfig = None
-        self.partialConfig = []
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
 
