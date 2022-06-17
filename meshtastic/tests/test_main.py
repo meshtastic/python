@@ -1486,24 +1486,6 @@ def test_main_get_with_invalid(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
-def test_main_setchan(capsys):
-    """Test --setchan (deprecated)"""
-    sys.argv = ['', '--setchan', 'a', 'b']
-    Globals.getInstance().set_args(sys.argv)
-
-    iface = MagicMock(autospec=SerialInterface)
-
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface):
-        with pytest.raises(SystemExit) as pytest_wrapped_e:
-            main()
-        assert pytest_wrapped_e.type == SystemExit
-        assert pytest_wrapped_e.value.code == 1
-        _, err = capsys.readouterr()
-        assert re.search(r'usage:', err, re.MULTILINE)
-
-
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
 def test_main_onReceive_empty(caplog, capsys):
     """Test onReceive"""
     args = MagicMock()
