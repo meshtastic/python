@@ -215,26 +215,6 @@ def test_smoke1_set_owner():
 
 
 @pytest.mark.smoke1
-def test_smoke1_set_team():
-    """Test --set-team """
-    # unset the team
-    return_value, out = subprocess.getstatusoutput('meshtastic --set-team CLEAR')
-    assert re.match(r'Connected to radio', out)
-    assert re.search(r'^Setting team to CLEAR', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio
-    time.sleep(PAUSE_AFTER_REBOOT)
-    return_value, out = subprocess.getstatusoutput('meshtastic --set-team CYAN')
-    assert re.search(r'Setting team to CYAN', out, re.MULTILINE)
-    assert return_value == 0
-    # pause for the radio
-    time.sleep(PAUSE_AFTER_REBOOT)
-    return_value, out = subprocess.getstatusoutput('meshtastic --info')
-    assert re.search(r'CYAN', out, re.MULTILINE)
-    assert return_value == 0
-
-
-@pytest.mark.smoke1
 def test_smoke1_ch_set_modem_config():
     """Test --ch-set modem_config"""
     return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config MidFast')

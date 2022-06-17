@@ -76,7 +76,7 @@ class Node:
         self.cannedPluginMessagePart3 = None
         self.cannedPluginMessagePart4 = None
 
-        self._requestSettings()
+        self._requestChannel(0)
 
     def turnOffEncryptionOnPrimaryChannel(self):
         """Turn off encryption on primary channel."""
@@ -165,7 +165,7 @@ class Node:
         else:
             return 0
 
-    def setOwner(self, long_name=None, short_name=None, is_licensed=False, team=None):
+    def setOwner(self, long_name=None, short_name=None, is_licensed=False):
         """Set device owner name"""
         logging.debug(f"in setOwner nodeNum:{self.nodeNum}")
         nChars = 3
@@ -194,14 +194,11 @@ class Node:
                 short_name = short_name[:nChars]
             p.set_owner.short_name = short_name
             p.set_owner.is_licensed = is_licensed
-        if team is not None:
-            p.set_owner.team = team
 
         # Note: These debug lines are used in unit tests
         logging.debug(f'p.set_owner.long_name:{p.set_owner.long_name}:')
         logging.debug(f'p.set_owner.short_name:{p.set_owner.short_name}:')
         logging.debug(f'p.set_owner.is_licensed:{p.set_owner.is_licensed}')
-        logging.debug(f'p.set_owner.team:{p.set_owner.team}')
         return self._sendAdmin(p)
 
     def getURL(self, includeAll: bool = True):
@@ -251,66 +248,6 @@ class Node:
             logging.debug(f'Channel i:{i} ch:{ch}')
             self.writeChannel(ch.index)
             i = i + 1
-
-
-    def onResponseRequestSettings(self, p):
-        """Handle the response packets for requesting settings _requestSettings()"""
-        logging.debug(f'onResponseRequestSetting() p:{p}')
-        errorFound = False
-        if "routing" in p["decoded"]:
-            if p["decoded"]["routing"]["errorReason"] != "NONE":
-                errorFound = True
-                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
-        # TODO
-        #if errorFound is False:
-            #self.partialConfig[p["decoded"]["admin"]["payloadVariant"]] = p["decoded"]["admin"]["raw"].get_config_response
-            #logging.debug(f'self.partialConfig:{self.partialConfig}')
-            #self._timeout.reset()  # We made foreward progress
-            #self.gotResponse = True
-
-    def _requestSettings(self):
-        """Done with initial config messages, now send regular
-           MeshPackets to ask for settings."""
-
-        # TODO: should we check that localNode has an 'admin' channel?
-        # Show progress message for super slow operations
-        if self != self.iface.localNode:
-            print("Requesting preferences from remote node.")
-            print("Be sure:")
-            print(" 1. There is a SECONDARY channel named 'admin'.")
-            print(" 2. The '--seturl' was used to configure.")
-            print(" 3. All devices have the same modem config. (i.e., '--ch-longfast')")
-            print(" 4. All devices have been rebooted after all of the above. (optional, but recommended)")
-            print("Note: This could take a while (it requests remote channel configs, then writes config)")
-
-        p1 = admin_pb2.AdminMessage()
-        p1.get_config_request = admin_pb2.AdminMessage.ConfigType.DEVICE_CONFIG
-        self._sendAdmin(p1, wantResponse=True, onResponse=self.onResponseRequestSettings)
-
-        p2 = admin_pb2.AdminMessage()
-        p2.get_config_request = admin_pb2.AdminMessage.ConfigType.POSITION_CONFIG
-        self._sendAdmin(p2, wantResponse=True, onResponse=self.onResponseRequestSettings)
-
-        p3 = admin_pb2.AdminMessage()
-        p3.get_config_request = admin_pb2.AdminMessage.ConfigType.POWER_CONFIG
-        self._sendAdmin(p3, wantResponse=True, onResponse=self.onResponseRequestSettings)
-
-        p4 = admin_pb2.AdminMessage()
-        p4.get_config_request = admin_pb2.AdminMessage.ConfigType.WIFI_CONFIG
-        self._sendAdmin(p4, wantResponse=True, onResponse=self.onResponseRequestSettings)
-
-        p5 = admin_pb2.AdminMessage()
-        p5.get_config_request = admin_pb2.AdminMessage.ConfigType.DISPLAY_CONFIG
-        self._sendAdmin(p5, wantResponse=True, onResponse=self.onResponseRequestSettings)
-
-        p6 = admin_pb2.AdminMessage()
-        p6.get_config_request = admin_pb2.AdminMessage.ConfigType.LORA_CONFIG
-        self._sendAdmin(p6, wantResponse=True, onResponse=self.onResponseRequestSettings)
-
-        # TODO Assemble radioConfig
-
-        logging.debug("Received config, now fetching channels...")
-        self._requestChannel(0)  # now start fetching channels
 
     def onResponseRequestCannedMessagePluginMessagePart1(self, p):
         """Handle the response packet for requesting canned message plugin message part 1"""

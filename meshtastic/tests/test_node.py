@@ -166,19 +166,6 @@ from ..channel_pb2 import Channel
 
 # TODO
 #@pytest.mark.unit
-#def test_setOwner_and_team(caplog):
-#    """Test setOwner"""
-#    anode = Node('foo', 'bar', noProto=True)
-#    with caplog.at_level(logging.DEBUG):
-#        anode.setOwner(long_name ='Test123', short_name='123', team=1)
-#    assert re.search(r'p.set_owner.long_name:Test123:', caplog.text, re.MULTILINE)
-#    assert re.search(r'p.set_owner.short_name:123:', caplog.text, re.MULTILINE)
-#    assert re.search(r'p.set_owner.is_licensed:False', caplog.text, re.MULTILINE)
-#    assert re.search(r'p.set_owner.team:1', caplog.text, re.MULTILINE)
-
-
-# TODO
-#@pytest.mark.unit
 #def test_setOwnerShort(caplog):
 #    """Test setOwner"""
 #    anode = Node('foo', 'bar', noProto=True)
@@ -197,7 +184,6 @@ from ..channel_pb2 import Channel
 #    assert re.search(r'p.set_owner.long_name:Test123:', caplog.text, re.MULTILINE)
 #    assert re.search(r'p.set_owner.short_name:Tst:', caplog.text, re.MULTILINE)
 #    assert re.search(r'p.set_owner.is_licensed:False', caplog.text, re.MULTILINE)
-#    assert re.search(r'p.set_owner.team:0', caplog.text, re.MULTILINE)
 
 
 # TODO
@@ -210,7 +196,6 @@ from ..channel_pb2 import Channel
 #    assert re.search(r'p.set_owner.long_name:Tnt:', caplog.text, re.MULTILINE)
 #    assert re.search(r'p.set_owner.short_name:Tnt:', caplog.text, re.MULTILINE)
 #    assert re.search(r'p.set_owner.is_licensed:False', caplog.text, re.MULTILINE)
-#    assert re.search(r'p.set_owner.team:0', caplog.text, re.MULTILINE)
 
 
 # TODO
@@ -223,7 +208,6 @@ from ..channel_pb2 import Channel
 #    assert re.search(r'p.set_owner.long_name:A B C:', caplog.text, re.MULTILINE)
 #    assert re.search(r'p.set_owner.short_name:ABC:', caplog.text, re.MULTILINE)
 #    assert re.search(r'p.set_owner.is_licensed:True', caplog.text, re.MULTILINE)
-#    assert re.search(r'p.set_owner.team:0', caplog.text, re.MULTILINE)
 
 
 # TODO

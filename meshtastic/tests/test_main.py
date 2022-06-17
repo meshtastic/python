@@ -789,63 +789,6 @@ def test_main_setalt(capsys):
         assert err == ''
         mo.assert_called()
 
-
-# TODO
-#@pytest.mark.unit
-#@pytest.mark.usefixtures("reset_globals")
-#def test_main_set_team_valid(capsys):
-#    """Test --set-team"""
-#    sys.argv = ['', '--set-team', 'CYAN']
-#    Globals.getInstance().set_args(sys.argv)
-#
-#    mocked_node = MagicMock(autospec=Node)
-#    def mock_setOwner(team):
-#        print('inside mocked setOwner')
-#        print(f'{team}')
-#    mocked_node.setOwner.side_effect = mock_setOwner
-#
-#    iface = MagicMock(autospec=SerialInterface)
-#    iface.localNode.return_value = mocked_node
-#
-#    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-#        with patch('meshtastic.mesh_pb2.Team') as mm:
-#            mm.Name.return_value = 'FAKENAME'
-#            mm.Value.return_value = 'FAKEVAL'
-#            main()
-#            out, err = capsys.readouterr()
-#            assert re.search(r'Connected to radio', out, re.MULTILINE)
-#            assert re.search(r'Setting team to', out, re.MULTILINE)
-#            assert err == ''
-#            mo.assert_called()
-#            mm.Name.assert_called()
-#            mm.Value.assert_called()
-#
-
-# TODO
-#@pytest.mark.unit
-#@pytest.mark.usefixtures("reset_globals")
-#def test_main_set_team_invalid(capsys):
-#    """Test --set-team using an invalid team name"""
-#    sys.argv = ['', '--set-team', 'NOTCYAN']
-#    Globals.getInstance().set_args(sys.argv)
-#
-#    iface = MagicMock(autospec=SerialInterface)
-#
-#    def throw_an_exception(exc):
-#        raise ValueError("Fake exception.")
-#
-#    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-#        with patch('meshtastic.mesh_pb2.Team') as mm:
-#            mm.Value.side_effect = throw_an_exception
-#            main()
-#            out, err = capsys.readouterr()
-#            assert re.search(r'Connected to radio', out, re.MULTILINE)
-#            assert re.search(r'ERROR: Team', out, re.MULTILINE)
-#            assert err == ''
-#            mo.assert_called()
-#            mm.Value.assert_called()
-
-
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
 def test_main_seturl(capsys):
