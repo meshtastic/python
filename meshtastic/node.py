@@ -214,7 +214,7 @@ class Node:
                     channelSet.settings.append(c.settings)
         some_bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(some_bytes).decode('ascii')
-        return f"https://www.meshtastic.org/d/#{s}".replace("=", "")
+        return f"https://www.meshtastic.org/e/#{s}".replace("=", "")
 
     def setURL(self, url):
         """Set mesh network URL"""
