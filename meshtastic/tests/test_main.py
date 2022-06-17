@@ -12,13 +12,13 @@ import pytest
 
 from meshtastic.__main__ import initParser, main, Globals, onReceive, onConnection, export_config, getPref, setPref, onNode, tunnelMain
 #from ..radioconfig_pb2 import UserPreferences
-import meshtastic.config_pb2
+#import meshtastic.config_pb2
 from ..serial_interface import SerialInterface
 from ..tcp_interface import TCPInterface
 #from ..ble_interface import BLEInterface
 from ..node import Node
 from ..channel_pb2 import Channel
-from ..remote_hardware import onGPIOreceive
+#from ..remote_hardware import onGPIOreceive
 #from ..config_pb2 import Config
 
 
