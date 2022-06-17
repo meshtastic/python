@@ -362,9 +362,11 @@ class MeshInterface:
 
     def waitForConfig(self):
         """Block until radio config is received. Returns True if config has been received."""
-        success = self._timeout.waitForSet(self, attrs=('myInfo', 'nodes')) and self.localNode.waitForConfig()
-        if not success:
-            raise Exception("Timed out waiting for interface config")
+        # TODO
+        return True
+        #success = self._timeout.waitForSet(self, attrs=('myInfo', 'nodes')) and self.localNode.waitForConfig()
+        #if not success:
+            #raise Exception("Timed out waiting for interface config")
 
     def getMyNodeInfo(self):
         """Get info about my node."""
@@ -422,8 +424,10 @@ class MeshInterface:
         """We need to send a heartbeat message to the device every X seconds"""
         def callback():
             self.heartbeatTimer = None
-            prefs = self.localNode.radioConfig.preferences
-            i = prefs.phone_timeout_secs / 2
+            # TODO
+            # prefs = self.localNode.radioConfig.preferences
+            #i = prefs.phone_timeout_secs / 2
+            i = 0
             logging.debug(f"Sending heartbeat, interval {i}")
             if i != 0:
                 self.heartbeatTimer = threading.Timer(i, callback)
@@ -540,6 +544,21 @@ class MeshInterface:
             MeshInterface._disconnected(self)
 
             self._startConfig()  # redownload the node db etc...
+        elif fromRadio.config:
+            logging.debug("Hey! We got some configs")
+            if fromRadio.config.HasField("device"):
+                logging.debug("device!")
+                # TODO: do something with this config
+            elif fromRadio.config.HasField("position"):
+                logging.debug("position!")
+            elif fromRadio.config.HasField("power"):
+                logging.debug("power!")
+            elif fromRadio.config.HasField("wifi"):
+                logging.debug("wifi!")
+            elif fromRadio.config.HasField("display"):
+                logging.debug("display!")
+            elif fromRadio.config.HasField("lora"):
+                logging.debug("lora!")
         else:
             logging.debug("Unexpected FromRadio payload")
 

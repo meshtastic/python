@@ -131,9 +131,9 @@ class StreamInterface(MeshInterface):
 
         try:
             while not self._wantExit:
-                logging.debug("reading character")
+                #logging.debug("reading character")
                 b = self._readBytes(1)
-                logging.debug("In reader loop")
+                #logging.debug("In reader loop")
                 #logging.debug(f"read returned {b}")
                 if len(b) > 0:
                     c = b[0]
