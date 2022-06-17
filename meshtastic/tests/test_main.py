@@ -790,58 +790,60 @@ def test_main_setalt(capsys):
         mo.assert_called()
 
 
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
-def test_main_set_team_valid(capsys):
-    """Test --set-team"""
-    sys.argv = ['', '--set-team', 'CYAN']
-    Globals.getInstance().set_args(sys.argv)
+# TODO
+#@pytest.mark.unit
+#@pytest.mark.usefixtures("reset_globals")
+#def test_main_set_team_valid(capsys):
+#    """Test --set-team"""
+#    sys.argv = ['', '--set-team', 'CYAN']
+#    Globals.getInstance().set_args(sys.argv)
+#
+#    mocked_node = MagicMock(autospec=Node)
+#    def mock_setOwner(team):
+#        print('inside mocked setOwner')
+#        print(f'{team}')
+#    mocked_node.setOwner.side_effect = mock_setOwner
+#
+#    iface = MagicMock(autospec=SerialInterface)
+#    iface.localNode.return_value = mocked_node
+#
+#    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+#        with patch('meshtastic.mesh_pb2.Team') as mm:
+#            mm.Name.return_value = 'FAKENAME'
+#            mm.Value.return_value = 'FAKEVAL'
+#            main()
+#            out, err = capsys.readouterr()
+#            assert re.search(r'Connected to radio', out, re.MULTILINE)
+#            assert re.search(r'Setting team to', out, re.MULTILINE)
+#            assert err == ''
+#            mo.assert_called()
+#            mm.Name.assert_called()
+#            mm.Value.assert_called()
+#
 
-    mocked_node = MagicMock(autospec=Node)
-    def mock_setOwner(team):
-        print('inside mocked setOwner')
-        print(f'{team}')
-    mocked_node.setOwner.side_effect = mock_setOwner
-
-    iface = MagicMock(autospec=SerialInterface)
-    iface.localNode.return_value = mocked_node
-
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        with patch('meshtastic.mesh_pb2.Team') as mm:
-            mm.Name.return_value = 'FAKENAME'
-            mm.Value.return_value = 'FAKEVAL'
-            main()
-            out, err = capsys.readouterr()
-            assert re.search(r'Connected to radio', out, re.MULTILINE)
-            assert re.search(r'Setting team to', out, re.MULTILINE)
-            assert err == ''
-            mo.assert_called()
-            mm.Name.assert_called()
-            mm.Value.assert_called()
-
-
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
-def test_main_set_team_invalid(capsys):
-    """Test --set-team using an invalid team name"""
-    sys.argv = ['', '--set-team', 'NOTCYAN']
-    Globals.getInstance().set_args(sys.argv)
-
-    iface = MagicMock(autospec=SerialInterface)
-
-    def throw_an_exception(exc):
-        raise ValueError("Fake exception.")
-
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        with patch('meshtastic.mesh_pb2.Team') as mm:
-            mm.Value.side_effect = throw_an_exception
-            main()
-            out, err = capsys.readouterr()
-            assert re.search(r'Connected to radio', out, re.MULTILINE)
-            assert re.search(r'ERROR: Team', out, re.MULTILINE)
-            assert err == ''
-            mo.assert_called()
-            mm.Value.assert_called()
+# TODO
+#@pytest.mark.unit
+#@pytest.mark.usefixtures("reset_globals")
+#def test_main_set_team_invalid(capsys):
+#    """Test --set-team using an invalid team name"""
+#    sys.argv = ['', '--set-team', 'NOTCYAN']
+#    Globals.getInstance().set_args(sys.argv)
+#
+#    iface = MagicMock(autospec=SerialInterface)
+#
+#    def throw_an_exception(exc):
+#        raise ValueError("Fake exception.")
+#
+#    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+#        with patch('meshtastic.mesh_pb2.Team') as mm:
+#            mm.Value.side_effect = throw_an_exception
+#            main()
+#            out, err = capsys.readouterr()
+#            assert re.search(r'Connected to radio', out, re.MULTILINE)
+#            assert re.search(r'ERROR: Team', out, re.MULTILINE)
+#            assert err == ''
+#            mo.assert_called()
+#            mm.Value.assert_called()
 
 
 @pytest.mark.unit
@@ -1302,28 +1304,29 @@ def test_main_ch_enable_primary_channel(capsys):
         mo.assert_called()
 
 
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
-def test_main_ch_range_options(capsys):
-    """Test changing the various range options."""
-    range_options = ['--ch-vlongslow', '--ch-longslow', '--ch-longfast', '--ch-midslow',
-                     '--ch-midfast', '--ch-shortslow', '--ch-shortfast']
-    for range_option in range_options:
-        sys.argv = ['', f"{range_option}" ]
-        Globals.getInstance().set_args(sys.argv)
-
-        mocked_node = MagicMock(autospec=Node)
-
-        iface = MagicMock(autospec=SerialInterface)
-        iface.getNode.return_value = mocked_node
-
-        with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-            main()
-            out, err = capsys.readouterr()
-            assert re.search(r'Connected to radio', out, re.MULTILINE)
-            assert re.search(r'Writing modified channels', out, re.MULTILINE)
-            assert err == ''
-            mo.assert_called()
+# TODO
+#@pytest.mark.unit
+#@pytest.mark.usefixtures("reset_globals")
+#def test_main_ch_range_options(capsys):
+#    """Test changing the various range options."""
+#    range_options = ['--ch-vlongslow', '--ch-longslow', '--ch-longfast', '--ch-midslow',
+#                     '--ch-midfast', '--ch-shortslow', '--ch-shortfast']
+#    for range_option in range_options:
+#        sys.argv = ['', f"{range_option}" ]
+#        Globals.getInstance().set_args(sys.argv)
+#
+#        mocked_node = MagicMock(autospec=Node)
+#
+#        iface = MagicMock(autospec=SerialInterface)
+#        iface.getNode.return_value = mocked_node
+#
+#        with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+#            main()
+#            out, err = capsys.readouterr()
+#            assert re.search(r'Connected to radio', out, re.MULTILINE)
+#            assert re.search(r'Writing modified channels', out, re.MULTILINE)
+#            assert err == ''
+#            mo.assert_called()
 
 
 @pytest.mark.unit
@@ -1364,121 +1367,125 @@ def test_main_ch_longsfast_on_non_primary_channel(capsys):
 # POS_SEQ_NOS 128
 # POS_TIMESTAMP 256
 
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
-def test_main_pos_fields_no_args(capsys):
-    """Test --pos-fields no args (which shows settings)"""
-    sys.argv = ['', '--pos-fields']
-    Globals.getInstance().set_args(sys.argv)
-
-    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
-
-    with patch('meshtastic.serial_interface.SerialInterface') as mo:
-        mo().getNode().radioConfig.preferences.position_flags = 35
-        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
-
-            mrc.values.return_value = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256]
-            # Note: When you use side_effect and a list, each call will use a value from the front of the list then
-            # remove that value from the list. If there are three values in the list, we expect it to be called
-            # three times.
-            mrc.Name.side_effect = ['POS_ALTITUDE', 'POS_ALT_MSL', 'POS_BATTERY']
-
-            main()
-
-            mrc.Name.assert_called()
-            mrc.values.assert_called()
-            mo.assert_called()
-
-            out, err = capsys.readouterr()
-            assert re.search(r'Connected to radio', out, re.MULTILINE)
-            assert re.search(r'POS_ALTITUDE POS_ALT_MSL POS_BATTERY', out, re.MULTILINE)
-            assert err == ''
-
-
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
-def test_main_pos_fields_arg_of_zero(capsys):
-    """Test --pos-fields an arg of 0 (which shows list)"""
-    sys.argv = ['', '--pos-fields', '0']
-    Globals.getInstance().set_args(sys.argv)
-
-    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
-
-    with patch('meshtastic.serial_interface.SerialInterface') as mo:
-        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
-
-            def throw_value_error_exception(exc):
-                raise ValueError()
-            mrc.Value.side_effect = throw_value_error_exception
-            mrc.keys.return_value = [ 'POS_UNDEFINED', 'POS_ALTITUDE', 'POS_ALT_MSL',
-                                      'POS_GEO_SEP', 'POS_DOP', 'POS_HVDOP', 'POS_BATTERY',
-                                      'POS_SATINVIEW', 'POS_SEQ_NOS', 'POS_TIMESTAMP']
-
-            main()
-
-            mrc.Value.assert_called()
-            mrc.keys.assert_called()
-            mo.assert_called()
-
-            out, err = capsys.readouterr()
-            assert re.search(r'Connected to radio', out, re.MULTILINE)
-            assert re.search(r'ERROR: supported position fields are:', out, re.MULTILINE)
-            assert re.search(r"['POS_UNDEFINED', 'POS_ALTITUDE', 'POS_ALT_MSL', 'POS_GEO_SEP',"\
-                              "'POS_DOP', 'POS_HVDOP', 'POS_BATTERY', 'POS_SATINVIEW', 'POS_SEQ_NOS',"\
-                              "'POS_TIMESTAMP']", out, re.MULTILINE)
-            assert err == ''
+# TODO
+#@pytest.mark.unit
+#@pytest.mark.usefixtures("reset_globals")
+#def test_main_pos_fields_no_args(capsys):
+#    """Test --pos-fields no args (which shows settings)"""
+#    sys.argv = ['', '--pos-fields']
+#    Globals.getInstance().set_args(sys.argv)
+#
+#    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
+#
+#    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+#        mo().getNode().radioConfig.preferences.position_flags = 35
+#        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
+#
+#            mrc.values.return_value = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256]
+#            # Note: When you use side_effect and a list, each call will use a value from the front of the list then
+#            # remove that value from the list. If there are three values in the list, we expect it to be called
+#            # three times.
+#            mrc.Name.side_effect = ['POS_ALTITUDE', 'POS_ALT_MSL', 'POS_BATTERY']
+#
+#            main()
+#
+#            mrc.Name.assert_called()
+#            mrc.values.assert_called()
+#            mo.assert_called()
+#
+#            out, err = capsys.readouterr()
+#            assert re.search(r'Connected to radio', out, re.MULTILINE)
+#            assert re.search(r'POS_ALTITUDE POS_ALT_MSL POS_BATTERY', out, re.MULTILINE)
+#            assert err == ''
 
 
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
-def test_main_pos_fields_valid_values(capsys):
-    """Test --pos-fields with valid values"""
-    sys.argv = ['', '--pos-fields', 'POS_GEO_SEP', 'POS_ALT_MSL']
-    Globals.getInstance().set_args(sys.argv)
+# TODO
+#@pytest.mark.unit
+#@pytest.mark.usefixtures("reset_globals")
+#def test_main_pos_fields_arg_of_zero(capsys):
+#    """Test --pos-fields an arg of 0 (which shows list)"""
+#    sys.argv = ['', '--pos-fields', '0']
+#    Globals.getInstance().set_args(sys.argv)
+#
+#    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
+#
+#    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+#        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
+#
+#            def throw_value_error_exception(exc):
+#                raise ValueError()
+#            mrc.Value.side_effect = throw_value_error_exception
+#            mrc.keys.return_value = [ 'POS_UNDEFINED', 'POS_ALTITUDE', 'POS_ALT_MSL',
+#                                      'POS_GEO_SEP', 'POS_DOP', 'POS_HVDOP', 'POS_BATTERY',
+#                                      'POS_SATINVIEW', 'POS_SEQ_NOS', 'POS_TIMESTAMP']
+#
+#            main()
+#
+#            mrc.Value.assert_called()
+#            mrc.keys.assert_called()
+#            mo.assert_called()
+#
+#            out, err = capsys.readouterr()
+#            assert re.search(r'Connected to radio', out, re.MULTILINE)
+#            assert re.search(r'ERROR: supported position fields are:', out, re.MULTILINE)
+#            assert re.search(r"['POS_UNDEFINED', 'POS_ALTITUDE', 'POS_ALT_MSL', 'POS_GEO_SEP',"\
+#                              "'POS_DOP', 'POS_HVDOP', 'POS_BATTERY', 'POS_SATINVIEW', 'POS_SEQ_NOS',"\
+#                              "'POS_TIMESTAMP']", out, re.MULTILINE)
+#            assert err == ''
 
-    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
 
-    with patch('meshtastic.serial_interface.SerialInterface') as mo:
-        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
+# TODO
+#@pytest.mark.unit
+#@pytest.mark.usefixtures("reset_globals")
+#def test_main_pos_fields_valid_values(capsys):
+#    """Test --pos-fields with valid values"""
+#    sys.argv = ['', '--pos-fields', 'POS_GEO_SEP', 'POS_ALT_MSL']
+#    Globals.getInstance().set_args(sys.argv)
+#
+#    pos_flags = MagicMock(autospec=meshtastic.radioconfig_pb2.PositionFlags)
+#
+#    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+#        with patch('meshtastic.radioconfig_pb2.PositionFlags', return_value=pos_flags) as mrc:
+#
+#            mrc.Value.side_effect = [ 4, 2 ]
+#
+#            main()
+#
+#            mrc.Value.assert_called()
+#            mo.assert_called()
+#
+#            out, err = capsys.readouterr()
+#            assert re.search(r'Connected to radio', out, re.MULTILINE)
+#            assert re.search(r'Setting position fields to 6', out, re.MULTILINE)
+#            assert re.search(r'Set position_flags to 6', out, re.MULTILINE)
+#            assert re.search(r'Writing modified preferences to device', out, re.MULTILINE)
+#            assert err == ''
 
-            mrc.Value.side_effect = [ 4, 2 ]
 
-            main()
-
-            mrc.Value.assert_called()
-            mo.assert_called()
-
-            out, err = capsys.readouterr()
-            assert re.search(r'Connected to radio', out, re.MULTILINE)
-            assert re.search(r'Setting position fields to 6', out, re.MULTILINE)
-            assert re.search(r'Set position_flags to 6', out, re.MULTILINE)
-            assert re.search(r'Writing modified preferences to device', out, re.MULTILINE)
-            assert err == ''
-
-
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
-def test_main_get_with_valid_values(capsys):
-    """Test --get with valid values (with string, number, boolean)"""
-    sys.argv = ['', '--get', 'ls_secs', '--get', 'wifi_ssid', '--get', 'fixed_position']
-    Globals.getInstance().set_args(sys.argv)
-
-    with patch('meshtastic.serial_interface.SerialInterface') as mo:
-
-        mo().getNode().radioConfig.preferences.wifi_ssid = 'foo'
-        mo().getNode().radioConfig.preferences.ls_secs = 300
-        mo().getNode().radioConfig.preferences.fixed_position = False
-
-        main()
-
-        mo.assert_called()
-
-        out, err = capsys.readouterr()
-        assert re.search(r'Connected to radio', out, re.MULTILINE)
-        assert re.search(r'ls_secs: 300', out, re.MULTILINE)
-        assert re.search(r'wifi_ssid: foo', out, re.MULTILINE)
-        assert re.search(r'fixed_position: False', out, re.MULTILINE)
-        assert err == ''
+# TODO
+#@pytest.mark.unit
+#@pytest.mark.usefixtures("reset_globals")
+#def test_main_get_with_valid_values(capsys):
+#    """Test --get with valid values (with string, number, boolean)"""
+#    sys.argv = ['', '--get', 'ls_secs', '--get', 'wifi_ssid', '--get', 'fixed_position']
+#    Globals.getInstance().set_args(sys.argv)
+#
+#    with patch('meshtastic.serial_interface.SerialInterface') as mo:
+#
+#        mo().getNode().radioConfig.preferences.wifi_ssid = 'foo'
+#        mo().getNode().radioConfig.preferences.ls_secs = 300
+#        mo().getNode().radioConfig.preferences.fixed_position = False
+#
+#        main()
+#
+#        mo.assert_called()
+#
+#        out, err = capsys.readouterr()
+#        assert re.search(r'Connected to radio', out, re.MULTILINE)
+#        assert re.search(r'ls_secs: 300', out, re.MULTILINE)
+#        assert re.search(r'wifi_ssid: foo', out, re.MULTILINE)
+#        assert re.search(r'fixed_position: False', out, re.MULTILINE)
+#        assert err == ''
 
 
 @pytest.mark.unit
@@ -1811,207 +1818,212 @@ def test_main_gpio_rd_no_dest(capsys):
         assert err == ''
 
 
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
-@patch('time.sleep')
-def test_main_gpio_rd(caplog, capsys):
-    """Test --gpio_rd with a named gpio channel"""
-    # Note: On the Heltec v2.1, there is a GPIO pin GPIO 13 that does not have a
-    # red arrow (meaning ok to use for our purposes)
-    # See https://resource.heltec.cn/download/WiFi_LoRa_32/WIFI_LoRa_32_V2.pdf
-    # To find out the mask for GPIO 13, let us assign n as 13.
-    # 1. Find the 2^n or 2^13 (8192)
-    # 2. Convert 8192 decimal to hex (0x2000)
-    # You can use python:
-    # >>> print(hex(2**13))
-    # 0x2000
-    sys.argv = ['', '--gpio-rd', '0x1000', '--dest', '!1234']
-    Globals.getInstance().set_args(sys.argv)
-
-    channel = Channel(index=1, role=1)
-    channel.settings.modem_config = 3
-    channel.settings.psk = b'\x01'
-
-    packet = {
-
-            'from': 682968668,
-            'to': 682968612,
-            'channel': 1,
-            'decoded': {
-                'portnum': 'REMOTE_HARDWARE_APP',
-                'payload': b'\x08\x05\x18\x80 ',
-                'requestId': 1629980484,
-                'remotehw': {
-                    'typ': 'READ_GPIOS_REPLY',
-                    'gpioValue': '4096',
-                    'raw': 'faked',
-                    'id': 1693085229,
-                    'rxTime': 1640294262,
-                    'rxSnr': 4.75,
-                    'hopLimit': 3,
-                    'wantAck': True,
-                    }
-                }
-            }
-
-    iface = MagicMock(autospec=SerialInterface)
-    iface.localNode.getChannelByName.return_value = channel
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        with caplog.at_level(logging.DEBUG):
-            main()
-            onGPIOreceive(packet, mo)
-    out, err = capsys.readouterr()
-    assert re.search(r'Connected to radio', out, re.MULTILINE)
-    assert re.search(r'Reading GPIO mask 0x1000 ', out, re.MULTILINE)
-    assert re.search(r'Received RemoteHardware typ=READ_GPIOS_REPLY, gpio_value=4096', out, re.MULTILINE)
-    assert err == ''
-
-
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
-@patch('time.sleep')
-def test_main_gpio_rd_with_no_gpioMask(caplog, capsys):
-    """Test --gpio_rd with a named gpio channel"""
-    sys.argv = ['', '--gpio-rd', '0x1000', '--dest', '!1234']
-    Globals.getInstance().set_args(sys.argv)
-
-    channel = Channel(index=1, role=1)
-    channel.settings.modem_config = 3
-    channel.settings.psk = b'\x01'
-
-    # Note: Intentionally do not have gpioValue in response as that is the
-    # default value
-    packet = {
-            'from': 682968668,
-            'to': 682968612,
-            'channel': 1,
-            'decoded': {
-                'portnum': 'REMOTE_HARDWARE_APP',
-                'payload': b'\x08\x05\x18\x80 ',
-                'requestId': 1629980484,
-                'remotehw': {
-                    'typ': 'READ_GPIOS_REPLY',
-                    'raw': 'faked',
-                    'id': 1693085229,
-                    'rxTime': 1640294262,
-                    'rxSnr': 4.75,
-                    'hopLimit': 3,
-                    'wantAck': True,
-                    }
-                }
-            }
-
-    iface = MagicMock(autospec=SerialInterface)
-    iface.localNode.getChannelByName.return_value = channel
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        with caplog.at_level(logging.DEBUG):
-            main()
-            onGPIOreceive(packet, mo)
-    out, err = capsys.readouterr()
-    assert re.search(r'Connected to radio', out, re.MULTILINE)
-    assert re.search(r'Reading GPIO mask 0x1000 ', out, re.MULTILINE)
-    assert re.search(r'Received RemoteHardware typ=READ_GPIOS_REPLY, gpio_value=0', out, re.MULTILINE)
-    assert err == ''
+# TODO
+#@pytest.mark.unit
+#@pytest.mark.usefixtures("reset_globals")
+#@patch('time.sleep')
+#def test_main_gpio_rd(caplog, capsys):
+#    """Test --gpio_rd with a named gpio channel"""
+#    # Note: On the Heltec v2.1, there is a GPIO pin GPIO 13 that does not have a
+#    # red arrow (meaning ok to use for our purposes)
+#    # See https://resource.heltec.cn/download/WiFi_LoRa_32/WIFI_LoRa_32_V2.pdf
+#    # To find out the mask for GPIO 13, let us assign n as 13.
+#    # 1. Find the 2^n or 2^13 (8192)
+#    # 2. Convert 8192 decimal to hex (0x2000)
+#    # You can use python:
+#    # >>> print(hex(2**13))
+#    # 0x2000
+#    sys.argv = ['', '--gpio-rd', '0x1000', '--dest', '!1234']
+#    Globals.getInstance().set_args(sys.argv)
+#
+#    channel = Channel(index=1, role=1)
+#    channel.settings.modem_config = 3
+#    channel.settings.psk = b'\x01'
+#
+#    packet = {
+#
+#            'from': 682968668,
+#            'to': 682968612,
+#            'channel': 1,
+#            'decoded': {
+#                'portnum': 'REMOTE_HARDWARE_APP',
+#                'payload': b'\x08\x05\x18\x80 ',
+#                'requestId': 1629980484,
+#                'remotehw': {
+#                    'typ': 'READ_GPIOS_REPLY',
+#                    'gpioValue': '4096',
+#                    'raw': 'faked',
+#                    'id': 1693085229,
+#                    'rxTime': 1640294262,
+#                    'rxSnr': 4.75,
+#                    'hopLimit': 3,
+#                    'wantAck': True,
+#                    }
+#                }
+#            }
+#
+#    iface = MagicMock(autospec=SerialInterface)
+#    iface.localNode.getChannelByName.return_value = channel
+#    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+#        with caplog.at_level(logging.DEBUG):
+#            main()
+#            onGPIOreceive(packet, mo)
+#    out, err = capsys.readouterr()
+#    assert re.search(r'Connected to radio', out, re.MULTILINE)
+#    assert re.search(r'Reading GPIO mask 0x1000 ', out, re.MULTILINE)
+#    assert re.search(r'Received RemoteHardware typ=READ_GPIOS_REPLY, gpio_value=4096', out, re.MULTILINE)
+#    assert err == ''
 
 
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
-def test_main_gpio_watch(caplog, capsys):
-    """Test --gpio_watch with a named gpio channel"""
-    sys.argv = ['', '--gpio-watch', '0x1000', '--dest', '!1234']
-    Globals.getInstance().set_args(sys.argv)
-
-    def my_sleep(amount):
-        print(f'{amount}')
-        sys.exit(3)
-
-    channel = Channel(index=1, role=1)
-    channel.settings.modem_config = 3
-    channel.settings.psk = b'\x01'
-
-    packet = {
-
-            'from': 682968668,
-            'to': 682968612,
-            'channel': 1,
-            'decoded': {
-                'portnum': 'REMOTE_HARDWARE_APP',
-                'payload': b'\x08\x05\x18\x80 ',
-                'requestId': 1629980484,
-                'remotehw': {
-                    'typ': 'READ_GPIOS_REPLY',
-                    'gpioValue': '4096',
-                    'raw': 'faked',
-                    'id': 1693085229,
-                    'rxTime': 1640294262,
-                    'rxSnr': 4.75,
-                    'hopLimit': 3,
-                    'wantAck': True,
-                    }
-                }
-            }
-
-    with patch('time.sleep', side_effect=my_sleep):
-        with pytest.raises(SystemExit) as pytest_wrapped_e:
-            iface = MagicMock(autospec=SerialInterface)
-            iface.localNode.getChannelByName.return_value = channel
-            with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-                with caplog.at_level(logging.DEBUG):
-                    main()
-                    onGPIOreceive(packet, mo)
-        assert pytest_wrapped_e.type == SystemExit
-        assert pytest_wrapped_e.value.code == 3
-        out, err = capsys.readouterr()
-        assert re.search(r'Connected to radio', out, re.MULTILINE)
-        assert re.search(r'Watching GPIO mask 0x1000 ', out, re.MULTILINE)
-        assert err == ''
+# TODO
+#@pytest.mark.unit
+#@pytest.mark.usefixtures("reset_globals")
+#@patch('time.sleep')
+#def test_main_gpio_rd_with_no_gpioMask(caplog, capsys):
+#    """Test --gpio_rd with a named gpio channel"""
+#    sys.argv = ['', '--gpio-rd', '0x1000', '--dest', '!1234']
+#    Globals.getInstance().set_args(sys.argv)
+#
+#    channel = Channel(index=1, role=1)
+#    channel.settings.modem_config = 3
+#    channel.settings.psk = b'\x01'
+#
+#    # Note: Intentionally do not have gpioValue in response as that is the
+#    # default value
+#    packet = {
+#            'from': 682968668,
+#            'to': 682968612,
+#            'channel': 1,
+#            'decoded': {
+#                'portnum': 'REMOTE_HARDWARE_APP',
+#                'payload': b'\x08\x05\x18\x80 ',
+#                'requestId': 1629980484,
+#                'remotehw': {
+#                    'typ': 'READ_GPIOS_REPLY',
+#                    'raw': 'faked',
+#                    'id': 1693085229,
+#                    'rxTime': 1640294262,
+#                    'rxSnr': 4.75,
+#                    'hopLimit': 3,
+#                    'wantAck': True,
+#                    }
+#                }
+#            }
+#
+#    iface = MagicMock(autospec=SerialInterface)
+#    iface.localNode.getChannelByName.return_value = channel
+#    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+#        with caplog.at_level(logging.DEBUG):
+#            main()
+#            onGPIOreceive(packet, mo)
+#    out, err = capsys.readouterr()
+#    assert re.search(r'Connected to radio', out, re.MULTILINE)
+#    assert re.search(r'Reading GPIO mask 0x1000 ', out, re.MULTILINE)
+#    assert re.search(r'Received RemoteHardware typ=READ_GPIOS_REPLY, gpio_value=0', out, re.MULTILINE)
+#    assert err == ''
 
 
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
-def test_main_gpio_wrb(caplog, capsys):
-    """Test --gpio_wrb with a named gpio channel"""
-    sys.argv = ['', '--gpio-wrb', '4', '1', '--dest', '!1234']
-    Globals.getInstance().set_args(sys.argv)
+# TODO
+#@pytest.mark.unit
+#@pytest.mark.usefixtures("reset_globals")
+#def test_main_gpio_watch(caplog, capsys):
+#    """Test --gpio_watch with a named gpio channel"""
+#    sys.argv = ['', '--gpio-watch', '0x1000', '--dest', '!1234']
+#    Globals.getInstance().set_args(sys.argv)
+#
+#    def my_sleep(amount):
+#        print(f'{amount}')
+#        sys.exit(3)
+#
+#    channel = Channel(index=1, role=1)
+#    channel.settings.modem_config = 3
+#    channel.settings.psk = b'\x01'
+#
+#    packet = {
+#
+#            'from': 682968668,
+#            'to': 682968612,
+#            'channel': 1,
+#            'decoded': {
+#                'portnum': 'REMOTE_HARDWARE_APP',
+#                'payload': b'\x08\x05\x18\x80 ',
+#                'requestId': 1629980484,
+#                'remotehw': {
+#                    'typ': 'READ_GPIOS_REPLY',
+#                    'gpioValue': '4096',
+#                    'raw': 'faked',
+#                    'id': 1693085229,
+#                    'rxTime': 1640294262,
+#                    'rxSnr': 4.75,
+#                    'hopLimit': 3,
+#                    'wantAck': True,
+#                    }
+#                }
+#            }
+#
+#    with patch('time.sleep', side_effect=my_sleep):
+#        with pytest.raises(SystemExit) as pytest_wrapped_e:
+#            iface = MagicMock(autospec=SerialInterface)
+#            iface.localNode.getChannelByName.return_value = channel
+#            with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+#                with caplog.at_level(logging.DEBUG):
+#                    main()
+#                    onGPIOreceive(packet, mo)
+#        assert pytest_wrapped_e.type == SystemExit
+#        assert pytest_wrapped_e.value.code == 3
+#        out, err = capsys.readouterr()
+#        assert re.search(r'Connected to radio', out, re.MULTILINE)
+#        assert re.search(r'Watching GPIO mask 0x1000 ', out, re.MULTILINE)
+#        assert err == ''
 
-    channel = Channel(index=1, role=1)
-    channel.settings.modem_config = 3
-    channel.settings.psk = b'\x01'
 
-    packet = {
+# TODO
+#@pytest.mark.unit
+#@pytest.mark.usefixtures("reset_globals")
+#def test_main_gpio_wrb(caplog, capsys):
+#    """Test --gpio_wrb with a named gpio channel"""
+#    sys.argv = ['', '--gpio-wrb', '4', '1', '--dest', '!1234']
+#    Globals.getInstance().set_args(sys.argv)
+#
+#    channel = Channel(index=1, role=1)
+#    channel.settings.modem_config = 3
+#    channel.settings.psk = b'\x01'
+#
+#    packet = {
+#
+#            'from': 682968668,
+#            'to': 682968612,
+#            'channel': 1,
+#            'decoded': {
+#                'portnum': 'REMOTE_HARDWARE_APP',
+#                'payload': b'\x08\x05\x18\x80 ',
+#                'requestId': 1629980484,
+#                'remotehw': {
+#                    'typ': 'READ_GPIOS_REPLY',
+#                    'gpioValue': '16',
+#                    'raw': 'faked',
+#                    'id': 1693085229,
+#                    'rxTime': 1640294262,
+#                    'rxSnr': 4.75,
+#                    'hopLimit': 3,
+#                    'wantAck': True,
+#                    }
+#                }
+#            }
+#
+#
+#    iface = MagicMock(autospec=SerialInterface)
+#    iface.localNode.getChannelByName.return_value = channel
+#    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+#        with caplog.at_level(logging.DEBUG):
+#            main()
+#            onGPIOreceive(packet, mo)
+#    out, err = capsys.readouterr()
+#    assert re.search(r'Connected to radio', out, re.MULTILINE)
+#    assert re.search(r'Writing GPIO mask 0x10 with value 0x10 to !1234', out, re.MULTILINE)
+#    assert re.search(r'Received RemoteHardware typ=READ_GPIOS_REPLY, gpio_value=16 value=0', out, re.MULTILINE)
+#    assert err == ''
 
-            'from': 682968668,
-            'to': 682968612,
-            'channel': 1,
-            'decoded': {
-                'portnum': 'REMOTE_HARDWARE_APP',
-                'payload': b'\x08\x05\x18\x80 ',
-                'requestId': 1629980484,
-                'remotehw': {
-                    'typ': 'READ_GPIOS_REPLY',
-                    'gpioValue': '16',
-                    'raw': 'faked',
-                    'id': 1693085229,
-                    'rxTime': 1640294262,
-                    'rxSnr': 4.75,
-                    'hopLimit': 3,
-                    'wantAck': True,
-                    }
-                }
-            }
-
-
-    iface = MagicMock(autospec=SerialInterface)
-    iface.localNode.getChannelByName.return_value = channel
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-        with caplog.at_level(logging.DEBUG):
-            main()
-            onGPIOreceive(packet, mo)
-    out, err = capsys.readouterr()
-    assert re.search(r'Connected to radio', out, re.MULTILINE)
-    assert re.search(r'Writing GPIO mask 0x10 with value 0x10 to !1234', out, re.MULTILINE)
-    assert re.search(r'Received RemoteHardware typ=READ_GPIOS_REPLY, gpio_value=16 value=0', out, re.MULTILINE)
-    assert err == ''
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
