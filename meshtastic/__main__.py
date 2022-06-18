@@ -441,68 +441,55 @@ def onConnected(interface):
                     print(f"Deleting channel {channelIndex}")
                     ch = interface.getNode(args.dest).deleteChannel(channelIndex)
 
-        ch_changes = [args.ch_vlongslow, args.ch_longslow, args.ch_longfast,
-                      args.ch_midslow, args.ch_midfast,
-                      args.ch_shortslow, args.ch_shortfast]
-        any_primary_channel_changes = any(x for x in ch_changes)
-        if args.ch_set or any_primary_channel_changes or args.ch_enable or args.ch_disable:
+        def setSimpleConfig(modem_preset):
+            """Set one of the simple modem_config"""
+            # Completely new radio settings
+            chs = config_pb2.Config.LoRaConfig()
+            chs.modem_preset = modem_preset
+            prefs = interface.getNode(args.dest).localConfig
+            prefs.lora.CopyFrom(chs)
+            interface.getNode(args.dest).writeConfig()
+
+        # handle the simple radio set commands
+        if args.ch_vlongslow:
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.VLongSlow)
+
+        if args.ch_longslow:
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LongSlow)
+
+        if args.ch_longfast:
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LongFast)
+
+        if args.ch_midslow:
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MidSlow)
+
+        if args.ch_midfast:
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MidFast)
+
+        if args.ch_shortslow:
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.ShortSlow)
+
+        if args.ch_shortfast:
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.ShortFast)
+
+        if args.ch_set or args.ch_enable or args.ch_disable:
             closeNow = True
 
             channelIndex = our_globals.get_channel_index()
             if channelIndex is None:
-                if any_primary_channel_changes:
-                    # we assume that they want the primary channel if they're setting range values
-                    channelIndex = 0
-                else:
-                    meshtastic.util.our_exit("Warning: Need to specify '--ch-index'.", 1)
+                meshtastic.util.our_exit("Warning: Need to specify '--ch-index'.", 1)
             ch = interface.getNode(args.dest).channels[channelIndex]
 
-            if any_primary_channel_changes or args.ch_enable or args.ch_disable:
+            if args.ch_enable or args.ch_disable:
 
-                if channelIndex == 0 and not any_primary_channel_changes:
+                if channelIndex == 0:
                     meshtastic.util.our_exit("Warning: Cannot enable/disable PRIMARY channel.")
-
-                if channelIndex != 0:
-                    if any_primary_channel_changes:
-                        meshtastic.util.our_exit("Warning: Standard channel settings can only be applied to the PRIMARY channel")
 
                 enable = True  # default to enable
                 if args.ch_enable:
                     enable = True
                 if args.ch_disable:
                     enable = False
-
-                def setSimpleChannel(modem_config):
-                    """Set one of the simple modem_config only based channels"""
-
-                    # Completely new channel settings
-                    chs = channel_pb2.ChannelSettings()
-                    chs.modem_config = modem_config
-                    chs.psk = bytes([1])  # Use default channel psk 1
-
-                    ch.settings.CopyFrom(chs)
-
-                # handle the simple channel set commands
-                if args.ch_vlongslow:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.VLongSlow)
-
-                if args.ch_longslow:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.LongSlow)
-
-                if args.ch_longfast:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.LongFast)
-
-                if args.ch_midslow:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.MidSlow)
-
-                if args.ch_midfast:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.MidFast)
-
-                if args.ch_shortslow:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.ShortSlow)
-
-                if args.ch_shortfast:
-                    setSimpleChannel(channel_pb2.ChannelSettings.ModemConfig.ShortFast)
 
             # Handle the channel settings
             for pref in (args.ch_set or []):
