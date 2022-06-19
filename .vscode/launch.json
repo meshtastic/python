@@ -53,6 +53,14 @@
       "args": ["--debug", "--get", "power.is_power_saving"]
     },
     {
+      "name": "meshtastic debug setPref",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--set", "power.is_power_saving", "1"]
+    },
+    {
       "name": "meshtastic setpref",
       "type": "python",
       "request": "launch",

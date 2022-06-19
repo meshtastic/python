@@ -103,10 +103,10 @@ def getPref(attributes, comp_name):
         logging.debug(f"{snake_name}: {str(pref_value)}")
 
 
-def setPref(attributes, comp_name, valStr):
+def setPref(attributes, comp_name, valStr, nodeInterface):
     """Set a channel or preferences value"""
 
-    name=comp_name.split(".",1)
+    name = comp_name.split(".",1)
     if len(name) != 2:
         name[0]=comp_name
         name.append(comp_name)
@@ -117,12 +117,12 @@ def setPref(attributes, comp_name, valStr):
     logging.debug(f'camel_name:{camel_name}')
 
     objDesc = attributes.DESCRIPTOR
-    section = objDesc.fields_by_name.get(name[0])
-    field = False
-    if section:
-        field = section.message_type.fields_by_name.get(snake_name)
+    config_type = objDesc.fields_by_name.get(name[0])
+    pref = False
+    if config_type:
+        pref = config_type.message_type.fields_by_name.get(snake_name)
 
-    if (not field) or (not section):
+    if (not pref) or (not config_type):
         if Globals.getInstance().get_camel_case():
             print(f"{attributes.__class__.__name__} does not have an attribute called {camel_name}, so you can not set it.")
         else:
@@ -148,7 +148,7 @@ def setPref(attributes, comp_name, valStr):
         print(f"Warning: wifi_password must be 8 or more characters.")
         return
 
-    enumType = field.enum_type
+    enumType = pref.enum_type
     # pylint: disable=C0123
     if enumType and type(val) == str:
         # We've failed so far to convert this string into an enum, try to find it by reflection
@@ -171,19 +171,24 @@ def setPref(attributes, comp_name, valStr):
 
     # note: 'ignore_incoming' is a repeating field
     if snake_name != 'ignore_incoming':
+        print("Writing modified preference to device")
         try:
-            setattr(section.message_type, snake_name, val)
+            config_values = getattr(attributes, config_type.name)
+            setattr(config_values, pref.name, val)
+            nodeInterface.writeConfig()
         except TypeError:
             # The setter didn't like our arg type guess try again as a string
-            setattr(section.message_type, snake_name, valStr)
+            config_values = getattr(attributes, config_type.name)
+            setattr(config_values, pref.name, valStr)
+            nodeInterface.writeConfig(config_values)
     else:
         if val == 0:
             # clear values
             print("Clearing ignore_incoming list")
-            del section.message_type.ignore_incoming[:]
+            del config_type.message_type.ignore_incoming[:]
         else:
             print(f"Adding '{val}' to the ignore_incoming list")
-            section.message_type.ignore_incoming.extend([val])
+            config_type.message_type.ignore_incoming.extend([val])
 
     if Globals.getInstance().get_camel_case():
         print(f"Set {camel_name} to {valStr}")
@@ -355,10 +360,7 @@ def onConnected(interface):
 
             # Handle the int/float/bool arguments
             for pref in args.set:
-                setPref(prefs, pref[0], pref[1])
-
-            print("Writing modified preferences to device")
-            interface.getNode(args.dest).writeConfig()
+                setPref(prefs, pref[0], pref[1], interface.getNode(args.dest))
 
         if args.configure:
             with open(args.configure[0], encoding='utf8') as file:
