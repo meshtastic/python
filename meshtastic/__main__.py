@@ -103,7 +103,7 @@ def getPref(attributes, comp_name):
         logging.debug(f"{snake_name}: {str(pref_value)}")
 
 
-def setPref(attributes, comp_name, valStr, nodeInterface):
+def setPref(attributes, comp_name, valStr):
     """Set a channel or preferences value"""
 
     name = comp_name.split(".",1)
@@ -171,16 +171,13 @@ def setPref(attributes, comp_name, valStr, nodeInterface):
 
     # note: 'ignore_incoming' is a repeating field
     if snake_name != 'ignore_incoming':
-        print("Writing modified preference to device")
         try:
             config_values = getattr(attributes, config_type.name)
             setattr(config_values, pref.name, val)
-            nodeInterface.writeConfig()
         except TypeError:
             # The setter didn't like our arg type guess try again as a string
             config_values = getattr(attributes, config_type.name)
             setattr(config_values, pref.name, valStr)
-            nodeInterface.writeConfig(config_values)
     else:
         if val == 0:
             # clear values
@@ -360,7 +357,10 @@ def onConnected(interface):
 
             # Handle the int/float/bool arguments
             for pref in args.set:
-                setPref(prefs, pref[0], pref[1], interface.getNode(args.dest))
+                setPref(prefs, pref[0], pref[1])
+
+            print("Writing modified preferences to device")
+            interface.getNode(args.dest).writeConfig()
 
         if args.configure:
             with open(args.configure[0], encoding='utf8') as file:
