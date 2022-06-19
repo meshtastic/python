@@ -55,7 +55,7 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # pylint: disable=W0613
 def getPref(attributes, comp_name):
     """Get a channel or preferences value"""
 
-    name=comp_name.split(".",1)
+    name = comp_name.split(".",1)
     if len(name) != 2:
         name[0]=comp_name
         name.append(comp_name)
@@ -67,12 +67,12 @@ def getPref(attributes, comp_name):
     logging.debug(f'use camel:{Globals.getInstance().get_camel_case()}')
 
     objDesc = attributes.DESCRIPTOR
-    section = objDesc.fields_by_name.get(name[0])
-    field = False
-    if section:
-        field = section.message_type.fields_by_name.get(snake_name)
-        
-    if (not field) or (not section):
+    config_type = objDesc.fields_by_name.get(name[0])
+    pref = False
+    if config_type:
+        pref = config_type.message_type.fields_by_name.get(snake_name)
+
+    if (not pref) or (not config_type):
         if Globals.getInstance().get_camel_case():
             print(f"{attributes.__class__.__name__} does not have an attribute called {camel_name}, so you can not get it.")
         else:
@@ -92,14 +92,15 @@ def getPref(attributes, comp_name):
         return
 
     # read the value
-    val = getattr(section.message_type, snake_name)
+    config_values = getattr(attributes, config_type.name)
+    pref_value = getattr(config_values, pref.name)
 
     if Globals.getInstance().get_camel_case():
-        print(f"{camel_name}: {str(val)}")
-        logging.debug(f"{camel_name}: {str(val)}")
+        print(f"{camel_name}: {str(pref_value)}")
+        logging.debug(f"{camel_name}: {str(pref_value)}")
     else:
-        print(f"{snake_name}: {str(val)}")
-        logging.debug(f"{snake_name}: {str(val)}")
+        print(f"{snake_name}: {str(pref_value)}")
+        logging.debug(f"{snake_name}: {str(pref_value)}")
 
 
 def setPref(attributes, comp_name, valStr):

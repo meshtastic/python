@@ -42,7 +42,15 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": ["--debug" ]
+      "args": ["--debug"]
+    },
+    {
+      "name": "meshtastic debug getPref",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--get", "power.is_power_saving"]
     },
     {
       "name": "meshtastic setpref",
@@ -92,7 +100,7 @@
       "module": "meshtastic",
       "justMyCode": true,
       "args": ["--debug", "--sendtext", "pytest"]
-    }
+    },
     {
       "name": "meshtastic showNodes",
       "type": "python",
