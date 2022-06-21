@@ -74,9 +74,9 @@ def getPref(attributes, comp_name):
 
     if (not pref) or (not config_type):
         if Globals.getInstance().get_camel_case():
-            print(f"{attributes.__class__.__name__} does not have an attribute called {camel_name}, so you can not get it.")
+            print(f"{attributes.__class__.__name__} does not have an attribute called {name[0]}.{camel_name}, so you can not get it.")
         else:
-            print(f"{attributes.__class__.__name__} does not have an attribute called {snake_name}, so you can not get it.")
+            print(f"{attributes.__class__.__name__} does not have an attribute called {name[0]}.{snake_name}, so you can not get it.")
         print(f"Choices in sorted order are:")
         names = []
         for f in objDesc.fields:
@@ -96,11 +96,11 @@ def getPref(attributes, comp_name):
     pref_value = getattr(config_values, pref.name)
 
     if Globals.getInstance().get_camel_case():
-        print(f"{camel_name}: {str(pref_value)}")
-        logging.debug(f"{camel_name}: {str(pref_value)}")
+        print(f"{str(config_type.name)}.{camel_name}: {str(pref_value)}")
+        logging.debug(f"{str(config_type.name)}.{camel_name}: {str(pref_value)}")
     else:
-        print(f"{snake_name}: {str(pref_value)}")
-        logging.debug(f"{snake_name}: {str(pref_value)}")
+        print(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
+        logging.debug(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
 
 
 def setPref(attributes, comp_name, valStr):
@@ -124,9 +124,9 @@ def setPref(attributes, comp_name, valStr):
 
     if (not pref) or (not config_type):
         if Globals.getInstance().get_camel_case():
-            print(f"{attributes.__class__.__name__} does not have an attribute called {camel_name}, so you can not set it.")
+            print(f"{attributes.__class__.__name__} does not have an attribute called {name[0]}.{camel_name}, so you can not set it.")
         else:
-            print(f"{attributes.__class__.__name__} does not have an attribute called {snake_name}, so you can not set it.")
+            print(f"{attributes.__class__.__name__} does not have an attribute called {name[0]}.{snake_name}, so you can not set it.")
         print(f"Choices in sorted order are:")
         names = []
         for f in objDesc.fields:
@@ -144,8 +144,8 @@ def setPref(attributes, comp_name, valStr):
     val = meshtastic.util.fromStr(valStr)
     logging.debug(f'valStr:{valStr} val:{val}')
 
-    if snake_name == 'wifi_password' and len(valStr) < 8:
-        print(f"Warning: wifi_password must be 8 or more characters.")
+    if snake_name == 'psk' and len(valStr) < 8:
+        print(f"Warning: wifi.psk must be 8 or more characters.")
         return
 
     enumType = pref.enum_type
@@ -157,9 +157,9 @@ def setPref(attributes, comp_name, valStr):
             val = e.number
         else:
             if Globals.getInstance().get_camel_case():
-                print(f"{camel_name} does not have an enum called {val}, so you can not set it.")
+                print(f"{name[0]}.{camel_name} does not have an enum called {val}, so you can not set it.")
             else:
-                print(f"{snake_name} does not have an enum called {val}, so you can not set it.")
+                print(f"{name[0]}.{snake_name} does not have an enum called {val}, so you can not set it.")
             print(f"Choices in sorted order are:")
             names = []
             for f in enumType.values:
@@ -188,9 +188,9 @@ def setPref(attributes, comp_name, valStr):
             config_type.message_type.ignore_incoming.extend([val])
 
     if Globals.getInstance().get_camel_case():
-        print(f"Set {camel_name} to {valStr}")
+        print(f"Set {name[0]}.{camel_name} to {valStr}")
     else:
-        print(f"Set {snake_name} to {valStr}")
+        print(f"Set {name[0]}.{snake_name} to {valStr}")
 
 
 def onConnected(interface):
