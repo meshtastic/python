@@ -62,17 +62,8 @@ class Node:
     def requestConfig(self):
         """Send regular MeshPackets to ask for settings and channels."""
         logging.debug(f"requestConfig for nodeNum:{self.nodeNum}")
-        self.localConfig = localonly_pb2.LocalConfig()
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
-
-        # Note: We do not get the canned plugin message, unless get_canned_message() is called
-        self.cannedPluginMessage = None
-
-        self.cannedPluginMessagePart1 = None
-        self.cannedPluginMessagePart2 = None
-        self.cannedPluginMessagePart3 = None
-        self.cannedPluginMessagePart4 = None
 
         self._requestChannel(0)
 

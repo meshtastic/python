@@ -52,18 +52,27 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # pylint: disable=W0613
     print(f"Connection changed: {topic.getName()}")
 
 
-def getPref(attributes, name):
+def getPref(attributes, comp_name):
     """Get a channel or preferences value"""
 
-    camel_name = meshtastic.util.snake_to_camel(name)
+    name = comp_name.split(".",1)
+    if len(name) != 2:
+        name[0]=comp_name
+        name.append(comp_name)
+
+    camel_name = meshtastic.util.snake_to_camel(name[1])
     # Note: protobufs has the keys in snake_case, so snake internally
-    snake_name = meshtastic.util.camel_to_snake(name)
+    snake_name = meshtastic.util.camel_to_snake(name[1])
     logging.debug(f'snake_name:{snake_name} camel_name:{camel_name}')
     logging.debug(f'use camel:{Globals.getInstance().get_camel_case()}')
 
     objDesc = attributes.DESCRIPTOR
-    field = objDesc.fields_by_name.get(snake_name)
-    if not field:
+    config_type = objDesc.fields_by_name.get(name[0])
+    pref = False
+    if config_type:
+        pref = config_type.message_type.fields_by_name.get(snake_name)
+
+    if (not pref) or (not config_type):
         if Globals.getInstance().get_camel_case():
             print(f"{attributes.__class__.__name__} does not have an attribute called {camel_name}, so you can not get it.")
         else:
@@ -71,36 +80,49 @@ def getPref(attributes, name):
         print(f"Choices in sorted order are:")
         names = []
         for f in objDesc.fields:
-            tmp_name = f'{f.name}'
-            if Globals.getInstance().get_camel_case():
-                tmp_name = meshtastic.util.snake_to_camel(tmp_name)
-            names.append(tmp_name)
+            tmp_path = f'{f.name}'
+            if(f.message_type):
+                for ff in f.message_type.fields:
+                    tmp_name = f'{ff.name}'
+                    if Globals.getInstance().get_camel_case():
+                        tmp_name = meshtastic.util.snake_to_camel(tmp_name)
+                    names.append(tmp_path + "." +tmp_name)
         for temp_name in sorted(names):
             print(f"    {temp_name}")
         return
 
     # read the value
-    val = getattr(attributes, snake_name)
+    config_values = getattr(attributes, config_type.name)
+    pref_value = getattr(config_values, pref.name)
 
     if Globals.getInstance().get_camel_case():
-        print(f"{camel_name}: {str(val)}")
-        logging.debug(f"{camel_name}: {str(val)}")
+        print(f"{camel_name}: {str(pref_value)}")
+        logging.debug(f"{camel_name}: {str(pref_value)}")
     else:
-        print(f"{snake_name}: {str(val)}")
-        logging.debug(f"{snake_name}: {str(val)}")
+        print(f"{snake_name}: {str(pref_value)}")
+        logging.debug(f"{snake_name}: {str(pref_value)}")
 
 
-def setPref(attributes, name, valStr):
+def setPref(attributes, comp_name, valStr):
     """Set a channel or preferences value"""
 
-    snake_name = meshtastic.util.camel_to_snake(name)
-    camel_name = meshtastic.util.snake_to_camel(name)
+    name = comp_name.split(".",1)
+    if len(name) != 2:
+        name[0]=comp_name
+        name.append(comp_name)
+
+    snake_name = meshtastic.util.camel_to_snake(name[1])
+    camel_name = meshtastic.util.snake_to_camel(name[1])
     logging.debug(f'snake_name:{snake_name}')
     logging.debug(f'camel_name:{camel_name}')
 
     objDesc = attributes.DESCRIPTOR
-    field = objDesc.fields_by_name.get(snake_name)
-    if not field:
+    config_type = objDesc.fields_by_name.get(name[0])
+    pref = False
+    if config_type:
+        pref = config_type.message_type.fields_by_name.get(snake_name)
+
+    if (not pref) or (not config_type):
         if Globals.getInstance().get_camel_case():
             print(f"{attributes.__class__.__name__} does not have an attribute called {camel_name}, so you can not set it.")
         else:
@@ -108,10 +130,13 @@ def setPref(attributes, name, valStr):
         print(f"Choices in sorted order are:")
         names = []
         for f in objDesc.fields:
-            tmp_name = f'{f.name}'
-            if Globals.getInstance().get_camel_case():
-                tmp_name = meshtastic.util.snake_to_camel(tmp_name)
-            names.append(tmp_name)
+            tmp_path = f'{f.name}'
+            if(f.message_type):
+                for ff in f.message_type.fields:
+                    tmp_name = f'{ff.name}'
+                    if Globals.getInstance().get_camel_case():
+                        tmp_name = meshtastic.util.snake_to_camel(tmp_name)
+                    names.append(tmp_path + "." + tmp_name)
         for temp_name in sorted(names):
             print(f"    {temp_name}")
         return
@@ -123,7 +148,7 @@ def setPref(attributes, name, valStr):
         print(f"Warning: wifi_password must be 8 or more characters.")
         return
 
-    enumType = field.enum_type
+    enumType = pref.enum_type
     # pylint: disable=C0123
     if enumType and type(val) == str:
         # We've failed so far to convert this string into an enum, try to find it by reflection
@@ -147,18 +172,20 @@ def setPref(attributes, name, valStr):
     # note: 'ignore_incoming' is a repeating field
     if snake_name != 'ignore_incoming':
         try:
-            setattr(attributes, snake_name, val)
+            config_values = getattr(attributes, config_type.name)
+            setattr(config_values, pref.name, val)
         except TypeError:
             # The setter didn't like our arg type guess try again as a string
-            setattr(attributes, snake_name, valStr)
+            config_values = getattr(attributes, config_type.name)
+            setattr(config_values, pref.name, valStr)
     else:
         if val == 0:
             # clear values
             print("Clearing ignore_incoming list")
-            del attributes.ignore_incoming[:]
+            del config_type.message_type.ignore_incoming[:]
         else:
             print(f"Adding '{val}' to the ignore_incoming list")
-            attributes.ignore_incoming.extend([val])
+            config_type.message_type.ignore_incoming.extend([val])
 
     if Globals.getInstance().get_camel_case():
         print(f"Set {camel_name} to {valStr}")
