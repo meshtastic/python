@@ -52,13 +52,10 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # pylint: disable=W0613
     print(f"Connection changed: {topic.getName()}")
 
 
-def getPref(attributes, comp_name):
+def getPref(config, comp_name):
     """Get a channel or preferences value"""
 
-    name = comp_name.split(".",1)
-    if len(name) != 2:
-        name[0]=comp_name
-        name.append(comp_name)
+    name = splitCompoundName(comp_name)
 
     camel_name = meshtastic.util.snake_to_camel(name[1])
     # Note: protobufs has the keys in snake_case, so snake internally
@@ -66,33 +63,17 @@ def getPref(attributes, comp_name):
     logging.debug(f'snake_name:{snake_name} camel_name:{camel_name}')
     logging.debug(f'use camel:{Globals.getInstance().get_camel_case()}')
 
-    objDesc = attributes.DESCRIPTOR
+    objDesc = config.DESCRIPTOR
     config_type = objDesc.fields_by_name.get(name[0])
     pref = False
     if config_type:
         pref = config_type.message_type.fields_by_name.get(snake_name)
 
     if (not pref) or (not config_type):
-        if Globals.getInstance().get_camel_case():
-            print(f"{attributes.__class__.__name__} does not have an attribute called {name[0]}.{camel_name}, so you can not get it.")
-        else:
-            print(f"{attributes.__class__.__name__} does not have an attribute called {name[0]}.{snake_name}, so you can not get it.")
-        print(f"Choices in sorted order are:")
-        names = []
-        for f in objDesc.fields:
-            tmp_path = f'{f.name}'
-            if(f.message_type):
-                for ff in f.message_type.fields:
-                    tmp_name = f'{ff.name}'
-                    if Globals.getInstance().get_camel_case():
-                        tmp_name = meshtastic.util.snake_to_camel(tmp_name)
-                    names.append(tmp_path + "." +tmp_name)
-        for temp_name in sorted(names):
-            print(f"    {temp_name}")
-        return
+        return False
 
     # read the value
-    config_values = getattr(attributes, config_type.name)
+    config_values = getattr(config, config_type.name)
     pref_value = getattr(config_values, pref.name)
 
     if Globals.getInstance().get_camel_case():
@@ -101,52 +82,40 @@ def getPref(attributes, comp_name):
     else:
         print(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
         logging.debug(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
+    return True
 
-
-def setPref(attributes, comp_name, valStr):
-    """Set a channel or preferences value"""
-
+def splitCompoundName(comp_name):
     name = comp_name.split(".",1)
     if len(name) != 2:
         name[0]=comp_name
         name.append(comp_name)
+    return name
+
+def setPref(config, comp_name, valStr):
+    """Set a channel or preferences value"""
+
+    name = splitCompoundName(comp_name)
 
     snake_name = meshtastic.util.camel_to_snake(name[1])
     camel_name = meshtastic.util.snake_to_camel(name[1])
     logging.debug(f'snake_name:{snake_name}')
     logging.debug(f'camel_name:{camel_name}')
 
-    objDesc = attributes.DESCRIPTOR
+    objDesc = config.DESCRIPTOR
     config_type = objDesc.fields_by_name.get(name[0])
     pref = False
     if config_type:
         pref = config_type.message_type.fields_by_name.get(snake_name)
 
     if (not pref) or (not config_type):
-        if Globals.getInstance().get_camel_case():
-            print(f"{attributes.__class__.__name__} does not have an attribute called {name[0]}.{camel_name}, so you can not set it.")
-        else:
-            print(f"{attributes.__class__.__name__} does not have an attribute called {name[0]}.{snake_name}, so you can not set it.")
-        print(f"Choices in sorted order are:")
-        names = []
-        for f in objDesc.fields:
-            tmp_path = f'{f.name}'
-            if(f.message_type):
-                for ff in f.message_type.fields:
-                    tmp_name = f'{ff.name}'
-                    if Globals.getInstance().get_camel_case():
-                        tmp_name = meshtastic.util.snake_to_camel(tmp_name)
-                    names.append(tmp_path + "." + tmp_name)
-        for temp_name in sorted(names):
-            print(f"    {temp_name}")
-        return
+        return False
 
     val = meshtastic.util.fromStr(valStr)
     logging.debug(f'valStr:{valStr} val:{val}')
 
     if snake_name == 'psk' and len(valStr) < 8:
         print(f"Warning: wifi.psk must be 8 or more characters.")
-        return
+        return 
 
     enumType = pref.enum_type
     # pylint: disable=C0123
@@ -172,11 +141,11 @@ def setPref(attributes, comp_name, valStr):
     # note: 'ignore_incoming' is a repeating field
     if snake_name != 'ignore_incoming':
         try:
-            config_values = getattr(attributes, config_type.name)
+            config_values = getattr(config, config_type.name)
             setattr(config_values, pref.name, val)
         except TypeError:
             # The setter didn't like our arg type guess try again as a string
-            config_values = getattr(attributes, config_type.name)
+            config_values = getattr(config, config_type.name)
             setattr(config_values, pref.name, valStr)
     else:
         if val == 0:
@@ -191,6 +160,8 @@ def setPref(attributes, comp_name, valStr):
         print(f"Set {name[0]}.{camel_name} to {valStr}")
     else:
         print(f"Set {name[0]}.{snake_name} to {valStr}")
+    
+    return True
 
 
 def onConnected(interface):
@@ -210,18 +181,18 @@ def onConnected(interface):
             alt = 0
             lat = 0.0
             lon = 0.0
-            prefs = interface.localNode.localConfig
+            localConfig = interface.localNode.localConfig
             if args.setalt:
                 alt = int(args.setalt)
-                prefs.fixed_position = True
+                localConfig.fixed_position = True
                 print(f"Fixing altitude at {alt} meters")
             if args.setlat:
                 lat = float(args.setlat)
-                prefs.fixed_position = True
+                localConfig.fixed_position = True
                 print(f"Fixing latitude at {lat} degrees")
             if args.setlon:
                 lon = float(args.setlon)
-                prefs.fixed_position = True
+                localConfig.fixed_position = True
                 print(f"Fixing longitude at {lon} degrees")
 
             print("Setting device position")
@@ -251,7 +222,7 @@ def onConnected(interface):
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
             closeNow = True
-            prefs = interface.getNode(args.dest).localConfig
+            localConfig = interface.getNode(args.dest).localConfig
             allFields = 0
 
             try:
@@ -266,18 +237,18 @@ def onConnected(interface):
 
             else:
                 print(f"Setting position fields to {allFields}")
-                setPref(prefs, 'position_flags', f'{allFields:d}')
+                setPref(localConfig, 'position_flags', f'{allFields:d}')
                 print("Writing modified preferences to device")
                 interface.getNode(args.dest).writeConfig()
 
         elif args.pos_fields is not None:
             # If --pos-fields invoked without args, read and display current value
             closeNow = True
-            prefs = interface.getNode(args.dest).localConfig
+            localConfig = interface.getNode(args.dest).localConfig
 
             fieldNames = []
             for bit in config_pb2.PositionFlags.values():
-                if prefs.position_flags & bit:
+                if localConfig.position_flags & bit:
                     fieldNames.append(config_pb2.PositionFlags.Name(bit))
             print(' '.join(fieldNames))
 
@@ -353,11 +324,19 @@ def onConnected(interface):
         # handle settings
         if args.set:
             closeNow = True
-            prefs = interface.getNode(args.dest).localConfig
+            node = interface.getNode(args.dest)
 
             # Handle the int/float/bool arguments
             for pref in args.set:
-                setPref(prefs, pref[0], pref[1])
+                found = setPref(node.localConfig, pref[0], pref[1])
+                if not found:
+                    found = setPref(node.moduleConfig, pref[0],  pref[1])
+
+            if not found:
+                if Globals.getInstance().get_camel_case():
+                    print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
+                else:
+                    print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {pref[0]}.")
 
             print("Writing modified preferences to device")
             interface.getNode(args.dest).writeConfig()
@@ -391,35 +370,35 @@ def onConnected(interface):
                     alt = 0
                     lat = 0.0
                     lon = 0.0
-                    prefs = interface.localNode.localConfig
+                    localConfig = interface.localNode.localConfig
 
                     if 'alt' in configuration['location']:
                         alt = int(configuration['location']['alt'])
-                        prefs.fixed_position = True
+                        localConfig.fixed_position = True
                         print(f"Fixing altitude at {alt} meters")
                     if 'lat' in configuration['location']:
                         lat = float(configuration['location']['lat'])
-                        prefs.fixed_position = True
+                        localConfig.fixed_position = True
                         print(f"Fixing latitude at {lat} degrees")
                     if 'lon' in configuration['location']:
                         lon = float(configuration['location']['lon'])
-                        prefs.fixed_position = True
+                        localConfig.fixed_position = True
                         print(f"Fixing longitude at {lon} degrees")
                     print("Setting device position")
                     interface.sendPosition(lat, lon, alt)
                     interface.localNode.writeConfig()
 
                 if 'user_prefs' in configuration:
-                    prefs = interface.getNode(args.dest).localConfig
+                    localConfig = interface.getNode(args.dest).localConfig
                     for pref in configuration['user_prefs']:
-                        setPref(prefs, pref, str(configuration['user_prefs'][pref]))
+                        setPref(localConfig, pref, str(configuration['user_prefs'][pref]))
                     print("Writing modified preferences to device")
                     interface.getNode(args.dest).writeConfig()
 
                 if 'userPrefs' in configuration:
-                    prefs = interface.getNode(args.dest).localConfig
+                    localConfig = interface.getNode(args.dest).localConfig
                     for pref in configuration['userPrefs']:
-                        setPref(prefs, pref, str(configuration['userPrefs'][pref]))
+                        setPref(localConfig, pref, str(configuration['userPrefs'][pref]))
                     print("Writing modified preferences to device")
                     interface.getNode(args.dest).writeConfig()
 
@@ -553,12 +532,21 @@ def onConnected(interface):
 
         if args.get:
             closeNow = True
-            prefs = interface.getNode(args.dest).localConfig
+            localConfig = interface.getNode(args.dest).localConfig
+            moduleConfig = interface.getNode(args.dest).moduleConfig
 
             # Handle the int/float/bool arguments
             for pref in args.get:
-                getPref(prefs, pref[0])
+                found = getPref(localConfig, pref[0])
+                if not found:
+                    found = getPref(moduleConfig, pref[0])
 
+            if not found:
+                if Globals.getInstance().get_camel_case():
+                    print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
+                else:
+                    print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {pref[0]}.")
+                        
             print("Completed getting preferences")
 
         if args.nodes:

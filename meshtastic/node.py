@@ -12,7 +12,7 @@ from meshtastic.util import pskToString, stripnl, Timeout, our_exit, fromPSK
 class Node:
     """A model of a (local or remote) node in the mesh
 
-    Includes methods for localConfig and channels
+    Includes methods for localConfig, moduleConfig and channels
     """
 
     def __init__(self, iface, nodeNum, noProto=False):
@@ -20,6 +20,7 @@ class Node:
         self.iface = iface
         self.nodeNum = nodeNum
         self.localConfig = localonly_pb2.LocalConfig()
+        self.moduleConfig = localonly_pb2.LocalModuleConfig()
         self.channels = None
         self._timeout = Timeout(maxSecs=300)
         self.partialChannels = None
@@ -57,6 +58,10 @@ class Node:
         if self.localConfig:
             prefs = stripnl(MessageToJson(self.localConfig))
         print(f"Preferences: {prefs}\n")
+        prefs = ""
+        if self.moduleConfig:
+            prefs = stripnl(MessageToJson(self.moduleConfig))
+        print(f"Module preferences: {prefs}\n")
         self.showChannels()
 
     def requestConfig(self):
@@ -117,6 +122,48 @@ class Node:
             p.set_config.lora.CopyFrom(self.localConfig.lora)
             self._sendAdmin(p)
             logging.debug("Wrote lora")
+
+        if self.moduleConfig.mqtt:
+            p = admin_pb2.AdminMessage()
+            p.set_module_config.mqtt.CopyFrom(self.moduleConfig.mqtt)
+            self._sendAdmin(p)
+            logging.debug("Wrote module: mqtt")
+
+        if self.moduleConfig.serial:
+            p = admin_pb2.AdminMessage()
+            p.set_module_config.serial.CopyFrom(self.moduleConfig.serial)
+            self._sendAdmin(p)
+            logging.debug("Wrote module: serial")
+
+        if self.moduleConfig.external_notification:
+            p = admin_pb2.AdminMessage()
+            p.set_module_config.external_notification.CopyFrom(self.moduleConfig.external_notification)
+            self._sendAdmin(p)
+            logging.debug("Wrote module: external_notification")
+        
+        if self.moduleConfig.store_forward:
+            p = admin_pb2.AdminMessage()
+            p.set_module_config.store_forward.CopyFrom(self.moduleConfig.store_forward)
+            self._sendAdmin(p)
+            logging.debug("Wrote module: store_forward")
+        
+        if self.moduleConfig.range_test:
+            p = admin_pb2.AdminMessage()
+            p.set_module_config.range_test.CopyFrom(self.moduleConfig.range_test)
+            self._sendAdmin(p)
+            logging.debug("Wrote module: range_test")
+
+        if self.moduleConfig.telemetry:
+            p = admin_pb2.AdminMessage()
+            p.set_module_config.telemetry.CopyFrom(self.moduleConfig.telemetry)
+            self._sendAdmin(p)
+            logging.debug("Wrote module: telemetry")
+
+        if self.moduleConfig.canned_message:
+            p = admin_pb2.AdminMessage()
+            p.set_module_config.canned_message.CopyFrom(self.moduleConfig.canned_message)
+            self._sendAdmin(p)
+            logging.debug("Wrote module: canned_message")
 
     def writeChannel(self, channelIndex, adminIndex=0):
         """Write the current (edited) channel to the device"""

@@ -53,12 +53,28 @@
       "args": ["--debug", "--get", "power.is_power_saving"]
     },
     {
+      "name": "meshtastic debug info",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--info"]
+    },
+    {
       "name": "meshtastic debug setPref",
       "type": "python",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
       "args": ["--debug", "--set", "power.is_power_saving", "1"]
+    },
+    {
+      "name": "meshtastic debug setPref telemetry",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--set", "telemetry.environment_measurement_enabled", "1"]
     },
     {
       "name": "meshtastic setpref",
