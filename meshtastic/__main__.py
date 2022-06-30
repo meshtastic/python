@@ -332,14 +332,14 @@ def onConnected(interface):
                 if not found:
                     found = setPref(node.moduleConfig, pref[0],  pref[1])
 
-            if not found:
+            if found:
+                print("Writing modified preferences to device")
+                interface.getNode(args.dest).writeConfig()
+            else:
                 if Globals.getInstance().get_camel_case():
-                    print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
+                        print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
                 else:
                     print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {pref[0]}.")
-
-            print("Writing modified preferences to device")
-            interface.getNode(args.dest).writeConfig()
 
         if args.configure:
             with open(args.configure[0], encoding='utf8') as file:
