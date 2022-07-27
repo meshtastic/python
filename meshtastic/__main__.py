@@ -337,9 +337,9 @@ def onConnected(interface):
                 interface.getNode(args.dest).writeConfig()
             else:
                 if Globals.getInstance().get_camel_case():
-                        print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
+                        print(f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
                 else:
-                    print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {pref[0]}.")
+                    print(f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have attribute {pref[0]}.")
 
         if args.configure:
             with open(args.configure[0], encoding='utf8') as file:
