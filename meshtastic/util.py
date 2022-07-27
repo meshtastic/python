@@ -64,6 +64,8 @@ def fromStr(valstr):
     elif valstr.startswith('0x'):
         # if needed convert to string with asBytes.decode('utf-8')
         val = bytes.fromhex(valstr[2:])
+    elif valstr.startswith('base64:'):
+        val = base64.b64decode(valstr[7:])
     elif valstr.lower() in {"t", "true", "yes"}:
         val = True
     elif valstr.lower() in {"f", "false", "no"}:
