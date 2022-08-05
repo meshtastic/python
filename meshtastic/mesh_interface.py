@@ -532,17 +532,17 @@ class MeshInterface:
             # stream API fromRadio.config_complete_id
             logging.debug(f"Config complete ID {self.configId}")
             self._handleConfigComplete()
-        
+
         elif fromRadio.HasField("packet"):
             self._handlePacketFromRadio(fromRadio.packet)
-        
+
         elif fromRadio.rebooted:
             # Tell clients the device went away.  Careful not to call the overridden
             # subclass version that closes the serial port
             MeshInterface._disconnected(self)
 
             self._startConfig()  # redownload the node db etc...
-        
+
         elif fromRadio.config or fromRadio.moduleConfig:
             if fromRadio.config.HasField("device"):
                 self.localNode.localConfig.device.CopyFrom(fromRadio.config.device)
@@ -556,7 +556,7 @@ class MeshInterface:
                 self.localNode.localConfig.display.CopyFrom(fromRadio.config.display)
             elif fromRadio.config.HasField("lora"):
                 self.localNode.localConfig.lora.CopyFrom(fromRadio.config.lora)
-            
+
             elif fromRadio.moduleConfig.HasField("mqtt"):
                 self.localNode.moduleConfig.mqtt.CopyFrom(fromRadio.moduleConfig.mqtt)
             elif fromRadio.moduleConfig.HasField("serial"):
@@ -569,7 +569,7 @@ class MeshInterface:
                 self.localNode.moduleConfig.telemetry.CopyFrom(fromRadio.moduleConfig.telemetry)
             elif fromRadio.moduleConfig.HasField("canned_message"):
                 self.localNode.moduleConfig.canned_message.CopyFrom(fromRadio.moduleConfig.canned_message)
-        
+
         else:
             logging.debug("Unexpected FromRadio payload")
 
