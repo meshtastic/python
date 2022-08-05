@@ -85,6 +85,7 @@ def getPref(config, comp_name):
     return True
 
 def splitCompoundName(comp_name):
+    """Split compound (dot separated) preference name into parts"""
     name = comp_name.split(".",1)
     if len(name) != 2:
         name[0]=comp_name
@@ -115,7 +116,7 @@ def setPref(config, comp_name, valStr):
 
     if snake_name == 'psk' and len(valStr) < 8:
         print(f"Warning: wifi.psk must be 8 or more characters.")
-        return 
+        return False
 
     enumType = pref.enum_type
     # pylint: disable=C0123
@@ -136,7 +137,7 @@ def setPref(config, comp_name, valStr):
                 names.append(f'{f.name}')
             for temp_name in sorted(names):
                 print(f"    {temp_name}")
-            return
+            return False
 
     # note: 'ignore_incoming' is a repeating field
     if snake_name != 'ignore_incoming':
@@ -160,7 +161,7 @@ def setPref(config, comp_name, valStr):
         print(f"Set {name[0]}.{camel_name} to {valStr}")
     else:
         print(f"Set {name[0]}.{snake_name} to {valStr}")
-    
+
     return True
 
 
@@ -327,6 +328,7 @@ def onConnected(interface):
             node = interface.getNode(args.dest)
 
             # Handle the int/float/bool arguments
+            pref = None
             for pref in args.set:
                 found = setPref(node.localConfig, pref[0], pref[1])
                 if not found:
@@ -337,7 +339,7 @@ def onConnected(interface):
                 interface.getNode(args.dest).writeConfig()
             else:
                 if Globals.getInstance().get_camel_case():
-                        print(f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
+                    print(f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
                 else:
                     print(f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have attribute {pref[0]}.")
 
@@ -546,7 +548,7 @@ def onConnected(interface):
                     print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
                 else:
                     print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {pref[0]}.")
-                        
+
             print("Completed getting preferences")
 
         if args.nodes:
