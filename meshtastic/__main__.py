@@ -12,6 +12,7 @@ import yaml
 from pubsub import pub
 import pyqrcode
 import pkg_resources
+from google.protobuf.json_format import MessageToDict
 import meshtastic.util
 import meshtastic.test
 from meshtastic import remote_hardware
@@ -600,6 +601,8 @@ def subscribe():
 
 def export_config(interface):
     """used in--export-config"""
+    configObj = {}
+
     owner = interface.getLongName()
     owner_short = interface.getShortName()
     channel_url = interface.localNode.getURL()
@@ -613,38 +616,34 @@ def export_config(interface):
         lon = pos.get('longitude')
         alt = pos.get('altitude')
 
-    config = "# start of Meshtastic configure yaml\n"
     if owner:
-        config += f"owner: {owner}\n\n"
+        configObj["owner"] = owner
     if owner_short:
-        config += f"owner_short: {owner_short}\n\n"
+        configObj["owner_short"] = owner_short
     if channel_url:
         if Globals.getInstance().get_camel_case():
-            config += f"channelUrl: {channel_url}\n\n"
+            configObj["channelUrl"] = channel_url
         else:
-            config += f"channel_url: {channel_url}\n\n"
+            configObj["channel_url"] = channel_url
     if lat or lon or alt:
-        config += "location:\n"
-        if lat:
-            config += f"  lat: {lat}\n"
-        if lon:
-            config += f"  lon: {lon}\n"
-        if alt:
-            config += f"  alt: {alt}\n"
-        config += "\n"
-    preferences = f'{interface.localNode.localConfig}'
-    prefs = preferences.splitlines()
-    if prefs:
-        if Globals.getInstance().get_camel_case():
-            config += "userPrefs:\n"
-        else:
-            config += "user_prefs:\n"
-        for pref in prefs:
+        configObj["location"] = { "lat": lat, "lon": lon, "alt": alt }
+    preferences = MessageToDict(interface.localNode.localConfig)
+    if preferences:
+        # Convert inner keys to correct snake/camelCase
+        prefs = {}
+        for pref in preferences:
             if Globals.getInstance().get_camel_case():
-                # Note: This may not work if the value has '_'
-                config += f"  {meshtastic.util.snake_to_camel(meshtastic.util.quoteBooleans(pref))}\n"
+                prefs[meshtastic.util.snake_to_camel(pref)] = preferences[pref]
             else:
-                config += f"  {meshtastic.util.quoteBooleans(pref)}\n"
+                # TODO: Possibly convert camel to snake?
+                prefs[pref] = preferences[pref]
+        if Globals.getInstance().get_camel_case():
+            configObj["userPrefs"] = preferences
+        else:
+            configObj["user_prefs"] = preferences
+
+    config = "# start of Meshtastic configure yaml\n"
+    config += yaml.dump(configObj)
     print(config)
     return config
 
