@@ -12,6 +12,7 @@ import yaml
 from pubsub import pub
 import pyqrcode
 import pkg_resources
+from google.protobuf.json_format import MessageToDict
 import meshtastic.util
 import meshtastic.test
 from meshtastic import remote_hardware
@@ -19,8 +20,6 @@ from meshtastic.ble_interface import BLEInterface
 from meshtastic import portnums_pb2, channel_pb2, config_pb2
 from meshtastic.globals import Globals
 from meshtastic.__init__ import BROADCAST_ADDR
-
-from google.protobuf.json_format import MessageToDict
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
