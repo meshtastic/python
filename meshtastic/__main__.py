@@ -268,6 +268,10 @@ def onConnected(interface):
         if args.shutdown:
             closeNow = True
             interface.getNode(args.dest).shutdown()
+        
+        if args.device_metadata:
+            closeNow = True
+            interface.getNode(args.dest).getMetadata()
 
         if args.sendtext:
             closeNow = True
@@ -856,6 +860,9 @@ def initParser():
 
     parser.add_argument(
         "--shutdown", help="Tell the destination node to shutdown", action="store_true")
+
+    parser.add_argument(
+        "--device-metadata", help="Get the device metadata from the node", action="store_true")
 
     parser.add_argument(
         "--reply", help="Reply to received messages",

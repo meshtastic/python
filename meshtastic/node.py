@@ -502,6 +502,14 @@ class Node:
 
         return self._sendAdmin(p)
 
+    def getMetadata(self, secs: int = 10):
+        """Tell the node to shutdown."""
+        p = admin_pb2.AdminMessage()
+        p.get_device_metadata_request = True
+        logging.info(f"Requesting device metadata")
+
+        return self._sendAdmin(p, wantResponse=True, onResponse=self.onRequestGetMetadata)
+
     def _fixupChannels(self):
         """Fixup indexes and add disabled channels as needed"""
 
@@ -524,6 +532,15 @@ class Node:
             self.channels.append(ch)
             index += 1
 
+
+    def onRequestGetMetadata(self, p):
+        """Handle the response packet for requesting device metadata getMetadata()"""
+        logging.debug(f'onRequestGetMetadata() p:{p}')
+        c = p["decoded"]["admin"]["raw"].get_device_metadata_response
+        self._timeout.reset()  # We made foreward progress
+        logging.debug(f"Received metadata {stripnl(c)}")
+        print(f"\nfirmware_version: {c.firmware_version}")
+        print(f"device_state_version: {c.device_state_version}")
 
     def onResponseRequestChannel(self, p):
         """Handle the response packet for requesting a channel _requestChannel()"""
