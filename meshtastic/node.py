@@ -92,91 +92,91 @@ class Node:
             p.set_config.device.CopyFrom(self.localConfig.device)
             self._sendAdmin(p)
             logging.debug("Wrote device")
-            time.sleep(0.1)
+            time.sleep(0.3)
 
         if self.localConfig.position:
             p = admin_pb2.AdminMessage()
             p.set_config.position.CopyFrom(self.localConfig.position)
             self._sendAdmin(p)
             logging.debug("Wrote position")
-            time.sleep(0.1)
+            time.sleep(0.3)
 
         if self.localConfig.power:
             p = admin_pb2.AdminMessage()
             p.set_config.power.CopyFrom(self.localConfig.power)
             self._sendAdmin(p)
             logging.debug("Wrote power")
-            time.sleep(0.1)
+            time.sleep(0.3)
 
         if self.localConfig.wifi:
             p = admin_pb2.AdminMessage()
             p.set_config.wifi.CopyFrom(self.localConfig.wifi)
             self._sendAdmin(p)
             logging.debug("Wrote wifi")
-            time.sleep(0.1)
+            time.sleep(0.3)
 
         if self.localConfig.display:
             p = admin_pb2.AdminMessage()
             p.set_config.display.CopyFrom(self.localConfig.display)
             self._sendAdmin(p)
             logging.debug("Wrote display")
-            time.sleep(0.1)
+            time.sleep(0.3)
 
         if self.localConfig.lora:
             p = admin_pb2.AdminMessage()
             p.set_config.lora.CopyFrom(self.localConfig.lora)
             self._sendAdmin(p)
             logging.debug("Wrote lora")
-            time.sleep(0.1)
+            time.sleep(0.3)
 
         if self.moduleConfig.mqtt:
             p = admin_pb2.AdminMessage()
             p.set_module_config.mqtt.CopyFrom(self.moduleConfig.mqtt)
             self._sendAdmin(p)
             logging.debug("Wrote module: mqtt")
-            time.sleep(0.1)
+            time.sleep(0.3)
 
         if self.moduleConfig.serial:
             p = admin_pb2.AdminMessage()
             p.set_module_config.serial.CopyFrom(self.moduleConfig.serial)
             self._sendAdmin(p)
             logging.debug("Wrote module: serial")
-            time.sleep(0.1)
+            time.sleep(0.3)
 
         if self.moduleConfig.external_notification:
             p = admin_pb2.AdminMessage()
             p.set_module_config.external_notification.CopyFrom(self.moduleConfig.external_notification)
             self._sendAdmin(p)
             logging.debug("Wrote module: external_notification")
-            time.sleep(0.1)
+            time.sleep(0.3)
         
         if self.moduleConfig.store_forward:
             p = admin_pb2.AdminMessage()
             p.set_module_config.store_forward.CopyFrom(self.moduleConfig.store_forward)
             self._sendAdmin(p)
             logging.debug("Wrote module: store_forward")
-            time.sleep(0.1)
+            time.sleep(0.3)
         
         if self.moduleConfig.range_test:
             p = admin_pb2.AdminMessage()
             p.set_module_config.range_test.CopyFrom(self.moduleConfig.range_test)
             self._sendAdmin(p)
             logging.debug("Wrote module: range_test")
-            time.sleep(0.1)
+            time.sleep(0.3)
 
         if self.moduleConfig.telemetry:
             p = admin_pb2.AdminMessage()
             p.set_module_config.telemetry.CopyFrom(self.moduleConfig.telemetry)
             self._sendAdmin(p)
             logging.debug("Wrote module: telemetry")
-            time.sleep(0.1)
+            time.sleep(0.3)
 
         if self.moduleConfig.canned_message:
             p = admin_pb2.AdminMessage()
             p.set_module_config.canned_message.CopyFrom(self.moduleConfig.canned_message)
             self._sendAdmin(p)
             logging.debug("Wrote module: canned_message")
-            time.sleep(0.1)
+            time.sleep(0.3)
 
     def writeChannel(self, channelIndex, adminIndex=0):
         """Write the current (edited) channel to the device"""
