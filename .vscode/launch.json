@@ -74,7 +74,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": ["--debug", "--set", "lora.region", "1"]
+      "args": ["--debug", "--set", "lora.region", "TW"]
     },
     {
       "name": "meshtastic debug setPref",
