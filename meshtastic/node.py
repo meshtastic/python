@@ -178,6 +178,45 @@ class Node:
             logging.debug("Wrote module: canned_message")
             time.sleep(0.3)
 
+    def writeConfig(self, config_name):
+        """Write the current (edited) localConfig to the device"""
+        if self.localConfig is None:
+            our_exit("Error: No localConfig has been read")
+
+        p = admin_pb2.AdminMessage()
+
+        if config_name == 'device':
+            p.set_config.device.CopyFrom(self.localConfig.device)
+        elif config_name == 'position':
+            p.set_config.position.CopyFrom(self.localConfig.position)
+        elif config_name == 'power':
+            p.set_config.power.CopyFrom(self.localConfig.power)
+        elif config_name == 'wifi':
+            p.set_config.wifi.CopyFrom(self.localConfig.wifi)
+        elif config_name == 'display':
+            p.set_config.display.CopyFrom(self.localConfig.display)
+        elif config_name == 'lora':
+            p.set_config.lora.CopyFrom(self.localConfig.lora)
+        elif config_name == 'mqtt':
+            p.set_module_config.mqtt.CopyFrom(self.moduleConfig.mqtt)
+        elif config_name == 'serial':
+            p.set_module_config.serial.CopyFrom(self.moduleConfig.serial)
+        elif config_name == 'external_notification':
+            p.set_module_config.external_notification.CopyFrom(self.moduleConfig.external_notification)
+        elif config_name == 'store_forward':
+            p.set_module_config.store_forward.CopyFrom(self.moduleConfig.store_forward)
+        elif config_name == 'range_test':
+            p.set_module_config.range_test.CopyFrom(self.moduleConfig.range_test)
+        elif config_name == 'telemetry':
+            p.set_module_config.telemetry.CopyFrom(self.moduleConfig.telemetry)
+        elif config_name == 'canned_message':
+            p.set_module_config.canned_message.CopyFrom(self.moduleConfig.canned_message)
+        else:
+            our_exit(f"Error: No valid config with name {config_name}")
+        
+        logging.debug(f"Wrote: {config_name}")
+        self._sendAdmin(p)
+
     def writeChannel(self, channelIndex, adminIndex=0):
         """Write the current (edited) channel to the device"""
 

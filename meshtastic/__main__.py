@@ -341,7 +341,7 @@ def onConnected(interface):
 
             if found:
                 print("Writing modified preferences to device")
-                interface.getNode(args.dest).writeConfig()
+                interface.getNode(args.dest).writeConfig(splitCompoundName(pref[0].lower())[0])
             else:
                 if Globals.getInstance().get_camel_case():
                     print(f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
