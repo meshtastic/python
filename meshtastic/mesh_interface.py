@@ -556,6 +556,8 @@ class MeshInterface:
                 self.localNode.localConfig.display.CopyFrom(fromRadio.config.display)
             elif fromRadio.config.HasField("lora"):
                 self.localNode.localConfig.lora.CopyFrom(fromRadio.config.lora)
+            elif fromRadio.config.HasField("bluetooth"):
+                self.localNode.localConfig.bluetooth.CopyFrom(fromRadio.config.bluetooth)
 
             elif fromRadio.moduleConfig.HasField("mqtt"):
                 self.localNode.moduleConfig.mqtt.CopyFrom(fromRadio.moduleConfig.mqtt)

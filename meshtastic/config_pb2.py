@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x63onfig.proto\"\xec\x12\n\x06\x43onfig\x12&\n\x06\x64\x65vice\x18\x01 \x01(\x0b\x32\x14.Config.DeviceConfigH\x00\x12*\n\x08position\x18\x02 \x01(\x0b\x32\x16.Config.PositionConfigH\x00\x12$\n\x05power\x18\x03 \x01(\x0b\x32\x13.Config.PowerConfigH\x00\x12\"\n\x04wifi\x18\x04 \x01(\x0b\x32\x12.Config.WiFiConfigH\x00\x12(\n\x07\x64isplay\x18\x05 \x01(\x0b\x32\x15.Config.DisplayConfigH\x00\x12\"\n\x04lora\x18\x06 \x01(\x0b\x32\x12.Config.LoRaConfigH\x00\x1a\xd8\x01\n\x0c\x44\x65viceConfig\x12\'\n\x04role\x18\x01 \x01(\x0e\x32\x19.Config.DeviceConfig.Role\x12\x17\n\x0fserial_disabled\x18\x02 \x01(\x08\x12\x15\n\rfactory_reset\x18\x03 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x04 \x01(\x08\x12\x12\n\nntp_server\x18\x05 \x01(\t\"@\n\x04Role\x12\n\n\x06\x43lient\x10\x00\x12\x0e\n\nClientMute\x10\x01\x12\n\n\x06Router\x10\x02\x12\x10\n\x0cRouterClient\x10\x03\x1a\xa8\x03\n\x0ePositionConfig\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12)\n!position_broadcast_smart_disabled\x18\x02 \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\x03 \x01(\x08\x12\x14\n\x0cgps_disabled\x18\x05 \x01(\x08\x12\x1b\n\x13gps_update_interval\x18\x06 \x01(\r\x12\x18\n\x10gps_attempt_time\x18\x07 \x01(\r\x12\x16\n\x0eposition_flags\x18\n \x01(\r\"\xcc\x01\n\rPositionFlags\x12\x11\n\rPOS_UNDEFINED\x10\x00\x12\x10\n\x0cPOS_ALTITUDE\x10\x01\x12\x0f\n\x0bPOS_ALT_MSL\x10\x02\x12\x0f\n\x0bPOS_GEO_SEP\x10\x04\x12\x0b\n\x07POS_DOP\x10\x08\x12\r\n\tPOS_HVDOP\x10\x10\x12\x11\n\rPOS_SATINVIEW\x10 \x12\x0f\n\x0bPOS_SEQ_NOS\x10@\x12\x12\n\rPOS_TIMESTAMP\x10\x80\x01\x12\x10\n\x0bPOS_HEADING\x10\x80\x02\x12\x0e\n\tPOS_SPEED\x10\x80\x04\x1a\xf4\x03\n\x0bPowerConfig\x12\x39\n\x0e\x63harge_current\x18\x01 \x01(\x0e\x32!.Config.PowerConfig.ChargeCurrent\x12\x17\n\x0fis_power_saving\x18\x02 \x01(\x08\x12&\n\x1eon_battery_shutdown_after_secs\x18\x04 \x01(\r\x12\x1f\n\x17\x61\x64\x63_multiplier_override\x18\x06 \x01(\x02\x12\x1b\n\x13wait_bluetooth_secs\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\t \x01(\r\x12\x10\n\x08sds_secs\x18\n \x01(\r\x12\x0f\n\x07ls_secs\x18\x0b \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0c \x01(\r\"\xd1\x01\n\rChargeCurrent\x12\x0b\n\x07MAUnset\x10\x00\x12\t\n\x05MA100\x10\x01\x12\t\n\x05MA190\x10\x02\x12\t\n\x05MA280\x10\x03\x12\t\n\x05MA360\x10\x04\x12\t\n\x05MA450\x10\x05\x12\t\n\x05MA550\x10\x06\x12\t\n\x05MA630\x10\x07\x12\t\n\x05MA700\x10\x08\x12\t\n\x05MA780\x10\t\x12\t\n\x05MA880\x10\n\x12\t\n\x05MA960\x10\x0b\x12\n\n\x06MA1000\x10\x0c\x12\n\n\x06MA1080\x10\r\x12\n\n\x06MA1160\x10\x0e\x12\n\n\x06MA1240\x10\x0f\x12\n\n\x06MA1320\x10\x10\x1a\xa3\x01\n\nWiFiConfig\x12\x0f\n\x07\x65nabled\x18\x01 \x01(\x08\x12)\n\x04mode\x18\x02 \x01(\x0e\x32\x1b.Config.WiFiConfig.WiFiMode\x12\x0c\n\x04ssid\x18\x03 \x01(\t\x12\x0b\n\x03psk\x18\x04 \x01(\t\">\n\x08WiFiMode\x12\n\n\x06\x43lient\x10\x00\x12\x0f\n\x0b\x41\x63\x63\x65ssPoint\x10\x01\x12\x15\n\x11\x41\x63\x63\x65ssPointHidden\x10\x02\x1a\xaa\x02\n\rDisplayConfig\x12\x16\n\x0escreen_on_secs\x18\x01 \x01(\r\x12=\n\ngps_format\x18\x02 \x01(\x0e\x32).Config.DisplayConfig.GpsCoordinateFormat\x12!\n\x19\x61uto_screen_carousel_secs\x18\x03 \x01(\r\x12\x19\n\x11\x63ompass_north_top\x18\x04 \x01(\x08\"\x83\x01\n\x13GpsCoordinateFormat\x12\x10\n\x0cGpsFormatDec\x10\x00\x12\x10\n\x0cGpsFormatDMS\x10\x01\x12\x10\n\x0cGpsFormatUTM\x10\x02\x12\x11\n\rGpsFormatMGRS\x10\x03\x12\x10\n\x0cGpsFormatOLC\x10\x04\x12\x11\n\rGpsFormatOSGR\x10\x05\x1a\x93\x04\n\nLoRaConfig\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x34\n\x0cmodem_preset\x18\x02 \x01(\x0e\x32\x1e.Config.LoRaConfig.ModemPreset\x12\x11\n\tbandwidth\x18\x03 \x01(\r\x12\x15\n\rspread_factor\x18\x04 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x05 \x01(\r\x12\x18\n\x10\x66requency_offset\x18\x06 \x01(\x02\x12-\n\x06region\x18\x07 \x01(\x0e\x32\x1d.Config.LoRaConfig.RegionCode\x12\x11\n\thop_limit\x18\x08 \x01(\r\x12\x13\n\x0btx_disabled\x18\t \x01(\x08\x12\x17\n\x0fignore_incoming\x18g \x03(\r\"\x81\x01\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U868\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08\x12\x06\n\x02RU\x10\t\x12\x06\n\x02IN\x10\n\x12\t\n\x05NZ865\x10\x0b\x12\x06\n\x02TH\x10\x0c\"p\n\x0bModemPreset\x12\x0c\n\x08LongFast\x10\x00\x12\x0c\n\x08LongSlow\x10\x01\x12\r\n\tVLongSlow\x10\x02\x12\x0b\n\x07MedSlow\x10\x03\x12\x0b\n\x07MedFast\x10\x04\x12\r\n\tShortSlow\x10\x05\x12\r\n\tShortFast\x10\x06\x42\x10\n\x0epayloadVariantBH\n\x13\x63om.geeksville.meshB\x0c\x43onfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x63onfig.proto\"\xbc\x14\n\x06\x43onfig\x12&\n\x06\x64\x65vice\x18\x01 \x01(\x0b\x32\x14.Config.DeviceConfigH\x00\x12*\n\x08position\x18\x02 \x01(\x0b\x32\x16.Config.PositionConfigH\x00\x12$\n\x05power\x18\x03 \x01(\x0b\x32\x13.Config.PowerConfigH\x00\x12\"\n\x04wifi\x18\x04 \x01(\x0b\x32\x12.Config.WiFiConfigH\x00\x12(\n\x07\x64isplay\x18\x05 \x01(\x0b\x32\x15.Config.DisplayConfigH\x00\x12\"\n\x04lora\x18\x06 \x01(\x0b\x32\x12.Config.LoRaConfigH\x00\x12,\n\tbluetooth\x18\x07 \x01(\x0b\x32\x17.Config.BluetoothConfigH\x00\x1a\xd8\x01\n\x0c\x44\x65viceConfig\x12\'\n\x04role\x18\x01 \x01(\x0e\x32\x19.Config.DeviceConfig.Role\x12\x17\n\x0fserial_disabled\x18\x02 \x01(\x08\x12\x15\n\rfactory_reset\x18\x03 \x01(\x08\x12\x19\n\x11\x64\x65\x62ug_log_enabled\x18\x04 \x01(\x08\x12\x12\n\nntp_server\x18\x05 \x01(\t\"@\n\x04Role\x12\n\n\x06\x43lient\x10\x00\x12\x0e\n\nClientMute\x10\x01\x12\n\n\x06Router\x10\x02\x12\x10\n\x0cRouterClient\x10\x03\x1a\xa8\x03\n\x0ePositionConfig\x12\x1f\n\x17position_broadcast_secs\x18\x01 \x01(\r\x12)\n!position_broadcast_smart_disabled\x18\x02 \x01(\x08\x12\x16\n\x0e\x66ixed_position\x18\x03 \x01(\x08\x12\x14\n\x0cgps_disabled\x18\x05 \x01(\x08\x12\x1b\n\x13gps_update_interval\x18\x06 \x01(\r\x12\x18\n\x10gps_attempt_time\x18\x07 \x01(\r\x12\x16\n\x0eposition_flags\x18\n \x01(\r\"\xcc\x01\n\rPositionFlags\x12\x11\n\rPOS_UNDEFINED\x10\x00\x12\x10\n\x0cPOS_ALTITUDE\x10\x01\x12\x0f\n\x0bPOS_ALT_MSL\x10\x02\x12\x0f\n\x0bPOS_GEO_SEP\x10\x04\x12\x0b\n\x07POS_DOP\x10\x08\x12\r\n\tPOS_HVDOP\x10\x10\x12\x11\n\rPOS_SATINVIEW\x10 \x12\x0f\n\x0bPOS_SEQ_NOS\x10@\x12\x12\n\rPOS_TIMESTAMP\x10\x80\x01\x12\x10\n\x0bPOS_HEADING\x10\x80\x02\x12\x0e\n\tPOS_SPEED\x10\x80\x04\x1a\xf4\x03\n\x0bPowerConfig\x12\x39\n\x0e\x63harge_current\x18\x01 \x01(\x0e\x32!.Config.PowerConfig.ChargeCurrent\x12\x17\n\x0fis_power_saving\x18\x02 \x01(\x08\x12&\n\x1eon_battery_shutdown_after_secs\x18\x04 \x01(\r\x12\x1f\n\x17\x61\x64\x63_multiplier_override\x18\x06 \x01(\x02\x12\x1b\n\x13wait_bluetooth_secs\x18\x07 \x01(\r\x12\x1d\n\x15mesh_sds_timeout_secs\x18\t \x01(\r\x12\x10\n\x08sds_secs\x18\n \x01(\r\x12\x0f\n\x07ls_secs\x18\x0b \x01(\r\x12\x15\n\rmin_wake_secs\x18\x0c \x01(\r\"\xd1\x01\n\rChargeCurrent\x12\x0b\n\x07MAUnset\x10\x00\x12\t\n\x05MA100\x10\x01\x12\t\n\x05MA190\x10\x02\x12\t\n\x05MA280\x10\x03\x12\t\n\x05MA360\x10\x04\x12\t\n\x05MA450\x10\x05\x12\t\n\x05MA550\x10\x06\x12\t\n\x05MA630\x10\x07\x12\t\n\x05MA700\x10\x08\x12\t\n\x05MA780\x10\t\x12\t\n\x05MA880\x10\n\x12\t\n\x05MA960\x10\x0b\x12\n\n\x06MA1000\x10\x0c\x12\n\n\x06MA1080\x10\r\x12\n\n\x06MA1160\x10\x0e\x12\n\n\x06MA1240\x10\x0f\x12\n\n\x06MA1320\x10\x10\x1a\xa3\x01\n\nWiFiConfig\x12\x0f\n\x07\x65nabled\x18\x01 \x01(\x08\x12)\n\x04mode\x18\x02 \x01(\x0e\x32\x1b.Config.WiFiConfig.WiFiMode\x12\x0c\n\x04ssid\x18\x03 \x01(\t\x12\x0b\n\x03psk\x18\x04 \x01(\t\">\n\x08WiFiMode\x12\n\n\x06\x43lient\x10\x00\x12\x0f\n\x0b\x41\x63\x63\x65ssPoint\x10\x01\x12\x15\n\x11\x41\x63\x63\x65ssPointHidden\x10\x02\x1a\xaa\x02\n\rDisplayConfig\x12\x16\n\x0escreen_on_secs\x18\x01 \x01(\r\x12=\n\ngps_format\x18\x02 \x01(\x0e\x32).Config.DisplayConfig.GpsCoordinateFormat\x12!\n\x19\x61uto_screen_carousel_secs\x18\x03 \x01(\r\x12\x19\n\x11\x63ompass_north_top\x18\x04 \x01(\x08\"\x83\x01\n\x13GpsCoordinateFormat\x12\x10\n\x0cGpsFormatDec\x10\x00\x12\x10\n\x0cGpsFormatDMS\x10\x01\x12\x10\n\x0cGpsFormatUTM\x10\x02\x12\x11\n\rGpsFormatMGRS\x10\x03\x12\x10\n\x0cGpsFormatOLC\x10\x04\x12\x11\n\rGpsFormatOSGR\x10\x05\x1a\x93\x04\n\nLoRaConfig\x12\x10\n\x08tx_power\x18\x01 \x01(\x05\x12\x34\n\x0cmodem_preset\x18\x02 \x01(\x0e\x32\x1e.Config.LoRaConfig.ModemPreset\x12\x11\n\tbandwidth\x18\x03 \x01(\r\x12\x15\n\rspread_factor\x18\x04 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x05 \x01(\r\x12\x18\n\x10\x66requency_offset\x18\x06 \x01(\x02\x12-\n\x06region\x18\x07 \x01(\x0e\x32\x1d.Config.LoRaConfig.RegionCode\x12\x11\n\thop_limit\x18\x08 \x01(\r\x12\x13\n\x0btx_disabled\x18\t \x01(\x08\x12\x17\n\x0fignore_incoming\x18g \x03(\r\"\x81\x01\n\nRegionCode\x12\t\n\x05Unset\x10\x00\x12\x06\n\x02US\x10\x01\x12\t\n\x05\x45U433\x10\x02\x12\t\n\x05\x45U868\x10\x03\x12\x06\n\x02\x43N\x10\x04\x12\x06\n\x02JP\x10\x05\x12\x07\n\x03\x41NZ\x10\x06\x12\x06\n\x02KR\x10\x07\x12\x06\n\x02TW\x10\x08\x12\x06\n\x02RU\x10\t\x12\x06\n\x02IN\x10\n\x12\t\n\x05NZ865\x10\x0b\x12\x06\n\x02TH\x10\x0c\"p\n\x0bModemPreset\x12\x0c\n\x08LongFast\x10\x00\x12\x0c\n\x08LongSlow\x10\x01\x12\r\n\tVLongSlow\x10\x02\x12\x0b\n\x07MedSlow\x10\x03\x12\x0b\n\x07MedFast\x10\x04\x12\r\n\tShortSlow\x10\x05\x12\r\n\tShortFast\x10\x06\x1a\x9f\x01\n\x0f\x42luetoothConfig\x12\x0f\n\x07\x65nabled\x18\x01 \x01(\x08\x12\x31\n\x04mode\x18\x02 \x01(\x0e\x32#.Config.BluetoothConfig.PairingMode\x12\x11\n\tfixed_pin\x18\x03 \x01(\r\"5\n\x0bPairingMode\x12\r\n\tRandomPin\x10\x00\x12\x0c\n\x08\x46ixedPin\x10\x01\x12\t\n\x05NoPin\x10\x02\x42\x10\n\x0epayloadVariantBH\n\x13\x63om.geeksville.meshB\x0c\x43onfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3')
 
 
 
@@ -25,6 +25,7 @@ _CONFIG_POWERCONFIG = _CONFIG.nested_types_by_name['PowerConfig']
 _CONFIG_WIFICONFIG = _CONFIG.nested_types_by_name['WiFiConfig']
 _CONFIG_DISPLAYCONFIG = _CONFIG.nested_types_by_name['DisplayConfig']
 _CONFIG_LORACONFIG = _CONFIG.nested_types_by_name['LoRaConfig']
+_CONFIG_BLUETOOTHCONFIG = _CONFIG.nested_types_by_name['BluetoothConfig']
 _CONFIG_DEVICECONFIG_ROLE = _CONFIG_DEVICECONFIG.enum_types_by_name['Role']
 _CONFIG_POSITIONCONFIG_POSITIONFLAGS = _CONFIG_POSITIONCONFIG.enum_types_by_name['PositionFlags']
 _CONFIG_POWERCONFIG_CHARGECURRENT = _CONFIG_POWERCONFIG.enum_types_by_name['ChargeCurrent']
@@ -32,6 +33,7 @@ _CONFIG_WIFICONFIG_WIFIMODE = _CONFIG_WIFICONFIG.enum_types_by_name['WiFiMode']
 _CONFIG_DISPLAYCONFIG_GPSCOORDINATEFORMAT = _CONFIG_DISPLAYCONFIG.enum_types_by_name['GpsCoordinateFormat']
 _CONFIG_LORACONFIG_REGIONCODE = _CONFIG_LORACONFIG.enum_types_by_name['RegionCode']
 _CONFIG_LORACONFIG_MODEMPRESET = _CONFIG_LORACONFIG.enum_types_by_name['ModemPreset']
+_CONFIG_BLUETOOTHCONFIG_PAIRINGMODE = _CONFIG_BLUETOOTHCONFIG.enum_types_by_name['PairingMode']
 Config = _reflection.GeneratedProtocolMessageType('Config', (_message.Message,), {
 
   'DeviceConfig' : _reflection.GeneratedProtocolMessageType('DeviceConfig', (_message.Message,), {
@@ -75,6 +77,13 @@ Config = _reflection.GeneratedProtocolMessageType('Config', (_message.Message,),
     # @@protoc_insertion_point(class_scope:Config.LoRaConfig)
     })
   ,
+
+  'BluetoothConfig' : _reflection.GeneratedProtocolMessageType('BluetoothConfig', (_message.Message,), {
+    'DESCRIPTOR' : _CONFIG_BLUETOOTHCONFIG,
+    '__module__' : 'config_pb2'
+    # @@protoc_insertion_point(class_scope:Config.BluetoothConfig)
+    })
+  ,
   'DESCRIPTOR' : _CONFIG,
   '__module__' : 'config_pb2'
   # @@protoc_insertion_point(class_scope:Config)
@@ -86,37 +95,42 @@ _sym_db.RegisterMessage(Config.PowerConfig)
 _sym_db.RegisterMessage(Config.WiFiConfig)
 _sym_db.RegisterMessage(Config.DisplayConfig)
 _sym_db.RegisterMessage(Config.LoRaConfig)
+_sym_db.RegisterMessage(Config.BluetoothConfig)
 
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\014ConfigProtosH\003Z!github.com/meshtastic/gomeshproto'
   _CONFIG._serialized_start=17
-  _CONFIG._serialized_end=2429
-  _CONFIG_DEVICECONFIG._serialized_start=264
-  _CONFIG_DEVICECONFIG._serialized_end=480
-  _CONFIG_DEVICECONFIG_ROLE._serialized_start=416
-  _CONFIG_DEVICECONFIG_ROLE._serialized_end=480
-  _CONFIG_POSITIONCONFIG._serialized_start=483
-  _CONFIG_POSITIONCONFIG._serialized_end=907
-  _CONFIG_POSITIONCONFIG_POSITIONFLAGS._serialized_start=703
-  _CONFIG_POSITIONCONFIG_POSITIONFLAGS._serialized_end=907
-  _CONFIG_POWERCONFIG._serialized_start=910
-  _CONFIG_POWERCONFIG._serialized_end=1410
-  _CONFIG_POWERCONFIG_CHARGECURRENT._serialized_start=1201
-  _CONFIG_POWERCONFIG_CHARGECURRENT._serialized_end=1410
-  _CONFIG_WIFICONFIG._serialized_start=1413
-  _CONFIG_WIFICONFIG._serialized_end=1576
-  _CONFIG_WIFICONFIG_WIFIMODE._serialized_start=1514
-  _CONFIG_WIFICONFIG_WIFIMODE._serialized_end=1576
-  _CONFIG_DISPLAYCONFIG._serialized_start=1579
-  _CONFIG_DISPLAYCONFIG._serialized_end=1877
-  _CONFIG_DISPLAYCONFIG_GPSCOORDINATEFORMAT._serialized_start=1746
-  _CONFIG_DISPLAYCONFIG_GPSCOORDINATEFORMAT._serialized_end=1877
-  _CONFIG_LORACONFIG._serialized_start=1880
-  _CONFIG_LORACONFIG._serialized_end=2411
-  _CONFIG_LORACONFIG_REGIONCODE._serialized_start=2168
-  _CONFIG_LORACONFIG_REGIONCODE._serialized_end=2297
-  _CONFIG_LORACONFIG_MODEMPRESET._serialized_start=2299
-  _CONFIG_LORACONFIG_MODEMPRESET._serialized_end=2411
+  _CONFIG._serialized_end=2637
+  _CONFIG_DEVICECONFIG._serialized_start=310
+  _CONFIG_DEVICECONFIG._serialized_end=526
+  _CONFIG_DEVICECONFIG_ROLE._serialized_start=462
+  _CONFIG_DEVICECONFIG_ROLE._serialized_end=526
+  _CONFIG_POSITIONCONFIG._serialized_start=529
+  _CONFIG_POSITIONCONFIG._serialized_end=953
+  _CONFIG_POSITIONCONFIG_POSITIONFLAGS._serialized_start=749
+  _CONFIG_POSITIONCONFIG_POSITIONFLAGS._serialized_end=953
+  _CONFIG_POWERCONFIG._serialized_start=956
+  _CONFIG_POWERCONFIG._serialized_end=1456
+  _CONFIG_POWERCONFIG_CHARGECURRENT._serialized_start=1247
+  _CONFIG_POWERCONFIG_CHARGECURRENT._serialized_end=1456
+  _CONFIG_WIFICONFIG._serialized_start=1459
+  _CONFIG_WIFICONFIG._serialized_end=1622
+  _CONFIG_WIFICONFIG_WIFIMODE._serialized_start=1560
+  _CONFIG_WIFICONFIG_WIFIMODE._serialized_end=1622
+  _CONFIG_DISPLAYCONFIG._serialized_start=1625
+  _CONFIG_DISPLAYCONFIG._serialized_end=1923
+  _CONFIG_DISPLAYCONFIG_GPSCOORDINATEFORMAT._serialized_start=1792
+  _CONFIG_DISPLAYCONFIG_GPSCOORDINATEFORMAT._serialized_end=1923
+  _CONFIG_LORACONFIG._serialized_start=1926
+  _CONFIG_LORACONFIG._serialized_end=2457
+  _CONFIG_LORACONFIG_REGIONCODE._serialized_start=2214
+  _CONFIG_LORACONFIG_REGIONCODE._serialized_end=2343
+  _CONFIG_LORACONFIG_MODEMPRESET._serialized_start=2345
+  _CONFIG_LORACONFIG_MODEMPRESET._serialized_end=2457
+  _CONFIG_BLUETOOTHCONFIG._serialized_start=2460
+  _CONFIG_BLUETOOTHCONFIG._serialized_end=2619
+  _CONFIG_BLUETOOTHCONFIG_PAIRINGMODE._serialized_start=2566
+  _CONFIG_BLUETOOTHCONFIG_PAIRINGMODE._serialized_end=2619
 # @@protoc_insertion_point(module_scope)
