@@ -127,7 +127,7 @@ class Node:
 
         if self.localConfig.bluetooth:
             p = admin_pb2.AdminMessage()
-            p.set_config.lora.CopyFrom(self.localConfig.bluetooth)
+            p.set_config.bluetooth.CopyFrom(self.localConfig.bluetooth)
             self._sendAdmin(p)
             logging.debug("Wrote bluetooth")
             time.sleep(0.3)

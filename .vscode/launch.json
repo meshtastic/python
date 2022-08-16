@@ -77,6 +77,22 @@
       "args": ["--debug", "--set", "lora.region", "TW"]
     },
     {
+      "name": "meshtastic debug set bluetooth fixed pin",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--set", "bluetooth.fixed_pin", "555555"]
+    },
+    {
+      "name": "meshtastic debug get bluetooth fixed pin",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--get", "bluetooth.fixed_pin"]
+    },
+    {
       "name": "meshtastic debug setPref",
       "type": "python",
       "request": "launch",
