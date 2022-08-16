@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x63\x61nnedmessages.proto\"w\n\x19\x43\x61nnedMessageModuleConfig\x12\x15\n\rmessagesPart1\x18\x0b \x01(\t\x12\x15\n\rmessagesPart2\x18\x0c \x01(\t\x12\x15\n\rmessagesPart3\x18\r \x01(\t\x12\x15\n\rmessagesPart4\x18\x0e \x01(\tBU\n\x13\x63om.geeksville.meshB\x19\x43\x61nnedMessageConfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x63\x61nnedmessages.proto\"-\n\x19\x43\x61nnedMessageModuleConfig\x12\x10\n\x08messages\x18\x01 \x01(\tBU\n\x13\x63om.geeksville.meshB\x19\x43\x61nnedMessageConfigProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3')
 
 
 
@@ -31,5 +31,5 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\031CannedMessageConfigProtosH\003Z!github.com/meshtastic/gomeshproto'
   _CANNEDMESSAGEMODULECONFIG._serialized_start=24
-  _CANNEDMESSAGEMODULECONFIG._serialized_end=143
+  _CANNEDMESSAGEMODULECONFIG._serialized_end=69
 # @@protoc_insertion_point(module_scope)
