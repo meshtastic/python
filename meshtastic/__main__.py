@@ -456,12 +456,10 @@ def onConnected(interface):
 
         def setSimpleConfig(modem_preset):
             """Set one of the simple modem_config"""
-            # Completely new radio settings
-            chs = config_pb2.Config.LoRaConfig()
-            chs.modem_preset = modem_preset
+            # Overwrite modem_preset
             prefs = interface.getNode(args.dest).localConfig
-            prefs.lora.CopyFrom(chs)
-            interface.getNode(args.dest).writeConfig()
+            prefs.lora.modem_preset = modem_preset
+            interface.getNode(args.dest).writeConfig('lora')
 
         # handle the simple radio set commands
         if args.ch_vlongslow:
