@@ -331,9 +331,12 @@ class Node:
             for c in self.channels:
                 if c.role == channel_pb2.Channel.Role.PRIMARY or (includeAll and c.role == channel_pb2.Channel.Role.SECONDARY):
                     channelSet.settings.append(c.settings)
+
+        channelSet.lora_config.CopyFrom(self.localConfig.lora)
         some_bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(some_bytes).decode('ascii')
-        return f"https://www.meshtastic.org/e/#{s}".replace("=", "")
+        s = s.replace("=", "").replace("+", "-").replace("/", "_")
+        return f"https://www.meshtastic.org/e/#{s}"
 
     def setURL(self, url):
         """Set mesh network URL"""
@@ -370,6 +373,10 @@ class Node:
             logging.debug(f'Channel i:{i} ch:{ch}')
             self.writeChannel(ch.index)
             i = i + 1
+
+        p = admin_pb2.AdminMessage()
+        p.set_config.lora.CopyFrom(channelSet.lora_config)
+        self._sendAdmin(p)
 
     def onResponseRequestCannedMessagePluginMessageMessages(self, p):
         """Handle the response packet for requesting canned message plugin message part 1"""
