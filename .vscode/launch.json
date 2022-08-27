@@ -133,6 +133,15 @@
       "args": ["--debug", "--setchan", "psk", ""]
     },
     {
+      "name": "meshtastic --ch-set",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--ch-set", "channel_num", "0", "--ch-index", "0"]
+    },
+    
+    {
       "name": "meshtastic seturl",
       "type": "python",
       "request": "launch",

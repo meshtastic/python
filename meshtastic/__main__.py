@@ -65,6 +65,7 @@ def getPref(config, comp_name):
     logging.debug(f'use camel:{Globals.getInstance().get_camel_case()}')
 
     objDesc = config.DESCRIPTOR
+    print()
     config_type = objDesc.fields_by_name.get(name[0])
     pref = False
     if config_type:
@@ -106,8 +107,11 @@ def setPref(config, comp_name, valStr):
     objDesc = config.DESCRIPTOR
     config_type = objDesc.fields_by_name.get(name[0])
     pref = False
-    if config_type:
+    if config_type and config_type.message_type is not None:
         pref = config_type.message_type.fields_by_name.get(snake_name)
+    # Others like ChannelSettings are standalone
+    elif config_type:
+        pref = config_type
 
     if (not pref) or (not config_type):
         return False
@@ -143,8 +147,11 @@ def setPref(config, comp_name, valStr):
     # note: 'ignore_incoming' is a repeating field
     if snake_name != 'ignore_incoming':
         try:
-            config_values = getattr(config, config_type.name)
-            setattr(config_values, pref.name, val)
+            if config_type.message_type is not None:
+                config_values = getattr(config, config_type.name)
+                setattr(config_values, pref.name, val)
+            else:
+                setattr(config, snake_name, val)
         except TypeError:
             # The setter didn't like our arg type guess try again as a string
             config_values = getattr(config, config_type.name)
@@ -158,10 +165,11 @@ def setPref(config, comp_name, valStr):
             print(f"Adding '{val}' to the ignore_incoming list")
             config_type.message_type.ignore_incoming.extend([val])
 
+    prefix = f"{name[0]}." if config_type.message_type is not None else ""
     if Globals.getInstance().get_camel_case():
-        print(f"Set {name[0]}.{camel_name} to {valStr}")
+        print(f"Set {prefix}{camel_name} to {valStr}")
     else:
-        print(f"Set {name[0]}.{snake_name} to {valStr}")
+        print(f"Set {prefix}{snake_name} to {valStr}")
 
     return True
 
