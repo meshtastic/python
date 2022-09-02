@@ -480,10 +480,10 @@ def onConnected(interface):
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LongFast)
 
         if args.ch_midslow:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MidSlow)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MedSlow)
 
         if args.ch_midfast:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MidFast)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MedFast)
 
         if args.ch_shortslow:
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.ShortSlow)
