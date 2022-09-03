@@ -675,7 +675,7 @@ class MeshInterface:
         # UNKNOWN_APP is the default protobuf portnum value, and therefore if not
         # set it will not be populated at all to make API usage easier, set
         # it to prevent confusion
-        if "portnum" not in decoded:
+        if decoded and "portnum" not in decoded:
             new_portnum = portnums_pb2.PortNum.Name(portnums_pb2.PortNum.UNKNOWN_APP)
             decoded["portnum"] = new_portnum
             logging.warning(f"portnum was not in decoded. Setting to:{new_portnum}")
