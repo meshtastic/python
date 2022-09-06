@@ -194,21 +194,21 @@ def onConnected(interface):
             localConfig = interface.localNode.localConfig
             if args.setalt:
                 alt = int(args.setalt)
-                localConfig.fixed_position = True
+                localConfig.position.fixed_position = True
                 print(f"Fixing altitude at {alt} meters")
             if args.setlat:
                 lat = float(args.setlat)
-                localConfig.fixed_position = True
+                localConfig.position.fixed_position = True
                 print(f"Fixing latitude at {lat} degrees")
             if args.setlon:
                 lon = float(args.setlon)
-                localConfig.fixed_position = True
+                localConfig.position.fixed_position = True
                 print(f"Fixing longitude at {lon} degrees")
 
             print("Setting device position")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.sendPosition(lat, lon, alt)
-            interface.localNode.writeConfig()
+            interface.localNode.writeConfig('position')
         elif not args.no_time:
             # We normally provide a current time to the mesh when we connect
             interface.sendPosition()
@@ -389,19 +389,19 @@ def onConnected(interface):
 
                     if 'alt' in configuration['location']:
                         alt = int(configuration['location']['alt'])
-                        localConfig.fixed_position = True
+                        localConfig.position.fixed_position = True
                         print(f"Fixing altitude at {alt} meters")
                     if 'lat' in configuration['location']:
                         lat = float(configuration['location']['lat'])
-                        localConfig.fixed_position = True
+                        localConfig.position.fixed_position = True
                         print(f"Fixing latitude at {lat} degrees")
                     if 'lon' in configuration['location']:
                         lon = float(configuration['location']['lon'])
-                        localConfig.fixed_position = True
+                        localConfig.position.fixed_position = True
                         print(f"Fixing longitude at {lon} degrees")
                     print("Setting device position")
                     interface.sendPosition(lat, lon, alt)
-                    interface.localNode.writeConfig()
+                    interface.localNode.writeConfig('position')
 
                 if 'user_prefs' in configuration:
                     localConfig = interface.getNode(args.dest).localConfig
