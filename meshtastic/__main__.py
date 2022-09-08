@@ -479,10 +479,10 @@ def onConnected(interface):
         if args.ch_longfast:
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LongFast)
 
-        if args.ch_midslow:
+        if args.ch_medslow:
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MedSlow)
 
-        if args.ch_midfast:
+        if args.ch_medfast:
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MedFast)
 
         if args.ch_shortslow:
@@ -829,10 +829,10 @@ def initParser():
         "--ch-longfast", help="Change to the long-range and fast channel", action='store_true')
 
     parser.add_argument(
-        "--ch-midslow", help="Change to the mid-range and slow channel", action='store_true')
+        "--ch-medslow", help="Change to the med-range and slow channel", action='store_true')
 
     parser.add_argument(
-        "--ch-midfast", help="Change to the mid-range and fast channel", action='store_true')
+        "--ch-medfast", help="Change to the med-range and fast channel", action='store_true')
 
     parser.add_argument(
         "--ch-shortslow", help="Change to the short-range and slow channel", action='store_true')

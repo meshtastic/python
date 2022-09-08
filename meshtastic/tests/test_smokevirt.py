@@ -227,8 +227,8 @@ def test_smokevirt_ch_values():
     exp = {
             '--ch-longslow': 'LongSlow',
             '--ch-longfast': 'LongFast',
-            '--ch-midslow': 'MidSlow',
-            '--ch-midfast': 'MidFast',
+            '--ch-medslow': 'MedSlow',
+            '--ch-medfast': 'MedFast',
             '--ch-shortslow': 'ShortSlow',
             '--ch-shortfast': 'ShortFast'
           }
