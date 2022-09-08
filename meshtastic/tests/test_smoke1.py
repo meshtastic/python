@@ -217,24 +217,24 @@ def test_smoke1_set_owner():
 @pytest.mark.smoke1
 def test_smoke1_ch_set_modem_config():
     """Test --ch-set modem_config"""
-    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config MidFast')
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config MedFast')
     assert re.search(r'Warning: Need to specify', out, re.MULTILINE)
     assert return_value == 1
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
-    assert not re.search(r'MidFast', out, re.MULTILINE)
+    assert not re.search(r'MedFast', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
-    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config MidFast --ch-index 0')
+    return_value, out = subprocess.getstatusoutput('meshtastic --ch-set modem_config MedFast --ch-index 0')
     assert re.match(r'Connected to radio', out)
-    assert re.search(r'^Set modem_config to MidFast', out, re.MULTILINE)
+    assert re.search(r'^Set modem_config to MedFast', out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_REBOOT)
     return_value, out = subprocess.getstatusoutput('meshtastic --info')
-    assert re.search(r'MidFast', out, re.MULTILINE)
+    assert re.search(r'MedFast', out, re.MULTILINE)
     assert return_value == 0
 
 
@@ -247,8 +247,8 @@ def test_smoke1_ch_values():
             '--ch-vlongslow': '{ "psk": "AQ==" }',
             '--ch-longslow': 'LongSlow',
             '--ch-longfast': 'LongFast',
-            '--ch-midslow': 'MidSlow',
-            '--ch-midfast': 'MidFast',
+            '--ch-medslow': 'MedSlow',
+            '--ch-medfast': 'MedFast',
             '--ch-shortslow': 'ShortSlow',
             '--ch-shortfast': 'ShortFast'
           }
