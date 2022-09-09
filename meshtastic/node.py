@@ -104,11 +104,11 @@ class Node:
             logging.debug("Wrote power")
             time.sleep(0.3)
 
-        if self.localConfig.wifi:
+        if self.localConfig.network:
             p = admin_pb2.AdminMessage()
-            p.set_config.wifi.CopyFrom(self.localConfig.wifi)
+            p.set_config.network.CopyFrom(self.localConfig.network)
             self._sendAdmin(p)
-            logging.debug("Wrote wifi")
+            logging.debug("Wrote network")
             time.sleep(0.3)
 
         if self.localConfig.display:
@@ -194,8 +194,8 @@ class Node:
             p.set_config.position.CopyFrom(self.localConfig.position)
         elif config_name == 'power':
             p.set_config.power.CopyFrom(self.localConfig.power)
-        elif config_name == 'wifi':
-            p.set_config.wifi.CopyFrom(self.localConfig.wifi)
+        elif config_name == 'network':
+            p.set_config.network.CopyFrom(self.localConfig.network)
         elif config_name == 'display':
             p.set_config.display.CopyFrom(self.localConfig.display)
         elif config_name == 'lora':
