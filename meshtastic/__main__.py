@@ -471,25 +471,25 @@ def onConnected(interface):
 
         # handle the simple radio set commands
         if args.ch_vlongslow:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.VLongSlow)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.VERY_LONG_SLOW)
 
         if args.ch_longslow:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LongSlow)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_SLOW)
 
         if args.ch_longfast:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LongFast)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_FAST)
 
         if args.ch_medslow:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MedSlow)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MEDIUM_SLOW)
 
         if args.ch_medfast:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MedFast)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MEDIUM_FAST)
 
         if args.ch_shortslow:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.ShortSlow)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.SHORT_SLOW)
 
         if args.ch_shortfast:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.ShortFast)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.SHORT_FAST)
 
         if args.ch_set or args.ch_enable or args.ch_disable:
             closeNow = True

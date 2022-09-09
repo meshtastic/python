@@ -550,8 +550,8 @@ class MeshInterface:
                 self.localNode.localConfig.position.CopyFrom(fromRadio.config.position)
             elif fromRadio.config.HasField("power"):
                 self.localNode.localConfig.power.CopyFrom(fromRadio.config.power)
-            elif fromRadio.config.HasField("wifi"):
-                self.localNode.localConfig.wifi.CopyFrom(fromRadio.config.wifi)
+            elif fromRadio.config.HasField("network"):
+                self.localNode.localConfig.network.CopyFrom(fromRadio.config.network)
             elif fromRadio.config.HasField("display"):
                 self.localNode.localConfig.display.CopyFrom(fromRadio.config.display)
             elif fromRadio.config.HasField("lora"):
