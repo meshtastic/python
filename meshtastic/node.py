@@ -474,6 +474,14 @@ class Node:
 
         return self._sendAdmin(p, wantResponse=True, onResponse=self.onRequestGetMetadata)
 
+    def factoryReset(self):
+        """Tell the node to factory reset."""
+        p = admin_pb2.AdminMessage()
+        p.factory_reset = True
+        logging.info(f"Telling node to factory reset")
+
+        return self._sendAdmin(p)   
+
     def _fixupChannels(self):
         """Fixup indexes and add disabled channels as needed"""
 
