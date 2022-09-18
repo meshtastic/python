@@ -22,7 +22,7 @@ with open(version_filename, 'w', encoding='utf-8') as f:
             v = words[1].split(".")
             build_num = re.findall(r"\d+", v[2])[0]
             new_build_num = str(int(build_num)+1)
-            ver = f'{v[0]}.{v[1]}.{v[2].replace(build_num, new_build_num)}'
+            ver = f'{v[0]}.{v[1]}.{v[2].replace(build_num, new_build_num)}'.replace('\n', '')
             f.write(f'    version="{ver}",\n')
         else:
             f.write(line)
