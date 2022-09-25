@@ -482,6 +482,14 @@ class Node:
 
         return self._sendAdmin(p)   
 
+    def resetNodeDb(self):
+        """Tell the node to reset its list of nodes."""
+        p = admin_pb2.AdminMessage()
+        p.nodedb_reset = True
+        logging.info(f"Telling node to reset the NodeDB")
+
+        return self._sendAdmin(p)
+
     def _fixupChannels(self):
         """Fixup indexes and add disabled channels as needed"""
 

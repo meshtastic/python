@@ -285,6 +285,10 @@ def onConnected(interface):
             closeNow = True
             interface.getNode(args.dest).factoryReset()
 
+        if args.reset_nodedb:
+            closeNow = True
+            interface.getNode(args.dest).resetNodeDb()
+
         if args.sendtext:
             closeNow = True
             channelIndex = 0
@@ -876,6 +880,9 @@ def initParser():
 
     parser.add_argument(
         "--factory-reset", help="Tell the destination node to install the default config", action="store_true")
+    
+    parser.add_argument(
+        "--reset-nodedb", help="Tell the destination node clear its list of nodes", action="store_true")
 
     parser.add_argument(
         "--reply", help="Reply to received messages",
