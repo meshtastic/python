@@ -411,19 +411,21 @@ def onConnected(interface):
                     interface.sendPosition(lat, lon, alt)
                     interface.localNode.writeConfig('position')
 
-                if 'user_prefs' in configuration:
+                if 'config' in configuration:
                     localConfig = interface.getNode(args.dest).localConfig
-                    for pref in configuration['user_prefs']:
-                        setPref(localConfig, pref, str(configuration['user_prefs'][pref]))
-                    print("Writing modified preferences to device")
-                    interface.getNode(args.dest).writeConfig()
-
-                if 'userPrefs' in configuration:
-                    localConfig = interface.getNode(args.dest).localConfig
-                    for pref in configuration['userPrefs']:
-                        setPref(localConfig, pref, str(configuration['userPrefs'][pref]))
-                    print("Writing modified preferences to device")
-                    interface.getNode(args.dest).writeConfig()
+                    for section in configuration['config']:
+                        for pref in configuration['config'][section]:
+                            setPref(localConfig, f"{section}.{pref}", str(configuration['config'][section][pref]))
+                        interface.getNode(args.dest).writeConfig(section)
+                    
+                if 'module_config' in configuration:
+                    moduleConfig = interface.getNode(args.dest).moduleConfig
+                    for section in configuration['module_config']:
+                        for pref in configuration['module_config'][section]:
+                            setPref(moduleConfig, f"{section}.{pref}", str(configuration['module_config'][section][pref]))
+                        interface.getNode(args.dest).writeConfig(section)
+                    
+                print("Writing modified configuration to device")
 
         if args.export_config:
             # export the configuration (the opposite of '--configure')
@@ -645,20 +647,32 @@ def export_config(interface):
             configObj["channel_url"] = channel_url
     if lat or lon or alt:
         configObj["location"] = { "lat": lat, "lon": lon, "alt": alt }
-    preferences = MessageToDict(interface.localNode.localConfig)
-    if preferences:
+
+    config = MessageToDict(interface.localNode.localConfig)
+    if config:
         # Convert inner keys to correct snake/camelCase
         prefs = {}
-        for pref in preferences:
+        for pref in config:
             if Globals.getInstance().get_camel_case():
-                prefs[meshtastic.util.snake_to_camel(pref)] = preferences[pref]
+                prefs[meshtastic.util.snake_to_camel(pref)] = config[pref]
             else:
-                # TODO: Possibly convert camel to snake?
-                prefs[pref] = preferences[pref]
+                prefs[pref] = config[pref]
         if Globals.getInstance().get_camel_case():
-            configObj["userPrefs"] = preferences
+            configObj["config"] = config
         else:
-            configObj["user_prefs"] = preferences
+            configObj["config"] = config
+    
+    module_config = MessageToDict(interface.localNode.moduleConfig)
+    if module_config:
+        # Convert inner keys to correct snake/camelCase
+        prefs = {}
+        for pref in module_config:
+            if len(module_config[pref]) > 0:
+                prefs[pref] = module_config[pref]
+        if Globals.getInstance().get_camel_case():
+            configObj["module_config"] = prefs
+        else:
+            configObj["module_config"] = prefs
 
     config = "# start of Meshtastic configure yaml\n"
     config += yaml.dump(configObj)

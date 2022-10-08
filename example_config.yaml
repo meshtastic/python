@@ -2,16 +2,42 @@
 owner: Bob TBeam
 owner_short: BOB
 
-channel_url: https://www.meshtastic.org/d/#CgUYAyIBAQ
+channel_url: https://www.meshtastic.org/e/#CgMSAQESCDgBQANIAVAe
 
 location:
   lat: 35.88888
   lon: -93.88888
   alt: 304
 
-user_prefs:
-  region: 1
-  is_always_powered: 'true'
-  screen_on_secs: 31536000
-  wait_bluetooth_secs: 31536000
-  location_share: 'LocEnabled'
+config: 
+  bluetooth:
+    enabled: true
+    fixedPin: 123456
+  device:
+    serialEnabled: true
+  display:
+    screenOnSecs: 600
+  lora:
+    region: US
+    hopLimit: 3
+    txEnabled: true
+    txPower: 30
+  network:
+    ntpServer: 0.pool.ntp.org
+  position:
+    gpsAttemptTime: 900
+    gpsEnabled: true
+    gpsUpdateInterval: 120
+    positionBroadcastSecs: 900
+    positionBroadcastSmartEnabled: true
+    positionFlags: 3
+  power:
+    lsSecs: 300
+    meshSdsTimeoutSecs: 7200
+    minWakeSecs: 10
+    sdsSecs: 4294967295
+    
+module_config:
+  telemetry:
+    deviceUpdateInterval: 900
+    environmentUpdateInterval: 900
