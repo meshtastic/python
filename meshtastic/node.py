@@ -525,6 +525,20 @@ class Node:
     def onResponseRequestChannel(self, p):
         """Handle the response packet for requesting a channel _requestChannel()"""
         logging.debug(f'onResponseRequestChannel() p:{p}')
+
+        if p["decoded"]["portnum"] == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.ROUTING_APP):
+            print('No admin, error reason: ', p["decoded"]["routing"]["errorReason"])
+            if p["decoded"]["routing"]["errorReason"] != "NONE":
+                logging.warning(f'Channel request failed, error reason: {p["decoded"]["routing"]["errorReason"]}')
+                self._timeout.expireTime = time.time() # Do not wait any longer
+                return # Don't try to parse this routing message
+            lastTried = 0
+            if len(self.partialChannels) > 0:
+                lastTried = self.partialChannels[-1]
+            logging.debug(f"Retrying previous channel request.")
+            self._requestChannel(lastTried)
+            return
+
         c = p["decoded"]["admin"]["raw"].get_channel_response
         self.partialChannels.append(c)
         self._timeout.reset()  # We made foreward progress
