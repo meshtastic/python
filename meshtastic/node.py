@@ -518,7 +518,6 @@ class Node:
         logging.debug(f'onRequestGetMetadata() p:{p}')
 
         if p["decoded"]["portnum"] == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.ROUTING_APP):
-            print('No admin, error reason: ', p["decoded"]["routing"]["errorReason"])
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 logging.warning(f'Metadata request failed, error reason: {p["decoded"]["routing"]["errorReason"]}')
                 self._timeout.expireTime = time.time() # Do not wait any longer
@@ -538,7 +537,6 @@ class Node:
         logging.debug(f'onResponseRequestChannel() p:{p}')
 
         if p["decoded"]["portnum"] == portnums_pb2.PortNum.Name(portnums_pb2.PortNum.ROUTING_APP):
-            print('No admin, error reason: ', p["decoded"]["routing"]["errorReason"])
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 logging.warning(f'Channel request failed, error reason: {p["decoded"]["routing"]["errorReason"]}')
                 self._timeout.expireTime = time.time() # Do not wait any longer
