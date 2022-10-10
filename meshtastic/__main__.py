@@ -273,6 +273,10 @@ def onConnected(interface):
             closeNow = True
             interface.getNode(args.dest).reboot()
 
+        if args.reboot_ota:
+            closeNow = True
+            interface.getNode(args.dest).rebootOTA();
+
         if args.shutdown:
             closeNow = True
             interface.getNode(args.dest).shutdown()
@@ -885,6 +889,9 @@ def initParser():
 
     parser.add_argument(
         "--reboot", help="Tell the destination node to reboot", action="store_true")
+
+    parser.add_argument(
+        "--reboot-ota", help="Tell the destination node to reboot into factory firmware", action="store_true")
 
     parser.add_argument(
         "--shutdown", help="Tell the destination node to shutdown", action="store_true")
