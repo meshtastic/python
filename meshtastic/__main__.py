@@ -232,34 +232,34 @@ def onConnected(interface):
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
             closeNow = True
-            localConfig = interface.getNode(args.dest).localConfig
+            positionConfig = interface.getNode(args.dest).localConfig.position
             allFields = 0
 
             try:
                 for field in args.pos_fields:
-                    v_field = config_pb2.PositionFlags.Value(field)
+                    v_field = positionConfig.PositionFlags.Value(field)
                     allFields |= v_field
 
             except ValueError:
                 print("ERROR: supported position fields are:")
-                print(config_pb2.PositionFlags.keys())
+                print(positionConfig.PositionFlags.keys())
                 print("If no fields are specified, will read and display current value.")
 
             else:
                 print(f"Setting position fields to {allFields}")
-                setPref(localConfig, 'position_flags', f'{allFields:d}')
+                setPref(positionConfig, 'position_flags', f'{allFields:d}')
                 print("Writing modified preferences to device")
-                interface.getNode(args.dest).writeConfig()
+                interface.getNode(args.dest).writeConfig('position')
 
         elif args.pos_fields is not None:
             # If --pos-fields invoked without args, read and display current value
             closeNow = True
-            localConfig = interface.getNode(args.dest).localConfig
+            positionConfig = interface.getNode(args.dest).localConfig.position
 
             fieldNames = []
-            for bit in config_pb2.PositionFlags.values():
-                if localConfig.position_flags & bit:
-                    fieldNames.append(config_pb2.PositionFlags.Name(bit))
+            for bit in positionConfig.PositionFlags.values():
+                if positionConfig.position_flags & bit:
+                    fieldNames.append(positionConfig.PositionFlags.Name(bit))
             print(' '.join(fieldNames))
 
         if args.set_ham:
