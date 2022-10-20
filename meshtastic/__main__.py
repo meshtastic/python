@@ -72,6 +72,19 @@ def getPref(config, comp_name):
         pref = config_type.message_type.fields_by_name.get(snake_name)
 
     if (not pref) or (not config_type):
+        print(f"Not found. Choices in sorted order are:")
+        for config_section in objDesc.fields:
+            config = objDesc.fields_by_name.get(config_section.name)
+            if not config:
+                names = []
+                for field in config.fields:
+                    tmp_name = f'{config_section.name}.{field.name}'
+                    if Globals.getInstance().get_camel_case():
+                        tmp_name = meshtastic.util.snake_to_camel(tmp_name)
+                    names.append(tmp_name)
+                for temp_name in sorted(names):
+                    print(f"    {temp_name}")
+
         return False
 
     # read the value
