@@ -16,7 +16,7 @@ from . import channel_pb2 as channel__pb2
 from . import config_pb2 as config__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rapponly.proto\x1a\rchannel.proto\x1a\x0c\x63onfig.proto\"Y\n\nChannelSet\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.ChannelSettings\x12\'\n\x0blora_config\x18\x02 \x01(\x0b\x32\x12.Config.LoRaConfigBI\n\x13\x63om.geeksville.meshB\rAppOnlyProtosH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rapponly.proto\x1a\rchannel.proto\x1a\x0c\x63onfig.proto\"Y\n\nChannelSet\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.ChannelSettings\x12\'\n\x0blora_config\x18\x02 \x01(\x0b\x32\x12.Config.LoRaConfigBJ\n\x13\x63om.geeksville.meshB\rAppOnlyProtosH\x03Z\"github.com/meshtastic/go/generatedb\x06proto3')
 
 
 
@@ -31,7 +31,7 @@ _sym_db.RegisterMessage(ChannelSet)
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\rAppOnlyProtosH\003Z!github.com/meshtastic/gomeshproto'
+  DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\rAppOnlyProtosH\003Z\"github.com/meshtastic/go/generated'
   _CHANNELSET._serialized_start=46
   _CHANNELSET._serialized_end=135
 # @@protoc_insertion_point(module_scope)

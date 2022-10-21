@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15remote_hardware.proto\"\xcb\x01\n\x0fHardwareMessage\x12#\n\x04type\x18\x01 \x01(\x0e\x32\x15.HardwareMessage.Type\x12\x11\n\tgpio_mask\x18\x02 \x01(\x04\x12\x12\n\ngpio_value\x18\x03 \x01(\x04\"l\n\x04Type\x12\t\n\x05UNSET\x10\x00\x12\x0f\n\x0bWRITE_GPIOS\x10\x01\x12\x0f\n\x0bWATCH_GPIOS\x10\x02\x12\x11\n\rGPIOS_CHANGED\x10\x03\x12\x0e\n\nREAD_GPIOS\x10\x04\x12\x14\n\x10READ_GPIOS_REPLY\x10\x05\x42J\n\x13\x63om.geeksville.meshB\x0eRemoteHardwareH\x03Z!github.com/meshtastic/gomeshprotob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15remote_hardware.proto\"\xcb\x01\n\x0fHardwareMessage\x12#\n\x04type\x18\x01 \x01(\x0e\x32\x15.HardwareMessage.Type\x12\x11\n\tgpio_mask\x18\x02 \x01(\x04\x12\x12\n\ngpio_value\x18\x03 \x01(\x04\"l\n\x04Type\x12\t\n\x05UNSET\x10\x00\x12\x0f\n\x0bWRITE_GPIOS\x10\x01\x12\x0f\n\x0bWATCH_GPIOS\x10\x02\x12\x11\n\rGPIOS_CHANGED\x10\x03\x12\x0e\n\nREAD_GPIOS\x10\x04\x12\x14\n\x10READ_GPIOS_REPLY\x10\x05\x42K\n\x13\x63om.geeksville.meshB\x0eRemoteHardwareH\x03Z\"github.com/meshtastic/go/generatedb\x06proto3')
 
 
 
@@ -30,7 +30,7 @@ _sym_db.RegisterMessage(HardwareMessage)
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\016RemoteHardwareH\003Z!github.com/meshtastic/gomeshproto'
+  DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\016RemoteHardwareH\003Z\"github.com/meshtastic/go/generated'
   _HARDWAREMESSAGE._serialized_start=26
   _HARDWAREMESSAGE._serialized_end=229
   _HARDWAREMESSAGE_TYPE._serialized_start=121

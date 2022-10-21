@@ -367,6 +367,9 @@ def onConnected(interface):
                     print(f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
                 else:
                     print(f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have attribute {pref[0]}.")
+                print("Choices are...")
+                printConfig(node.localConfig)
+                printConfig(node.moduleConfig)
 
         if args.configure:
             with open(args.configure[0], encoding='utf8') as file:
@@ -573,8 +576,11 @@ def onConnected(interface):
                     print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
                 else:
                     print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {pref[0]}.")
-
-            print("Completed getting preferences")
+                print("Choices are...")
+                printConfig(localConfig)
+                printConfig(moduleConfig)
+            else:
+                print("Completed getting preferences")
 
         if args.nodes:
             closeNow = True
@@ -606,6 +612,20 @@ def onConnected(interface):
         print(f"Aborting due to: {ex}")
         interface.close()  # close the connection now, so that our app exits
 
+def printConfig(config):
+    objDesc = config.DESCRIPTOR
+    for config_section in objDesc.fields:
+        if config_section.name != "version":
+            config = objDesc.fields_by_name.get(config_section.name)
+            print(f"{config_section.name}:")
+            names = []
+            for field in config.message_type.fields:
+                tmp_name = f'{config_section.name}.{field.name}'
+                if Globals.getInstance().get_camel_case():
+                    tmp_name = meshtastic.util.snake_to_camel(tmp_name)
+                names.append(tmp_name)
+            for temp_name in sorted(names):
+                print(f"    {temp_name}")
 
 def onNode(node):
     """Callback invoked when the node DB changes"""
@@ -812,8 +832,7 @@ def initParser():
 
     parser.add_argument(
         "--get", help=("Get a preferences field. Use an invalid field such as '0' to get a list of all fields."
-                       " Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')"),
-                       nargs=1, action='append')
+                       " Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')"), action='append')
 
     parser.add_argument(
         "--set", help="Set a preferences field. Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')", nargs=2, action='append')
