@@ -832,7 +832,8 @@ def initParser():
 
     parser.add_argument(
         "--get", help=("Get a preferences field. Use an invalid field such as '0' to get a list of all fields."
-                       " Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')"), action='append')
+                       " Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')"),
+                       nargs=1, action='append')
 
     parser.add_argument(
         "--set", help="Set a preferences field. Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')", nargs=2, action='append')
