@@ -229,6 +229,12 @@ def onConnected(interface):
             print(f"Setting canned plugin message to {args.set_canned_message}")
             interface.getNode(args.dest).set_canned_message(args.set_canned_message)
 
+        # TODO: add to export-config and configure
+        if args.set_canned_message_dests:
+            closeNow = True
+            print(f"Setting canned plugin message dests to {args.set_canned_message_dests}")
+            interface.getNode(args.dest).set_canned_message_dests(args.set_canned_message_dests)
+
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
             closeNow = True
@@ -549,6 +555,11 @@ def onConnected(interface):
             print("")
             interface.getNode(args.dest).get_canned_message()
 
+        if args.get_canned_message_dests:
+            closeNow = True
+            print("")
+            interface.getNode(args.dest).get_canned_message_dests()
+
         if args.info:
             print("")
             # If we aren't trying to talk to our local node, don't show it
@@ -824,6 +835,9 @@ def initParser():
     parser.add_argument("--get-canned-message", help="Show the canned message plugin message",
                         action="store_true")
 
+    parser.add_argument("--get-canned-message-dests", help="Show the canned message plugin message dests",
+                        action="store_true")
+
     parser.add_argument("--nodes", help="Print Node List in a pretty formatted table",
                         action="store_true")
 
@@ -891,6 +905,9 @@ def initParser():
 
     parser.add_argument(
         "--set-canned-message", help="Set the canned messages plugin message (up to 1000 characters).", action="store")
+
+    parser.add_argument(
+        "--set-canned-message-dests", help="Set the canned messages plugin message destinations.", action="store")
 
     parser.add_argument(
         "--set-owner-short", help="Set device owner short name", action="store")

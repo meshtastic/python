@@ -29,6 +29,9 @@ class Node:
 
         self.cannedPluginMessageMessages = None
 
+        self.cannedPluginMessageDests = None
+        self.cannedPluginMessageMessagesDests = None
+
         self.gotResponse = None
 
     def showChannels(self):
@@ -439,6 +442,69 @@ class Node:
                 p.set_canned_message_module_messages = chunk
 
             logging.debug(f"Setting canned message '{chunk}' part {i+1}")
+            self._sendAdmin(p)
+
+    def onResponseRequestCannedMessagePluginMessagesDests(self, p):
+        """Handle the response packet for requesting canned message plugin messages dests"""
+        logging.debug(f'onResponseRequestCannedMessagePluginMessagesDests() p:{p}')
+        errorFound = False
+        if "routing" in p["decoded"]:
+            if p["decoded"]["routing"]["errorReason"] != "NONE":
+                errorFound = True
+                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+        if errorFound is False:
+            if "decoded" in p:
+                if "admin" in p["decoded"]:
+                    if "raw" in p["decoded"]["admin"]:
+                        self.cannedPluginMessageMessagesDests = p["decoded"]["admin"]["raw"].get_canned_message_module_messages_dests_response
+                        logging.debug(f'self.cannedPluginMessageMessagesDests:{self.cannedPluginMessageMessagesDests}')
+                        self.gotResponse = True
+
+    def get_canned_message_dests(self):
+        """Get the canned messages destinations string.
+        Concatenate all pieces together and return a single string."""
+        logging.debug(f'in get_canned_message_dests()')
+        if not self.cannedPluginMessageDests:
+
+            p1 = admin_pb2.AdminMessage()
+            p1.get_canned_message_module_messages_dests_request = True
+            self.gotResponse = False
+            self._sendAdmin(p1, wantResponse=True, onResponse=self.onResponseRequestCannedMessagePluginMessagesDests)
+            while self.gotResponse is False:
+                time.sleep(0.1)
+
+            logging.debug(f'self.cannedPluginMessageMessagesDests:{self.cannedPluginMessageMessagesDests}')
+
+            self.cannedPluginMessageDests = ""
+            if self.cannedPluginMessageMessagesDests:
+                self.cannedPluginMessageDests += self.cannedPluginMessageMessagesDests
+
+        print(f'canned_plugin_message_dests:{self.cannedPluginMessageDests}')
+        logging.debug(f'canned_plugin_message_dests:{self.cannedPluginMessageDests}')
+        return self.cannedPluginMessageDests
+
+    def set_canned_message_dests(self, destinations):
+        """Set the canned messages destinations.
+        The length of destinations string must be less than 200 characters."""
+        if len(destinations) > 200:
+            our_exit("Warning: The length of destinations string must be less than 200 characters.")
+
+        # split into chunks
+        chunks = []
+        chunks_size = 200
+        for i in range(0, len(destinations), chunks_size):
+            chunks.append(destinations[i: i + chunks_size])
+
+        # for each chunk, send a message to set the values
+        #for i in range(0, len(chunks)):
+        for i, chunk in enumerate(chunks):
+            p = admin_pb2.AdminMessage()
+
+            # TODO: should be a way to improve this
+            if i == 0:
+                p.set_canned_message_module_messages_dests = chunk
+
+            logging.debug(f"Setting canned message dest '{chunk}' part {i+1}")
             self._sendAdmin(p)
 
     def exitSimulator(self):
