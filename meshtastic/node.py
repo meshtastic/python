@@ -485,13 +485,13 @@ class Node:
 
     def set_canned_message_dests(self, destinations):
         """Set the canned messages destinations.
-        The length of destinations string must be less than 200 characters."""
-        if len(destinations) > 200:
-            our_exit("Warning: The length of destinations string must be less than 200 characters.")
+        The length of destinations string must be less than 71 characters."""
+        if len(destinations) > 71:
+            our_exit("Warning: The length of destinations string must be less than 71 characters.")
 
         # split into chunks
         chunks = []
-        chunks_size = 200
+        chunks_size = 71
         for i in range(0, len(destinations), chunks_size):
             chunks.append(destinations[i: i + chunks_size])
 
