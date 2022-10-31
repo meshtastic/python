@@ -16,12 +16,12 @@ setup(
     description="Python API & client shell for talking to Meshtastic devices",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/meshtastic/Meshtastic-python",
-    author="Kevin Hester",
-    author_email="kevinh@geeksville.com",
-    license="MIT",
+    url="https://github.com/meshtastic/python",
+    author="Meshtastic Developers",
+    author_email="contact@meshtastic.org",
+    license="GPL-3.0-only",
     classifiers=[
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
         "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",

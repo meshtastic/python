@@ -3,7 +3,7 @@
 
 Primary class: SerialInterface
 Install with pip: "[pip3 install meshtastic](https://pypi.org/project/meshtastic/)"
-Source code on [github](https://github.com/meshtastic/Meshtastic-python)
+Source code on [github](https://github.com/meshtastic/python)
 
 properties of SerialInterface:
 
