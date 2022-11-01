@@ -21,7 +21,7 @@ setup(
     author_email="contact@meshtastic.org",
     license="GPL-3.0-only",
     classifiers=[
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
