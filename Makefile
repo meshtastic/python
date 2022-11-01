@@ -26,11 +26,11 @@ lint:
 slow:
 	pytest -m unit --durations=5
 
-proto: FORCE
+protobufs: FORCE
 	git submodule update --init --recursive
 	git pull --rebase
 	git submodule update --remote --merge
-	./bin/regen-protos.sh
+	./bin/regen-protobufs.sh
 
 # run the coverage report and open results in a browser
 cov:
