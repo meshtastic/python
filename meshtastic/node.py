@@ -607,10 +607,15 @@ class Node:
             if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
                 adminIndex = self.iface.localNode._getAdminChannelIndex()
             logging.debug(f'adminIndex:{adminIndex}')
-
+            
+            # don't ask for an Ack if you are getting a Response
+            if wantResponse:
+                wantAck = False
+            else:
+                wantAck = True
             return self.iface.sendData(p, self.nodeNum,
                                        portNum=portnums_pb2.PortNum.ADMIN_APP,
-                                       wantAck=True,
+                                       wantAck=wantAck,
                                        wantResponse=wantResponse,
                                        onResponse=onResponse,
                                        channelIndex=adminIndex)
