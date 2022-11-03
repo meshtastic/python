@@ -551,7 +551,7 @@ class Node:
                 return # Don't try to parse this routing message
             lastTried = 0
             if len(self.partialChannels) > 0:
-                lastTried = self.partialChannels[-1]
+                lastTried = self.partialChannels[-1].index
             logging.debug(f"Retrying previous channel request.")
             self._requestChannel(lastTried)
             return
