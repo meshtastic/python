@@ -1,5 +1,5 @@
 readme.txt for single standalone executable zip files that can be
-downloaded from https://github.com/meshtastic/Meshtastic-python/releases
+downloaded from https://github.com/meshtastic/python/releases
 
 If you do not want to install python and/or the python libraries, you can download one of these
 files to run the Meshtastic command line interface (CLI) as a standalone executable.
