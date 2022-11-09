@@ -336,14 +336,14 @@ class Node:
         some_bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(some_bytes).decode('ascii')
         s = s.replace("=", "").replace("+", "-").replace("/", "_")
-        return f"https://meshtastic.org/e/#{s}"
+        return f"https://www.meshtastic.org/e/#{s}"
 
     def setURL(self, url):
         """Set mesh network URL"""
         if self.localConfig is None:
             our_exit("Warning: No Config has been read")
 
-        # URLs are of the form https://meshtastic.org/d/#{base64_channel_set}
+        # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
         # Split on '/#' to find the base64 encoded channel settings
         splitURL = url.split("/#")
         b64 = splitURL[-1]
@@ -551,7 +551,7 @@ class Node:
                 return # Don't try to parse this routing message
             lastTried = 0
             if len(self.partialChannels) > 0:
-                lastTried = self.partialChannels[-1]
+                lastTried = self.partialChannels[-1].index
             logging.debug(f"Retrying previous channel request.")
             self._requestChannel(lastTried)
             return
@@ -607,10 +607,15 @@ class Node:
             if adminIndex == 0:  # unless a special channel index was used, we want to use the admin index
                 adminIndex = self.iface.localNode._getAdminChannelIndex()
             logging.debug(f'adminIndex:{adminIndex}')
-
+            
+            # don't ask for an Ack if you are getting a Response
+            if wantResponse:
+                wantAck = False
+            else:
+                wantAck = True
             return self.iface.sendData(p, self.nodeNum,
                                        portNum=portnums_pb2.PortNum.ADMIN_APP,
-                                       wantAck=True,
+                                       wantAck=wantAck,
                                        wantResponse=wantResponse,
                                        onResponse=onResponse,
                                        channelIndex=adminIndex)
