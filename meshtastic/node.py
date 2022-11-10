@@ -181,6 +181,13 @@ class Node:
             logging.debug("Wrote module: canned_message")
             time.sleep(0.3)
 
+        if self.moduleConfig.audio:
+            p = admin_pb2.AdminMessage()
+            p.set_module_config.audio.CopyFrom(self.moduleConfig.audio)
+            self._sendAdmin(p)
+            logging.debug("Wrote module: audo")
+            time.sleep(0.3)
+
     def writeConfig(self, config_name):
         """Write the current (edited) localConfig to the device"""
         if self.localConfig is None:
@@ -216,6 +223,8 @@ class Node:
             p.set_module_config.telemetry.CopyFrom(self.moduleConfig.telemetry)
         elif config_name == 'canned_message':
             p.set_module_config.canned_message.CopyFrom(self.moduleConfig.canned_message)
+        elif config_name == 'audio':
+            p.set_module_config.audio.CopyFrom(self.moduleConfig.audio)
         else:
             our_exit(f"Error: No valid config with name {config_name}")
         
@@ -336,14 +345,14 @@ class Node:
         some_bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(some_bytes).decode('ascii')
         s = s.replace("=", "").replace("+", "-").replace("/", "_")
-        return f"https://www.meshtastic.org/e/#{s}"
+        return f"https://meshtastic.org/e/#{s}"
 
     def setURL(self, url):
         """Set mesh network URL"""
         if self.localConfig is None:
             our_exit("Warning: No Config has been read")
 
-        # URLs are of the form https://www.meshtastic.org/d/#{base64_channel_set}
+        # URLs are of the form https://meshtastic.org/d/#{base64_channel_set}
         # Split on '/#' to find the base64 encoded channel settings
         splitURL = url.split("/#")
         b64 = splitURL[-1]
