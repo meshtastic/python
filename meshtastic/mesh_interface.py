@@ -18,7 +18,7 @@ from google.protobuf.json_format import MessageToJson
 
 import meshtastic.node
 from meshtastic import portnums_pb2, mesh_pb2
-from meshtastic.util import stripnl, Timeout, our_exit, remove_keys_from_dict, convert_mac_addr
+from meshtastic.util import stripnl, Timeout, Acknowledgment, our_exit, remove_keys_from_dict, convert_mac_addr
 from meshtastic.__init__ import LOCAL_ADDR, BROADCAST_NUM, BROADCAST_ADDR, ResponseHandler, publishingThread, OUR_APP_VERSION, protocols
 
 class MeshInterface:
@@ -47,6 +47,7 @@ class MeshInterface:
         self.responseHandlers = {}  # A map from request ID to the handler
         self.failure = None  # If we've encountered a fatal exception it will be kept here
         self._timeout = Timeout()
+        self._acknowledgment = Acknowledgment()
         self.heartbeatTimer = None
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId = random.randint(0, 0xffffffff)
@@ -157,16 +158,18 @@ class MeshInterface:
         return table
 
 
-    def getNode(self, nodeId):
+    def getNode(self, nodeId, requestConfig=True):
         """Return a node object which contains device settings and channel info"""
         if nodeId in (LOCAL_ADDR, BROADCAST_ADDR):
             return self.localNode
         else:
             n = meshtastic.node.Node(self, nodeId)
-            logging.debug("About to requestConfig")
-            n.requestConfig()
-            if not n.waitForConfig():
-                our_exit("Error: Timed out waiting for node config")
+            # Only request device settings and channel info when necessary
+            if requestConfig:
+              logging.debug("About to requestConfig")
+              n.requestConfig()
+              if not n.waitForConfig():
+                  our_exit("Error: Timed out waiting for node config")
             return n
 
     def sendText(self, text: AnyStr,
@@ -365,6 +368,11 @@ class MeshInterface:
         success = self._timeout.waitForSet(self, attrs=('myInfo', 'nodes')) and self.localNode.waitForConfig()
         if not success:
             raise Exception("Timed out waiting for interface config")
+
+    def waitForAckNak(self):
+        success = self._timeout.waitForAckNak(self._acknowledgment)
+        if not success:
+            raise Exception("Timed out waiting for an acknowledgment")
 
     def getMyNodeInfo(self):
         """Get info about my node."""
@@ -717,7 +725,8 @@ class MeshInterface:
                 # we keep the responseHandler in dict until we get a non ack
                 handler = self.responseHandlers.pop(requestId, None)
                 if handler is not None:
-                    handler.callback(asDict)
+                    if not isAck or (isAck and handler.__name__ == "onAckNak"):
+                      handler.callback(asDict)
 
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         publishingThread.queueWork(lambda: pub.sendMessage(

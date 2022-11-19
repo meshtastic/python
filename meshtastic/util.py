@@ -159,6 +159,27 @@ class Timeout:
             time.sleep(self.sleepInterval)
         return False
 
+    def waitForAckNak(self, acknowledgment, attrs=('receivedAck', 'receivedNak', 'receivedImplAck')):
+        """Block until an ACK or NAK has been received. Returns True if ACK or NAK has been received."""
+        self.reset()
+        while time.time() < self.expireTime:
+            if any(map(lambda a: getattr(acknowledgment, a, None), attrs)):
+                acknowledgment.reset()
+                return True
+            time.sleep(self.sleepInterval)
+        return False
+
+class Acknowledgment:
+    "A class that records which type of acknowledgment was just received, if any."
+    def __init__(self):
+      self.receivedAck = False
+      self.receivedNak = False
+      self.receivedImplAck = False
+
+    def reset(self):
+      self.receivedAck = False
+      self.receivedNak = False
+      self.receivedImplAck = False
 
 class DeferredExecution():
     """A thread that accepts closures to run, and runs them as they are received"""
