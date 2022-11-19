@@ -330,7 +330,12 @@ class Node:
         logging.debug(f'p.set_owner.long_name:{p.set_owner.long_name}:')
         logging.debug(f'p.set_owner.short_name:{p.set_owner.short_name}:')
         logging.debug(f'p.set_owner.is_licensed:{p.set_owner.is_licensed}')
-        return self._sendAdmin(p)
+        # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else: 
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
 
     def getURL(self, includeAll: bool = True):
         """The sharable URL that describes the current channel"""
@@ -448,7 +453,12 @@ class Node:
                 p.set_canned_message_module_messages = chunk
 
             logging.debug(f"Setting canned message '{chunk}' part {i+1}")
-            self._sendAdmin(p)
+            # If sending to a remote node, wait for ACK/NAK
+            if self == self.iface.localNode:
+                onResponse = None
+            else: 
+                onResponse = self.onAckNak
+            return self._sendAdmin(p, onResponse=onResponse)
 
     def exitSimulator(self):
         """Tell a simulator node to exit (this message
@@ -465,7 +475,12 @@ class Node:
         p.reboot_seconds = secs
         logging.info(f"Telling node to reboot in {secs} seconds")
 
-        return self._sendAdmin(p)
+        # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else: 
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
 
     def rebootOTA(self, secs: int = 10):
         """Tell the node to reboot into factory firmware."""
@@ -473,7 +488,12 @@ class Node:
         p.reboot_ota_seconds = secs
         logging.info(f"Telling node to reboot to OTA in {secs} seconds")
 
-        return self._sendAdmin(p)        
+        # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else: 
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)        
 
     def shutdown(self, secs: int = 10):
         """Tell the node to shutdown."""
@@ -481,7 +501,12 @@ class Node:
         p.shutdown_seconds = secs
         logging.info(f"Telling node to shutdown in {secs} seconds")
 
-        return self._sendAdmin(p)
+        # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else: 
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
 
     def getMetadata(self, secs: int = 10):
         """Tell the node to shutdown."""
@@ -497,7 +522,12 @@ class Node:
         p.factory_reset = True
         logging.info(f"Telling node to factory reset")
 
-        return self._sendAdmin(p)   
+        # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else: 
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)  
 
     def resetNodeDb(self):
         """Tell the node to reset its list of nodes."""
@@ -505,7 +535,12 @@ class Node:
         p.nodedb_reset = True
         logging.info(f"Telling node to reset the NodeDB")
 
-        return self._sendAdmin(p)
+        # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else: 
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
 
     def _fixupChannels(self):
         """Fixup indexes and add disabled channels as needed"""
@@ -589,6 +624,18 @@ class Node:
         else:
             self._requestChannel(index + 1)
 
+    def onAckNak(self, p):
+        if p["decoded"]["routing"]["errorReason"] != "NONE":
+            print(f'Received a NAK, error reason: {p["decoded"]["routing"]["errorReason"]}')
+            self.iface._acknowledgment.receivedNak = True
+        else: 
+            if int(p["from"]) == self.iface.localNode.nodeNum:
+              print(f'Received an implicit ACK. Packet will likely arrive, but cannot be guaranteed.')
+              self.iface._acknowledgment.receivedImplAck = True
+            else: 
+              print(f'Received an ACK.')
+              self.iface._acknowledgment.receivedAck = True
+            
     def _requestChannel(self, channelNum: int):
         """Done with initial config messages, now send regular
            MeshPackets to ask for settings"""

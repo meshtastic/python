@@ -177,6 +177,7 @@ def setPref(config, comp_name, valStr):
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
     closeNow = False  # Should we drop the connection after we finish?
+    waitForAckNak = False  # Should we wait for an acknowledgment if we send to a remote node?
     try:
         our_globals = Globals.getInstance()
         args = our_globals.get_args()
@@ -191,6 +192,7 @@ def onConnected(interface):
             alt = 0
             lat = 0.0
             lon = 0.0
+            # TODO: use getNode(args.dest) to be able to set it for a remote node 
             localConfig = interface.localNode.localConfig
             if args.setalt:
                 alt = int(args.setalt)
@@ -215,19 +217,22 @@ def onConnected(interface):
 
         if args.set_owner:
             closeNow = True
+            waitForAckNak = True
             print(f"Setting device owner to {args.set_owner}")
-            interface.getNode(args.dest).setOwner(args.set_owner)
+            interface.getNode(args.dest, False).setOwner(args.set_owner)
 
         if args.set_owner_short:
             closeNow = True
+            waitForAckNak = True
             print(f"Setting device owner short to {args.set_owner_short}")
-            interface.getNode(args.dest).setOwner(long_name=None, short_name=args.set_owner_short)
+            interface.getNode(args.dest, False).setOwner(long_name=None, short_name=args.set_owner_short)
 
         # TODO: add to export-config and configure
         if args.set_canned_message:
             closeNow = True
+            waitForAckNak = True
             print(f"Setting canned plugin message to {args.set_canned_message}")
-            interface.getNode(args.dest).set_canned_message(args.set_canned_message)
+            interface.getNode(args.dest, False).set_canned_message(args.set_canned_message)
 
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
@@ -271,15 +276,18 @@ def onConnected(interface):
 
         if args.reboot:
             closeNow = True
-            interface.getNode(args.dest).reboot()
+            waitForAckNak = True
+            interface.getNode(args.dest, False).reboot()
 
         if args.reboot_ota:
             closeNow = True
-            interface.getNode(args.dest).rebootOTA();
+            waitForAckNak = True
+            interface.getNode(args.dest, False).rebootOTA();
 
         if args.shutdown:
             closeNow = True
-            interface.getNode(args.dest).shutdown()
+            waitForAckNak = True
+            interface.getNode(args.dest, False).shutdown()
         
         if args.device_metadata:
             closeNow = True
@@ -287,11 +295,13 @@ def onConnected(interface):
 
         if args.factory_reset:
             closeNow = True
-            interface.getNode(args.dest).factoryReset()
+            waitForAckNak = True
+            interface.getNode(args.dest, False).factoryReset()
 
         if args.reset_nodedb:
             closeNow = True
-            interface.getNode(args.dest).resetNodeDb()
+            waitForAckNak = True
+            interface.getNode(args.dest, False).resetNodeDb()
 
         if args.sendtext:
             closeNow = True
@@ -378,15 +388,18 @@ def onConnected(interface):
 
                 if 'owner' in configuration:
                     print(f"Setting device owner to {configuration['owner']}")
-                    interface.getNode(args.dest).setOwner(configuration['owner'])
+                    waitForAckNak = True
+                    interface.getNode(args.dest, False).setOwner(configuration['owner'])
 
                 if 'owner_short' in configuration:
                     print(f"Setting device owner short to {configuration['owner_short']}")
-                    interface.getNode(args.dest).setOwner(long_name=None, short_name=configuration['owner_short'])
+                    waitForAckNak = True
+                    interface.getNode(args.dest, False).setOwner(long_name=None, short_name=configuration['owner_short'])
 
                 if 'ownerShort' in configuration:
                     print(f"Setting device owner short to {configuration['ownerShort']}")
-                    interface.getNode(args.dest).setOwner(long_name=None, short_name=configuration['ownerShort'])
+                    waitForAckNak = True
+                    interface.getNode(args.dest, False).setOwner(long_name=None, short_name=configuration['ownerShort'])
 
                 if 'channel_url' in configuration:
                     print("Setting channel url to", configuration['channel_url'])
@@ -603,6 +616,10 @@ def onConnected(interface):
                 logging.warning(f"Not starting Tunnel - disabled by noProto")
             else:
                 tunnel.Tunnel(interface, subnet=args.tunnel_net)
+
+        if args.dest != BROADCAST_ADDR and waitForAckNak:
+            print(f"Waiting for an acknowledgment from remote node (this could take a while)")
+            interface.getNode(args.dest, False).iface.waitForAckNak()
 
         # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
         if (not args.seriallog) and closeNow:
