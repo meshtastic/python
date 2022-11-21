@@ -292,6 +292,14 @@ def onConnected(interface):
         if args.device_metadata:
             closeNow = True
             interface.getNode(args.dest).getMetadata()
+        
+        if args.begin_edit:
+            closeNow = True
+            interface.getNode(args.dest, False).beginSettingsTransaction()
+
+        if args.commit_edit:
+            closeNow = True
+            interface.getNode(args.dest, False).commitSettingsTransaction()
 
         if args.factory_reset:
             closeNow = True
@@ -386,6 +394,8 @@ def onConnected(interface):
                 configuration = yaml.safe_load(file)
                 closeNow = True
 
+                interface.getNode(args.dest, False).beginSettingsTransaction()
+
                 if 'owner' in configuration:
                     print(f"Setting device owner to {configuration['owner']}")
                     waitForAckNak = True
@@ -444,7 +454,8 @@ def onConnected(interface):
                         for pref in configuration['module_config'][section]:
                             setPref(moduleConfig, f"{section}.{pref}", str(configuration['module_config'][section][pref]))
                         interface.getNode(args.dest).writeConfig(section)
-                    
+
+                interface.getNode(args.dest, False).commitSettingsTransaction()
                 print("Writing modified configuration to device")
 
         if args.export_config:
