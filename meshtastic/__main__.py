@@ -946,6 +946,12 @@ def initParser():
 
     parser.add_argument(
         "--device-metadata", help="Get the device metadata from the node", action="store_true")
+    
+    parser.add_argument(
+        "--begin-edit", help="Tell the node to open a transaction to edit settings", action="store_true")
+
+    parser.add_argument(
+        "--commit-edit", help="Tell the node to commit open settings transaction", action="store_true")
 
     parser.add_argument(
         "--factory-reset", help="Tell the destination node to install the default config", action="store_true")
