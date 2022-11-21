@@ -481,6 +481,32 @@ class Node:
         else: 
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
+    
+    def beginSettingsTransaction(self):
+        """Tell the node to open a transaction to edit settings."""
+        p = admin_pb2.AdminMessage()
+        p.begin_edit_settings = True
+        logging.info(f"Telling open a transaction to edit settings")
+
+        # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else: 
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
+    def commitSettingsTransaction(self):
+        """Tell the node to commit the open transaction for editing settings."""
+        p = admin_pb2.AdminMessage()
+        p.commit_edit_settings = True
+        logging.info(f"Telling node to commit open transaction for editing settings")
+
+        # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else: 
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
 
     def rebootOTA(self, secs: int = 10):
         """Tell the node to reboot into factory firmware."""
