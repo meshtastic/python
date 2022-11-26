@@ -299,30 +299,17 @@ class Node:
     def setOwner(self, long_name=None, short_name=None, is_licensed=False):
         """Set device owner name"""
         logging.debug(f"in setOwner nodeNum:{self.nodeNum}")
-        nChars = 3
-        minChars = 2
-        if long_name is not None:
-            long_name = long_name.strip()
-            if short_name is None:
-                words = long_name.split()
-                if len(long_name) <= nChars:
-                    short_name = long_name
-                elif len(words) >= minChars:
-                    short_name = ''.join(map(lambda word: word[0], words))
-                else:
-                    trans = str.maketrans(dict.fromkeys('aeiouAEIOU'))
-                    short_name = long_name[0] + long_name[1:].translate(trans)
-                    if len(short_name) < nChars:
-                        short_name = long_name[:nChars]
-
         p = admin_pb2.AdminMessage()
 
+        nChars = 4
         if long_name is not None:
+            long_name = long_name.strip()
             p.set_owner.long_name = long_name
         if short_name is not None:
             short_name = short_name.strip()
             if len(short_name) > nChars:
                 short_name = short_name[:nChars]
+                print(f"Maximum is 4 characters, truncated to {short_name}")
             p.set_owner.short_name = short_name
             p.set_owner.is_licensed = is_licensed
 
