@@ -305,13 +305,13 @@ class Node:
         if long_name is not None:
             long_name = long_name.strip()
             p.set_owner.long_name = long_name
+            p.set_owner.is_licensed = is_licensed
         if short_name is not None:
             short_name = short_name.strip()
             if len(short_name) > nChars:
                 short_name = short_name[:nChars]
                 print(f"Maximum is 4 characters, truncated to {short_name}")
             p.set_owner.short_name = short_name
-            p.set_owner.is_licensed = is_licensed
 
         # Note: These debug lines are used in unit tests
         logging.debug(f'p.set_owner.long_name:{p.set_owner.long_name}:')
