@@ -666,7 +666,7 @@ class Node:
 
 
     # pylint: disable=R1710
-    def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=False,
+    def _sendAdmin(self, p: admin_pb2.AdminMessage, wantResponse=True,
                    onResponse=None, adminIndex=0):
         """Send an admin message to the specified node (or the local node if destNodeNum is zero)"""
 
@@ -677,14 +677,9 @@ class Node:
                 adminIndex = self.iface.localNode._getAdminChannelIndex()
             logging.debug(f'adminIndex:{adminIndex}')
             
-            # don't ask for an Ack if you are getting a Response
-            if wantResponse:
-                wantAck = False
-            else:
-                wantAck = True
             return self.iface.sendData(p, self.nodeNum,
                                        portNum=portnums_pb2.PortNum.ADMIN_APP,
-                                       wantAck=wantAck,
+                                       wantAck=False,
                                        wantResponse=wantResponse,
                                        onResponse=onResponse,
                                        channelIndex=adminIndex)
