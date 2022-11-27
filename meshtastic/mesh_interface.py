@@ -722,3 +722,22 @@ class MeshInterface:
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         publishingThread.queueWork(lambda: pub.sendMessage(
             topic, packet=asDict, interface=self))
+
+    def sendSignedText(self, text: AnyStr,
+                 destinationId=BROADCAST_ADDR,
+                 wantAck=False,
+                 wantResponse=False,
+                 hopLimit=None,
+                 onResponse=None,
+                 channelIndex=0):
+        """Send a signed text message to another node"""
+        if hopLimit is None:
+            hopLimit = self.defaultHopLimit
+
+        return self.sendData(text.encode("utf-8"), destinationId,
+                             portNum=portnums_pb2.PortNum.PRIVATE_APP,
+                             wantAck=wantAck,
+                             wantResponse=wantResponse,
+                             hopLimit=hopLimit,
+                             onResponse=onResponse,
+                             channelIndex=channelIndex)
