@@ -722,3 +722,26 @@ class MeshInterface:
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         publishingThread.queueWork(lambda: pub.sendMessage(
             topic, packet=asDict, interface=self))
+
+    def sendSignedText(self, text: AnyStr,
+                 destinationId=BROADCAST_ADDR,
+                 wantAck=False,
+                 wantResponse=False,
+                 hopLimit=None,
+                 onResponse=None,
+                 channelIndex=0):
+        """
+        Send a signed text message to another node using the black lager module.
+        This function signs the text message with the users private key and sets
+        the payload of the packet to be the signed text message data.
+        """
+        if hopLimit is None:
+            hopLimit = self.defaultHopLimit
+
+        return self.sendData(text.encode("utf-8"), destinationId,
+                             portNum=portnums_pb2.PortNum.PRIVATE_APP,
+                             wantAck=wantAck,
+                             wantResponse=wantResponse,
+                             hopLimit=hopLimit,
+                             onResponse=onResponse,
+                             channelIndex=channelIndex)
