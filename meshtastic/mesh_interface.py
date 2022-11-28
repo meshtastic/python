@@ -730,7 +730,11 @@ class MeshInterface:
                  hopLimit=None,
                  onResponse=None,
                  channelIndex=0):
-        """Send a signed text message to another node"""
+        """
+        Send a signed text message to another node using the black lager module.
+        This function signs the text message with the users private key and sets
+        the payload of the packet to be the signed text message data.
+        """
         if hopLimit is None:
             hopLimit = self.defaultHopLimit
 
