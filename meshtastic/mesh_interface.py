@@ -739,7 +739,7 @@ class MeshInterface:
             hopLimit = self.defaultHopLimit
 
         return self.sendData(text.encode("utf-8"), destinationId,
-                             portNum=portnums_pb2.PortNum.PRIVATE_APP,
+                             portNum=portnums_pb2.PortNum.BLACK_LAGER,
                              wantAck=wantAck,
                              wantResponse=wantResponse,
                              hopLimit=hopLimit,
