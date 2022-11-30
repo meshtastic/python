@@ -1,4 +1,4 @@
-name: "Update protobufs"
+name: 'Update protobufs'
 on: workflow_dispatch
 
 jobs:
@@ -11,10 +11,9 @@ jobs:
         with:
           submodules: true
 
-      - name: Update Submodule
+      - name: Update submodule
         run: |
-          git pull --recurse-submodules
-          git submodule update --remote --recursive
+          git submodule update --remote protobufs
 
       - name: Download nanopb
         run: |
