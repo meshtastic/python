@@ -26,3 +26,8 @@ jobs:
           ./bin/regen-protobufs.sh
 
       - name: Create pull request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          add-paths: |
+            protobufs
+            meshtastic
