@@ -174,6 +174,11 @@ def _receiveInfoUpdate(iface, asDict):
         iface._getOrCreateByNum(asDict["from"])["hopLimit"] = asDict.get("hopLimit")
 
 
+def _onSignedTextReceive(iface, asDict):
+    """Parsing for received signed text messages"""
+    logging.debug(f'in _onSignedTextReceive() asDict:{asDict}')
+
+
 """Well known message payloads can register decoders for automatic protobuf parsing"""
 protocols = {
     portnums_pb2.PortNum.TEXT_MESSAGE_APP: KnownProtocol("text", onReceive=_onTextReceive),
@@ -184,5 +189,5 @@ protocols = {
     portnums_pb2.PortNum.TELEMETRY_APP: KnownProtocol("telemetry", telemetry_pb2.Telemetry),
     portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol("remotehw", remote_hardware_pb2.HardwareMessage),
     portnums_pb2.PortNum.SIMULATOR_APP: KnownProtocol("simulator", mesh_pb2.Compressed),
-    portnums_pb2.PortNum.BLACK_LAGER: KnownProtocol("black-lager", onReceive=_onTextReceive)
+    portnums_pb2.PortNum.BLACK_LAGER: KnownProtocol("black-lager", onReceive=_onSignedTextReceive)
 }
