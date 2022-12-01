@@ -174,6 +174,17 @@ def _receiveInfoUpdate(iface, asDict):
         iface._getOrCreateByNum(asDict["from"])["hopLimit"] = asDict.get("hopLimit")
 
 
+def _onSignedTextReceive(iface, asDict):
+    """Parsing for received signed text messages"""
+    logging.debug(f'in _onSignedTextReceive() asDict:{asDict}')
+    try:
+        asBytes = asDict["decoded"]["payload"]
+        asDict["decoded"]["signed-text"] = asBytes.decode("utf-8")
+    except Exception as ex:
+        logging.error(f"Malformatted utf8 in text message: {ex}")
+    _receiveInfoUpdate(iface, asDict)
+
+
 """Well known message payloads can register decoders for automatic protobuf parsing"""
 protocols = {
     portnums_pb2.PortNum.TEXT_MESSAGE_APP: KnownProtocol("text", onReceive=_onTextReceive),
@@ -182,6 +193,7 @@ protocols = {
     portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage),
     portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
     portnums_pb2.PortNum.TELEMETRY_APP: KnownProtocol("telemetry", telemetry_pb2.Telemetry),
-    portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol("remotehw", remote_hardware_pb2.HardwareMessage), 
-    portnums_pb2.PortNum.SIMULATOR_APP: KnownProtocol("simulator", mesh_pb2.Compressed)
+    portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol("remotehw", remote_hardware_pb2.HardwareMessage),
+    portnums_pb2.PortNum.SIMULATOR_APP: KnownProtocol("simulator", mesh_pb2.Compressed),
+    portnums_pb2.PortNum.BLACK_LAGER: KnownProtocol("signed-text", onReceive=_onSignedTextReceive)
 }
