@@ -53,7 +53,6 @@ class MeshInterface:
         self.currentPacketId = random.randint(0, 0xffffffff)
         self.nodesByNum = None
         self.configId = None
-        self.defaultHopLimit = 3
         self.gotResponse = False # used in gpio read
         self.mask = None # used in gpio read and gpio watch
 
@@ -176,7 +175,6 @@ class MeshInterface:
                  destinationId=BROADCAST_ADDR,
                  wantAck=False,
                  wantResponse=False,
-                 hopLimit=None,
                  onResponse=None,
                  channelIndex=0):
         """Send a utf8 string to some other node, if the node has a display it
@@ -198,21 +196,17 @@ class MeshInterface:
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
         """
-        if hopLimit is None:
-            hopLimit = self.defaultHopLimit
 
         return self.sendData(text.encode("utf-8"), destinationId,
                              portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
                              wantAck=wantAck,
                              wantResponse=wantResponse,
-                             hopLimit=hopLimit,
                              onResponse=onResponse,
                              channelIndex=channelIndex)
 
     def sendData(self, data, destinationId=BROADCAST_ADDR,
                  portNum=portnums_pb2.PortNum.PRIVATE_APP, wantAck=False,
                  wantResponse=False,
-                 hopLimit=None,
                  onResponse=None,
                  channelIndex=0):
         """Send a data packet to some other node
@@ -237,8 +231,6 @@ class MeshInterface:
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
         """
-        if hopLimit is None:
-            hopLimit = self.defaultHopLimit
 
         if getattr(data, "SerializeToString", None):
             logging.debug(f"Serializing protobuf as data: {stripnl(data)}")
@@ -261,8 +253,7 @@ class MeshInterface:
 
         if onResponse is not None:
             self._addResponseHandler(meshPacket.id, onResponse)
-        p = self._sendPacket(meshPacket, destinationId,
-                             wantAck=wantAck, hopLimit=hopLimit)
+        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck)
         return p
 
     def sendPosition(self, latitude=0.0, longitude=0.0, altitude=0, timeSec=0,
@@ -306,15 +297,13 @@ class MeshInterface:
 
     def _sendPacket(self, meshPacket,
                     destinationId=BROADCAST_ADDR,
-                    wantAck=False, hopLimit=None):
+                    wantAck=False):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead.
 
         Returns the sent packet. The id field will be populated in this packet and
         can be used to track future message acks/naks.
         """
-        if hopLimit is None:
-            hopLimit = self.defaultHopLimit
 
         # We allow users to talk to the local node before we've completed the full connection flow...
         if(self.myInfo is not None and destinationId != self.myInfo.my_node_num):
@@ -348,6 +337,8 @@ class MeshInterface:
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
+        loraConfig = getattr(self.localNode.localConfig, 'lora')
+        hopLimit = getattr(loraConfig, 'hop_limit')
         meshPacket.hop_limit = hopLimit
 
         # if the user hasn't set an ID for this packet (likely and recommended),
