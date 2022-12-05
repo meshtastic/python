@@ -291,6 +291,27 @@ class MeshInterface:
                              portNum=portnums_pb2.PortNum.POSITION_APP,
                              wantAck=wantAck,
                              wantResponse=wantResponse)
+  
+    def sendTraceRoute(self, dest, hopLimit):
+        r = mesh_pb2.RouteDiscovery()
+        self.sendData(r, destinationId=dest, portNum=70, wantResponse=True, onResponse=self.onResponseTraceRoute)
+        waitFactor = min(len(self.nodes)-1, hopLimit)  # extend timeout based on number of nodes, limit by configured hopLimit
+        self.waitForTraceRoute(waitFactor)
+
+    def onResponseTraceRoute(self, p):
+        routeDiscovery = mesh_pb2.RouteDiscovery()
+        routeDiscovery.ParseFromString(p["decoded"]["payload"])
+        asDict = google.protobuf.json_format.MessageToDict(routeDiscovery)
+
+        print("Route traced:")
+        routeStr = self._nodeNumToId(p["to"])
+        if "route" in asDict:
+          for nodeNum in asDict["route"]:
+            routeStr += " --> " + self._nodeNumToId(nodeNum) 
+        routeStr += " --> " + self._nodeNumToId(p["from"])
+        print(routeStr)
+
+        self._acknowledgment.receivedTraceRoute = True
 
     def _addResponseHandler(self, requestId, callback):
         self.responseHandlers[requestId] = ResponseHandler(callback)
@@ -364,6 +385,11 @@ class MeshInterface:
         success = self._timeout.waitForAckNak(self._acknowledgment)
         if not success:
             raise Exception("Timed out waiting for an acknowledgment")
+
+    def waitForTraceRoute(self, waitFactor):
+        success = self._timeout.waitForTraceRoute(waitFactor, self._acknowledgment)
+        if not success:
+            raise Exception("Timed out waiting for traceroute")
 
     def getMyNodeInfo(self):
         """Get info about my node."""
