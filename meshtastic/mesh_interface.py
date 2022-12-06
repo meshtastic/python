@@ -294,8 +294,10 @@ class MeshInterface:
   
     def sendTraceRoute(self, dest, hopLimit):
         r = mesh_pb2.RouteDiscovery()
-        self.sendData(r, destinationId=dest, portNum=70, wantResponse=True, onResponse=self.onResponseTraceRoute)
-        waitFactor = min(len(self.nodes)-1, hopLimit)  # extend timeout based on number of nodes, limit by configured hopLimit
+        self.sendData(r, destinationId=dest, portNum=portnums_pb2.PortNum.TRACEROUTE_APP,
+                      wantResponse=True, onResponse=self.onResponseTraceRoute)
+        # extend timeout based on number of nodes, limit by configured hopLimit
+        waitFactor = min(len(self.nodes)-1, hopLimit)  
         self.waitForTraceRoute(waitFactor)
 
     def onResponseTraceRoute(self, p):
