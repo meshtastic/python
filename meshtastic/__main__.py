@@ -330,6 +330,13 @@ def onConnected(interface):
             interface.sendData(payload, args.dest, portNum=portnums_pb2.PortNum.REPLY_APP,
                                wantAck=True, wantResponse=True)
 
+        if args.traceroute:
+            loraConfig = getattr(interface.localNode.localConfig, 'lora')
+            hopLimit = getattr(loraConfig, 'hop_limit')
+            dest = str(args.traceroute)
+            print(f"Sending traceroute request to {dest} (this could take a while)")
+            interface.sendTraceRoute(dest, hopLimit)
+            
         if args.gpio_wrb or args.gpio_rd or args.gpio_watch:
             if args.dest == BROADCAST_ADDR:
                 meshtastic.util.our_exit("Warning: Must use a destination node ID.")
@@ -934,6 +941,12 @@ def initParser():
 
     parser.add_argument(
         "--sendping", help="Send a ping message (which requests a reply)", action="store_true")
+
+    parser.add_argument(
+        "--traceroute", help="Traceroute from connected node to a destination. " \
+                             "You need pass the destination ID as argument, like " \
+                             "this: '--traceroute !ba4bf9d0' " \
+                             "Only nodes that have the encryption key can be traced.")     
 
     parser.add_argument(
         "--reboot", help="Tell the destination node to reboot", action="store_true")

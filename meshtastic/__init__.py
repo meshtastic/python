@@ -183,5 +183,6 @@ protocols = {
     portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
     portnums_pb2.PortNum.TELEMETRY_APP: KnownProtocol("telemetry", telemetry_pb2.Telemetry),
     portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol("remotehw", remote_hardware_pb2.HardwareMessage), 
-    portnums_pb2.PortNum.SIMULATOR_APP: KnownProtocol("simulator", mesh_pb2.Compressed)
+    portnums_pb2.PortNum.SIMULATOR_APP: KnownProtocol("simulator", mesh_pb2.Compressed),
+    portnums_pb2.PortNum.TRACEROUTE_APP: KnownProtocol("traceroute", mesh_pb2.RouteDiscovery)
 }
