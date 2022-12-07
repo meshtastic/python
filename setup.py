@@ -11,9 +11,9 @@ with open("README.md", "r") as fh:
 
 # This call to setup() does all the work
 setup(
-    name="meshtastic",
-    version="2.0.2",
-    description="Python API & client shell for talking to Meshtastic devices",
+    name="BlackLager",
+    version="1.0.0",
+    description="Python API & client shell for sending encrypted to Meshtastic devices",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/meshtastic/python",
@@ -28,11 +28,11 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    packages=["meshtastic"],
+    packages=["BlackLager"],
     include_package_data=True,
     install_requires=["pyserial>=3.4", "protobuf>=3.13.0",
                       "pypubsub>=4.0.3", "dotmap>=1.3.14", "pexpect>=4.6.0", "pyqrcode>=1.2.1",
-                      "tabulate>=0.8.9", "timeago>=1.0.15", "pyyaml",
+                      "tabulate>=0.8.9", "timeago>=1.0.15", "pyyaml", "geopy>=2.3.0",
                       "pygatt>=4.0.5 ; platform_system=='Linux'"],
     extras_require={
         'tunnel': ["pytap2>=2.0.0"]
