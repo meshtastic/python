@@ -17,8 +17,8 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/meshtastic/python",
-    author="Meshtastic Developers",
-    author_email="contact@meshtastic.org",
+    author="Black Lager Developers",
+    author_email=["mkrizek@dons.usfca,edu", "akadd8@gmail.com"],
     license="GPL-3.0-only",
     classifiers=[
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
