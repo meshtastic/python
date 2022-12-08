@@ -179,7 +179,7 @@ def _onSignedTextReceive(iface, asDict):
     logging.debug(f'in _onSignedTextReceive() asDict:{asDict}')
     try:
         asBytes = asDict["decoded"]["payload"]
-        asDict["decoded"]["signed-text"] = asBytes.decode("utf-8")
+        asDict["decoded"]["signed-text"] = asBytes
     except Exception as ex:
         logging.error(f"Malformatted utf8 in text message: {ex}")
     _receiveInfoUpdate(iface, asDict)
