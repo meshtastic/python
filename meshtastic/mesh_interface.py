@@ -723,7 +723,8 @@ class MeshInterface:
         publishingThread.queueWork(lambda: pub.sendMessage(
             topic, packet=asDict, interface=self))
 
-    def sendSignedText(self, text: AnyStr,
+# TODO: take the clear text message and signing key as parameters here and do the signing in this function
+    def sendSignedText(self, signedMessage: bytes,
                  destinationId=BROADCAST_ADDR,
                  wantAck=False,
                  wantResponse=False,
@@ -738,7 +739,7 @@ class MeshInterface:
         if hopLimit is None:
             hopLimit = self.defaultHopLimit
 
-        return self.sendData(text.encode("utf-8"), destinationId,
+        return self.sendData(signedMessage, destinationId,
                              portNum=portnums_pb2.PortNum.BLACK_LAGER,
                              wantAck=wantAck,
                              wantResponse=wantResponse,
