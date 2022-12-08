@@ -177,11 +177,9 @@ def _receiveInfoUpdate(iface, asDict):
 def _onSignedTextReceive(iface, asDict):
     """Parsing for received signed text messages"""
     logging.debug(f'in _onSignedTextReceive() asDict:{asDict}')
-    try:
-        asBytes = asDict["decoded"]["payload"]
-        asDict["decoded"]["signed-text"] = asBytes
-    except Exception as ex:
-        logging.error(f"Malformatted utf8 in text message: {ex}")
+    asBytes = asDict["decoded"]["payload"]
+    asDict["decoded"]["signed-text"] = asBytes
+
     _receiveInfoUpdate(iface, asDict)
 
 
