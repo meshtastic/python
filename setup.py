@@ -18,7 +18,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/black-lager/python",
     author="Black Lager Developers",
-    author_email=["mkrizek@dons.usfca.edu", "kadd8@gmail.com"],
+    author_email=["mkrizek@dons.usfca.edu", "akadd8@gmail.com"],
     license="GPL-3.0-only",
     classifiers=[
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -28,7 +28,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    packages=["meshtastic"],
+    packages=["BlackLager"],
     include_package_data=True,
     install_requires=["pyserial>=3.4", "protobuf>=3.13.0",
                       "pypubsub>=4.0.3", "dotmap>=1.3.14", "pexpect>=4.6.0", "pyqrcode>=1.2.1",
