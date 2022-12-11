@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!python3
 
 from persona_wallet import PersonaWallet
 from textwindow import TextWindow
