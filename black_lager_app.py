@@ -3,7 +3,7 @@
 from persona_wallet import PersonaWallet
 from textwindow import TextWindow
 from textpad import TextPad
-from utils import *
+from client_utils import *
 import meshtastic
 import meshtastic.serial_interface
 import meshtastic.tcp_interface
@@ -32,7 +32,7 @@ from signal import signal, SIGINT
 from sys import exit
 
 # PyNaCl libsodium library
-from nacl_suite import NaclSuite
+from crypto_utils import NaclSuite
 
 from nacl.encoding import HexEncoder
 from nacl.signing import VerifyKey
