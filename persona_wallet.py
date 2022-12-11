@@ -1,4 +1,4 @@
-from black_lager import persona_pb2
+from meshtastic import persona_pb2
 from nacl.signing import SigningKey
 import pickle
 import sys
@@ -75,10 +75,3 @@ class PersonaWallet:
         f = open(self.wallet_path, "wb")
         f.write(self.wallet_message.SerializeToString())
         f.close()
-
-
-# wallet = PersonaWallet()
-# print("Current persona:", wallet.current_persona.local_name)
-# print("Saving the following wallet to disk:")
-# print(wallet.wallet_message)
-# wallet.write_wallet_to_file()
