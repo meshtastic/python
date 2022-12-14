@@ -12,13 +12,13 @@ with open("README.md", "r") as fh:
 # This call to setup() does all the work
 setup(
     name="BlackLager",
-    version="1.0.0",
+    version="1.0.2",
     description="Python API & client shell for sending encrypted messages to Meshtastic devices",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/black-lager/python",
     author="Black Lager Developers",
-    author_email=["mkrizek@dons.usfca.edu", "akadd8@gmail.com"],
+    author_email="mkrizek@dons.usfca.edu, akadd8@gmail.com",
     license="GPL-3.0-only",
     classifiers=[
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
