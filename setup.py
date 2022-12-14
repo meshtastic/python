@@ -40,6 +40,7 @@ setup(
     python_requires='>=3.7',
     entry_points={
         "console_scripts": [
+            "blacklager=black_lager_app.__main__:main",
             "meshtastic=meshtastic.__main__:main",
             "mesh-tunnel=meshtastic.__main__:tunnelMain [tunnel]"
         ]
