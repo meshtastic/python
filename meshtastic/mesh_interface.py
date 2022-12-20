@@ -165,10 +165,10 @@ class MeshInterface:
             n = meshtastic.node.Node(self, nodeId)
             # Only request device settings and channel info when necessary
             if requestConfig:
-              logging.debug("About to requestConfig")
-              n.requestConfig()
-              if not n.waitForConfig():
-                  our_exit("Error: Timed out waiting for node config")
+                logging.debug("About to requestConfig")
+                n.requestConfig()
+                if not n.waitForConfig():
+                    our_exit("Error: Timed out waiting for node config")
             return n
 
     def sendText(self, text: AnyStr,
@@ -291,16 +291,18 @@ class MeshInterface:
                              portNum=portnums_pb2.PortNum.POSITION_APP,
                              wantAck=wantAck,
                              wantResponse=wantResponse)
-  
+
     def sendTraceRoute(self, dest, hopLimit):
+        """Send the trace route"""
         r = mesh_pb2.RouteDiscovery()
         self.sendData(r, destinationId=dest, portNum=portnums_pb2.PortNum.TRACEROUTE_APP,
                       wantResponse=True, onResponse=self.onResponseTraceRoute)
         # extend timeout based on number of nodes, limit by configured hopLimit
-        waitFactor = min(len(self.nodes)-1, hopLimit)  
+        waitFactor = min(len(self.nodes)-1, hopLimit)
         self.waitForTraceRoute(waitFactor)
 
     def onResponseTraceRoute(self, p):
+        """on response for trace route"""
         routeDiscovery = mesh_pb2.RouteDiscovery()
         routeDiscovery.ParseFromString(p["decoded"]["payload"])
         asDict = google.protobuf.json_format.MessageToDict(routeDiscovery)
@@ -308,8 +310,8 @@ class MeshInterface:
         print("Route traced:")
         routeStr = self._nodeNumToId(p["to"])
         if "route" in asDict:
-          for nodeNum in asDict["route"]:
-            routeStr += " --> " + self._nodeNumToId(nodeNum) 
+            for nodeNum in asDict["route"]:
+                routeStr += " --> " + self._nodeNumToId(nodeNum)
         routeStr += " --> " + self._nodeNumToId(p["from"])
         print(routeStr)
 
@@ -384,11 +386,13 @@ class MeshInterface:
             raise Exception("Timed out waiting for interface config")
 
     def waitForAckNak(self):
+        """Wait for the ack/nak"""
         success = self._timeout.waitForAckNak(self._acknowledgment)
         if not success:
             raise Exception("Timed out waiting for an acknowledgment")
 
     def waitForTraceRoute(self, waitFactor):
+        """Wait for trace route"""
         success = self._timeout.waitForTraceRoute(waitFactor, self._acknowledgment)
         if not success:
             raise Exception("Timed out waiting for traceroute")
@@ -745,7 +749,7 @@ class MeshInterface:
                 handler = self.responseHandlers.pop(requestId, None)
                 if handler is not None:
                     if not isAck or (isAck and handler.__name__ == "onAckNak"):
-                      handler.callback(asDict)
+                        handler.callback(asDict)
 
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         publishingThread.queueWork(lambda: pub.sendMessage(
