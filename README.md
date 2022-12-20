@@ -1,6 +1,6 @@
 # Meshtastic Python
 
-[![codecov](https://codecov.io/gh/meshtastic/python/branch/master/graph/badge.svg?token=TIWPJL73KV)](https://codecov.io/gh/meshtastic/python)
+[![codecov](https://codecov.io/gh/meshtastic/Meshtastic-python/branch/master/graph/badge.svg?token=TIWPJL73KV)](https://codecov.io/gh/meshtastic/Meshtastic-python)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/meshtastic)
 [![CI](https://img.shields.io/github/workflow/status/meshtastic/python/CI?label=actions&logo=github&color=yellow)](https://github.com/meshtastic/python/actions/workflows/ci.yml)
 [![CLA assistant](https://cla-assistant.io/readme/badge/meshtastic/python)](https://cla-assistant.io/meshtastic/python)
