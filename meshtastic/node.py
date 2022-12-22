@@ -521,8 +521,8 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
-    def getMetadata(self, secs: int = 10):
-        """Tell the node to shutdown."""
+    def getMetadata(self):
+        """Get the node's metadata."""
         p = admin_pb2.AdminMessage()
         p.get_device_metadata_request = True
         logging.info(f"Requesting device metadata")
