@@ -23,7 +23,7 @@ def onGPIOreceive(packet, interface):
 
     #print(f'mask:{interface.mask}')
     value = int(gpioValue) & int(interface.mask)
-    print(f'Received RemoteHardware typ={hw["typ"]}, gpio_value={gpioValue} value={value}')
+    print(f'Received RemoteHardware type={hw["type"]}, gpio_value={gpioValue} value={value}')
     interface.gotResponse = True
 
 
@@ -66,7 +66,7 @@ class RemoteHardwareClient:
         """
         logging.debug(f'writeGPIOs nodeid:{nodeid} mask:{mask} vals:{vals}')
         r = remote_hardware_pb2.HardwareMessage()
-        r.typ = remote_hardware_pb2.HardwareMessage.Type.WRITE_GPIOS
+        r.type = remote_hardware_pb2.HardwareMessage.Type.WRITE_GPIOS
         r.gpio_mask = mask
         r.gpio_value = vals
         return self._sendHardware(nodeid, r)
@@ -75,7 +75,7 @@ class RemoteHardwareClient:
         """Read the specified bits from GPIO inputs on the device"""
         logging.debug(f'readGPIOs nodeid:{nodeid} mask:{mask}')
         r = remote_hardware_pb2.HardwareMessage()
-        r.typ = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
+        r.type = remote_hardware_pb2.HardwareMessage.Type.READ_GPIOS
         r.gpio_mask = mask
         return self._sendHardware(nodeid, r, wantResponse=True, onResponse=onResponse)
 
@@ -83,7 +83,7 @@ class RemoteHardwareClient:
         """Watch the specified bits from GPIO inputs on the device for changes"""
         logging.debug(f'watchGPIOs nodeid:{nodeid} mask:{mask}')
         r = remote_hardware_pb2.HardwareMessage()
-        r.typ = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
+        r.type = remote_hardware_pb2.HardwareMessage.Type.WATCH_GPIOS
         r.gpio_mask = mask
         self.iface.mask = mask
         return self._sendHardware(nodeid, r)
