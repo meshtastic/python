@@ -12,7 +12,7 @@ with open("README.md", "r") as fh:
 # This call to setup() does all the work
 setup(
     name="meshtastic",
-    version="2.0.7",
+    version="2.0.8",
     description="Python API & client shell for talking to Meshtastic devices",
     long_description=long_description,
     long_description_content_type="text/markdown",
