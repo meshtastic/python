@@ -137,7 +137,20 @@ class MeshInterface:
                         "Latitude":  formatFloat(pos.get("latitude"),     4, "°"),
                         "Longitude": formatFloat(pos.get("longitude"),    4, "°"),
                         "Altitude":  formatFloat(pos.get("altitude"),     0, " m"),
-                        "Battery":   formatFloat(pos.get("batteryLevel"), 2, "%"),
+                    })
+                
+                metrics = node.get('deviceMetrics')
+                if metrics: 
+                    batteryLevel = metrics.get('batteryLevel')
+                    if batteryLevel is not None:
+                        if batteryLevel == 0:
+                            batteryString = "Powered"
+                        else:
+                            batteryString = str(batteryLevel)+"%"
+                        row.update({"Battery":   batteryString})
+                    row.update({
+                        "Channel util.": formatFloat(metrics.get('channelUtilization'), 2, "%"), 
+                        "Tx air util.": formatFloat(metrics.get('airUtilTx'), 2, "%"), 
                     })
 
                 row.update({
