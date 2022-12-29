@@ -7,7 +7,7 @@
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=mqtt_pb2.py,channel_pb2.py,telemetry_pb2.py,admin_pb2.py,config_pb2.py,deviceonly_pb2.py,apponly_pb2.py,remote_hardware_pb2.py,portnums_pb2.py,mesh_pb2.py,storeforward_pb2.py,cannedmessages_pb2.py,module_config_pb2.py,localonly_pb2.py,node.py
+ignore-patterns=mqtt_pb2.py,channel_pb2.py,telemetry_pb2.py,admin_pb2.py,config_pb2.py,deviceonly_pb2.py,apponly_pb2.py,remote_hardware_pb2.py,portnums_pb2.py,mesh_pb2.py,storeforward_pb2.py,cannedmessages_pb2.py,module_config_pb2.py,localonly_pb2.py,node.py,device_metadata_pb2.py
 
 
 
@@ -23,7 +23,7 @@ ignore-patterns=mqtt_pb2.py,channel_pb2.py,telemetry_pb2.py,admin_pb2.py,config_
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
 #
-disable=invalid-name,fixme,logging-fstring-interpolation,too-many-statements,too-many-branches,too-many-locals,no-member,f-string-without-interpolation,protected-access,no-self-use,pointless-string-statement,too-few-public-methods,broad-except,no-else-return,no-else-raise,bare-except,too-many-public-methods
+disable=invalid-name,fixme,logging-fstring-interpolation,too-many-statements,too-many-branches,too-many-locals,no-member,f-string-without-interpolation,protected-access,pointless-string-statement,too-few-public-methods,broad-except,no-else-return,no-else-raise,bare-except,too-many-public-methods
 
 [BASIC]
 

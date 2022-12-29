@@ -172,7 +172,7 @@ class Timeout:
     def waitForTraceRoute(self, waitFactor, acknowledgment, attr='receivedTraceRoute'):
         """Block until traceroute response is received. Returns True if traceroute response has been received."""
         self.expireTimeout *= waitFactor
-        self.reset()    
+        self.reset()
         while time.time() < self.expireTime:
             if getattr(acknowledgment, attr, None):
                 acknowledgment.reset()
@@ -183,16 +183,18 @@ class Timeout:
 class Acknowledgment:
     "A class that records which type of acknowledgment was just received, if any."
     def __init__(self):
-      self.receivedAck = False
-      self.receivedNak = False
-      self.receivedImplAck = False
-      self.receivedTraceRoute = False
+        """initialize"""
+        self.receivedAck = False
+        self.receivedNak = False
+        self.receivedImplAck = False
+        self.receivedTraceRoute = False
 
     def reset(self):
-      self.receivedAck = False
-      self.receivedNak = False
-      self.receivedImplAck = False
-      self.receivedTraceRoute = False
+        """reset"""
+        self.receivedAck = False
+        self.receivedNak = False
+        self.receivedImplAck = False
+        self.receivedTraceRoute = False
 
 class DeferredExecution():
     """A thread that accepts closures to run, and runs them as they are received"""

@@ -192,7 +192,7 @@ def onConnected(interface):
             alt = 0
             lat = 0.0
             lon = 0.0
-            # TODO: use getNode(args.dest) to be able to set it for a remote node 
+            # TODO: use getNode(args.dest) to be able to set it for a remote node
             localConfig = interface.localNode.localConfig
             if args.setalt:
                 alt = int(args.setalt)
@@ -282,17 +282,17 @@ def onConnected(interface):
         if args.reboot_ota:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).rebootOTA();
+            interface.getNode(args.dest, False).rebootOTA()
 
         if args.shutdown:
             closeNow = True
             waitForAckNak = True
             interface.getNode(args.dest, False).shutdown()
-        
+
         if args.device_metadata:
             closeNow = True
             interface.getNode(args.dest).getMetadata()
-        
+
         if args.begin_edit:
             closeNow = True
             interface.getNode(args.dest, False).beginSettingsTransaction()
@@ -336,7 +336,7 @@ def onConnected(interface):
             dest = str(args.traceroute)
             print(f"Sending traceroute request to {dest} (this could take a while)")
             interface.sendTraceRoute(dest, hopLimit)
-            
+
         if args.gpio_wrb or args.gpio_rd or args.gpio_watch:
             if args.dest == BROADCAST_ADDR:
                 meshtastic.util.our_exit("Warning: Must use a destination node ID.")
@@ -454,7 +454,7 @@ def onConnected(interface):
                         for pref in configuration['config'][section]:
                             setPref(localConfig, f"{section}.{pref}", str(configuration['config'][section][pref]))
                         interface.getNode(args.dest).writeConfig(section)
-                    
+
                 if 'module_config' in configuration:
                     moduleConfig = interface.getNode(args.dest).moduleConfig
                     for section in configuration['module_config']:
@@ -648,6 +648,7 @@ def onConnected(interface):
         interface.close()  # close the connection now, so that our app exits
 
 def printConfig(config):
+    """print configuration"""
     objDesc = config.DESCRIPTOR
     for config_section in objDesc.fields:
         if config_section.name != "version":
@@ -720,7 +721,7 @@ def export_config(interface):
             configObj["config"] = config
         else:
             configObj["config"] = config
-    
+
     module_config = MessageToDict(interface.localNode.moduleConfig)
     if module_config:
         # Convert inner keys to correct snake/camelCase
@@ -946,7 +947,7 @@ def initParser():
         "--traceroute", help="Traceroute from connected node to a destination. " \
                              "You need pass the destination ID as argument, like " \
                              "this: '--traceroute !ba4bf9d0' " \
-                             "Only nodes that have the encryption key can be traced.")     
+                             "Only nodes that have the encryption key can be traced.")
 
     parser.add_argument(
         "--reboot", help="Tell the destination node to reboot", action="store_true")
@@ -959,7 +960,7 @@ def initParser():
 
     parser.add_argument(
         "--device-metadata", help="Get the device metadata from the node", action="store_true")
-    
+
     parser.add_argument(
         "--begin-edit", help="Tell the node to open a transaction to edit settings", action="store_true")
 
@@ -968,7 +969,7 @@ def initParser():
 
     parser.add_argument(
         "--factory-reset", help="Tell the destination node to install the default config", action="store_true")
-    
+
     parser.add_argument(
         "--reset-nodedb", help="Tell the destination node clear its list of nodes", action="store_true")
 
