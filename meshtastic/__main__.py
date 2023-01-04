@@ -234,6 +234,13 @@ def onConnected(interface):
             print(f"Setting canned plugin message to {args.set_canned_message}")
             interface.getNode(args.dest, False).set_canned_message(args.set_canned_message)
 
+        # TODO: add to export-config and configure
+        if args.set_ringtone:
+            closeNow = True
+            waitForAckNak = True
+            print(f"Setting ringtone to {args.set_ringtone}")
+            interface.getNode(args.dest, False).set_ringtone(args.set_ringtone)
+
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
             closeNow = True
@@ -580,6 +587,11 @@ def onConnected(interface):
             print("")
             interface.getNode(args.dest).get_canned_message()
 
+        if args.get_ringtone:
+            closeNow = True
+            print("")
+            interface.getNode(args.dest).get_ringtone()
+
         if args.info:
             print("")
             # If we aren't trying to talk to our local node, don't show it
@@ -860,6 +872,9 @@ def initParser():
     parser.add_argument("--get-canned-message", help="Show the canned message plugin message",
                         action="store_true")
 
+    parser.add_argument("--get-ringtone", help="Show the stored ringtone",
+                        action="store_true")
+
     parser.add_argument("--nodes", help="Print Node List in a pretty formatted table",
                         action="store_true")
 
@@ -926,7 +941,10 @@ def initParser():
         "--set-owner", help="Set device owner name", action="store")
 
     parser.add_argument(
-        "--set-canned-message", help="Set the canned messages plugin message (up to 1000 characters).", action="store")
+        "--set-canned-message", help="Set the canned messages plugin message (up to 200 characters).", action="store")
+
+    parser.add_argument(
+        "--set-ringtone", help="Set the Notification Ringtone (up to 230 characters).", action="store")
 
     parser.add_argument(
         "--set-owner-short", help="Set device owner short name", action="store")
