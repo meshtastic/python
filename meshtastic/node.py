@@ -26,8 +26,9 @@ class Node:
         self.partialChannels = None
         self.noProto = noProto
         self.cannedPluginMessage = None
-
         self.cannedPluginMessageMessages = None
+        self.ringtone = None
+        self.ringtonePart = None
 
         self.gotResponse = None
 
@@ -379,6 +380,73 @@ class Node:
         p.set_config.lora.CopyFrom(channelSet.lora_config)
         self._sendAdmin(p)
 
+    def onResponseRequestRingtone(self, p):
+        """Handle the response packet for requesting ringtone part 1"""
+        logging.debug(f'onResponseRequestRingtone() p:{p}')
+        errorFound = False
+        if "routing" in p["decoded"]:
+            if p["decoded"]["routing"]["errorReason"] != "NONE":
+                errorFound = True
+                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+        if errorFound is False:
+            if "decoded" in p:
+                if "admin" in p["decoded"]:
+                    if "raw" in p["decoded"]["admin"]:
+                        self.ringtonePart = p["decoded"]["admin"]["raw"].get_ringtone_response
+                        logging.debug(f'self.ringtonePart:{self.ringtonePart}')
+                        self.gotResponse = True
+
+    def get_ringtone(self):
+        """Get the ringtone. Concatenate all pieces together and return a single string."""
+        logging.debug(f'in get_ringtone()')
+        if not self.ringtone:
+
+            p1 = admin_pb2.AdminMessage()
+            p1.get_ringtone_request = True
+            self.gotResponse = False
+            self._sendAdmin(p1, wantResponse=True, onResponse=self.onResponseRequestRingtone)
+            while self.gotResponse is False:
+                time.sleep(0.1)
+
+            logging.debug(f'self.ringtone:{self.ringtone}')
+
+            self.ringtone = ""
+            if self.ringtonePart:
+                self.ringtone += self.ringtonePart
+        
+        print(f'ringtone:{self.ringtone}')
+        logging.debug(f'ringtone:{self.ringtone}')
+        return self.ringtone
+
+    def set_ringtone(self, ringtone):
+        """Set the ringtone. The ringtone length must be less than 230 character."""
+
+        if len(ringtone) > 230:
+            our_exit("Warning: The ringtone must be less than 230 characters.")
+
+        # split into chunks
+        chunks = []
+        chunks_size = 230
+        for i in range(0, len(ringtone), chunks_size):
+            chunks.append(ringtone[i: i + chunks_size])
+
+        # for each chunk, send a message to set the values
+        #for i in range(0, len(chunks)):
+        for i, chunk in enumerate(chunks):
+            p = admin_pb2.AdminMessage()
+
+            # TODO: should be a way to improve this
+            if i == 0:
+                p.set_ringtone_message = chunk
+
+            logging.debug(f"Setting ringtone '{chunk}' part {i+1}")
+            # If sending to a remote node, wait for ACK/NAK
+            if self == self.iface.localNode:
+                onResponse = None
+            else: 
+                onResponse = self.onAckNak
+            return self._sendAdmin(p, onResponse=onResponse)
+            
     def onResponseRequestCannedMessagePluginMessageMessages(self, p):
         """Handle the response packet for requesting canned message plugin message part 1"""
         logging.debug(f'onResponseRequestCannedMessagePluginMessageMessages() p:{p}')
