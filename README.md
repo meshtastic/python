@@ -14,7 +14,7 @@ This small library (and example application) provides an easy API for sending an
 It also provides access to any of the operations/data available in the device user interface or the Android application.
 Events are delivered using a publish-subscribe model, and you can subscribe to only the message types you are interested in.
 
-**[Getting Started Guide](https://meshtastic.org/docs/software/python/python-installation)**
+**[Getting Started Guide](https://meshtastic.org/docs/software/python/cli/installation)**
 
 **[Documentation/API Reference](https://python.meshtastic.org/)**
 
