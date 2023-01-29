@@ -1,6 +1,10 @@
 #!/bin/bash
 
-./nanopb-0.4.6/generator-bin/protoc -I=protobufs --python_out meshtastic `ls protobufs/*.proto`
+#Uncomment to run hack
+#gsed -i 's/import "\//import ".\//g' ./protobufs/meshtastic/*
+#gsed -i 's/package meshtastic;//g' ./protobufs/meshtastic/*
+
+./nanopb-0.4.6/generator-bin/protoc -I=protobufs --python_out ./ ./protobufs/meshtastic/*.proto
 
 # workaround for import bug in protoc https://github.com/protocolbuffers/protobuf/issues/1491#issuecomment-690618628
 
