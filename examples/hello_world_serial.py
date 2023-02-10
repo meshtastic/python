@@ -12,7 +12,7 @@ if len(sys.argv) < 2:
     sys.exit(3)
 
 # By default will try to find a meshtastic device,
-# otherwise provide a device path like /dev/ttyUSB0
+# otherwise provide a device path like devPath=/dev/ttyUSB0
 iface = meshtastic.serial_interface.SerialInterface()
 iface.sendText(sys.argv[1])
 iface.close()
