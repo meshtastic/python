@@ -15,7 +15,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1ameshtastic/telemetry.proto\"i\n\rDeviceMetrics\x12\x15\n\rbattery_level\x18\x01 \x01(\r\x12\x0f\n\x07voltage\x18\x02 \x01(\x02\x12\x1b\n\x13\x63hannel_utilization\x18\x03 \x01(\x02\x12\x13\n\x0b\x61ir_util_tx\x18\x04 \x01(\x02\"\x9b\x01\n\x12\x45nvironmentMetrics\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x12\x19\n\x11relative_humidity\x18\x02 \x01(\x02\x12\x1b\n\x13\x62\x61rometric_pressure\x18\x03 \x01(\x02\x12\x16\n\x0egas_resistance\x18\x04 \x01(\x02\x12\x0f\n\x07voltage\x18\x05 \x01(\x02\x12\x0f\n\x07\x63urrent\x18\x06 \x01(\x02\"\x82\x01\n\tTelemetry\x12\x0c\n\x04time\x18\x01 \x01(\x07\x12(\n\x0e\x64\x65vice_metrics\x18\x02 \x01(\x0b\x32\x0e.DeviceMetricsH\x00\x12\x32\n\x13\x65nvironment_metrics\x18\x03 \x01(\x0b\x32\x13.EnvironmentMetricsH\x00\x42\t\n\x07variant*\xb9\x01\n\x13TelemetrySensorType\x12\x10\n\x0cSENSOR_UNSET\x10\x00\x12\n\n\x06\x42ME280\x10\x01\x12\n\n\x06\x42ME680\x10\x02\x12\x0b\n\x07MCP9808\x10\x03\x12\n\n\x06INA260\x10\x04\x12\n\n\x06INA219\x10\x05\x12\n\n\x06\x42MP280\x10\x06\x12\t\n\x05SHTC3\x10\x07\x12\t\n\x05LPS22\x10\x08\x12\x0b\n\x07QMC6310\x10\t\x12\x0b\n\x07QMI8658\x10\n\x12\x0c\n\x08QMC5883L\x10\x0b\x12\t\n\x05SHT31\x10\x0c\x42\x66\n\x13\x63om.geeksville.meshB\x0fTelemetryProtosH\x03Z\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1ameshtastic/telemetry.proto\"i\n\rDeviceMetrics\x12\x15\n\rbattery_level\x18\x01 \x01(\r\x12\x0f\n\x07voltage\x18\x02 \x01(\x02\x12\x1b\n\x13\x63hannel_utilization\x18\x03 \x01(\x02\x12\x13\n\x0b\x61ir_util_tx\x18\x04 \x01(\x02\"\x9b\x01\n\x12\x45nvironmentMetrics\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x12\x19\n\x11relative_humidity\x18\x02 \x01(\x02\x12\x1b\n\x13\x62\x61rometric_pressure\x18\x03 \x01(\x02\x12\x16\n\x0egas_resistance\x18\x04 \x01(\x02\x12\x0f\n\x07voltage\x18\x05 \x01(\x02\x12\x0f\n\x07\x63urrent\x18\x06 \x01(\x02\"\xbf\x02\n\x11\x41irQualityMetrics\x12\x15\n\rpm10_standard\x18\x01 \x01(\r\x12\x15\n\rpm25_standard\x18\x02 \x01(\r\x12\x16\n\x0epm100_standard\x18\x03 \x01(\r\x12\x1a\n\x12pm10_environmental\x18\x04 \x01(\r\x12\x1a\n\x12pm25_environmental\x18\x05 \x01(\r\x12\x1b\n\x13pm100_environmental\x18\x06 \x01(\r\x12\x16\n\x0eparticles_03um\x18\x07 \x01(\r\x12\x16\n\x0eparticles_05um\x18\x08 \x01(\r\x12\x16\n\x0eparticles_10um\x18\t \x01(\r\x12\x16\n\x0eparticles_25um\x18\n \x01(\r\x12\x16\n\x0eparticles_50um\x18\x0b \x01(\r\x12\x17\n\x0fparticles_100um\x18\x0c \x01(\r\"\xb5\x01\n\tTelemetry\x12\x0c\n\x04time\x18\x01 \x01(\x07\x12(\n\x0e\x64\x65vice_metrics\x18\x02 \x01(\x0b\x32\x0e.DeviceMetricsH\x00\x12\x32\n\x13\x65nvironment_metrics\x18\x03 \x01(\x0b\x32\x13.EnvironmentMetricsH\x00\x12\x31\n\x13\x61ir_quality_metrics\x18\x04 \x01(\x0b\x32\x12.AirQualityMetricsH\x00\x42\t\n\x07variant*\xc7\x01\n\x13TelemetrySensorType\x12\x10\n\x0cSENSOR_UNSET\x10\x00\x12\n\n\x06\x42ME280\x10\x01\x12\n\n\x06\x42ME680\x10\x02\x12\x0b\n\x07MCP9808\x10\x03\x12\n\n\x06INA260\x10\x04\x12\n\n\x06INA219\x10\x05\x12\n\n\x06\x42MP280\x10\x06\x12\t\n\x05SHTC3\x10\x07\x12\t\n\x05LPS22\x10\x08\x12\x0b\n\x07QMC6310\x10\t\x12\x0b\n\x07QMI8658\x10\n\x12\x0c\n\x08QMC5883L\x10\x0b\x12\t\n\x05SHT31\x10\x0c\x12\x0c\n\x08PMSA003I\x10\rBd\n\x13\x63om.geeksville.meshB\x0fTelemetryProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _TELEMETRYSENSORTYPE = DESCRIPTOR.enum_types_by_name['TelemetrySensorType']
 TelemetrySensorType = enum_type_wrapper.EnumTypeWrapper(_TELEMETRYSENSORTYPE)
@@ -32,10 +32,12 @@ QMC6310 = 9
 QMI8658 = 10
 QMC5883L = 11
 SHT31 = 12
+PMSA003I = 13
 
 
 _DEVICEMETRICS = DESCRIPTOR.message_types_by_name['DeviceMetrics']
 _ENVIRONMENTMETRICS = DESCRIPTOR.message_types_by_name['EnvironmentMetrics']
+_AIRQUALITYMETRICS = DESCRIPTOR.message_types_by_name['AirQualityMetrics']
 _TELEMETRY = DESCRIPTOR.message_types_by_name['Telemetry']
 DeviceMetrics = _reflection.GeneratedProtocolMessageType('DeviceMetrics', (_message.Message,), {
   'DESCRIPTOR' : _DEVICEMETRICS,
@@ -51,6 +53,13 @@ EnvironmentMetrics = _reflection.GeneratedProtocolMessageType('EnvironmentMetric
   })
 _sym_db.RegisterMessage(EnvironmentMetrics)
 
+AirQualityMetrics = _reflection.GeneratedProtocolMessageType('AirQualityMetrics', (_message.Message,), {
+  'DESCRIPTOR' : _AIRQUALITYMETRICS,
+  '__module__' : 'meshtastic.telemetry_pb2'
+  # @@protoc_insertion_point(class_scope:AirQualityMetrics)
+  })
+_sym_db.RegisterMessage(AirQualityMetrics)
+
 Telemetry = _reflection.GeneratedProtocolMessageType('Telemetry', (_message.Message,), {
   'DESCRIPTOR' : _TELEMETRY,
   '__module__' : 'meshtastic.telemetry_pb2'
@@ -61,13 +70,15 @@ _sym_db.RegisterMessage(Telemetry)
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\017TelemetryProtosH\003Z\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
-  _TELEMETRYSENSORTYPE._serialized_start=429
-  _TELEMETRYSENSORTYPE._serialized_end=614
+  DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\017TelemetryProtosZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
+  _TELEMETRYSENSORTYPE._serialized_start=802
+  _TELEMETRYSENSORTYPE._serialized_end=1001
   _DEVICEMETRICS._serialized_start=30
   _DEVICEMETRICS._serialized_end=135
   _ENVIRONMENTMETRICS._serialized_start=138
   _ENVIRONMENTMETRICS._serialized_end=293
-  _TELEMETRY._serialized_start=296
-  _TELEMETRY._serialized_end=426
+  _AIRQUALITYMETRICS._serialized_start=296
+  _AIRQUALITYMETRICS._serialized_end=615
+  _TELEMETRY._serialized_start=618
+  _TELEMETRY._serialized_end=799
 # @@protoc_insertion_point(module_scope)

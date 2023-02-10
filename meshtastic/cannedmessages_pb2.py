@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1fmeshtastic/cannedmessages.proto\"-\n\x19\x43\x61nnedMessageModuleConfig\x12\x10\n\x08messages\x18\x01 \x01(\tBp\n\x13\x63om.geeksville.meshB\x19\x43\x61nnedMessageConfigProtosH\x03Z\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1fmeshtastic/cannedmessages.proto\"-\n\x19\x43\x61nnedMessageModuleConfig\x12\x10\n\x08messages\x18\x01 \x01(\tBn\n\x13\x63om.geeksville.meshB\x19\x43\x61nnedMessageConfigProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 
 
@@ -29,7 +29,7 @@ _sym_db.RegisterMessage(CannedMessageModuleConfig)
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\031CannedMessageConfigProtosH\003Z\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
+  DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\031CannedMessageConfigProtosZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
   _CANNEDMESSAGEMODULECONFIG._serialized_start=35
   _CANNEDMESSAGEMODULECONFIG._serialized_end=80
 # @@protoc_insertion_point(module_scope)
