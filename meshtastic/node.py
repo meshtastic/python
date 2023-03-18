@@ -61,13 +61,45 @@ class Node:
         print(f"Module preferences: {prefs}\n")
         self.showChannels()
 
-    def requestConfig(self):
-        """Send regular MeshPackets to ask for settings and channels."""
-        logging.debug(f"requestConfig for nodeNum:{self.nodeNum}")
+    def requestChannels(self):
+        """Send regular MeshPackets to ask channels."""
+        logging.debug(f"requestChannels for nodeNum:{self.nodeNum}")
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
 
         self._requestChannel(0)
+    
+    def onResponseRequestSettings(self, p):
+        """Handle the response packets for requesting settings _requestSettings()"""
+        logging.debug(f'onResponseRequestSetting() p:{p}')
+        if "routing" in p["decoded"]:
+            if p["decoded"]["routing"]["errorReason"] != "NONE":
+                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+                self.iface._acknowledgment.receivedNak = True
+        else:
+            self.iface._acknowledgment.receivedAck = True
+            if "getConfigResponse" in p["decoded"]["admin"]:
+                print("Config is as follows:", p["decoded"]["admin"]['getConfigResponse'])
+            else:
+                print("Module Config is as follows:", p["decoded"]["admin"]['getModuleConfigResponse'])
+
+    def requestConfig(self, configType):
+        print("Requesting config from remote node (this can take a while).")
+        print("Be sure:")
+        print(" 1. There is a SECONDARY channel named 'admin'.")
+        print(" 2. The '--seturl' was used to configure.")
+        print(" 3. All devices have the same modem config. (i.e., '--ch-longfast')")
+
+        msgIndex = configType.index
+        if configType.containing_type.full_name == "LocalConfig":
+            p = admin_pb2.AdminMessage()
+            p.get_config_request = msgIndex
+            self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestSettings)
+        else: 
+            p = admin_pb2.AdminMessage()
+            p.get_module_config_request = msgIndex
+            self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestSettings)
+        self.iface.waitForAckNak()
 
     def turnOffEncryptionOnPrimaryChannel(self):
         """Turn off encryption on primary channel."""

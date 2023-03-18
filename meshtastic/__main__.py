@@ -53,10 +53,11 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # pylint: disable=W0613
     print(f"Connection changed: {topic.getName()}")
 
 
-def getPref(config, comp_name):
+def getPref(interface, dest, comp_name):
     """Get a channel or preferences value"""
 
     name = splitCompoundName(comp_name)
+    fullConfig = name[0] == name[1] # We want the full config
 
     camel_name = meshtastic.util.snake_to_camel(name[1])
     # Note: protobufs has the keys in snake_case, so snake internally
@@ -64,26 +65,47 @@ def getPref(config, comp_name):
     logging.debug(f'snake_name:{snake_name} camel_name:{camel_name}')
     logging.debug(f'use camel:{Globals.getInstance().get_camel_case()}')
 
-    objDesc = config.DESCRIPTOR
-    print()
-    config_type = objDesc.fields_by_name.get(name[0])
-    pref = False
-    if config_type:
-        pref = config_type.message_type.fields_by_name.get(snake_name)
+    localConfig = interface.getNode(BROADCAST_ADDR).localConfig
+    moduleConfig = interface.getNode(BROADCAST_ADDR).moduleConfig
+    found = False
+    for config in [localConfig, moduleConfig]:
+        objDesc = config.DESCRIPTOR
+        config_type = objDesc.fields_by_name.get(name[0])
+        pref = False
+        if config_type:
+            pref = config_type.message_type.fields_by_name.get(snake_name)
+            if pref or fullConfig:
+                found = True
+                break
 
-    if (not pref) or (not config_type):
+    if not found: 
+        if Globals.getInstance().get_camel_case():
+            print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {snake_name}.")
+        else:
+            print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {snake_name}.")
+        print("Choices are...")
+        printConfig(localConfig)
+        printConfig(moduleConfig)
         return False
 
-    # read the value
-    config_values = getattr(config, config_type.name)
-    pref_value = getattr(config_values, pref.name)
-
-    if Globals.getInstance().get_camel_case():
-        print(f"{str(config_type.name)}.{camel_name}: {str(pref_value)}")
-        logging.debug(f"{str(config_type.name)}.{camel_name}: {str(pref_value)}")
-    else:
-        print(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
-        logging.debug(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
+    if dest == BROADCAST_ADDR:
+        # read the value
+        config_values = getattr(config, config_type.name)
+        if not fullConfig:
+            pref_value = getattr(config_values, pref.name)
+            if Globals.getInstance().get_camel_case():
+                print(f"{str(config_type.name)}.{camel_name}: {str(pref_value)}")
+                logging.debug(f"{str(config_type.name)}.{camel_name}: {str(pref_value)}")
+            else:
+                print(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
+                logging.debug(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
+        else:
+            print(f"{str(config_type.name)}: {str(config_values)}")
+            logging.debug(f"{str(config_type.name)}: {str(config_values)}")
+    else: 
+        # Always request full config for remote node
+        interface.getNode(dest, False).requestConfig(config_type)
+        
     return True
 
 def splitCompoundName(comp_name):
@@ -298,7 +320,7 @@ def onConnected(interface):
 
         if args.device_metadata:
             closeNow = True
-            interface.getNode(args.dest).getMetadata()
+            interface.getNode(args.dest, False).getMetadata()
 
         if args.begin_edit:
             closeNow = True
@@ -597,32 +619,20 @@ def onConnected(interface):
             # If we aren't trying to talk to our local node, don't show it
             if args.dest == BROADCAST_ADDR:
                 interface.showInfo()
-
-            print("")
-            interface.getNode(args.dest).showInfo()
-            closeNow = True  # FIXME, for now we leave the link up while talking to remote nodes
-            print("")
+                print("")
+                interface.getNode(args.dest).showInfo()
+                closeNow = True
+                print("")
+            else:
+                print("Showing info of remote node is not supported.")
+                print("Use the '--get' command for a specific configuration (e.g. 'lora') instead.")
 
         if args.get:
             closeNow = True
-            localConfig = interface.getNode(args.dest).localConfig
-            moduleConfig = interface.getNode(args.dest).moduleConfig
-
-            # Handle the int/float/bool arguments
             for pref in args.get:
-                found = getPref(localConfig, pref[0])
-                if not found:
-                    found = getPref(moduleConfig, pref[0])
+                found = getPref(interface, args.dest, pref[0])
 
-            if not found:
-                if Globals.getInstance().get_camel_case():
-                    print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
-                else:
-                    print(f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {pref[0]}.")
-                print("Choices are...")
-                printConfig(localConfig)
-                printConfig(moduleConfig)
-            else:
+            if found:
                 print("Completed getting preferences")
 
         if args.nodes:
