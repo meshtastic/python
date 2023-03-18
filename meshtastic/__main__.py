@@ -65,6 +65,7 @@ def getPref(interface, dest, comp_name):
     logging.debug(f'snake_name:{snake_name} camel_name:{camel_name}')
     logging.debug(f'use camel:{Globals.getInstance().get_camel_case()}')
 
+    # First validate the input by looking at config of connected node
     localConfig = interface.getNode(BROADCAST_ADDR).localConfig
     moduleConfig = interface.getNode(BROADCAST_ADDR).moduleConfig
     found = False
@@ -103,7 +104,7 @@ def getPref(interface, dest, comp_name):
             print(f"{str(config_type.name)}: {str(config_values)}")
             logging.debug(f"{str(config_type.name)}: {str(config_values)}")
     else: 
-        # Always request full config for remote node
+        # Always show full config for remote node
         interface.getNode(dest, False).requestConfig(config_type)
         
     return True

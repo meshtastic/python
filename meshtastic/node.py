@@ -78,10 +78,13 @@ class Node:
                 self.iface._acknowledgment.receivedNak = True
         else:
             self.iface._acknowledgment.receivedAck = True
+            print("")
             if "getConfigResponse" in p["decoded"]["admin"]:
-                print("Config is as follows:", p["decoded"]["admin"]['getConfigResponse'])
+                prefs = stripnl(p["decoded"]["admin"]["getConfigResponse"])
+                print(f"Preferences: {prefs}\n")
             else:
-                print("Module Config is as follows:", p["decoded"]["admin"]['getModuleConfigResponse'])
+                prefs = stripnl(p["decoded"]["admin"]["getModuleConfigResponse"])
+                print(f"Module preferences: {prefs}\n")
 
     def requestConfig(self, configType):
         print("Requesting config from remote node (this can take a while).")
