@@ -53,11 +53,11 @@ def onConnection(interface, topic=pub.AUTO_TOPIC): # pylint: disable=W0613
     print(f"Connection changed: {topic.getName()}")
 
 
-def getPref(interface, dest, comp_name):
+def getPref(node, comp_name):
     """Get a channel or preferences value"""
 
     name = splitCompoundName(comp_name)
-    fullConfig = name[0] == name[1] # We want the full config
+    wholeField = name[0] == name[1] # We want the whole field
 
     camel_name = meshtastic.util.snake_to_camel(name[1])
     # Note: protobufs has the keys in snake_case, so snake internally
@@ -65,9 +65,9 @@ def getPref(interface, dest, comp_name):
     logging.debug(f'snake_name:{snake_name} camel_name:{camel_name}')
     logging.debug(f'use camel:{Globals.getInstance().get_camel_case()}')
 
-    # First validate the input by looking at config of connected node
-    localConfig = interface.getNode(BROADCAST_ADDR).localConfig
-    moduleConfig = interface.getNode(BROADCAST_ADDR).moduleConfig
+    # First validate the input
+    localConfig = node.localConfig
+    moduleConfig = node.moduleConfig
     found = False
     for config in [localConfig, moduleConfig]:
         objDesc = config.DESCRIPTOR
@@ -75,7 +75,7 @@ def getPref(interface, dest, comp_name):
         pref = False
         if config_type:
             pref = config_type.message_type.fields_by_name.get(snake_name)
-            if pref or fullConfig:
+            if pref or wholeField:
                 found = True
                 break
 
@@ -89,10 +89,11 @@ def getPref(interface, dest, comp_name):
         printConfig(moduleConfig)
         return False
 
-    if dest == BROADCAST_ADDR:
+    # Check if we need to request the config 
+    if len(config.ListFields()) != 0:
         # read the value
         config_values = getattr(config, config_type.name)
-        if not fullConfig:
+        if not wholeField:
             pref_value = getattr(config_values, pref.name)
             if Globals.getInstance().get_camel_case():
                 print(f"{str(config_type.name)}.{camel_name}: {str(pref_value)}")
@@ -101,11 +102,11 @@ def getPref(interface, dest, comp_name):
                 print(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
                 logging.debug(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
         else:
-            print(f"{str(config_type.name)}: {str(config_values)}")
+            print(f"{str(config_type.name)}:\n{str(config_values)}")
             logging.debug(f"{str(config_type.name)}: {str(config_values)}")
     else: 
-        # Always show full config for remote node
-        interface.getNode(dest, False).requestConfig(config_type)
+        # Always show whole field for remote node
+        node.requestConfig(config_type)
         
     return True
 
@@ -405,18 +406,25 @@ def onConnected(interface):
         # handle settings
         if args.set:
             closeNow = True
-            node = interface.getNode(args.dest)
+            node = interface.getNode(args.dest, False)
 
             # Handle the int/float/bool arguments
             pref = None
             for pref in args.set:
-                found = setPref(node.localConfig, pref[0], pref[1])
-                if not found:
-                    found = setPref(node.moduleConfig, pref[0],  pref[1])
+                found = False
+                field = splitCompoundName(pref[0].lower())[0]
+                for config in [node.localConfig, node.moduleConfig]:
+                    config_type = config.DESCRIPTOR.fields_by_name.get(field)
+                    if config_type:
+                        if len(config.ListFields()) == 0:
+                            node.requestConfig(config.DESCRIPTOR.fields_by_name.get(field))
+                        found = setPref(config, pref[0], pref[1])
+                        if found:
+                            break
 
             if found:
                 print("Writing modified preferences to device")
-                interface.getNode(args.dest).writeConfig(splitCompoundName(pref[0].lower())[0])
+                node.writeConfig(field)
             else:
                 if Globals.getInstance().get_camel_case():
                     print(f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have an attribute {pref[0]}.")
@@ -630,8 +638,9 @@ def onConnected(interface):
 
         if args.get:
             closeNow = True
+            node = interface.getNode(args.dest, False)
             for pref in args.get:
-                found = getPref(interface, args.dest, pref[0])
+                found = getPref(node, pref[0])
 
             if found:
                 print("Completed getting preferences")
