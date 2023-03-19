@@ -459,15 +459,15 @@ def onConnected(interface):
                     localConfig = interface.getNode(args.dest).localConfig
                     for section in configuration['config']:
                         for pref in configuration['config'][section]:
-                            setPref(localConfig, f"{section}.{pref}", str(configuration['config'][section][pref]))
-                        interface.getNode(args.dest).writeConfig(section)
+                            setPref(localConfig, f"{meshtastic.util.camel_to_snake(section)}.{pref}", str(configuration['config'][section][pref]))
+                        interface.getNode(args.dest).writeConfig(meshtastic.util.camel_to_snake(section))
 
                 if 'module_config' in configuration:
                     moduleConfig = interface.getNode(args.dest).moduleConfig
                     for section in configuration['module_config']:
                         for pref in configuration['module_config'][section]:
-                            setPref(moduleConfig, f"{section}.{pref}", str(configuration['module_config'][section][pref]))
-                        interface.getNode(args.dest).writeConfig(section)
+                            setPref(moduleConfig, f"{meshtastic.util.camel_to_snake(section)}.{pref}", str(configuration['module_config'][section][pref]))
+                        interface.getNode(args.dest).writeConfig(meshtastic.util.camel_to_snake(section))
 
                 interface.getNode(args.dest, False).commitSettingsTransaction()
                 print("Writing modified configuration to device")
