@@ -648,6 +648,9 @@ def onConnected(interface):
 
         if args.nodes:
             closeNow = True
+            if args.dest != BROADCAST_ADDR:
+                print("Showing node list of a remote node is not supported.")
+                return
             interface.showNodes()
 
         if args.qr:
