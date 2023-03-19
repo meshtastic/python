@@ -6,7 +6,7 @@ import base64
 import time
 from google.protobuf.json_format import MessageToJson
 from meshtastic import portnums_pb2, apponly_pb2, admin_pb2, channel_pb2, localonly_pb2
-from meshtastic.util import pskToString, stripnl, Timeout, our_exit, fromPSK
+from meshtastic.util import pskToString, stripnl, Timeout, our_exit, fromPSK, camel_to_snake
 
 
 class Node:
@@ -61,13 +61,60 @@ class Node:
         print(f"Module preferences: {prefs}\n")
         self.showChannels()
 
-    def requestConfig(self):
-        """Send regular MeshPackets to ask for settings and channels."""
-        logging.debug(f"requestConfig for nodeNum:{self.nodeNum}")
+    def requestChannels(self):
+        """Send regular MeshPackets to ask channels."""
+        logging.debug(f"requestChannels for nodeNum:{self.nodeNum}")
         self.channels = None
         self.partialChannels = []  # We keep our channels in a temp array until finished
 
         self._requestChannel(0)
+    
+    def onResponseRequestSettings(self, p):
+        """Handle the response packets for requesting settings _requestSettings()"""
+        logging.debug(f'onResponseRequestSetting() p:{p}')
+        if "routing" in p["decoded"]:
+            if p["decoded"]["routing"]["errorReason"] != "NONE":
+                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+                self.iface._acknowledgment.receivedNak = True
+        else:
+            self.iface._acknowledgment.receivedAck = True
+            print("")
+            adminMessage = p["decoded"]["admin"]
+            if "getConfigResponse" in adminMessage:
+                resp = adminMessage["getConfigResponse"]
+                field = list(resp.keys())[0]
+                config_type = self.localConfig.DESCRIPTOR.fields_by_name.get(field)
+                config_values = getattr(self.localConfig, config_type.name)
+            elif "getModuleConfigResponse" in adminMessage:
+                resp = adminMessage["getModuleConfigResponse"]
+                field = list(resp.keys())[0]
+                config_type = self.moduleConfig.DESCRIPTOR.fields_by_name.get(field)
+                config_values = getattr(self.moduleConfig, config_type.name)
+            else: 
+                print("Did not receive a valid response. Make sure to have a shared channel named 'admin'.")
+                return
+            for key, value in resp[field].items():
+                setattr(config_values, camel_to_snake(key), value)
+            print(f"{str(field)}:\n{str(config_values)}")
+
+    def requestConfig(self, configType):
+        if self == self.iface.localNode:
+            onResponse = None
+        else: 
+            onResponse = self.onResponseRequestSettings
+            print("Requesting current config from remote node (this can take a while).")
+
+        msgIndex = configType.index
+        if configType.containing_type.full_name == "LocalConfig":
+            p = admin_pb2.AdminMessage()
+            p.get_config_request = msgIndex
+            self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
+        else: 
+            p = admin_pb2.AdminMessage()
+            p.get_module_config_request = msgIndex
+            self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
+        if onResponse:
+            self.iface.waitForAckNak()
 
     def turnOffEncryptionOnPrimaryChannel(self):
         """Turn off encryption on primary channel."""
@@ -230,7 +277,11 @@ class Node:
             our_exit(f"Error: No valid config with name {config_name}")
         
         logging.debug(f"Wrote: {config_name}")
-        self._sendAdmin(p)
+        if self == self.iface.localNode:
+            onResponse = None
+        else: 
+            onResponse = self.onAckNak
+        self._sendAdmin(p, onResponse=onResponse)
 
     def writeChannel(self, channelIndex, adminIndex=0):
         """Write the current (edited) channel to the device"""

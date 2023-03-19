@@ -170,18 +170,18 @@ class MeshInterface:
         return table
 
 
-    def getNode(self, nodeId, requestConfig=True):
+    def getNode(self, nodeId, requestChannels=True):
         """Return a node object which contains device settings and channel info"""
         if nodeId in (LOCAL_ADDR, BROADCAST_ADDR):
             return self.localNode
         else:
             n = meshtastic.node.Node(self, nodeId)
             # Only request device settings and channel info when necessary
-            if requestConfig:
-                logging.debug("About to requestConfig")
-                n.requestConfig()
+            if requestChannels:
+                logging.debug("About to requestChannels")
+                n.requestChannels()
                 if not n.waitForConfig():
-                    our_exit("Error: Timed out waiting for node config")
+                    our_exit("Error: Timed out waiting for channels")
             return n
 
     def sendText(self, text: AnyStr,
@@ -522,7 +522,7 @@ class MeshInterface:
         Done with initial config messages, now send regular MeshPackets
         to ask for settings and channels
         """
-        self.localNode.requestConfig()
+        self.localNode.requestChannels()
 
     def _handleFromRadio(self, fromRadioBytes):
         """
