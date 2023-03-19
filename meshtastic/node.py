@@ -79,32 +79,30 @@ class Node:
         else:
             self.iface._acknowledgment.receivedAck = True
             print("")
-            if "getConfigResponse" in p["decoded"]["admin"]:
-                resp = p["decoded"]["admin"]["getConfigResponse"]
+            adminMessage = p["decoded"]["admin"]
+            if "getConfigResponse" in adminMessage:
+                resp = adminMessage["getConfigResponse"]
                 field = list(resp.keys())[0]
                 config_type = self.localConfig.DESCRIPTOR.fields_by_name.get(field)
                 config_values = getattr(self.localConfig, config_type.name)
-            else:
-                resp = p["decoded"]["admin"]["getModuleConfigResponse"]
+            elif "getModuleConfigResponse" in adminMessage:
+                resp = adminMessage["getModuleConfigResponse"]
                 field = list(resp.keys())[0]
                 config_type = self.moduleConfig.DESCRIPTOR.fields_by_name.get(field)
                 config_values = getattr(self.moduleConfig, config_type.name)
+            else: 
+                print("Did not receive a valid response. Make sure to have a shared channel named 'admin'.")
+                return
             for key, value in resp[field].items():
                 setattr(config_values, camel_to_snake(key), value)
             print(f"{str(field)}:\n{str(config_values)}")
 
     def requestConfig(self, configType):
-        localOnly = False
         if self == self.iface.localNode:
-            localOnly = True
             onResponse = None
         else: 
             onResponse = self.onResponseRequestSettings
-            print("Requesting config from remote node (this can take a while).")
-            print("Be sure:")
-            print(" 1. There is a SECONDARY channel named 'admin'.")
-            print(" 2. The '--seturl' was used to configure.")
-            print(" 3. All devices have the same modem config. (i.e., '--ch-longfast')")
+            print("Requesting current config from remote node (this can take a while).")
 
         msgIndex = configType.index
         if configType.containing_type.full_name == "LocalConfig":
@@ -115,7 +113,7 @@ class Node:
             p = admin_pb2.AdminMessage()
             p.get_module_config_request = msgIndex
             self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
-        if not localOnly:
+        if onResponse:
             self.iface.waitForAckNak()
 
     def turnOffEncryptionOnPrimaryChannel(self):
@@ -279,7 +277,11 @@ class Node:
             our_exit(f"Error: No valid config with name {config_name}")
         
         logging.debug(f"Wrote: {config_name}")
-        self._sendAdmin(p)
+        if self == self.iface.localNode:
+            onResponse = None
+        else: 
+            onResponse = self.onAckNak
+        self._sendAdmin(p, onResponse=onResponse)
 
     def writeChannel(self, channelIndex, adminIndex=0):
         """Write the current (edited) channel to the device"""

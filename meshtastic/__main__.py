@@ -406,6 +406,7 @@ def onConnected(interface):
         # handle settings
         if args.set:
             closeNow = True
+            waitForAckNak = True
             node = interface.getNode(args.dest, False)
 
             # Handle the int/float/bool arguments
