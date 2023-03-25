@@ -615,6 +615,8 @@ class MeshInterface:
                 self.localNode.moduleConfig.telemetry.CopyFrom(fromRadio.moduleConfig.telemetry)
             elif fromRadio.moduleConfig.HasField("canned_message"):
                 self.localNode.moduleConfig.canned_message.CopyFrom(fromRadio.moduleConfig.canned_message)
+            elif fromRadio.moduleConfig.HasField("remote_hardware"):
+                self.localNode.moduleConfig.remote_hardware.CopyFrom(fromRadio.moduleConfig.remote_hardware)
 
         else:
             logging.debug("Unexpected FromRadio payload")

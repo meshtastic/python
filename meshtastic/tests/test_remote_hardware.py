@@ -23,7 +23,7 @@ def test_RemoteHardwareClient():
 def test_onGPIOreceive(capsys):
     """Test onGPIOreceive"""
     iface = MagicMock(autospec=SerialInterface)
-    packet = {'decoded': {'remotehw': {'typ': 'foo', 'gpioValue': '4096' }}}
+    packet = {'decoded': {'remotehw': {'type': 'foo', 'gpioValue': '4096' }}}
     onGPIOreceive(packet, iface)
     out, err = capsys.readouterr()
     assert re.search(r'Received RemoteHardware', out)
