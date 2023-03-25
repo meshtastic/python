@@ -83,19 +83,19 @@ class Node:
             if "getConfigResponse" in adminMessage:
                 resp = adminMessage["getConfigResponse"]
                 field = list(resp.keys())[0]
-                config_type = self.localConfig.DESCRIPTOR.fields_by_name.get(field)
+                config_type = self.localConfig.DESCRIPTOR.fields_by_name.get(camel_to_snake(field))
                 config_values = getattr(self.localConfig, config_type.name)
             elif "getModuleConfigResponse" in adminMessage:
                 resp = adminMessage["getModuleConfigResponse"]
                 field = list(resp.keys())[0]
-                config_type = self.moduleConfig.DESCRIPTOR.fields_by_name.get(field)
+                config_type = self.moduleConfig.DESCRIPTOR.fields_by_name.get(camel_to_snake(field))
                 config_values = getattr(self.moduleConfig, config_type.name)
             else: 
                 print("Did not receive a valid response. Make sure to have a shared channel named 'admin'.")
                 return
             for key, value in resp[field].items():
                 setattr(config_values, camel_to_snake(key), value)
-            print(f"{str(field)}:\n{str(config_values)}")
+            print(f"{str(camel_to_snake(field))}:\n{str(config_values)}")
 
     def requestConfig(self, configType):
         if self == self.iface.localNode:
@@ -233,7 +233,14 @@ class Node:
             p = admin_pb2.AdminMessage()
             p.set_module_config.audio.CopyFrom(self.moduleConfig.audio)
             self._sendAdmin(p)
-            logging.debug("Wrote module: audo")
+            logging.debug("Wrote module: audio")
+            time.sleep(0.3)
+
+        if self.moduleConfig.remote_hardware:
+            p = admin_pb2.AdminMessage()
+            p.set_module_config.remote_hardware.CopyFrom(self.moduleConfig.remote_hardware)
+            self._sendAdmin(p)
+            logging.debug("Wrote module: remote_hardware")
             time.sleep(0.3)
 
     def writeConfig(self, config_name):
@@ -273,6 +280,8 @@ class Node:
             p.set_module_config.canned_message.CopyFrom(self.moduleConfig.canned_message)
         elif config_name == 'audio':
             p.set_module_config.audio.CopyFrom(self.moduleConfig.audio)
+        elif config_name == 'remote_hardware':
+            p.set_module_config.remote_hardware.CopyFrom(self.moduleConfig.remote_hardware)
         else:
             our_exit(f"Error: No valid config with name {config_name}")
         
