@@ -14,6 +14,8 @@ import subprocess
 import serial
 import serial.tools.list_ports
 import pkg_resources
+import requests
+
 
 from meshtastic.supported_device import supported_devices
 
@@ -241,7 +243,11 @@ def support_info():
     print(f'   Encoding (stdin): {sys.stdin.encoding}')
     print(f'   Encoding (stdout): {sys.stdout.encoding}')
     the_version = pkg_resources.get_distribution("meshtastic").version
-    print(f' meshtastic: v{the_version}')
+    pypi_version = check_if_newer_version()
+    if pypi_version:
+        print(f' meshtastic: v{the_version} (*** newer version v{pypi_version} available ***)')
+    else:
+        print(f' meshtastic: v{the_version}')
     print(f' Executable: {sys.argv[0]}')
     print(f' Python: {platform.python_version()} {platform.python_implementation()} {platform.python_compiler()}')
     print('')
@@ -545,3 +551,19 @@ def detect_windows_port(sd):
                 #print(f'x:{x}')
                 ports.add(f'COM{x}')
     return ports
+
+
+def check_if_newer_version():
+    """Check pip to see if we are running the latest version."""
+    pypi_version = None
+    try:
+        url = "https://pypi.org/pypi/meshtastic/json"
+        data = requests.get(url).json()
+        pypi_version = data["info"]["version"]
+    except Exception as e:
+        #print(f"could not get version from pypi e:{e}")
+        pass
+    act_version = pkg_resources.get_distribution("meshtastic").version
+    if pypi_version and pkg_resources.parse_version(pypi_version) <= pkg_resources.parse_version(act_version):
+        return None
+    return pypi_version
