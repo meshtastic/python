@@ -3,6 +3,7 @@
 import sys
 import random
 import time
+import json
 import logging
 from typing import AnyStr
 import threading
@@ -79,8 +80,8 @@ class MeshInterface:
         myinfo = ''
         if self.myInfo:
             myinfo = f"\nMy info: {stripnl(MessageToJson(self.myInfo))}"
-        mesh = "\nNodes in mesh:"
-        nodes = ""
+        mesh = "\n\nNodes in mesh: "
+        nodes = {}
         if self.nodes:
             for n in self.nodes.values():
                 # when the TBeam is first booted, it sometimes shows the raw data
@@ -95,8 +96,11 @@ class MeshInterface:
                     addr = convert_mac_addr(val)
                     n2['user']['macaddr'] = addr
 
-                nodes = nodes + f"  {stripnl(n2)}"
-        infos = owner + myinfo + mesh + nodes
+                # use id as dictionary key for correct json format in list of nodes
+                nodeid = n2['user']['id']
+                n2['user'].pop('id')
+                nodes[nodeid] = n2
+        infos = owner + myinfo + mesh + json.dumps(nodes)
         print(infos)
         return infos
 
