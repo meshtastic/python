@@ -1,0 +1,39 @@
+version: 0.1
+cli:
+  version: 1.7.0
+plugins:
+  sources:
+    - id: trunk
+      ref: v0.0.14
+      uri: https://github.com/trunk-io/plugins
+lint:
+  ignore:
+    - linters: [ALL]
+      paths:
+        # Ignore generated files
+        - meshtastic/*_pb2.py
+  enabled:
+    - actionlint@1.6.23
+    - black@23.3.0
+    - git-diff-check
+    - gitleaks@8.16.2
+    - isort@5.12.0
+    - markdownlint@0.33.0
+    - prettier@2.8.7
+    - pylint@2.17.1
+    - ruff@0.0.260
+    - shellcheck@0.9.0
+    - shfmt@3.5.0
+    - yamllint@1.30.0
+runtimes:
+  enabled:
+    - go@1.19.5
+    - node@18.12.1
+    - python@3.10.8
+actions:
+  disabled:
+    - trunk-announce
+    - trunk-check-pre-push
+    - trunk-fmt-pre-commit
+  enabled:
+    - trunk-upgrade-available

@@ -2,16 +2,17 @@
    messages and report back if successful.
 """
 import logging
-import time
 import sys
+import time
 import traceback
+
 from dotmap import DotMap
 from pubsub import pub
+
 import meshtastic.util
 from meshtastic.__init__ import BROADCAST_NUM
 from meshtastic.serial_interface import SerialInterface
 from meshtastic.tcp_interface import TCPInterface
-
 
 """The interfaces we are using for our tests"""
 interfaces = None
@@ -52,7 +53,9 @@ def subscribe():
     pub.subscribe(onNode, "meshtastic.node")
 
 
-def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False, wantAck=False):
+def testSend(
+    fromInterface, toInterface, isBroadcast=False, asBinary=False, wantAck=False
+):
     """
     Sends one test packet between two nodes and then returns success or failure
 
@@ -73,19 +76,19 @@ def testSend(fromInterface, toInterface, isBroadcast=False, asBinary=False, want
     else:
         toNode = toInterface.myInfo.my_node_num
 
-    logging.debug(
-        f"Sending test wantAck={wantAck} packet from {fromNode} to {toNode}")
+    logging.debug(f"Sending test wantAck={wantAck} packet from {fromNode} to {toNode}")
     # pylint: disable=W0603
     global sendingInterface
     sendingInterface = fromInterface
     if not asBinary:
         fromInterface.sendText(f"Test {testNumber}", toNode, wantAck=wantAck)
     else:
-        fromInterface.sendData((f"Binary {testNumber}").encode(
-            "utf-8"), toNode, wantAck=wantAck)
+        fromInterface.sendData(
+            (f"Binary {testNumber}").encode("utf-8"), toNode, wantAck=wantAck
+        )
     for _ in range(60):  # max of 60 secs before we timeout
         time.sleep(1)
-        if  len(receivedPackets) >= 1:
+        if len(receivedPackets) >= 1:
             return True
     return False  # Failed to send
 
@@ -102,15 +105,18 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
         isBroadcast = True
         # asBinary=(i % 2 == 0)
         success = testSend(
-            interfaces[0], interfaces[1], isBroadcast, asBinary=False, wantAck=wantAck)
+            interfaces[0], interfaces[1], isBroadcast, asBinary=False, wantAck=wantAck
+        )
         if not success:
             numFail = numFail + 1
             logging.error(
-                f"Test {testNumber} failed, expected packet not received ({numFail} failures so far)")
+                f"Test {testNumber} failed, expected packet not received ({numFail} failures so far)"
+            )
         else:
             numSuccess = numSuccess + 1
             logging.info(
-                f"Test {testNumber} succeeded {numSuccess} successes {numFail} failures so far")
+                f"Test {testNumber} succeeded {numSuccess} successes {numFail} failures so far"
+            )
 
         time.sleep(1)
 
@@ -140,7 +146,7 @@ def openDebugLog(portName):
     """Open the debug log file"""
     debugname = "log" + portName.replace("/", "_")
     logging.info(f"Writing serial debugging to {debugname}")
-    return open(debugname, 'w+', buffering=1, encoding='utf8')
+    return open(debugname, "w+", buffering=1, encoding="utf8")
 
 
 def testAll(numTests=5):
@@ -151,14 +157,22 @@ def testAll(numTests=5):
     """
     ports = meshtastic.util.findPorts(True)
     if len(ports) < 2:
-        meshtastic.util.our_exit("Warning: Must have at least two devices connected to USB.")
+        meshtastic.util.our_exit(
+            "Warning: Must have at least two devices connected to USB."
+        )
 
     pub.subscribe(onConnection, "meshtastic.connection")
     pub.subscribe(onReceive, "meshtastic.receive")
     # pylint: disable=W0603
     global interfaces
-    interfaces = list(map(lambda port: SerialInterface(
-        port, debugOut=openDebugLog(port), connectNow=True), ports))
+    interfaces = list(
+        map(
+            lambda port: SerialInterface(
+                port, debugOut=openDebugLog(port), connectNow=True
+            ),
+            ports,
+        )
+    )
 
     logging.info("Ports opened, starting test")
     result = testThread(numTests)

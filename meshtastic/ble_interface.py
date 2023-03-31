@@ -6,10 +6,9 @@ import platform
 from meshtastic.mesh_interface import MeshInterface
 from meshtastic.util import our_exit
 
-if platform.system() == 'Linux':
+if platform.system() == "Linux":
     # pylint: disable=E0401
     import pygatt
-
 
 
 # Our standard BLE characteristics
@@ -22,7 +21,7 @@ class BLEInterface(MeshInterface):
     """A not quite ready - FIXME - BLE interface to devices"""
 
     def __init__(self, address, noProto=False, debugOut=None):
-        if platform.system() != 'Linux':
+        if platform.system() != "Linux":
             our_exit("Linux is the only platform with experimental BLE support.", 1)
         self.address = address
         if not noProto:
@@ -39,7 +38,7 @@ class BLEInterface(MeshInterface):
 
         self._readFromRadio()  # read the initial responses
 
-        def handle_data(handle, data): # pylint: disable=W0613
+        def handle_data(handle, data):  # pylint: disable=W0613
             self._handleFromRadio(data)
 
         if self.device:
@@ -47,7 +46,7 @@ class BLEInterface(MeshInterface):
 
     def _sendToRadioImpl(self, toRadio):
         """Send a ToRadio protobuf to the device"""
-        #logging.debug(f"Sending: {stripnl(toRadio)}")
+        # logging.debug(f"Sending: {stripnl(toRadio)}")
         b = toRadio.SerializeToString()
         self.device.char_write(TORADIO_UUID, b)
 

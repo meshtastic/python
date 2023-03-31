@@ -1,12 +1,13 @@
 """Meshtastic unit tests for stream_interface.py"""
 
 import logging
-#import re
-
 from unittest.mock import MagicMock
+
 import pytest
 
 from ..stream_interface import StreamInterface
+
+# import re
 
 
 @pytest.mark.unit
@@ -22,10 +23,10 @@ def test_StreamInterface():
 @pytest.mark.usefixtures("reset_globals")
 def test_StreamInterface_with_noProto(caplog):
     """Test that we can instantiate a StreamInterface based on nonProto
-       and we can read/write bytes from a mocked stream
+    and we can read/write bytes from a mocked stream
     """
     stream = MagicMock()
-    test_data = b'hello'
+    test_data = b"hello"
     stream.read.return_value = test_data
     with caplog.at_level(logging.DEBUG):
         iface = StreamInterface(noProto=True, connectNow=False)
@@ -39,9 +40,9 @@ def test_StreamInterface_with_noProto(caplog):
 ### Note: This takes a bit, so moving from unit to slow
 ### Tip: If you want to see the print output, run with '-s' flag:
 ###      pytest -s meshtastic/tests/test_stream_interface.py::test_sendToRadioImpl
-#@pytest.mark.unitslow
-#@pytest.mark.usefixtures("reset_globals")
-#def test_sendToRadioImpl(caplog):
+# @pytest.mark.unitslow
+# @pytest.mark.usefixtures("reset_globals")
+# def test_sendToRadioImpl(caplog):
 #    """Test _sendToRadioImpl()"""
 #
 ##    def add_header(b):

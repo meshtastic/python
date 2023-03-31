@@ -3,6 +3,7 @@
 """
 
 import sys
+
 import meshtastic
 import meshtastic.serial_interface
 

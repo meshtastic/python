@@ -1,25 +1,26 @@
 """Meshtastic unit tests for node.py"""
 
-import re
 import logging
+import re
+from unittest.mock import MagicMock, patch
 
-from unittest.mock import patch, MagicMock
 import pytest
 
+# from ..admin_pb2 import AdminMessage
+from ..channel_pb2 import Channel
 from ..node import Node
 from ..serial_interface import SerialInterface
-#from ..admin_pb2 import AdminMessage
-from ..channel_pb2 import Channel
-#from ..config_pb2 import Config
-#from ..cannedmessages_pb2 import (CannedMessagePluginMessagePart1, CannedMessagePluginMessagePart2,
+
+# from ..config_pb2 import Config
+# from ..cannedmessages_pb2 import (CannedMessagePluginMessagePart1, CannedMessagePluginMessagePart2,
 #                                  CannedMessagePluginMessagePart3, CannedMessagePluginMessagePart4,
 #                                  CannedMessagePluginMessagePart5)
-#from ..util import Timeout
+# from ..util import Timeout
 
 
 # TODO
-#@pytest.mark.unit
-#def test_node(capsys):
+# @pytest.mark.unit
+# def test_node(capsys):
 #    """Test that we can instantiate a Node"""
 #    anode = Node('foo', 'bar')
 #    radioConfig = RadioConfig()
@@ -34,8 +35,8 @@ from ..channel_pb2 import Channel
 
 
 # TODO
-#@pytest.mark.unit
-#def test_node_requestConfig(capsys):
+# @pytest.mark.unit
+# def test_node_requestConfig(capsys):
 #    """Test run requestConfig"""
 #    iface = MagicMock(autospec=SerialInterface)
 #    amesg = MagicMock(autospec=AdminMessage)
@@ -48,8 +49,8 @@ from ..channel_pb2 import Channel
 #    assert err == ''
 
 
-#@pytest.mark.unit
-#def test_node_get_canned_message_with_all_parts(capsys):
+# @pytest.mark.unit
+# def test_node_get_canned_message_with_all_parts(capsys):
 #    """Test run get_canned_message()"""
 #    iface = MagicMock(autospec=SerialInterface)
 #    amesg = MagicMock(autospec=AdminMessage)
@@ -69,8 +70,8 @@ from ..channel_pb2 import Channel
 #    assert err == ''
 #
 #
-#@pytest.mark.unit
-#def test_node_get_canned_message_with_some_parts(capsys):
+# @pytest.mark.unit
+# def test_node_get_canned_message_with_some_parts(capsys):
 #    """Test run get_canned_message()"""
 #    iface = MagicMock(autospec=SerialInterface)
 #    amesg = MagicMock(autospec=AdminMessage)
@@ -86,8 +87,8 @@ from ..channel_pb2 import Channel
 #    assert err == ''
 #
 #
-#@pytest.mark.unit
-#def test_node_set_canned_message_one_part(caplog):
+# @pytest.mark.unit
+# def test_node_set_canned_message_one_part(caplog):
 #    """Test run set_canned_message()"""
 #    iface = MagicMock(autospec=SerialInterface)
 #    amesg = MagicMock(autospec=AdminMessage)
@@ -100,8 +101,8 @@ from ..channel_pb2 import Channel
 #    assert not re.search(r"Setting canned message '' part 2", caplog.text, re.MULTILINE)
 #
 #
-#@pytest.mark.unit
-#def test_node_set_canned_message_200(caplog):
+# @pytest.mark.unit
+# def test_node_set_canned_message_200(caplog):
 #    """Test run set_canned_message() 200 characters long"""
 #    iface = MagicMock(autospec=SerialInterface)
 #    amesg = MagicMock(autospec=AdminMessage)
@@ -115,8 +116,8 @@ from ..channel_pb2 import Channel
 #    assert not re.search(r"Setting canned message '' part 2", caplog.text, re.MULTILINE)
 #
 #
-#@pytest.mark.unit
-#def test_node_set_canned_message_201(caplog):
+# @pytest.mark.unit
+# def test_node_set_canned_message_201(caplog):
 #    """Test run set_canned_message() 201 characters long"""
 #    iface = MagicMock(autospec=SerialInterface)
 #    amesg = MagicMock(autospec=AdminMessage)
@@ -130,8 +131,8 @@ from ..channel_pb2 import Channel
 #    assert re.search(r"Setting canned message 'a' part 2", caplog.text, re.MULTILINE)
 #
 #
-#@pytest.mark.unit
-#def test_node_set_canned_message_1000(caplog):
+# @pytest.mark.unit
+# def test_node_set_canned_message_1000(caplog):
 #    """Test run set_canned_message() 1000 characters long"""
 #    iface = MagicMock(autospec=SerialInterface)
 #    amesg = MagicMock(autospec=AdminMessage)
@@ -148,8 +149,8 @@ from ..channel_pb2 import Channel
 #    assert re.search(r" part 5", caplog.text, re.MULTILINE)
 #
 #
-#@pytest.mark.unit
-#def test_node_set_canned_message_1001(capsys):
+# @pytest.mark.unit
+# def test_node_set_canned_message_1001(capsys):
 #    """Test run set_canned_message() 1001 characters long"""
 #    iface = MagicMock(autospec=SerialInterface)
 #    with pytest.raises(SystemExit) as pytest_wrapped_e:
@@ -165,8 +166,8 @@ from ..channel_pb2 import Channel
 
 
 # TODO
-#@pytest.mark.unit
-#def test_setOwnerShort(caplog):
+# @pytest.mark.unit
+# def test_setOwnerShort(caplog):
 #    """Test setOwner"""
 #    anode = Node('foo', 'bar', noProto=True)
 #    with caplog.at_level(logging.DEBUG):
@@ -175,8 +176,8 @@ from ..channel_pb2 import Channel
 
 
 # TODO
-#@pytest.mark.unit
-#def test_setOwner_no_short_name(caplog):
+# @pytest.mark.unit
+# def test_setOwner_no_short_name(caplog):
 #    """Test setOwner"""
 #    anode = Node('foo', 'bar', noProto=True)
 #    with caplog.at_level(logging.DEBUG):
@@ -187,8 +188,8 @@ from ..channel_pb2 import Channel
 
 
 # TODO
-#@pytest.mark.unit
-#def test_setOwner_no_short_name_and_long_name_is_short(caplog):
+# @pytest.mark.unit
+# def test_setOwner_no_short_name_and_long_name_is_short(caplog):
 #    """Test setOwner"""
 #    anode = Node('foo', 'bar', noProto=True)
 #    with caplog.at_level(logging.DEBUG):
@@ -199,8 +200,8 @@ from ..channel_pb2 import Channel
 
 
 # TODO
-#@pytest.mark.unit
-#def test_setOwner_no_short_name_and_long_name_has_words(caplog):
+# @pytest.mark.unit
+# def test_setOwner_no_short_name_and_long_name_has_words(caplog):
 #    """Test setOwner"""
 #    anode = Node('foo', 'bar', noProto=True)
 #    with caplog.at_level(logging.DEBUG):
@@ -211,8 +212,8 @@ from ..channel_pb2 import Channel
 
 
 # TODO
-#@pytest.mark.unit
-#def test_setOwner_long_name_no_short(caplog):
+# @pytest.mark.unit
+# def test_setOwner_long_name_no_short(caplog):
 #    """Test setOwner"""
 #    anode = Node('foo', 'bar', noProto=True)
 #    with caplog.at_level(logging.DEBUG):
@@ -224,46 +225,46 @@ from ..channel_pb2 import Channel
 @pytest.mark.unit
 def test_exitSimulator(caplog):
     """Test exitSimulator"""
-    anode = Node('foo', 'bar', noProto=True)
+    anode = Node("foo", "bar", noProto=True)
     with caplog.at_level(logging.DEBUG):
         anode.exitSimulator()
-    assert re.search(r'in exitSimulator', caplog.text, re.MULTILINE)
+    assert re.search(r"in exitSimulator", caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
 def test_reboot(caplog):
     """Test reboot"""
-    anode = Node('foo', 'bar', noProto=True)
+    anode = Node("foo", "bar", noProto=True)
     with caplog.at_level(logging.DEBUG):
         anode.reboot()
-    assert re.search(r'Telling node to reboot', caplog.text, re.MULTILINE)
+    assert re.search(r"Telling node to reboot", caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
 def test_shutdown(caplog):
     """Test shutdown"""
-    anode = Node('foo', 'bar', noProto=True)
+    anode = Node("foo", "bar", noProto=True)
     with caplog.at_level(logging.DEBUG):
         anode.shutdown()
-    assert re.search(r'Telling node to shutdown', caplog.text, re.MULTILINE)
+    assert re.search(r"Telling node to shutdown", caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
 def test_setURL_empty_url(capsys):
     """Test reboot"""
-    anode = Node('foo', 'bar', noProto=True)
+    anode = Node("foo", "bar", noProto=True)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        anode.setURL('')
+        anode.setURL("")
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()
-    assert re.search(r'Warning: No RadioConfig has been read', out, re.MULTILINE)
-    assert err == ''
+    assert re.search(r"Warning: No RadioConfig has been read", out, re.MULTILINE)
+    assert err == ""
 
 
 # TODO
-#@pytest.mark.unit
-#def test_setURL_valid_URL(caplog):
+# @pytest.mark.unit
+# def test_setURL_valid_URL(caplog):
 #    """Test setURL"""
 #    iface = MagicMock(autospec=SerialInterface)
 #    url = "https://www.meshtastic.org/d/#CgUYAyIBAQ"
@@ -285,19 +286,19 @@ def test_setURL_valid_URL_but_no_settings(capsys):
     iface = MagicMock(autospec=SerialInterface)
     url = "https://www.meshtastic.org/d/#"
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        anode = Node(iface, 'bar', noProto=True)
-        anode.radioConfig = 'baz'
+        anode = Node(iface, "bar", noProto=True)
+        anode.radioConfig = "baz"
         anode.setURL(url)
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()
-    assert re.search(r'Warning: There were no settings', out, re.MULTILINE)
-    assert err == ''
+    assert re.search(r"Warning: There were no settings", out, re.MULTILINE)
+    assert err == ""
 
 
 # TODO
-#@pytest.mark.unit
-#def test_showChannels(capsys):
+# @pytest.mark.unit
+# def test_showChannels(capsys):
 #    """Test showChannels"""
 #    anode = Node('foo', 'bar')
 #
@@ -340,10 +341,10 @@ def test_setURL_valid_URL_but_no_settings(capsys):
 @pytest.mark.unit
 def test_getChannelByChannelIndex():
     """Test getChannelByChannelIndex()"""
-    anode = Node('foo', 'bar')
+    anode = Node("foo", "bar")
 
-    channel1 = Channel(index=1, role=1) # primary channel
-    channel2 = Channel(index=2, role=2) # secondary channel
+    channel1 = Channel(index=1, role=1)  # primary channel
+    channel2 = Channel(index=2, role=2)  # secondary channel
     channel3 = Channel(index=3, role=0)
     channel4 = Channel(index=4, role=0)
     channel5 = Channel(index=5, role=0)
@@ -351,7 +352,16 @@ def test_getChannelByChannelIndex():
     channel7 = Channel(index=7, role=0)
     channel8 = Channel(index=8, role=0)
 
-    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
+    channels = [
+        channel1,
+        channel2,
+        channel3,
+        channel4,
+        channel5,
+        channel6,
+        channel7,
+        channel8,
+    ]
 
     anode.channels = channels
 
@@ -367,8 +377,8 @@ def test_getChannelByChannelIndex():
 
 
 # TODO
-#@pytest.mark.unit
-#def test_deleteChannel_try_to_delete_primary_channel(capsys):
+# @pytest.mark.unit
+# def test_deleteChannel_try_to_delete_primary_channel(capsys):
 #    """Try to delete primary channel."""
 #    anode = Node('foo', 'bar')
 #
@@ -398,8 +408,8 @@ def test_getChannelByChannelIndex():
 
 
 # TODO
-#@pytest.mark.unit
-#def test_deleteChannel_secondary():
+# @pytest.mark.unit
+# def test_deleteChannel_secondary():
 #    """Try to delete a secondary channel."""
 #
 #    channel1 = Channel(index=1, role=1)
@@ -451,8 +461,8 @@ def test_getChannelByChannelIndex():
 
 
 # TODO
-#@pytest.mark.unit
-#def test_deleteChannel_secondary_with_admin_channel_after_testing():
+# @pytest.mark.unit
+# def test_deleteChannel_secondary_with_admin_channel_after_testing():
 #    """Try to delete a secondary channel where there is an admin channel."""
 #
 #    channel1 = Channel(index=1, role=1)
@@ -511,8 +521,8 @@ def test_getChannelByChannelIndex():
 
 
 # TODO
-#@pytest.mark.unit
-#def test_deleteChannel_secondary_with_admin_channel_before_testing():
+# @pytest.mark.unit
+# def test_deleteChannel_secondary_with_admin_channel_before_testing():
 #    """Try to delete a secondary channel where there is an admin channel."""
 #
 #    channel1 = Channel(index=1, role=1)
@@ -565,8 +575,8 @@ def test_getChannelByChannelIndex():
 #        assert channels[7].settings.name == ''
 #
 #
-#@pytest.mark.unit
-#def test_getChannelByName():
+# @pytest.mark.unit
+# def test_getChannelByName():
 #    """Get a channel by the name."""
 #    anode = Node('foo', 'bar')
 #
@@ -593,8 +603,8 @@ def test_getChannelByChannelIndex():
 
 
 # TODO
-#@pytest.mark.unit
-#def test_getChannelByName_invalid_name():
+# @pytest.mark.unit
+# def test_getChannelByName_invalid_name():
 #    """Get a channel by the name but one that is not present."""
 #    anode = Node('foo', 'bar')
 #
@@ -620,8 +630,8 @@ def test_getChannelByChannelIndex():
 #    assert ch is None
 #
 #
-#@pytest.mark.unit
-#def test_getDisabledChannel():
+# @pytest.mark.unit
+# def test_getDisabledChannel():
 #    """Get the first disabled channel."""
 #    anode = Node('foo', 'bar')
 #
@@ -651,8 +661,8 @@ def test_getChannelByChannelIndex():
 
 
 # TODO
-#@pytest.mark.unit
-#def test_getDisabledChannel_where_all_channels_are_used():
+# @pytest.mark.unit
+# def test_getDisabledChannel_where_all_channels_are_used():
 #    """Get the first disabled channel."""
 #    anode = Node('foo', 'bar')
 #
@@ -676,8 +686,8 @@ def test_getChannelByChannelIndex():
 
 
 # TODO
-#@pytest.mark.unit
-#def test_getAdminChannelIndex():
+# @pytest.mark.unit
+# def test_getAdminChannelIndex():
 #    """Get the 'admin' channel index."""
 #    anode = Node('foo', 'bar')
 #
@@ -704,8 +714,8 @@ def test_getChannelByChannelIndex():
 
 
 # TODO
-#@pytest.mark.unit
-#def test_getAdminChannelIndex_when_no_admin_named_channel():
+# @pytest.mark.unit
+# def test_getAdminChannelIndex_when_no_admin_named_channel():
 #    """Get the 'admin' channel when there is not one."""
 #    anode = Node('foo', 'bar')
 #
@@ -730,8 +740,8 @@ def test_getChannelByChannelIndex():
 
 # TODO
 # TODO: should we check if we need to turn it off?
-#@pytest.mark.unit
-#def test_turnOffEncryptionOnPrimaryChannel(capsys):
+# @pytest.mark.unit
+# def test_turnOffEncryptionOnPrimaryChannel(capsys):
 #    """Turn off encryption when there is a psk."""
 #    anode = Node('foo', 'bar', noProto=True)
 #
@@ -760,20 +770,20 @@ def test_getChannelByChannelIndex():
 @pytest.mark.unit
 def test_writeConfig_with_no_radioConfig(capsys):
     """Test writeConfig with no radioConfig."""
-    anode = Node('foo', 'bar', noProto=True)
+    anode = Node("foo", "bar", noProto=True)
 
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         anode.writeConfig()
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()
-    assert re.search(r'Error: No RadioConfig has been read', out)
-    assert err == ''
+    assert re.search(r"Error: No RadioConfig has been read", out)
+    assert err == ""
 
 
 # TODO
-#@pytest.mark.unit
-#def test_writeConfig(caplog):
+# @pytest.mark.unit
+# def test_writeConfig(caplog):
 #    """Test writeConfig"""
 #    anode = Node('foo', 'bar', noProto=True)
 #    radioConfig = RadioConfig()
@@ -788,38 +798,40 @@ def test_writeConfig_with_no_radioConfig(capsys):
 def test_requestChannel_not_localNode(caplog, capsys):
     """Test _requestChannel()"""
     iface = MagicMock(autospec=SerialInterface)
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         mo.localNode.getChannelByName.return_value = None
         mo.myInfo.max_channels = 8
-        anode = Node(mo, 'bar', noProto=True)
+        anode = Node(mo, "bar", noProto=True)
         with caplog.at_level(logging.DEBUG):
             anode._requestChannel(0)
-            assert re.search(r'Requesting channel 0 info from remote node', caplog.text, re.MULTILINE)
+            assert re.search(
+                r"Requesting channel 0 info from remote node", caplog.text, re.MULTILINE
+            )
         out, err = capsys.readouterr()
-        assert re.search(r'Requesting channel 0 info', out, re.MULTILINE)
-        assert err == ''
+        assert re.search(r"Requesting channel 0 info", out, re.MULTILINE)
+        assert err == ""
 
 
 @pytest.mark.unit
 def test_requestChannel_localNode(caplog):
     """Test _requestChannel()"""
     iface = MagicMock(autospec=SerialInterface)
-    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         mo.localNode.getChannelByName.return_value = None
         mo.myInfo.max_channels = 8
-        anode = Node(mo, 'bar', noProto=True)
+        anode = Node(mo, "bar", noProto=True)
 
         # Note: Have to do this next line because every call to MagicMock object/method returns a new magic mock
         mo.localNode = anode
 
         with caplog.at_level(logging.DEBUG):
             anode._requestChannel(0)
-            assert re.search(r'Requesting channel 0', caplog.text, re.MULTILINE)
-            assert not re.search(r'from remote node', caplog.text, re.MULTILINE)
+            assert re.search(r"Requesting channel 0", caplog.text, re.MULTILINE)
+            assert not re.search(r"from remote node", caplog.text, re.MULTILINE)
 
 
-#@pytest.mark.unit
-#def test_onResponseRequestCannedMessagePluginMesagePart1(caplog):
+# @pytest.mark.unit
+# def test_onResponseRequestCannedMessagePluginMesagePart1(caplog):
 #    """Test onResponseRequestCannedMessagePluginMessagePart1()"""
 #
 #    part1 = CannedMessagePluginMessagePart1()
@@ -861,8 +873,8 @@ def test_requestChannel_localNode(caplog):
 #            assert anode.cannedPluginMessagePart1 == 'foo1'
 
 
-#@pytest.mark.unit
-#def test_onResponseRequestCannedMessagePluginMesagePart2(caplog):
+# @pytest.mark.unit
+# def test_onResponseRequestCannedMessagePluginMesagePart2(caplog):
 #    """Test onResponseRequestCannedMessagePluginMessagePart2()"""
 #
 #    part2 = CannedMessagePluginMessagePart2()
@@ -904,8 +916,8 @@ def test_requestChannel_localNode(caplog):
 #            assert anode.cannedPluginMessagePart2 == 'foo2'
 
 
-#@pytest.mark.unit
-#def test_onResponseRequestCannedMessagePluginMesagePart3(caplog):
+# @pytest.mark.unit
+# def test_onResponseRequestCannedMessagePluginMesagePart3(caplog):
 #    """Test onResponseRequestCannedMessagePluginMessagePart3()"""
 #
 #    part3 = CannedMessagePluginMessagePart3()
@@ -947,8 +959,8 @@ def test_requestChannel_localNode(caplog):
 #            assert anode.cannedPluginMessagePart3 == 'foo3'
 
 
-#@pytest.mark.unit
-#def test_onResponseRequestCannedMessagePluginMesagePart4(caplog):
+# @pytest.mark.unit
+# def test_onResponseRequestCannedMessagePluginMesagePart4(caplog):
 #    """Test onResponseRequestCannedMessagePluginMessagePart4()"""
 #
 #    part4 = CannedMessagePluginMessagePart4()
@@ -990,8 +1002,8 @@ def test_requestChannel_localNode(caplog):
 #            assert anode.cannedPluginMessagePart4 == 'foo4'
 
 
-#@pytest.mark.unit
-#def test_onResponseRequestCannedMessagePluginMesagePart5(caplog):
+# @pytest.mark.unit
+# def test_onResponseRequestCannedMessagePluginMesagePart5(caplog):
 #    """Test onResponseRequestCannedMessagePluginMessagePart5()"""
 #
 #    part5 = CannedMessagePluginMessagePart5()
@@ -1034,8 +1046,8 @@ def test_requestChannel_localNode(caplog):
 #            assert anode.cannedPluginMessagePart5 == 'foo5'
 
 
-#@pytest.mark.unit
-#def test_onResponseRequestCannedMessagePluginMesagePart1_error(caplog, capsys):
+# @pytest.mark.unit
+# def test_onResponseRequestCannedMessagePluginMesagePart1_error(caplog, capsys):
 #    """Test onResponseRequestCannedMessagePluginMessagePart1() with error"""
 #
 #    packet = {
@@ -1060,8 +1072,8 @@ def test_requestChannel_localNode(caplog):
 #        assert err == ''
 
 
-#@pytest.mark.unit
-#def test_onResponseRequestCannedMessagePluginMesagePart2_error(caplog, capsys):
+# @pytest.mark.unit
+# def test_onResponseRequestCannedMessagePluginMesagePart2_error(caplog, capsys):
 #    """Test onResponseRequestCannedMessagePluginMessagePart2() with error"""
 #
 #    packet = {
@@ -1086,8 +1098,8 @@ def test_requestChannel_localNode(caplog):
 #        assert err == ''
 
 
-#@pytest.mark.unit
-#def test_onResponseRequestCannedMessagePluginMesagePart3_error(caplog, capsys):
+# @pytest.mark.unit
+# def test_onResponseRequestCannedMessagePluginMesagePart3_error(caplog, capsys):
 #    """Test onResponseRequestCannedMessagePluginMessagePart3() with error"""
 #
 #    packet = {
@@ -1112,8 +1124,8 @@ def test_requestChannel_localNode(caplog):
 #        assert err == ''
 #
 #
-#@pytest.mark.unit
-#def test_onResponseRequestCannedMessagePluginMesagePart4_error(caplog, capsys):
+# @pytest.mark.unit
+# def test_onResponseRequestCannedMessagePluginMesagePart4_error(caplog, capsys):
 #    """Test onResponseRequestCannedMessagePluginMessagePart4() with error"""
 #
 #    packet = {
@@ -1138,8 +1150,8 @@ def test_requestChannel_localNode(caplog):
 #        assert err == ''
 #
 #
-#@pytest.mark.unit
-#def test_onResponseRequestCannedMessagePluginMesagePart5_error(caplog, capsys):
+# @pytest.mark.unit
+# def test_onResponseRequestCannedMessagePluginMesagePart5_error(caplog, capsys):
 #    """Test onResponseRequestCannedMessagePluginMessagePart5() with error"""
 #
 #    packet = {
@@ -1165,8 +1177,8 @@ def test_requestChannel_localNode(caplog):
 
 
 # TODO
-#@pytest.mark.unit
-#def test_onResponseRequestChannel(caplog):
+# @pytest.mark.unit
+# def test_onResponseRequestChannel(caplog):
 #    """Test onResponseRequestChannel()"""
 #
 #    channel1 = Channel(index=1, role=1)
@@ -1264,8 +1276,8 @@ def test_requestChannel_localNode(caplog):
 
 
 # TODO
-#@pytest.mark.unit
-#def test_onResponseRequestSetting(caplog):
+# @pytest.mark.unit
+# def test_onResponseRequestSetting(caplog):
 #    """Test onResponseRequestSetting()"""
 #    # Note: Split out the get_radio_response to a MagicMock
 #    # so it could be "returned" (not really sure how to do that
@@ -1278,7 +1290,7 @@ def test_requestChannel_localNode(caplog):
 #    position_broadcast_smart: true
 #    position_flags: 35
 #  }
-#}"""
+# }"""
 #    packet = {
 #        'from': 2475227164,
 #        'to': 2475227164,
@@ -1324,8 +1336,8 @@ def test_requestChannel_localNode(caplog):
 
 
 # TODO
-#@pytest.mark.unit
-#def test_onResponseRequestSetting_with_error(capsys):
+# @pytest.mark.unit
+# def test_onResponseRequestSetting_with_error(capsys):
 #    """Test onResponseRequestSetting() with an error"""
 #    packet = {
 #        'from': 2475227164,
@@ -1374,8 +1386,8 @@ def test_requestChannel_localNode(caplog):
 
 
 # TODO
-#@pytest.mark.unitslow
-#def test_waitForConfig():
+# @pytest.mark.unitslow
+# def test_waitForConfig():
 #    """Test waitForConfig()"""
 #    anode = Node('foo', 'bar')
 #    radioConfig = RadioConfig()

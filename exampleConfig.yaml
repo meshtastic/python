@@ -11,6 +11,6 @@ location:
 
 userPrefs:
   region: 1
-  isAlwaysPowered: 'true'
+  isAlwaysPowered: "true"
   screenOnSecs: 31536000
   waitBluetoothSecs: 31536000

@@ -8,8 +8,10 @@
 
 """
 
+
 class Globals:
     """Globals class is a Singleton."""
+
     __instance = None
 
     @staticmethod
