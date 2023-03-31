@@ -1,21 +1,21 @@
 """Utility functions.
 """
+import base64
+import logging
+import os
+import platform
+import re
+import subprocess
+import sys
+import threading
+import time
 import traceback
 from queue import Queue
-import os
-import re
-import sys
-import base64
-import time
-import platform
-import logging
-import threading
-import subprocess
-import serial
-import serial.tools.list_ports
+
 import pkg_resources
 import requests
-
+import serial
+import serial.tools.list_ports
 
 from meshtastic.supported_device import supported_devices
 
@@ -25,11 +25,12 @@ blacklistVids = dict.fromkeys([0x1366])
 
 def quoteBooleans(a_string):
     """Quote booleans
-        given a string that contains ": true", replace with ": 'true'" (or false)
+    given a string that contains ": true", replace with ": 'true'" (or false)
     """
     tmp = a_string.replace(": true", ": 'true'")
     tmp = tmp.replace(": false", ": 'false'")
     return tmp
+
 
 def genPSK256():
     """Generate a random preshared key"""
@@ -63,10 +64,10 @@ def fromStr(valstr):
     """
     if len(valstr) == 0:  # Treat an emptystring as an empty bytes
         val = bytes()
-    elif valstr.startswith('0x'):
+    elif valstr.startswith("0x"):
         # if needed convert to string with asBytes.decode('utf-8')
         val = bytes.fromhex(valstr[2:])
-    elif valstr.startswith('base64:'):
+    elif valstr.startswith("base64:"):
         val = base64.b64decode(valstr[7:])
     elif valstr.lower() in {"t", "true", "yes"}:
         val = True
@@ -102,7 +103,7 @@ def pskToString(psk: bytes):
 def stripnl(s):
     """Remove newlines from a string (and remove extra whitespace)"""
     s = str(s).replace("\n", " ")
-    return ' '.join(s.split())
+    return " ".join(s.split())
 
 
 def fixme(message):
@@ -125,9 +126,15 @@ def findPorts(eliminate_duplicates=False):
     Returns:
         list -- a list of device paths
     """
-    l = list(map(lambda port: port.device,
-                 filter(lambda port: port.vid is not None and port.vid not in blacklistVids,
-                        serial.tools.list_ports.comports())))
+    l = list(
+        map(
+            lambda port: port.device,
+            filter(
+                lambda port: port.vid is not None and port.vid not in blacklistVids,
+                serial.tools.list_ports.comports(),
+            ),
+        )
+    )
     l.sort()
     if eliminate_duplicates:
         l = eliminate_duplicate_port(l)
@@ -136,6 +143,7 @@ def findPorts(eliminate_duplicates=False):
 
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
+
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
@@ -143,6 +151,7 @@ class dotdict(dict):
 
 class Timeout:
     """Timeout class"""
+
     def __init__(self, maxSecs=20):
         self.expireTime = 0
         self.sleepInterval = 0.1
@@ -161,7 +170,9 @@ class Timeout:
             time.sleep(self.sleepInterval)
         return False
 
-    def waitForAckNak(self, acknowledgment, attrs=('receivedAck', 'receivedNak', 'receivedImplAck')):
+    def waitForAckNak(
+        self, acknowledgment, attrs=("receivedAck", "receivedNak", "receivedImplAck")
+    ):
         """Block until an ACK or NAK has been received. Returns True if ACK or NAK has been received."""
         self.reset()
         while time.time() < self.expireTime:
@@ -171,7 +182,7 @@ class Timeout:
             time.sleep(self.sleepInterval)
         return False
 
-    def waitForTraceRoute(self, waitFactor, acknowledgment, attr='receivedTraceRoute'):
+    def waitForTraceRoute(self, waitFactor, acknowledgment, attr="receivedTraceRoute"):
         """Block until traceroute response is received. Returns True if traceroute response has been received."""
         self.expireTimeout *= waitFactor
         self.reset()
@@ -182,8 +193,10 @@ class Timeout:
             time.sleep(self.sleepInterval)
         return False
 
+
 class Acknowledgment:
     "A class that records which type of acknowledgment was just received, if any."
+
     def __init__(self):
         """initialize"""
         self.receivedAck = False
@@ -198,7 +211,8 @@ class Acknowledgment:
         self.receivedImplAck = False
         self.receivedTraceRoute = False
 
-class DeferredExecution():
+
+class DeferredExecution:
     """A thread that accepts closures to run, and runs them as they are received"""
 
     def __init__(self, name=None):
@@ -208,7 +222,7 @@ class DeferredExecution():
         self.thread.start()
 
     def queueWork(self, runnable):
-        """ Queue up the work"""
+        """Queue up the work"""
         self.queue.put(runnable)
 
     def _run(self):
@@ -217,13 +231,15 @@ class DeferredExecution():
                 o = self.queue.get()
                 o()
             except:
-                logging.error(f"Unexpected error in deferred execution {sys.exc_info()[0]}")
+                logging.error(
+                    f"Unexpected error in deferred execution {sys.exc_info()[0]}"
+                )
                 print(traceback.format_exc())
 
 
-def our_exit(message, return_value = 1):
+def our_exit(message, return_value=1):
     """Print the message and return a value.
-       return_value defaults to 1 (non-successful)
+    return_value defaults to 1 (non-successful)
     """
     print(message)
     sys.exit(return_value)
@@ -231,32 +247,36 @@ def our_exit(message, return_value = 1):
 
 def support_info():
     """Print out info that helps troubleshooting of the cli."""
-    print('')
-    print('If having issues with meshtastic cli or python library')
-    print('or wish to make feature requests, visit:')
-    print('https://github.com/meshtastic/python/issues')
-    print('When adding an issue, be sure to include the following info:')
-    print(f' System: {platform.system()}')
-    print(f'   Platform: {platform.platform()}')
-    print(f'   Release: {platform.uname().release}')
-    print(f'   Machine: {platform.uname().machine}')
-    print(f'   Encoding (stdin): {sys.stdin.encoding}')
-    print(f'   Encoding (stdout): {sys.stdout.encoding}')
+    print("")
+    print("If having issues with meshtastic cli or python library")
+    print("or wish to make feature requests, visit:")
+    print("https://github.com/meshtastic/python/issues")
+    print("When adding an issue, be sure to include the following info:")
+    print(f" System: {platform.system()}")
+    print(f"   Platform: {platform.platform()}")
+    print(f"   Release: {platform.uname().release}")
+    print(f"   Machine: {platform.uname().machine}")
+    print(f"   Encoding (stdin): {sys.stdin.encoding}")
+    print(f"   Encoding (stdout): {sys.stdout.encoding}")
     the_version = pkg_resources.get_distribution("meshtastic").version
     pypi_version = check_if_newer_version()
     if pypi_version:
-        print(f' meshtastic: v{the_version} (*** newer version v{pypi_version} available ***)')
+        print(
+            f" meshtastic: v{the_version} (*** newer version v{pypi_version} available ***)"
+        )
     else:
-        print(f' meshtastic: v{the_version}')
-    print(f' Executable: {sys.argv[0]}')
-    print(f' Python: {platform.python_version()} {platform.python_implementation()} {platform.python_compiler()}')
-    print('')
-    print('Please add the output from the command: meshtastic --info')
+        print(f" meshtastic: v{the_version}")
+    print(f" Executable: {sys.argv[0]}")
+    print(
+        f" Python: {platform.python_version()} {platform.python_implementation()} {platform.python_compiler()}"
+    )
+    print("")
+    print("Please add the output from the command: meshtastic --info")
 
 
 def remove_keys_from_dict(keys, adict):
     """Return a dictionary without some keys in it.
-       Will removed nested keys.
+    Will removed nested keys.
     """
     for key in keys:
         try:
@@ -271,12 +291,12 @@ def remove_keys_from_dict(keys, adict):
 
 def hexstr(barray):
     """Print a string of hex digits"""
-    return ":".join(f'{x:02x}' for x in barray)
+    return ":".join(f"{x:02x}" for x in barray)
 
 
 def ipstr(barray):
     """Print a string of ip digits"""
-    return ".".join(f'{x}' for x in barray)
+    return ".".join(f"{x}" for x in barray)
 
 
 def readnet_u16(p, offset):
@@ -286,8 +306,8 @@ def readnet_u16(p, offset):
 
 def convert_mac_addr(val):
     """Convert the base 64 encoded value to a mac address
-       val - base64 encoded value (ex: '/c0gFyhb'))
-       returns: a string formatted like a mac address (ex: 'fd:cd:20:17:28:5b')
+    val - base64 encoded value (ex: '/c0gFyhb'))
+    returns: a string formatted like a mac address (ex: 'fd:cd:20:17:28:5b')
     """
     if not re.match("[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", val):
         val_as_bytes = base64.b64decode(val)
@@ -298,21 +318,23 @@ def convert_mac_addr(val):
 def snake_to_camel(a_string):
     """convert snake_case to camelCase"""
     # split underscore using split
-    temp = a_string.split('_')
+    temp = a_string.split("_")
     # joining result
-    result = temp[0] + ''.join(ele.title() for ele in temp[1:])
+    result = temp[0] + "".join(ele.title() for ele in temp[1:])
     return result
 
 
 def camel_to_snake(a_string):
     """convert camelCase to snake_case"""
-    return ''.join(['_'+i.lower() if i.isupper() else i for i in a_string]).lstrip('_')
+    return "".join(["_" + i.lower() if i.isupper() else i for i in a_string]).lstrip(
+        "_"
+    )
 
 
 def detect_supported_devices():
     """detect supported devices based on vendor id"""
     system = platform.system()
-    #print(f'system:{system}')
+    # print(f'system:{system}')
 
     possible_devices = set()
     if system == "Linux":
@@ -320,31 +342,33 @@ def detect_supported_devices():
 
         # linux: use lsusb
         # Bus 001 Device 091: ID 10c4:ea60 Silicon Labs CP210x UART Bridge
-        _, lsusb_output = subprocess.getstatusoutput('lsusb')
+        _, lsusb_output = subprocess.getstatusoutput("lsusb")
         vids = get_unique_vendor_ids()
         for vid in vids:
-            #print(f'looking for {vid}...')
-            search = f' {vid}:'
-            #print(f'search:"{search}"')
+            # print(f'looking for {vid}...')
+            search = f" {vid}:"
+            # print(f'search:"{search}"')
             if re.search(search, lsusb_output, re.MULTILINE):
-                #print(f'Found vendor id that matches')
+                # print(f'Found vendor id that matches')
                 devices = get_devices_with_vendor_id(vid)
                 for device in devices:
                     possible_devices.add(device)
 
     elif system == "Windows":
         # if windows, run Get-PnpDevice
-        _, sp_output = subprocess.getstatusoutput('powershell.exe "[Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8;'
-                                                  'Get-PnpDevice -PresentOnly | Format-List"')
-        #print(f'sp_output:{sp_output}')
+        _, sp_output = subprocess.getstatusoutput(
+            'powershell.exe "[Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8;'
+            'Get-PnpDevice -PresentOnly | Format-List"'
+        )
+        # print(f'sp_output:{sp_output}')
         vids = get_unique_vendor_ids()
         for vid in vids:
-            #print(f'looking for {vid.upper()}...')
-            search = f'DeviceID.*{vid.upper()}&'
-            #search = f'{vid.upper()}'
-            #print(f'search:"{search}"')
+            # print(f'looking for {vid.upper()}...')
+            search = f"DeviceID.*{vid.upper()}&"
+            # search = f'{vid.upper()}'
+            # print(f'search:"{search}"')
             if re.search(search, sp_output, re.MULTILINE):
-                #print(f'Found vendor id that matches')
+                # print(f'Found vendor id that matches')
                 devices = get_devices_with_vendor_id(vid)
                 for device in devices:
                     possible_devices.add(device)
@@ -353,14 +377,14 @@ def detect_supported_devices():
         # run: system_profiler SPUSBDataType
         # Note: If in boot mode, the 19003 reports same product ID as 5005.
 
-        _, sp_output = subprocess.getstatusoutput('system_profiler SPUSBDataType')
+        _, sp_output = subprocess.getstatusoutput("system_profiler SPUSBDataType")
         vids = get_unique_vendor_ids()
         for vid in vids:
-            #print(f'looking for {vid}...')
-            search = f'Vendor ID: 0x{vid}'
-            #print(f'search:"{search}"')
+            # print(f'looking for {vid}...')
+            search = f"Vendor ID: 0x{vid}"
+            # print(f'search:"{search}"')
             if re.search(search, sp_output, re.MULTILINE):
-                #print(f'Found vendor id that matches')
+                # print(f'Found vendor id that matches')
                 devices = get_devices_with_vendor_id(vid)
                 for device in devices:
                     possible_devices.add(device)
@@ -373,7 +397,7 @@ def detect_windows_needs_driver(sd, print_reason=False):
 
     if sd:
         system = platform.system()
-        #print(f'in detect_windows_needs_driver system:{system}')
+        # print(f'in detect_windows_needs_driver system:{system}')
 
         if system == "Windows":
             # if windows, see if we can find a DeviceId with the vendor id
@@ -382,11 +406,11 @@ def detect_windows_needs_driver(sd, print_reason=False):
             command += f"'*{sd.usb_vendor_id_in_hex.upper()}*'"
             command += ')} | Format-List"'
 
-            #print(f'command:{command}')
+            # print(f'command:{command}')
             _, sp_output = subprocess.getstatusoutput(command)
-            #print(f'sp_output:{sp_output}')
-            search = f'CM_PROB_FAILED_INSTALL'
-            #print(f'search:"{search}"')
+            # print(f'sp_output:{sp_output}')
+            search = f"CM_PROB_FAILED_INSTALL"
+            # print(f'search:"{search}"')
             if re.search(search, sp_output, re.MULTILINE):
                 need_to_install_driver = True
                 # if the want to see the reason
@@ -398,30 +422,30 @@ def detect_windows_needs_driver(sd, print_reason=False):
 def eliminate_duplicate_port(ports):
     """Sometimes we detect 2 serial ports, but we really only need to use one of the ports.
 
-       ports is a list of ports
-       return a list with a single port to use, if it meets the duplicate port conditions
+    ports is a list of ports
+    return a list with a single port to use, if it meets the duplicate port conditions
 
-        examples:
-            Ports: ['/dev/cu.usbserial-1430', '/dev/cu.wchusbserial1430'] => ['/dev/cu.wchusbserial1430']
-            Ports: ['/dev/cu.usbmodem11301', '/dev/cu.wchusbserial11301'] => ['/dev/cu.wchusbserial11301']
-            Ports: ['/dev/cu.SLAB_USBtoUART', '/dev/cu.usbserial-0001'] => ['/dev/cu.usbserial-0001']
+     examples:
+         Ports: ['/dev/cu.usbserial-1430', '/dev/cu.wchusbserial1430'] => ['/dev/cu.wchusbserial1430']
+         Ports: ['/dev/cu.usbmodem11301', '/dev/cu.wchusbserial11301'] => ['/dev/cu.wchusbserial11301']
+         Ports: ['/dev/cu.SLAB_USBtoUART', '/dev/cu.usbserial-0001'] => ['/dev/cu.usbserial-0001']
     """
     new_ports = []
     if len(ports) != 2:
         new_ports = ports
     else:
         ports.sort()
-        if 'usbserial' in ports[0] and 'wchusbserial' in ports[1]:
+        if "usbserial" in ports[0] and "wchusbserial" in ports[1]:
             first = ports[0].replace("usbserial-", "")
             second = ports[1].replace("wchusbserial", "")
             if first == second:
                 new_ports.append(ports[1])
-        elif 'usbmodem' in ports[0] and 'wchusbserial' in ports[1]:
+        elif "usbmodem" in ports[0] and "wchusbserial" in ports[1]:
             first = ports[0].replace("usbmodem", "")
             second = ports[1].replace("wchusbserial", "")
             if first == second:
                 new_ports.append(ports[1])
-        elif 'SLAB_USBtoUART' in ports[0] and 'usbserial' in ports[1]:
+        elif "SLAB_USBtoUART" in ports[0] and "usbserial" in ports[1]:
             new_ports.append(ports[1])
         else:
             new_ports = ports
@@ -433,14 +457,14 @@ def is_windows11():
     is_win11 = False
     if platform.system() == "Windows":
         if float(platform.release()) >= 10.0:
-            patch = platform.version().split('.')[2]
+            patch = platform.version().split(".")[2]
             # in case they add some number suffix later, just get first 5 chars of patch
             patch = patch[:5]
             try:
                 if int(patch) >= 22000:
                     is_win11 = True
             except Exception as e:
-                print(f'problem detecting win11 e:{e}')
+                print(f"problem detecting win11 e:{e}")
     return is_win11
 
 
@@ -480,46 +504,46 @@ def active_ports_on_supported_devices(sds, eliminate_duplicates=False):
     for bp in baseports:
         if system == "Linux":
             # see if we have any devices (ignoring any stderr output)
-            command = f'ls -al /dev/{bp}* 2> /dev/null'
-            #print(f'command:{command}')
+            command = f"ls -al /dev/{bp}* 2> /dev/null"
+            # print(f'command:{command}')
             _, ls_output = subprocess.getstatusoutput(command)
-            #print(f'ls_output:{ls_output}')
+            # print(f'ls_output:{ls_output}')
             # if we got output, there are ports
             if len(ls_output) > 0:
-                #print('got output')
+                # print('got output')
                 # for each line of output
-                lines = ls_output.split('\n')
-                #print(f'lines:{lines}')
+                lines = ls_output.split("\n")
+                # print(f'lines:{lines}')
                 for line in lines:
-                    parts = line.split(' ')
-                    #print(f'parts:{parts}')
+                    parts = line.split(" ")
+                    # print(f'parts:{parts}')
                     port = parts[-1]
-                    #print(f'port:{port}')
+                    # print(f'port:{port}')
                     ports.add(port)
         elif system == "Darwin":
             # see if we have any devices (ignoring any stderr output)
-            command = f'ls -al /dev/{bp}* 2> /dev/null'
-            #print(f'command:{command}')
+            command = f"ls -al /dev/{bp}* 2> /dev/null"
+            # print(f'command:{command}')
             _, ls_output = subprocess.getstatusoutput(command)
-            #print(f'ls_output:{ls_output}')
+            # print(f'ls_output:{ls_output}')
             # if we got output, there are ports
             if len(ls_output) > 0:
-                #print('got output')
+                # print('got output')
                 # for each line of output
-                lines = ls_output.split('\n')
-                #print(f'lines:{lines}')
+                lines = ls_output.split("\n")
+                # print(f'lines:{lines}')
                 for line in lines:
-                    parts = line.split(' ')
-                    #print(f'parts:{parts}')
+                    parts = line.split(" ")
+                    # print(f'parts:{parts}')
                     port = parts[-1]
-                    #print(f'port:{port}')
+                    # print(f'port:{port}')
                     ports.add(port)
         elif system == "Windows":
             # for each device in supported devices found
             for d in sds:
                 # find the port(s)
                 com_ports = detect_windows_port(d)
-                #print(f'com_ports:{com_ports}')
+                # print(f'com_ports:{com_ports}')
                 # add all ports
                 for com_port in com_ports:
                     ports.add(com_port)
@@ -538,18 +562,20 @@ def detect_windows_port(sd):
         system = platform.system()
 
         if system == "Windows":
-            command = ('powershell.exe "[Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8;'
-                       'Get-PnpDevice -PresentOnly | Where-Object{ ($_.DeviceId -like ')
+            command = (
+                'powershell.exe "[Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8;'
+                "Get-PnpDevice -PresentOnly | Where-Object{ ($_.DeviceId -like "
+            )
             command += f"'*{sd.usb_vendor_id_in_hex.upper()}*'"
             command += ')} | Format-List"'
 
-            #print(f'command:{command}')
+            # print(f'command:{command}')
             _, sp_output = subprocess.getstatusoutput(command)
-            #print(f'sp_output:{sp_output}')
-            p = re.compile(r'\(COM(.*)\)')
+            # print(f'sp_output:{sp_output}')
+            p = re.compile(r"\(COM(.*)\)")
             for x in p.findall(sp_output):
-                #print(f'x:{x}')
-                ports.add(f'COM{x}')
+                # print(f'x:{x}')
+                ports.add(f"COM{x}")
     return ports
 
 
@@ -558,12 +584,13 @@ def check_if_newer_version():
     pypi_version = None
     try:
         url = "https://pypi.org/pypi/meshtastic/json"
-        data = requests.get(url).json()
+        data = requests.get(url, timeout=5).json()
         pypi_version = data["info"]["version"]
-    except Exception as e:
-        #print(f"could not get version from pypi e:{e}")
+    except Exception:
         pass
     act_version = pkg_resources.get_distribution("meshtastic").version
-    if pypi_version and pkg_resources.parse_version(pypi_version) <= pkg_resources.parse_version(act_version):
+    if pypi_version and pkg_resources.parse_version(
+        pypi_version
+    ) <= pkg_resources.parse_version(act_version):
         return None
     return pypi_version

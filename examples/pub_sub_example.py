@@ -3,6 +3,7 @@
 """
 
 import sys
+
 from pubsub import pub
 
 import meshtastic
@@ -13,10 +14,13 @@ if len(sys.argv) < 2:
     print(f"usage: {sys.argv[0]} host")
     sys.exit(1)
 
-def onConnection(interface, topic=pub.AUTO_TOPIC): # pylint: disable=unused-argument
+
+def onConnection(interface, topic=pub.AUTO_TOPIC):  # pylint: disable=unused-argument
     """This is called when we (re)connect to the radio."""
     print(interface.myInfo)
     interface.close()
+
+
 pub.subscribe(onConnection, "meshtastic.connection.established")
 
 try:

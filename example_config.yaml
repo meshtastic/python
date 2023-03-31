@@ -9,7 +9,7 @@ location:
   lon: -93.88888
   alt: 304
 
-config: 
+config:
   bluetooth:
     enabled: true
     fixedPin: 123456
@@ -36,7 +36,7 @@ config:
     meshSdsTimeoutSecs: 7200
     minWakeSecs: 10
     sdsSecs: 4294967295
-    
+
 module_config:
   telemetry:
     deviceUpdateInterval: 900
