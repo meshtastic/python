@@ -62,33 +62,42 @@ import os
 import platform
 import random
 import socket
-import sys
 import stat
+import sys
 import threading
-import traceback
 import time
+import traceback
 from datetime import datetime
 from typing import *
+
+import google.protobuf.json_format
 import serial
 import timeago
-import google.protobuf.json_format
-from pubsub import pub
 from dotmap import DotMap
-from tabulate import tabulate
 from google.protobuf.json_format import MessageToJson
-from meshtastic.util import fixme, catchAndIgnore, stripnl, DeferredExecution, Timeout
-from meshtastic.node import Node
-from meshtastic import (mesh_pb2, portnums_pb2, apponly_pb2, admin_pb2,
-                        telemetry_pb2, remote_hardware_pb2,
-                        channel_pb2, config_pb2, util)
+from pubsub import pub
+from tabulate import tabulate
 
+from meshtastic import (
+    admin_pb2,
+    apponly_pb2,
+    channel_pb2,
+    config_pb2,
+    mesh_pb2,
+    portnums_pb2,
+    remote_hardware_pb2,
+    telemetry_pb2,
+    util,
+)
+from meshtastic.node import Node
+from meshtastic.util import DeferredExecution, Timeout, catchAndIgnore, fixme, stripnl
 
 # Note: To follow PEP224, comments should be after the module variable.
 
 LOCAL_ADDR = "^local"
 """A special ID that means the local node"""
 
-BROADCAST_NUM = 0xffffffff
+BROADCAST_NUM = 0xFFFFFFFF
 """if using 8 bit nodenums this will be shortend on the target"""
 
 BROADCAST_ADDR = "^all"
@@ -106,6 +115,7 @@ publishingThread = DeferredExecution("publishing")
 
 class ResponseHandler(NamedTuple):
     """A pending response callback, waiting for a response to one of our messages"""
+
     # requestId: int - used only as a key
     callback: Callable
     # FIXME, add timestamp and age out old requests
@@ -113,6 +123,7 @@ class ResponseHandler(NamedTuple):
 
 class KnownProtocol(NamedTuple):
     """Used to automatically decode known protocol payloads"""
+
     name: str
     # portnum: int, now a key
     # If set, will be called to prase as a protocol buffer
@@ -129,7 +140,7 @@ def _onTextReceive(iface, asDict):
     #
     # Usually btw this problem is caused by apps sending binary data but setting the payload type to
     # text.
-    logging.debug(f'in _onTextReceive() asDict:{asDict}')
+    logging.debug(f"in _onTextReceive() asDict:{asDict}")
     try:
         asBytes = asDict["decoded"]["payload"]
         asDict["decoded"]["text"] = asBytes.decode("utf-8")
@@ -140,22 +151,22 @@ def _onTextReceive(iface, asDict):
 
 def _onPositionReceive(iface, asDict):
     """Special auto parsing for received messages"""
-    logging.debug(f'in _onPositionReceive() asDict:{asDict}')
-    if 'decoded' in asDict:
-        if 'position' in asDict['decoded'] and 'from' in asDict:
+    logging.debug(f"in _onPositionReceive() asDict:{asDict}")
+    if "decoded" in asDict:
+        if "position" in asDict["decoded"] and "from" in asDict:
             p = asDict["decoded"]["position"]
-            logging.debug(f'p:{p}')
+            logging.debug(f"p:{p}")
             p = iface._fixupPosition(p)
-            logging.debug(f'after fixup p:{p}')
+            logging.debug(f"after fixup p:{p}")
             # update node DB as needed
             iface._getOrCreateByNum(asDict["from"])["position"] = p
 
 
 def _onNodeInfoReceive(iface, asDict):
     """Special auto parsing for received messages"""
-    logging.debug(f'in _onNodeInfoReceive() asDict:{asDict}')
-    if 'decoded' in asDict:
-        if 'user' in asDict['decoded'] and 'from' in asDict:
+    logging.debug(f"in _onNodeInfoReceive() asDict:{asDict}")
+    if "decoded" in asDict:
+        if "user" in asDict["decoded"] and "from" in asDict:
             p = asDict["decoded"]["user"]
             # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
             # update node DB as needed
@@ -176,13 +187,25 @@ def _receiveInfoUpdate(iface, asDict):
 
 """Well known message payloads can register decoders for automatic protobuf parsing"""
 protocols = {
-    portnums_pb2.PortNum.TEXT_MESSAGE_APP: KnownProtocol("text", onReceive=_onTextReceive),
-    portnums_pb2.PortNum.POSITION_APP: KnownProtocol("position", mesh_pb2.Position, _onPositionReceive),
-    portnums_pb2.PortNum.NODEINFO_APP: KnownProtocol("user", mesh_pb2.User, _onNodeInfoReceive),
+    portnums_pb2.PortNum.TEXT_MESSAGE_APP: KnownProtocol(
+        "text", onReceive=_onTextReceive
+    ),
+    portnums_pb2.PortNum.POSITION_APP: KnownProtocol(
+        "position", mesh_pb2.Position, _onPositionReceive
+    ),
+    portnums_pb2.PortNum.NODEINFO_APP: KnownProtocol(
+        "user", mesh_pb2.User, _onNodeInfoReceive
+    ),
     portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage),
     portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
-    portnums_pb2.PortNum.TELEMETRY_APP: KnownProtocol("telemetry", telemetry_pb2.Telemetry),
-    portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol("remotehw", remote_hardware_pb2.HardwareMessage),
+    portnums_pb2.PortNum.TELEMETRY_APP: KnownProtocol(
+        "telemetry", telemetry_pb2.Telemetry
+    ),
+    portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol(
+        "remotehw", remote_hardware_pb2.HardwareMessage
+    ),
     portnums_pb2.PortNum.SIMULATOR_APP: KnownProtocol("simulator", mesh_pb2.Compressed),
-    portnums_pb2.PortNum.TRACEROUTE_APP: KnownProtocol("traceroute", mesh_pb2.RouteDiscovery)
+    portnums_pb2.PortNum.TRACEROUTE_APP: KnownProtocol(
+        "traceroute", mesh_pb2.RouteDiscovery
+    ),
 }

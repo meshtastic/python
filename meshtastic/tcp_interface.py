@@ -6,11 +6,18 @@ from typing import AnyStr
 
 from meshtastic.stream_interface import StreamInterface
 
+
 class TCPInterface(StreamInterface):
     """Interface class for meshtastic devices over a TCP link"""
 
-    def __init__(self, hostname: AnyStr, debugOut=None, noProto=False,
-                 connectNow=True, portNumber=4403):
+    def __init__(
+        self,
+        hostname: AnyStr,
+        debugOut=None,
+        noProto=False,
+        connectNow=True,
+        portNumber=4403,
+    ):
         """Constructor, opens a connection to a specified IP address/hostname
 
         Keyword Arguments:
@@ -30,12 +37,13 @@ class TCPInterface(StreamInterface):
         else:
             self.socket = None
 
-        StreamInterface.__init__(self, debugOut=debugOut, noProto=noProto,
-                                 connectNow=connectNow)
+        StreamInterface.__init__(
+            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow
+        )
 
     def _socket_shutdown(self):
         """Shutdown the socket.
-           Note: Broke out this line so the exception could be unit tested.
+        Note: Broke out this line so the exception could be unit tested.
         """
         self.socket.shutdown(socket.SHUT_RDWR)
 

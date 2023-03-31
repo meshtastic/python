@@ -3,6 +3,7 @@
 """
 
 import sys
+
 import meshtastic
 import meshtastic.serial_interface
 
@@ -15,6 +16,6 @@ if len(sys.argv) != 1:
 iface = meshtastic.serial_interface.SerialInterface()
 if iface.nodes:
     for n in iface.nodes.values():
-        if n['num'] == iface.myInfo.my_node_num:
-            print(n['user']['hwModel'])
+        if n["num"] == iface.myInfo.my_node_num:
+            print(n["user"]["hwModel"])
 iface.close()

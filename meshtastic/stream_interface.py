@@ -4,15 +4,14 @@ import logging
 import threading
 import time
 import traceback
+
 import serial
 
-
 from meshtastic.mesh_interface import MeshInterface
-from meshtastic.util import stripnl, is_windows11
-
+from meshtastic.util import is_windows11, stripnl
 
 START1 = 0x94
-START2 = 0xc3
+START2 = 0xC3
 HEADER_LEN = 4
 MAX_TO_FROM_RADIO_SIZE = 512
 
@@ -32,9 +31,10 @@ class StreamInterface(MeshInterface):
             Exception: [description]
         """
 
-        if not hasattr(self, 'stream') and not noProto:
+        if not hasattr(self, "stream") and not noProto:
             raise Exception(
-                "StreamInterface is now abstract (to update existing code create SerialInterface instead)")
+                "StreamInterface is now abstract (to update existing code create SerialInterface instead)"
+            )
         self._rxBuf = bytes()  # empty
         self._wantExit = False
 
@@ -110,8 +110,8 @@ class StreamInterface(MeshInterface):
         b = toRadio.SerializeToString()
         bufLen = len(b)
         # We convert into a string, because the TCP code doesn't work with byte arrays
-        header = bytes([START1, START2, (bufLen >> 8) & 0xff,  bufLen & 0xff])
-        logging.debug(f'sending header:{header} b:{b}')
+        header = bytes([START1, START2, (bufLen >> 8) & 0xFF, bufLen & 0xFF])
+        logging.debug(f"sending header:{header} b:{b}")
         self._writeBytes(header + b)
 
     def close(self):
@@ -126,18 +126,18 @@ class StreamInterface(MeshInterface):
 
     def __reader(self):
         """The reader thread that reads bytes from our stream"""
-        logging.debug('in __reader()')
+        logging.debug("in __reader()")
         empty = bytes()
 
         try:
             while not self._wantExit:
-                #logging.debug("reading character")
+                # logging.debug("reading character")
                 b = self._readBytes(1)
-                #logging.debug("In reader loop")
-                #logging.debug(f"read returned {b}")
+                # logging.debug("In reader loop")
+                # logging.debug(f"read returned {b}")
                 if len(b) > 0:
                     c = b[0]
-                    #logging.debug(f'c:{c}')
+                    # logging.debug(f'c:{c}')
                     ptr = len(self._rxBuf)
 
                     # Assume we want to append this byte, fixme use bytearray instead
@@ -150,38 +150,54 @@ class StreamInterface(MeshInterface):
                                 try:
                                     self.debugOut.write(b.decode("utf-8"))
                                 except:
-                                    self.debugOut.write('?')
+                                    self.debugOut.write("?")
 
                     elif ptr == 1:  # looking for START2
                         if c != START2:
                             self._rxBuf = empty  # failed to find start2
                     elif ptr >= HEADER_LEN - 1:  # we've at least got a header
-                        #logging.debug('at least we received a header')
+                        # logging.debug('at least we received a header')
                         # big endian length follows header
                         packetlen = (self._rxBuf[2] << 8) + self._rxBuf[3]
 
-                        if ptr == HEADER_LEN - 1:  # we _just_ finished reading the header, validate length
+                        if (
+                            ptr == HEADER_LEN - 1
+                        ):  # we _just_ finished reading the header, validate length
                             if packetlen > MAX_TO_FROM_RADIO_SIZE:
-                                self._rxBuf = empty  # length was out out bounds, restart
+                                self._rxBuf = (
+                                    empty  # length was out out bounds, restart
+                                )
 
                         if len(self._rxBuf) != 0 and ptr + 1 >= packetlen + HEADER_LEN:
                             try:
                                 self._handleFromRadio(self._rxBuf[HEADER_LEN:])
                             except Exception as ex:
-                                logging.error(f"Error while handling message from radio {ex}")
+                                logging.error(
+                                    f"Error while handling message from radio {ex}"
+                                )
                                 traceback.print_exc()
                             self._rxBuf = empty
                 else:
                     # logging.debug(f"timeout")
                     pass
         except serial.SerialException as ex:
-            if not self._wantExit:  # We might intentionally get an exception during shutdown
-                logging.warning(f"Meshtastic serial port disconnected, disconnecting... {ex}")
+            if (
+                not self._wantExit
+            ):  # We might intentionally get an exception during shutdown
+                logging.warning(
+                    f"Meshtastic serial port disconnected, disconnecting... {ex}"
+                )
         except OSError as ex:
-            if not self._wantExit:  # We might intentionally get an exception during shutdown
-                logging.error(f"Unexpected OSError, terminating meshtastic reader... {ex}")
+            if (
+                not self._wantExit
+            ):  # We might intentionally get an exception during shutdown
+                logging.error(
+                    f"Unexpected OSError, terminating meshtastic reader... {ex}"
+                )
         except Exception as ex:
-            logging.error(f"Unexpected exception, terminating meshtastic reader... {ex}")
+            logging.error(
+                f"Unexpected exception, terminating meshtastic reader... {ex}"
+            )
         finally:
             logging.debug("reader is exiting")
             self._disconnected()

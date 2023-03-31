@@ -9,6 +9,6 @@ radio_hostname = "meshtastic.local"  # Can also be an IP
 iface = meshtastic.tcp_interface.TCPInterface(radio_hostname)
 my_node_num = iface.myInfo.my_node_num
 pos = iface.nodesByNum[my_node_num]["position"]
-print (pos)
+print(pos)
 
 iface.close()
