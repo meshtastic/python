@@ -584,10 +584,9 @@ def check_if_newer_version():
     pypi_version = None
     try:
         url = "https://pypi.org/pypi/meshtastic/json"
-        data = requests.get(url).json()
+        data = requests.get(url, timeout=5).json()
         pypi_version = data["info"]["version"]
-    except Exception as e:
-        # print(f"could not get version from pypi e:{e}")
+    except Exception:
         pass
     act_version = pkg_resources.get_distribution("meshtastic").version
     if pypi_version and pkg_resources.parse_version(

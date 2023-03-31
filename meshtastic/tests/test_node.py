@@ -773,7 +773,7 @@ def test_writeConfig_with_no_radioConfig(capsys):
     anode = Node("foo", "bar", noProto=True)
 
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        anode.writeConfig()
+        anode.writeConfig('foo')
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()
