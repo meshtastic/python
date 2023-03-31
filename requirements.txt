@@ -7,6 +7,7 @@ pyqrcode
 tabulate
 timeago
 webencodings
+requests
 pyparsing
 twine
 autopep8
