@@ -30,7 +30,7 @@ setup(
     ],
     packages=["meshtastic"],
     include_package_data=True,
-    install_requires=["pyserial>=3.4", "protobuf>=3.13.0",
+    install_requires=["pyserial>=3.4", "protobuf>=3.13.0", "requests>=2.25.0",
                       "pypubsub>=4.0.3", "dotmap>=1.3.14", "pexpect>=4.6.0", "pyqrcode>=1.2.1",
                       "tabulate>=0.8.9", "timeago>=1.0.15", "pyyaml",
                       "pygatt>=4.0.5 ; platform_system=='Linux'"],
