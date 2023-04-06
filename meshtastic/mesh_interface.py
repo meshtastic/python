@@ -160,8 +160,8 @@ class MeshInterface:
                 if user:
                     row.update(
                         {
-                            "User": user["longName"],
-                            "AKA": user["shortName"],
+                            "User": user.get("longName", "N/A"),
+                            "AKA": user.get("shortName", "N/A"),
                             "ID": user["id"],
                         }
                     )
