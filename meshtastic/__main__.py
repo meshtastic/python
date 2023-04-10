@@ -383,7 +383,11 @@ def onConnected(interface):
                     f"Sending text message {args.sendtext} to {args.dest} on channelIndex:{channelIndex}"
                 )
                 interface.sendText(
-                    args.sendtext, args.dest, wantAck=True, channelIndex=channelIndex
+                    args.sendtext,
+                    args.dest,
+                    wantAck=True,
+                    channelIndex=channelIndex,
+                    onResponse=interface.getNode(args.dest, False).onAckNak,
                 )
             else:
                 meshtastic.util.our_exit(
@@ -762,7 +766,7 @@ def onConnected(interface):
             else:
                 tunnel.Tunnel(interface, subnet=args.tunnel_net)
 
-        if args.dest != BROADCAST_ADDR and waitForAckNak:
+        if args.ack or (args.dest != BROADCAST_ADDR and waitForAckNak):
             print(
                 f"Waiting for an acknowledgment from remote node (this could take a while)"
             )
@@ -1181,6 +1185,12 @@ def initParser():
         "You need pass the destination ID as argument, like "
         "this: '--traceroute !ba4bf9d0' "
         "Only nodes that have the encryption key can be traced.",
+    )
+
+    parser.add_argument(
+        "--ack",
+        help="Use in combination with --sendtext to wait for an acknowledgment.",
+        action="store_true",
     )
 
     parser.add_argument(
