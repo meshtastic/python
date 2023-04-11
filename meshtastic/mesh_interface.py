@@ -898,6 +898,7 @@ class MeshInterface:
         topic = "meshtastic.receive"  # Generic unknown packet type
 
         decoded = None
+        portnum = portnums_pb2.PortNum.Name(portnums_pb2.PortNum.UNKNOWN_APP)
         if "decoded" in asDict:
             decoded = asDict["decoded"]
             # The default MessageToDict converts byte arrays into base64 strings.
@@ -905,53 +906,52 @@ class MeshInterface:
             # byte array.
             decoded["payload"] = meshPacket.decoded.payload
 
-        # UNKNOWN_APP is the default protobuf portnum value, and therefore if not
-        # set it will not be populated at all to make API usage easier, set
-        # it to prevent confusion
-        if decoded and "portnum" not in decoded:
-            new_portnum = portnums_pb2.PortNum.Name(portnums_pb2.PortNum.UNKNOWN_APP)
-            decoded["portnum"] = new_portnum
-            logging.warning(f"portnum was not in decoded. Setting to:{new_portnum}")
+            # UNKNOWN_APP is the default protobuf portnum value, and therefore if not
+            # set it will not be populated at all to make API usage easier, set
+            # it to prevent confusion
+            if "portnum" not in decoded:
+                decoded["portnum"] = portnum
+                logging.warning(f"portnum was not in decoded. Setting to:{portnum}")
+            else:
+                portnum = decoded["portnum"]
 
-        portnum = decoded["portnum"]
+            topic = f"meshtastic.receive.data.{portnum}"
 
-        topic = f"meshtastic.receive.data.{portnum}"
+            # decode position protobufs and update nodedb, provide decoded version
+            # as "position" in the published msg move the following into a 'decoders'
+            # API that clients could register?
+            portNumInt = meshPacket.decoded.portnum  # we want portnum as an int
+            handler = protocols.get(portNumInt)
+            # The decoded protobuf as a dictionary (if we understand this message)
+            p = None
+            if handler is not None:
+                topic = f"meshtastic.receive.{handler.name}"
 
-        # decode position protobufs and update nodedb, provide decoded version
-        # as "position" in the published msg move the following into a 'decoders'
-        # API that clients could register?
-        portNumInt = meshPacket.decoded.portnum  # we want portnum as an int
-        handler = protocols.get(portNumInt)
-        # The decoded protobuf as a dictionary (if we understand this message)
-        p = None
-        if handler is not None:
-            topic = f"meshtastic.receive.{handler.name}"
+                # Convert to protobuf if possible
+                if handler.protobufFactory is not None:
+                    pb = handler.protobufFactory()
+                    pb.ParseFromString(meshPacket.decoded.payload)
+                    p = google.protobuf.json_format.MessageToDict(pb)
+                    asDict["decoded"][handler.name] = p
+                    # Also provide the protobuf raw
+                    asDict["decoded"][handler.name]["raw"] = pb
 
-            # Convert to protobuf if possible
-            if handler.protobufFactory is not None:
-                pb = handler.protobufFactory()
-                pb.ParseFromString(meshPacket.decoded.payload)
-                p = google.protobuf.json_format.MessageToDict(pb)
-                asDict["decoded"][handler.name] = p
-                # Also provide the protobuf raw
-                asDict["decoded"][handler.name]["raw"] = pb
+                # Call specialized onReceive if necessary
+                if handler.onReceive is not None:
+                    handler.onReceive(self, asDict)
 
-            # Call specialized onReceive if necessary
-            if handler.onReceive is not None:
-                handler.onReceive(self, asDict)
-
-        # Is this message in response to a request, if so, look for a handler
-        requestId = decoded.get("requestId")
-        if requestId is not None:
-            # We ignore ACK packets, but send NAKs and data responses to the handlers
-            routing = decoded.get("routing")
-            isAck = routing is not None and ("errorReason" not in routing)
-            if not isAck:
-                # we keep the responseHandler in dict until we get a non ack
-                handler = self.responseHandlers.pop(requestId, None)
-                if handler is not None:
-                    if not isAck or (isAck and handler.__name__ == "onAckNak"):
-                        handler.callback(asDict)
+            # Is this message in response to a request, if so, look for a handler
+            requestId = decoded.get("requestId")
+            if requestId is not None:
+                # We ignore ACK packets, but send NAKs and data responses to the handlers
+                routing = decoded.get("routing")
+                isAck = routing is not None and ("errorReason" not in routing)
+                if not isAck:
+                    # we keep the responseHandler in dict until we get a non ack
+                    handler = self.responseHandlers.pop(requestId, None)
+                    if handler is not None:
+                        if not isAck or (isAck and handler.__name__ == "onAckNak"):
+                            handler.callback(asDict)
 
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         publishingThread.queueWork(
