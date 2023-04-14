@@ -73,6 +73,15 @@ tbeam_M8N_SX1262 = SupportedDevice(
     usb_vendor_id_in_hex="1a86",
     usb_product_id_in_hex="55d4",
 )
+tbeam_S3_core = SupportedDevice(
+    name="T-Beam",
+    version="Tbeam_S3",
+    for_firmware="tbeam",
+    baseport_on_linux="ttyACM",
+    baseport_on_mac="cu.usbmodem",
+    usb_vendor_id_in_hex="1a86",
+    usb_product_id_in_hex="55d4",
+)
 tlora_v1 = SupportedDevice(
     name="T-Lora",
     version="1",
@@ -109,6 +118,15 @@ tlora_v2_1_1_6 = SupportedDevice(
     usb_vendor_id_in_hex="1a86",
     usb_product_id_in_hex="55d4",
 )
+tlora_t3s3 = SupportedDevice(
+    name="T-Lora",
+    version="1",
+    for_firmware="tlora-t3s3",
+    baseport_on_linux="ttyACM",
+    baseport_on_mac="cu.usbmodem",
+    usb_vendor_id_in_hex="1a86",
+    usb_product_id_in_hex="55d4",
+)
 heltec_v1 = SupportedDevice(
     name="Heltec",
     version="1",
@@ -131,6 +149,24 @@ heltec_v2_1 = SupportedDevice(
     name="Heltec",
     version="2.1",
     for_firmware="heltec-v2.1",
+    baseport_on_linux="ttyUSB",
+    baseport_on_mac="cu.usbserial-",
+    usb_vendor_id_in_hex="10c4",
+    usb_product_id_in_hex="ea60",
+)
+heltec_v3 = SupportedDevice(
+    name="Heltec",
+    version="V3",
+    for_firmware="heltec-v3",
+    baseport_on_linux="ttyUSB",
+    baseport_on_mac="cu.usbserial-",
+    usb_vendor_id_in_hex="10c4",
+    usb_product_id_in_hex="ea60",
+)
+heltec_wsl_v3 = SupportedDevice(
+    name="Heltec",
+    version="WSL V3",
+    for_firmware="heltec-wsl-v3",
     baseport_on_linux="ttyUSB",
     baseport_on_mac="cu.usbserial-",
     usb_vendor_id_in_hex="10c4",
@@ -196,10 +232,28 @@ rak4631_19003 = SupportedDevice(
     usb_vendor_id_in_hex="239a",
     usb_product_id_in_hex="8029",
 )
+station_g1 = SupportedDevice(
+    name="Station G1",
+    version="",
+    for_firmware="station-g1",
+    baseport_on_linux="ttyACM",
+    baseport_on_mac="cu.usbmodem",
+    usb_vendor_id_in_hex="1a86",
+    usb_product_id_in_hex="55d4",
+)
 nano_g1 = SupportedDevice(
     name="Nano G1",
     version="",
     for_firmware="nano-g1",
+    baseport_on_linux="ttyACM",
+    baseport_on_mac="cu.usbmodem",
+    usb_vendor_id_in_hex="1a86",
+    usb_product_id_in_hex="55d4",
+)
+nano_g1_explorer = SupportedDevice(
+    name="Nano G1 Explorer",
+    version="",
+    for_firmware="nano-g1-explorer",
     baseport_on_linux="ttyACM",
     baseport_on_mac="cu.usbmodem",
     usb_vendor_id_in_hex="1a86",
@@ -211,18 +265,23 @@ supported_devices = [
     tbeam_v1_1,
     tbeam_M8N,
     tbeam_M8N_SX1262,
+    tbeam_S3_core,
     tlora_v1,
     tlora_v1_3,
     tlora_v2,
     tlora_v2_1_1_6,
+    tlora_t3s3,
     heltec_v1,
     heltec_v2_0,
     heltec_v2_1,
+    heltec_v3,
     meshtastic_diy_v1,
     techo_1,
     rak4631_5005,
     rak4631_5005_epaper,
     rak4631_19003,
     rak11200,
+    station_g1,
     nano_g1,
+    nano_g1_explorer,
 ]
