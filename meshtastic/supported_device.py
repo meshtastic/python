@@ -275,6 +275,7 @@ supported_devices = [
     heltec_v2_0,
     heltec_v2_1,
     heltec_v3,
+    heltec_wsl_v3,
     meshtastic_diy_v1,
     techo_1,
     rak4631_5005,
