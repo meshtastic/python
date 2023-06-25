@@ -16,10 +16,11 @@ _sym_db = _symbol_database.Default()
 from meshtastic import channel_pb2 as meshtastic_dot_channel__pb2
 from meshtastic import localonly_pb2 as meshtastic_dot_localonly__pb2
 from meshtastic import mesh_pb2 as meshtastic_dot_mesh__pb2
+from meshtastic import telemetry_pb2 as meshtastic_dot_telemetry__pb2
 from meshtastic import module_config_pb2 as meshtastic_dot_module__config__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bmeshtastic/deviceonly.proto\x1a\x18meshtastic/channel.proto\x1a\x1ameshtastic/localonly.proto\x1a\x15meshtastic/mesh.proto\x1a\x1emeshtastic/module_config.proto\"\xbd\x02\n\x0b\x44\x65viceState\x12\x1c\n\x07my_node\x18\x02 \x01(\x0b\x32\x0b.MyNodeInfo\x12\x14\n\x05owner\x18\x03 \x01(\x0b\x32\x05.User\x12\x1a\n\x07node_db\x18\x04 \x03(\x0b\x32\t.NodeInfo\x12\"\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12$\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x0b.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08\x12 \n\x0brx_waypoint\x18\x0c \x01(\x0b\x32\x0b.MeshPacket\x12\x39\n\x19node_remote_hardware_pins\x18\r \x03(\x0b\x32\x16.NodeRemoteHardwarePin\":\n\x0b\x43hannelFile\x12\x1a\n\x08\x63hannels\x18\x01 \x03(\x0b\x32\x08.Channel\x12\x0f\n\x07version\x18\x02 \x01(\r\"\xf6\x01\n\x08OEMStore\x12\x16\n\x0eoem_icon_width\x18\x01 \x01(\r\x12\x17\n\x0foem_icon_height\x18\x02 \x01(\r\x12\x15\n\roem_icon_bits\x18\x03 \x01(\x0c\x12\x1e\n\x08oem_font\x18\x04 \x01(\x0e\x32\x0c.ScreenFonts\x12\x10\n\x08oem_text\x18\x05 \x01(\t\x12\x13\n\x0boem_aes_key\x18\x06 \x01(\x0c\x12&\n\x10oem_local_config\x18\x07 \x01(\x0b\x32\x0c.LocalConfig\x12\x33\n\x17oem_local_module_config\x18\x08 \x01(\x0b\x32\x12.LocalModuleConfig\"J\n\x15NodeRemoteHardwarePin\x12\x10\n\x08node_num\x18\x01 \x01(\r\x12\x1f\n\x03pin\x18\x02 \x01(\x0b\x32\x12.RemoteHardwarePin*>\n\x0bScreenFonts\x12\x0e\n\nFONT_SMALL\x10\x00\x12\x0f\n\x0b\x46ONT_MEDIUM\x10\x01\x12\x0e\n\nFONT_LARGE\x10\x02\x42_\n\x13\x63om.geeksville.meshB\nDeviceOnlyZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bmeshtastic/deviceonly.proto\x12\nmeshtastic\x1a\x18meshtastic/channel.proto\x1a\x1ameshtastic/localonly.proto\x1a\x15meshtastic/mesh.proto\x1a\x1ameshtastic/telemetry.proto\x1a\x1emeshtastic/module_config.proto\"\xbe\x03\n\x0b\x44\x65viceState\x12\'\n\x07my_node\x18\x02 \x01(\x0b\x32\x16.meshtastic.MyNodeInfo\x12\x1f\n\x05owner\x18\x03 \x01(\x0b\x32\x10.meshtastic.User\x12)\n\x07node_db\x18\x04 \x03(\x0b\x32\x14.meshtastic.NodeInfoB\x02\x18\x01\x12-\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x16.meshtastic.MeshPacket\x12\x0f\n\x07version\x18\x08 \x01(\r\x12/\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x16.meshtastic.MeshPacket\x12\x0f\n\x07no_save\x18\t \x01(\x08\x12\x15\n\rdid_gps_reset\x18\x0b \x01(\x08\x12+\n\x0brx_waypoint\x18\x0c \x01(\x0b\x32\x16.meshtastic.MeshPacket\x12\x44\n\x19node_remote_hardware_pins\x18\r \x03(\x0b\x32!.meshtastic.NodeRemoteHardwarePin\x12.\n\x0cnode_db_lite\x18\x0e \x03(\x0b\x32\x18.meshtastic.NodeInfoLite\"\xcc\x01\n\x0cNodeInfoLite\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1e\n\x04user\x18\x02 \x01(\x0b\x32\x10.meshtastic.User\x12*\n\x08position\x18\x03 \x01(\x0b\x32\x18.meshtastic.PositionLite\x12\x0b\n\x03snr\x18\x04 \x01(\x02\x12\x12\n\nlast_heard\x18\x05 \x01(\x07\x12\x31\n\x0e\x64\x65vice_metrics\x18\x06 \x01(\x0b\x32\x19.meshtastic.DeviceMetrics\x12\x0f\n\x07\x63hannel\x18\x07 \x01(\r\"\x90\x01\n\x0cPositionLite\x12\x12\n\nlatitude_i\x18\x01 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x02 \x01(\x0f\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x0c\n\x04time\x18\x04 \x01(\x07\x12\x37\n\x0flocation_source\x18\x05 \x01(\x0e\x32\x1e.meshtastic.Position.LocSource\"E\n\x0b\x43hannelFile\x12%\n\x08\x63hannels\x18\x01 \x03(\x0b\x32\x13.meshtastic.Channel\x12\x0f\n\x07version\x18\x02 \x01(\r\"\x97\x02\n\x08OEMStore\x12\x16\n\x0eoem_icon_width\x18\x01 \x01(\r\x12\x17\n\x0foem_icon_height\x18\x02 \x01(\r\x12\x15\n\roem_icon_bits\x18\x03 \x01(\x0c\x12)\n\x08oem_font\x18\x04 \x01(\x0e\x32\x17.meshtastic.ScreenFonts\x12\x10\n\x08oem_text\x18\x05 \x01(\t\x12\x13\n\x0boem_aes_key\x18\x06 \x01(\x0c\x12\x31\n\x10oem_local_config\x18\x07 \x01(\x0b\x32\x17.meshtastic.LocalConfig\x12>\n\x17oem_local_module_config\x18\x08 \x01(\x0b\x32\x1d.meshtastic.LocalModuleConfig\"U\n\x15NodeRemoteHardwarePin\x12\x10\n\x08node_num\x18\x01 \x01(\r\x12*\n\x03pin\x18\x02 \x01(\x0b\x32\x1d.meshtastic.RemoteHardwarePin*>\n\x0bScreenFonts\x12\x0e\n\nFONT_SMALL\x10\x00\x12\x0f\n\x0b\x46ONT_MEDIUM\x10\x01\x12\x0e\n\nFONT_LARGE\x10\x02\x42_\n\x13\x63om.geeksville.meshB\nDeviceOnlyZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _SCREENFONTS = DESCRIPTOR.enum_types_by_name['ScreenFonts']
 ScreenFonts = enum_type_wrapper.EnumTypeWrapper(_SCREENFONTS)
@@ -29,34 +30,50 @@ FONT_LARGE = 2
 
 
 _DEVICESTATE = DESCRIPTOR.message_types_by_name['DeviceState']
+_NODEINFOLITE = DESCRIPTOR.message_types_by_name['NodeInfoLite']
+_POSITIONLITE = DESCRIPTOR.message_types_by_name['PositionLite']
 _CHANNELFILE = DESCRIPTOR.message_types_by_name['ChannelFile']
 _OEMSTORE = DESCRIPTOR.message_types_by_name['OEMStore']
 _NODEREMOTEHARDWAREPIN = DESCRIPTOR.message_types_by_name['NodeRemoteHardwarePin']
 DeviceState = _reflection.GeneratedProtocolMessageType('DeviceState', (_message.Message,), {
   'DESCRIPTOR' : _DEVICESTATE,
   '__module__' : 'meshtastic.deviceonly_pb2'
-  # @@protoc_insertion_point(class_scope:DeviceState)
+  # @@protoc_insertion_point(class_scope:meshtastic.DeviceState)
   })
 _sym_db.RegisterMessage(DeviceState)
+
+NodeInfoLite = _reflection.GeneratedProtocolMessageType('NodeInfoLite', (_message.Message,), {
+  'DESCRIPTOR' : _NODEINFOLITE,
+  '__module__' : 'meshtastic.deviceonly_pb2'
+  # @@protoc_insertion_point(class_scope:meshtastic.NodeInfoLite)
+  })
+_sym_db.RegisterMessage(NodeInfoLite)
+
+PositionLite = _reflection.GeneratedProtocolMessageType('PositionLite', (_message.Message,), {
+  'DESCRIPTOR' : _POSITIONLITE,
+  '__module__' : 'meshtastic.deviceonly_pb2'
+  # @@protoc_insertion_point(class_scope:meshtastic.PositionLite)
+  })
+_sym_db.RegisterMessage(PositionLite)
 
 ChannelFile = _reflection.GeneratedProtocolMessageType('ChannelFile', (_message.Message,), {
   'DESCRIPTOR' : _CHANNELFILE,
   '__module__' : 'meshtastic.deviceonly_pb2'
-  # @@protoc_insertion_point(class_scope:ChannelFile)
+  # @@protoc_insertion_point(class_scope:meshtastic.ChannelFile)
   })
 _sym_db.RegisterMessage(ChannelFile)
 
 OEMStore = _reflection.GeneratedProtocolMessageType('OEMStore', (_message.Message,), {
   'DESCRIPTOR' : _OEMSTORE,
   '__module__' : 'meshtastic.deviceonly_pb2'
-  # @@protoc_insertion_point(class_scope:OEMStore)
+  # @@protoc_insertion_point(class_scope:meshtastic.OEMStore)
   })
 _sym_db.RegisterMessage(OEMStore)
 
 NodeRemoteHardwarePin = _reflection.GeneratedProtocolMessageType('NodeRemoteHardwarePin', (_message.Message,), {
   'DESCRIPTOR' : _NODEREMOTEHARDWAREPIN,
   '__module__' : 'meshtastic.deviceonly_pb2'
-  # @@protoc_insertion_point(class_scope:NodeRemoteHardwarePin)
+  # @@protoc_insertion_point(class_scope:meshtastic.NodeRemoteHardwarePin)
   })
 _sym_db.RegisterMessage(NodeRemoteHardwarePin)
 
@@ -64,14 +81,20 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\nDeviceOnlyZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
-  _SCREENFONTS._serialized_start=845
-  _SCREENFONTS._serialized_end=907
-  _DEVICESTATE._serialized_start=141
-  _DEVICESTATE._serialized_end=458
-  _CHANNELFILE._serialized_start=460
-  _CHANNELFILE._serialized_end=518
-  _OEMSTORE._serialized_start=521
-  _OEMSTORE._serialized_end=767
-  _NODEREMOTEHARDWAREPIN._serialized_start=769
-  _NODEREMOTEHARDWAREPIN._serialized_end=843
+  _DEVICESTATE.fields_by_name['node_db']._options = None
+  _DEVICESTATE.fields_by_name['node_db']._serialized_options = b'\030\001'
+  _SCREENFONTS._serialized_start=1423
+  _SCREENFONTS._serialized_end=1485
+  _DEVICESTATE._serialized_start=181
+  _DEVICESTATE._serialized_end=627
+  _NODEINFOLITE._serialized_start=630
+  _NODEINFOLITE._serialized_end=834
+  _POSITIONLITE._serialized_start=837
+  _POSITIONLITE._serialized_end=981
+  _CHANNELFILE._serialized_start=983
+  _CHANNELFILE._serialized_end=1052
+  _OEMSTORE._serialized_start=1055
+  _OEMSTORE._serialized_end=1334
+  _NODEREMOTEHARDWAREPIN._serialized_start=1336
+  _NODEREMOTEHARDWAREPIN._serialized_end=1421
 # @@protoc_insertion_point(module_scope)
