@@ -188,6 +188,10 @@ class Node:
             p.set_module_config.remote_hardware.CopyFrom(
                 self.moduleConfig.remote_hardware
             )
+        elif config_name == "neighbor_info":
+            p.set_module_config.neighbor_info.CopyFrom(
+                self.moduleConfig.neighbor_info
+            )
         else:
             our_exit(f"Error: No valid config with name {config_name}")
 
