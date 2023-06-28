@@ -21,7 +21,7 @@ from meshtastic import telemetry_pb2 as meshtastic_dot_telemetry__pb2
 from meshtastic import xmodem_pb2 as meshtastic_dot_xmodem__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15meshtastic/mesh.proto\x12\nmeshtastic\x1a\x18meshtastic/channel.proto\x1a\x17meshtastic/config.proto\x1a\x1emeshtastic/module_config.proto\x1a\x19meshtastic/portnums.proto\x1a\x1ameshtastic/telemetry.proto\x1a\x17meshtastic/xmodem.proto\"\xcd\x05\n\x08Position\x12\x12\n\nlatitude_i\x18\x01 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x02 \x01(\x0f\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x0c\n\x04time\x18\x04 \x01(\x07\x12\x37\n\x0flocation_source\x18\x05 \x01(\x0e\x32\x1e.meshtastic.Position.LocSource\x12\x37\n\x0f\x61ltitude_source\x18\x06 \x01(\x0e\x32\x1e.meshtastic.Position.AltSource\x12\x11\n\ttimestamp\x18\x07 \x01(\x07\x12\x1f\n\x17timestamp_millis_adjust\x18\x08 \x01(\x05\x12\x14\n\x0c\x61ltitude_hae\x18\t \x01(\x11\x12#\n\x1b\x61ltitude_geoidal_separation\x18\n \x01(\x11\x12\x0c\n\x04PDOP\x18\x0b \x01(\r\x12\x0c\n\x04HDOP\x18\x0c \x01(\r\x12\x0c\n\x04VDOP\x18\r \x01(\r\x12\x14\n\x0cgps_accuracy\x18\x0e \x01(\r\x12\x14\n\x0cground_speed\x18\x0f \x01(\r\x12\x14\n\x0cground_track\x18\x10 \x01(\r\x12\x13\n\x0b\x66ix_quality\x18\x11 \x01(\r\x12\x10\n\x08\x66ix_type\x18\x12 \x01(\r\x12\x14\n\x0csats_in_view\x18\x13 \x01(\r\x12\x11\n\tsensor_id\x18\x14 \x01(\r\x12\x13\n\x0bnext_update\x18\x15 \x01(\r\x12\x12\n\nseq_number\x18\x16 \x01(\r\"N\n\tLocSource\x12\r\n\tLOC_UNSET\x10\x00\x12\x0e\n\nLOC_MANUAL\x10\x01\x12\x10\n\x0cLOC_INTERNAL\x10\x02\x12\x10\n\x0cLOC_EXTERNAL\x10\x03\"b\n\tAltSource\x12\r\n\tALT_UNSET\x10\x00\x12\x0e\n\nALT_MANUAL\x10\x01\x12\x10\n\x0c\x41LT_INTERNAL\x10\x02\x12\x10\n\x0c\x41LT_EXTERNAL\x10\x03\x12\x12\n\x0e\x41LT_BAROMETRIC\x10\x04\"\x90\x01\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x13\n\x07macaddr\x18\x04 \x01(\x0c\x42\x02\x18\x01\x12+\n\x08hw_model\x18\x05 \x01(\x0e\x32\x19.meshtastic.HardwareModel\x12\x13\n\x0bis_licensed\x18\x06 \x01(\x08\"\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x01 \x03(\x07\"\xfc\x02\n\x07Routing\x12\x33\n\rroute_request\x18\x01 \x01(\x0b\x32\x1a.meshtastic.RouteDiscoveryH\x00\x12\x31\n\x0broute_reply\x18\x02 \x01(\x0b\x32\x1a.meshtastic.RouteDiscoveryH\x00\x12\x31\n\x0c\x65rror_reason\x18\x03 \x01(\x0e\x32\x19.meshtastic.Routing.ErrorH\x00\"\xca\x01\n\x05\x45rror\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03\x12\x10\n\x0cNO_INTERFACE\x10\x04\x12\x12\n\x0eMAX_RETRANSMIT\x10\x05\x12\x0e\n\nNO_CHANNEL\x10\x06\x12\r\n\tTOO_LARGE\x10\x07\x12\x0f\n\x0bNO_RESPONSE\x10\x08\x12\x14\n\x10\x44UTY_CYCLE_LIMIT\x10\t\x12\x0f\n\x0b\x42\x41\x44_REQUEST\x10 \x12\x12\n\x0eNOT_AUTHORIZED\x10!B\t\n\x07variant\"\xa7\x01\n\x04\x44\x61ta\x12$\n\x07portnum\x18\x01 \x01(\x0e\x32\x13.meshtastic.PortNum\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\x12\x15\n\rwant_response\x18\x03 \x01(\x08\x12\x0c\n\x04\x64\x65st\x18\x04 \x01(\x07\x12\x0e\n\x06source\x18\x05 \x01(\x07\x12\x12\n\nrequest_id\x18\x06 \x01(\x07\x12\x10\n\x08reply_id\x18\x07 \x01(\x07\x12\r\n\x05\x65moji\x18\x08 \x01(\x07\"\x93\x01\n\x08Waypoint\x12\n\n\x02id\x18\x01 \x01(\r\x12\x12\n\nlatitude_i\x18\x02 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x03 \x01(\x0f\x12\x0e\n\x06\x65xpire\x18\x04 \x01(\r\x12\x11\n\tlocked_to\x18\x05 \x01(\r\x12\x0c\n\x04name\x18\x06 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x07 \x01(\t\x12\x0c\n\x04icon\x18\x08 \x01(\x07\"\xec\x03\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x07\x12\n\n\x02to\x18\x02 \x01(\x07\x12\x0f\n\x07\x63hannel\x18\x03 \x01(\r\x12#\n\x07\x64\x65\x63oded\x18\x04 \x01(\x0b\x32\x10.meshtastic.DataH\x00\x12\x13\n\tencrypted\x18\x05 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\x07\x12\x0f\n\x07rx_time\x18\x07 \x01(\x07\x12\x0e\n\x06rx_snr\x18\x08 \x01(\x02\x12\x11\n\thop_limit\x18\t \x01(\r\x12\x10\n\x08want_ack\x18\n \x01(\x08\x12\x31\n\x08priority\x18\x0b \x01(\x0e\x32\x1f.meshtastic.MeshPacket.Priority\x12\x0f\n\x07rx_rssi\x18\x0c \x01(\x05\x12/\n\x07\x64\x65layed\x18\r \x01(\x0e\x32\x1e.meshtastic.MeshPacket.Delayed\"[\n\x08Priority\x12\t\n\x05UNSET\x10\x00\x12\x07\n\x03MIN\x10\x01\x12\x0e\n\nBACKGROUND\x10\n\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10@\x12\x0c\n\x08RELIABLE\x10\x46\x12\x07\n\x03\x41\x43K\x10x\x12\x07\n\x03MAX\x10\x7f\"B\n\x07\x44\x65layed\x12\x0c\n\x08NO_DELAY\x10\x00\x12\x15\n\x11\x44\x45LAYED_BROADCAST\x10\x01\x12\x12\n\x0e\x44\x45LAYED_DIRECT\x10\x02\x42\x11\n\x0fpayload_variant\"\xc4\x01\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x1e\n\x04user\x18\x02 \x01(\x0b\x32\x10.meshtastic.User\x12&\n\x08position\x18\x03 \x01(\x0b\x32\x14.meshtastic.Position\x12\x0b\n\x03snr\x18\x04 \x01(\x02\x12\x12\n\nlast_heard\x18\x05 \x01(\x07\x12\x31\n\x0e\x64\x65vice_metrics\x18\x06 \x01(\x0b\x32\x19.meshtastic.DeviceMetrics\x12\x0f\n\x07\x63hannel\x18\x07 \x01(\r\"\xc5\x03\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x13\n\x07has_gps\x18\x02 \x01(\x08\x42\x02\x18\x01\x12\x18\n\x0cmax_channels\x18\x03 \x01(\rB\x02\x18\x01\x12\x1c\n\x10\x66irmware_version\x18\x04 \x01(\tB\x02\x18\x01\x12\x35\n\nerror_code\x18\x05 \x01(\x0e\x32\x1d.meshtastic.CriticalErrorCodeB\x02\x18\x01\x12\x19\n\rerror_address\x18\x06 \x01(\rB\x02\x18\x01\x12\x17\n\x0b\x65rror_count\x18\x07 \x01(\rB\x02\x18\x01\x12\x14\n\x0creboot_count\x18\x08 \x01(\r\x12\x13\n\x07\x62itrate\x18\t \x01(\x02\x42\x02\x18\x01\x12 \n\x14message_timeout_msec\x18\n \x01(\rB\x02\x18\x01\x12\x17\n\x0fmin_app_version\x18\x0b \x01(\r\x12\x19\n\rair_period_tx\x18\x0c \x03(\rB\x02\x18\x01\x12\x19\n\rair_period_rx\x18\r \x03(\rB\x02\x18\x01\x12\x14\n\x08has_wifi\x18\x0e \x01(\x08\x42\x02\x18\x01\x12\x1f\n\x13\x63hannel_utilization\x18\x0f \x01(\x02\x42\x02\x18\x01\x12\x17\n\x0b\x61ir_util_tx\x18\x10 \x01(\x02\x42\x02\x18\x01\"\xc0\x01\n\tLogRecord\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\x07\x12\x0e\n\x06source\x18\x03 \x01(\t\x12*\n\x05level\x18\x04 \x01(\x0e\x32\x1b.meshtastic.LogRecord.Level\"X\n\x05Level\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08\x43RITICAL\x10\x32\x12\t\n\x05\x45RROR\x10(\x12\x0b\n\x07WARNING\x10\x1e\x12\x08\n\x04INFO\x10\x14\x12\t\n\x05\x44\x45\x42UG\x10\n\x12\t\n\x05TRACE\x10\x05\"P\n\x0bQueueStatus\x12\x0b\n\x03res\x18\x01 \x01(\x05\x12\x0c\n\x04\x66ree\x18\x02 \x01(\r\x12\x0e\n\x06maxlen\x18\x03 \x01(\r\x12\x16\n\x0emesh_packet_id\x18\x04 \x01(\r\"\x95\x04\n\tFromRadio\x12\n\n\x02id\x18\x01 \x01(\r\x12(\n\x06packet\x18\x02 \x01(\x0b\x32\x16.meshtastic.MeshPacketH\x00\x12)\n\x07my_info\x18\x03 \x01(\x0b\x32\x16.meshtastic.MyNodeInfoH\x00\x12)\n\tnode_info\x18\x04 \x01(\x0b\x32\x14.meshtastic.NodeInfoH\x00\x12$\n\x06\x63onfig\x18\x05 \x01(\x0b\x32\x12.meshtastic.ConfigH\x00\x12+\n\nlog_record\x18\x06 \x01(\x0b\x32\x15.meshtastic.LogRecordH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x07 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\x08 \x01(\x08H\x00\x12\x30\n\x0cmoduleConfig\x18\t \x01(\x0b\x32\x18.meshtastic.ModuleConfigH\x00\x12&\n\x07\x63hannel\x18\n \x01(\x0b\x32\x13.meshtastic.ChannelH\x00\x12.\n\x0bqueueStatus\x18\x0b \x01(\x0b\x32\x17.meshtastic.QueueStatusH\x00\x12*\n\x0cxmodemPacket\x18\x0c \x01(\x0b\x32\x12.meshtastic.XModemH\x00\x12.\n\x08metadata\x18\r \x01(\x0b\x32\x1a.meshtastic.DeviceMetadataH\x00\x42\x11\n\x0fpayload_variant\"\xa2\x01\n\x07ToRadio\x12(\n\x06packet\x18\x01 \x01(\x0b\x32\x16.meshtastic.MeshPacketH\x00\x12\x18\n\x0ewant_config_id\x18\x03 \x01(\rH\x00\x12\x14\n\ndisconnect\x18\x04 \x01(\x08H\x00\x12*\n\x0cxmodemPacket\x18\x05 \x01(\x0b\x32\x12.meshtastic.XModemH\x00\x42\x11\n\x0fpayload_variant\"@\n\nCompressed\x12$\n\x07portnum\x18\x01 \x01(\x0e\x32\x13.meshtastic.PortNum\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"a\n\x0cNeighborInfo\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x17\n\x0flast_sent_by_id\x18\x02 \x01(\r\x12\'\n\tneighbors\x18\x03 \x03(\x0b\x32\x14.meshtastic.Neighbor\"(\n\x08Neighbor\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x0b\n\x03snr\x18\x02 \x01(\x02\"\xad\x02\n\x0e\x44\x65viceMetadata\x12\x18\n\x10\x66irmware_version\x18\x01 \x01(\t\x12\x1c\n\x14\x64\x65vice_state_version\x18\x02 \x01(\r\x12\x13\n\x0b\x63\x61nShutdown\x18\x03 \x01(\x08\x12\x0f\n\x07hasWifi\x18\x04 \x01(\x08\x12\x14\n\x0chasBluetooth\x18\x05 \x01(\x08\x12\x13\n\x0bhasEthernet\x18\x06 \x01(\x08\x12\x32\n\x04role\x18\x07 \x01(\x0e\x32$.meshtastic.Config.DeviceConfig.Role\x12\x16\n\x0eposition_flags\x18\x08 \x01(\r\x12+\n\x08hw_model\x18\t \x01(\x0e\x32\x19.meshtastic.HardwareModel\x12\x19\n\x11hasRemoteHardware\x18\n \x01(\x08*\xea\x04\n\rHardwareModel\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08TLORA_V2\x10\x01\x12\x0c\n\x08TLORA_V1\x10\x02\x12\x12\n\x0eTLORA_V2_1_1P6\x10\x03\x12\t\n\x05TBEAM\x10\x04\x12\x0f\n\x0bHELTEC_V2_0\x10\x05\x12\x0e\n\nTBEAM_V0P7\x10\x06\x12\n\n\x06T_ECHO\x10\x07\x12\x10\n\x0cTLORA_V1_1P3\x10\x08\x12\x0b\n\x07RAK4631\x10\t\x12\x0f\n\x0bHELTEC_V2_1\x10\n\x12\r\n\tHELTEC_V1\x10\x0b\x12\x18\n\x14LILYGO_TBEAM_S3_CORE\x10\x0c\x12\x0c\n\x08RAK11200\x10\r\x12\x0b\n\x07NANO_G1\x10\x0e\x12\x12\n\x0eTLORA_V2_1_1P8\x10\x0f\x12\x0f\n\x0bTLORA_T3_S3\x10\x10\x12\x14\n\x10NANO_G1_EXPLORER\x10\x11\x12\x0e\n\nSTATION_G1\x10\x19\x12\x0c\n\x08RAK11310\x10\x1a\x12\x11\n\rLORA_RELAY_V1\x10 \x12\x0e\n\nNRF52840DK\x10!\x12\x07\n\x03PPR\x10\"\x12\x0f\n\x0bGENIEBLOCKS\x10#\x12\x11\n\rNRF52_UNKNOWN\x10$\x12\r\n\tPORTDUINO\x10%\x12\x0f\n\x0b\x41NDROID_SIM\x10&\x12\n\n\x06\x44IY_V1\x10\'\x12\x15\n\x11NRF52840_PCA10059\x10(\x12\n\n\x06\x44R_DEV\x10)\x12\x0b\n\x07M5STACK\x10*\x12\r\n\tHELTEC_V3\x10+\x12\x11\n\rHELTEC_WSL_V3\x10,\x12\x13\n\x0f\x42\x45TAFPV_2400_TX\x10-\x12\x17\n\x13\x42\x45TAFPV_900_NANO_TX\x10.\x12\x0c\n\x08RPI_PICO\x10/\x12\x0f\n\nPRIVATE_HW\x10\xff\x01*,\n\tConstants\x12\x08\n\x04ZERO\x10\x00\x12\x15\n\x10\x44\x41TA_PAYLOAD_LEN\x10\xed\x01*\xee\x01\n\x11\x43riticalErrorCode\x12\x08\n\x04NONE\x10\x00\x12\x0f\n\x0bTX_WATCHDOG\x10\x01\x12\x14\n\x10SLEEP_ENTER_WAIT\x10\x02\x12\x0c\n\x08NO_RADIO\x10\x03\x12\x0f\n\x0bUNSPECIFIED\x10\x04\x12\x15\n\x11UBLOX_UNIT_FAILED\x10\x05\x12\r\n\tNO_AXP192\x10\x06\x12\x19\n\x15INVALID_RADIO_SETTING\x10\x07\x12\x13\n\x0fTRANSMIT_FAILED\x10\x08\x12\x0c\n\x08\x42ROWNOUT\x10\t\x12\x12\n\x0eSX1262_FAILURE\x10\n\x12\x11\n\rRADIO_SPI_BUG\x10\x0b\x42_\n\x13\x63om.geeksville.meshB\nMeshProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15meshtastic/mesh.proto\x1a\x18meshtastic/channel.proto\x1a\x17meshtastic/config.proto\x1a\x1emeshtastic/module_config.proto\x1a\x19meshtastic/portnums.proto\x1a\x1ameshtastic/telemetry.proto\x1a\x17meshtastic/xmodem.proto\"\xb7\x05\n\x08Position\x12\x12\n\nlatitude_i\x18\x01 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x02 \x01(\x0f\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x0c\n\x04time\x18\x04 \x01(\x07\x12,\n\x0flocation_source\x18\x05 \x01(\x0e\x32\x13.Position.LocSource\x12,\n\x0f\x61ltitude_source\x18\x06 \x01(\x0e\x32\x13.Position.AltSource\x12\x11\n\ttimestamp\x18\x07 \x01(\x07\x12\x1f\n\x17timestamp_millis_adjust\x18\x08 \x01(\x05\x12\x14\n\x0c\x61ltitude_hae\x18\t \x01(\x11\x12#\n\x1b\x61ltitude_geoidal_separation\x18\n \x01(\x11\x12\x0c\n\x04PDOP\x18\x0b \x01(\r\x12\x0c\n\x04HDOP\x18\x0c \x01(\r\x12\x0c\n\x04VDOP\x18\r \x01(\r\x12\x14\n\x0cgps_accuracy\x18\x0e \x01(\r\x12\x14\n\x0cground_speed\x18\x0f \x01(\r\x12\x14\n\x0cground_track\x18\x10 \x01(\r\x12\x13\n\x0b\x66ix_quality\x18\x11 \x01(\r\x12\x10\n\x08\x66ix_type\x18\x12 \x01(\r\x12\x14\n\x0csats_in_view\x18\x13 \x01(\r\x12\x11\n\tsensor_id\x18\x14 \x01(\r\x12\x13\n\x0bnext_update\x18\x15 \x01(\r\x12\x12\n\nseq_number\x18\x16 \x01(\r\"N\n\tLocSource\x12\r\n\tLOC_UNSET\x10\x00\x12\x0e\n\nLOC_MANUAL\x10\x01\x12\x10\n\x0cLOC_INTERNAL\x10\x02\x12\x10\n\x0cLOC_EXTERNAL\x10\x03\"b\n\tAltSource\x12\r\n\tALT_UNSET\x10\x00\x12\x0e\n\nALT_MANUAL\x10\x01\x12\x10\n\x0c\x41LT_INTERNAL\x10\x02\x12\x10\n\x0c\x41LT_EXTERNAL\x10\x03\x12\x12\n\x0e\x41LT_BAROMETRIC\x10\x04\"\x85\x01\n\x04User\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tlong_name\x18\x02 \x01(\t\x12\x12\n\nshort_name\x18\x03 \x01(\t\x12\x13\n\x07macaddr\x18\x04 \x01(\x0c\x42\x02\x18\x01\x12 \n\x08hw_model\x18\x05 \x01(\x0e\x32\x0e.HardwareModel\x12\x13\n\x0bis_licensed\x18\x06 \x01(\x08\"\x1f\n\x0eRouteDiscovery\x12\r\n\x05route\x18\x01 \x03(\x07\"\xdb\x02\n\x07Routing\x12(\n\rroute_request\x18\x01 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&\n\x0broute_reply\x18\x02 \x01(\x0b\x32\x0f.RouteDiscoveryH\x00\x12&\n\x0c\x65rror_reason\x18\x03 \x01(\x0e\x32\x0e.Routing.ErrorH\x00\"\xca\x01\n\x05\x45rror\x12\x08\n\x04NONE\x10\x00\x12\x0c\n\x08NO_ROUTE\x10\x01\x12\x0b\n\x07GOT_NAK\x10\x02\x12\x0b\n\x07TIMEOUT\x10\x03\x12\x10\n\x0cNO_INTERFACE\x10\x04\x12\x12\n\x0eMAX_RETRANSMIT\x10\x05\x12\x0e\n\nNO_CHANNEL\x10\x06\x12\r\n\tTOO_LARGE\x10\x07\x12\x0f\n\x0bNO_RESPONSE\x10\x08\x12\x14\n\x10\x44UTY_CYCLE_LIMIT\x10\t\x12\x0f\n\x0b\x42\x41\x44_REQUEST\x10 \x12\x12\n\x0eNOT_AUTHORIZED\x10!B\t\n\x07variant\"\x9c\x01\n\x04\x44\x61ta\x12\x19\n\x07portnum\x18\x01 \x01(\x0e\x32\x08.PortNum\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\x12\x15\n\rwant_response\x18\x03 \x01(\x08\x12\x0c\n\x04\x64\x65st\x18\x04 \x01(\x07\x12\x0e\n\x06source\x18\x05 \x01(\x07\x12\x12\n\nrequest_id\x18\x06 \x01(\x07\x12\x10\n\x08reply_id\x18\x07 \x01(\x07\x12\r\n\x05\x65moji\x18\x08 \x01(\x07\"\x93\x01\n\x08Waypoint\x12\n\n\x02id\x18\x01 \x01(\r\x12\x12\n\nlatitude_i\x18\x02 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x03 \x01(\x0f\x12\x0e\n\x06\x65xpire\x18\x04 \x01(\r\x12\x11\n\tlocked_to\x18\x05 \x01(\r\x12\x0c\n\x04name\x18\x06 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x07 \x01(\t\x12\x0c\n\x04icon\x18\x08 \x01(\x07\"\xcb\x03\n\nMeshPacket\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x07\x12\n\n\x02to\x18\x02 \x01(\x07\x12\x0f\n\x07\x63hannel\x18\x03 \x01(\r\x12\x18\n\x07\x64\x65\x63oded\x18\x04 \x01(\x0b\x32\x05.DataH\x00\x12\x13\n\tencrypted\x18\x05 \x01(\x0cH\x00\x12\n\n\x02id\x18\x06 \x01(\x07\x12\x0f\n\x07rx_time\x18\x07 \x01(\x07\x12\x0e\n\x06rx_snr\x18\x08 \x01(\x02\x12\x11\n\thop_limit\x18\t \x01(\r\x12\x10\n\x08want_ack\x18\n \x01(\x08\x12&\n\x08priority\x18\x0b \x01(\x0e\x32\x14.MeshPacket.Priority\x12\x0f\n\x07rx_rssi\x18\x0c \x01(\x05\x12$\n\x07\x64\x65layed\x18\r \x01(\x0e\x32\x13.MeshPacket.Delayed\"[\n\x08Priority\x12\t\n\x05UNSET\x10\x00\x12\x07\n\x03MIN\x10\x01\x12\x0e\n\nBACKGROUND\x10\n\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10@\x12\x0c\n\x08RELIABLE\x10\x46\x12\x07\n\x03\x41\x43K\x10x\x12\x07\n\x03MAX\x10\x7f\"B\n\x07\x44\x65layed\x12\x0c\n\x08NO_DELAY\x10\x00\x12\x15\n\x11\x44\x45LAYED_BROADCAST\x10\x01\x12\x12\n\x0e\x44\x45LAYED_DIRECT\x10\x02\x42\x11\n\x0fpayload_variant\"\xa3\x01\n\x08NodeInfo\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x13\n\x04user\x18\x02 \x01(\x0b\x32\x05.User\x12\x1b\n\x08position\x18\x03 \x01(\x0b\x32\t.Position\x12\x0b\n\x03snr\x18\x04 \x01(\x02\x12\x12\n\nlast_heard\x18\x05 \x01(\x07\x12&\n\x0e\x64\x65vice_metrics\x18\x06 \x01(\x0b\x32\x0e.DeviceMetrics\x12\x0f\n\x07\x63hannel\x18\x07 \x01(\r\"\xba\x03\n\nMyNodeInfo\x12\x13\n\x0bmy_node_num\x18\x01 \x01(\r\x12\x13\n\x07has_gps\x18\x02 \x01(\x08\x42\x02\x18\x01\x12\x18\n\x0cmax_channels\x18\x03 \x01(\rB\x02\x18\x01\x12\x1c\n\x10\x66irmware_version\x18\x04 \x01(\tB\x02\x18\x01\x12*\n\nerror_code\x18\x05 \x01(\x0e\x32\x12.CriticalErrorCodeB\x02\x18\x01\x12\x19\n\rerror_address\x18\x06 \x01(\rB\x02\x18\x01\x12\x17\n\x0b\x65rror_count\x18\x07 \x01(\rB\x02\x18\x01\x12\x14\n\x0creboot_count\x18\x08 \x01(\r\x12\x13\n\x07\x62itrate\x18\t \x01(\x02\x42\x02\x18\x01\x12 \n\x14message_timeout_msec\x18\n \x01(\rB\x02\x18\x01\x12\x17\n\x0fmin_app_version\x18\x0b \x01(\r\x12\x19\n\rair_period_tx\x18\x0c \x03(\rB\x02\x18\x01\x12\x19\n\rair_period_rx\x18\r \x03(\rB\x02\x18\x01\x12\x14\n\x08has_wifi\x18\x0e \x01(\x08\x42\x02\x18\x01\x12\x1f\n\x13\x63hannel_utilization\x18\x0f \x01(\x02\x42\x02\x18\x01\x12\x17\n\x0b\x61ir_util_tx\x18\x10 \x01(\x02\x42\x02\x18\x01\"\xb5\x01\n\tLogRecord\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\x07\x12\x0e\n\x06source\x18\x03 \x01(\t\x12\x1f\n\x05level\x18\x04 \x01(\x0e\x32\x10.LogRecord.Level\"X\n\x05Level\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08\x43RITICAL\x10\x32\x12\t\n\x05\x45RROR\x10(\x12\x0b\n\x07WARNING\x10\x1e\x12\x08\n\x04INFO\x10\x14\x12\t\n\x05\x44\x45\x42UG\x10\n\x12\t\n\x05TRACE\x10\x05\"P\n\x0bQueueStatus\x12\x0b\n\x03res\x18\x01 \x01(\x05\x12\x0c\n\x04\x66ree\x18\x02 \x01(\r\x12\x0e\n\x06maxlen\x18\x03 \x01(\r\x12\x16\n\x0emesh_packet_id\x18\x04 \x01(\r\"\xa7\x03\n\tFromRadio\x12\n\n\x02id\x18\x01 \x01(\r\x12\x1d\n\x06packet\x18\x02 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x1e\n\x07my_info\x18\x03 \x01(\x0b\x32\x0b.MyNodeInfoH\x00\x12\x1e\n\tnode_info\x18\x04 \x01(\x0b\x32\t.NodeInfoH\x00\x12\x19\n\x06\x63onfig\x18\x05 \x01(\x0b\x32\x07.ConfigH\x00\x12 \n\nlog_record\x18\x06 \x01(\x0b\x32\n.LogRecordH\x00\x12\x1c\n\x12\x63onfig_complete_id\x18\x07 \x01(\rH\x00\x12\x12\n\x08rebooted\x18\x08 \x01(\x08H\x00\x12%\n\x0cmoduleConfig\x18\t \x01(\x0b\x32\r.ModuleConfigH\x00\x12\x1b\n\x07\x63hannel\x18\n \x01(\x0b\x32\x08.ChannelH\x00\x12#\n\x0bqueueStatus\x18\x0b \x01(\x0b\x32\x0c.QueueStatusH\x00\x12\x1f\n\x0cxmodemPacket\x18\x0c \x01(\x0b\x32\x07.XModemH\x00\x12#\n\x08metadata\x18\r \x01(\x0b\x32\x0f.DeviceMetadataH\x00\x42\x11\n\x0fpayload_variant\"\x8c\x01\n\x07ToRadio\x12\x1d\n\x06packet\x18\x01 \x01(\x0b\x32\x0b.MeshPacketH\x00\x12\x18\n\x0ewant_config_id\x18\x03 \x01(\rH\x00\x12\x14\n\ndisconnect\x18\x04 \x01(\x08H\x00\x12\x1f\n\x0cxmodemPacket\x18\x05 \x01(\x0b\x32\x07.XModemH\x00\x42\x11\n\x0fpayload_variant\"5\n\nCompressed\x12\x19\n\x07portnum\x18\x01 \x01(\x0e\x32\x08.PortNum\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"V\n\x0cNeighborInfo\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x17\n\x0flast_sent_by_id\x18\x02 \x01(\r\x12\x1c\n\tneighbors\x18\x03 \x03(\x0b\x32\t.Neighbor\"(\n\x08Neighbor\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x0b\n\x03snr\x18\x02 \x01(\x02\"\x97\x02\n\x0e\x44\x65viceMetadata\x12\x18\n\x10\x66irmware_version\x18\x01 \x01(\t\x12\x1c\n\x14\x64\x65vice_state_version\x18\x02 \x01(\r\x12\x13\n\x0b\x63\x61nShutdown\x18\x03 \x01(\x08\x12\x0f\n\x07hasWifi\x18\x04 \x01(\x08\x12\x14\n\x0chasBluetooth\x18\x05 \x01(\x08\x12\x13\n\x0bhasEthernet\x18\x06 \x01(\x08\x12\'\n\x04role\x18\x07 \x01(\x0e\x32\x19.Config.DeviceConfig.Role\x12\x16\n\x0eposition_flags\x18\x08 \x01(\r\x12 \n\x08hw_model\x18\t \x01(\x0e\x32\x0e.HardwareModel\x12\x19\n\x11hasRemoteHardware\x18\n \x01(\x08*\xea\x04\n\rHardwareModel\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08TLORA_V2\x10\x01\x12\x0c\n\x08TLORA_V1\x10\x02\x12\x12\n\x0eTLORA_V2_1_1P6\x10\x03\x12\t\n\x05TBEAM\x10\x04\x12\x0f\n\x0bHELTEC_V2_0\x10\x05\x12\x0e\n\nTBEAM_V0P7\x10\x06\x12\n\n\x06T_ECHO\x10\x07\x12\x10\n\x0cTLORA_V1_1P3\x10\x08\x12\x0b\n\x07RAK4631\x10\t\x12\x0f\n\x0bHELTEC_V2_1\x10\n\x12\r\n\tHELTEC_V1\x10\x0b\x12\x18\n\x14LILYGO_TBEAM_S3_CORE\x10\x0c\x12\x0c\n\x08RAK11200\x10\r\x12\x0b\n\x07NANO_G1\x10\x0e\x12\x12\n\x0eTLORA_V2_1_1P8\x10\x0f\x12\x0f\n\x0bTLORA_T3_S3\x10\x10\x12\x14\n\x10NANO_G1_EXPLORER\x10\x11\x12\x0e\n\nSTATION_G1\x10\x19\x12\x0c\n\x08RAK11310\x10\x1a\x12\x11\n\rLORA_RELAY_V1\x10 \x12\x0e\n\nNRF52840DK\x10!\x12\x07\n\x03PPR\x10\"\x12\x0f\n\x0bGENIEBLOCKS\x10#\x12\x11\n\rNRF52_UNKNOWN\x10$\x12\r\n\tPORTDUINO\x10%\x12\x0f\n\x0b\x41NDROID_SIM\x10&\x12\n\n\x06\x44IY_V1\x10\'\x12\x15\n\x11NRF52840_PCA10059\x10(\x12\n\n\x06\x44R_DEV\x10)\x12\x0b\n\x07M5STACK\x10*\x12\r\n\tHELTEC_V3\x10+\x12\x11\n\rHELTEC_WSL_V3\x10,\x12\x13\n\x0f\x42\x45TAFPV_2400_TX\x10-\x12\x17\n\x13\x42\x45TAFPV_900_NANO_TX\x10.\x12\x0c\n\x08RPI_PICO\x10/\x12\x0f\n\nPRIVATE_HW\x10\xff\x01*,\n\tConstants\x12\x08\n\x04ZERO\x10\x00\x12\x15\n\x10\x44\x41TA_PAYLOAD_LEN\x10\xed\x01*\xee\x01\n\x11\x43riticalErrorCode\x12\x08\n\x04NONE\x10\x00\x12\x0f\n\x0bTX_WATCHDOG\x10\x01\x12\x14\n\x10SLEEP_ENTER_WAIT\x10\x02\x12\x0c\n\x08NO_RADIO\x10\x03\x12\x0f\n\x0bUNSPECIFIED\x10\x04\x12\x15\n\x11UBLOX_UNIT_FAILED\x10\x05\x12\r\n\tNO_AXP192\x10\x06\x12\x19\n\x15INVALID_RADIO_SETTING\x10\x07\x12\x13\n\x0fTRANSMIT_FAILED\x10\x08\x12\x0c\n\x08\x42ROWNOUT\x10\t\x12\x12\n\x0eSX1262_FAILURE\x10\n\x12\x11\n\rRADIO_SPI_BUG\x10\x0b\x42_\n\x13\x63om.geeksville.meshB\nMeshProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _HARDWAREMODEL = DESCRIPTOR.enum_types_by_name['HardwareModel']
 HardwareModel = enum_type_wrapper.EnumTypeWrapper(_HARDWAREMODEL)
@@ -108,119 +108,119 @@ _LOGRECORD_LEVEL = _LOGRECORD.enum_types_by_name['Level']
 Position = _reflection.GeneratedProtocolMessageType('Position', (_message.Message,), {
   'DESCRIPTOR' : _POSITION,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.Position)
+  # @@protoc_insertion_point(class_scope:Position)
   })
 _sym_db.RegisterMessage(Position)
 
 User = _reflection.GeneratedProtocolMessageType('User', (_message.Message,), {
   'DESCRIPTOR' : _USER,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.User)
+  # @@protoc_insertion_point(class_scope:User)
   })
 _sym_db.RegisterMessage(User)
 
 RouteDiscovery = _reflection.GeneratedProtocolMessageType('RouteDiscovery', (_message.Message,), {
   'DESCRIPTOR' : _ROUTEDISCOVERY,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.RouteDiscovery)
+  # @@protoc_insertion_point(class_scope:RouteDiscovery)
   })
 _sym_db.RegisterMessage(RouteDiscovery)
 
 Routing = _reflection.GeneratedProtocolMessageType('Routing', (_message.Message,), {
   'DESCRIPTOR' : _ROUTING,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.Routing)
+  # @@protoc_insertion_point(class_scope:Routing)
   })
 _sym_db.RegisterMessage(Routing)
 
 Data = _reflection.GeneratedProtocolMessageType('Data', (_message.Message,), {
   'DESCRIPTOR' : _DATA,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.Data)
+  # @@protoc_insertion_point(class_scope:Data)
   })
 _sym_db.RegisterMessage(Data)
 
 Waypoint = _reflection.GeneratedProtocolMessageType('Waypoint', (_message.Message,), {
   'DESCRIPTOR' : _WAYPOINT,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.Waypoint)
+  # @@protoc_insertion_point(class_scope:Waypoint)
   })
 _sym_db.RegisterMessage(Waypoint)
 
 MeshPacket = _reflection.GeneratedProtocolMessageType('MeshPacket', (_message.Message,), {
   'DESCRIPTOR' : _MESHPACKET,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.MeshPacket)
+  # @@protoc_insertion_point(class_scope:MeshPacket)
   })
 _sym_db.RegisterMessage(MeshPacket)
 
 NodeInfo = _reflection.GeneratedProtocolMessageType('NodeInfo', (_message.Message,), {
   'DESCRIPTOR' : _NODEINFO,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.NodeInfo)
+  # @@protoc_insertion_point(class_scope:NodeInfo)
   })
 _sym_db.RegisterMessage(NodeInfo)
 
 MyNodeInfo = _reflection.GeneratedProtocolMessageType('MyNodeInfo', (_message.Message,), {
   'DESCRIPTOR' : _MYNODEINFO,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.MyNodeInfo)
+  # @@protoc_insertion_point(class_scope:MyNodeInfo)
   })
 _sym_db.RegisterMessage(MyNodeInfo)
 
 LogRecord = _reflection.GeneratedProtocolMessageType('LogRecord', (_message.Message,), {
   'DESCRIPTOR' : _LOGRECORD,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.LogRecord)
+  # @@protoc_insertion_point(class_scope:LogRecord)
   })
 _sym_db.RegisterMessage(LogRecord)
 
 QueueStatus = _reflection.GeneratedProtocolMessageType('QueueStatus', (_message.Message,), {
   'DESCRIPTOR' : _QUEUESTATUS,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.QueueStatus)
+  # @@protoc_insertion_point(class_scope:QueueStatus)
   })
 _sym_db.RegisterMessage(QueueStatus)
 
 FromRadio = _reflection.GeneratedProtocolMessageType('FromRadio', (_message.Message,), {
   'DESCRIPTOR' : _FROMRADIO,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.FromRadio)
+  # @@protoc_insertion_point(class_scope:FromRadio)
   })
 _sym_db.RegisterMessage(FromRadio)
 
 ToRadio = _reflection.GeneratedProtocolMessageType('ToRadio', (_message.Message,), {
   'DESCRIPTOR' : _TORADIO,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.ToRadio)
+  # @@protoc_insertion_point(class_scope:ToRadio)
   })
 _sym_db.RegisterMessage(ToRadio)
 
 Compressed = _reflection.GeneratedProtocolMessageType('Compressed', (_message.Message,), {
   'DESCRIPTOR' : _COMPRESSED,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.Compressed)
+  # @@protoc_insertion_point(class_scope:Compressed)
   })
 _sym_db.RegisterMessage(Compressed)
 
 NeighborInfo = _reflection.GeneratedProtocolMessageType('NeighborInfo', (_message.Message,), {
   'DESCRIPTOR' : _NEIGHBORINFO,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.NeighborInfo)
+  # @@protoc_insertion_point(class_scope:NeighborInfo)
   })
 _sym_db.RegisterMessage(NeighborInfo)
 
 Neighbor = _reflection.GeneratedProtocolMessageType('Neighbor', (_message.Message,), {
   'DESCRIPTOR' : _NEIGHBOR,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.Neighbor)
+  # @@protoc_insertion_point(class_scope:Neighbor)
   })
 _sym_db.RegisterMessage(Neighbor)
 
 DeviceMetadata = _reflection.GeneratedProtocolMessageType('DeviceMetadata', (_message.Message,), {
   'DESCRIPTOR' : _DEVICEMETADATA,
   '__module__' : 'meshtastic.mesh_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.DeviceMetadata)
+  # @@protoc_insertion_point(class_scope:DeviceMetadata)
   })
 _sym_db.RegisterMessage(DeviceMetadata)
 
@@ -256,56 +256,56 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _MYNODEINFO.fields_by_name['channel_utilization']._serialized_options = b'\030\001'
   _MYNODEINFO.fields_by_name['air_util_tx']._options = None
   _MYNODEINFO.fields_by_name['air_util_tx']._serialized_options = b'\030\001'
-  _HARDWAREMODEL._serialized_start=4443
-  _HARDWAREMODEL._serialized_end=5061
-  _CONSTANTS._serialized_start=5063
-  _CONSTANTS._serialized_end=5107
-  _CRITICALERRORCODE._serialized_start=5110
-  _CRITICALERRORCODE._serialized_end=5348
-  _POSITION._serialized_start=201
-  _POSITION._serialized_end=918
-  _POSITION_LOCSOURCE._serialized_start=740
-  _POSITION_LOCSOURCE._serialized_end=818
-  _POSITION_ALTSOURCE._serialized_start=820
-  _POSITION_ALTSOURCE._serialized_end=918
-  _USER._serialized_start=921
-  _USER._serialized_end=1065
-  _ROUTEDISCOVERY._serialized_start=1067
-  _ROUTEDISCOVERY._serialized_end=1098
-  _ROUTING._serialized_start=1101
-  _ROUTING._serialized_end=1481
-  _ROUTING_ERROR._serialized_start=1268
-  _ROUTING_ERROR._serialized_end=1470
-  _DATA._serialized_start=1484
-  _DATA._serialized_end=1651
-  _WAYPOINT._serialized_start=1654
-  _WAYPOINT._serialized_end=1801
-  _MESHPACKET._serialized_start=1804
-  _MESHPACKET._serialized_end=2296
-  _MESHPACKET_PRIORITY._serialized_start=2118
-  _MESHPACKET_PRIORITY._serialized_end=2209
-  _MESHPACKET_DELAYED._serialized_start=2211
-  _MESHPACKET_DELAYED._serialized_end=2277
-  _NODEINFO._serialized_start=2299
-  _NODEINFO._serialized_end=2495
-  _MYNODEINFO._serialized_start=2498
-  _MYNODEINFO._serialized_end=2951
-  _LOGRECORD._serialized_start=2954
-  _LOGRECORD._serialized_end=3146
-  _LOGRECORD_LEVEL._serialized_start=3058
-  _LOGRECORD_LEVEL._serialized_end=3146
-  _QUEUESTATUS._serialized_start=3148
-  _QUEUESTATUS._serialized_end=3228
-  _FROMRADIO._serialized_start=3231
-  _FROMRADIO._serialized_end=3764
-  _TORADIO._serialized_start=3767
-  _TORADIO._serialized_end=3929
-  _COMPRESSED._serialized_start=3931
-  _COMPRESSED._serialized_end=3995
-  _NEIGHBORINFO._serialized_start=3997
-  _NEIGHBORINFO._serialized_end=4094
-  _NEIGHBOR._serialized_start=4096
-  _NEIGHBOR._serialized_end=4136
-  _DEVICEMETADATA._serialized_start=4139
-  _DEVICEMETADATA._serialized_end=4440
+  _HARDWAREMODEL._serialized_start=4090
+  _HARDWAREMODEL._serialized_end=4708
+  _CONSTANTS._serialized_start=4710
+  _CONSTANTS._serialized_end=4754
+  _CRITICALERRORCODE._serialized_start=4757
+  _CRITICALERRORCODE._serialized_end=4995
+  _POSITION._serialized_start=189
+  _POSITION._serialized_end=884
+  _POSITION_LOCSOURCE._serialized_start=706
+  _POSITION_LOCSOURCE._serialized_end=784
+  _POSITION_ALTSOURCE._serialized_start=786
+  _POSITION_ALTSOURCE._serialized_end=884
+  _USER._serialized_start=887
+  _USER._serialized_end=1020
+  _ROUTEDISCOVERY._serialized_start=1022
+  _ROUTEDISCOVERY._serialized_end=1053
+  _ROUTING._serialized_start=1056
+  _ROUTING._serialized_end=1403
+  _ROUTING_ERROR._serialized_start=1190
+  _ROUTING_ERROR._serialized_end=1392
+  _DATA._serialized_start=1406
+  _DATA._serialized_end=1562
+  _WAYPOINT._serialized_start=1565
+  _WAYPOINT._serialized_end=1712
+  _MESHPACKET._serialized_start=1715
+  _MESHPACKET._serialized_end=2174
+  _MESHPACKET_PRIORITY._serialized_start=1996
+  _MESHPACKET_PRIORITY._serialized_end=2087
+  _MESHPACKET_DELAYED._serialized_start=2089
+  _MESHPACKET_DELAYED._serialized_end=2155
+  _NODEINFO._serialized_start=2177
+  _NODEINFO._serialized_end=2340
+  _MYNODEINFO._serialized_start=2343
+  _MYNODEINFO._serialized_end=2785
+  _LOGRECORD._serialized_start=2788
+  _LOGRECORD._serialized_end=2969
+  _LOGRECORD_LEVEL._serialized_start=2881
+  _LOGRECORD_LEVEL._serialized_end=2969
+  _QUEUESTATUS._serialized_start=2971
+  _QUEUESTATUS._serialized_end=3051
+  _FROMRADIO._serialized_start=3054
+  _FROMRADIO._serialized_end=3477
+  _TORADIO._serialized_start=3480
+  _TORADIO._serialized_end=3620
+  _COMPRESSED._serialized_start=3622
+  _COMPRESSED._serialized_end=3675
+  _NEIGHBORINFO._serialized_start=3677
+  _NEIGHBORINFO._serialized_end=3763
+  _NEIGHBOR._serialized_start=3765
+  _NEIGHBOR._serialized_end=3805
+  _DEVICEMETADATA._serialized_start=3808
+  _DEVICEMETADATA._serialized_end=4087
 # @@protoc_insertion_point(module_scope)

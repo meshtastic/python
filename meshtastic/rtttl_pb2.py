@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16meshtastic/rtttl.proto\x12\nmeshtastic\"\x1f\n\x0bRTTTLConfig\x12\x10\n\x08ringtone\x18\x01 \x01(\tBf\n\x13\x63om.geeksville.meshB\x11RTTTLConfigProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16meshtastic/rtttl.proto\"\x1f\n\x0bRTTTLConfig\x12\x10\n\x08ringtone\x18\x01 \x01(\tBf\n\x13\x63om.geeksville.meshB\x11RTTTLConfigProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 
 
@@ -22,7 +22,7 @@ _RTTTLCONFIG = DESCRIPTOR.message_types_by_name['RTTTLConfig']
 RTTTLConfig = _reflection.GeneratedProtocolMessageType('RTTTLConfig', (_message.Message,), {
   'DESCRIPTOR' : _RTTTLCONFIG,
   '__module__' : 'meshtastic.rtttl_pb2'
-  # @@protoc_insertion_point(class_scope:meshtastic.RTTTLConfig)
+  # @@protoc_insertion_point(class_scope:RTTTLConfig)
   })
 _sym_db.RegisterMessage(RTTTLConfig)
 
@@ -30,6 +30,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\021RTTTLConfigProtosZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
-  _RTTTLCONFIG._serialized_start=38
-  _RTTTLCONFIG._serialized_end=69
+  _RTTTLCONFIG._serialized_start=26
+  _RTTTLCONFIG._serialized_end=57
 # @@protoc_insertion_point(module_scope)
