@@ -6,7 +6,7 @@ import subprocess
 import time
 
 # Do not like using hard coded sleeps, but it probably makes
-# sense to pause for the radio at apprpriate times
+# sense to pause for the radio at appropriate times
 import pytest
 
 from ..util import findPorts
