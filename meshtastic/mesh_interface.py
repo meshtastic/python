@@ -704,13 +704,6 @@ class MeshInterface:
                     "For more information see https://tinyurl.com/5bjsxu32"
                 )
 
-            # check for firmware too old
-            if self.myInfo.max_channels == 0:
-                failmsg = (
-                    "This version of meshtastic-python requires device firmware version 1.2 or later. "
-                    "For more information see https://tinyurl.com/5bjsxu32"
-                )
-
             if failmsg:
                 self.failure = Exception(failmsg)
                 self.isConnected.set()  # let waitConnected return this exception
