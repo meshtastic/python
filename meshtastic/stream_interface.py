@@ -60,7 +60,7 @@ class StreamInterface(MeshInterface):
 
         # Send some bogus UART characters to force a sleeping device to wake, and
         # if the reading statemachine was parsing a bad packet make sure
-        # we write enought start bytes to force it to resync (we don't use START1
+        # we write enough start bytes to force it to resync (we don't use START1
         # because we want to ensure it is looking for START1)
         p = bytearray([START2] * 32)
         self._writeBytes(p)

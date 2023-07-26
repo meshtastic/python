@@ -98,7 +98,7 @@ LOCAL_ADDR = "^local"
 """A special ID that means the local node"""
 
 BROADCAST_NUM = 0xFFFFFFFF
-"""if using 8 bit nodenums this will be shortend on the target"""
+"""if using 8 bit nodenums this will be shortened on the target"""
 
 BROADCAST_ADDR = "^all"
 """A special ID that means broadcast"""
@@ -172,7 +172,7 @@ def _onNodeInfoReceive(iface, asDict):
             # update node DB as needed
             n = iface._getOrCreateByNum(asDict["from"])
             n["user"] = p
-            # We now have a node ID, make sure it is uptodate in that table
+            # We now have a node ID, make sure it is up-to-date in that table
             iface.nodes[p["id"]] = n
             _receiveInfoUpdate(iface, asDict)
 

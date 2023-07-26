@@ -221,7 +221,7 @@ class Node:
         return ch
 
     def deleteChannel(self, channelIndex):
-        """Delete the specifed channelIndex and shift other channels up"""
+        """Delete the specified channelIndex and shift other channels up"""
         ch = self.channels[channelIndex]
         if ch.role not in (
             channel_pb2.Channel.Role.SECONDARY,
@@ -654,7 +654,7 @@ class Node:
             return
 
         c = p["decoded"]["admin"]["raw"].get_device_metadata_response
-        self._timeout.reset()  # We made foreward progress
+        self._timeout.reset()  # We made forward progress
         logging.debug(f"Received metadata {stripnl(c)}")
         print(f"\nfirmware_version: {c.firmware_version}")
         print(f"device_state_version: {c.device_state_version}")
@@ -681,7 +681,7 @@ class Node:
 
         c = p["decoded"]["admin"]["raw"].get_channel_response
         self.partialChannels.append(c)
-        self._timeout.reset()  # We made foreward progress
+        self._timeout.reset()  # We made forward progress
         logging.debug(f"Received channel {stripnl(c)}")
         index = c.index
 

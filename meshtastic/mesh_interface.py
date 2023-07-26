@@ -130,7 +130,7 @@ class MeshInterface:
         """Show table summary of nodes in mesh"""
 
         def formatFloat(value, precision=2, unit=""):
-            """Format a float value with precsion."""
+            """Format a float value with precision."""
             return f"{value:.{precision}f}{unit}" if value else None
 
         def getLH(ts):
@@ -843,7 +843,7 @@ class MeshInterface:
         if nodeNum in self.nodesByNum:
             return self.nodesByNum[nodeNum]
         else:
-            n = {"num": nodeNum}  # Create a minimial node db entry
+            n = {"num": nodeNum}  # Create a minimal node db entry
             self.nodesByNum[nodeNum] = n
             return n
 
