@@ -50,7 +50,7 @@ class Node:
                 # print('c.settings.psk:', c.settings.psk)
                 cStr = stripnl(MessageToJson(c.settings))
                 # don't show disabled channels
-                if channel_pb2.Channel.Role.Name(c.role)!="DISABLED":
+                if channel_pb2.Channel.Role.Name(c.role) != "DISABLED":
                     print(
                         f"  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}"
                     )
@@ -189,9 +189,7 @@ class Node:
                 self.moduleConfig.remote_hardware
             )
         elif config_name == "neighbor_info":
-            p.set_module_config.neighbor_info.CopyFrom(
-                self.moduleConfig.neighbor_info
-            )
+            p.set_module_config.neighbor_info.CopyFrom(self.moduleConfig.neighbor_info)
         else:
             our_exit(f"Error: No valid config with name {config_name}")
 
@@ -237,7 +235,7 @@ class Node:
         self._fixupChannels()  # expand back to 8 channels
 
         index = channelIndex
-        while index < self.iface.myInfo.max_channels:
+        while index < 8:
             self.writeChannel(index, adminIndex=adminIndex)
             index += 1
 
@@ -629,7 +627,7 @@ class Node:
 
         # Add extra disabled channels as needed
         index = len(self.channels)
-        while index < self.iface.myInfo.max_channels:
+        while index < 8:
             ch = channel_pb2.Channel()
             ch.role = channel_pb2.Channel.Role.DISABLED
             ch.index = index
@@ -694,7 +692,7 @@ class Node:
             c.role == channel_pb2.Channel.Role.DISABLED
         ) and fastChannelDownload
 
-        if quitEarly or index >= self.iface.myInfo.max_channels - 1:
+        if quitEarly or index >= 8 - 1:
             logging.debug("Finished downloading channels")
 
             self.channels = self.partialChannels

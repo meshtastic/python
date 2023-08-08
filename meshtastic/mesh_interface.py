@@ -2,12 +2,12 @@
 """
 
 import collections
+import json
 import logging
 import random
 import sys
 import threading
 import time
-import json
 from datetime import datetime
 from typing import AnyStr
 
@@ -61,6 +61,7 @@ class MeshInterface:
         self.noProto = noProto
         self.localNode = meshtastic.node.Node(self, -1)  # We fixup nodenum later
         self.myInfo = None  # We don't have device info yet
+        self.metadata = None  # We don't have device metadata yet
         self.responseHandlers = {}  # A map from request ID to the handler
         self.failure = (
             None  # If we've encountered a fatal exception it will be kept here
@@ -102,6 +103,9 @@ class MeshInterface:
         myinfo = ""
         if self.myInfo:
             myinfo = f"\nMy info: {stripnl(MessageToJson(self.myInfo))}"
+        metadata = ""
+        if self.metadata:
+            metadata = f"\nMetadata: {stripnl(MessageToJson(self.metadata))}"
         mesh = "\n\nNodes in mesh: "
         nodes = {}
         if self.nodes:
@@ -119,10 +123,10 @@ class MeshInterface:
                     n2["user"]["macaddr"] = addr
 
                 # use id as dictionary key for correct json format in list of nodes
-                nodeid = n2['user']['id']
-                n2['user'].pop('id')
+                nodeid = n2["user"]["id"]
+                n2["user"].pop("id")
                 nodes[nodeid] = n2
-        infos = owner + myinfo + mesh + json.dumps(nodes)
+        infos = owner + myinfo + metadata + mesh + json.dumps(nodes)
         print(infos)
         return infos
 
@@ -703,6 +707,10 @@ class MeshInterface:
                 self.isConnected.set()  # let waitConnected return this exception
                 self.close()
 
+        elif fromRadio.HasField("metadata"):
+            self.metadata = fromRadio.metadata
+            logging.debug(f"Received device metadata: {stripnl(fromRadio.metadata)}")
+
         elif fromRadio.HasField("node_info"):
             node = asDict["nodeInfo"]
             try:
@@ -788,7 +796,9 @@ class MeshInterface:
                     fromRadio.moduleConfig.remote_hardware
                 )
             elif fromRadio.moduleConfig.HasField("neighbor_info"):
-                self.localNode.moduleConfig.neighbor_info.CopyFrom(fromRadio.moduleConfig.neighbor_info)
+                self.localNode.moduleConfig.neighbor_info.CopyFrom(
+                    fromRadio.moduleConfig.neighbor_info
+                )
 
         else:
             logging.debug("Unexpected FromRadio payload")
