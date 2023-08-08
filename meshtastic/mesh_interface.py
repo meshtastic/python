@@ -787,6 +787,8 @@ class MeshInterface:
                 self.localNode.moduleConfig.remote_hardware.CopyFrom(
                     fromRadio.moduleConfig.remote_hardware
                 )
+            elif fromRadio.moduleConfig.HasField("neighbor_info"):
+                self.localNode.moduleConfig.neighbor_info.CopyFrom(fromRadio.moduleConfig.neighbor_info)
 
         else:
             logging.debug("Unexpected FromRadio payload")
