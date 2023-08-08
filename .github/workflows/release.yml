@@ -14,9 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Bump version
-        run: >-
-          bin/bump_version.py
+      #- name: Bump version
+      #  run: >-
+      #    bin/bump_version.py
 
       - name: Commit updated version.py
         id: commit_updated
