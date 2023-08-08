@@ -697,12 +697,6 @@ class MeshInterface:
             logging.debug(f"Received myinfo: {stripnl(fromRadio.my_info)}")
 
             failmsg = None
-            # Check for app too old
-            if self.myInfo.min_app_version > OUR_APP_VERSION:
-                failmsg = (
-                    "This device needs a newer python client, run 'pip install --upgrade meshtastic'."
-                    "For more information see https://tinyurl.com/5bjsxu32"
-                )
 
             if failmsg:
                 self.failure = Exception(failmsg)
