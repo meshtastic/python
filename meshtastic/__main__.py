@@ -779,6 +779,7 @@ def onConnected(interface):
     except Exception as ex:
         print(f"Aborting due to: {ex}")
         interface.close()  # close the connection now, so that our app exits
+        sys.exit(1)
 
 
 def printConfig(config):
