@@ -447,7 +447,8 @@ class MeshInterface:
             wantResponse=wantResponse,
             onResponse=onResponse,
         )
-        self.waitForTelemetry()
+        if wantResponse:
+            self.waitForTelemetry()
 
     def onResponseTelemetry(self, p):
         """on response for telemetry"""
