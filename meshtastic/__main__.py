@@ -1197,8 +1197,8 @@ def initParser():
 
     parser.add_argument(
         "--request-telemetry", 
-        help="Request telemetry from a node."
-        "You need pass the destination ID as argument with '--dest'."
+        help="Request telemetry from a node. "
+        "You need pass the destination ID as argument with '--dest'. "
         "For repeaters, the nodeNum is required.",
         action="store_true", 
     )
