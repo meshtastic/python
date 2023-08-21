@@ -18,7 +18,7 @@ from pubsub import pub
 from tabulate import tabulate
 
 import meshtastic.node
-from meshtastic import mesh_pb2, portnums_pb2
+from meshtastic import mesh_pb2, portnums_pb2, telemetry_pb2
 from meshtastic.__init__ import (
     BROADCAST_ADDR,
     BROADCAST_NUM,
@@ -409,6 +409,69 @@ class MeshInterface:
 
         self._acknowledgment.receivedTraceRoute = True
 
+    def sendTelemetry(self, destinationId=BROADCAST_ADDR, wantResponse=False):
+        """Send telemetry and optionally ask for a response"""
+        r = telemetry_pb2.Telemetry()
+
+        node = next(n for n in self.nodes.values() if n["num"] == self.localNode.nodeNum)
+        if node is not None:
+            metrics = node.get("deviceMetrics")
+            if metrics:
+                batteryLevel = metrics.get("batteryLevel")
+                if batteryLevel is not None:
+                    r.device_metrics.battery_level = batteryLevel
+                voltage = metrics.get("voltage")
+                if voltage is not None:
+                    r.device_metrics.voltage = voltage
+                channel_utilization = metrics.get("channelUtilization")
+                if channel_utilization is not None:
+                    r.device_metrics.channel_utilization = channel_utilization
+                air_util_tx = metrics.get("airUtilTx")
+                if air_util_tx is not None:
+                    r.device_metrics.air_util_tx = air_util_tx
+
+        if wantResponse:
+            onResponse = self.onResponseTelemetry
+        else:
+            onResponse = None
+
+        if destinationId.startswith("!"):
+            destinationId = int(destinationId[1:], 16)
+        else:
+            destinationId = int(destinationId)
+        
+        self.sendData(
+            r,
+            destinationId=destinationId,
+            portNum=portnums_pb2.PortNum.TELEMETRY_APP,
+            wantResponse=wantResponse,
+            onResponse=onResponse,
+        )
+        self.waitForTelemetry()
+
+    def onResponseTelemetry(self, p):
+        """on response for telemetry"""
+        if p["decoded"]["portnum"] == 'TELEMETRY_APP':
+            self._acknowledgment.receivedTelemetry = True
+            telemetry = telemetry_pb2.Telemetry()
+            telemetry.ParseFromString(p["decoded"]["payload"])
+
+            print("Telemetry received:")
+            if telemetry.device_metrics.battery_level is not None:
+                print(f"Battery level: {telemetry.device_metrics.battery_level:.2f}%")
+            if telemetry.device_metrics.voltage is not None:
+                print(f"Voltage: {telemetry.device_metrics.voltage:.2f} V")
+            if telemetry.device_metrics.channel_utilization is not None:
+                print(
+                    f"Total channel utilization: {telemetry.device_metrics.channel_utilization:.2f}%"
+                )
+            if telemetry.device_metrics.air_util_tx is not None:
+                print(f"Transmit air utilization: {telemetry.device_metrics.air_util_tx:.2f}%")
+            
+        elif p["decoded"]["portnum"] == 'ROUTING_APP':
+            if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
+                our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
+
     def _addResponseHandler(self, requestId, callback):
         self.responseHandlers[requestId] = ResponseHandler(callback)
 
@@ -491,6 +554,12 @@ class MeshInterface:
         success = self._timeout.waitForTraceRoute(waitFactor, self._acknowledgment)
         if not success:
             raise Exception("Timed out waiting for traceroute")
+        
+    def waitForTelemetry(self):
+        """Wait for telemetry"""
+        success = self._timeout.waitForTelemetry(self._acknowledgment)
+        if not success:
+            raise Exception("Timed out waiting for telemetry")
 
     def getMyNodeInfo(self):
         """Get info about my node."""

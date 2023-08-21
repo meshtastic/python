@@ -412,6 +412,13 @@ def onConnected(interface):
             print(f"Sending traceroute request to {dest} (this could take a while)")
             interface.sendTraceRoute(dest, hopLimit)
 
+        if args.request_telemetry:
+            if args.dest == BROADCAST_ADDR:
+                meshtastic.util.our_exit("Warning: Must use a destination node ID.")
+            else:
+                print(f"Sending telemetry request to {args.dest} (this could take a while)")
+                interface.sendTelemetry(destinationId=args.dest, wantResponse=True)
+
         if args.gpio_wrb or args.gpio_rd or args.gpio_watch:
             if args.dest == BROADCAST_ADDR:
                 meshtastic.util.our_exit("Warning: Must use a destination node ID.")
@@ -1186,6 +1193,14 @@ def initParser():
         "You need pass the destination ID as argument, like "
         "this: '--traceroute !ba4bf9d0' "
         "Only nodes that have the encryption key can be traced.",
+    )
+
+    parser.add_argument(
+        "--request-telemetry", 
+        help="Request telemetry from a node."
+        "You need pass the destination ID as argument with '--dest'."
+        "For repeaters, the nodeNum is required.",
+        action="store_true", 
     )
 
     parser.add_argument(
