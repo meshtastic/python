@@ -869,6 +869,10 @@ class MeshInterface:
                 self.localNode.moduleConfig.neighbor_info.CopyFrom(
                     fromRadio.moduleConfig.neighbor_info
                 )
+            elif fromRadio.moduleConfig.HasField("detection_sensor"):
+                self.localNode.moduleConfig.detection_sensor.CopyFrom(
+                    fromRadio.moduleConfig.detection_sensor
+                )
 
         else:
             logging.debug("Unexpected FromRadio payload")
