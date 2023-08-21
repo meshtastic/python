@@ -192,7 +192,16 @@ class Timeout:
                 return True
             time.sleep(self.sleepInterval)
         return False
-
+    
+    def waitForTelemetry(self, acknowledgment):
+        """Block until telemetry response is received. Returns True if telemetry response has been received."""
+        self.reset()
+        while time.time() < self.expireTime:
+            if getattr(acknowledgment, "receivedTelemetry", None):
+                acknowledgment.reset()
+                return True
+            time.sleep(self.sleepInterval)
+        return False
 
 class Acknowledgment:
     "A class that records which type of acknowledgment was just received, if any."
@@ -203,6 +212,7 @@ class Acknowledgment:
         self.receivedNak = False
         self.receivedImplAck = False
         self.receivedTraceRoute = False
+        self.receivedTelemetry = False
 
     def reset(self):
         """reset"""
@@ -210,6 +220,7 @@ class Acknowledgment:
         self.receivedNak = False
         self.receivedImplAck = False
         self.receivedTraceRoute = False
+        self.receivedTelemetry = False
 
 
 class DeferredExecution:
