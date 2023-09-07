@@ -1,33 +1,40 @@
 version: 0.1
 cli:
-  version: 1.7.0
+  version: 1.15.0
 plugins:
   sources:
     - id: trunk
-      ref: v0.0.14
+      ref: v1.2.2
       uri: https://github.com/trunk-io/plugins
 lint:
+  disabled:
+    - bandit
   ignore:
     - linters: [ALL]
       paths:
         # Ignore generated files
         - meshtastic/*_pb2.py
   enabled:
-    - actionlint@1.6.23
-    - black@23.3.0
+    - actionlint@1.6.25
+    - black@23.7.0
+    - checkov@2.4.9
     - git-diff-check
-    - gitleaks@8.16.2
+    - gitleaks@8.18.0
     - isort@5.12.0
-    - markdownlint@0.33.0
-    - prettier@2.8.7
-    - pylint@2.17.1
-    - ruff@0.0.260
+    - markdownlint@0.36.0
+    - osv-scanner@1.3.6
+    - prettier@3.0.3
+    - pylint@2.17.5
+    - ruff@0.0.287
     - shellcheck@0.9.0
-    - shfmt@3.5.0
-    - yamllint@1.30.0
+    - shfmt@3.6.0
+    - taplo@0.8.1
+    - trivy@0.44.1
+    - trufflehog@3.54.3
+    - yamllint@1.32.0
 runtimes:
   enabled:
-    - go@1.19.5
+    - go@1.21.0
     - node@18.12.1
     - python@3.10.8
 actions:
