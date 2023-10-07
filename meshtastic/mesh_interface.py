@@ -203,6 +203,7 @@ class MeshInterface:
                 row.update(
                     {
                         "SNR": formatFloat(node.get("snr"), 2, " dB"),
+                        "Channel": node.get("channel"),
                         "LastHeard": getLH(node.get("lastHeard")),
                         "Since": getTimeAgo(node.get("lastHeard")),
                     }
