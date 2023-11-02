@@ -874,6 +874,10 @@ class MeshInterface:
                 self.localNode.moduleConfig.detection_sensor.CopyFrom(
                     fromRadio.moduleConfig.detection_sensor
                 )
+            elif fromRadio.moduleConfig.HasField("ambient_lighting"):
+                self.localNode.moduleConfig.ambient_lighting.CopyFrom(
+                    fromRadio.moduleConfig.ambient_lighting
+                )
 
         else:
             logging.debug("Unexpected FromRadio payload")

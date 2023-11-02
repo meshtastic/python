@@ -192,6 +192,8 @@ class Node:
             p.set_module_config.neighbor_info.CopyFrom(self.moduleConfig.neighbor_info)
         elif config_name == "detection_sensor":
             p.set_module_config.detection_sensor.CopyFrom(self.moduleConfig.detection_sensor)
+        elif config_name == "ambient_lighting":
+            p.set_module_config.ambient_lighting.CopyFrom(self.moduleConfig.ambient_lighting)
         else:
             our_exit(f"Error: No valid config with name {config_name}")
 
