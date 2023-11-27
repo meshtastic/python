@@ -9,7 +9,11 @@ import platform
 import sys
 import time
 
-import pkg_resources
+try:
+    from importlib.metadata import version
+except ImportError:
+    import pkg_resources
+
 import pyqrcode
 import yaml
 from google.protobuf.json_format import MessageToDict
@@ -1328,7 +1332,10 @@ def initParser():
 
     parser.set_defaults(deprecated=None)
 
-    the_version = pkg_resources.get_distribution("meshtastic").version
+    if "importlib.metadata" in sys.modules:
+        the_version = version("meshtastic")
+    else:
+        the_version = pkg_resources.get_distribution("meshtastic").version
     parser.add_argument("--version", action="version", version=f"{the_version}")
 
     parser.add_argument(

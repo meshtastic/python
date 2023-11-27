@@ -12,10 +12,15 @@ import time
 import traceback
 from queue import Queue
 
-import pkg_resources
+try:
+    from importlib.metadata import version
+except ImportError:
+    import pkg_resources
+
 import requests
 import serial
 import serial.tools.list_ports
+import packaging.version as packaging_version
 
 from meshtastic.supported_device import supported_devices
 
@@ -269,7 +274,12 @@ def support_info():
     print(f"   Machine: {platform.uname().machine}")
     print(f"   Encoding (stdin): {sys.stdin.encoding}")
     print(f"   Encoding (stdout): {sys.stdout.encoding}")
-    the_version = pkg_resources.get_distribution("meshtastic").version
+
+    if "importlib.metadata" in sys.modules:
+        the_version = version("meshtastic")
+    else:
+        the_version = pkg_resources.get_distribution("meshtastic").version
+
     pypi_version = check_if_newer_version()
     if pypi_version:
         print(
@@ -599,9 +609,19 @@ def check_if_newer_version():
         pypi_version = data["info"]["version"]
     except Exception:
         pass
-    act_version = pkg_resources.get_distribution("meshtastic").version
-    if pypi_version and pkg_resources.parse_version(
-        pypi_version
-    ) <= pkg_resources.parse_version(act_version):
+
+    if "importlib.metadata" in sys.modules:
+        act_version = version("meshtastic")
+    else:
+        act_version = pkg_resources.get_distribution("meshtastic").version
+
+    try:
+        act_parsed_version = packaging_version.parse(act_version)
+        pypi_parsed_version = packaging_version.parse(pypi_version)
+    except packaging_version.InvalidVersion:
+        return pypi_version
+
+    if pypi_parsed_version <= act_parsed_version:
         return None
+
     return pypi_version

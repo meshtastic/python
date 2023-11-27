@@ -44,6 +44,7 @@ setup(
         "timeago>=1.0.15",
         "pyyaml",
         "pygatt>=4.0.5 ; platform_system=='Linux'",
+        "packaging>=20.9",
     ],
     extras_require={"tunnel": ["pytap2>=2.0.0"]},
     python_requires=">=3.7",
