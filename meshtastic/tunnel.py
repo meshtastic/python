@@ -49,6 +49,12 @@ class Tunnel:
         if not iface:
             raise Exception("Tunnel() must have a interface")
 
+        if not subnet:
+            raise Exception("Tunnel() must have a subnet")
+
+        if not netmask:
+            raise Exception("Tunnel() must have a netmask")
+
         self.iface = iface
         self.subnetPrefix = subnet
 
