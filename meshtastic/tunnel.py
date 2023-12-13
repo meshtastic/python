@@ -63,6 +63,8 @@ class Tunnel:
         self.udpBlacklist = {
             1900,  # SSDP
             5353,  # multicast DNS
+            9001,  # Yggdrasil multicast discovery
+            64512, # cjdns beacon
         }
 
         """A list of TCP services to block"""
