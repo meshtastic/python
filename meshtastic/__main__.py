@@ -771,7 +771,10 @@ def onConnected(interface):
             if interface.noProto:
                 logging.warning(f"Not starting Tunnel - disabled by noProto")
             else:
-                tunnel.Tunnel(interface, subnet=args.tunnel_net)
+                if args.tunnel_net:
+                    tunnel.Tunnel(interface, subnet=args.tunnel_net)
+                else:
+                    tunnel.Tunnel(interface)
 
         if args.ack or (args.dest != BROADCAST_ADDR and waitForAckNak):
             print(
