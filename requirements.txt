@@ -18,4 +18,4 @@ pyyaml
 pytap2
 pdoc3
 pypubsub
-pygatt; platform_system == "Linux"
+bleak

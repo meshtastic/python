@@ -942,7 +942,17 @@ def common():
                 our_globals.set_logfile(logfile)
 
             subscribe()
-            if args.ble:
+            if args.ble_scan:
+                logging.debug("BLE scan starting")
+                client = BLEInterface(None, debugOut=logfile, noProto=args.noproto)
+                try:
+                    for x in client.scan():
+                        print(f"Found: name='{x[1].local_name}' address='{x[0].address}'")
+                finally:
+                    client.close()
+                meshtastic.util.our_exit("BLE scan finished", 0)
+                return
+            elif args.ble:
                 client = BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto)
             elif args.host:
                 client = meshtastic.tcp_interface.TCPInterface(
@@ -1302,8 +1312,13 @@ def initParser():
 
     parser.add_argument(
         "--ble",
-        help="BLE mac address to connect to (BLE is not yet supported for this tool)",
+        help="BLE device address or name to connect to",
         default=None,
+    )
+    parser.add_argument(
+        "--ble-scan",
+        help="Scan for Meshtastic BLE devices",
+        action="store_true",
     )
 
     parser.add_argument(
