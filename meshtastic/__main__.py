@@ -9,11 +9,6 @@ import platform
 import sys
 import time
 
-try:
-    from importlib.metadata import version
-except ImportError:
-    import pkg_resources
-
 import pyqrcode
 import yaml
 from google.protobuf.json_format import MessageToDict
@@ -26,6 +21,11 @@ from meshtastic.__init__ import BROADCAST_ADDR
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.globals import Globals
 
+pkg_resources = None
+try:
+    from importlib.metadata import version
+except:
+    import pkg_resources
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -1204,7 +1204,7 @@ def initParser():
         help="Request telemetry from a node. "
         "You need pass the destination ID as argument with '--dest'. "
         "For repeaters, the nodeNum is required.",
-        action="store_true", 
+        action="store_true",
     )
 
     parser.add_argument(

@@ -12,17 +12,18 @@ import time
 import traceback
 from queue import Queue
 
-try:
-    from importlib.metadata import version
-except ImportError:
-    import pkg_resources
-
 import requests
 import serial
 import serial.tools.list_ports
 import packaging.version as packaging_version
 
 from meshtastic.supported_device import supported_devices
+
+pkg_resources = None
+try:
+    from importlib.metadata import version
+except ImportError:
+    import pkg_resources
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
@@ -197,7 +198,7 @@ class Timeout:
                 return True
             time.sleep(self.sleepInterval)
         return False
-    
+
     def waitForTelemetry(self, acknowledgment):
         """Block until telemetry response is received. Returns True if telemetry response has been received."""
         self.reset()
