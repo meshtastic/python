@@ -47,7 +47,7 @@ class Tunnel:
         """
 
         if not iface:
-            raise Exception("Tunnel() must have a interface")
+            raise ValueError("Tunnel() must have a interface")
 
         if not subnet:
             raise Exception("Tunnel() must have a subnet")
@@ -59,7 +59,7 @@ class Tunnel:
         self.subnetPrefix = subnet
 
         if platform.system() != "Linux":
-            raise Exception("Tunnel() can only be run instantiated on a Linux system")
+            raise OSError("Tunnel() can only be run instantiated on a Linux system")
 
         our_globals = Globals.getInstance()
         our_globals.set_tunnelInstance(self)
@@ -135,9 +135,8 @@ class Tunnel:
             logging.debug(f"Received mesh tunnel message type={type(p)} len={len(p)}")
             # we don't really need to check for filtering here (sender should have checked),
             # but this provides useful debug printing on types of packets received
-            if not self.iface.noProto:
-                if not self._shouldFilterPacket(p):
-                    self.tun.write(p)
+            if not (self.iface.noProto and self._shouldFilterPacket(p)):
+                self.tun.write(p)
 
     def _shouldFilterPacket(self, p):
         """Given a packet, decode it and return true if it should be ignored"""
@@ -209,7 +208,7 @@ class Tunnel:
             # logging.debug(f"Considering nodenum 0x{nodeNum:x} for ipBits 0x{ipBits:x}")
             if (nodeNum) == ipBits:
                 return node["user"]["id"]
-        return None
+        return
 
     def _nodeNumToIp(self, nodeNum):
         return f"{self.subnetPrefix}.{(nodeNum >> 8) & 0xff}.{nodeNum & 0xff}"
