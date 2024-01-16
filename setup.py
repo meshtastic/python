@@ -43,7 +43,7 @@ setup(
         "tabulate>=0.8.9",
         "timeago>=1.0.15",
         "pyyaml",
-        "pygatt>=4.0.5 ; platform_system=='Linux'",
+        "bleak>=0.21.1",
     ],
     extras_require={"tunnel": ["pytap2>=2.0.0"]},
     python_requires=">=3.7",

@@ -283,26 +283,6 @@ def test_main_info_with_tcp_interface(capsys):
         mo.assert_called()
 
 
-# TODO: comment out ble (for now)
-# @pytest.mark.unit
-# def test_main_info_with_ble_interface(capsys):
-#    """Test --info"""
-#    sys.argv = ['', '--info', '--ble', 'foo']
-#    Globals.getInstance().set_args(sys.argv)
-#
-#    iface = MagicMock(autospec=BLEInterface)
-#    def mock_showInfo():
-#        print('inside mocked showInfo')
-#    iface.showInfo.side_effect = mock_showInfo
-#    with patch('meshtastic.ble_interface.BLEInterface', return_value=iface) as mo:
-#        main()
-#        out, err = capsys.readouterr()
-#        assert re.search(r'Connected to radio', out, re.MULTILINE)
-#        assert re.search(r'inside mocked showInfo', out, re.MULTILINE)
-#        assert err == ''
-#        mo.assert_called()
-
-
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
 def test_main_no_proto(capsys):
