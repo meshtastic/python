@@ -775,7 +775,10 @@ def onConnected(interface):
             if interface.noProto:
                 logging.warning(f"Not starting Tunnel - disabled by noProto")
             else:
-                tunnel.Tunnel(interface, subnet=args.tunnel_net)
+                if args.tunnel_net:
+                    tunnel.Tunnel(interface, subnet=args.tunnel_net)
+                else:
+                    tunnel.Tunnel(interface)
 
         if args.ack or (args.dest != BROADCAST_ADDR and waitForAckNak):
             print(
@@ -946,12 +949,27 @@ def common():
                 our_globals.set_logfile(logfile)
 
             subscribe()
-            if args.ble:
+            if args.ble_scan:
+                logging.debug("BLE scan starting")
+                client = BLEInterface(None, debugOut=logfile, noProto=args.noproto)
+                try:
+                    for x in client.scan():
+                        print(f"Found: name='{x[1].local_name}' address='{x[0].address}'")
+                finally:
+                    client.close()
+                meshtastic.util.our_exit("BLE scan finished", 0)
+                return
+            elif args.ble:
                 client = BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto)
             elif args.host:
-                client = meshtastic.tcp_interface.TCPInterface(
-                    args.host, debugOut=logfile, noProto=args.noproto
-                )
+                try:
+                    client = meshtastic.tcp_interface.TCPInterface(
+                        args.host, debugOut=logfile, noProto=args.noproto
+                    )
+                except Exception as ex:
+                    meshtastic.util.our_exit(
+                        f"Error connecting to {args.host}:{ex}", 1
+                    )
             else:
                 try:
                     client = meshtastic.serial_interface.SerialInterface(
@@ -1306,8 +1324,13 @@ def initParser():
 
     parser.add_argument(
         "--ble",
-        help="BLE mac address to connect to (BLE is not yet supported for this tool)",
+        help="BLE device address or name to connect to",
         default=None,
+    )
+    parser.add_argument(
+        "--ble-scan",
+        help="Scan for Meshtastic BLE devices",
+        action="store_true",
     )
 
     parser.add_argument(

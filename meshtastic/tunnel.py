@@ -49,6 +49,12 @@ class Tunnel:
         if not iface:
             raise Exception("Tunnel() must have a interface")
 
+        if not subnet:
+            raise Exception("Tunnel() must have a subnet")
+
+        if not netmask:
+            raise Exception("Tunnel() must have a netmask")
+
         self.iface = iface
         self.subnetPrefix = subnet
 
@@ -63,6 +69,8 @@ class Tunnel:
         self.udpBlacklist = {
             1900,  # SSDP
             5353,  # multicast DNS
+            9001,  # Yggdrasil multicast discovery
+            64512, # cjdns beacon
         }
 
         """A list of TCP services to block"""
