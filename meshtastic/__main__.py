@@ -948,9 +948,14 @@ def common():
             if args.ble:
                 client = BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto)
             elif args.host:
-                client = meshtastic.tcp_interface.TCPInterface(
-                    args.host, debugOut=logfile, noProto=args.noproto
-                )
+                try:
+                    client = meshtastic.tcp_interface.TCPInterface(
+                        args.host, debugOut=logfile, noProto=args.noproto
+                    )
+                except Exception as ex:
+                    meshtastic.util.our_exit(
+                        f"Error connecting to {args.host}:{ex}", 1
+                    )
             else:
                 try:
                     client = meshtastic.serial_interface.SerialInterface(
