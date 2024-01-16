@@ -266,11 +266,10 @@ class Node:
 
     def _getAdminChannelIndex(self):
         """Return the channel number of the admin channel, or 0 if no reserved channel"""
-        c = self.getChannelByName("admin")
-        if c:
-            return c.index
-        else:
-            return 0
+        for c in self.channels or []:
+            if c.settings and c.settings.name.lower() == "admin":
+                return c.index
+        return 0
 
     def setOwner(self, long_name=None, short_name=None, is_licensed=False):
         """Set device owner name"""
