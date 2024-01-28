@@ -591,7 +591,7 @@ class MeshInterface:
             return user.get("shortName", None)
         return None
 
-    def _waitConnected(self, timeout=15.0):
+    def _waitConnected(self, timeout=30.0):
         """Block until the initial node db download is complete, or timeout
         and raise an exception"""
         if not self.noProto:
