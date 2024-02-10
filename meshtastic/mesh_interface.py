@@ -878,6 +878,10 @@ class MeshInterface:
                 self.localNode.moduleConfig.ambient_lighting.CopyFrom(
                     fromRadio.moduleConfig.ambient_lighting
                 )
+            elif fromRadio.moduleConfig.HasField("paxcounter"):
+                self.localNode.moduleConfig.paxcounter.CopyFrom(
+                    fromRadio.moduleConfig.paxcounter
+                )
 
         else:
             logging.debug("Unexpected FromRadio payload")

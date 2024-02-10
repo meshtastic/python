@@ -194,6 +194,8 @@ class Node:
             p.set_module_config.detection_sensor.CopyFrom(self.moduleConfig.detection_sensor)
         elif config_name == "ambient_lighting":
             p.set_module_config.ambient_lighting.CopyFrom(self.moduleConfig.ambient_lighting)
+        elif config_name == "paxcounter":
+            p.set_module_config.paxcounter.CopyFrom(self.moduleConfig.paxcounter)
         else:
             our_exit(f"Error: No valid config with name {config_name}")
 
