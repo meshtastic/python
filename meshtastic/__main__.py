@@ -190,7 +190,30 @@ def setPref(config, comp_name, valStr):
             return False
 
     # note: 'ignore_incoming' is a repeating field
-    if snake_name != "ignore_incoming":
+    if snake_name == "ignore_incoming":
+        if val == 0:
+            # clear values
+            print("Clearing ignore_incoming list")
+            del config_type.message_type.ignore_incoming[:]
+        else:
+            print(f"Adding '{val}' to the ignore_incoming list")
+            config_type.message_type.ignore_incoming.extend([val])
+    elif snake_name == "channel_precision":
+        print("Setting channel_precision")
+        newPrecision = [0,0,0,0,0,0,0,0]
+        if isinstance(val, int):
+            newPrecision[0] = val
+        else:
+            for i in range(0, len(val)):
+                newPrecision[i] = val[i]
+        config_values = getattr(config, config_type.name)
+
+        try:
+            del config_values.channel_precision[:]
+        except:
+            print("channel_precision not defined")
+        config_values.channel_precision.extend(newPrecision)
+    else:
         try:
             if config_type.message_type is not None:
                 config_values = getattr(config, config_type.name)
@@ -201,14 +224,6 @@ def setPref(config, comp_name, valStr):
             # The setter didn't like our arg type guess try again as a string
             config_values = getattr(config, config_type.name)
             setattr(config_values, pref.name, valStr)
-    else:
-        if val == 0:
-            # clear values
-            print("Clearing ignore_incoming list")
-            del config_type.message_type.ignore_incoming[:]
-        else:
-            print(f"Adding '{val}' to the ignore_incoming list")
-            config_type.message_type.ignore_incoming.extend([val])
 
     prefix = f"{name[0]}." if config_type.message_type is not None else ""
     if Globals.getInstance().get_camel_case():

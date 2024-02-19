@@ -57,13 +57,23 @@ def fromPSK(valstr):
 def fromStr(valstr):
     """Try to parse as int, float or bool (and fallback to a string as last resort)
 
-    Returns: an int, bool, float, str or byte array (for strings of hex digits)
+    Returns: an int, bool, float, str, array, or byte array (for strings of hex digits)
 
     Args:
         valstr (string): A user provided string
     """
     if len(valstr) == 0:  # Treat an emptystring as an empty bytes
         val = bytes()
+    elif "," in valstr:
+        rawElements = valstr.split(',')
+        if len(rawElements) == 0:
+            val = valstr
+        elif len(rawElements) == 1:
+            val = fromStr(rawElements[0])
+        else:
+            val = []
+            for element in rawElements:
+                val.append(fromStr(element))
     elif valstr.startswith("0x"):
         # if needed convert to string with asBytes.decode('utf-8')
         val = bytes.fromhex(valstr[2:])
