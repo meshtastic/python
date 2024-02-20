@@ -253,14 +253,17 @@ class Node:
                 adminIndex = 0
 
         # We've deleted a channel, we need to slide the channel_precision
-        if len(self.moduleConfig.ListFields()) != 0:
-            config_values = getattr(self.localConfig, "position")
-            precision_value = getattr(config_values, "channel_precision")
-            config_values.channel_precision.pop(channelIndex)
-            config_values.channel_precision.append(0)
-            self.writeConfig("position")
-        else:
-            print("Automatic updating of the channel_precision setting is not yet implemnted for remote nodes.")
+        try:
+            if len(self.moduleConfig.ListFields()) != 0:
+                config_values = getattr(self.localConfig, "position")
+                precision_value = getattr(config_values, "channel_precision")
+                config_values.channel_precision.pop(channelIndex)
+                config_values.channel_precision.append(0)
+                self.writeConfig("position")
+            else:
+                print("Automatic updating of the channel_precision setting is not yet implemnted for remote nodes.")
+        except:
+            print("Failed to update channel_precision")
     def getChannelByName(self, name):
         """Try to find the named channel or return None"""
         for c in self.channels or []:
