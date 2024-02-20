@@ -52,7 +52,7 @@ class Node:
                 # don't show disabled channels
                 if channel_pb2.Channel.Role.Name(c.role) != "DISABLED":
                     print(
-                        f"  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}"
+                        f"  Index {c.index}: {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}"
                     )
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
