@@ -691,13 +691,7 @@ class Node:
         # for stress testing, we can always download all channels
         fastChannelDownload = True
 
-        # Once we see a response that has NO settings, assume
-        # we are at the end of channels and stop fetching
-        quitEarly = (
-            c.role == channel_pb2.Channel.Role.DISABLED
-        ) and fastChannelDownload
-
-        if quitEarly or index >= 8 - 1:
+        if index >= 8 - 1:
             logging.debug("Finished downloading channels")
 
             self.channels = self.partialChannels
