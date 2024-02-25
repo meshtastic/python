@@ -17,7 +17,8 @@ from pubsub import pub
 
 import meshtastic.test
 import meshtastic.util
-from meshtastic.pbDefinitions import channel_pb2, config_pb2, portnums_pb2, remote_hardware
+from meshtastic.pbDefinitions import channel_pb2, config_pb2, portnums_pb2
+from meshtastic import remote_hardware
 from meshtastic.__init__ import BROADCAST_ADDR
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.globals import Globals

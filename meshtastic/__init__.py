@@ -86,7 +86,6 @@ from meshtastic.pbDefinitions import (
     mesh_pb2,
     portnums_pb2,
     remote_hardware_pb2,
-    util,
 )
 from meshtastic.node import Node
 from meshtastic.pbDefinitions import telemetry_pb2

@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # from ..admin_pb2 import AdminMessage
-from ..channel_pb2 import Channel
+from ..pbDefinitions.channel_pb2 import Channel
 from ..node import Node
 from ..serial_interface import SerialInterface
 
