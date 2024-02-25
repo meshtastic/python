@@ -78,7 +78,7 @@ from google.protobuf.json_format import MessageToJson
 from pubsub import pub
 from tabulate import tabulate
 
-from meshtastic.pbDefinitions import (
+from meshtastic.PbDefinitions import (
     admin_pb2,
     apponly_pb2,
     channel_pb2,
@@ -88,7 +88,7 @@ from meshtastic.pbDefinitions import (
     remote_hardware_pb2,
 )
 from meshtastic.node import Node
-from meshtastic.pbDefinitions import telemetry_pb2
+from meshtastic.PbDefinitions import telemetry_pb2
 from meshtastic.util import DeferredExecution, Timeout, catchAndIgnore, fixme, stripnl
 
 # Note: To follow PEP224, comments should be after the module variable.

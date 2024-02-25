@@ -18,7 +18,7 @@ from pubsub import pub
 from tabulate import tabulate
 
 import meshtastic.node
-from meshtastic.pbDefinitions import mesh_pb2, portnums_pb2
+from meshtastic.PbDefinitions import mesh_pb2, portnums_pb2
 from meshtastic.__init__ import (
     BROADCAST_ADDR,
     BROADCAST_NUM,
@@ -28,7 +28,7 @@ from meshtastic.__init__ import (
     protocols,
     publishingThread,
 )
-from meshtastic.pbDefinitions import telemetry_pb2
+from meshtastic.PbDefinitions import telemetry_pb2
 from meshtastic.util import (
     Acknowledgment,
     Timeout,

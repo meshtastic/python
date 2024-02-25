@@ -11,8 +11,8 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-from meshtastic.pbDefinitions import channel_pb2 as meshtastic_dot_channel__pb2
-from meshtastic.pbDefinitions import config_pb2 as meshtastic_dot_config__pb2
+from meshtastic.PbDefinitions import channel_pb2 as meshtastic_dot_channel__pb2
+from meshtastic.PbDefinitions import config_pb2 as meshtastic_dot_config__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18meshtastic/apponly.proto\x12\nmeshtastic\x1a\x18meshtastic/channel.proto\x1a\x17meshtastic/config.proto\"o\n\nChannelSet\x12-\n\x08settings\x18\x01 \x03(\x0b\x32\x1b.meshtastic.ChannelSettings\x12\x32\n\x0blora_config\x18\x02 \x01(\x0b\x32\x1d.meshtastic.Config.LoRaConfigBb\n\x13\x63om.geeksville.meshB\rAppOnlyProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
