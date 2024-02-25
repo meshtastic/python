@@ -12,9 +12,9 @@ _sym_db = _symbol_database.Default()
 
 
 from meshtastic import channel_pb2 as meshtastic_dot_channel__pb2
-from meshtastic import localonly_pb2 as meshtastic_dot_localonly__pb2
+from meshtastic.pbDefinitions import localonly_pb2 as meshtastic_dot_localonly__pb2
 from meshtastic import mesh_pb2 as meshtastic_dot_mesh__pb2
-from meshtastic import telemetry_pb2 as meshtastic_dot_telemetry__pb2
+from meshtastic.pbDefinitions import telemetry_pb2 as meshtastic_dot_telemetry__pb2
 from meshtastic import module_config_pb2 as meshtastic_dot_module__config__pb2
 
 

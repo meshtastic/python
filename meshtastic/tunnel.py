@@ -22,7 +22,7 @@ import threading
 from pubsub import pub
 from pytap2 import TapDevice
 
-from meshtastic import portnums_pb2
+from meshtastic.pbDefinitions import portnums_pb2
 from meshtastic.globals import Globals
 from meshtastic.util import ipstr, readnet_u16
 
