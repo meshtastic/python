@@ -18,4 +18,4 @@ else
 	sed -i -e "s/^None = 0/globals()['None'] = 0/" meshtastic/mesh_pb2.py
 fi
 
-cp ./meshtastic/*_pb2.py ./meshtastic/pbDefinitions/
+mv ./meshtastic/*_pb2.py ./meshtastic/pbDefinitions/
