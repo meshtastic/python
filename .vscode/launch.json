@@ -45,6 +45,14 @@
       "args": ["--debug"]
     },
     {
+      "name": "meshtastic listen",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--listen", "--debug"]
+    },
+    {
       "name": "meshtastic debug getPref",
       "type": "python",
       "request": "launch",
