@@ -762,6 +762,9 @@ def onConnected(interface):
             qr = pyqrcode.create(url)
             print(qr.terminal())
 
+        if args.listen:
+            closeNow = False
+
         have_tunnel = platform.system() == "Linux"
         if have_tunnel and args.tunnel:
             # pylint: disable=C0415
@@ -988,7 +991,7 @@ def common():
 
             have_tunnel = platform.system() == "Linux"
             if (
-                args.noproto or args.reply or (have_tunnel and args.tunnel)
+                args.noproto or args.reply or (have_tunnel and args.tunnel) or args.listen
             ):  # loop until someone presses ctrlc
                 while True:
                     time.sleep(1000)
@@ -1333,6 +1336,12 @@ def initParser():
     parser.add_argument(
         "--noproto",
         help="Don't start the API, just function as a dumb serial terminal.",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "--listen",
+        help="Just stay open and listen to the protobuf stream.",
         action="store_true",
     )
 
