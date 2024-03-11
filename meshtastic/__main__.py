@@ -981,6 +981,16 @@ def common():
                     message += "  After running that command, log out and re-login for it to take effect.\n"
                     message += f"Error was:{ex}"
                     meshtastic.util.our_exit(message)
+                if client.devPath is None:
+                    try:
+                        client = meshtastic.tcp_interface.TCPInterface(
+                            "localhost", debugOut=logfile, noProto=args.noproto
+                        )
+                    except Exception as ex:
+                        meshtastic.util.our_exit(
+                            f"Error connecting to localhost:{ex}", 1
+                        )
+
 
             # We assume client is fully connected now
             onConnected(client)
