@@ -23,7 +23,7 @@ from meshtastic.__main__ import (
     tunnelMain,
 )
 
-from ..PbDefinitions.channel_pb2 import Channel
+from ..channel_pb2 import Channel
 
 # from ..ble_interface import BLEInterface
 from ..node import Node

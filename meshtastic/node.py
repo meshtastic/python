@@ -7,8 +7,7 @@ import time
 
 from google.protobuf.json_format import MessageToJson
 
-from meshtastic.PbDefinitions import admin_pb2, apponly_pb2, channel_pb2, portnums_pb2
-from meshtastic.PbDefinitions import localonly_pb2
+from meshtastic import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, portnums_pb2
 from meshtastic.util import (
     Timeout,
     camel_to_snake,
