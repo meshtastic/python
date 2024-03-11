@@ -1026,7 +1026,7 @@ def initParser():
 
     parser.add_argument(
         "--port",
-        help="The port the Meshtastic device is connected to, i.e. /dev/ttyUSB0. If unspecified, we'll try to find it.",
+        help="The port the Meshtastic device is connected to, i.e. /dev/ttyUSB0.",
         default=None,
     )
 
@@ -1378,7 +1378,9 @@ def initParser():
 def main():
     """Perform command line meshtastic operations"""
     our_globals = Globals.getInstance()
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        epilog="If neither --port nor --host are specified, we search for a compatible serial device, "
+               "and if none is found, then attempt a TCP connection to localhost.")
     our_globals.set_parser(parser)
     initParser()
     common()
