@@ -60,7 +60,7 @@ class BLEInterface(MeshInterface):
         MeshInterface.__init__(self, debugOut = debugOut, noProto = noProto)
         self._startConfig()
         if not self.noProto:
-            self._waitConnected()
+            self._waitConnected(timeout = 60.0)
             self.waitForConfig()
         self.state.MESH = True
         logging.debug("Mesh init finished")
@@ -124,9 +124,14 @@ class BLEInterface(MeshInterface):
         while self._receiveThread_started.is_set():
             if self.should_read:
                 self.should_read = False
+                retries = 0
                 while True:
                     b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
                     if not b:
+                        if retries < 5:
+                            time.sleep(0.1)
+                            retries += 1
+                            continue
                         break
                     logging.debug(f"FROMRADIO read: {b.hex()}")
                     self._handleFromRadio(b)
