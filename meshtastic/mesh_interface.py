@@ -152,13 +152,13 @@ class MeshInterface:
             )
 
         rows = []
-        if self.nodes:
+        if self.nodesByNum:
             logging.debug(f"self.nodes:{self.nodes}")
-            for node in self.nodes.values():
+            for node in self.nodesByNum.values():
                 if not includeSelf and node["num"] == self.localNode.nodeNum:
                     continue
 
-                row = {"N": 0}
+                row = {"N": 0, "User": f"UNK: {node['num']}", "ID": f"!{node['num']:x}"}
 
                 user = node.get("user")
                 if user:
