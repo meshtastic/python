@@ -597,6 +597,12 @@ def onConnected(interface):
         # handle changing channels
 
         if args.ch_add:
+            channelIndex = our_globals.get_channel_index()
+            if channelIndex is not None:
+                # Since we set the channel index after adding a channel, don't allow --ch-index
+                meshtastic.util.our_exit(
+                    "Warning: '--ch-add' and '--ch-index' are incompatible. Channel not added."
+                )
             closeNow = True
             if len(args.ch_add) > 10:
                 meshtastic.util.our_exit(
@@ -620,6 +626,9 @@ def onConnected(interface):
                 ch.role = channel_pb2.Channel.Role.SECONDARY
                 print(f"Writing modified channels to device")
                 n.writeChannel(ch.index)
+                if channelIndex is None:
+                    print(f"Setting newly-added channel's {ch.index} as '--ch-index' for further modifications")
+                    our_globals.set_channel_index(ch.index)
 
         if args.ch_del:
             closeNow = True
