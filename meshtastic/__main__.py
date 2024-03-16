@@ -135,7 +135,7 @@ def splitCompoundName(comp_name):
     return name
 
 
-def setPref(config, comp_name, valStr):
+def setPref(config, comp_name, valStr) -> bool:
     """Set a channel or preferences value"""
 
     name = splitCompoundName(comp_name)
@@ -690,9 +690,29 @@ def onConnected(interface):
             # Handle the channel settings
             for pref in args.ch_set or []:
                 if pref[0] == "psk":
+                    found = True
                     ch.settings.psk = meshtastic.util.fromPSK(pref[1])
                 else:
-                    setPref(ch.settings, pref[0], pref[1])
+                    found = setPref(ch.settings, pref[0], pref[1])
+                if not found:
+                    category_settings = ['module_settings']
+                    print(
+                        f"{ch.settings.__class__.__name__} does not have an attribute {pref[0]}."
+                    )
+                    print("Choices are...")
+                    for field in ch.settings.DESCRIPTOR.fields:
+                        if field.name not in category_settings:
+                            print(f"{field.name}")
+                        else:
+                            print(f"{field.name}:")
+                            config = ch.settings.DESCRIPTOR.fields_by_name.get(field.name)
+                            names = []
+                            for sub_field in config.message_type.fields:
+                                tmp_name = f"{field.name}.{sub_field.name}"
+                                names.append(tmp_name)
+                            for temp_name in sorted(names):
+                                print(f"    {temp_name}")
+
                 enable = True  # If we set any pref, assume the user wants to enable the channel
 
             if enable:
