@@ -11,6 +11,7 @@ import threading
 import time
 import traceback
 from queue import Queue
+from google.protobuf.json_format import MessageToJson
 
 import pkg_resources
 import requests
@@ -21,7 +22,6 @@ from meshtastic.supported_device import supported_devices
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
-
 
 def quoteBooleans(a_string):
     """Quote booleans
@@ -605,3 +605,7 @@ def check_if_newer_version():
     ) <= pkg_resources.parse_version(act_version):
         return None
     return pypi_version
+
+def message_to_json(message):
+    return stripnl(MessageToJson(message, always_print_fields_with_no_presence=True))
+
