@@ -44,6 +44,7 @@ setup(
         "timeago>=1.0.15",
         "pyyaml",
         "bleak>=0.21.1",
+        "packaging",
     ],
     extras_require={"tunnel": ["pytap2>=2.0.0"]},
     python_requires=">=3.7",
