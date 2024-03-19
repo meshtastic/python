@@ -9,7 +9,6 @@ import platform
 import sys
 import time
 
-import pkg_resources
 import pyqrcode
 import yaml
 from google.protobuf.json_format import MessageToDict
@@ -18,6 +17,7 @@ from pubsub import pub
 import meshtastic.test
 import meshtastic.util
 from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware
+from meshtastic.version import get_active_version
 from meshtastic.__init__ import BROADCAST_ADDR
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.globals import Globals
@@ -1399,7 +1399,7 @@ def initParser():
 
     parser.set_defaults(deprecated=None)
 
-    the_version = pkg_resources.get_distribution("meshtastic").version
+    the_version = get_active_version()
     parser.add_argument("--version", action="version", version=f"{the_version}")
 
     parser.add_argument(

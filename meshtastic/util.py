@@ -12,12 +12,13 @@ import time
 import traceback
 from queue import Queue
 
-import pkg_resources
+import packaging.version as pkg_version
 import requests
 import serial
 import serial.tools.list_ports
 
 from meshtastic.supported_device import supported_devices
+from meshtastic.version import get_active_version
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
@@ -269,7 +270,7 @@ def support_info():
     print(f"   Machine: {platform.uname().machine}")
     print(f"   Encoding (stdin): {sys.stdin.encoding}")
     print(f"   Encoding (stdout): {sys.stdout.encoding}")
-    the_version = pkg_resources.get_distribution("meshtastic").version
+    the_version = get_active_version()
     pypi_version = check_if_newer_version()
     if pypi_version:
         print(
@@ -599,9 +600,15 @@ def check_if_newer_version():
         pypi_version = data["info"]["version"]
     except Exception:
         pass
-    act_version = pkg_resources.get_distribution("meshtastic").version
-    if pypi_version and pkg_resources.parse_version(
-        pypi_version
-    ) <= pkg_resources.parse_version(act_version):
+    act_version = get_active_version()
+
+    try:
+        parsed_act_version = pkg_version.parse(act_version)
+        parsed_pypi_version = pkg_version.parse(pypi_version)
+    except pkg_version.InvalidVersion:
+        return pypi_version
+
+    if parsed_pypi_version <= parsed_act_version:
         return None
+
     return pypi_version
