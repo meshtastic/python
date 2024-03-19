@@ -19,3 +19,4 @@ pytap2
 pdoc3
 pypubsub
 bleak
+packaging
