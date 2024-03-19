@@ -23,7 +23,6 @@ from meshtastic.__init__ import (
     BROADCAST_ADDR,
     BROADCAST_NUM,
     LOCAL_ADDR,
-    OUR_APP_VERSION,
     ResponseHandler,
     protocols,
     publishingThread,
@@ -440,7 +439,7 @@ class MeshInterface:
             destinationId = int(destinationId[1:], 16)
         else:
             destinationId = int(destinationId)
-        
+
         self.sendData(
             r,
             destinationId=destinationId,
@@ -469,7 +468,7 @@ class MeshInterface:
                 )
             if telemetry.device_metrics.air_util_tx is not None:
                 print(f"Transmit air utilization: {telemetry.device_metrics.air_util_tx:.2f}%")
-            
+
         elif p["decoded"]["portnum"] == 'ROUTING_APP':
             if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
                 our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
@@ -556,7 +555,7 @@ class MeshInterface:
         success = self._timeout.waitForTraceRoute(waitFactor, self._acknowledgment)
         if not success:
             raise Exception("Timed out waiting for traceroute")
-        
+
     def waitForTelemetry(self):
         """Wait for telemetry"""
         success = self._timeout.waitForTelemetry(self._acknowledgment)

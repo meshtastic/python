@@ -177,7 +177,7 @@ def test_catchAndIgnore(caplog):
     """Test catchAndIgnore() does not actually throw an exception, but just logs"""
 
     def some_closure():
-        raise Exception("foo")
+        raise Exception("foo") # pylint: disable=W0719
 
     with caplog.at_level(logging.DEBUG):
         catchAndIgnore("something", some_closure)

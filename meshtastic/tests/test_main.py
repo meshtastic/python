@@ -23,7 +23,7 @@ from meshtastic.__main__ import (
     tunnelMain,
 )
 
-from ..channel_pb2 import Channel
+from ..channel_pb2 import Channel # pylint: disable=E0611
 
 # from ..ble_interface import BLEInterface
 from ..node import Node
@@ -388,7 +388,7 @@ def test_main_onConnected_exception(capsys):
     Globals.getInstance().set_args(sys.argv)
 
     def throw_an_exception(junk):
-        raise Exception("Fake exception.")
+        raise Exception("Fake exception.") # pylint: disable=W0719
 
     iface = MagicMock(autospec=SerialInterface)
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):

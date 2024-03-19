@@ -115,6 +115,7 @@ class Node:
             print(f"{str(camel_to_snake(field))}:\n{str(config_values)}")
 
     def requestConfig(self, configType):
+        """Request the config from the node via admin message"""
         if self == self.iface.localNode:
             onResponse = None
         else:
@@ -688,9 +689,6 @@ class Node:
         logging.debug(f"Received channel {stripnl(c)}")
         index = c.index
 
-        # for stress testing, we can always download all channels
-        fastChannelDownload = True
-
         if index >= 8 - 1:
             logging.debug("Finished downloading channels")
 
@@ -703,6 +701,7 @@ class Node:
             self._requestChannel(index + 1)
 
     def onAckNak(self, p):
+        """Informative handler for ACK/NAK responses"""
         if p["decoded"]["routing"]["errorReason"] != "NONE":
             print(
                 f'Received a NAK, error reason: {p["decoded"]["routing"]["errorReason"]}'
