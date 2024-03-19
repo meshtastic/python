@@ -32,7 +32,7 @@ class StreamInterface(MeshInterface):
         """
 
         if not hasattr(self, "stream") and not noProto:
-            raise Exception(
+            raise Exception( # pylint: disable=W0719
                 "StreamInterface is now abstract (to update existing code create SerialInterface instead)"
             )
         self._rxBuf = bytes()  # empty

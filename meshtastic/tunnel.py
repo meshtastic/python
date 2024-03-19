@@ -38,6 +38,12 @@ def onTunnelReceive(packet, interface):  # pylint: disable=W0613
 class Tunnel:
     """A TUN based IP tunnel over meshtastic"""
 
+    class TunnelError(Exception):
+        """An exception class for general tunnel errors"""
+        def __init__(self, message):
+            self.message = message
+            super().__init__(self.message)
+
     def __init__(self, iface, subnet="10.115", netmask="255.255.0.0"):
         """
         Constructor
@@ -47,19 +53,19 @@ class Tunnel:
         """
 
         if not iface:
-            raise Exception("Tunnel() must have a interface")
+            raise Tunnel.TunnelError("Tunnel() must have a interface")
 
         if not subnet:
-            raise Exception("Tunnel() must have a subnet")
+            raise Tunnel.TunnelError("Tunnel() must have a subnet")
 
         if not netmask:
-            raise Exception("Tunnel() must have a netmask")
+            raise Tunnel.TunnelError("Tunnel() must have a netmask")
 
         self.iface = iface
         self.subnetPrefix = subnet
 
         if platform.system() != "Linux":
-            raise Exception("Tunnel() can only be run instantiated on a Linux system")
+            raise Tunnel.TunnelError("Tunnel() can only be run instantiated on a Linux system")
 
         our_globals = Globals.getInstance()
         our_globals.set_tunnelInstance(self)

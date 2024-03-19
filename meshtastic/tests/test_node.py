@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # from ..admin_pb2 import AdminMessage
-from ..channel_pb2 import Channel
+from ..channel_pb2 import Channel # pylint: disable=E0611
 from ..node import Node
 from ..serial_interface import SerialInterface
 

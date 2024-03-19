@@ -109,7 +109,7 @@ def stripnl(s):
 
 def fixme(message):
     """Raise an exception for things that needs to be fixed"""
-    raise Exception(f"FIXME: {message}")
+    raise Exception(f"FIXME: {message}") # pylint: disable=W0719
 
 
 def catchAndIgnore(reason, closure):
@@ -193,7 +193,7 @@ class Timeout:
                 return True
             time.sleep(self.sleepInterval)
         return False
-    
+
     def waitForTelemetry(self, acknowledgment):
         """Block until telemetry response is received. Returns True if telemetry response has been received."""
         self.reset()

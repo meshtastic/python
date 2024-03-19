@@ -23,7 +23,6 @@ from meshtastic.__init__ import (
     BROADCAST_ADDR,
     BROADCAST_NUM,
     LOCAL_ADDR,
-    OUR_APP_VERSION,
     ResponseHandler,
     protocols,
     publishingThread,
@@ -47,6 +46,12 @@ class MeshInterface:
     nodes
     debugOut
     """
+
+    class MeshInterfaceError(Exception):
+        """An exception class for general mesh interface errors"""
+        def __init__(self, message):
+            self.message = message
+            super().__init__(self.message)
 
     def __init__(self, debugOut=None, noProto=False):
         """Constructor
@@ -314,7 +319,7 @@ class MeshInterface:
             f"mesh_pb2.Constants.DATA_PAYLOAD_LEN: {mesh_pb2.Constants.DATA_PAYLOAD_LEN}"
         )
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
-            raise Exception("Data payload too big")
+            raise MeshInterface.MeshInterfaceError("Data payload too big")
 
         if (
             portNum == portnums_pb2.PortNum.UNKNOWN_APP
@@ -440,7 +445,7 @@ class MeshInterface:
             destinationId = int(destinationId[1:], 16)
         else:
             destinationId = int(destinationId)
-        
+
         self.sendData(
             r,
             destinationId=destinationId,
@@ -469,7 +474,7 @@ class MeshInterface:
                 )
             if telemetry.device_metrics.air_util_tx is not None:
                 print(f"Transmit air utilization: {telemetry.device_metrics.air_util_tx:.2f}%")
-            
+
         elif p["decoded"]["portnum"] == 'ROUTING_APP':
             if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
                 our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
@@ -543,25 +548,25 @@ class MeshInterface:
             and self.localNode.waitForConfig()
         )
         if not success:
-            raise Exception("Timed out waiting for interface config")
+            raise MeshInterface.MeshInterfaceError("Timed out waiting for interface config")
 
     def waitForAckNak(self):
         """Wait for the ack/nak"""
         success = self._timeout.waitForAckNak(self._acknowledgment)
         if not success:
-            raise Exception("Timed out waiting for an acknowledgment")
+            raise MeshInterface.MeshInterfaceError("Timed out waiting for an acknowledgment")
 
     def waitForTraceRoute(self, waitFactor):
         """Wait for trace route"""
         success = self._timeout.waitForTraceRoute(waitFactor, self._acknowledgment)
         if not success:
-            raise Exception("Timed out waiting for traceroute")
-        
+            raise MeshInterface.MeshInterfaceError("Timed out waiting for traceroute")
+
     def waitForTelemetry(self):
         """Wait for telemetry"""
         success = self._timeout.waitForTelemetry(self._acknowledgment)
         if not success:
-            raise Exception("Timed out waiting for telemetry")
+            raise MeshInterface.MeshInterfaceError("Timed out waiting for telemetry")
 
     def getMyNodeInfo(self):
         """Get info about my node."""
@@ -596,7 +601,7 @@ class MeshInterface:
         and raise an exception"""
         if not self.noProto:
             if not self.isConnected.wait(timeout):  # timeout after x seconds
-                raise Exception("Timed out waiting for connection completion")
+                raise MeshInterface.MeshInterfaceError("Timed out waiting for connection completion")
 
         # If we failed while connecting, raise the connection to the client
         if self.failure:
@@ -605,7 +610,7 @@ class MeshInterface:
     def _generatePacketId(self):
         """Get a new unique packet ID"""
         if self.currentPacketId is None:
-            raise Exception("Not connected yet, can not generate packet")
+            raise MeshInterface.MeshInterfaceError("Not connected yet, can not generate packet")
         else:
             self.currentPacketId = (self.currentPacketId + 1) & 0xFFFFFFFF
             return self.currentPacketId
@@ -774,7 +779,7 @@ class MeshInterface:
             failmsg = None
 
             if failmsg:
-                self.failure = Exception(failmsg)
+                self.failure = MeshInterface.MeshInterfaceError(failmsg)
                 self.isConnected.set()  # let waitConnected return this exception
                 self.close()
 
@@ -920,7 +925,7 @@ class MeshInterface:
     def _getOrCreateByNum(self, nodeNum):
         """Given a nodenum find the NodeInfo in the DB (or create if necessary)"""
         if nodeNum == BROADCAST_NUM:
-            raise Exception("Can not create/find nodenum by the broadcast num")
+            raise MeshInterface.MeshInterfaceError("Can not create/find nodenum by the broadcast num")
 
         if nodeNum in self.nodesByNum:
             return self.nodesByNum[nodeNum]
