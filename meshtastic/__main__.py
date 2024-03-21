@@ -160,8 +160,8 @@ def setPref(config, comp_name, valStr) -> bool:
     val = meshtastic.util.fromStr(valStr)
     logging.debug(f"valStr:{valStr} val:{val}")
 
-    if snake_name == "psk" and len(valStr) < 8:
-        print(f"Warning: wifi.psk must be 8 or more characters.")
+    if snake_name == "wifi_psk" and len(valStr) < 8:
+        print(f"Warning: network.wifi_psk must be 8 or more characters.")
         return False
 
     enumType = pref.enum_type
@@ -638,6 +638,11 @@ def onConnected(interface):
 
         def setSimpleConfig(modem_preset):
             """Set one of the simple modem_config"""
+            channelIndex = our_globals.get_channel_index()
+            if channelIndex is not None and channelIndex > 0:
+                meshtastic.util.our_exit(
+                    "Warning: Cannot set modem preset for non-primary channel", 1
+                )
             # Overwrite modem_preset
             prefs = interface.getNode(args.dest).localConfig
             prefs.lora.modem_preset = modem_preset

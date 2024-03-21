@@ -21,7 +21,6 @@ from ..util import Timeout
 def test_MeshInterface(capsys):
     """Test that we can instantiate a MeshInterface"""
     iface = MeshInterface(noProto=True)
-    anode = Node("foo", "bar")
 
     nodes = {
         "!9388f81c": {
@@ -38,7 +37,7 @@ def test_MeshInterface(capsys):
         }
     }
 
-    iface.nodesByNum = {1: anode}
+    iface.nodesByNum = {2475227164: nodes["!9388f81c"]}
     iface.nodes = nodes
 
     myInfo = MagicMock()
@@ -148,7 +147,7 @@ def test_getNode_not_local(caplog):
         with patch("meshtastic.node.Node", return_value=anode):
             another_node = iface.getNode("bar2")
             assert another_node != iface.localNode
-    assert re.search(r"About to requestConfig", caplog.text, re.MULTILINE)
+    assert re.search(r"About to requestChannels", caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
@@ -164,7 +163,7 @@ def test_getNode_not_local_timeout(capsys):
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
-        assert re.match(r"Error: Timed out waiting for node config", out)
+        assert re.match(r"Error: Timed out waiting for channels", out)
         assert err == ""
 
 
@@ -230,8 +229,8 @@ def test_handleFromRadio_with_my_info(caplog):
     with caplog.at_level(logging.DEBUG):
         iface._handleFromRadio(from_radio_bytes)
     iface.close()
-    assert re.search(r"Received myinfo", caplog.text, re.MULTILINE)
-    assert re.search(r"max_channels: 8", caplog.text, re.MULTILINE)
+    assert re.search(r"Received from radio: my_info {", caplog.text, re.MULTILINE)
+    assert re.search(r"my_node_num: 682584012", caplog.text, re.MULTILINE)
 
 
 @pytest.mark.unit
@@ -258,15 +257,14 @@ def test_handleFromRadio_with_node_info(caplog, capsys):
     with caplog.at_level(logging.DEBUG):
         iface._startConfig()
         iface._handleFromRadio(from_radio_bytes)
-        assert re.search(r"Received nodeinfo", caplog.text, re.MULTILINE)
+        assert re.search(r"Received from radio: node_info {", caplog.text, re.MULTILINE)
         assert re.search(r"682584012", caplog.text, re.MULTILINE)
-        assert re.search(r"HELTEC_V2_1", caplog.text, re.MULTILINE)
         # validate some of showNodes() output
         iface.showNodes()
         out, err = capsys.readouterr()
         assert re.search(r" 1 ", out, re.MULTILINE)
         assert re.search(r"│ Unknown 67cc │ ", out, re.MULTILINE)
-        assert re.search(r"│ !28af67cc │ N/A   │ N/A         │ N/A", out, re.MULTILINE)
+        assert re.search(r"│\s+!28af67cc\s+│\s+67cc\s+|", out, re.MULTILINE)
         assert err == ""
         iface.close()
 
@@ -347,10 +345,10 @@ def test_sendData_too_long(caplog):
     some_large_text += b"This is a long text that will be too long for send text."
     some_large_text += b"This is a long text that will be too long for send text."
     with caplog.at_level(logging.DEBUG):
-        with pytest.raises(Exception) as pytest_wrapped_e:
+        with pytest.raises(MeshInterface.MeshInterfaceError) as pytest_wrapped_e:
             iface.sendData(some_large_text)
             assert re.search("Data payload too big", caplog.text, re.MULTILINE)
-        assert pytest_wrapped_e.type == Exception
+        assert pytest_wrapped_e.type == MeshInterface.MeshInterfaceError
     iface.close()
 
 
@@ -506,14 +504,14 @@ def test_generatePacketId(capsys):
     # not sure when this condition would ever happen... but we can simulate it
     iface.currentPacketId = None
     assert iface.currentPacketId is None
-    with pytest.raises(Exception) as pytest_wrapped_e:
+    with pytest.raises(MeshInterface.MeshInterfaceError) as pytest_wrapped_e:
         iface._generatePacketId()
         out, err = capsys.readouterr()
         assert re.search(
             r"Not connected yet, can not generate packet", out, re.MULTILINE
         )
         assert err == ""
-    assert pytest_wrapped_e.type == Exception
+    assert pytest_wrapped_e.type == MeshInterface.MeshInterfaceError
 
 
 @pytest.mark.unit
@@ -597,9 +595,9 @@ def test_getOrCreateByNum_not_found(iface_with_nodes):
     """Test _getOrCreateByNum()"""
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
-    with pytest.raises(Exception) as pytest_wrapped_e:
+    with pytest.raises(MeshInterface.MeshInterfaceError) as pytest_wrapped_e:
         iface._getOrCreateByNum(0xFFFFFFFF)
-    assert pytest_wrapped_e.type == Exception
+    assert pytest_wrapped_e.type == MeshInterface.MeshInterfaceError
 
 
 @pytest.mark.unit
@@ -651,9 +649,9 @@ def test_waitForConfig(capsys):
     iface = MeshInterface(noProto=True)
     # override how long to wait
     iface._timeout = Timeout(0.01)
-    with pytest.raises(Exception) as pytest_wrapped_e:
+    with pytest.raises(MeshInterface.MeshInterfaceError) as pytest_wrapped_e:
         iface.waitForConfig()
-        assert pytest_wrapped_e.type == Exception
+        assert pytest_wrapped_e.type == MeshInterface.MeshInterfaceError
         out, err = capsys.readouterr()
         assert re.search(
             r"Exception: Timed out waiting for interface config", err, re.MULTILINE
@@ -665,10 +663,10 @@ def test_waitForConfig(capsys):
 def test_waitConnected_raises_an_exception(capsys):
     """Test waitConnected()"""
     iface = MeshInterface(noProto=True)
-    with pytest.raises(Exception) as pytest_wrapped_e:
-        iface.failure = "warn about something"
+    with pytest.raises(MeshInterface.MeshInterfaceError) as pytest_wrapped_e:
+        iface.failure = MeshInterface.MeshInterfaceError("warn about something")
         iface._waitConnected(0.01)
-        assert pytest_wrapped_e.type == Exception
+        assert pytest_wrapped_e.type == MeshInterface.MeshInterfaceError
         out, err = capsys.readouterr()
         assert re.search(r"warn about something", err, re.MULTILINE)
         assert out == ""
@@ -677,10 +675,10 @@ def test_waitConnected_raises_an_exception(capsys):
 @pytest.mark.unit
 def test_waitConnected_isConnected_timeout(capsys):
     """Test waitConnected()"""
-    with pytest.raises(Exception) as pytest_wrapped_e:
+    with pytest.raises(MeshInterface.MeshInterfaceError) as pytest_wrapped_e:
         iface = MeshInterface()
         iface._waitConnected(0.01)
-        assert pytest_wrapped_e.type == Exception
+        assert pytest_wrapped_e.type == MeshInterface.MeshInterfaceError
         out, err = capsys.readouterr()
         assert re.search(r"warn about something", err, re.MULTILINE)
         assert out == ""
