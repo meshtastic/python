@@ -395,9 +395,6 @@ def onConnected(interface):
                 )
 
         if args.sendping:
-            channelIndex = 0
-            if args.ch_index is not None:
-                channelIndex = int(args.ch_index)
             payload = str.encode("test string")
             print(f"Sending ping message to {args.dest}")
             interface.sendData(
@@ -406,7 +403,7 @@ def onConnected(interface):
                 portNum=portnums_pb2.PortNum.REPLY_APP,
                 wantAck=True,
                 wantResponse=True,
-                channelIndex=channelIndex,
+                channelIndex=our_globals.get_channel_index() or 0,
             )
 
         if args.traceroute:
