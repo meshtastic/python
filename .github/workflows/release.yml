@@ -74,51 +74,51 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
 
-  build-and-publish-mac:
-    runs-on: macos-latest
-    needs: release_create
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ needs.release_create.outputs.new_sha }}
+  # build-and-publish-mac:
+  #   runs-on: macos-latest
+  #   needs: release_create
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #       with:
+  #         ref: ${{ needs.release_create.outputs.new_sha }}
 
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
+  #     - name: Set up Python 3.9
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         python-version: 3.9
 
-      - name: Setup code signing
-        env:
-          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
-          MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
-        run: |
-          echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-          security create-keychain -p "$MACOS_KEYCHAIN_PASSWORD" meshtastic.keychain
-          security default-keychain -s meshtastic.keychain
-          security unlock-keychain -p "$MACOS_KEYCHAIN_PASSWORD" meshtastic.keychain
-          security import certificate.p12 -k meshtastic.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_KEYCHAIN_PASSWORD" meshtastic.keychain
+  #     - name: Setup code signing
+  #       env:
+  #         MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+  #         MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+  #         MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+  #       run: |
+  #         echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+  #         security create-keychain -p "$MACOS_KEYCHAIN_PASSWORD" meshtastic.keychain
+  #         security default-keychain -s meshtastic.keychain
+  #         security unlock-keychain -p "$MACOS_KEYCHAIN_PASSWORD" meshtastic.keychain
+  #         security import certificate.p12 -k meshtastic.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
+  #         security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_KEYCHAIN_PASSWORD" meshtastic.keychain
 
-      - name: Build
-        env:
-          MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
-        run: |
-          pip install pyinstaller
-          pip install -r requirements.txt
-          pip install .
-          pyinstaller -F -n meshtastic --collect-all meshtastic --codesign-identity "$MACOS_SIGNING_IDENTITY" meshtastic/__main__.py
+  #     - name: Build
+  #       env:
+  #         MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+  #       run: |
+  #         pip install pyinstaller
+  #         pip install -r requirements.txt
+  #         pip install .
+  #         pyinstaller -F -n meshtastic --collect-all meshtastic --codesign-identity "$MACOS_SIGNING_IDENTITY" meshtastic/__main__.py
 
-      - name: Add mac to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.release_create.outputs.upload_url }}
-          asset_path: dist/meshtastic
-          asset_name: meshtastic_mac
-          asset_content_type: application/zip
+  #     - name: Add mac to release
+  #       uses: actions/upload-release-asset@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ needs.release_create.outputs.upload_url }}
+  #         asset_path: dist/meshtastic
+  #         asset_name: meshtastic_mac
+  #         asset_content_type: application/zip
 
   build-and-publish-ubuntu:
     runs-on: ubuntu-latest
