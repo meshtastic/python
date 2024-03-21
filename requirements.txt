@@ -20,3 +20,9 @@ pdoc3
 pypubsub
 bleak
 packaging
+mypy
+mypy-protobuf
+types-protobuf
+types-tabulate
+types-requests
+types-setuptools
