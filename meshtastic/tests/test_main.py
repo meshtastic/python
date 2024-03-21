@@ -722,9 +722,34 @@ def test_main_sendping(capsys):
 
     iface = MagicMock(autospec=SerialInterface)
 
-    def mock_sendData(payload, dest, portNum, wantAck, wantResponse):
+    def mock_sendData(payload, dest, portNum, wantAck, wantResponse, channelIndex):
         print("inside mocked sendData")
-        print(f"{payload} {dest} {portNum} {wantAck} {wantResponse}")
+        print(f"{payload} {dest} {portNum} {wantAck} {wantResponse} {channelIndex}")
+
+    iface.sendData.side_effect = mock_sendData
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"Sending ping message", out, re.MULTILINE)
+        assert re.search(r"inside mocked sendData", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_globals")
+def test_main_sendping_with_channel_index(capsys):
+    """Test --sendping with other ch"""
+    sys.argv = ["", "--sendping", "--ch-index", "1"]
+    Globals.getInstance().set_args(sys.argv)
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    def mock_sendData(payload, dest, portNum, wantAck, wantResponse, channelIndex):
+        print("inside mocked sendData")
+        print(f"{payload} {dest} {portNum} {wantAck} {wantResponse} {channelIndex}")
 
     iface.sendData.side_effect = mock_sendData
 
