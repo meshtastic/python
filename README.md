@@ -18,6 +18,35 @@ Events are delivered using a publish-subscribe model, and you can subscribe to o
 
 **[Documentation/API Reference](https://python.meshtastic.org/)**
 
+## Call for Contributors
+
+This library and CLI has gone without a consistent maintainer for a while, and there's many improvements that could be made. We're all volunteers here and help is extremely appreciated, whether in implementing your own needs or helping maintain the library and CLI in general.
+
+If you're interested in contributing but don't have specific things you'd like to work on, look at the roadmap below!
+
+## Roadmap
+
+This should always be considered a list in progress and flux -- inclusion doesn't guarantee implementation, and exclusion doesn't mean something's not wanted. GitHub issues are a great place to discuss ideas.
+
+* Types
+  * type annotations throughout the codebase
+  * mypy running in CI to type-check new code
+* async-friendliness
+* CLI completeness & consistency
+  * the CLI should support all features of the firmware
+  * there should be a consistent output format available for shell scripting
+* CLI smartness & documentation
+  * what arguments and options are compatible & incompatible with one another?
+  * can the options be restructured in a way that is more self-documenting?
+  * pubsub events should be documented clearly
+* helpers for third-party code
+  * it should be easy to write a script that supports similar options to the CLI so many tools support the same ways of connecting to nodes
+* interactive client
+* data storage & processing
+  * there should be a standardized way of recording packets for later use, debugging, etc.
+  * a sqlite database schema and tools for writing to it may be a good starting point
+  * enable maps, charts, visualizations
+
 ## Stats
 
 ![Alt](https://repobeats.axiom.co/api/embed/c71ee8fc4a79690402e5d2807a41eec5e96d9039.svg "Repobeats analytics image")
