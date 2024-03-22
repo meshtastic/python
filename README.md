@@ -35,7 +35,7 @@ This should always be considered a list in progress and flux -- inclusion doesn'
 * CLI completeness & consistency
   * the CLI should support all features of the firmware
   * there should be a consistent output format available for shell scripting
-* CLI smartness & documentation
+* CLI input validation & documentation
   * what arguments and options are compatible & incompatible with one another?
   * can the options be restructured in a way that is more self-documenting?
   * pubsub events should be documented clearly
