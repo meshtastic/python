@@ -1,5 +1,5 @@
 """Meshtastic unit tests for __main__.py"""
-# pylint: disable=C0302
+# pylint: disable=C0302,W0613
 
 import logging
 import os
@@ -13,13 +13,11 @@ import pytest
 from meshtastic.__main__ import (
     Globals,
     export_config,
-    getPref,
     initParser,
     main,
     onConnection,
     onNode,
     onReceive,
-    setPref,
     tunnelMain,
 )
 

@@ -36,7 +36,7 @@ def test_Tunnel_without_interface(mock_platform_system):
     mock_platform_system.side_effect = a_mock
     with pytest.raises(Tunnel.TunnelError) as pytest_wrapped_e:
         Tunnel(None)
-    assert pytest_wrapped_e.type == Tunnel.TunnelError 
+    assert pytest_wrapped_e.type == Tunnel.TunnelError
 
 
 @pytest.mark.unitslow
