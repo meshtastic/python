@@ -51,17 +51,6 @@ def test_smokevirt_info():
 
 
 @pytest.mark.smokevirt
-def test_smokevirt_sendping():
-    """Test --sendping"""
-    return_value, out = subprocess.getstatusoutput(
-        "meshtastic --host localhost --sendping"
-    )
-    assert re.match(r"Connected to radio", out)
-    assert re.search(r"^Sending ping message", out, re.MULTILINE)
-    assert return_value == 0
-
-
-@pytest.mark.smokevirt
 def test_get_with_invalid_setting():
     """Test '--get a_bad_setting'."""
     return_value, out = subprocess.getstatusoutput(

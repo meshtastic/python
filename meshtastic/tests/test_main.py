@@ -715,31 +715,6 @@ def test_main_sendtext_with_dest(capsys, caplog, iface_with_nodes):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_globals")
-def test_main_sendping(capsys):
-    """Test --sendping"""
-    sys.argv = ["", "--sendping"]
-    Globals.getInstance().set_args(sys.argv)
-
-    iface = MagicMock(autospec=SerialInterface)
-
-    def mock_sendData(payload, dest, portNum, wantAck, wantResponse):
-        print("inside mocked sendData")
-        print(f"{payload} {dest} {portNum} {wantAck} {wantResponse}")
-
-    iface.sendData.side_effect = mock_sendData
-
-    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
-        main()
-        out, err = capsys.readouterr()
-        assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"Sending ping message", out, re.MULTILINE)
-        assert re.search(r"inside mocked sendData", out, re.MULTILINE)
-        assert err == ""
-        mo.assert_called()
-
-
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_globals")
 def test_main_setlat(capsys):
     """Test --sendlat"""
     sys.argv = ["", "--setlat", "37.5"]

@@ -41,15 +41,6 @@ def test_smoke1_info():
 
 
 @pytest.mark.smoke1
-def test_smoke1_sendping():
-    """Test --sendping"""
-    return_value, out = subprocess.getstatusoutput("meshtastic --sendping")
-    assert re.match(r"Connected to radio", out)
-    assert re.search(r"^Sending ping message", out, re.MULTILINE)
-    assert return_value == 0
-
-
-@pytest.mark.smoke1
 def test_get_with_invalid_setting():
     """Test '--get a_bad_setting'."""
     return_value, out = subprocess.getstatusoutput("meshtastic --get a_bad_setting")

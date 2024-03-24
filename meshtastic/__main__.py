@@ -394,17 +394,6 @@ def onConnected(interface):
                     f"Warning: {channelIndex} is not a valid channel. Channel must not be DISABLED."
                 )
 
-        if args.sendping:
-            payload = str.encode("test string")
-            print(f"Sending ping message to {args.dest}")
-            interface.sendData(
-                payload,
-                args.dest,
-                portNum=portnums_pb2.PortNum.REPLY_APP,
-                wantAck=True,
-                wantResponse=True,
-            )
-
         if args.traceroute:
             loraConfig = getattr(interface.localNode.localConfig, "lora")
             hopLimit = getattr(loraConfig, "hop_limit")
@@ -1239,12 +1228,6 @@ def initParser():
     parser.add_argument(
         "--sendtext",
         help="Send a text message. Can specify a destination '--dest' and/or channel index '--ch-index'.",
-    )
-
-    parser.add_argument(
-        "--sendping",
-        help="Send a ping message (which requests a reply)",
-        action="store_true",
     )
 
     parser.add_argument(
