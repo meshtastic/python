@@ -71,11 +71,11 @@ from datetime import datetime
 from typing import *
 
 import google.protobuf.json_format
-import serial
-import timeago
-from dotmap import DotMap
+import serial # type: ignore[import-untyped]
+import timeago # type: ignore[import-untyped]
+from dotmap import DotMap # type: ignore[import-untyped]
 from google.protobuf.json_format import MessageToJson
-from pubsub import pub
+from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
 
 from meshtastic import (
@@ -127,9 +127,9 @@ class KnownProtocol(NamedTuple):
     name: str
     # portnum: int, now a key
     # If set, will be called to prase as a protocol buffer
-    protobufFactory: Callable = None
+    protobufFactory: Optional[Callable] = None
     # If set, invoked as onReceive(interface, packet)
-    onReceive: Callable = None
+    onReceive: Optional[Callable] = None
 
 
 def _onTextReceive(iface, asDict):

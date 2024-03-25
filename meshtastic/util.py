@@ -14,8 +14,8 @@ from queue import Queue
 
 import packaging.version as pkg_version
 import requests
-import serial
-import serial.tools.list_ports
+import serial # type: ignore[import-untyped]
+import serial.tools.list_ports # type: ignore[import-untyped]
 
 from meshtastic.supported_device import supported_devices
 from meshtastic.version import get_active_version
@@ -146,8 +146,8 @@ class dotdict(dict):
     """dot.notation access to dictionary attributes"""
 
     __getattr__ = dict.get
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
+    __setattr__ = dict.__setitem__ # type: ignore[assignment]
+    __delattr__ = dict.__delitem__ # type: ignore[assignment]
 
 
 class Timeout:

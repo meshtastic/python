@@ -20,10 +20,10 @@ def test_Tunnel_on_non_linux_system(mock_platform_system):
     a_mock.return_value = "notLinux"
     mock_platform_system.side_effect = a_mock
     with patch("socket.socket") as mock_socket:
-        with pytest.raises(Exception) as pytest_wrapped_e:
+        with pytest.raises(Tunnel.TunnelError) as pytest_wrapped_e:
             iface = TCPInterface(hostname="localhost", noProto=True)
             Tunnel(iface)
-        assert pytest_wrapped_e.type == Exception
+        assert pytest_wrapped_e.type == Tunnel.TunnelError
         assert mock_socket.called
 
 
@@ -34,9 +34,9 @@ def test_Tunnel_without_interface(mock_platform_system):
     a_mock = MagicMock()
     a_mock.return_value = "Linux"
     mock_platform_system.side_effect = a_mock
-    with pytest.raises(Exception) as pytest_wrapped_e:
+    with pytest.raises(Tunnel.TunnelError) as pytest_wrapped_e:
         Tunnel(None)
-    assert pytest_wrapped_e.type == Exception
+    assert pytest_wrapped_e.type == Tunnel.TunnelError
 
 
 @pytest.mark.unitslow

@@ -129,7 +129,6 @@ class MeshInterface:
 
                 # use id as dictionary key for correct json format in list of nodes
                 nodeid = n2["user"]["id"]
-                n2["user"].pop("id")
                 nodes[nodeid] = n2
         infos = owner + myinfo + metadata + mesh + json.dumps(nodes)
         print(infos)
