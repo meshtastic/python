@@ -1,5 +1,6 @@
 """Meshtastic unit tests for util.py"""
 
+import json
 import logging
 import re
 from unittest.mock import patch
@@ -7,6 +8,7 @@ from unittest.mock import patch
 import pytest
 
 from meshtastic.supported_device import SupportedDevice
+from meshtastic.mesh_pb2 import MyNodeInfo
 from meshtastic.util import (
     Timeout,
     active_ports_on_supported_devices,
@@ -30,6 +32,7 @@ from meshtastic.util import (
     snake_to_camel,
     stripnl,
     support_info,
+    message_to_json,
 )
 
 
@@ -545,3 +548,9 @@ def test_active_ports_on_supported_devices_mac_duplicates_check(mock_platform, m
     }
     mock_platform.assert_called()
     mock_sp.assert_called()
+
+@pytest.mark.unit
+def test_message_to_json_shows_all():
+    actual = json.loads(message_to_json(MyNodeInfo()))
+    expected = { "myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0 }
+    assert actual == expected

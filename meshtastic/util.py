@@ -11,6 +11,7 @@ import threading
 import time
 import traceback
 from queue import Queue
+from google.protobuf.json_format import MessageToJson
 
 import packaging.version as pkg_version
 import requests
@@ -22,7 +23,6 @@ from meshtastic.version import get_active_version
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
-
 
 def quoteBooleans(a_string):
     """Quote booleans
@@ -612,3 +612,7 @@ def check_if_newer_version():
         return None
 
     return pypi_version
+
+def message_to_json(message):
+    return stripnl(MessageToJson(message, always_print_fields_with_no_presence=True))
+
