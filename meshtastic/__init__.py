@@ -84,8 +84,11 @@ from meshtastic import (
     channel_pb2,
     config_pb2,
     mesh_pb2,
+    mqtt_pb2,
+    paxcount_pb2,
     portnums_pb2,
     remote_hardware_pb2,
+    storeforward_pb2,
     telemetry_pb2,
     util,
 )
@@ -190,6 +193,13 @@ protocols = {
     portnums_pb2.PortNum.TEXT_MESSAGE_APP: KnownProtocol(
         "text", onReceive=_onTextReceive
     ),
+    portnums_pb2.PortNum.RANGE_TEST_APP: KnownProtocol(
+        "rangetest", onReceive=_onTextReceive
+    ),
+    portnums_pb2.PortNum.DETECTION_SENSOR_APP: KnownProtocol(
+        "rangetest", onReceive=_onTextReceive
+    ),
+
     portnums_pb2.PortNum.POSITION_APP: KnownProtocol(
         "position", mesh_pb2.Position, _onPositionReceive
     ),
@@ -208,4 +218,9 @@ protocols = {
     portnums_pb2.PortNum.TRACEROUTE_APP: KnownProtocol(
         "traceroute", mesh_pb2.RouteDiscovery
     ),
+    portnums_pb2.PortNum.WAYPOINT_APP: KnownProtocol("waypoint", mesh_pb2.Waypoint),
+    portnums_pb2.PortNum.PAXCOUNTER_APP: KnownProtocol("paxcounter", paxcount_pb2.Paxcount),
+    portnums_pb2.PortNum.STORE_FORWARD_APP: KnownProtocol("storeforward", storeforward_pb2.StoreAndForward),
+    portnums_pb2.PortNum.NEIGHBORINFO_APP: KnownProtocol("neighborinfo", mesh_pb2.NeighborInfo),
+    portnums_pb2.PortNum.MAP_REPORT_APP: KnownProtocol("mapreport", mqtt_pb2.MapReport),
 }
