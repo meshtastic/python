@@ -197,7 +197,7 @@ protocols = {
         "rangetest", onReceive=_onTextReceive
     ),
     portnums_pb2.PortNum.DETECTION_SENSOR_APP: KnownProtocol(
-        "rangetest", onReceive=_onTextReceive
+        "detectionsensor", onReceive=_onTextReceive
     ),
 
     portnums_pb2.PortNum.POSITION_APP: KnownProtocol(
