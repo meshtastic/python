@@ -6,8 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from .. import mesh_pb2
-from ..__init__ import BROADCAST_ADDR, LOCAL_ADDR
+from .. import mesh_pb2, BROADCAST_ADDR, LOCAL_ADDR
 from ..mesh_interface import MeshInterface
 from ..node import Node
 

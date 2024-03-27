@@ -4,7 +4,7 @@ import logging
 import platform
 import time
 
-import serial
+import serial # type: ignore[import-untyped]
 
 import meshtastic.util
 from meshtastic.stream_interface import StreamInterface

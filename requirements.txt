@@ -26,3 +26,4 @@ types-protobuf
 types-tabulate
 types-requests
 types-setuptools
+types-PyYAML

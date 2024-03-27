@@ -9,17 +9,18 @@ import sys
 import threading
 import time
 from datetime import datetime
-from typing import AnyStr
 
 import google.protobuf.json_format
-import timeago
+import timeago # type: ignore[import-untyped]
 from google.protobuf.json_format import MessageToJson
-from pubsub import pub
+from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
 
 import meshtastic.node
-from meshtastic import mesh_pb2, portnums_pb2, telemetry_pb2
-from meshtastic.__init__ import (
+from meshtastic import (
+    mesh_pb2,
+    portnums_pb2,
+    telemetry_pb2,
     BROADCAST_ADDR,
     BROADCAST_NUM,
     LOCAL_ADDR,
@@ -239,7 +240,7 @@ class MeshInterface:
 
     def sendText(
         self,
-        text: AnyStr,
+        text: str,
         destinationId=BROADCAST_ADDR,
         wantAck=False,
         wantResponse=False,

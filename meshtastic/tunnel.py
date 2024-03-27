@@ -19,7 +19,7 @@ import logging
 import platform
 import threading
 
-from pubsub import pub
+from pubsub import pub # type: ignore[import-untyped]
 from pytap2 import TapDevice
 
 from meshtastic import portnums_pb2
