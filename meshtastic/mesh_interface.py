@@ -162,7 +162,7 @@ class MeshInterface:
                 if not includeSelf and node["num"] == self.localNode.nodeNum:
                     continue
 
-                row = {"N": 0, "User": f"UNK: {node['num']}", "ID": f"!{node['num']:x}"}
+                row = {"N": 0, "User": f"UNK: {node['num']}", "ID": f"!{node['num']:08x}"}
 
                 user = node.get("user")
                 if user:
