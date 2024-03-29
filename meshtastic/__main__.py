@@ -41,7 +41,7 @@ def onReceive(packet, interface):
             interface.close()  # after running command then exit
 
         # Reply to every received message with some stats
-        if args and args.reply:
+        if d is not None and args and args.reply:
             msg = d.get("text")
             if msg:
                 rxSnr = packet["rxSnr"]
