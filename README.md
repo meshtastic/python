@@ -1,6 +1,6 @@
 # Meshtastic Python
 
-[![codecov](https://codecov.io/gh/meshtastic/Meshtastic-python/branch/master/graph/badge.svg?token=TIWPJL73KV)](https://codecov.io/gh/meshtastic/Meshtastic-python)
+[![codecov](https://codecov.io/gh/meshtastic/python/branch/master/graph/badge.svg?token=TIWPJL73KV)](https://codecov.io/gh/meshtastic/python)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/meshtastic)
 [![CI](https://img.shields.io/github/actions/workflow/status/meshtastic/python/ci.yml?branch=master&label=actions&logo=github&color=yellow)](https://github.com/meshtastic/python/actions/workflows/ci.yml)
 [![CLA assistant](https://cla-assistant.io/readme/badge/meshtastic/python)](https://cla-assistant.io/meshtastic/python)
@@ -15,7 +15,7 @@ Events are delivered using a publish-subscribe model, and you can subscribe to o
 
 **[Getting Started Guide](https://meshtastic.org/docs/software/python/cli/installation)**
 
-**[Documentation/API Reference](https://python.meshtastic.org/)**
+(Documentation/API Reference is currently offline)
 
 ## Call for Contributors
 
