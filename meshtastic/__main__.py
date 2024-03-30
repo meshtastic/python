@@ -1367,7 +1367,7 @@ def initParser():
 
     parser.add_argument(
         "--listen",
-        help="Just stay open and listen to the protobuf stream.",
+        help="Just stay open and listen to the protobuf stream. Enables debug logging.",
         action="store_true",
     )
 
