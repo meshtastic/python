@@ -35,6 +35,8 @@ jobs:
           meshtastic --version
       - name: Run pylint
         run: pylint meshtastic examples/ --ignore-patterns ".*_pb2.pyi?$"
+      - name: Check types with mypy
+        run: mypy meshtastic/
       - name: Run tests with pytest
         run: pytest --cov=meshtastic
       - name: Generate coverage report
