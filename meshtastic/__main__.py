@@ -1321,7 +1321,7 @@ def initParser():
         action="store_true",
     )
 
-    parser.add_argument("--setalt", help="Set device altitude (allows use without GPS)")
+    parser.add_argument("--setalt", help="Set device altitude in meters (allows use without GPS)")
 
     parser.add_argument("--setlat", help="Set device latitude (allows use without GPS)")
 
