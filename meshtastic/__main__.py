@@ -919,7 +919,7 @@ def common():
     args = our_globals.get_args()
     parser = our_globals.get_parser()
     logging.basicConfig(
-        level=logging.DEBUG if args.debug else logging.INFO,
+        level=logging.DEBUG if (args.debug or args.listen) else logging.INFO,
         format="%(levelname)s file:%(filename)s %(funcName)s line:%(lineno)s %(message)s",
     )
 
