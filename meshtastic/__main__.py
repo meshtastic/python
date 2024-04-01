@@ -9,16 +9,15 @@ import platform
 import sys
 import time
 
-import pyqrcode
+import pyqrcode # type: ignore[import-untyped]
 import yaml
 from google.protobuf.json_format import MessageToDict
-from pubsub import pub
+from pubsub import pub # type: ignore[import-untyped]
 
 import meshtastic.test
 import meshtastic.util
-from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware
+from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware, BROADCAST_ADDR
 from meshtastic.version import get_active_version
-from meshtastic.__init__ import BROADCAST_ADDR
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.globals import Globals
 
@@ -147,7 +146,7 @@ def setPref(config, comp_name, valStr) -> bool:
 
     objDesc = config.DESCRIPTOR
     config_type = objDesc.fields_by_name.get(name[0])
-    pref = False
+    pref = None
     if config_type and config_type.message_type is not None:
         pref = config_type.message_type.fields_by_name.get(snake_name)
     # Others like ChannelSettings are standalone

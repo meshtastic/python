@@ -6,11 +6,11 @@ import sys
 import time
 import traceback
 
-from dotmap import DotMap
-from pubsub import pub
+from dotmap import DotMap # type: ignore[import-untyped]
+from pubsub import pub # type: ignore[import-untyped]
 
 import meshtastic.util
-from meshtastic.__init__ import BROADCAST_NUM
+from meshtastic import BROADCAST_NUM
 from meshtastic.serial_interface import SerialInterface
 from meshtastic.tcp_interface import TCPInterface
 

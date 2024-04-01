@@ -123,7 +123,7 @@ class Node:
             print("Requesting current config from remote node (this can take a while).")
 
         msgIndex = configType.index
-        if configType.containing_type.full_name == "LocalConfig":
+        if configType.containing_type.full_name in ("meshtastic.LocalConfig", "LocalConfig"):
             p = admin_pb2.AdminMessage()
             p.get_config_request = msgIndex
             self._sendAdmin(p, wantResponse=True, onResponse=onResponse)

@@ -5,7 +5,7 @@ import threading
 import time
 import traceback
 
-import serial
+import serial # type: ignore[import-untyped]
 
 from meshtastic.mesh_interface import MeshInterface
 from meshtastic.util import is_windows11, stripnl

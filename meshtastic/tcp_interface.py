@@ -2,7 +2,7 @@
 """
 import logging
 import socket
-from typing import AnyStr
+from typing import Optional
 
 from meshtastic.stream_interface import StreamInterface
 
@@ -12,7 +12,7 @@ class TCPInterface(StreamInterface):
 
     def __init__(
         self,
-        hostname: AnyStr,
+        hostname: str,
         debugOut=None,
         noProto=False,
         connectNow=True,
@@ -30,10 +30,10 @@ class TCPInterface(StreamInterface):
         self.portNumber = portNumber
 
         if connectNow:
-            logging.debug(f"Connecting to {hostname}")
+            logging.debug(f"Connecting to {hostname}") # type: ignore[str-bytes-safe]
             server_address = (hostname, portNumber)
             sock = socket.create_connection(server_address)
-            self.socket = sock
+            self.socket: Optional[socket.socket] = sock
         else:
             self.socket = None
 
