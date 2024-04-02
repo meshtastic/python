@@ -12,7 +12,6 @@ from datetime import datetime
 
 import google.protobuf.json_format
 import timeago # type: ignore[import-untyped]
-from google.protobuf.json_format import MessageToJson
 from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
 

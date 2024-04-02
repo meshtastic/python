@@ -551,6 +551,7 @@ def test_active_ports_on_supported_devices_mac_duplicates_check(mock_platform, m
 
 @pytest.mark.unit
 def test_message_to_json_shows_all():
+    """Test that message_to_json prints fields that aren't included in data passed in"""
     actual = json.loads(message_to_json(MyNodeInfo()))
     expected = { "myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0 }
     assert actual == expected
