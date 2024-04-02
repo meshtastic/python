@@ -35,6 +35,7 @@ from meshtastic.util import (
     our_exit,
     remove_keys_from_dict,
     stripnl,
+    message_to_json,
 )
 
 
@@ -108,10 +109,10 @@ class MeshInterface:
         owner = f"Owner: {self.getLongName()} ({self.getShortName()})"
         myinfo = ""
         if self.myInfo:
-            myinfo = f"\nMy info: {stripnl(MessageToJson(self.myInfo))}"
+            myinfo = f"\nMy info: {message_to_json(self.myInfo)}"
         metadata = ""
         if self.metadata:
-            metadata = f"\nMetadata: {stripnl(MessageToJson(self.metadata))}"
+            metadata = f"\nMetadata: {message_to_json(self.metadata)}"
         mesh = "\n\nNodes in mesh: "
         nodes = {}
         if self.nodes:

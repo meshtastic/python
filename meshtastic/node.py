@@ -15,6 +15,7 @@ from meshtastic.util import (
     our_exit,
     pskToString,
     stripnl,
+    message_to_json,
 )
 
 
@@ -47,8 +48,7 @@ class Node:
         if self.channels:
             logging.debug(f"self.channels:{self.channels}")
             for c in self.channels:
-                # print('c.settings.psk:', c.settings.psk)
-                cStr = stripnl(MessageToJson(c.settings))
+                cStr = message_to_json(c.settings)
                 # don't show disabled channels
                 if channel_pb2.Channel.Role.Name(c.role) != "DISABLED":
                     print(
@@ -64,11 +64,11 @@ class Node:
         """Show human readable description of our node"""
         prefs = ""
         if self.localConfig:
-            prefs = stripnl(MessageToJson(self.localConfig))
+            prefs = message_to_json(self.localConfig)
         print(f"Preferences: {prefs}\n")
         prefs = ""
         if self.moduleConfig:
-            prefs = stripnl(MessageToJson(self.moduleConfig))
+            prefs = message_to_json(self.moduleConfig)
         print(f"Module preferences: {prefs}\n")
         self.showChannels()
 
