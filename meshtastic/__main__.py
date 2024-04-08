@@ -851,7 +851,7 @@ def subscribe():
 
 
 def export_config(interface):
-    """used in--export-config"""
+    """used in --export-config"""
     configObj = {}
 
     owner = interface.getLongName()
@@ -1030,6 +1030,31 @@ def common():
         # don't call exit, background threads might be running still
         # sys.exit(0)
 
+def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add connection specifiation arguments"""
+
+    outer = parser.add_argument_group('Connection', 'Optional arguments that specify how to connect to a Meshtastic device.')
+    group = outer.add_mutually_exclusive_group()
+    group.add_argument(
+        "--port",
+        help="The port of the device to connect to using serial, e.g. /dev/ttyUSB0.",
+        default=None,
+    )
+
+    group.add_argument(
+        "--host",
+        help="The hostname or IP address of the device to connect to using TCP",
+        default=None,
+    )
+
+    group.add_argument(
+        "--ble",
+        help="The BLE device address or name to connect to",
+        default=None,
+    )
+
+    return parser
+
 
 def initParser():
     """Initialize the command line argument parsing."""
@@ -1037,64 +1062,77 @@ def initParser():
     parser = our_globals.get_parser()
     args = our_globals.get_args()
 
-    parser.add_argument(
+    # The "Help" group includes the help option and other informational stuff about the CLI itself
+    outerHelpGroup = parser.add_argument_group('Help')
+    helpGroup = outerHelpGroup.add_mutually_exclusive_group()
+    helpGroup.add_argument("-h", "--help", action="help", help="show this help message and exit")
+
+    the_version = get_active_version()
+    helpGroup.add_argument("--version", action="version", version=f"{the_version}")
+
+    helpGroup.add_argument(
+        "--support",
+        action="store_true",
+        help="Show support info (useful when troubleshooting an issue)",
+    )
+
+    # Connection arguments to indicate a device to connect to
+    parser = addConnectionArgs(parser)
+
+    # Arguments concerning viewing and setting configuration
+
+    # Arguments for sending or requesting things from the local device
+
+    # Arguments for sending or requesting things from the mesh
+
+    # All the rest of the arguments
+    group = parser.add_argument_group("optional arguments")
+    group.add_argument(
         "--configure",
         help="Specify a path to a yaml(.yml) file containing the desired settings for the connected device.",
         action="append",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--export-config",
         help="Export the configuration in yaml(.yml) format.",
         action="store_true",
     )
 
-    parser.add_argument(
-        "--port",
-        help="The port the Meshtastic device is connected to, i.e. /dev/ttyUSB0.",
-        default=None,
-    )
-
-    parser.add_argument(
-        "--host",
-        help="The hostname/ipaddr of the device to connect to (over TCP)",
-        default=None,
-    )
-
-    parser.add_argument(
+    group.add_argument(
         "--seriallog",
         help="Log device serial output to either 'stdout', 'none' or a filename to append to.",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--info",
         help="Read and display the radio config information",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--get-canned-message",
         help="Show the canned message plugin message",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--get-ringtone", help="Show the stored ringtone", action="store_true"
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--nodes",
         help="Print Node List in a pretty formatted table",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--qr",
         help="Display the QR code that corresponds to the current channel",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--get",
         help=(
             "Get a preferences field. Use an invalid field such as '0' to get a list of all fields."
@@ -1104,32 +1142,32 @@ def initParser():
         action="append",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--set",
         help="Set a preferences field. Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')",
         nargs=2,
         action="append",
     )
 
-    parser.add_argument("--seturl", help="Set a channel URL", action="store")
+    group.add_argument("--seturl", help="Set a channel URL", action="store")
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-index",
         help="Set the specified channel index. Channels start at 0 (0 is the PRIMARY channel).",
         action="store",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-add",
         help="Add a secondary channel, you must specify a channel name",
         default=None,
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-del", help="Delete the ch-index channel", action="store_true"
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-enable",
         help="Enable the specified channel",
         action="store_true",
@@ -1138,7 +1176,7 @@ def initParser():
     )
 
     # Note: We are doing a double negative here (Do we want to disable? If ch_disable==True, then disable.)
-    parser.add_argument(
+    group.add_argument(
         "--ch-disable",
         help="Disable the specified channel",
         action="store_true",
@@ -1146,7 +1184,7 @@ def initParser():
         default=False,
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-set",
         help=(
             "Set a channel parameter. To see channel settings available:'--ch-set all all --ch-index 0'. "
@@ -1159,82 +1197,82 @@ def initParser():
         action="append",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-vlongslow",
         help="Change to the very long-range and slow channel",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-longslow",
         help="Change to the long-range and slow channel",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-longfast",
         help="Change to the long-range and fast channel",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-medslow",
         help="Change to the med-range and slow channel",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-medfast",
         help="Change to the med-range and fast channel",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-shortslow",
         help="Change to the short-range and slow channel",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ch-shortfast",
         help="Change to the short-range and fast channel",
         action="store_true",
     )
 
-    parser.add_argument("--set-owner", help="Set device owner name", action="store")
+    group.add_argument("--set-owner", help="Set device owner name", action="store")
 
-    parser.add_argument(
+    group.add_argument(
         "--set-canned-message",
         help="Set the canned messages plugin message (up to 200 characters).",
         action="store",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--set-ringtone",
         help="Set the Notification Ringtone (up to 230 characters).",
         action="store",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--set-owner-short", help="Set device owner short name", action="store"
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store"
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--dest",
         help="The destination node id for any sent commands, if not set '^all' or '^local' is assumed as appropriate",
         default=None,
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--sendtext",
         help="Send a text message. Can specify a destination '--dest' and/or channel index '--ch-index'.",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--traceroute",
         help="Traceroute from connected node to a destination. "
         "You need pass the destination ID as argument, like "
@@ -1242,7 +1280,7 @@ def initParser():
         "Only nodes that have the encryption key can be traced.",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--request-telemetry", 
         help="Request telemetry from a node. "
         "You need pass the destination ID as argument with '--dest'. "
@@ -1250,85 +1288,85 @@ def initParser():
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--ack",
         help="Use in combination with --sendtext to wait for an acknowledgment.",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--reboot", help="Tell the destination node to reboot", action="store_true"
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--reboot-ota",
         help="Tell the destination node to reboot into factory firmware",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--shutdown", help="Tell the destination node to shutdown", action="store_true"
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--device-metadata",
         help="Get the device metadata from the node",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--begin-edit",
         help="Tell the node to open a transaction to edit settings",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--commit-edit",
         help="Tell the node to commit open settings transaction",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--factory-reset",
         help="Tell the destination node to install the default config",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--reset-nodedb",
         help="Tell the destination node clear its list of nodes",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--reply", help="Reply to received messages", action="store_true"
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--gpio-wrb", nargs=2, help="Set a particular GPIO # to 1 or 0", action="append"
     )
 
-    parser.add_argument("--gpio-rd", help="Read from a GPIO mask (ex: '0x10')")
+    group.add_argument("--gpio-rd", help="Read from a GPIO mask (ex: '0x10')")
 
-    parser.add_argument(
+    group.add_argument(
         "--gpio-watch", help="Start watching a GPIO mask for changes (ex: '0x10')"
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--no-time",
         help="Suppress sending the current time to the mesh",
         action="store_true",
     )
 
-    parser.add_argument("--setalt", help="Set device altitude in meters (allows use without GPS)")
+    group.add_argument("--setalt", help="Set device altitude in meters (allows use without GPS)")
 
-    parser.add_argument("--setlat", help="Set device latitude (allows use without GPS)")
+    group.add_argument("--setlat", help="Set device latitude (allows use without GPS)")
 
-    parser.add_argument(
+    group.add_argument(
         "--setlon", help="Set device longitude (allows use without GPS)"
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--pos-fields",
         help="Specify fields to send when sending a position. Use no argument for a list of valid values. "
         "Can pass multiple values as a space separated list like "
@@ -1337,34 +1375,29 @@ def initParser():
         action="store",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--debug", help="Show API library debug log messages", action="store_true"
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--test",
         help="Run stress test against all connected Meshtastic devices",
         action="store_true",
     )
 
-    parser.add_argument(
-        "--ble",
-        help="BLE device address or name to connect to",
-        default=None,
-    )
-    parser.add_argument(
+    group.add_argument(
         "--ble-scan",
         help="Scan for Meshtastic BLE devices",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--noproto",
         help="Don't start the API, just function as a dumb serial terminal.",
         action="store_true",
     )
 
-    parser.add_argument(
+    group.add_argument(
         "--listen",
         help="Just stay open and listen to the protobuf stream. Enables debug logging.",
         action="store_true",
@@ -1372,12 +1405,13 @@ def initParser():
 
     have_tunnel = platform.system() == "Linux"
     if have_tunnel:
-        parser.add_argument(
+        tunnelArgs = parser.add_argument_group('Tunnel', 'Arguments related to establishing a tunnel device over the mesh.')
+        tunnelArgs.add_argument(
             "--tunnel",
             action="store_true",
             help="Create a TUN tunnel device for forwarding IP packets over the mesh",
         )
-        parser.add_argument(
+        tunnelArgs.add_argument(
             "--subnet",
             dest="tunnel_net",
             help="Sets the local-end subnet address for the TUN IP bridge. (ex: 10.115' which is the default)",
@@ -1386,14 +1420,6 @@ def initParser():
 
     parser.set_defaults(deprecated=None)
 
-    the_version = get_active_version()
-    parser.add_argument("--version", action="version", version=f"{the_version}")
-
-    parser.add_argument(
-        "--support",
-        action="store_true",
-        help="Show support info (useful when troubleshooting an issue)",
-    )
 
     args = parser.parse_args()
     our_globals.set_args(args)
@@ -1404,7 +1430,8 @@ def main():
     """Perform command line meshtastic operations"""
     our_globals = Globals.getInstance()
     parser = argparse.ArgumentParser(
-        epilog="If neither --port nor --host are specified, we search for a compatible serial device, "
+        add_help=False,
+        epilog="If no connection arguments are specified, we search for a compatible serial device, "
                "and if none is found, then attempt a TCP connection to localhost.")
     our_globals.set_parser(parser)
     initParser()
@@ -1417,7 +1444,7 @@ def main():
 def tunnelMain():
     """Run a meshtastic IP tunnel"""
     our_globals = Globals.getInstance()
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
     our_globals.set_parser(parser)
     initParser()
     args = our_globals.get_args()
