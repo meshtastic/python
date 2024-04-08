@@ -43,7 +43,7 @@ class _ScreenFontsEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._En
 
 class ScreenFonts(_ScreenFonts, metaclass=_ScreenFontsEnumTypeWrapper):
     """
-    TODO: REPLACE
+    Font sizes for the device screen
     """
 
 FONT_SMALL: ScreenFonts.ValueType  # 0
@@ -59,6 +59,136 @@ FONT_LARGE: ScreenFonts.ValueType  # 2
 TODO: REPLACE
 """
 global___ScreenFonts = ScreenFonts
+
+@typing_extensions.final
+class PositionLite(google.protobuf.message.Message):
+    """
+    Position with static location information only for NodeDBLite
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    LATITUDE_I_FIELD_NUMBER: builtins.int
+    LONGITUDE_I_FIELD_NUMBER: builtins.int
+    ALTITUDE_FIELD_NUMBER: builtins.int
+    TIME_FIELD_NUMBER: builtins.int
+    LOCATION_SOURCE_FIELD_NUMBER: builtins.int
+    latitude_i: builtins.int
+    """
+    The new preferred location encoding, multiply by 1e-7 to get degrees
+    in floating point
+    """
+    longitude_i: builtins.int
+    """
+    TODO: REPLACE
+    """
+    altitude: builtins.int
+    """
+    In meters above MSL (but see issue #359)
+    """
+    time: builtins.int
+    """
+    This is usually not sent over the mesh (to save space), but it is sent
+    from the phone so that the local device can set its RTC If it is sent over
+    the mesh (because there are devices on the mesh without GPS), it will only
+    be sent by devices which has a hardware GPS clock.
+    seconds since 1970
+    """
+    location_source: meshtastic.mesh_pb2.Position.LocSource.ValueType
+    """
+    TODO: REPLACE
+    """
+    def __init__(
+        self,
+        *,
+        latitude_i: builtins.int = ...,
+        longitude_i: builtins.int = ...,
+        altitude: builtins.int = ...,
+        time: builtins.int = ...,
+        location_source: meshtastic.mesh_pb2.Position.LocSource.ValueType = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["altitude", b"altitude", "latitude_i", b"latitude_i", "location_source", b"location_source", "longitude_i", b"longitude_i", "time", b"time"]) -> None: ...
+
+global___PositionLite = PositionLite
+
+@typing_extensions.final
+class NodeInfoLite(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NUM_FIELD_NUMBER: builtins.int
+    USER_FIELD_NUMBER: builtins.int
+    POSITION_FIELD_NUMBER: builtins.int
+    SNR_FIELD_NUMBER: builtins.int
+    LAST_HEARD_FIELD_NUMBER: builtins.int
+    DEVICE_METRICS_FIELD_NUMBER: builtins.int
+    CHANNEL_FIELD_NUMBER: builtins.int
+    VIA_MQTT_FIELD_NUMBER: builtins.int
+    HOPS_AWAY_FIELD_NUMBER: builtins.int
+    IS_FAVORITE_FIELD_NUMBER: builtins.int
+    num: builtins.int
+    """
+    The node number
+    """
+    @property
+    def user(self) -> meshtastic.mesh_pb2.User:
+        """
+        The user info for this node
+        """
+    @property
+    def position(self) -> global___PositionLite:
+        """
+        This position data. Note: before 1.2.14 we would also store the last time we've heard from this node in position.time, that is no longer true.
+        Position.time now indicates the last time we received a POSITION from that node.
+        """
+    snr: builtins.float
+    """
+    Returns the Signal-to-noise ratio (SNR) of the last received message,
+    as measured by the receiver. Return SNR of the last received message in dB
+    """
+    last_heard: builtins.int
+    """
+    Set to indicate the last time we received a packet from this node
+    """
+    @property
+    def device_metrics(self) -> meshtastic.telemetry_pb2.DeviceMetrics:
+        """
+        The latest device metrics for the node.
+        """
+    channel: builtins.int
+    """
+    local channel index we heard that node on. Only populated if its not the default channel.
+    """
+    via_mqtt: builtins.bool
+    """
+    True if we witnessed the node over MQTT instead of LoRA transport
+    """
+    hops_away: builtins.int
+    """
+    Number of hops away from us this node is (0 if adjacent)
+    """
+    is_favorite: builtins.bool
+    """
+    True if node is in our favorites list
+    Persists between NodeDB internal clean ups
+    """
+    def __init__(
+        self,
+        *,
+        num: builtins.int = ...,
+        user: meshtastic.mesh_pb2.User | None = ...,
+        position: global___PositionLite | None = ...,
+        snr: builtins.float = ...,
+        last_heard: builtins.int = ...,
+        device_metrics: meshtastic.telemetry_pb2.DeviceMetrics | None = ...,
+        channel: builtins.int = ...,
+        via_mqtt: builtins.bool = ...,
+        hops_away: builtins.int = ...,
+        is_favorite: builtins.bool = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["device_metrics", b"device_metrics", "position", b"position", "user", b"user"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "last_heard", b"last_heard", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
+
+global___NodeInfoLite = NodeInfoLite
 
 @typing_extensions.final
 class DeviceState(google.protobuf.message.Message):
@@ -155,136 +285,6 @@ class DeviceState(google.protobuf.message.Message):
     def ClearField(self, field_name: typing_extensions.Literal["did_gps_reset", b"did_gps_reset", "my_node", b"my_node", "no_save", b"no_save", "node_db_lite", b"node_db_lite", "node_remote_hardware_pins", b"node_remote_hardware_pins", "owner", b"owner", "receive_queue", b"receive_queue", "rx_text_message", b"rx_text_message", "rx_waypoint", b"rx_waypoint", "version", b"version"]) -> None: ...
 
 global___DeviceState = DeviceState
-
-@typing_extensions.final
-class NodeInfoLite(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    NUM_FIELD_NUMBER: builtins.int
-    USER_FIELD_NUMBER: builtins.int
-    POSITION_FIELD_NUMBER: builtins.int
-    SNR_FIELD_NUMBER: builtins.int
-    LAST_HEARD_FIELD_NUMBER: builtins.int
-    DEVICE_METRICS_FIELD_NUMBER: builtins.int
-    CHANNEL_FIELD_NUMBER: builtins.int
-    VIA_MQTT_FIELD_NUMBER: builtins.int
-    HOPS_AWAY_FIELD_NUMBER: builtins.int
-    IS_FAVORITE_FIELD_NUMBER: builtins.int
-    num: builtins.int
-    """
-    The node number
-    """
-    @property
-    def user(self) -> meshtastic.mesh_pb2.User:
-        """
-        The user info for this node
-        """
-    @property
-    def position(self) -> global___PositionLite:
-        """
-        This position data. Note: before 1.2.14 we would also store the last time we've heard from this node in position.time, that is no longer true.
-        Position.time now indicates the last time we received a POSITION from that node.
-        """
-    snr: builtins.float
-    """
-    Returns the Signal-to-noise ratio (SNR) of the last received message,
-    as measured by the receiver. Return SNR of the last received message in dB
-    """
-    last_heard: builtins.int
-    """
-    Set to indicate the last time we received a packet from this node
-    """
-    @property
-    def device_metrics(self) -> meshtastic.telemetry_pb2.DeviceMetrics:
-        """
-        The latest device metrics for the node.
-        """
-    channel: builtins.int
-    """
-    local channel index we heard that node on. Only populated if its not the default channel.
-    """
-    via_mqtt: builtins.bool
-    """
-    True if we witnessed the node over MQTT instead of LoRA transport
-    """
-    hops_away: builtins.int
-    """
-    Number of hops away from us this node is (0 if adjacent)
-    """
-    is_favorite: builtins.bool
-    """
-    True if node is in our favorites list
-    Persists between NodeDB internal clean ups
-    """
-    def __init__(
-        self,
-        *,
-        num: builtins.int = ...,
-        user: meshtastic.mesh_pb2.User | None = ...,
-        position: global___PositionLite | None = ...,
-        snr: builtins.float = ...,
-        last_heard: builtins.int = ...,
-        device_metrics: meshtastic.telemetry_pb2.DeviceMetrics | None = ...,
-        channel: builtins.int = ...,
-        via_mqtt: builtins.bool = ...,
-        hops_away: builtins.int = ...,
-        is_favorite: builtins.bool = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["device_metrics", b"device_metrics", "position", b"position", "user", b"user"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "last_heard", b"last_heard", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
-
-global___NodeInfoLite = NodeInfoLite
-
-@typing_extensions.final
-class PositionLite(google.protobuf.message.Message):
-    """
-    Position with static location information only for NodeDBLite
-    """
-
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    LATITUDE_I_FIELD_NUMBER: builtins.int
-    LONGITUDE_I_FIELD_NUMBER: builtins.int
-    ALTITUDE_FIELD_NUMBER: builtins.int
-    TIME_FIELD_NUMBER: builtins.int
-    LOCATION_SOURCE_FIELD_NUMBER: builtins.int
-    latitude_i: builtins.int
-    """
-    The new preferred location encoding, multiply by 1e-7 to get degrees
-    in floating point
-    """
-    longitude_i: builtins.int
-    """
-    TODO: REPLACE
-    """
-    altitude: builtins.int
-    """
-    In meters above MSL (but see issue #359)
-    """
-    time: builtins.int
-    """
-    This is usually not sent over the mesh (to save space), but it is sent
-    from the phone so that the local device can set its RTC If it is sent over
-    the mesh (because there are devices on the mesh without GPS), it will only
-    be sent by devices which has a hardware GPS clock.
-    seconds since 1970
-    """
-    location_source: meshtastic.mesh_pb2.Position.LocSource.ValueType
-    """
-    TODO: REPLACE
-    """
-    def __init__(
-        self,
-        *,
-        latitude_i: builtins.int = ...,
-        longitude_i: builtins.int = ...,
-        altitude: builtins.int = ...,
-        time: builtins.int = ...,
-        location_source: meshtastic.mesh_pb2.Position.LocSource.ValueType = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["altitude", b"altitude", "latitude_i", b"latitude_i", "location_source", b"location_source", "longitude_i", b"longitude_i", "time", b"time"]) -> None: ...
-
-global___PositionLite = PositionLite
 
 @typing_extensions.final
 class ChannelFile(google.protobuf.message.Message):

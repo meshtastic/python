@@ -258,6 +258,15 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     Heltec Wireless Tracker with ESP32-S3 CPU, built-in GPS, and TFT
     Older "V1.0" Variant
     """
+    UNPHONE: _HardwareModel.ValueType  # 59
+    """
+    unPhone with ESP32-S3, TFT touchscreen,  LSM6DS3TR-C accelerometer and gyroscope
+    """
+    TD_LORAC: _HardwareModel.ValueType  # 60
+    """
+    Teledatics TD-LORAC NRF52840 based M.2 LoRA module
+    Compatible with the TD-WRLS development board
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -500,6 +509,15 @@ HELTEC_WIRELESS_TRACKER_V1_0: HardwareModel.ValueType  # 58
 """
 Heltec Wireless Tracker with ESP32-S3 CPU, built-in GPS, and TFT
 Older "V1.0" Variant
+"""
+UNPHONE: HardwareModel.ValueType  # 59
+"""
+unPhone with ESP32-S3, TFT touchscreen,  LSM6DS3TR-C accelerometer and gyroscope
+"""
+TD_LORAC: HardwareModel.ValueType  # 60
+"""
+Teledatics TD-LORAC NRF52840 based M.2 LoRA module
+Compatible with the TD-WRLS development board
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
@@ -1618,7 +1636,7 @@ class MeshPacket(google.protobuf.message.Message):
     """
     hop_start: builtins.int
     """
-    Hop limit with which the original packet started. Sent via LoRa using three bits in the unencrypted header. 
+    Hop limit with which the original packet started. Sent via LoRa using three bits in the unencrypted header.
     When receiving a packet, the difference between hop_start and hop_limit gives how many hops it traveled.
     """
     def __init__(

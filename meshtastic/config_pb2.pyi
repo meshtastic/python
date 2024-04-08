@@ -66,14 +66,14 @@ class Config(google.protobuf.message.Message):
             """
             Description: Broadcasts GPS position packets as priority.
             Technical Details: Position Mesh packets will be prioritized higher and sent more frequently by default.
-              When used in conjunction with power.is_power_saving = true, nodes will wake up, 
+              When used in conjunction with power.is_power_saving = true, nodes will wake up,
               send position, and then sleep for position.position_broadcast_secs seconds.
             """
             SENSOR: Config.DeviceConfig._Role.ValueType  # 6
             """
             Description: Broadcasts telemetry packets as priority.
             Technical Details: Telemetry Mesh packets will be prioritized higher and sent more frequently by default.
-              When used in conjunction with power.is_power_saving = true, nodes will wake up, 
+              When used in conjunction with power.is_power_saving = true, nodes will wake up,
               send environment telemetry, and then sleep for telemetry.environment_update_interval seconds.
             """
             TAK: Config.DeviceConfig._Role.ValueType  # 7
@@ -94,7 +94,7 @@ class Config(google.protobuf.message.Message):
             LOST_AND_FOUND: Config.DeviceConfig._Role.ValueType  # 9
             """
             Description: Broadcasts location as message to default channel regularly for to assist with device recovery.
-            Technical Details: Used to automatically send a text message to the mesh 
+            Technical Details: Used to automatically send a text message to the mesh
                with the current position of the device on a frequent interval:
                "I'm lost! Position: lat / long"
             """
@@ -141,14 +141,14 @@ class Config(google.protobuf.message.Message):
         """
         Description: Broadcasts GPS position packets as priority.
         Technical Details: Position Mesh packets will be prioritized higher and sent more frequently by default.
-          When used in conjunction with power.is_power_saving = true, nodes will wake up, 
+          When used in conjunction with power.is_power_saving = true, nodes will wake up,
           send position, and then sleep for position.position_broadcast_secs seconds.
         """
         SENSOR: Config.DeviceConfig.Role.ValueType  # 6
         """
         Description: Broadcasts telemetry packets as priority.
         Technical Details: Telemetry Mesh packets will be prioritized higher and sent more frequently by default.
-          When used in conjunction with power.is_power_saving = true, nodes will wake up, 
+          When used in conjunction with power.is_power_saving = true, nodes will wake up,
           send environment telemetry, and then sleep for telemetry.environment_update_interval seconds.
         """
         TAK: Config.DeviceConfig.Role.ValueType  # 7
@@ -169,7 +169,7 @@ class Config(google.protobuf.message.Message):
         LOST_AND_FOUND: Config.DeviceConfig.Role.ValueType  # 9
         """
         Description: Broadcasts location as message to default channel regularly for to assist with device recovery.
-        Technical Details: Used to automatically send a text message to the mesh 
+        Technical Details: Used to automatically send a text message to the mesh
            with the current position of the device on a frequent interval:
            "I'm lost! Position: lat / long"
         """
@@ -244,6 +244,7 @@ class Config(google.protobuf.message.Message):
         DOUBLE_TAP_AS_BUTTON_PRESS_FIELD_NUMBER: builtins.int
         IS_MANAGED_FIELD_NUMBER: builtins.int
         DISABLE_TRIPLE_CLICK_FIELD_NUMBER: builtins.int
+        TZDEF_FIELD_NUMBER: builtins.int
         role: global___Config.DeviceConfig.Role.ValueType
         """
         Sets the role of node
@@ -289,6 +290,10 @@ class Config(google.protobuf.message.Message):
         """
         Disables the triple-press of user button to enable or disable GPS
         """
+        tzdef: builtins.str
+        """
+        POSIX Timezone definition string from https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv.
+        """
         def __init__(
             self,
             *,
@@ -302,8 +307,9 @@ class Config(google.protobuf.message.Message):
             double_tap_as_button_press: builtins.bool = ...,
             is_managed: builtins.bool = ...,
             disable_triple_click: builtins.bool = ...,
+            tzdef: builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["button_gpio", b"button_gpio", "buzzer_gpio", b"buzzer_gpio", "debug_log_enabled", b"debug_log_enabled", "disable_triple_click", b"disable_triple_click", "double_tap_as_button_press", b"double_tap_as_button_press", "is_managed", b"is_managed", "node_info_broadcast_secs", b"node_info_broadcast_secs", "rebroadcast_mode", b"rebroadcast_mode", "role", b"role", "serial_enabled", b"serial_enabled"]) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["button_gpio", b"button_gpio", "buzzer_gpio", b"buzzer_gpio", "debug_log_enabled", b"debug_log_enabled", "disable_triple_click", b"disable_triple_click", "double_tap_as_button_press", b"double_tap_as_button_press", "is_managed", b"is_managed", "node_info_broadcast_secs", b"node_info_broadcast_secs", "rebroadcast_mode", b"rebroadcast_mode", "role", b"role", "serial_enabled", b"serial_enabled", "tzdef", b"tzdef"]) -> None: ...
 
     @typing_extensions.final
     class PositionConfig(google.protobuf.message.Message):
