@@ -365,6 +365,11 @@ def onConnected(interface):
             waitForAckNak = True
             interface.getNode(args.dest, False).factoryReset()
 
+        if args.remove_node:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False).removeNode(args.remove_node)
+
         if args.reset_nodedb:
             closeNow = True
             waitForAckNak = True
@@ -1333,8 +1338,12 @@ def initParser():
     )
 
     group.add_argument(
+        "--remove-node",
+        help="Tell the destination node to remove a specific node from its DB, by node number or ID"
+    )
+    group.add_argument(
         "--reset-nodedb",
-        help="Tell the destination node clear its list of nodes",
+        help="Tell the destination node to clear its list of nodes",
         action="store_true",
     )
 

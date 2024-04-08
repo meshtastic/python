@@ -5,6 +5,8 @@ import base64
 import logging
 import time
 
+from typing import Union
+
 from meshtastic import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, portnums_pb2
 from meshtastic.util import (
     Timeout,
@@ -597,6 +599,23 @@ class Node:
         logging.info(f"Telling node to factory reset")
 
         # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
+    def removeNode(self, nodeId: Union[int, str]):
+        """Tell the node to remove a specific node by ID"""
+        if isinstance(nodeId, str):
+            if nodeId.startswith("!"):
+                nodeId = int(nodeId[1:], 16)
+            else:
+                nodeId = int(nodeId)
+
+        p = admin_pb2.AdminMessage()
+        p.remove_by_nodenum = nodeId
+
         if self == self.iface.localNode:
             onResponse = None
         else:
