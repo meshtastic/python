@@ -1,6 +1,6 @@
 markdown
 pyserial
-protobuf
+protobuf>=5.26.0
 dotmap
 pexpect
 pyqrcode
