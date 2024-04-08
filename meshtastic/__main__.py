@@ -851,7 +851,7 @@ def subscribe():
 
 
 def export_config(interface):
-    """used in--export-config"""
+    """used in --export-config"""
     configObj = {}
 
     owner = interface.getLongName()
@@ -1062,10 +1062,31 @@ def initParser():
     parser = our_globals.get_parser()
     args = our_globals.get_args()
 
+    # The "Help" group includes the help option and other informational stuff about the CLI itself
+    outerHelpGroup = parser.add_argument_group('Help')
+    helpGroup = outerHelpGroup.add_mutually_exclusive_group()
+    helpGroup.add_argument("-h", "--help", action="help", help="show this help message and exit")
+
+    the_version = get_active_version()
+    helpGroup.add_argument("--version", action="version", version=f"{the_version}")
+
+    helpGroup.add_argument(
+        "--support",
+        action="store_true",
+        help="Show support info (useful when troubleshooting an issue)",
+    )
+
+    # Connection arguments to indicate a device to connect to
     parser = addConnectionArgs(parser)
 
+    # Arguments concerning viewing and setting configuration
+
+    # Arguments for sending or requesting things from the local device
+
+    # Arguments for sending or requesting things from the mesh
+
+    # All the rest of the arguments
     group = parser.add_argument_group("optional arguments")
-    group.add_argument("-h", "--help", action="help", help="show this help message and exit")
     group.add_argument(
         "--configure",
         help="Specify a path to a yaml(.yml) file containing the desired settings for the connected device.",
@@ -1384,12 +1405,13 @@ def initParser():
 
     have_tunnel = platform.system() == "Linux"
     if have_tunnel:
-        group.add_argument(
+        tunnelArgs = parser.add_argument_group('Tunnel', 'Arguments related to establishing a tunnel device over the mesh.')
+        tunnelArgs.add_argument(
             "--tunnel",
             action="store_true",
             help="Create a TUN tunnel device for forwarding IP packets over the mesh",
         )
-        group.add_argument(
+        tunnelArgs.add_argument(
             "--subnet",
             dest="tunnel_net",
             help="Sets the local-end subnet address for the TUN IP bridge. (ex: 10.115' which is the default)",
@@ -1398,14 +1420,6 @@ def initParser():
 
     parser.set_defaults(deprecated=None)
 
-    the_version = get_active_version()
-    group.add_argument("--version", action="version", version=f"{the_version}")
-
-    group.add_argument(
-        "--support",
-        action="store_true",
-        help="Show support info (useful when troubleshooting an issue)",
-    )
 
     args = parser.parse_args()
     our_globals.set_args(args)
@@ -1430,7 +1444,7 @@ def main():
 def tunnelMain():
     """Run a meshtastic IP tunnel"""
     our_globals = Globals.getInstance()
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
     our_globals.set_parser(parser)
     initParser()
     args = our_globals.get_args()
