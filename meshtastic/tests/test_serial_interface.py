@@ -41,13 +41,11 @@ def test_SerialInterface_single_port(
 @patch("meshtastic.util.findPorts", return_value=[])
 def test_SerialInterface_no_ports(mocked_findPorts, capsys):
     """Test that we can instantiate a SerialInterface with no ports"""
-    with pytest.raises(SystemExit) as pytest_wrapped_e:
-        SerialInterface(noProto=True)
+    serialInterface = SerialInterface(noProto=True)
     mocked_findPorts.assert_called()
-    assert pytest_wrapped_e.type == SystemExit
-    assert pytest_wrapped_e.value.code == 1
+    assert serialInterface.devPath is None
     out, err = capsys.readouterr()
-    assert re.search(r"Warning: No Meshtastic devices detected", out, re.MULTILINE)
+    assert re.search(r"No.*Meshtastic.*device.*detected", out, re.MULTILINE)
     assert err == ""
 
 

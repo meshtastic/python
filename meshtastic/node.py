@@ -5,7 +5,7 @@ import base64
 import logging
 import time
 
-from google.protobuf.json_format import MessageToJson
+from typing import Union
 
 from meshtastic import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, portnums_pb2
 from meshtastic.util import (
@@ -15,6 +15,7 @@ from meshtastic.util import (
     our_exit,
     pskToString,
     stripnl,
+    message_to_json,
 )
 
 
@@ -47,12 +48,11 @@ class Node:
         if self.channels:
             logging.debug(f"self.channels:{self.channels}")
             for c in self.channels:
-                # print('c.settings.psk:', c.settings.psk)
-                cStr = stripnl(MessageToJson(c.settings))
+                cStr = message_to_json(c.settings)
                 # don't show disabled channels
                 if channel_pb2.Channel.Role.Name(c.role) != "DISABLED":
                     print(
-                        f"  {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}"
+                        f"  Index {c.index}: {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}"
                     )
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
@@ -64,11 +64,11 @@ class Node:
         """Show human readable description of our node"""
         prefs = ""
         if self.localConfig:
-            prefs = stripnl(MessageToJson(self.localConfig))
+            prefs = message_to_json(self.localConfig)
         print(f"Preferences: {prefs}\n")
         prefs = ""
         if self.moduleConfig:
-            prefs = stripnl(MessageToJson(self.moduleConfig))
+            prefs = message_to_json(self.moduleConfig)
         print(f"Module preferences: {prefs}\n")
         self.showChannels()
 
@@ -115,6 +115,7 @@ class Node:
             print(f"{str(camel_to_snake(field))}:\n{str(config_values)}")
 
     def requestConfig(self, configType):
+        """Request the config from the node via admin message"""
         if self == self.iface.localNode:
             onResponse = None
         else:
@@ -122,7 +123,7 @@ class Node:
             print("Requesting current config from remote node (this can take a while).")
 
         msgIndex = configType.index
-        if configType.containing_type.full_name == "LocalConfig":
+        if configType.containing_type.full_name in ("meshtastic.LocalConfig", "LocalConfig"):
             p = admin_pb2.AdminMessage()
             p.get_config_request = msgIndex
             self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
@@ -194,6 +195,8 @@ class Node:
             p.set_module_config.detection_sensor.CopyFrom(self.moduleConfig.detection_sensor)
         elif config_name == "ambient_lighting":
             p.set_module_config.ambient_lighting.CopyFrom(self.moduleConfig.ambient_lighting)
+        elif config_name == "paxcounter":
+            p.set_module_config.paxcounter.CopyFrom(self.moduleConfig.paxcounter)
         else:
             our_exit(f"Error: No valid config with name {config_name}")
 
@@ -266,11 +269,10 @@ class Node:
 
     def _getAdminChannelIndex(self):
         """Return the channel number of the admin channel, or 0 if no reserved channel"""
-        c = self.getChannelByName("admin")
-        if c:
-            return c.index
-        else:
-            return 0
+        for c in self.channels or []:
+            if c.settings and c.settings.name.lower() == "admin":
+                return c.index
+        return 0
 
     def setOwner(self, long_name=None, short_name=None, is_licensed=False):
         """Set device owner name"""
@@ -603,6 +605,23 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
+    def removeNode(self, nodeId: Union[int, str]):
+        """Tell the node to remove a specific node by ID"""
+        if isinstance(nodeId, str):
+            if nodeId.startswith("!"):
+                nodeId = int(nodeId[1:], 16)
+            else:
+                nodeId = int(nodeId)
+
+        p = admin_pb2.AdminMessage()
+        p.remove_by_nodenum = nodeId
+
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
     def resetNodeDb(self):
         """Tell the node to reset its list of nodes."""
         p = admin_pb2.AdminMessage()
@@ -687,16 +706,7 @@ class Node:
         logging.debug(f"Received channel {stripnl(c)}")
         index = c.index
 
-        # for stress testing, we can always download all channels
-        fastChannelDownload = True
-
-        # Once we see a response that has NO settings, assume
-        # we are at the end of channels and stop fetching
-        quitEarly = (
-            c.role == channel_pb2.Channel.Role.DISABLED
-        ) and fastChannelDownload
-
-        if quitEarly or index >= 8 - 1:
+        if index >= 8 - 1:
             logging.debug("Finished downloading channels")
 
             self.channels = self.partialChannels
@@ -708,6 +718,7 @@ class Node:
             self._requestChannel(index + 1)
 
     def onAckNak(self, p):
+        """Informative handler for ACK/NAK responses"""
         if p["decoded"]["routing"]["errorReason"] != "NONE":
             print(
                 f'Received a NAK, error reason: {p["decoded"]["routing"]["errorReason"]}'

@@ -14,7 +14,7 @@ from ..mesh_interface import MeshInterface
 def reset_globals():
     """Fixture to reset globals."""
     parser = None
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
     Globals.getInstance().reset()
     Globals.getInstance().set_parser(parser)
 

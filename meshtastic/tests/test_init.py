@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from meshtastic.__init__ import _onNodeInfoReceive, _onPositionReceive, _onTextReceive
+from meshtastic import _onNodeInfoReceive, _onPositionReceive, _onTextReceive
 
 from ..globals import Globals
 from ..serial_interface import SerialInterface

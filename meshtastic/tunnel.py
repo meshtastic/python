@@ -19,7 +19,7 @@ import logging
 import platform
 import threading
 
-from pubsub import pub
+from pubsub import pub # type: ignore[import-untyped]
 from pytap2 import TapDevice
 
 from meshtastic import portnums_pb2
@@ -38,6 +38,12 @@ def onTunnelReceive(packet, interface):  # pylint: disable=W0613
 class Tunnel:
     """A TUN based IP tunnel over meshtastic"""
 
+    class TunnelError(Exception):
+        """An exception class for general tunnel errors"""
+        def __init__(self, message):
+            self.message = message
+            super().__init__(self.message)
+
     def __init__(self, iface, subnet="10.115", netmask="255.255.0.0"):
         """
         Constructor
@@ -47,13 +53,19 @@ class Tunnel:
         """
 
         if not iface:
-            raise Exception("Tunnel() must have a interface")
+            raise Tunnel.TunnelError("Tunnel() must have a interface")
+
+        if not subnet:
+            raise Tunnel.TunnelError("Tunnel() must have a subnet")
+
+        if not netmask:
+            raise Tunnel.TunnelError("Tunnel() must have a netmask")
 
         self.iface = iface
         self.subnetPrefix = subnet
 
         if platform.system() != "Linux":
-            raise Exception("Tunnel() can only be run instantiated on a Linux system")
+            raise Tunnel.TunnelError("Tunnel() can only be run instantiated on a Linux system")
 
         our_globals = Globals.getInstance()
         our_globals.set_tunnelInstance(self)
@@ -63,6 +75,8 @@ class Tunnel:
         self.udpBlacklist = {
             1900,  # SSDP
             5353,  # multicast DNS
+            9001,  # Yggdrasil multicast discovery
+            64512, # cjdns beacon
         }
 
         """A list of TCP services to block"""

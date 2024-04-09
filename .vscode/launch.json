@@ -10,7 +10,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": false,
-      "args": ["--debug", "--ble", "--device", "24:62:AB:DD:DF:3A"]
+      "args": ["--debug", "--ble", "24:62:AB:DD:DF:3A"]
     },
     {
       "name": "meshtastic admin",
@@ -43,6 +43,14 @@
       "module": "meshtastic",
       "justMyCode": true,
       "args": ["--debug"]
+    },
+    {
+      "name": "meshtastic listen",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--listen", "--debug"]
     },
     {
       "name": "meshtastic debug getPref",

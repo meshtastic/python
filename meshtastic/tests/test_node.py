@@ -7,9 +7,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # from ..admin_pb2 import AdminMessage
-from ..channel_pb2 import Channel
+from ..channel_pb2 import Channel # pylint: disable=E0611
 from ..node import Node
 from ..serial_interface import SerialInterface
+from ..mesh_interface import MeshInterface
 
 # from ..config_pb2 import Config
 # from ..cannedmessages_pb2 import (CannedMessagePluginMessagePart1, CannedMessagePluginMessagePart2,
@@ -234,7 +235,7 @@ def test_exitSimulator(caplog):
 @pytest.mark.unit
 def test_reboot(caplog):
     """Test reboot"""
-    anode = Node("foo", "bar", noProto=True)
+    anode = Node(MeshInterface(), 1234567890, noProto=True)
     with caplog.at_level(logging.DEBUG):
         anode.reboot()
     assert re.search(r"Telling node to reboot", caplog.text, re.MULTILINE)
@@ -243,7 +244,7 @@ def test_reboot(caplog):
 @pytest.mark.unit
 def test_shutdown(caplog):
     """Test shutdown"""
-    anode = Node("foo", "bar", noProto=True)
+    anode = Node(MeshInterface(), 1234567890, noProto=True)
     with caplog.at_level(logging.DEBUG):
         anode.shutdown()
     assert re.search(r"Telling node to shutdown", caplog.text, re.MULTILINE)
@@ -258,7 +259,7 @@ def test_setURL_empty_url(capsys):
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()
-    assert re.search(r"Warning: No RadioConfig has been read", out, re.MULTILINE)
+    assert re.search(r"Warning: There were no settings.", out, re.MULTILINE)
     assert err == ""
 
 
@@ -777,7 +778,8 @@ def test_writeConfig_with_no_radioConfig(capsys):
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()
-    assert re.search(r"Error: No RadioConfig has been read", out)
+    print(out)
+    assert re.search(r"Error: No valid config with name foo", out)
     assert err == ""
 
 

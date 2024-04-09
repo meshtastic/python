@@ -13,7 +13,7 @@ with open("README.md", "r") as fh:
 # This call to setup() does all the work
 setup(
     name="meshtastic",
-    version="2.2.12",
+    version="2.3.4",
     description="Python API & client shell for talking to Meshtastic devices",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -34,7 +34,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "pyserial>=3.4",
-        "protobuf>=3.13.0",
+        "protobuf>=5.26.0",
         "requests>=2.25.0",
         "pypubsub>=4.0.3",
         "dotmap>=1.3.14",
@@ -43,7 +43,8 @@ setup(
         "tabulate>=0.8.9",
         "timeago>=1.0.15",
         "pyyaml",
-        "pygatt>=4.0.5 ; platform_system=='Linux'",
+        "bleak>=0.21.1",
+        "packaging",
     ],
     extras_require={"tunnel": ["pytap2>=2.0.0"]},
     python_requires=">=3.7",

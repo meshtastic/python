@@ -24,7 +24,7 @@ class Globals:
     def __init__(self):
         """Constructor for the Globals CLass"""
         if Globals.__instance is not None:
-            raise Exception("This class is a singleton")
+            raise Exception("This class is a singleton") # pylint: disable=W0719
         else:
             Globals.__instance = self
         self.args = None

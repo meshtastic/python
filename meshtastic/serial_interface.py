@@ -4,7 +4,7 @@ import logging
 import platform
 import time
 
-import serial
+import serial # type: ignore[import-untyped]
 
 import meshtastic.util
 from meshtastic.stream_interface import StreamInterface
@@ -32,7 +32,8 @@ class SerialInterface(StreamInterface):
             ports = meshtastic.util.findPorts(True)
             logging.debug(f"ports:{ports}")
             if len(ports) == 0:
-                meshtastic.util.our_exit("Warning: No Meshtastic devices detected.")
+                print("No Serial Meshtastic device detected, attempting TCP connection on localhost.")
+                return
             elif len(ports) > 1:
                 message = "Warning: Multiple serial ports were detected so one serial port must be specified with the '--port'.\n"
                 message += f"  Ports detected:{ports}"

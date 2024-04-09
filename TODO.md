@@ -5,7 +5,6 @@ Basic functionality is complete now.
 ## Eventual tasks
 
 - Improve documentation on properties/fields
-- change back to Bleak for BLE support - now that they fixed https://github.com/hbldh/bleak/issues/139#event-3499535304
 - include more examples: textchat.py, replymessage.py all as one little demo
 
 - possibly use tk to make a multiwindow test console: https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
@@ -17,11 +16,8 @@ Basic functionality is complete now.
 
 ## Bluetooth support
 
-(Pre-alpha level feature - you probably don't want this one yet)
-
-- This library supports connecting to Meshtastic devices over either USB (serial) or Bluetooth. Before connecting to the device you must [pair](https://docs.ubuntu.com/core/en/stacks/bluetooth/bluez/docs/reference/pairing/outbound.html) your PC with it.
-- We use the pip3 install "pygatt[GATTTOOL]"
-- ./bin/run.sh --debug --ble --device 24:62:AB:DD:DF:3A
+- ./bin/run.sh --ble-scan # To look for Meshtastic devices
+- ./bin/run.sh --ble 24:62:AB:DD:DF:3A --info
 
 ## Done
 
