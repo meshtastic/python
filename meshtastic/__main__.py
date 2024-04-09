@@ -229,7 +229,7 @@ def setPref(config, comp_name, valStr) -> bool:
             print(f"Adding '{val}' to the ignore_incoming list")
             config_type.message_type.ignore_incoming.extend([val])
 
-    prefix = f"{name[0]}." if config_type.message_type is not None else ""
+    prefix = f"{".".join(name[0:-1])}." if config_type.message_type is not None else ""
     if Globals.getInstance().get_camel_case():
         print(f"Set {prefix}{camel_name} to {valStr}")
     else:
@@ -580,12 +580,7 @@ def onConnected(interface):
                 if "module_config" in configuration:
                     moduleConfig = interface.getNode(args.dest).moduleConfig
                     for section in configuration["module_config"]:
-                        for pref in configuration["module_config"][section]:
-                            setPref(
-                                moduleConfig,
-                                f"{meshtastic.util.camel_to_snake(section)}.{pref}",
-                                str(configuration["module_config"][section][pref]),
-                            )
+                        traverseConfig(section, configuration["module_config"][section], moduleConfig)
                         interface.getNode(args.dest).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
