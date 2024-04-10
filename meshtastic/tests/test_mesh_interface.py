@@ -21,11 +21,12 @@ def test_MeshInterface(capsys):
     """Test that we can instantiate a MeshInterface"""
     iface = MeshInterface(noProto=True)
 
-    nodes = {
-        "!9388f81c": {
-            "num": 2475227164,
+    NODE_ID = "!9388f81c"
+    NODE_NUM = 2475227164
+    node = {
+            "num": NODE_NUM,
             "user": {
-                "id": "!9388f81c",
+                "id": NODE_ID,
                 "longName": "Unknown f81c",
                 "shortName": "?1C",
                 "macaddr": "RBeTiPgc",
@@ -34,10 +35,9 @@ def test_MeshInterface(capsys):
             "position": {},
             "lastHeard": 1640204888,
         }
-    }
 
-    iface.nodesByNum = {2475227164: nodes["!9388f81c"]}
-    iface.nodes = nodes
+    iface.nodes = {NODE_ID: node}
+    iface.nodesByNum = {NODE_NUM: node}
 
     myInfo = MagicMock()
     iface.myInfo = myInfo

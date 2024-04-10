@@ -1,11 +1,12 @@
 """Meshtastic unit tests for tunnel.py"""
-from meshtastic import globals
 import logging
 import re
 import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
+
+from meshtastic import globals
 
 from ..tcp_interface import TCPInterface
 from ..tunnel import Tunnel, onTunnelReceive

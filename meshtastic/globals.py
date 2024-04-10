@@ -15,6 +15,7 @@ with rather more easily once the code is simplified by this change.
 
 def reset():
     """
+    Restore the namespace to pristine condition.
     """
     global args, parser, channel_index, logfile, tunnelInstance, camel_case
     args = None
@@ -25,4 +26,11 @@ def reset():
     # TODO: to migrate to camel_case for v1.3 change this value to True
     camel_case = False
 
-reset()
+# These assignments are used instead of calling reset()
+# purely to shut pylint up.
+args = None
+parser = None
+channel_index = None
+logfile = None
+tunnelInstance = None
+camel_case = False
