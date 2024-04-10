@@ -16,14 +16,14 @@ from pubsub import pub # type: ignore[import-untyped]
 
 import meshtastic.test
 import meshtastic.util
-from meshtastic import globals
+from meshtastic import mt_config
 from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware, BROADCAST_ADDR
 from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
-    args = globals.args
+    args = mt_config.args
     try:
         d = packet.get("decoded")
         logging.debug(f"in onReceive() d:{d}")
@@ -67,7 +67,7 @@ def getPref(node, comp_name):
     # Note: protobufs has the keys in snake_case, so snake internally
     snake_name = meshtastic.util.camel_to_snake(name[1])
     logging.debug(f"snake_name:{snake_name} camel_name:{camel_name}")
-    logging.debug(f"use camel:{globals.camel_case}")
+    logging.debug(f"use camel:{mt_config.camel_case}")
 
     # First validate the input
     localConfig = node.localConfig
@@ -84,7 +84,7 @@ def getPref(node, comp_name):
                 break
 
     if not found:
-        if globals.camel_case:
+        if mt_config.camel_case:
             print(
                 f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {snake_name}."
             )
@@ -103,7 +103,7 @@ def getPref(node, comp_name):
         config_values = getattr(config, config_type.name)
         if not wholeField:
             pref_value = getattr(config_values, pref.name)
-            if globals.camel_case:
+            if mt_config.camel_case:
                 print(f"{str(config_type.name)}.{camel_name}: {str(pref_value)}")
                 logging.debug(
                     f"{str(config_type.name)}.{camel_name}: {str(pref_value)}"
@@ -169,7 +169,7 @@ def setPref(config, comp_name, valStr) -> bool:
         if e:
             val = e.number
         else:
-            if globals.camel_case:
+            if mt_config.camel_case:
                 print(
                     f"{name[0]}.{camel_name} does not have an enum called {val}, so you can not set it."
                 )
@@ -208,7 +208,7 @@ def setPref(config, comp_name, valStr) -> bool:
             config_type.message_type.ignore_incoming.extend([val])
 
     prefix = f"{name[0]}." if config_type.message_type is not None else ""
-    if globals.camel_case:
+    if mt_config.camel_case:
         print(f"Set {prefix}{camel_name} to {valStr}")
     else:
         print(f"Set {prefix}{snake_name} to {valStr}")
@@ -223,7 +223,7 @@ def onConnected(interface):
         False  # Should we wait for an acknowledgment if we send to a remote node?
     )
     try:
-        args = globals.args
+        args = mt_config.args
 
         # do not print this line if we are exporting the config
         if not args.export_config:
@@ -474,7 +474,7 @@ def onConnected(interface):
                 print("Writing modified preferences to device")
                 node.writeConfig(field)
             else:
-                if globals.camel_case:
+                if mt_config.camel_case:
                     print(
                         f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have an attribute {pref[0]}."
                     )
@@ -587,7 +587,7 @@ def onConnected(interface):
         # handle changing channels
 
         if args.ch_add:
-            channelIndex = globals.channel_index
+            channelIndex = mt_config.channel_index
             if channelIndex is not None:
                 # Since we set the channel index after adding a channel, don't allow --ch-index
                 meshtastic.util.our_exit(
@@ -618,12 +618,12 @@ def onConnected(interface):
                 n.writeChannel(ch.index)
                 if channelIndex is None:
                     print(f"Setting newly-added channel's {ch.index} as '--ch-index' for further modifications")
-                    globals.channel_index = ch.index
+                    mt_config.channel_index = ch.index
 
         if args.ch_del:
             closeNow = True
 
-            channelIndex = globals.channel_index
+            channelIndex = mt_config.channel_index
             if channelIndex is None:
                 meshtastic.util.our_exit(
                     "Warning: Need to specify '--ch-index' for '--ch-del'.", 1
@@ -639,7 +639,7 @@ def onConnected(interface):
 
         def setSimpleConfig(modem_preset):
             """Set one of the simple modem_config"""
-            channelIndex = globals.channel_index
+            channelIndex = mt_config.channel_index
             if channelIndex is not None and channelIndex > 0:
                 meshtastic.util.our_exit(
                     "Warning: Cannot set modem preset for non-primary channel", 1
@@ -674,7 +674,7 @@ def onConnected(interface):
         if args.ch_set or args.ch_enable or args.ch_disable:
             closeNow = True
 
-            channelIndex = globals.channel_index
+            channelIndex = mt_config.channel_index
             if channelIndex is None:
                 meshtastic.util.our_exit("Warning: Need to specify '--ch-index'.", 1)
             ch = interface.getNode(args.dest).channels[channelIndex]
@@ -829,7 +829,7 @@ def printConfig(config):
             names = []
             for field in config.message_type.fields:
                 tmp_name = f"{config_section.name}.{field.name}"
-                if globals.camel_case:
+                if mt_config.camel_case:
                     tmp_name = meshtastic.util.snake_to_camel(tmp_name)
                 names.append(tmp_name)
             for temp_name in sorted(names):
@@ -874,7 +874,7 @@ def export_config(interface):
     if owner_short:
         configObj["owner_short"] = owner_short
     if channel_url:
-        if globals.camel_case:
+        if mt_config.camel_case:
             configObj["channelUrl"] = channel_url
         else:
             configObj["channel_url"] = channel_url
@@ -886,11 +886,11 @@ def export_config(interface):
         # Convert inner keys to correct snake/camelCase
         prefs = {}
         for pref in config:
-            if globals.camel_case:
+            if mt_config.camel_case:
                 prefs[meshtastic.util.snake_to_camel(pref)] = config[pref]
             else:
                 prefs[pref] = config[pref]
-        if globals.camel_case:
+        if mt_config.camel_case:
             configObj["config"] = config
         else:
             configObj["config"] = config
@@ -902,7 +902,7 @@ def export_config(interface):
         for pref in module_config:
             if len(module_config[pref]) > 0:
                 prefs[pref] = module_config[pref]
-        if globals.camel_case:
+        if mt_config.camel_case:
             configObj["module_config"] = prefs
         else:
             configObj["module_config"] = prefs
@@ -916,8 +916,8 @@ def export_config(interface):
 def common():
     """Shared code for all of our command line wrappers"""
     logfile = None
-    args = globals.args
-    parser = globals.parser
+    args = mt_config.args
+    parser = mt_config.parser
     logging.basicConfig(
         level=logging.DEBUG if (args.debug or args.listen) else logging.INFO,
         format="%(levelname)s file:%(filename)s %(funcName)s line:%(lineno)s %(message)s",
@@ -933,7 +933,7 @@ def common():
 
         if args.ch_index is not None:
             channelIndex = int(args.ch_index)
-            globals.channel_index = channelIndex
+            mt_config.channel_index = channelIndex
 
         if not args.dest:
             args.dest = BROADCAST_ADDR
@@ -968,7 +968,7 @@ def common():
                 # Note: using "line buffering"
                 # pylint: disable=R1732
                 logfile = open(args.seriallog, "w+", buffering=1, encoding="utf8")
-                globals.logfile = logfile
+                mt_config.logfile = logfile
 
             subscribe()
             if args.ble_scan:
@@ -1059,8 +1059,8 @@ def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
 
 def initParser():
     """Initialize the command line argument parsing."""
-    parser = globals.parser
-    args = globals.args
+    parser = mt_config.parser
+    args = mt_config.args
 
     # The "Help" group includes the help option and other informational stuff about the CLI itself
     outerHelpGroup = parser.add_argument_group('Help')
@@ -1426,8 +1426,8 @@ def initParser():
 
 
     args = parser.parse_args()
-    globals.args = args
-    globals.parser = parser
+    mt_config.args = args
+    mt_config.parser = parser
 
 
 def main():
@@ -1436,10 +1436,10 @@ def main():
         add_help=False,
         epilog="If no connection arguments are specified, we search for a compatible serial device, "
                "and if none is found, then attempt a TCP connection to localhost.")
-    globals.parser = parser
+    mt_config.parser = parser
     initParser()
     common()
-    logfile = globals.logfile
+    logfile = mt_config.logfile
     if logfile:
         logfile.close()
 
@@ -1447,11 +1447,11 @@ def main():
 def tunnelMain():
     """Run a meshtastic IP tunnel"""
     parser = argparse.ArgumentParser(add_help=False)
-    globals.parser = parser
+    mt_config.parser = parser
     initParser()
-    args = globals.args
+    args = mt_config.args
     args.tunnel = True
-    globals.args = args
+    mt_config.args = args
     common()
 
 

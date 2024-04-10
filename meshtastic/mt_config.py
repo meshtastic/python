@@ -8,7 +8,7 @@ since we now rely on built in Python mechanisms.
 
 This is intended to make the Python read more naturally, and to make the
 intention of the code clearer and more compact. It is merely a sticking
-plaster over the use of shared globals, but the coupling issues wil be dealt
+plaster over the use of shared mt_config, but the coupling issues wil be dealt
 with rather more easily once the code is simplified by this change.
 
 """
@@ -17,6 +17,7 @@ def reset():
     """
     Restore the namespace to pristine condition.
     """
+    # pylint: disable=W0603
     global args, parser, channel_index, logfile, tunnelInstance, camel_case
     args = None
     parser = None

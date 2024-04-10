@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from meshtastic import _onNodeInfoReceive, _onPositionReceive, _onTextReceive, globals
+from meshtastic import _onNodeInfoReceive, _onPositionReceive, _onTextReceive, mt_config
 
 from ..serial_interface import SerialInterface
 
@@ -15,7 +15,7 @@ from ..serial_interface import SerialInterface
 def test_init_onTextReceive_with_exception(caplog):
     """Test _onTextReceive"""
     args = MagicMock()
-    globals.args = args
+    mt_config.args = args
     iface = MagicMock(autospec=SerialInterface)
     packet = {}
     with caplog.at_level(logging.DEBUG):
@@ -28,7 +28,7 @@ def test_init_onTextReceive_with_exception(caplog):
 def test_init_onPositionReceive(caplog):
     """Test _onPositionReceive"""
     args = MagicMock()
-    globals.args = args
+    mt_config.args = args
     iface = MagicMock(autospec=SerialInterface)
     packet = {"from": "foo", "decoded": {"position": {}}}
     with caplog.at_level(logging.DEBUG):
@@ -40,7 +40,7 @@ def test_init_onPositionReceive(caplog):
 def test_init_onNodeInfoReceive(caplog, iface_with_nodes):
     """Test _onNodeInfoReceive"""
     args = MagicMock()
-    globals.args = args
+    mt_config.args = args
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
     packet = {
