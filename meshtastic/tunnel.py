@@ -22,16 +22,14 @@ import threading
 from pubsub import pub # type: ignore[import-untyped]
 from pytap2 import TapDevice
 
-from meshtastic import portnums_pb2
-from meshtastic.globals import Globals
+from meshtastic import portnums_pb2, globals
 from meshtastic.util import ipstr, readnet_u16
 
 
 def onTunnelReceive(packet, interface):  # pylint: disable=W0613
     """Callback for received tunneled messages from mesh."""
     logging.debug(f"in onTunnelReceive()")
-    our_globals = Globals.getInstance()
-    tunnelInstance = our_globals.get_tunnelInstance()
+    tunnelInstance = globals.tunnelInstance
     tunnelInstance.onReceive(packet)
 
 
@@ -67,8 +65,7 @@ class Tunnel:
         if platform.system() != "Linux":
             raise Tunnel.TunnelError("Tunnel() can only be run instantiated on a Linux system")
 
-        our_globals = Globals.getInstance()
-        our_globals.set_tunnelInstance(self)
+        globals.tunnelInstance = self
 
         """A list of chatty UDP services we should never accidentally
         forward to our slow network"""

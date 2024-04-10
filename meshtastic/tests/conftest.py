@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from meshtastic.__main__ import Globals
+from meshtastic import globals
 
 from ..mesh_interface import MeshInterface
 
@@ -15,8 +15,8 @@ def reset_globals():
     """Fixture to reset globals."""
     parser = None
     parser = argparse.ArgumentParser(add_help=False)
-    Globals.getInstance().reset()
-    Globals.getInstance().set_parser(parser)
+    globals.reset()
+    globals.parser = parser
 
 
 @pytest.fixture
