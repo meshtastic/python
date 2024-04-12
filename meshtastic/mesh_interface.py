@@ -10,6 +10,8 @@ import threading
 import time
 from datetime import datetime
 
+from typing import Any, Callable, Dict, List, Optional, Union
+
 import google.protobuf.json_format
 import timeago # type: ignore[import-untyped]
 from pubsub import pub # type: ignore[import-untyped]
@@ -36,8 +38,6 @@ from meshtastic.util import (
     stripnl,
     message_to_json,
 )
-
-from typing import Any, Callable, Dict, List, Optional, Union
 
 
 class MeshInterface:

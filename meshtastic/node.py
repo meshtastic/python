@@ -5,7 +5,7 @@ import base64
 import logging
 import time
 
-from typing import Optional, Union
+from typing import Union
 
 from meshtastic import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, portnums_pb2
 from meshtastic.util import (

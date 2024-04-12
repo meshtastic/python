@@ -11,6 +11,8 @@ import threading
 import time
 import traceback
 from queue import Queue
+from typing import Union
+
 from google.protobuf.json_format import MessageToJson
 
 import packaging.version as pkg_version
@@ -20,8 +22,6 @@ import serial.tools.list_ports # type: ignore[import-untyped]
 
 from meshtastic.supported_device import supported_devices
 from meshtastic.version import get_active_version
-
-from typing import Union
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
