@@ -21,6 +21,8 @@ import serial.tools.list_ports # type: ignore[import-untyped]
 from meshtastic.supported_device import supported_devices
 from meshtastic.version import get_active_version
 
+from typing import Union
+
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
 
@@ -153,16 +155,16 @@ class dotdict(dict):
 class Timeout:
     """Timeout class"""
 
-    def __init__(self, maxSecs=20):
-        self.expireTime = 0
-        self.sleepInterval = 0.1
-        self.expireTimeout = maxSecs
+    def __init__(self, maxSecs: int=20):
+        self.expireTime: Union[int, float] = 0
+        self.sleepInterval: float = 0.1
+        self.expireTimeout: int = maxSecs
 
     def reset(self):
         """Restart the waitForSet timer"""
         self.expireTime = time.time() + self.expireTimeout
 
-    def waitForSet(self, target, attrs=()):
+    def waitForSet(self, target, attrs=()) -> bool:
         """Block until the specified attributes are set. Returns True if config has been received."""
         self.reset()
         while time.time() < self.expireTime:
@@ -173,7 +175,7 @@ class Timeout:
 
     def waitForAckNak(
         self, acknowledgment, attrs=("receivedAck", "receivedNak", "receivedImplAck")
-    ):
+    ) -> bool:
         """Block until an ACK or NAK has been received. Returns True if ACK or NAK has been received."""
         self.reset()
         while time.time() < self.expireTime:
@@ -183,7 +185,7 @@ class Timeout:
             time.sleep(self.sleepInterval)
         return False
 
-    def waitForTraceRoute(self, waitFactor, acknowledgment, attr="receivedTraceRoute"):
+    def waitForTraceRoute(self, waitFactor, acknowledgment, attr="receivedTraceRoute") -> bool:
         """Block until traceroute response is received. Returns True if traceroute response has been received."""
         self.expireTimeout *= waitFactor
         self.reset()
@@ -194,7 +196,7 @@ class Timeout:
             time.sleep(self.sleepInterval)
         return False
 
-    def waitForTelemetry(self, acknowledgment):
+    def waitForTelemetry(self, acknowledgment) -> bool:
         """Block until telemetry response is received. Returns True if telemetry response has been received."""
         self.reset()
         while time.time() < self.expireTime:

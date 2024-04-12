@@ -5,7 +5,7 @@ import base64
 import logging
 import time
 
-from typing import Union
+from typing import Optional, Union
 
 from meshtastic import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, portnums_pb2
 from meshtastic.util import (
@@ -759,9 +759,9 @@ class Node:
     def _sendAdmin(
         self,
         p: admin_pb2.AdminMessage,
-        wantResponse=True,
+        wantResponse: bool=True,
         onResponse=None,
-        adminIndex=0,
+        adminIndex: int=0,
     ):
         """Send an admin message to the specified node (or the local node if destNodeNum is zero)"""
 
