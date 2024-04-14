@@ -170,6 +170,7 @@ class DeviceMetrics(google.protobuf.message.Message):
     VOLTAGE_FIELD_NUMBER: builtins.int
     CHANNEL_UTILIZATION_FIELD_NUMBER: builtins.int
     AIR_UTIL_TX_FIELD_NUMBER: builtins.int
+    UPTIME_SECONDS_FIELD_NUMBER: builtins.int
     battery_level: builtins.int
     """
     0-100 (>100 means powered)
@@ -186,6 +187,10 @@ class DeviceMetrics(google.protobuf.message.Message):
     """
     Percent of airtime for transmission used within the last hour.
     """
+    uptime_seconds: builtins.int
+    """
+    How long the device has been running since the last reboot (in seconds)
+    """
     def __init__(
         self,
         *,
@@ -193,8 +198,9 @@ class DeviceMetrics(google.protobuf.message.Message):
         voltage: builtins.float = ...,
         channel_utilization: builtins.float = ...,
         air_util_tx: builtins.float = ...,
+        uptime_seconds: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["air_util_tx", b"air_util_tx", "battery_level", b"battery_level", "channel_utilization", b"channel_utilization", "voltage", b"voltage"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["air_util_tx", b"air_util_tx", "battery_level", b"battery_level", "channel_utilization", b"channel_utilization", "uptime_seconds", b"uptime_seconds", "voltage", b"voltage"]) -> None: ...
 
 global___DeviceMetrics = DeviceMetrics
 
@@ -212,6 +218,7 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     GAS_RESISTANCE_FIELD_NUMBER: builtins.int
     VOLTAGE_FIELD_NUMBER: builtins.int
     CURRENT_FIELD_NUMBER: builtins.int
+    IAQ_FIELD_NUMBER: builtins.int
     temperature: builtins.float
     """
     Temperature measured
@@ -236,6 +243,11 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     """
     Current measured (To be depreciated in favor of PowerMetrics in Meshtastic 3.x)
     """
+    iaq: builtins.int
+    """
+    relative scale IAQ value as measured by Bosch BME680 . value 0-500.
+    Belongs to Air Quality but is not particle but VOC measurement. Other VOC values can also be put in here.
+    """
     def __init__(
         self,
         *,
@@ -245,8 +257,9 @@ class EnvironmentMetrics(google.protobuf.message.Message):
         gas_resistance: builtins.float = ...,
         voltage: builtins.float = ...,
         current: builtins.float = ...,
+        iaq: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "gas_resistance", b"gas_resistance", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "voltage", b"voltage"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "voltage", b"voltage"]) -> None: ...
 
 global___EnvironmentMetrics = EnvironmentMetrics
 
