@@ -20,7 +20,7 @@ def test_StreamInterface():
 
 # Note: This takes a bit, so moving from unit to slow
 @pytest.mark.unitslow
-@pytest.mark.usefixtures("reset_globals")
+@pytest.mark.usefixtures("reset_mt_config")
 def test_StreamInterface_with_noProto(caplog):
     """Test that we can instantiate a StreamInterface based on nonProto
     and we can read/write bytes from a mocked stream
@@ -41,7 +41,7 @@ def test_StreamInterface_with_noProto(caplog):
 ### Tip: If you want to see the print output, run with '-s' flag:
 ###      pytest -s meshtastic/tests/test_stream_interface.py::test_sendToRadioImpl
 # @pytest.mark.unitslow
-# @pytest.mark.usefixtures("reset_globals")
+# @pytest.mark.usefixtures("reset_mt_config")
 # def test_sendToRadioImpl(caplog):
 #    """Test _sendToRadioImpl()"""
 #

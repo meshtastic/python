@@ -1,5 +1,4 @@
 """Meshtastic unit tests for tunnel.py"""
-
 import logging
 import re
 import sys
@@ -7,7 +6,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ..globals import Globals
+from meshtastic import mt_config
+
 from ..tcp_interface import TCPInterface
 from ..tunnel import Tunnel, onTunnelReceive
 
@@ -51,7 +51,7 @@ def test_Tunnel_with_interface(mock_platform_system, caplog, iface_with_nodes):
     with caplog.at_level(logging.WARNING):
         with patch("socket.socket"):
             tun = Tunnel(iface)
-            assert tun == Globals.getInstance().get_tunnelInstance()
+            assert tun == mt_config.tunnelInstance
             iface.close()
     assert re.search(r"Not creating a TapDevice()", caplog.text, re.MULTILINE)
     assert re.search(r"Not starting TUN reader", caplog.text, re.MULTILINE)
@@ -65,7 +65,7 @@ def test_onTunnelReceive_from_ourselves(mock_platform_system, caplog, iface_with
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
     sys.argv = [""]
-    Globals.getInstance().set_args(sys.argv)
+    mt_config.args = sys.argv
     packet = {"decoded": {"payload": "foo"}, "from": 2475227164}
     a_mock = MagicMock()
     a_mock.return_value = "Linux"
@@ -73,7 +73,7 @@ def test_onTunnelReceive_from_ourselves(mock_platform_system, caplog, iface_with
     with caplog.at_level(logging.DEBUG):
         with patch("socket.socket"):
             tun = Tunnel(iface)
-            Globals.getInstance().set_tunnelInstance(tun)
+            mt_config.tunnelInstance = tun
             onTunnelReceive(packet, iface)
     assert re.search(r"in onTunnelReceive", caplog.text, re.MULTILINE)
     assert re.search(r"Ignoring message we sent", caplog.text, re.MULTILINE)
@@ -88,7 +88,7 @@ def test_onTunnelReceive_from_someone_else(
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
     sys.argv = [""]
-    Globals.getInstance().set_args(sys.argv)
+    mt_config.args = sys.argv
     packet = {"decoded": {"payload": "foo"}, "from": 123}
     a_mock = MagicMock()
     a_mock.return_value = "Linux"
@@ -96,7 +96,7 @@ def test_onTunnelReceive_from_someone_else(
     with caplog.at_level(logging.DEBUG):
         with patch("socket.socket"):
             tun = Tunnel(iface)
-            Globals.getInstance().set_tunnelInstance(tun)
+            mt_config.tunnelInstance = tun
             onTunnelReceive(packet, iface)
     assert re.search(r"in onTunnelReceive", caplog.text, re.MULTILINE)
 
