@@ -206,6 +206,16 @@ class Timeout:
             time.sleep(self.sleepInterval)
         return False
 
+    def waitForPosition(self, acknowledgment) -> bool:
+        """Block until position response is received. Returns True if position response has been received."""
+        self.reset()
+        while time.time() < self.expireTime:
+            if getattr(acknowledgment, "receivedPosition", None):
+                acknowledgment.reset()
+                return True
+            time.sleep(self.sleepInterval)
+        return False
+
 class Acknowledgment:
     "A class that records which type of acknowledgment was just received, if any."
 
@@ -216,6 +226,7 @@ class Acknowledgment:
         self.receivedImplAck = False
         self.receivedTraceRoute = False
         self.receivedTelemetry = False
+        self.receivedPosition = False
 
     def reset(self):
         """reset"""
@@ -224,6 +235,7 @@ class Acknowledgment:
         self.receivedImplAck = False
         self.receivedTraceRoute = False
         self.receivedTelemetry = False
+        self.receivedPosition = False
 
 
 class DeferredExecution:

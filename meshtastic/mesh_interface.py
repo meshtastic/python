@@ -381,13 +381,50 @@ class MeshInterface:
         p.time = timeSec
         logging.debug(f"p.time:{p.time}")
 
-        return self.sendData(
+        if wantResponse:
+            onResponse = self.onResponsePosition
+        else:
+            onResponse = None
+
+        d = self.sendData(
             p,
             destinationId,
             portNum=portnums_pb2.PortNum.POSITION_APP,
             wantAck=wantAck,
             wantResponse=wantResponse,
+            onResponse=onResponse,
         )
+        if wantResponse:
+            self.waitForPosition()
+        return d
+
+    def onResponsePosition(self, p):
+        """on response for position"""
+        if p["decoded"]["portnum"] == 'POSITION_APP':
+            self._acknowledgment.receivedPosition = True
+            position = mesh_pb2.Position()
+            position.ParseFromString(p["decoded"]["payload"])
+
+            ret = "Position received: "
+            if position.latitude_i != 0 and position.longitude_i != 0:
+                ret += f"({position.latitude_i * 10**-7}, {position.longitude_i * 10**-7})"
+            else:
+                ret += "(unknown)"
+            if position.altitude != 0:
+                ret += f" {position.altitude}m"
+
+            if position.precision_bits not in [0,32]:
+                ret += f" precision:{position.precision_bits}"
+            elif position.precision_bits == 32:
+                ret += " full precision"
+            elif position.precision_bits == 0:
+                ret += " position disabled"
+
+            print(ret)
+
+        elif p["decoded"]["portnum"] == 'ROUTING_APP':
+            if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
+                our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
 
     def sendTraceRoute(self, dest: Union[int, str], hopLimit: int):
         """Send the trace route"""
@@ -444,11 +481,6 @@ class MeshInterface:
             onResponse = self.onResponseTelemetry
         else:
             onResponse = None
-
-        if destinationId.startswith("!"):
-            destinationId = int(destinationId[1:], 16)
-        else:
-            destinationId = int(destinationId)
 
         self.sendData(
             r,
@@ -572,6 +604,12 @@ class MeshInterface:
         success = self._timeout.waitForTelemetry(self._acknowledgment)
         if not success:
             raise MeshInterface.MeshInterfaceError("Timed out waiting for telemetry")
+
+    def waitForPosition(self):
+        """Wait for position"""
+        success = self._timeout.waitForPosition(self._acknowledgment)
+        if not success:
+            raise MeshInterface.MeshInterfaceError("Timed out waiting for position")
 
     def getMyNodeInfo(self) -> Optional[Dict]:
         """Get info about my node."""
