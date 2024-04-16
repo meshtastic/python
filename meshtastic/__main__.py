@@ -228,7 +228,7 @@ def setPref(config, comp_name, valStr) -> bool:
             print(f"Adding '{val}' to the ignore_incoming list")
             config_type.message_type.ignore_incoming.extend([val])
 
-    prefix = f"{".".join(name[0:-1])}." if config_type.message_type is not None else ""
+    prefix = f"{'.'.join(name[0:-1])}." if config_type.message_type is not None else ""
     if mt_config.camel_case:
         print(f"Set {prefix}{camel_name} to {valStr}")
     else:
