@@ -134,6 +134,7 @@ def splitCompoundName(comp_name):
     return name
 
 def traverseConfig(config_root, config, interface_config):
+    """Iterate through current config level preferences and either traverse deeper if preference is a dict or set preference"""
     snake_name = meshtastic.util.camel_to_snake(config_root)
     for pref in config:
         pref_name = f"{snake_name}.{pref}"
