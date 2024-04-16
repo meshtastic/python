@@ -435,6 +435,13 @@ def onConnected(interface):
                 print(f"Sending telemetry request to {args.dest} (this could take a while)")
                 interface.sendTelemetry(destinationId=args.dest, wantResponse=True)
 
+        if args.request_position:
+            if args.dest == BROADCAST_ADDR:
+                meshtastic.util.our_exit("Warning: Must use a destination node ID.")
+            else:
+                print(f"Sending position request to {args.dest} (this could take a while)")
+                interface.sendPosition(destinationId=args.dest, wantResponse=True)
+
         if args.gpio_wrb or args.gpio_rd or args.gpio_watch:
             if args.dest == BROADCAST_ADDR:
                 meshtastic.util.our_exit("Warning: Must use a destination node ID.")
@@ -1299,7 +1306,15 @@ def initParser():
     group.add_argument(
         "--request-telemetry",
         help="Request telemetry from a node. "
-        "You need pass the destination ID as argument with '--dest'. "
+        "You need to pass the destination ID as argument with '--dest'. "
+        "For repeaters, the nodeNum is required.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--request-position",
+        help="Request the position from a nade. "
+        "You need to pass the destination ID as an argument with '--dest'. "
         "For repeaters, the nodeNum is required.",
         action="store_true",
     )
