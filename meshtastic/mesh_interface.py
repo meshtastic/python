@@ -337,6 +337,7 @@ class MeshInterface:
         meshPacket.id = self._generatePacketId()
 
         if onResponse is not None:
+            logging.debug(f"Setting a response handler for requestId {meshPacket.id}")
             self._addResponseHandler(meshPacket.id, onResponse)
         p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck)
         return p
@@ -1034,14 +1035,16 @@ class MeshInterface:
             # Is this message in response to a request, if so, look for a handler
             requestId = decoded.get("requestId")
             if requestId is not None:
+                logging.debug(f"Got a response for requestId {requestId}")
                 # We ignore ACK packets, but send NAKs and data responses to the handlers
                 routing = decoded.get("routing")
-                isAck = routing is not None and ("errorReason" not in routing)
+                isAck = routing is not None and ("errorReason" not in routing or routing["errorReason"] == "NONE")
                 if not isAck:
                     # we keep the responseHandler in dict until we get a non ack
                     handler = self.responseHandlers.pop(requestId, None)
                     if handler is not None:
                         if not isAck or (isAck and handler.__name__ == "onAckNak"):
+                            logging.debug(f"Calling response handler for requestId {requestId}")
                             handler.callback(asDict)
 
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
