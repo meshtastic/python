@@ -277,7 +277,12 @@ def onConnected(interface):
             interface.localNode.writeConfig("position")
         elif not args.no_time:
             # We normally provide a current time to the mesh when we connect
-            interface.sendPosition()
+            if interface.localNode.nodeNum in interface.nodesByNum and "position" in interface.nodesByNum[interface.localNode.nodeNum]:
+                # send the same position the node already knows, just to update time
+                position = interface.nodesByNum[interface.localNode.nodeNum]["position"]
+                interface.sendPosition(position.get("latitude", 0.0), position.get("longitude", 0.0), position.get("altitude", 0.0))
+            else:
+                interface.sendPosition()
 
         if args.set_owner:
             closeNow = True
