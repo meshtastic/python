@@ -125,25 +125,46 @@ def getPref(node, comp_name):
 
 def splitCompoundName(comp_name):
     """Split compound (dot separated) preference name into parts"""
-    name = comp_name.split(".", 1)
-    if len(name) != 2:
+    name = comp_name.split(".")
+    if len(name) < 2:
         name[0] = comp_name
         name.append(comp_name)
     return name
 
+def traverseConfig(config_root, config, interface_config):
+    """Iterate through current config level preferences and either traverse deeper if preference is a dict or set preference"""
+    snake_name = meshtastic.util.camel_to_snake(config_root)
+    for pref in config:
+        pref_name = f"{snake_name}.{pref}"
+        if isinstance(config[pref], dict):
+            traverseConfig(pref_name, config[pref], interface_config)
+        else:
+            setPref(
+                interface_config,
+                pref_name,
+                str(config[pref])
+            )
+
+    return True
 
 def setPref(config, comp_name, valStr) -> bool:
     """Set a channel or preferences value"""
 
     name = splitCompoundName(comp_name)
 
-    snake_name = meshtastic.util.camel_to_snake(name[1])
-    camel_name = meshtastic.util.snake_to_camel(name[1])
+    snake_name = meshtastic.util.camel_to_snake(name[-1])
+    camel_name = meshtastic.util.snake_to_camel(name[-1])
     logging.debug(f"snake_name:{snake_name}")
     logging.debug(f"camel_name:{camel_name}")
 
     objDesc = config.DESCRIPTOR
+    config_part = config
     config_type = objDesc.fields_by_name.get(name[0])
+    if config_type and config_type.message_type is not None:
+        for name_part in name[1:-1]:
+            part_snake_name = meshtastic.util.camel_to_snake((name_part))
+            config_part = getattr(config, config_type.name)
+            config_type = config_type.message_type.fields_by_name.get(part_snake_name)
     pref = None
     if config_type and config_type.message_type is not None:
         pref = config_type.message_type.fields_by_name.get(snake_name)
@@ -190,13 +211,13 @@ def setPref(config, comp_name, valStr) -> bool:
     if snake_name != "ignore_incoming":
         try:
             if config_type.message_type is not None:
-                config_values = getattr(config, config_type.name)
+                config_values = getattr(config_part, config_type.name)
                 setattr(config_values, pref.name, val)
             else:
-                setattr(config, snake_name, val)
+                setattr(config_part, snake_name, val)
         except TypeError:
             # The setter didn't like our arg type guess try again as a string
-            config_values = getattr(config, config_type.name)
+            config_values = getattr(config_part, config_type.name)
             setattr(config_values, pref.name, valStr)
     else:
         if val == 0:
@@ -207,7 +228,7 @@ def setPref(config, comp_name, valStr) -> bool:
             print(f"Adding '{val}' to the ignore_incoming list")
             config_type.message_type.ignore_incoming.extend([val])
 
-    prefix = f"{name[0]}." if config_type.message_type is not None else ""
+    prefix = f"{".".join(name[0:-1])}." if config_type.message_type is not None else ""
     if mt_config.camel_case:
         print(f"Set {prefix}{camel_name} to {valStr}")
     else:
@@ -549,12 +570,7 @@ def onConnected(interface):
                 if "config" in configuration:
                     localConfig = interface.getNode(args.dest).localConfig
                     for section in configuration["config"]:
-                        for pref in configuration["config"][section]:
-                            setPref(
-                                localConfig,
-                                f"{meshtastic.util.camel_to_snake(section)}.{pref}",
-                                str(configuration["config"][section][pref]),
-                            )
+                        traverseConfig(section, configuration["config"][section], localConfig)
                         interface.getNode(args.dest).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
@@ -562,12 +578,7 @@ def onConnected(interface):
                 if "module_config" in configuration:
                     moduleConfig = interface.getNode(args.dest).moduleConfig
                     for section in configuration["module_config"]:
-                        for pref in configuration["module_config"][section]:
-                            setPref(
-                                moduleConfig,
-                                f"{meshtastic.util.camel_to_snake(section)}.{pref}",
-                                str(configuration["module_config"][section][pref]),
-                            )
+                        traverseConfig(section, configuration["module_config"][section], moduleConfig)
                         interface.getNode(args.dest).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
