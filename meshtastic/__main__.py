@@ -564,15 +564,15 @@ def onConnected(interface):
                     localConfig = interface.localNode.localConfig
 
                     if "alt" in configuration["location"]:
-                        alt = int(configuration["location"]["alt"])
+                        alt = int(configuration["location"]["alt"] or 0)
                         localConfig.position.fixed_position = True
                         print(f"Fixing altitude at {alt} meters")
                     if "lat" in configuration["location"]:
-                        lat = float(configuration["location"]["lat"])
+                        lat = float(configuration["location"]["lat"] or 0)
                         localConfig.position.fixed_position = True
                         print(f"Fixing latitude at {lat} degrees")
                     if "lon" in configuration["location"]:
-                        lon = float(configuration["location"]["lon"])
+                        lon = float(configuration["location"]["lon"] or 0)
                         localConfig.position.fixed_position = True
                         print(f"Fixing longitude at {lon} degrees")
                     print("Setting device position")
@@ -901,8 +901,11 @@ def export_config(interface):
             configObj["channelUrl"] = channel_url
         else:
             configObj["channel_url"] = channel_url
-    if lat or lon or alt:
-        configObj["location"] = {"lat": lat, "lon": lon, "alt": alt}
+    # lat and lon don't make much sense without the other (so fill with 0s), and alt isn't meaningful without both
+    if lat or lon:
+        configObj["location"] = {"lat": lat or float(0), "lon": lon or float(0)}
+        if alt:
+            configObj["location"]["alt"] = alt
 
     config = MessageToDict(interface.localNode.localConfig)
     if config:
