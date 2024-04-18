@@ -267,6 +267,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     Teledatics TD-LORAC NRF52840 based M.2 LoRA module
     Compatible with the TD-WRLS development board
     """
+    CDEBYTE_EORA_S3: _HardwareModel.ValueType  # 61
+    """
+    CDEBYTE EoRa-S3 board using their own MM modules, clone of LILYGO T3S3
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -518,6 +522,10 @@ TD_LORAC: HardwareModel.ValueType  # 60
 """
 Teledatics TD-LORAC NRF52840 based M.2 LoRA module
 Compatible with the TD-WRLS development board
+"""
+CDEBYTE_EORA_S3: HardwareModel.ValueType  # 61
+"""
+CDEBYTE EoRa-S3 board using their own MM modules, clone of LILYGO T3S3
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
