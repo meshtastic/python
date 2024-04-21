@@ -251,6 +251,9 @@ def onConnected(interface):
             print("Connected to radio")
 
         if args.setlat or args.setlon or args.setalt:
+            if args.dest != BROADCAST_ADDR:
+                print("Setting latitude, longitude, and altitude of remote nodes is not supported.")
+                return
             closeNow = True
 
             alt = 0
@@ -599,6 +602,9 @@ def onConnected(interface):
                 print("Writing modified configuration to device")
 
         if args.export_config:
+            if args.dest != BROADCAST_ADDR:
+                print("Exporting configuration of remote nodes is not supported.")
+                return
             # export the configuration (the opposite of '--configure')
             closeNow = True
             export_config(interface)
@@ -801,10 +807,14 @@ def onConnected(interface):
                 return
             interface.showNodes()
 
-        if args.qr:
+        if args.qr or args.qr_all:
             closeNow = True
-            url = interface.localNode.getURL(includeAll=False)
-            print(f"Primary channel URL {url}")
+            url = interface.getNode(args.dest, True).getURL(includeAll=args.qr_all)
+            if args.qr_all:
+                urldesc = "Complete URL (includes all channels)"
+            else:
+                urldesc = "Primary channel URL"
+            print(f"{urldesc}: {url}")
             qr = pyqrcode.create(url)
             print(qr.terminal())
 
@@ -813,6 +823,9 @@ def onConnected(interface):
 
         have_tunnel = platform.system() == "Linux"
         if have_tunnel and args.tunnel:
+            if args.dest != BROADCAST_ADDR:
+                print("A tunnel can only be created using the local node.")
+                return
             # pylint: disable=C0415
             from . import tunnel
 
@@ -1154,7 +1167,16 @@ def initParser():
 
     group.add_argument(
         "--qr",
-        help="Display the QR code that corresponds to the current channel",
+        help=(
+            "Display a QR code for the node's primary channel (or all channels with --qr-all). "
+            "Also shows the shareable channel URL."
+        ),
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--qr-all",
+        help="Display a QR code and URL for all of the node's channels.",
         action="store_true",
     )
 

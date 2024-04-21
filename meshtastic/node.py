@@ -313,6 +313,8 @@ class Node:
                 ):
                     channelSet.settings.append(c.settings)
 
+        if len(self.localConfig.ListFields()) == 0:
+            self.requestConfig(self.localConfig.DESCRIPTOR.fields_by_name.get('lora'))
         channelSet.lora_config.CopyFrom(self.localConfig.lora)
         some_bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(some_bytes).decode("ascii")

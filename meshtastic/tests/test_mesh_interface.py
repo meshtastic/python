@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from .. import mesh_pb2, BROADCAST_ADDR, LOCAL_ADDR
+from .. import mesh_pb2, config_pb2, BROADCAST_ADDR, LOCAL_ADDR
 from ..mesh_interface import MeshInterface
 from ..node import Node
 
@@ -36,11 +36,14 @@ def test_MeshInterface(capsys):
             "lastHeard": 1640204888,
         }
 
+
     iface.nodes = {NODE_ID: node}
     iface.nodesByNum = {NODE_NUM: node}
 
     myInfo = MagicMock()
     iface.myInfo = myInfo
+
+    iface.localNode.localConfig.lora.CopyFrom(config_pb2.Config.LoRaConfig())
 
     iface.showInfo()
     iface.localNode.showInfo()
