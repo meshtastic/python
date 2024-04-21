@@ -823,6 +823,9 @@ def onConnected(interface):
 
         have_tunnel = platform.system() == "Linux"
         if have_tunnel and args.tunnel:
+            if args.dest != BROADCAST_ADDR:
+                print("A tunnel can only be created using the local node.")
+                return
             # pylint: disable=C0415
             from . import tunnel
 
