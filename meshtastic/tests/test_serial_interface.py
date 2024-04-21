@@ -6,6 +6,7 @@ from unittest.mock import mock_open, patch
 import pytest
 
 from ..serial_interface import SerialInterface
+from .. import config_pb2
 
 
 @pytest.mark.unit
@@ -20,6 +21,7 @@ def test_SerialInterface_single_port(
 ):
     """Test that we can instantiate a SerialInterface with a single port"""
     iface = SerialInterface(noProto=True)
+    iface.localNode.localConfig.lora.CopyFrom(config_pb2.Config.LoRaConfig())
     iface.showInfo()
     iface.localNode.showInfo()
     iface.close()

@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# from ..admin_pb2 import AdminMessage
+from .. import localonly_pb2, config_pb2
 from ..channel_pb2 import Channel # pylint: disable=E0611
 from ..node import Node
 from ..serial_interface import SerialInterface
@@ -19,21 +19,26 @@ from ..mesh_interface import MeshInterface
 # from ..util import Timeout
 
 
-# TODO
-# @pytest.mark.unit
-# def test_node(capsys):
-#    """Test that we can instantiate a Node"""
-#    anode = Node('foo', 'bar')
-#    radioConfig = RadioConfig()
-#    anode.radioConfig = radioConfig
-#    anode.showChannels()
-#    anode.showInfo()
-#    out, err = capsys.readouterr()
-#    assert re.search(r'Preferences', out)
-#    assert re.search(r'Channels', out)
-#    assert re.search(r'Primary channel URL', out)
-#    assert err == ''
-
+@pytest.mark.unit
+def test_node(capsys):
+    """Test that we can instantiate a Node"""
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, "bar", noProto=True)
+        lc = localonly_pb2.LocalConfig()
+        anode.localConfig = lc
+        lc.lora.CopyFrom(config_pb2.Config.LoRaConfig())
+        anode.moduleConfig = localonly_pb2.LocalModuleConfig()
+        anode.showInfo()
+        out, err = capsys.readouterr()
+        assert re.search(r'Preferences', out)
+        assert re.search(r'Module preferences', out)
+        assert re.search(r'Channels', out)
+        assert re.search(r'Primary channel URL', out)
+        assert not re.search(r'remote node', out)
+        assert err == ''
 
 # TODO
 # @pytest.mark.unit
