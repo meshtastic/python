@@ -602,6 +602,9 @@ def onConnected(interface):
                 print("Writing modified configuration to device")
 
         if args.export_config:
+            if args.dest != BROADCAST_ADDR:
+                print("Exporting configuration of remote nodes is not supported.")
+                return
             # export the configuration (the opposite of '--configure')
             closeNow = True
             export_config(interface)
