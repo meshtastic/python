@@ -251,6 +251,9 @@ def onConnected(interface):
             print("Connected to radio")
 
         if args.setlat or args.setlon or args.setalt:
+            if args.dest != BROADCAST_ADDR:
+                print("Setting latitude, longitude, and altitude of remote nodes is not supported.")
+                return
             closeNow = True
 
             alt = 0
