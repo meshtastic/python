@@ -896,6 +896,10 @@ class MeshInterface:
                 self.localNode.moduleConfig.external_notification.CopyFrom(
                     fromRadio.moduleConfig.external_notification
                 )
+            elif fromRadio.moduleConfig.HasField("store_forward"):
+                self.localNode.moduleConfig.store_forward.CopyFrom(
+                    fromRadio.moduleConfig.store_forward
+                )
             elif fromRadio.moduleConfig.HasField("range_test"):
                 self.localNode.moduleConfig.range_test.CopyFrom(
                     fromRadio.moduleConfig.range_test
