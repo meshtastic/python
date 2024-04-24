@@ -245,6 +245,7 @@ class Config(google.protobuf.message.Message):
         IS_MANAGED_FIELD_NUMBER: builtins.int
         DISABLE_TRIPLE_CLICK_FIELD_NUMBER: builtins.int
         TZDEF_FIELD_NUMBER: builtins.int
+        LED_HEARTBEAT_DISABLED_FIELD_NUMBER: builtins.int
         role: global___Config.DeviceConfig.Role.ValueType
         """
         Sets the role of node
@@ -294,6 +295,10 @@ class Config(google.protobuf.message.Message):
         """
         POSIX Timezone definition string from https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv.
         """
+        led_heartbeat_disabled: builtins.bool
+        """
+        If true, disable the default blinking LED (LED_PIN) behavior on the device
+        """
         def __init__(
             self,
             *,
@@ -308,8 +313,9 @@ class Config(google.protobuf.message.Message):
             is_managed: builtins.bool = ...,
             disable_triple_click: builtins.bool = ...,
             tzdef: builtins.str = ...,
+            led_heartbeat_disabled: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["button_gpio", b"button_gpio", "buzzer_gpio", b"buzzer_gpio", "debug_log_enabled", b"debug_log_enabled", "disable_triple_click", b"disable_triple_click", "double_tap_as_button_press", b"double_tap_as_button_press", "is_managed", b"is_managed", "node_info_broadcast_secs", b"node_info_broadcast_secs", "rebroadcast_mode", b"rebroadcast_mode", "role", b"role", "serial_enabled", b"serial_enabled", "tzdef", b"tzdef"]) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["button_gpio", b"button_gpio", "buzzer_gpio", b"buzzer_gpio", "debug_log_enabled", b"debug_log_enabled", "disable_triple_click", b"disable_triple_click", "double_tap_as_button_press", b"double_tap_as_button_press", "is_managed", b"is_managed", "led_heartbeat_disabled", b"led_heartbeat_disabled", "node_info_broadcast_secs", b"node_info_broadcast_secs", "rebroadcast_mode", b"rebroadcast_mode", "role", b"role", "serial_enabled", b"serial_enabled", "tzdef", b"tzdef"]) -> None: ...
 
     @typing_extensions.final
     class PositionConfig(google.protobuf.message.Message):

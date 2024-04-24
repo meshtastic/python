@@ -271,6 +271,11 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     CDEBYTE EoRa-S3 board using their own MM modules, clone of LILYGO T3S3
     """
+    TWC_MESH_V4: _HardwareModel.ValueType  # 62
+    """
+    TWC_MESH_V4 
+    Adafruit NRF52840 feather express with SX1262, SSD1306 OLED and NEO6M GPS
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -526,6 +531,11 @@ Compatible with the TD-WRLS development board
 CDEBYTE_EORA_S3: HardwareModel.ValueType  # 61
 """
 CDEBYTE EoRa-S3 board using their own MM modules, clone of LILYGO T3S3
+"""
+TWC_MESH_V4: HardwareModel.ValueType  # 62
+"""
+TWC_MESH_V4 
+Adafruit NRF52840 feather express with SX1262, SSD1306 OLED and NEO6M GPS
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """

@@ -86,6 +86,10 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     BMP085/BMP180 High accuracy temperature and pressure (older Version of BMP280)
     """
+    RCWL9620: _TelemetrySensorType.ValueType  # 16
+    """
+    RCWL-9620 Doppler Radar Distance Sensor, used for water level detection
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -156,6 +160,10 @@ BMP085: TelemetrySensorType.ValueType  # 15
 """
 BMP085/BMP180 High accuracy temperature and pressure (older Version of BMP280)
 """
+RCWL9620: TelemetrySensorType.ValueType  # 16
+"""
+RCWL-9620 Doppler Radar Distance Sensor, used for water level detection
+"""
 global___TelemetrySensorType = TelemetrySensorType
 
 @typing_extensions.final
@@ -219,6 +227,7 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     VOLTAGE_FIELD_NUMBER: builtins.int
     CURRENT_FIELD_NUMBER: builtins.int
     IAQ_FIELD_NUMBER: builtins.int
+    DISTANCE_FIELD_NUMBER: builtins.int
     temperature: builtins.float
     """
     Temperature measured
@@ -248,6 +257,10 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     relative scale IAQ value as measured by Bosch BME680 . value 0-500.
     Belongs to Air Quality but is not particle but VOC measurement. Other VOC values can also be put in here.
     """
+    distance: builtins.float
+    """
+    RCWL9620 Doppler Radar Distance Sensor, used for water level detection. Float value in mm.
+    """
     def __init__(
         self,
         *,
@@ -258,8 +271,9 @@ class EnvironmentMetrics(google.protobuf.message.Message):
         voltage: builtins.float = ...,
         current: builtins.float = ...,
         iaq: builtins.int = ...,
+        distance: builtins.float = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "voltage", b"voltage"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "voltage", b"voltage"]) -> None: ...
 
 global___EnvironmentMetrics = EnvironmentMetrics
 
