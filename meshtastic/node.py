@@ -571,6 +571,19 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
+    def enterDFUMode(self):
+        """Tell the node to enter DFU mode (NRF52)."""
+        p = admin_pb2.AdminMessage()
+        p.enter_dfu_mode_request = True
+        logging.info(f"Telling node to enable DFU mode")
+
+        # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
     def shutdown(self, secs: int = 10):
         """Tell the node to shutdown."""
         p = admin_pb2.AdminMessage()

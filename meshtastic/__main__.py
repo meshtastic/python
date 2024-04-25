@@ -375,6 +375,11 @@ def onConnected(interface):
             waitForAckNak = True
             interface.getNode(args.dest, False).rebootOTA()
 
+        if args.enter_dfu:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False).enterDFUMode()
+
         if args.shutdown:
             closeNow = True
             waitForAckNak = True
@@ -1364,7 +1369,13 @@ def initParser():
 
     group.add_argument(
         "--reboot-ota",
-        help="Tell the destination node to reboot into factory firmware",
+        help="Tell the destination node to reboot into factory firmware (ESP32)",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--enter-dfu",
+        help="Tell the destination node to enter DFU mode (NRF52)",
         action="store_true",
     )
 
