@@ -20,6 +20,7 @@ from meshtastic import mt_config
 from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware, BROADCAST_ADDR
 from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
+from meshtastic.mesh_interface import MeshInterface
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -56,6 +57,11 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):  # pylint: disable=W0613
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
 
+def checkChannel(interface: MeshInterface, channelIndex: int) -> bool:
+    """Given an interface and channel index, return True if that channel is non-disabled on the local node"""
+    ch = interface.localNode.getChannelByChannelIndex(channelIndex)
+    logging.debug(f"ch:{ch}")
+    return (ch and ch.role != channel_pb2.Channel.Role.DISABLED)
 
 def getPref(node, comp_name):
     """Get a channel or preferences value"""
@@ -403,12 +409,8 @@ def onConnected(interface):
 
         if args.sendtext:
             closeNow = True
-            channelIndex = 0
-            if args.ch_index is not None:
-                channelIndex = int(args.ch_index)
-            ch = interface.localNode.getChannelByChannelIndex(channelIndex)
-            logging.debug(f"ch:{ch}")
-            if ch and ch.role != channel_pb2.Channel.Role.DISABLED:
+            channelIndex = mt_config.channel_index or 0
+            if checkChannel(interface, channelIndex):
                 print(
                     f"Sending text message {args.sendtext} to {args.dest} on channelIndex:{channelIndex}"
                 )
@@ -428,22 +430,28 @@ def onConnected(interface):
             loraConfig = getattr(interface.localNode.localConfig, "lora")
             hopLimit = getattr(loraConfig, "hop_limit")
             dest = str(args.traceroute)
-            print(f"Sending traceroute request to {dest} (this could take a while)")
-            interface.sendTraceRoute(dest, hopLimit)
+            channelIndex = mt_config.channel_index or 0
+            if checkChannel(interface, channelIndex):
+                print(f"Sending traceroute request to {dest} on channelIndex:{channelIndex} (this could take a while)")
+                interface.sendTraceRoute(dest, hopLimit, channelIndex=channelIndex)
 
         if args.request_telemetry:
             if args.dest == BROADCAST_ADDR:
                 meshtastic.util.our_exit("Warning: Must use a destination node ID.")
             else:
-                print(f"Sending telemetry request to {args.dest} (this could take a while)")
-                interface.sendTelemetry(destinationId=args.dest, wantResponse=True)
+                channelIndex = mt_config.channel_index or 0
+                if checkChannel(interface, channelIndex):
+                    print(f"Sending telemetry request to {args.dest} on channelIndex:{channelIndex} (this could take a while)")
+                    interface.sendTelemetry(destinationId=args.dest, wantResponse=True, channelIndex=channelIndex)
 
         if args.request_position:
             if args.dest == BROADCAST_ADDR:
                 meshtastic.util.our_exit("Warning: Must use a destination node ID.")
             else:
-                print(f"Sending position request to {args.dest} (this could take a while)")
-                interface.sendPosition(destinationId=args.dest, wantResponse=True)
+                channelIndex = mt_config.channel_index or 0
+                if checkChannel(interface, channelIndex):
+                    print(f"Sending position request to {args.dest} on channelIndex:{channelIndex} (this could take a while)")
+                    interface.sendPosition(destinationId=args.dest, wantResponse=True, channelIndex=channelIndex)
 
         if args.gpio_wrb or args.gpio_rd or args.gpio_watch:
             if args.dest == BROADCAST_ADDR:

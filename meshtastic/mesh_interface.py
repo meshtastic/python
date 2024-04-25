@@ -351,6 +351,7 @@ class MeshInterface:
         destinationId: Union[int, str]=BROADCAST_ADDR,
         wantAck: bool=False,
         wantResponse: bool=False,
+        channelIndex: int=0,
     ):
         """
         Send a position packet to some other node (normally a broadcast)
@@ -393,6 +394,7 @@ class MeshInterface:
             wantAck=wantAck,
             wantResponse=wantResponse,
             onResponse=onResponse,
+            channelIndex=channelIndex,
         )
         if wantResponse:
             self.waitForPosition()
@@ -426,7 +428,7 @@ class MeshInterface:
             if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
                 our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
 
-    def sendTraceRoute(self, dest: Union[int, str], hopLimit: int):
+    def sendTraceRoute(self, dest: Union[int, str], hopLimit: int, channelIndex: int=0):
         """Send the trace route"""
         r = mesh_pb2.RouteDiscovery()
         self.sendData(
@@ -435,6 +437,7 @@ class MeshInterface:
             portNum=portnums_pb2.PortNum.TRACEROUTE_APP,
             wantResponse=True,
             onResponse=self.onResponseTraceRoute,
+            channelIndex=channelIndex,
         )
         # extend timeout based on number of nodes, limit by configured hopLimit
         waitFactor = min(len(self.nodes) - 1 if self.nodes else 0, hopLimit)
@@ -456,26 +459,27 @@ class MeshInterface:
 
         self._acknowledgment.receivedTraceRoute = True
 
-    def sendTelemetry(self, destinationId=BROADCAST_ADDR, wantResponse=False):
+    def sendTelemetry(self, destinationId: Union[int,str]=BROADCAST_ADDR, wantResponse: bool=False, channelIndex: int=0):
         """Send telemetry and optionally ask for a response"""
         r = telemetry_pb2.Telemetry()
 
-        node = next(n for n in self.nodes.values() if n["num"] == self.localNode.nodeNum)
-        if node is not None:
-            metrics = node.get("deviceMetrics")
-            if metrics:
-                batteryLevel = metrics.get("batteryLevel")
-                if batteryLevel is not None:
-                    r.device_metrics.battery_level = batteryLevel
-                voltage = metrics.get("voltage")
-                if voltage is not None:
-                    r.device_metrics.voltage = voltage
-                channel_utilization = metrics.get("channelUtilization")
-                if channel_utilization is not None:
-                    r.device_metrics.channel_utilization = channel_utilization
-                air_util_tx = metrics.get("airUtilTx")
-                if air_util_tx is not None:
-                    r.device_metrics.air_util_tx = air_util_tx
+        if self.nodes is not None:
+            node = next(n for n in self.nodes.values() if n["num"] == self.localNode.nodeNum)
+            if node is not None:
+                metrics = node.get("deviceMetrics")
+                if metrics:
+                    batteryLevel = metrics.get("batteryLevel")
+                    if batteryLevel is not None:
+                        r.device_metrics.battery_level = batteryLevel
+                    voltage = metrics.get("voltage")
+                    if voltage is not None:
+                        r.device_metrics.voltage = voltage
+                    channel_utilization = metrics.get("channelUtilization")
+                    if channel_utilization is not None:
+                        r.device_metrics.channel_utilization = channel_utilization
+                    air_util_tx = metrics.get("airUtilTx")
+                    if air_util_tx is not None:
+                        r.device_metrics.air_util_tx = air_util_tx
 
         if wantResponse:
             onResponse = self.onResponseTelemetry
@@ -488,6 +492,7 @@ class MeshInterface:
             portNum=portnums_pb2.PortNum.TELEMETRY_APP,
             wantResponse=wantResponse,
             onResponse=onResponse,
+            channelIndex=channelIndex,
         )
         if wantResponse:
             self.waitForTelemetry()
