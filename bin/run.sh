@@ -1,2 +1,2 @@
 rm log_*
-python3 -m meshtastic "$@"
+PYTHONPATH=. python3 -m meshtastic "$@"
