@@ -627,6 +627,8 @@ def check_if_newer_version():
 
     return pypi_version
 
-def message_to_json(message):
-    "Return protobuf message as JSON. Always print all fields, even when not present in data."
-    return stripnl(MessageToJson(message, always_print_fields_with_no_presence=True))
+
+def message_to_json(message, multiline=False):
+    """Return protobuf message as JSON. Always print all fields, even when not present in data."""
+    json = MessageToJson(message, always_print_fields_with_no_presence=True)
+    return stripnl(json) if not multiline else json
