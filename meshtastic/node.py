@@ -72,6 +72,11 @@ class Node:
         print(f"Module preferences: {prefs}\n")
         self.showChannels()
 
+    def setChannels(self, channels):
+        """Set the channels for this node"""
+        self.channels = channels
+        self._fixupChannels()
+
     def requestChannels(self):
         """Send regular MeshPackets to ask channels."""
         logging.debug(f"requestChannels for nodeNum:{self.nodeNum}")
@@ -654,7 +659,7 @@ class Node:
         """Fixup indexes and add disabled channels as needed"""
 
         # Add extra disabled channels as needed
-        # TODO: These 2 lines seem to not do anything.
+        # This is needed because the protobufs will have index **missing** if the channel number is zero
         for index, ch in enumerate(self.channels):
             ch.index = index  # fixup indexes
 
@@ -726,9 +731,6 @@ class Node:
 
             self.channels = self.partialChannels
             self._fixupChannels()
-
-            # FIXME, the following should only be called after we have settings and channels
-            self.iface._connected()  # Tell everyone else we are ready to go
         else:
             self._requestChannel(index + 1)
 
