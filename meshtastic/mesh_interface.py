@@ -683,6 +683,7 @@ class MeshInterface:
                 self.heartbeatTimer = threading.Timer(i, callback)
                 self.heartbeatTimer.start()
                 p = mesh_pb2.ToRadio()
+                p.heartbeat.CopyFrom(mesh_pb2.Heartbeat())
                 self._sendToRadio(p)
 
         callback()  # run our periodic callback now, it will make another timer if necessary
