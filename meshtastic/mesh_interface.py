@@ -85,6 +85,7 @@ class MeshInterface:
         self.mask: Optional[int] = None  # used in gpio read and gpio watch
         self.queueStatus: Optional[mesh_pb2.QueueStatus] = None
         self.queue: collections.OrderedDict = collections.OrderedDict()
+        self._localChannels = None
 
     def close(self):
         """Shutdown this interface"""
@@ -705,6 +706,7 @@ class MeshInterface:
         self.myInfo = None
         self.nodes = {}  # nodes keyed by ID
         self.nodesByNum = {}  # nodes keyed by nodenum
+        self._localChannels = [] # empty until we start getting channels pushed from the device (during config)
 
         startConfig = mesh_pb2.ToRadio()
         self.configId = random.randint(0, 0xFFFFFFFF)
@@ -786,7 +788,12 @@ class MeshInterface:
         Done with initial config messages, now send regular MeshPackets
         to ask for settings and channels
         """
-        self.localNode.requestChannels()
+        # This is no longer necessary because the current protocol statemachine has already proactively sent us the locally visible channels
+        # self.localNode.requestChannels()
+        self.localNode.setChannels(self._localChannels)
+
+        # the following should only be called after we have settings and channels
+        self._connected()  # Tell everyone else we are ready to go
 
     def _handleQueueStatusFromRadio(self, queueStatus) -> None:
         self.queueStatus = queueStatus
@@ -859,7 +866,8 @@ class MeshInterface:
             # stream API fromRadio.config_complete_id
             logging.debug(f"Config complete ID {self.configId}")
             self._handleConfigComplete()
-
+        elif fromRadio.HasField("channel"):
+            self._handleChannel(fromRadio.channel)
         elif fromRadio.HasField("packet"):
             self._handlePacketFromRadio(fromRadio.packet)
 
@@ -985,6 +993,10 @@ class MeshInterface:
             n = {"num": nodeNum}  # Create a minimal node db entry
             self.nodesByNum[nodeNum] = n
             return n
+
+    def _handleChannel(self, channel):
+        """During initial config the local node will proactively send all N (8) channels it knows"""
+        self._localChannels.append(channel)
 
     def _handlePacketFromRadio(self, meshPacket, hack=False):
         """Handle a MeshPacket that just arrived from the radio
