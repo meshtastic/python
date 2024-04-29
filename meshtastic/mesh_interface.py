@@ -134,7 +134,7 @@ class MeshInterface:
                 # use id as dictionary key for correct json format in list of nodes
                 nodeid = n2["user"]["id"]
                 nodes[nodeid] = n2
-        infos = owner + myinfo + metadata + mesh + json.dumps(nodes)
+        infos = owner + myinfo + metadata + mesh + json.dumps(nodes, indent=2)
         print(infos)
         return infos
 

@@ -64,11 +64,11 @@ class Node:
         """Show human readable description of our node"""
         prefs = ""
         if self.localConfig:
-            prefs = message_to_json(self.localConfig)
+            prefs = message_to_json(self.localConfig, multiline=True)
         print(f"Preferences: {prefs}\n")
         prefs = ""
         if self.moduleConfig:
-            prefs = message_to_json(self.moduleConfig)
+            prefs = message_to_json(self.moduleConfig, multiline=True)
         print(f"Module preferences: {prefs}\n")
         self.showChannels()
 
