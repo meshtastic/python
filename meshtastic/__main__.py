@@ -1351,7 +1351,7 @@ def initParser():
 
     group.add_argument(
         "--request-position",
-        help="Request the position from a nade. "
+        help="Request the position from a node. "
         "You need to pass the destination ID as an argument with '--dest'. "
         "For repeaters, the nodeNum is required.",
         action="store_true",
