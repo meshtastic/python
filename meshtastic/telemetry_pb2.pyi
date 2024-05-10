@@ -90,6 +90,10 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     RCWL-9620 Doppler Radar Distance Sensor, used for water level detection
     """
+    SHT4X: _TelemetrySensorType.ValueType  # 17
+    """
+    Sensirion High accuracy temperature and humidity
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -163,6 +167,10 @@ BMP085/BMP180 High accuracy temperature and pressure (older Version of BMP280)
 RCWL9620: TelemetrySensorType.ValueType  # 16
 """
 RCWL-9620 Doppler Radar Distance Sensor, used for water level detection
+"""
+SHT4X: TelemetrySensorType.ValueType  # 17
+"""
+Sensirion High accuracy temperature and humidity
 """
 global___TelemetrySensorType = TelemetrySensorType
 

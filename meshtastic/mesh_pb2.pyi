@@ -112,6 +112,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     LoRAType device: https://loratype.org/
     """
+    WIPHONE: _HardwareModel.ValueType  # 20
+    """
+    wiphone https://www.wiphone.io/
+    """
     STATION_G1: _HardwareModel.ValueType  # 25
     """
     B&Q Consulting Station Edition G1: https://uniteng.com/wiki/doku.php?id=meshtastic:station
@@ -276,6 +280,11 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     TWC_MESH_V4 
     Adafruit NRF52840 feather express with SX1262, SSD1306 OLED and NEO6M GPS
     """
+    NRF52_PROMICRO_DIY: _HardwareModel.ValueType  # 63
+    """
+    NRF52_PROMICRO_DIY
+    Promicro NRF52840 with SX1262/LLCC68, SSD1306 OLED and NEO6M GPS
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -372,6 +381,10 @@ B&Q Consulting Nano G2 Ultra: https://wiki.uniteng.com/en/meshtastic/nano-g2-ult
 LORA_TYPE: HardwareModel.ValueType  # 19
 """
 LoRAType device: https://loratype.org/
+"""
+WIPHONE: HardwareModel.ValueType  # 20
+"""
+wiphone https://www.wiphone.io/
 """
 STATION_G1: HardwareModel.ValueType  # 25
 """
@@ -536,6 +549,11 @@ TWC_MESH_V4: HardwareModel.ValueType  # 62
 """
 TWC_MESH_V4 
 Adafruit NRF52840 feather express with SX1262, SSD1306 OLED and NEO6M GPS
+"""
+NRF52_PROMICRO_DIY: HardwareModel.ValueType  # 63
+"""
+NRF52_PROMICRO_DIY
+Promicro NRF52840 with SX1262/LLCC68, SSD1306 OLED and NEO6M GPS
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
