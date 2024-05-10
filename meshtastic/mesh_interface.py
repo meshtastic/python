@@ -875,14 +875,28 @@ class MeshInterface:
         elif fromRadio.HasField("queueStatus"):
             self._handleQueueStatusFromRadio(fromRadio.queueStatus)
 
-        elif fromRadio.rebooted:
+        elif fromRadio.HasField("mqttClientProxyMessage"):
+            publishingThread.queueWork(
+                lambda: pub.sendMessage(
+                    "meshtastic.mqttclientproxymessage", proxymessage=fromRadio.mqttClientProxyMessage, interface=self
+                )
+            )
+
+        elif fromRadio.HasField("xmodemPacket"):
+            publishingThread.queueWork(
+                lambda: pub.sendMessage(
+                    "meshtastic.xmodempacket", packet=fromRadio.xmodemPacket, interface=self
+                )
+            )
+
+        elif fromRadio.HasField("rebooted") and fromRadio.rebooted:
             # Tell clients the device went away.  Careful not to call the overridden
             # subclass version that closes the serial port
             MeshInterface._disconnected(self)
 
             self._startConfig()  # redownload the node db etc...
 
-        elif fromRadio.config or fromRadio.moduleConfig:
+        elif fromRadio.HasField("config") or fromRadio.HasField("moduleConfig"):
             if fromRadio.config.HasField("device"):
                 self.localNode.localConfig.device.CopyFrom(fromRadio.config.device)
             elif fromRadio.config.HasField("position"):
