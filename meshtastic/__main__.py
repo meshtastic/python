@@ -265,7 +265,6 @@ def onConnected(interface):
             alt = 0
             lat = 0.0
             lon = 0.0
-            # TODO: use getNode(args.dest) to be able to set it for a remote node
             localConfig = interface.localNode.localConfig
             if args.setalt:
                 alt = int(args.setalt)
