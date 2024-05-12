@@ -7,6 +7,8 @@ import asyncio
 from threading import Thread, Event
 from bleak import BleakScanner, BleakClient
 
+from typing import Optional
+
 from meshtastic.mesh_interface import MeshInterface
 from meshtastic.util import our_exit
 
@@ -30,7 +32,7 @@ class BLEInterface(MeshInterface):
         MESH = False
 
 
-    def __init__(self, address, noProto = False, debugOut = None):
+    def __init__(self, address: Optional[str], noProto: bool = False, debugOut = None):
         self.state = BLEInterface.BLEState()
 
         if not address:

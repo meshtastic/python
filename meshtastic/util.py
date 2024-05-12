@@ -11,7 +11,7 @@ import threading
 import time
 import traceback
 from queue import Queue
-from typing import Union
+from typing import List, NoReturn, Union
 
 from google.protobuf.json_format import MessageToJson
 
@@ -122,7 +122,7 @@ def catchAndIgnore(reason, closure):
         logging.error(f"Exception thrown in {reason}: {ex}")
 
 
-def findPorts(eliminate_duplicates=False):
+def findPorts(eliminate_duplicates: bool=False) -> List[str]:
     """Find all ports that might have meshtastic devices
        eliminate_duplicates will run the eliminate_duplicate_port() on the collection
 
@@ -263,7 +263,7 @@ class DeferredExecution:
                 print(traceback.format_exc())
 
 
-def our_exit(message, return_value=1):
+def our_exit(message, return_value=1) -> NoReturn:
     """Print the message and return a value.
     return_value defaults to 1 (non-successful)
     """
