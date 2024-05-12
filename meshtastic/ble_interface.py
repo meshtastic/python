@@ -5,9 +5,9 @@ import time
 import struct
 import asyncio
 from threading import Thread, Event
-from bleak import BleakScanner, BleakClient
-
 from typing import Optional
+
+from bleak import BleakScanner, BleakClient
 
 from meshtastic.mesh_interface import MeshInterface
 from meshtastic.util import our_exit
