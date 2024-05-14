@@ -721,6 +721,10 @@ def onConnected(interface):
             ch = interface.getNode(args.dest).channels[channelIndex]
 
             if args.ch_enable or args.ch_disable:
+                print(
+                    "Warning: --ch-enable and --ch-disable can produce noncontiguous channels, "
+                    "which can cause errors in some clients. Whenever possible, use --ch-add and --ch-del instead."
+                )
                 if channelIndex == 0:
                     meshtastic.util.our_exit(
                         "Warning: Cannot enable/disable PRIMARY channel."
