@@ -28,8 +28,7 @@ If you're interested in contributing but don't have specific things you'd like t
 This should always be considered a list in progress and flux -- inclusion doesn't guarantee implementation, and exclusion doesn't mean something's not wanted. GitHub issues are a great place to discuss ideas.
 
 * Types
-  * type annotations throughout the codebase
-  * mypy running in CI to type-check new code
+  * type annotations throughout the codebase, and upgrading mypy running in CI to `--strict`
 * async-friendliness
 * CLI completeness & consistency
   * the CLI should support all features of the firmware
@@ -40,9 +39,9 @@ This should always be considered a list in progress and flux -- inclusion doesn'
   * pubsub events should be documented clearly
 * helpers for third-party code
   * it should be easy to write a script that supports similar options to the CLI so many tools support the same ways of connecting to nodes
-* interactive client
 * data storage & processing
   * there should be a standardized way of recording packets for later use, debugging, etc.
+  * a persistence layer could also keep track of nodes beyond nodedb, as the apps do
   * a sqlite database schema and tools for writing to it may be a good starting point
   * enable maps, charts, visualizations
 
