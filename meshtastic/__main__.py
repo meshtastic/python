@@ -253,7 +253,7 @@ def onConnected(interface):
         args = mt_config.args
 
         # do not print this line if we are exporting the config
-        if not args.export_config:
+        if not (args.export_config or args.json):
             print("Connected to radio")
 
         if args.setlat or args.setlon or args.setalt:
@@ -445,8 +445,12 @@ def onConnected(interface):
             else:
                 channelIndex = mt_config.channel_index or 0
                 if checkChannel(interface, channelIndex):
-                    print(f"Sending telemetry request to {args.dest} on channelIndex:{channelIndex} (this could take a while)")
-                    interface.sendTelemetry(destinationId=args.dest, wantResponse=True, channelIndex=channelIndex)
+                    if not args.json:
+                        print(f"Sending telemetry request to {args.dest} "
+                              f"on channelIndex:{channelIndex} (this could take a while)")
+                    interface.sendTelemetry(
+                        destinationId=args.dest, wantResponse=True, channelIndex=channelIndex, jsonResponse=args.json
+                    )
 
         if args.request_position:
             if args.dest == BROADCAST_ADDR:
@@ -454,8 +458,11 @@ def onConnected(interface):
             else:
                 channelIndex = mt_config.channel_index or 0
                 if checkChannel(interface, channelIndex):
-                    print(f"Sending position request to {args.dest} on channelIndex:{channelIndex} (this could take a while)")
-                    interface.sendPosition(destinationId=args.dest, wantResponse=True, channelIndex=channelIndex)
+                    if not args.json:
+                        print(f"Sending position request to {args.dest} "
+                              f"on channelIndex:{channelIndex} (this could take a while)")
+                    interface.sendPosition(destinationId=args.dest, wantResponse=True, channelIndex=channelIndex,
+                                           jsonResponse=args.json)
 
         if args.gpio_wrb or args.gpio_rd or args.gpio_watch:
             if args.dest == BROADCAST_ADDR:
@@ -819,9 +826,13 @@ def onConnected(interface):
         if args.nodes:
             closeNow = True
             if args.dest != BROADCAST_ADDR:
-                print("Showing node list of a remote node is not supported.")
+                if args.json:
+                    print("[]")
+                else:
+                    print("Showing node list of a remote node is not supported.")
                 return
-            interface.showNodes()
+            interface.showNodes(jsonResponse=args.json)
+
 
         if args.qr or args.qr_all:
             closeNow = True
@@ -1459,6 +1470,12 @@ def initParser():
 
     group.add_argument(
         "--debug", help="Show API library debug log messages", action="store_true"
+    )
+
+    group.add_argument(
+        "--json",
+        help="Output JSON objects for --nodes, --request-telemetry, --request-position",
+        action="store_true"
     )
 
     group.add_argument(
