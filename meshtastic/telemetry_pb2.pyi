@@ -94,6 +94,26 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     Sensirion High accuracy temperature and humidity
     """
+    VEML7700: _TelemetrySensorType.ValueType  # 18
+    """
+    VEML7700 high accuracy ambient light(Lux) digital 16-bit resolution sensor.
+    """
+    MLX90632: _TelemetrySensorType.ValueType  # 19
+    """
+    MLX90632 non-contact IR temperature sensor.
+    """
+    OPT3001: _TelemetrySensorType.ValueType  # 20
+    """
+    TI OPT3001 Ambient Light Sensor
+    """
+    LTR390UV: _TelemetrySensorType.ValueType  # 21
+    """
+    Lite On LTR-390UV-01 UV Light Sensor
+    """
+    TSL25911FN: _TelemetrySensorType.ValueType  # 22
+    """
+    AMS TSL25911FN RGB Light Sensor
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -172,6 +192,26 @@ SHT4X: TelemetrySensorType.ValueType  # 17
 """
 Sensirion High accuracy temperature and humidity
 """
+VEML7700: TelemetrySensorType.ValueType  # 18
+"""
+VEML7700 high accuracy ambient light(Lux) digital 16-bit resolution sensor.
+"""
+MLX90632: TelemetrySensorType.ValueType  # 19
+"""
+MLX90632 non-contact IR temperature sensor.
+"""
+OPT3001: TelemetrySensorType.ValueType  # 20
+"""
+TI OPT3001 Ambient Light Sensor
+"""
+LTR390UV: TelemetrySensorType.ValueType  # 21
+"""
+Lite On LTR-390UV-01 UV Light Sensor
+"""
+TSL25911FN: TelemetrySensorType.ValueType  # 22
+"""
+AMS TSL25911FN RGB Light Sensor
+"""
 global___TelemetrySensorType = TelemetrySensorType
 
 @typing_extensions.final
@@ -236,6 +276,8 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     CURRENT_FIELD_NUMBER: builtins.int
     IAQ_FIELD_NUMBER: builtins.int
     DISTANCE_FIELD_NUMBER: builtins.int
+    LUX_FIELD_NUMBER: builtins.int
+    WHITE_LUX_FIELD_NUMBER: builtins.int
     temperature: builtins.float
     """
     Temperature measured
@@ -269,6 +311,14 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     """
     RCWL9620 Doppler Radar Distance Sensor, used for water level detection. Float value in mm.
     """
+    lux: builtins.float
+    """
+    VEML7700 high accuracy ambient light(Lux) digital 16-bit resolution sensor.
+    """
+    white_lux: builtins.float
+    """
+    VEML7700 high accuracy white light(irradiance) not calibrated digital 16-bit resolution sensor.
+    """
     def __init__(
         self,
         *,
@@ -280,8 +330,10 @@ class EnvironmentMetrics(google.protobuf.message.Message):
         current: builtins.float = ...,
         iaq: builtins.int = ...,
         distance: builtins.float = ...,
+        lux: builtins.float = ...,
+        white_lux: builtins.float = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "voltage", b"voltage"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "lux", b"lux", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "voltage", b"voltage", "white_lux", b"white_lux"]) -> None: ...
 
 global___EnvironmentMetrics = EnvironmentMetrics
 

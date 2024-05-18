@@ -405,6 +405,8 @@ class ModuleConfig(google.protobuf.message.Message):
 
         ENABLED_FIELD_NUMBER: builtins.int
         PAXCOUNTER_UPDATE_INTERVAL_FIELD_NUMBER: builtins.int
+        WIFI_THRESHOLD_FIELD_NUMBER: builtins.int
+        BLE_THRESHOLD_FIELD_NUMBER: builtins.int
         enabled: builtins.bool
         """
         Enable the Paxcounter Module
@@ -414,13 +416,23 @@ class ModuleConfig(google.protobuf.message.Message):
         Interval in seconds of how often we should try to send our
         metrics to the mesh
         """
+        wifi_threshold: builtins.int
+        """
+        WiFi RSSI threshold. Defaults to -80
+        """
+        ble_threshold: builtins.int
+        """
+        BLE RSSI threshold. Defaults to -80
+        """
         def __init__(
             self,
             *,
             enabled: builtins.bool = ...,
             paxcounter_update_interval: builtins.int = ...,
+            wifi_threshold: builtins.int = ...,
+            ble_threshold: builtins.int = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["enabled", b"enabled", "paxcounter_update_interval", b"paxcounter_update_interval"]) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["ble_threshold", b"ble_threshold", "enabled", b"enabled", "paxcounter_update_interval", b"paxcounter_update_interval", "wifi_threshold", b"wifi_threshold"]) -> None: ...
 
     @typing_extensions.final
     class SerialConfig(google.protobuf.message.Message):
