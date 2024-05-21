@@ -877,7 +877,10 @@ def onConnected(interface):
             interface.close()  # after running command then exit
 
     except Exception as ex:
-        print(f"Aborting due to: {ex}")
+        if args.json:
+            print("")
+        else:
+            print(f"Aborting due to: {ex}")
         interface.close()  # close the connection now, so that our app exits
         sys.exit(1)
 
