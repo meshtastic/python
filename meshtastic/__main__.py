@@ -226,13 +226,14 @@ def setPref(config, comp_name, valStr) -> bool:
             config_values = getattr(config_part, config_type.name)
             setattr(config_values, pref.name, valStr)
     else:
+        config_values = getattr(config, config_type.name)
         if val == 0:
             # clear values
             print("Clearing ignore_incoming list")
-            del config_type.message_type.ignore_incoming[:]
+            del config_values.ignore_incoming[:]
         else:
             print(f"Adding '{val}' to the ignore_incoming list")
-            config_type.message_type.ignore_incoming.extend([val])
+            config_values.ignore_incoming.extend([int(valStr)])
 
     prefix = f"{'.'.join(name[0:-1])}." if config_type.message_type is not None else ""
     if mt_config.camel_case:
