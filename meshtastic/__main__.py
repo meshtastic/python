@@ -861,6 +861,10 @@ def onConnected(interface):
             )
             interface.getNode(args.dest, False).iface.waitForAckNak()
 
+        if args.wait_to_disconnect:
+            print(f"Waiting {args.wait_to_disconnect} seconds before disconnecting" )
+            time.sleep(int(args.wait_to_disconnect))
+
         # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
         if (not args.seriallog) and closeNow:
             interface.close()  # after running command then exit
@@ -1471,6 +1475,14 @@ def initParser():
         "--ble-scan",
         help="Scan for Meshtastic BLE devices",
         action="store_true",
+    )
+
+    group.add_argument(
+        "--wait-to-disconnect",
+        help="How many seconds to wait before disconnecting from the device.",
+        const="5",
+        nargs="?",
+        action="store",
     )
 
     group.add_argument(
