@@ -138,7 +138,7 @@ class MeshInterface:
         print(infos)
         return infos
 
-    def showNodes(self, includeSelf: bool=True, file=sys.stdout) -> str:  # pylint: disable=W0613
+    def showNodes(self, includeSelf: bool=True, jsonResponse: bool=False) -> List:  # pylint: disable=W0613
         """Show table summary of nodes in mesh"""
 
         def formatFloat(value, precision=2, unit="") -> Optional[str]:
@@ -224,9 +224,13 @@ class MeshInterface:
         for i, row in enumerate(rows):
             row["N"] = i + 1
 
-        table = tabulate(rows, headers="keys", missingval="N/A", tablefmt="fancy_grid")
-        print(table)
-        return table
+        if jsonResponse:
+            print(json.dumps(rows, indent=2))
+        else:
+            table = tabulate(rows, headers="keys", missingval="N/A", tablefmt="fancy_grid")
+            print(table)
+
+        return rows
 
     def getNode(self, nodeId: str, requestChannels: bool=True) -> meshtastic.node.Node:
         """Return a node object which contains device settings and channel info"""
@@ -353,6 +357,7 @@ class MeshInterface:
         wantAck: bool=False,
         wantResponse: bool=False,
         channelIndex: int=0,
+        jsonResponse: bool=False,
     ):
         """
         Send a position packet to some other node (normally a broadcast)
@@ -384,7 +389,10 @@ class MeshInterface:
         logging.debug(f"p.time:{p.time}")
 
         if wantResponse:
-            onResponse = self.onResponsePosition
+            if jsonResponse:
+                onResponse = self.onResponsePositionJson
+            else:
+                onResponse = self.onResponsePosition
         else:
             onResponse = None
 
@@ -401,33 +409,69 @@ class MeshInterface:
             self.waitForPosition()
         return d
 
-    def onResponsePosition(self, p):
-        """on response for position"""
-        if p["decoded"]["portnum"] == 'POSITION_APP':
-            self._acknowledgment.receivedPosition = True
-            position = mesh_pb2.Position()
-            position.ParseFromString(p["decoded"]["payload"])
+    def onResponsePosition(self,
+                           destinationId: Union[int, str] = BROADCAST_ADDR,
+                           jsonResponse: bool = False
+                           ):
 
-            ret = "Position received: "
-            if position.latitude_i != 0 and position.longitude_i != 0:
-                ret += f"({position.latitude_i * 10**-7}, {position.longitude_i * 10**-7})"
-            else:
-                ret += "(unknown)"
-            if position.altitude != 0:
-                ret += f" {position.altitude}m"
+        def responsePosition(p):
+            """on response for position"""
+            if p["decoded"]["portnum"] == 'POSITION_APP':
+                self._acknowledgment.receivedPosition = True
+                position = mesh_pb2.Position()
+                position.ParseFromString(p["decoded"]["payload"])
 
-            if position.precision_bits not in [0,32]:
-                ret += f" precision:{position.precision_bits}"
-            elif position.precision_bits == 32:
-                ret += " full precision"
-            elif position.precision_bits == 0:
-                ret += " position disabled"
+                if jsonResponse:
+                    self.printJsonPosition(position, destinationId)
+                else:
+                    self.printPosition(position)
 
-            print(ret)
+            elif p["decoded"]["portnum"] == 'ROUTING_APP':
+                if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
+                    if jsonResponse:
+                        our_exit("{}")
+                    else:
+                        our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
+        return responsePosition
 
-        elif p["decoded"]["portnum"] == 'ROUTING_APP':
-            if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
-                our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
+    @staticmethod
+    def printPosition(position: mesh_pb2.Position):
+        ret = "Position received: "
+        if position.latitude_i != 0 and position.longitude_i != 0:
+            ret += f"({position.latitude_i * 10**-7}, {position.longitude_i * 10**-7})"
+        else:
+            ret += "(unknown)"
+        if position.altitude != 0:
+            ret += f" {position.altitude}m"
+
+        if position.precision_bits not in [0,32]:
+            ret += f" precision:{position.precision_bits}"
+        elif position.precision_bits == 32:
+            ret += " full precision"
+        elif position.precision_bits == 0:
+            ret += " position disabled"
+
+        print(ret)
+
+    @staticmethod
+    def printJsonPosition(position: mesh_pb2.Position,
+                          destinationId: Union[int, str] = BROADCAST_ADDR):
+        json_output = {
+            "node_id": destinationId
+        }
+        json_output["latitude"] = position.latitude_i * 10**-7
+        json_output["longitude"] = position.longitude_i * 10**-7
+        json_output["altitude"] = position.altitude
+
+        json_output["precision"] = position.precision_bits
+        json_output["full"] = False
+        json_output["enabled"] = True
+        if position.precision_bits == 32:
+            json_output["full"] = True
+        elif position.precision_bits == 0:
+            json_output["enabled"] = False
+
+        print(json.dumps(json_output, indent=2))
 
     def sendTraceRoute(self, dest: Union[int, str], hopLimit: int, channelIndex: int=0):
         """Send the trace route"""
@@ -460,7 +504,11 @@ class MeshInterface:
 
         self._acknowledgment.receivedTraceRoute = True
 
-    def sendTelemetry(self, destinationId: Union[int,str]=BROADCAST_ADDR, wantResponse: bool=False, channelIndex: int=0):
+    def sendTelemetry(self,
+                      destinationId: Union[int, str] = BROADCAST_ADDR,
+                      wantResponse: bool = False,
+                      channelIndex: int = 0,
+                      jsonResponse: bool = False):
         """Send telemetry and optionally ask for a response"""
         r = telemetry_pb2.Telemetry()
 
@@ -482,10 +530,9 @@ class MeshInterface:
                     if air_util_tx is not None:
                         r.device_metrics.air_util_tx = air_util_tx
 
+        onResponse = None
         if wantResponse:
-            onResponse = self.onResponseTelemetry
-        else:
-            onResponse = None
+            onResponse = self.onResponseTelemetry(destinationId, jsonResponse)
 
         self.sendData(
             r,
@@ -498,28 +545,59 @@ class MeshInterface:
         if wantResponse:
             self.waitForTelemetry()
 
-    def onResponseTelemetry(self, p):
-        """on response for telemetry"""
-        if p["decoded"]["portnum"] == 'TELEMETRY_APP':
-            self._acknowledgment.receivedTelemetry = True
-            telemetry = telemetry_pb2.Telemetry()
-            telemetry.ParseFromString(p["decoded"]["payload"])
+    def onResponseTelemetry(self,
+                            destinationId: Union[int, str] = BROADCAST_ADDR,
+                            jsonResponse: bool = False
+                            ):
+        def responseTelemetry(p):
+            """on response for telemetry"""
+            if p["decoded"]["portnum"] == 'TELEMETRY_APP':
+                self._acknowledgment.receivedTelemetry = True
+                telemetry = telemetry_pb2.Telemetry()
+                telemetry.ParseFromString(p["decoded"]["payload"])
 
-            print("Telemetry received:")
-            if telemetry.device_metrics.battery_level is not None:
-                print(f"Battery level: {telemetry.device_metrics.battery_level:.2f}%")
-            if telemetry.device_metrics.voltage is not None:
-                print(f"Voltage: {telemetry.device_metrics.voltage:.2f} V")
-            if telemetry.device_metrics.channel_utilization is not None:
-                print(
-                    f"Total channel utilization: {telemetry.device_metrics.channel_utilization:.2f}%"
-                )
-            if telemetry.device_metrics.air_util_tx is not None:
-                print(f"Transmit air utilization: {telemetry.device_metrics.air_util_tx:.2f}%")
+                if jsonResponse:
+                    self.printJsonTelemetry(telemetry, destinationId)
+                else:
+                    self.printTelemetry(telemetry)
 
-        elif p["decoded"]["portnum"] == 'ROUTING_APP':
-            if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
-                our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
+            elif p["decoded"]["portnum"] == 'ROUTING_APP':
+                if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
+                    if jsonResponse:
+                        our_exit("{}")
+                    else:
+                        our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
+        return responseTelemetry
+
+    @staticmethod
+    def printTelemetry(telemetry: telemetry_pb2.Telemetry):
+        print("Telemetry received:")
+        if telemetry.device_metrics.battery_level is not None:
+            print(f"Battery level: {telemetry.device_metrics.battery_level:.2f}%")
+        if telemetry.device_metrics.voltage is not None:
+            print(f"Voltage: {telemetry.device_metrics.voltage:.2f} V")
+        if telemetry.device_metrics.channel_utilization is not None:
+            print(
+                f"Total channel utilization: {telemetry.device_metrics.channel_utilization:.2f}%"
+            )
+        if telemetry.device_metrics.air_util_tx is not None:
+            print(f"Transmit air utilization: {telemetry.device_metrics.air_util_tx:.2f}%")
+
+    @staticmethod
+    def printJsonTelemetry(telemetry: telemetry_pb2.Telemetry,
+                           destinationId: Union[int, str] = BROADCAST_ADDR):
+        json_output = {
+            "node_id": destinationId
+        }
+        if telemetry.device_metrics.battery_level is not None:
+            json_output["batteryLevel"] = telemetry.device_metrics.battery_level
+        if telemetry.device_metrics.voltage is not None:
+            json_output["voltage"] = telemetry.device_metrics.voltage
+        if telemetry.device_metrics.channel_utilization is not None:
+            json_output["channel_utilization"] = telemetry.device_metrics.channel_utilization
+        if telemetry.device_metrics.air_util_tx is not None:
+            json_output["air_util_tx"] = telemetry.device_metrics.air_util_tx
+        print(json.dumps(json_output, indent=2))
 
     def _addResponseHandler(self, requestId: int, callback: Callable):
         self.responseHandlers[requestId] = ResponseHandler(callback)

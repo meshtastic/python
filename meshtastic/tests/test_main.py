@@ -408,15 +408,38 @@ def test_main_nodes(capsys):
 
     iface = MagicMock(autospec=SerialInterface)
 
-    def mock_showNodes():
-        print("inside mocked showNodes")
+    def mock_showNodes(jsonResponse: bool = False):
+        print(f"inside mocked showNodes {jsonResponse}")
+        assert not jsonResponse
 
     iface.showNodes.side_effect = mock_showNodes
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"inside mocked showNodes", out, re.MULTILINE)
+        assert re.search(r"inside mocked showNodes False", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_nodes_json(capsys):
+    """Test --nodes --json"""
+    sys.argv = ["", "--nodes", "--json"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    def mock_showNodes(jsonResponse: bool = False):
+        print(f"inside mocked showNodes {jsonResponse}")
+        assert jsonResponse
+
+    iface.showNodes.side_effect = mock_showNodes
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"inside mocked showNodes True", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
