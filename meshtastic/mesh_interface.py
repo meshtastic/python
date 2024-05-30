@@ -166,7 +166,8 @@ class MeshInterface:
                 if not includeSelf and node["num"] == self.localNode.nodeNum:
                     continue
 
-                row = {"N": 0, "User": f"UNK: {node['num']}", "ID": f"!{node['num']:08x}"}
+                presumptive_id = f"!{node['num']:08x}"
+                row = {"N": 0, "User": f"Meshtastic {presumptive_id[-4:]}", "ID": presumptive_id}
 
                 user = node.get("user")
                 if user:
@@ -175,6 +176,7 @@ class MeshInterface:
                             "User": user.get("longName", "N/A"),
                             "AKA": user.get("shortName", "N/A"),
                             "ID": user["id"],
+                            "Hardware": user.get("hwModel", "UNSET")
                         }
                     )
 
@@ -844,16 +846,18 @@ class MeshInterface:
             logging.debug(f"Received device metadata: {stripnl(fromRadio.metadata)}")
 
         elif fromRadio.HasField("node_info"):
-            node = asDict["nodeInfo"]
+            logging.debug(f"Received nodeinfo: {asDict['nodeInfo']}")
+
+            node = self._getOrCreateByNum(asDict["nodeInfo"]["num"])
+            node.update(asDict["nodeInfo"])
             try:
                 newpos = self._fixupPosition(node["position"])
                 node["position"] = newpos
             except:
                 logging.debug("Node without position")
 
-            logging.debug(f"Received nodeinfo: {node}")
-
-            self.nodesByNum[node["num"]] = node
+            # no longer necessary since we're mutating directly in nodesByNum via _getOrCreateByNum
+            #self.nodesByNum[node["num"]] = node
             if "user" in node:  # Some nodes might not have user/ids assigned yet
                 if "id" in node["user"]:
                     self.nodes[node["user"]["id"]] = node
@@ -1005,7 +1009,16 @@ class MeshInterface:
         if nodeNum in self.nodesByNum:
             return self.nodesByNum[nodeNum]
         else:
-            n = {"num": nodeNum}  # Create a minimal node db entry
+            presumptive_id = f"!{nodeNum:08x}"
+            n = {
+                "num": nodeNum,
+                "user": {
+                    "id": presumptive_id,
+                    "longName": f"Meshtastic {presumptive_id[-4:]}",
+                    "shortName": f"{presumptive_id[-4:]}",
+                    "hwModel": "UNSET"
+                    }
+                }  # Create a minimal node db entry
             self.nodesByNum[nodeNum] = n
             return n
 
