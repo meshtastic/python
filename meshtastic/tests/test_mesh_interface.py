@@ -588,7 +588,7 @@ def test_getOrCreateByNum_minimal(iface_with_nodes):
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
     tmp = iface._getOrCreateByNum(123)
-    assert tmp == {"num": 123}
+    assert tmp == {"num": 123, "user": {"hwModel": "UNSET", "id": "!0000007b", "shortName": "007b", "longName": "Meshtastic 007b"}}
 
 
 @pytest.mark.unit

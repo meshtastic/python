@@ -44,7 +44,7 @@ def test_init_onNodeInfoReceive(caplog, iface_with_nodes):
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
     packet = {
-        "from": "foo",
+        "from": 4808675309,
         "decoded": {
             "user": {
                 "id": "bar",
