@@ -250,7 +250,7 @@ class MeshInterface:
         destinationId: Union[int, str]=BROADCAST_ADDR,
         wantAck: bool=False,
         wantResponse: bool=False,
-        onResponse: Optional[Callable[[mesh_pb2.MeshPacket], Any]]=None,
+        onResponse: Optional[Callable[[dict], Any]]=None,
         channelIndex: int=0,
     ):
         """Send a utf8 string to some other node, if the node has a display it
@@ -290,7 +290,7 @@ class MeshInterface:
         portNum: portnums_pb2.PortNum.ValueType=portnums_pb2.PortNum.PRIVATE_APP,
         wantAck: bool=False,
         wantResponse: bool=False,
-        onResponse: Optional[Callable[[mesh_pb2.MeshPacket], Any]]=None,
+        onResponse: Optional[Callable[[dict], Any]]=None,
         channelIndex: int=0,
     ):
         """Send a data packet to some other node
@@ -446,7 +446,7 @@ class MeshInterface:
         waitFactor = min(len(self.nodes) - 1 if self.nodes else 0, hopLimit)
         self.waitForTraceRoute(waitFactor)
 
-    def onResponseTraceRoute(self, p):
+    def onResponseTraceRoute(self, p: dict):
         """on response for trace route"""
         routeDiscovery = mesh_pb2.RouteDiscovery()
         routeDiscovery.ParseFromString(p["decoded"]["payload"])
@@ -500,7 +500,7 @@ class MeshInterface:
         if wantResponse:
             self.waitForTelemetry()
 
-    def onResponseTelemetry(self, p):
+    def onResponseTelemetry(self, p: dict):
         """on response for telemetry"""
         if p["decoded"]["portnum"] == 'TELEMETRY_APP':
             self._acknowledgment.receivedTelemetry = True
@@ -523,7 +523,7 @@ class MeshInterface:
             if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
                 our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
 
-    def _addResponseHandler(self, requestId: int, callback: Callable):
+    def _addResponseHandler(self, requestId: int, callback: Callable[[dict], Any]):
         self.responseHandlers[requestId] = ResponseHandler(callback)
 
     def _sendPacket(self, meshPacket: mesh_pb2.MeshPacket, destinationId: Union[int,str]=BROADCAST_ADDR, wantAck: bool=False):
