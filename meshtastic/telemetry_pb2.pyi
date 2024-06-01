@@ -114,6 +114,10 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     AMS TSL25911FN RGB Light Sensor
     """
+    AHT10: _TelemetrySensorType.ValueType  # 23
+    """
+    AHT10 Integrated temperature and humidity sensor
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -211,6 +215,10 @@ Lite On LTR-390UV-01 UV Light Sensor
 TSL25911FN: TelemetrySensorType.ValueType  # 22
 """
 AMS TSL25911FN RGB Light Sensor
+"""
+AHT10: TelemetrySensorType.ValueType  # 23
+"""
+AHT10 Integrated temperature and humidity sensor
 """
 global___TelemetrySensorType = TelemetrySensorType
 

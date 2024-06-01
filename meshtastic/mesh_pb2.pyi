@@ -285,6 +285,11 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     NRF52_PROMICRO_DIY
     Promicro NRF52840 with SX1262/LLCC68, SSD1306 OLED and NEO6M GPS
     """
+    RADIOMASTER_900_BANDIT_NANO: _HardwareModel.ValueType  # 64
+    """
+    RadioMaster 900 Bandit Nano, https://www.radiomasterrc.com/products/bandit-nano-expresslrs-rf-module
+    ESP32-D0WDQ6 With SX1276/SKY66122, SSD1306 OLED and No GPS
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -554,6 +559,11 @@ NRF52_PROMICRO_DIY: HardwareModel.ValueType  # 63
 """
 NRF52_PROMICRO_DIY
 Promicro NRF52840 with SX1262/LLCC68, SSD1306 OLED and NEO6M GPS
+"""
+RADIOMASTER_900_BANDIT_NANO: HardwareModel.ValueType  # 64
+"""
+RadioMaster 900 Bandit Nano, https://www.radiomasterrc.com/products/bandit-nano-expresslrs-rf-module
+ESP32-D0WDQ6 With SX1276/SKY66122, SSD1306 OLED and No GPS
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """

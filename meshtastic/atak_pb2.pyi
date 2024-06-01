@@ -302,6 +302,7 @@ class GeoChat(google.protobuf.message.Message):
 
     MESSAGE_FIELD_NUMBER: builtins.int
     TO_FIELD_NUMBER: builtins.int
+    TO_CALLSIGN_FIELD_NUMBER: builtins.int
     message: builtins.str
     """
     The text message
@@ -310,15 +311,23 @@ class GeoChat(google.protobuf.message.Message):
     """
     Uid recipient of the message
     """
+    to_callsign: builtins.str
+    """
+    Callsign of the recipient for the message
+    """
     def __init__(
         self,
         *,
         message: builtins.str = ...,
         to: builtins.str | None = ...,
+        to_callsign: builtins.str | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["_to", b"_to", "to", b"to"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["_to", b"_to", "message", b"message", "to", b"to"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["_to", b"_to", "_to_callsign", b"_to_callsign", "to", b"to", "to_callsign", b"to_callsign"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["_to", b"_to", "_to_callsign", b"_to_callsign", "message", b"message", "to", b"to", "to_callsign", b"to_callsign"]) -> None: ...
+    @typing.overload
     def WhichOneof(self, oneof_group: typing_extensions.Literal["_to", b"_to"]) -> typing_extensions.Literal["to"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["_to_callsign", b"_to_callsign"]) -> typing_extensions.Literal["to_callsign"] | None: ...
 
 global___GeoChat = GeoChat
 
