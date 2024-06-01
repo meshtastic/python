@@ -734,19 +734,14 @@ def test_main_setlat(capsys):
 
     mocked_node = MagicMock(autospec=Node)
 
-    def mock_writeConfig():
-        print("inside mocked writeConfig")
-
-    mocked_node.writeConfig.side_effect = mock_writeConfig
-
-    iface = MagicMock(autospec=SerialInterface)
-
-    def mock_sendPosition(lat, lon, alt):
-        print("inside mocked sendPosition")
+    def mock_setFixedPosition(lat, lon, alt):
+        print("inside mocked setFixedPosition")
         print(f"{lat} {lon} {alt}")
 
-    iface.sendPosition.side_effect = mock_sendPosition
-    iface.localNode.return_value = mocked_node
+    mocked_node.setFixedPosition.side_effect = mock_setFixedPosition
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode = mocked_node
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         main()
@@ -754,8 +749,7 @@ def test_main_setlat(capsys):
         assert re.search(r"Connected to radio", out, re.MULTILINE)
         assert re.search(r"Fixing latitude", out, re.MULTILINE)
         assert re.search(r"Setting device position", out, re.MULTILINE)
-        assert re.search(r"inside mocked sendPosition", out, re.MULTILINE)
-        # TODO: Why does this not work? assert re.search(r'inside mocked writeConfig', out, re.MULTILINE)
+        assert re.search(r"inside mocked setFixedPosition", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
@@ -769,19 +763,14 @@ def test_main_setlon(capsys):
 
     mocked_node = MagicMock(autospec=Node)
 
-    def mock_writeConfig():
-        print("inside mocked writeConfig")
-
-    mocked_node.writeConfig.side_effect = mock_writeConfig
-
-    iface = MagicMock(autospec=SerialInterface)
-
-    def mock_sendPosition(lat, lon, alt):
-        print("inside mocked sendPosition")
+    def mock_setFixedPosition(lat, lon, alt):
+        print("inside mocked setFixedPosition")
         print(f"{lat} {lon} {alt}")
 
-    iface.sendPosition.side_effect = mock_sendPosition
-    iface.localNode.return_value = mocked_node
+    mocked_node.setFixedPosition.side_effect = mock_setFixedPosition
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode = mocked_node
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         main()
@@ -789,8 +778,7 @@ def test_main_setlon(capsys):
         assert re.search(r"Connected to radio", out, re.MULTILINE)
         assert re.search(r"Fixing longitude", out, re.MULTILINE)
         assert re.search(r"Setting device position", out, re.MULTILINE)
-        assert re.search(r"inside mocked sendPosition", out, re.MULTILINE)
-        # TODO: Why does this not work? assert re.search(r'inside mocked writeConfig', out, re.MULTILINE)
+        assert re.search(r"inside mocked setFixedPosition", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
@@ -804,19 +792,14 @@ def test_main_setalt(capsys):
 
     mocked_node = MagicMock(autospec=Node)
 
-    def mock_writeConfig():
-        print("inside mocked writeConfig")
-
-    mocked_node.writeConfig.side_effect = mock_writeConfig
-
-    iface = MagicMock(autospec=SerialInterface)
-
-    def mock_sendPosition(lat, lon, alt):
-        print("inside mocked sendPosition")
+    def mock_setFixedPosition(lat, lon, alt):
+        print("inside mocked setFixedPosition")
         print(f"{lat} {lon} {alt}")
 
-    iface.sendPosition.side_effect = mock_sendPosition
-    iface.localNode.return_value = mocked_node
+    mocked_node.setFixedPosition.side_effect = mock_setFixedPosition
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode = mocked_node
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         main()
@@ -824,8 +807,7 @@ def test_main_setalt(capsys):
         assert re.search(r"Connected to radio", out, re.MULTILINE)
         assert re.search(r"Fixing altitude", out, re.MULTILINE)
         assert re.search(r"Setting device position", out, re.MULTILINE)
-        assert re.search(r"inside mocked sendPosition", out, re.MULTILINE)
-        # TODO: Why does this not work? assert re.search(r'inside mocked writeConfig', out, re.MULTILINE)
+        assert re.search(r"inside mocked setFixedPosition", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 

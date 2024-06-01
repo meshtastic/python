@@ -257,33 +257,41 @@ def onConnected(interface):
         if not args.export_config:
             print("Connected to radio")
 
-        if args.setlat or args.setlon or args.setalt:
+        if args.remove_position:
+            if args.dest != BROADCAST_ADDR:
+                print("Setting positions of remote nodes is not supported.")
+                return
+            closeNow = True
+            print("Removing fixed position and disabling fixed position setting")
+            interface.localNode.removeFixedPosition()
+        elif args.setlat or args.setlon or args.setalt:
             if args.dest != BROADCAST_ADDR:
                 print("Setting latitude, longitude, and altitude of remote nodes is not supported.")
                 return
             closeNow = True
 
             alt = 0
-            lat = 0.0
-            lon = 0.0
-            localConfig = interface.localNode.localConfig
+            lat = 0
+            lon = 0
             if args.setalt:
                 alt = int(args.setalt)
-                localConfig.position.fixed_position = True
                 print(f"Fixing altitude at {alt} meters")
             if args.setlat:
-                lat = float(args.setlat)
-                localConfig.position.fixed_position = True
+                try:
+                    lat = int(args.setlat)
+                except ValueError:
+                    lat = float(args.setlat)
                 print(f"Fixing latitude at {lat} degrees")
             if args.setlon:
-                lon = float(args.setlon)
-                localConfig.position.fixed_position = True
+                try:
+                    lon = int(args.setlon)
+                except ValueError:
+                    lon = float(args.setlon)
                 print(f"Fixing longitude at {lon} degrees")
 
-            print("Setting device position")
+            print("Setting device position and enabling fixed position setting")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
-            interface.sendPosition(lat, lon, alt)
-            interface.localNode.writeConfig("position")
+            interface.localNode.setFixedPosition(lat, lon, alt)
         elif not args.no_time:
             # We normally provide a current time to the mesh when we connect
             if interface.localNode.nodeNum in interface.nodesByNum and "position" in interface.nodesByNum[interface.localNode.nodeNum]:
@@ -1445,12 +1453,25 @@ def initParser():
         action="store_true",
     )
 
-    group.add_argument("--setalt", help="Set device altitude in meters (allows use without GPS)")
-
-    group.add_argument("--setlat", help="Set device latitude (allows use without GPS)")
+    group.add_argument(
+        "--setalt",
+        help="Set device altitude in meters (allows use without GPS), and enable fixed position.",
+    )
 
     group.add_argument(
-        "--setlon", help="Set device longitude (allows use without GPS)"
+        "--setlat",
+        help="Set device latitude (allows use without GPS), and enable fixed position. Accepts a decimal value or an integer premultiplied by 1e7.",
+    )
+
+    group.add_argument(
+        "--setlon",
+        help="Set device longitude (allows use without GPS), and enable fixed position. Accepts a decimal value or an integer premultiplied by 1e7.",
+    )
+
+    group.add_argument(
+        "--remove-position",
+        help="Clear any existing fixed position and disable fixed position.",
+        action="store_true",
     )
 
     group.add_argument(
