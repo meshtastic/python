@@ -7,7 +7,7 @@ import time
 
 from typing import Union
 
-from meshtastic import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, portnums_pb2
+from meshtastic import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, mesh_pb2, portnums_pb2
 from meshtastic.util import (
     Timeout,
     camel_to_snake,
@@ -654,6 +654,38 @@ class Node:
         else:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
+
+    def setFixedPosition(self, lat: Union[int, float], lon: Union[int, float], alt: int):
+        """Tell the node to set fixed position to the provided value and enable the fixed position setting"""
+        if self != self.iface.localNode:
+            logging.error("Setting position of remote nodes is not supported.")
+            return None
+
+        p = mesh_pb2.Position()
+        if isinstance(lat, float) and lat != 0.0:
+            p.latitude_i = int(lat / 1e-7)
+        elif isinstance(lat, int) and lat != 0:
+            p.latitude_i = lat
+
+        if isinstance(lon, float) and lon != 0.0:
+            p.longitude_i = int(lon / 1e-7)
+        elif isinstance(lon, int) and lon != 0:
+            p.longitude_i = lon
+
+        if alt != 0:
+            p.altitude = alt
+
+        a = admin_pb2.AdminMessage()
+        a.set_fixed_position.CopyFrom(p)
+        return self._sendAdmin(a)
+
+    def removeFixedPosition(self):
+        """Tell the node to remove the fixed position and set the fixed position setting to false"""
+        p = admin_pb2.AdminMessage()
+        p.remove_fixed_position = True
+        logging.info(f"Telling node to remove fixed position")
+
+        return self._sendAdmin(p)
 
     def _fixupChannels(self):
         """Fixup indexes and add disabled channels as needed"""
