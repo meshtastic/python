@@ -9,6 +9,7 @@ import sys
 import threading
 import time
 from datetime import datetime
+from decimal import Decimal
 
 from typing import Any, Callable, Dict, List, Optional, Union
 
@@ -978,9 +979,9 @@ class MeshInterface:
         Returns the position with the updated keys
         """
         if "latitudeI" in position:
-            position["latitude"] = position["latitudeI"] * 1e-7
+            position["latitude"] = float(position["latitudeI"] * Decimal("1e-7"))
         if "longitudeI" in position:
-            position["longitude"] = position["longitudeI"] * 1e-7
+            position["longitude"] = float(position["longitudeI"] * Decimal("1e-7"))
         return position
 
     def _nodeNumToId(self, num):
