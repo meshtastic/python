@@ -1,18 +1,22 @@
 """
-# an API for Meshtastic devices
+# A library for the Meshtastic Client API
 
-Primary class: SerialInterface
+Primary interfaces: SerialInterface, TCPInterface, BLEInterface
 Install with pip: "[pip3 install meshtastic](https://pypi.org/project/meshtastic/)"
 Source code on [github](https://github.com/meshtastic/python)
 
-properties of SerialInterface:
+notable properties of interface classes:
 
-- localConfig - Current radio configuration and device settings, if you write to this the new settings will be applied to
-the device.
 - nodes - The database of received nodes.  Includes always up-to-date location and username information for each
 node in the mesh.  This is a read-only datastructure.
 - nodesByNum - like "nodes" but keyed by nodeNum instead of nodeId
-- myInfo - Contains read-only information about the local radio device (software version, hardware version, etc)
+- myInfo & metadata - Contain read-only information about the local radio device (software version, hardware version, etc)
+- localNode - Pointer to a node object for the local node
+
+notable properties of nodes:
+- localConfig - Current radio settings, can be written to the radio with the `writeConfig` method.
+- moduleConfig - Current module settings, can be written to the radio with the `writeConfig` method.
+- channels - The node's channels, keyed by index.
 
 # Published PubSub topics
 
