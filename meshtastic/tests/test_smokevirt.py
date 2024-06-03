@@ -7,6 +7,7 @@
    This smoke test runs against that localhost.
 
 """
+
 import os
 import platform
 import re

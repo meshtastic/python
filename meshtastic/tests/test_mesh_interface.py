@@ -24,18 +24,17 @@ def test_MeshInterface(capsys):
     NODE_ID = "!9388f81c"
     NODE_NUM = 2475227164
     node = {
-            "num": NODE_NUM,
-            "user": {
-                "id": NODE_ID,
-                "longName": "Unknown f81c",
-                "shortName": "?1C",
-                "macaddr": "RBeTiPgc",
-                "hwModel": "TBEAM",
-            },
-            "position": {},
-            "lastHeard": 1640204888,
-        }
-
+        "num": NODE_NUM,
+        "user": {
+            "id": NODE_ID,
+            "longName": "Unknown f81c",
+            "shortName": "?1C",
+            "macaddr": "RBeTiPgc",
+            "hwModel": "TBEAM",
+        },
+        "position": {},
+        "lastHeard": 1640204888,
+    }
 
     iface.nodes = {NODE_ID: node}
     iface.nodesByNum = {NODE_NUM: node}
@@ -588,7 +587,15 @@ def test_getOrCreateByNum_minimal(iface_with_nodes):
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
     tmp = iface._getOrCreateByNum(123)
-    assert tmp == {"num": 123, "user": {"hwModel": "UNSET", "id": "!0000007b", "shortName": "007b", "longName": "Meshtastic 007b"}}
+    assert tmp == {
+        "num": 123,
+        "user": {
+            "hwModel": "UNSET",
+            "id": "!0000007b",
+            "shortName": "007b",
+            "longName": "Meshtastic 007b",
+        },
+    }
 
 
 @pytest.mark.unit

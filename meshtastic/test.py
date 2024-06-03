@@ -1,13 +1,14 @@
 """With two radios connected serially, send and receive test
    messages and report back if successful.
 """
+
 import logging
 import sys
 import time
 import traceback
 
-from dotmap import DotMap # type: ignore[import-untyped]
-from pubsub import pub # type: ignore[import-untyped]
+from dotmap import DotMap  # type: ignore[import-untyped]
+from pubsub import pub  # type: ignore[import-untyped]
 
 import meshtastic.util
 from meshtastic import BROADCAST_NUM

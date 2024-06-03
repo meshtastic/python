@@ -13,6 +13,7 @@ with rather more easily once the code is simplified by this change.
 
 """
 
+
 def reset():
     """
     Restore the namespace to pristine condition.
@@ -26,6 +27,7 @@ def reset():
     tunnelInstance = None
     # TODO: to migrate to camel_case for v1.3 change this value to True
     camel_case = False
+
 
 # These assignments are used instead of calling reset()
 # purely to shut pylint up.

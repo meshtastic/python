@@ -1,5 +1,6 @@
 """Utility functions.
 """
+
 import base64
 import logging
 import os
@@ -17,14 +18,15 @@ from google.protobuf.json_format import MessageToJson
 
 import packaging.version as pkg_version
 import requests
-import serial # type: ignore[import-untyped]
-import serial.tools.list_ports # type: ignore[import-untyped]
+import serial  # type: ignore[import-untyped]
+import serial.tools.list_ports  # type: ignore[import-untyped]
 
 from meshtastic.supported_device import supported_devices
 from meshtastic.version import get_active_version
 
 """Some devices such as a seger jlink we never want to accidentally open"""
 blacklistVids = dict.fromkeys([0x1366])
+
 
 def quoteBooleans(a_string):
     """Quote booleans
@@ -111,7 +113,7 @@ def stripnl(s):
 
 def fixme(message):
     """Raise an exception for things that needs to be fixed"""
-    raise Exception(f"FIXME: {message}") # pylint: disable=W0719
+    raise Exception(f"FIXME: {message}")  # pylint: disable=W0719
 
 
 def catchAndIgnore(reason, closure):
@@ -122,7 +124,7 @@ def catchAndIgnore(reason, closure):
         logging.error(f"Exception thrown in {reason}: {ex}")
 
 
-def findPorts(eliminate_duplicates: bool=False) -> List[str]:
+def findPorts(eliminate_duplicates: bool = False) -> List[str]:
     """Find all ports that might have meshtastic devices
        eliminate_duplicates will run the eliminate_duplicate_port() on the collection
 
@@ -148,14 +150,14 @@ class dotdict(dict):
     """dot.notation access to dictionary attributes"""
 
     __getattr__ = dict.get
-    __setattr__ = dict.__setitem__ # type: ignore[assignment]
-    __delattr__ = dict.__delitem__ # type: ignore[assignment]
+    __setattr__ = dict.__setitem__  # type: ignore[assignment]
+    __delattr__ = dict.__delitem__  # type: ignore[assignment]
 
 
 class Timeout:
     """Timeout class"""
 
-    def __init__(self, maxSecs: int=20):
+    def __init__(self, maxSecs: int = 20):
         self.expireTime: Union[int, float] = 0
         self.sleepInterval: float = 0.1
         self.expireTimeout: int = maxSecs
@@ -185,7 +187,9 @@ class Timeout:
             time.sleep(self.sleepInterval)
         return False
 
-    def waitForTraceRoute(self, waitFactor, acknowledgment, attr="receivedTraceRoute") -> bool:
+    def waitForTraceRoute(
+        self, waitFactor, acknowledgment, attr="receivedTraceRoute"
+    ) -> bool:
         """Block until traceroute response is received. Returns True if traceroute response has been received."""
         self.expireTimeout *= waitFactor
         self.reset()
@@ -215,6 +219,7 @@ class Timeout:
                 return True
             time.sleep(self.sleepInterval)
         return False
+
 
 class Acknowledgment:
     "A class that records which type of acknowledgment was just received, if any."

@@ -180,7 +180,7 @@ def test_catchAndIgnore(caplog):
     """Test catchAndIgnore() does not actually throw an exception, but just logs"""
 
     def some_closure():
-        raise Exception("foo") # pylint: disable=W0719
+        raise Exception("foo")  # pylint: disable=W0719
 
     with caplog.at_level(logging.DEBUG):
         catchAndIgnore("something", some_closure)
@@ -549,9 +549,10 @@ def test_active_ports_on_supported_devices_mac_duplicates_check(mock_platform, m
     mock_platform.assert_called()
     mock_sp.assert_called()
 
+
 @pytest.mark.unit
 def test_message_to_json_shows_all():
     """Test that message_to_json prints fields that aren't included in data passed in"""
     actual = json.loads(message_to_json(MyNodeInfo()))
-    expected = { "myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0 }
+    expected = {"myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0}
     assert actual == expected

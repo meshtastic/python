@@ -1,4 +1,5 @@
 """Meshtastic smoke tests with a single device via USB"""
+
 import os
 import platform
 import re

@@ -1,12 +1,13 @@
 """ Serial interface class
 """
+
 import logging
 import platform
 import time
 
 from typing import Optional
 
-import serial # type: ignore[import-untyped]
+import serial  # type: ignore[import-untyped]
 
 import meshtastic.util
 from meshtastic.stream_interface import StreamInterface
@@ -18,7 +19,13 @@ if platform.system() != "Windows":
 class SerialInterface(StreamInterface):
     """Interface class for meshtastic devices over a serial link"""
 
-    def __init__(self, devPath: Optional[str]=None, debugOut=None, noProto=False, connectNow=True):
+    def __init__(
+        self,
+        devPath: Optional[str] = None,
+        debugOut=None,
+        noProto=False,
+        connectNow=True,
+    ):
         """Constructor, opens a connection to a specified serial port, or if unspecified try to
         find one Meshtastic device by probing
 
@@ -34,7 +41,9 @@ class SerialInterface(StreamInterface):
             ports = meshtastic.util.findPorts(True)
             logging.debug(f"ports:{ports}")
             if len(ports) == 0:
-                print("No Serial Meshtastic device detected, attempting TCP connection on localhost.")
+                print(
+                    "No Serial Meshtastic device detected, attempting TCP connection on localhost."
+                )
                 return
             elif len(ports) > 1:
                 message = "Warning: Multiple serial ports were detected so one serial port must be specified with the '--port'.\n"
