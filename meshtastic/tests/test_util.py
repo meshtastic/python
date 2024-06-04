@@ -33,6 +33,7 @@ from meshtastic.util import (
     stripnl,
     support_info,
     message_to_json,
+    Acknowledgment
 )
 
 
@@ -555,3 +556,24 @@ def test_message_to_json_shows_all():
     actual = json.loads(message_to_json(MyNodeInfo()))
     expected = { "myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0 }
     assert actual == expected
+
+@pytest.mark.unit
+def test_acknowledgement_reset():
+    """
+    Test that the reset method can set all fields back to False
+    """
+    test_ack_obj = Acknowledgment()
+    # everything's set to False; let's set it to True to get a good test
+    test_ack_obj.receivedAck = True
+    test_ack_obj.receivedNak = True
+    test_ack_obj.receivedImplAck = True
+    test_ack_obj.receivedTraceRoute = True
+    test_ack_obj.receivedTelemetry = True
+    test_ack_obj.receivedPosition = True
+    test_ack_obj.reset()
+    assert test_ack_obj.receivedAck == False
+    assert test_ack_obj.receivedNak == False
+    assert test_ack_obj.receivedImplAck == False
+    assert test_ack_obj.receivedTraceRoute == False
+    assert test_ack_obj.receivedTelemetry == False
+    assert test_ack_obj.receivedPosition == False
