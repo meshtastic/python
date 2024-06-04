@@ -7,7 +7,14 @@ import time
 
 from typing import Union
 
-from meshtastic import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, mesh_pb2, portnums_pb2
+from meshtastic import (
+    admin_pb2,
+    apponly_pb2,
+    channel_pb2,
+    localonly_pb2,
+    mesh_pb2,
+    portnums_pb2,
+)
 from meshtastic.util import (
     Timeout,
     camel_to_snake,
@@ -128,7 +135,10 @@ class Node:
             print("Requesting current config from remote node (this can take a while).")
 
         msgIndex = configType.index
-        if configType.containing_type.full_name in ("meshtastic.LocalConfig", "LocalConfig"):
+        if configType.containing_type.full_name in (
+            "meshtastic.LocalConfig",
+            "LocalConfig",
+        ):
             p = admin_pb2.AdminMessage()
             p.get_config_request = msgIndex
             self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
@@ -197,9 +207,13 @@ class Node:
         elif config_name == "neighbor_info":
             p.set_module_config.neighbor_info.CopyFrom(self.moduleConfig.neighbor_info)
         elif config_name == "detection_sensor":
-            p.set_module_config.detection_sensor.CopyFrom(self.moduleConfig.detection_sensor)
+            p.set_module_config.detection_sensor.CopyFrom(
+                self.moduleConfig.detection_sensor
+            )
         elif config_name == "ambient_lighting":
-            p.set_module_config.ambient_lighting.CopyFrom(self.moduleConfig.ambient_lighting)
+            p.set_module_config.ambient_lighting.CopyFrom(
+                self.moduleConfig.ambient_lighting
+            )
         elif config_name == "paxcounter":
             p.set_module_config.paxcounter.CopyFrom(self.moduleConfig.paxcounter)
         else:
@@ -319,7 +333,7 @@ class Node:
                     channelSet.settings.append(c.settings)
 
         if len(self.localConfig.ListFields()) == 0:
-            self.requestConfig(self.localConfig.DESCRIPTOR.fields_by_name.get('lora'))
+            self.requestConfig(self.localConfig.DESCRIPTOR.fields_by_name.get("lora"))
         channelSet.lora_config.CopyFrom(self.localConfig.lora)
         some_bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(some_bytes).decode("ascii")
@@ -655,7 +669,9 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
-    def setFixedPosition(self, lat: Union[int, float], lon: Union[int, float], alt: int):
+    def setFixedPosition(
+        self, lat: Union[int, float], lon: Union[int, float], alt: int
+    ):
         """Tell the node to set fixed position to the provided value and enable the fixed position setting"""
         if self != self.iface.localNode:
             logging.error("Setting position of remote nodes is not supported.")
@@ -808,9 +824,9 @@ class Node:
     def _sendAdmin(
         self,
         p: admin_pb2.AdminMessage,
-        wantResponse: bool=True,
+        wantResponse: bool = True,
         onResponse=None,
-        adminIndex: int=0,
+        adminIndex: int = 0,
     ):
         """Send an admin message to the specified node (or the local node if destNodeNum is zero)"""
 

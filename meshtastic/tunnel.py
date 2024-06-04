@@ -19,7 +19,7 @@ import logging
 import platform
 import threading
 
-from pubsub import pub # type: ignore[import-untyped]
+from pubsub import pub  # type: ignore[import-untyped]
 from pytap2 import TapDevice
 
 from meshtastic import portnums_pb2, mt_config
@@ -38,6 +38,7 @@ class Tunnel:
 
     class TunnelError(Exception):
         """An exception class for general tunnel errors"""
+
         def __init__(self, message):
             self.message = message
             super().__init__(self.message)
@@ -63,7 +64,9 @@ class Tunnel:
         self.subnetPrefix = subnet
 
         if platform.system() != "Linux":
-            raise Tunnel.TunnelError("Tunnel() can only be run instantiated on a Linux system")
+            raise Tunnel.TunnelError(
+                "Tunnel() can only be run instantiated on a Linux system"
+            )
 
         mt_config.tunnelInstance = self
 
@@ -73,7 +76,7 @@ class Tunnel:
             1900,  # SSDP
             5353,  # multicast DNS
             9001,  # Yggdrasil multicast discovery
-            64512, # cjdns beacon
+            64512,  # cjdns beacon
         }
 
         """A list of TCP services to block"""

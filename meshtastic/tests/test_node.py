@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from .. import localonly_pb2, config_pb2
-from ..channel_pb2 import Channel # pylint: disable=E0611
+from ..channel_pb2 import Channel  # pylint: disable=E0611
 from ..node import Node
 from ..serial_interface import SerialInterface
 from ..mesh_interface import MeshInterface
@@ -33,12 +33,13 @@ def test_node(capsys):
         anode.moduleConfig = localonly_pb2.LocalModuleConfig()
         anode.showInfo()
         out, err = capsys.readouterr()
-        assert re.search(r'Preferences', out)
-        assert re.search(r'Module preferences', out)
-        assert re.search(r'Channels', out)
-        assert re.search(r'Primary channel URL', out)
-        assert not re.search(r'remote node', out)
-        assert err == ''
+        assert re.search(r"Preferences", out)
+        assert re.search(r"Module preferences", out)
+        assert re.search(r"Channels", out)
+        assert re.search(r"Primary channel URL", out)
+        assert not re.search(r"remote node", out)
+        assert err == ""
+
 
 # TODO
 # @pytest.mark.unit
@@ -779,7 +780,7 @@ def test_writeConfig_with_no_radioConfig(capsys):
     anode = Node("foo", "bar", noProto=True)
 
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        anode.writeConfig('foo')
+        anode.writeConfig("foo")
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()

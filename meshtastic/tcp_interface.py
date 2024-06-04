@@ -1,5 +1,6 @@
 """TCPInterface class for interfacing with http endpoint
 """
+
 import logging
 import socket
 from typing import Optional
@@ -30,7 +31,7 @@ class TCPInterface(StreamInterface):
         self.portNumber = portNumber
 
         if connectNow:
-            logging.debug(f"Connecting to {hostname}") # type: ignore[str-bytes-safe]
+            logging.debug(f"Connecting to {hostname}")  # type: ignore[str-bytes-safe]
             server_address = (hostname, portNumber)
             sock = socket.create_connection(server_address)
             self.socket: Optional[socket.socket] = sock

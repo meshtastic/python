@@ -2,6 +2,7 @@
    We assume you have a python virtual environment in current directory.
    If not, you need to run: "python3 -m venv venv", "source venv/bin/activate", "pip install ."
 """
+
 import subprocess
 
 import pytest

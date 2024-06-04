@@ -1,4 +1,5 @@
 """Meshtastic smoke tests with 2 devices connected via USB"""
+
 import re
 import subprocess
 

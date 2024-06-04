@@ -75,11 +75,11 @@ from datetime import datetime
 from typing import *
 
 import google.protobuf.json_format
-import serial # type: ignore[import-untyped]
-import timeago # type: ignore[import-untyped]
-from dotmap import DotMap # type: ignore[import-untyped]
+import serial  # type: ignore[import-untyped]
+import timeago  # type: ignore[import-untyped]
+from dotmap import DotMap  # type: ignore[import-untyped]
 from google.protobuf.json_format import MessageToJson
-from pubsub import pub # type: ignore[import-untyped]
+from pubsub import pub  # type: ignore[import-untyped]
 from tabulate import tabulate
 
 from meshtastic import (
@@ -203,7 +203,6 @@ protocols = {
     portnums_pb2.PortNum.DETECTION_SENSOR_APP: KnownProtocol(
         "detectionsensor", onReceive=_onTextReceive
     ),
-
     portnums_pb2.PortNum.POSITION_APP: KnownProtocol(
         "position", mesh_pb2.Position, _onPositionReceive
     ),
@@ -223,8 +222,14 @@ protocols = {
         "traceroute", mesh_pb2.RouteDiscovery
     ),
     portnums_pb2.PortNum.WAYPOINT_APP: KnownProtocol("waypoint", mesh_pb2.Waypoint),
-    portnums_pb2.PortNum.PAXCOUNTER_APP: KnownProtocol("paxcounter", paxcount_pb2.Paxcount),
-    portnums_pb2.PortNum.STORE_FORWARD_APP: KnownProtocol("storeforward", storeforward_pb2.StoreAndForward),
-    portnums_pb2.PortNum.NEIGHBORINFO_APP: KnownProtocol("neighborinfo", mesh_pb2.NeighborInfo),
+    portnums_pb2.PortNum.PAXCOUNTER_APP: KnownProtocol(
+        "paxcounter", paxcount_pb2.Paxcount
+    ),
+    portnums_pb2.PortNum.STORE_FORWARD_APP: KnownProtocol(
+        "storeforward", storeforward_pb2.StoreAndForward
+    ),
+    portnums_pb2.PortNum.NEIGHBORINFO_APP: KnownProtocol(
+        "neighborinfo", mesh_pb2.NeighborInfo
+    ),
     portnums_pb2.PortNum.MAP_REPORT_APP: KnownProtocol("mapreport", mqtt_pb2.MapReport),
 }

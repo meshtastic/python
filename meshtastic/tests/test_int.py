@@ -1,4 +1,5 @@
 """Meshtastic integration tests"""
+
 import re
 import subprocess
 

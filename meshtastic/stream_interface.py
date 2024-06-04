@@ -1,11 +1,12 @@
 """Stream Interface base class
 """
+
 import logging
 import threading
 import time
 import traceback
 
-import serial # type: ignore[import-untyped]
+import serial  # type: ignore[import-untyped]
 
 from meshtastic.mesh_interface import MeshInterface
 from meshtastic.util import is_windows11, stripnl
@@ -32,7 +33,7 @@ class StreamInterface(MeshInterface):
         """
 
         if not hasattr(self, "stream") and not noProto:
-            raise Exception( # pylint: disable=W0719
+            raise Exception(  # pylint: disable=W0719
                 "StreamInterface is now abstract (to update existing code create SerialInterface instead)"
             )
         self._rxBuf = bytes()  # empty

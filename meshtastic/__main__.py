@@ -9,18 +9,25 @@ import platform
 import sys
 import time
 
-import pyqrcode # type: ignore[import-untyped]
+import pyqrcode  # type: ignore[import-untyped]
 import yaml
 from google.protobuf.json_format import MessageToDict
-from pubsub import pub # type: ignore[import-untyped]
+from pubsub import pub  # type: ignore[import-untyped]
 
 import meshtastic.test
 import meshtastic.util
 from meshtastic import mt_config
-from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware, BROADCAST_ADDR
+from meshtastic import (
+    channel_pb2,
+    config_pb2,
+    portnums_pb2,
+    remote_hardware,
+    BROADCAST_ADDR,
+)
 from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
+
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -57,11 +64,13 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):  # pylint: disable=W0613
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
 
+
 def checkChannel(interface: MeshInterface, channelIndex: int) -> bool:
     """Given an interface and channel index, return True if that channel is non-disabled on the local node"""
     ch = interface.localNode.getChannelByChannelIndex(channelIndex)
     logging.debug(f"ch:{ch}")
-    return (ch and ch.role != channel_pb2.Channel.Role.DISABLED)
+    return ch and ch.role != channel_pb2.Channel.Role.DISABLED
+
 
 def getPref(node, comp_name):
     """Get a channel or preferences value"""
@@ -137,6 +146,7 @@ def splitCompoundName(comp_name):
         name.append(comp_name)
     return name
 
+
 def traverseConfig(config_root, config, interface_config):
     """Iterate through current config level preferences and either traverse deeper if preference is a dict or set preference"""
     snake_name = meshtastic.util.camel_to_snake(config_root)
@@ -145,13 +155,10 @@ def traverseConfig(config_root, config, interface_config):
         if isinstance(config[pref], dict):
             traverseConfig(pref_name, config[pref], interface_config)
         else:
-            setPref(
-                interface_config,
-                pref_name,
-                str(config[pref])
-            )
+            setPref(interface_config, pref_name, str(config[pref]))
 
     return True
+
 
 def setPref(config, comp_name, valStr) -> bool:
     """Set a channel or preferences value"""
@@ -266,7 +273,9 @@ def onConnected(interface):
             interface.localNode.removeFixedPosition()
         elif args.setlat or args.setlon or args.setalt:
             if args.dest != BROADCAST_ADDR:
-                print("Setting latitude, longitude, and altitude of remote nodes is not supported.")
+                print(
+                    "Setting latitude, longitude, and altitude of remote nodes is not supported."
+                )
                 return
             closeNow = True
 
@@ -294,10 +303,17 @@ def onConnected(interface):
             interface.localNode.setFixedPosition(lat, lon, alt)
         elif not args.no_time:
             # We normally provide a current time to the mesh when we connect
-            if interface.localNode.nodeNum in interface.nodesByNum and "position" in interface.nodesByNum[interface.localNode.nodeNum]:
+            if (
+                interface.localNode.nodeNum in interface.nodesByNum
+                and "position" in interface.nodesByNum[interface.localNode.nodeNum]
+            ):
                 # send the same position the node already knows, just to update time
                 position = interface.nodesByNum[interface.localNode.nodeNum]["position"]
-                interface.sendPosition(position.get("latitude", 0.0), position.get("longitude", 0.0), position.get("altitude", 0.0))
+                interface.sendPosition(
+                    position.get("latitude", 0.0),
+                    position.get("longitude", 0.0),
+                    position.get("altitude", 0.0),
+                )
             else:
                 interface.sendPosition()
 
@@ -445,7 +461,9 @@ def onConnected(interface):
             dest = str(args.traceroute)
             channelIndex = mt_config.channel_index or 0
             if checkChannel(interface, channelIndex):
-                print(f"Sending traceroute request to {dest} on channelIndex:{channelIndex} (this could take a while)")
+                print(
+                    f"Sending traceroute request to {dest} on channelIndex:{channelIndex} (this could take a while)"
+                )
                 interface.sendTraceRoute(dest, hopLimit, channelIndex=channelIndex)
 
         if args.request_telemetry:
@@ -454,8 +472,14 @@ def onConnected(interface):
             else:
                 channelIndex = mt_config.channel_index or 0
                 if checkChannel(interface, channelIndex):
-                    print(f"Sending telemetry request to {args.dest} on channelIndex:{channelIndex} (this could take a while)")
-                    interface.sendTelemetry(destinationId=args.dest, wantResponse=True, channelIndex=channelIndex)
+                    print(
+                        f"Sending telemetry request to {args.dest} on channelIndex:{channelIndex} (this could take a while)"
+                    )
+                    interface.sendTelemetry(
+                        destinationId=args.dest,
+                        wantResponse=True,
+                        channelIndex=channelIndex,
+                    )
 
         if args.request_position:
             if args.dest == BROADCAST_ADDR:
@@ -463,8 +487,14 @@ def onConnected(interface):
             else:
                 channelIndex = mt_config.channel_index or 0
                 if checkChannel(interface, channelIndex):
-                    print(f"Sending position request to {args.dest} on channelIndex:{channelIndex} (this could take a while)")
-                    interface.sendPosition(destinationId=args.dest, wantResponse=True, channelIndex=channelIndex)
+                    print(
+                        f"Sending position request to {args.dest} on channelIndex:{channelIndex} (this could take a while)"
+                    )
+                    interface.sendPosition(
+                        destinationId=args.dest,
+                        wantResponse=True,
+                        channelIndex=channelIndex,
+                    )
 
         if args.gpio_wrb or args.gpio_rd or args.gpio_watch:
             if args.dest == BROADCAST_ADDR:
@@ -606,7 +636,9 @@ def onConnected(interface):
                 if "config" in configuration:
                     localConfig = interface.getNode(args.dest).localConfig
                     for section in configuration["config"]:
-                        traverseConfig(section, configuration["config"][section], localConfig)
+                        traverseConfig(
+                            section, configuration["config"][section], localConfig
+                        )
                         interface.getNode(args.dest).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
@@ -614,7 +646,11 @@ def onConnected(interface):
                 if "module_config" in configuration:
                     moduleConfig = interface.getNode(args.dest).moduleConfig
                     for section in configuration["module_config"]:
-                        traverseConfig(section, configuration["module_config"][section], moduleConfig)
+                        traverseConfig(
+                            section,
+                            configuration["module_config"][section],
+                            moduleConfig,
+                        )
                         interface.getNode(args.dest).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
@@ -667,7 +703,9 @@ def onConnected(interface):
                 print(f"Writing modified channels to device")
                 n.writeChannel(ch.index)
                 if channelIndex is None:
-                    print(f"Setting newly-added channel's {ch.index} as '--ch-index' for further modifications")
+                    print(
+                        f"Setting newly-added channel's {ch.index} as '--ch-index' for further modifications"
+                    )
                     mt_config.channel_index = ch.index
 
         if args.ch_del:
@@ -753,7 +791,7 @@ def onConnected(interface):
                 else:
                     found = setPref(ch.settings, pref[0], pref[1])
                 if not found:
-                    category_settings = ['module_settings']
+                    category_settings = ["module_settings"]
                     print(
                         f"{ch.settings.__class__.__name__} does not have an attribute {pref[0]}."
                     )
@@ -763,7 +801,9 @@ def onConnected(interface):
                             print(f"{field.name}")
                         else:
                             print(f"{field.name}:")
-                            config = ch.settings.DESCRIPTOR.fields_by_name.get(field.name)
+                            config = ch.settings.DESCRIPTOR.fields_by_name.get(
+                                field.name
+                            )
                             names = []
                             for sub_field in config.message_type.fields:
                                 tmp_name = f"{field.name}.{sub_field.name}"
@@ -871,7 +911,7 @@ def onConnected(interface):
             interface.getNode(args.dest, False).iface.waitForAckNak()
 
         if args.wait_to_disconnect:
-            print(f"Waiting {args.wait_to_disconnect} seconds before disconnecting" )
+            print(f"Waiting {args.wait_to_disconnect} seconds before disconnecting")
             time.sleep(int(args.wait_to_disconnect))
 
         # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
@@ -1044,7 +1084,9 @@ def common():
                 client = BLEInterface(None, debugOut=logfile, noProto=args.noproto)
                 try:
                     for x in client.scan():
-                        print(f"Found: name='{x[1].local_name}' address='{x[0].address}'")
+                        print(
+                            f"Found: name='{x[1].local_name}' address='{x[0].address}'"
+                        )
                 finally:
                     client.close()
                 meshtastic.util.our_exit("BLE scan finished", 0)
@@ -1057,9 +1099,7 @@ def common():
                         args.host, debugOut=logfile, noProto=args.noproto
                     )
                 except Exception as ex:
-                    meshtastic.util.our_exit(
-                        f"Error connecting to {args.host}:{ex}", 1
-                    )
+                    meshtastic.util.our_exit(f"Error connecting to {args.host}:{ex}", 1)
             else:
                 try:
                     client = meshtastic.serial_interface.SerialInterface(
@@ -1085,13 +1125,15 @@ def common():
                             f"Error connecting to localhost:{ex}", 1
                         )
 
-
             # We assume client is fully connected now
             onConnected(client)
 
             have_tunnel = platform.system() == "Linux"
             if (
-                args.noproto or args.reply or (have_tunnel and args.tunnel) or args.listen
+                args.noproto
+                or args.reply
+                or (have_tunnel and args.tunnel)
+                or args.listen
             ):  # loop until someone presses ctrlc
                 while True:
                     time.sleep(1000)
@@ -1099,10 +1141,14 @@ def common():
         # don't call exit, background threads might be running still
         # sys.exit(0)
 
+
 def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """Add connection specifiation arguments"""
 
-    outer = parser.add_argument_group('Connection', 'Optional arguments that specify how to connect to a Meshtastic device.')
+    outer = parser.add_argument_group(
+        "Connection",
+        "Optional arguments that specify how to connect to a Meshtastic device.",
+    )
     group = outer.add_mutually_exclusive_group()
     group.add_argument(
         "--port",
@@ -1131,9 +1177,11 @@ def initParser():
     args = mt_config.args
 
     # The "Help" group includes the help option and other informational stuff about the CLI itself
-    outerHelpGroup = parser.add_argument_group('Help')
+    outerHelpGroup = parser.add_argument_group("Help")
     helpGroup = outerHelpGroup.add_mutually_exclusive_group()
-    helpGroup.add_argument("-h", "--help", action="help", help="show this help message and exit")
+    helpGroup.add_argument(
+        "-h", "--help", action="help", help="show this help message and exit"
+    )
 
     the_version = get_active_version()
     helpGroup.add_argument("--version", action="version", version=f"{the_version}")
@@ -1425,7 +1473,7 @@ def initParser():
 
     group.add_argument(
         "--remove-node",
-        help="Tell the destination node to remove a specific node from its DB, by node number or ID"
+        help="Tell the destination node to remove a specific node from its DB, by node number or ID",
     )
     group.add_argument(
         "--reset-nodedb",
@@ -1521,7 +1569,9 @@ def initParser():
 
     have_tunnel = platform.system() == "Linux"
     if have_tunnel:
-        tunnelArgs = parser.add_argument_group('Tunnel', 'Arguments related to establishing a tunnel device over the mesh.')
+        tunnelArgs = parser.add_argument_group(
+            "Tunnel", "Arguments related to establishing a tunnel device over the mesh."
+        )
         tunnelArgs.add_argument(
             "--tunnel",
             action="store_true",
@@ -1536,7 +1586,6 @@ def initParser():
 
     parser.set_defaults(deprecated=None)
 
-
     args = parser.parse_args()
     mt_config.args = args
     mt_config.parser = parser
@@ -1547,7 +1596,8 @@ def main():
     parser = argparse.ArgumentParser(
         add_help=False,
         epilog="If no connection arguments are specified, we search for a compatible serial device, "
-               "and if none is found, then attempt a TCP connection to localhost.")
+        "and if none is found, then attempt a TCP connection to localhost.",
+    )
     mt_config.parser = parser
     initParser()
     common()
