@@ -571,9 +571,9 @@ def test_acknowledgement_reset():
     test_ack_obj.receivedTelemetry = True
     test_ack_obj.receivedPosition = True
     test_ack_obj.reset()
-    assert test_ack_obj.receivedAck == False
-    assert test_ack_obj.receivedNak == False
-    assert test_ack_obj.receivedImplAck == False
-    assert test_ack_obj.receivedTraceRoute == False
-    assert test_ack_obj.receivedTelemetry == False
-    assert test_ack_obj.receivedPosition == False
+    assert test_ack_obj.receivedAck is False
+    assert test_ack_obj.receivedNak is False
+    assert test_ack_obj.receivedImplAck is False
+    assert test_ack_obj.receivedTraceRoute is False
+    assert test_ack_obj.receivedTelemetry is False
+    assert test_ack_obj.receivedPosition is False
