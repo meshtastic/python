@@ -14,6 +14,7 @@ from queue import Queue
 from typing import List, NoReturn, Union
 
 from google.protobuf.json_format import MessageToJson
+from google.protobuf.message import Message
 
 import packaging.version as pkg_version
 import requests
@@ -103,7 +104,7 @@ def pskToString(psk: bytes):
         return "secret"
 
 
-def stripnl(s):
+def stripnl(s) -> str:
     """Remove newlines from a string (and remove extra whitespace)"""
     s = str(s).replace("\n", " ")
     return " ".join(s.split())
@@ -628,7 +629,7 @@ def check_if_newer_version():
     return pypi_version
 
 
-def message_to_json(message, multiline=False):
+def message_to_json(message: Message, multiline: bool=False) -> str:
     """Return protobuf message as JSON. Always print all fields, even when not present in data."""
     json = MessageToJson(message, always_print_fields_with_no_presence=True)
     return stripnl(json) if not multiline else json

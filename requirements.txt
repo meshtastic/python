@@ -23,7 +23,7 @@ bleak
 packaging
 mypy
 mypy-protobuf
-types-protobuf
+types-protobuf>=5.26.0
 types-tabulate
 types-requests
 types-setuptools
