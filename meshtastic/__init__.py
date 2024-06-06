@@ -117,6 +117,9 @@ OUR_APP_VERSION = 20300
    format is Mmmss (where M is 1+the numeric major number. i.e. 20120 means 1.1.20
 """
 
+NODELESS_WANT_CONFIG_ID = 69420
+"""A special thing to pass for want_config_id that instructs nodes to skip sending nodeinfos other than its own."""
+
 publishingThread = DeferredExecution("publishing")
 
 

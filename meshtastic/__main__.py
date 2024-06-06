@@ -1050,11 +1050,11 @@ def common():
                 meshtastic.util.our_exit("BLE scan finished", 0)
                 return
             elif args.ble:
-                client = BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto)
+                client = BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes)
             elif args.host:
                 try:
                     client = meshtastic.tcp_interface.TCPInterface(
-                        args.host, debugOut=logfile, noProto=args.noproto
+                        args.host, debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes
                     )
                 except Exception as ex:
                     meshtastic.util.our_exit(
@@ -1063,7 +1063,7 @@ def common():
             else:
                 try:
                     client = meshtastic.serial_interface.SerialInterface(
-                        args.port, debugOut=logfile, noProto=args.noproto
+                        args.port, debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes
                     )
                 except PermissionError as ex:
                     username = os.getlogin()
@@ -1078,7 +1078,7 @@ def common():
                 if client.devPath is None:
                     try:
                         client = meshtastic.tcp_interface.TCPInterface(
-                            "localhost", debugOut=logfile, noProto=args.noproto
+                            "localhost", debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes
                         )
                     except Exception as ex:
                         meshtastic.util.our_exit(
@@ -1450,6 +1450,13 @@ def initParser():
     group.add_argument(
         "--no-time",
         help="Suppress sending the current time to the mesh",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--no-nodes",
+        help="Request that the node not send node info to the client. "
+        "Will break things that depend on the nodedb, but will speed up startup. Requires 2.3.11+ firmware.",
         action="store_true",
     )
 

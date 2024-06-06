@@ -17,6 +17,7 @@ class TCPInterface(StreamInterface):
         noProto=False,
         connectNow=True,
         portNumber=4403,
+        noNodes:bool=False,
     ):
         """Constructor, opens a connection to a specified IP address/hostname
 
@@ -38,7 +39,7 @@ class TCPInterface(StreamInterface):
             self.socket = None
 
         StreamInterface.__init__(
-            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow
+            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow, noNodes=noNodes
         )
 
     def _socket_shutdown(self):
