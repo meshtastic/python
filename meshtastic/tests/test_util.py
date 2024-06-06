@@ -6,6 +6,7 @@ import re
 from unittest.mock import patch
 
 import pytest
+from hypothesis import given, strategies as st
 
 from meshtastic.supported_device import SupportedDevice
 from meshtastic.mesh_pb2 import MyNodeInfo
@@ -577,3 +578,18 @@ def test_acknowledgement_reset():
     assert test_ack_obj.receivedTraceRoute is False
     assert test_ack_obj.receivedTelemetry is False
     assert test_ack_obj.receivedPosition is False
+
+@given(a_string=st.text(
+    alphabet=st.characters(
+        codec='ascii',
+        min_codepoint=0x5F,
+        max_codepoint=0x7A,
+        exclude_characters=r'`',
+    )).filter(
+        lambda x: x not in [''] and x[0] not in "_" and x[-1] not in '_' and not re.search(r'__', x)
+    ))
+def test_roundtrip_snake_to_camel_camel_to_snake(a_string):
+    value0 = snake_to_camel(a_string=a_string)
+    value1 = camel_to_snake(a_string=value0)
+    assert a_string == value1, (a_string, value1)
+

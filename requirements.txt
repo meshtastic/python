@@ -14,6 +14,7 @@ autopep8
 pylint
 pytest
 pytest-cov
+hypothesis
 pyyaml
 pytap2
 pdoc3
