@@ -19,7 +19,7 @@ MAX_TO_FROM_RADIO_SIZE = 512
 class StreamInterface(MeshInterface):
     """Interface class for meshtastic devices over a stream link (serial, TCP, etc)"""
 
-    def __init__(self, debugOut=None, noProto=False, connectNow=True):
+    def __init__(self, debugOut=None, noProto=False, connectNow=True, noNodes=False):
         """Constructor, opens a connection to self.stream
 
         Keyword Arguments:
@@ -43,7 +43,7 @@ class StreamInterface(MeshInterface):
         # FIXME, figure out why daemon=True causes reader thread to exit too early
         self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
 
-        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto)
+        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto, noNodes=noNodes)
 
         # Start the reader thread after superclass constructor completes init
         if connectNow:

@@ -32,7 +32,7 @@ class BLEInterface(MeshInterface):
         MESH = False
 
 
-    def __init__(self, address: Optional[str], noProto: bool = False, debugOut = None):
+    def __init__(self, address: Optional[str], noProto: bool = False, debugOut = None, noNodes: bool = False):
         self.state = BLEInterface.BLEState()
 
         if not address:
@@ -60,7 +60,7 @@ class BLEInterface(MeshInterface):
             return
 
         logging.debug("Mesh init starting")
-        MeshInterface.__init__(self, debugOut = debugOut, noProto = noProto)
+        MeshInterface.__init__(self, debugOut = debugOut, noProto = noProto, noNodes = noNodes)
         self._startConfig()
         if not self.noProto:
             self._waitConnected(timeout = 60.0)

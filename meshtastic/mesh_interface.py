@@ -26,6 +26,7 @@ from meshtastic import (
     BROADCAST_ADDR,
     BROADCAST_NUM,
     LOCAL_ADDR,
+    NODELESS_WANT_CONFIG_ID,
     ResponseHandler,
     protocols,
     publishingThread,
@@ -41,7 +42,7 @@ from meshtastic.util import (
 )
 
 
-class MeshInterface:
+class MeshInterface: # pylint: disable=R0902
     """Interface class for meshtastic devices
 
     Properties:
@@ -57,12 +58,14 @@ class MeshInterface:
             self.message = message
             super().__init__(self.message)
 
-    def __init__(self, debugOut=None, noProto: bool=False) -> None:
+    def __init__(self, debugOut=None, noProto: bool=False, noNodes: bool=False) -> None:
         """Constructor
 
         Keyword Arguments:
             noProto -- If True, don't try to run our protocol on the
                        link - just be a dumb serial client.
+            noNodes -- If True, instruct the node to not send its nodedb
+                       on startup, just other configuration information.
         """
         self.debugOut = debugOut
         self.nodes: Optional[Dict[str,Dict]] = None  # FIXME
@@ -81,7 +84,8 @@ class MeshInterface:
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId: int = random.randint(0, 0xFFFFFFFF)
         self.nodesByNum: Optional[Dict[int, Dict]] = None
-        self.configId: Optional[int] = None
+        self.noNodes: bool = noNodes
+        self.configId: Optional[int] = NODELESS_WANT_CONFIG_ID if noNodes else None
         self.gotResponse: bool = False  # used in gpio read
         self.mask: Optional[int] = None  # used in gpio read and gpio watch
         self.queueStatus: Optional[mesh_pb2.QueueStatus] = None
@@ -713,7 +717,8 @@ class MeshInterface:
         self._localChannels = [] # empty until we start getting channels pushed from the device (during config)
 
         startConfig = mesh_pb2.ToRadio()
-        self.configId = random.randint(0, 0xFFFFFFFF)
+        if self.configId is None or not self.noNodes:
+            self.configId = random.randint(0, 0xFFFFFFFF)
         startConfig.want_config_id = self.configId
         self._sendToRadio(startConfig)
 
