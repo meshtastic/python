@@ -589,7 +589,7 @@ def test_acknowledgement_reset():
         lambda x: x not in [''] and x[0] not in "_" and x[-1] not in '_' and not re.search(r'__', x)
     ))
 def test_roundtrip_snake_to_camel_camel_to_snake(a_string):
+    """Test that snake_to_camel and camel_to_snake roundtrip each other"""
     value0 = snake_to_camel(a_string=a_string)
     value1 = camel_to_snake(a_string=value0)
     assert a_string == value1, (a_string, value1)
-
