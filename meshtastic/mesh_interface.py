@@ -42,7 +42,7 @@ from meshtastic.util import (
 )
 
 
-class MeshInterface:
+class MeshInterface: # pylint: disable=R0902
     """Interface class for meshtastic devices
 
     Properties:
