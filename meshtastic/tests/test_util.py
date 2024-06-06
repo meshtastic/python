@@ -65,6 +65,7 @@ def test_fromStr():
     assert fromStr("123") == 123
     assert fromStr("abc") == "abc"
     assert fromStr("123456789") == 123456789
+    assert fromStr("base64:Zm9vIGJhciBiYXo=") == b"foo bar baz"
 
 
 @pytest.mark.unitslow
