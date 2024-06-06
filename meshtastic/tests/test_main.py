@@ -726,10 +726,39 @@ def test_main_sendtext_with_dest(mock_findPorts, mock_serial, mocked_open, mock_
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
+def test_main_removeposition_invalid(capsys):
+    """Test --remove-position with an invalid dest"""
+    sys.argv = ["", "--remove-position", "--dest", "!12345678"]
+    mt_config.args = sys.argv
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"remote nodes is not supported", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_setlat_invalid(capsys):
+    """Test --setlat with an invalid dest"""
+    sys.argv = ["", "--setlat", "37.5", "--dest", "!12345678"]
+    mt_config.args = sys.argv
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"remote nodes is not supported", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
 def test_main_removeposition(capsys):
     """Test --remove-position"""
     sys.argv = ["", "--remove-position"]
-
     mt_config.args = sys.argv
 
     mocked_node = MagicMock(autospec=Node)
