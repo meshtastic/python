@@ -608,9 +608,10 @@ class Node:
         p.get_device_metadata_request = True
         logging.info(f"Requesting device metadata")
 
-        return self._sendAdmin(
+        self._sendAdmin(
             p, wantResponse=True, onResponse=self.onRequestGetMetadata
         )
+        self.iface.waitForAckNak()
 
     def factoryReset(self):
         """Tell the node to factory reset."""
@@ -713,24 +714,30 @@ class Node:
         """Handle the response packet for requesting device metadata getMetadata()"""
         logging.debug(f"onRequestGetMetadata() p:{p}")
 
-        if p["decoded"]["portnum"] == portnums_pb2.PortNum.Name(
-            portnums_pb2.PortNum.ROUTING_APP
-        ):
+        if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
-                logging.warning(
-                    f'Metadata request failed, error reason: {p["decoded"]["routing"]["errorReason"]}'
-                )
-                self._timeout.expireTime = time.time()  # Do not wait any longer
-                return  # Don't try to parse this routing message
-            logging.debug(f"Retrying metadata request.")
-            self.getMetadata()
-            return
+                print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
+                self.iface._acknowledgment.receivedNak = True
+        else:
+            self.iface._acknowledgment.receivedAck = True
+            if p["decoded"]["portnum"] == portnums_pb2.PortNum.Name(
+                portnums_pb2.PortNum.ROUTING_APP
+            ):
+                if p["decoded"]["routing"]["errorReason"] != "NONE":
+                    logging.warning(
+                        f'Metadata request failed, error reason: {p["decoded"]["routing"]["errorReason"]}'
+                    )
+                    self._timeout.expireTime = time.time()  # Do not wait any longer
+                    return  # Don't try to parse this routing message
+                logging.debug(f"Retrying metadata request.")
+                self.getMetadata()
+                return
 
-        c = p["decoded"]["admin"]["raw"].get_device_metadata_response
-        self._timeout.reset()  # We made forward progress
-        logging.debug(f"Received metadata {stripnl(c)}")
-        print(f"\nfirmware_version: {c.firmware_version}")
-        print(f"device_state_version: {c.device_state_version}")
+            c = p["decoded"]["admin"]["raw"].get_device_metadata_response
+            self._timeout.reset()  # We made forward progress
+            logging.debug(f"Received metadata {stripnl(c)}")
+            print(f"\nfirmware_version: {c.firmware_version}")
+            print(f"device_state_version: {c.device_state_version}")
 
     def onResponseRequestChannel(self, p):
         """Handle the response packet for requesting a channel _requestChannel()"""
