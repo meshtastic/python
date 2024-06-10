@@ -118,6 +118,10 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     AHT10 Integrated temperature and humidity sensor
     """
+    DFROBOT_LARK: _TelemetrySensorType.ValueType  # 24
+    """
+    DFRobot Lark Weather station (temperature, humidity, pressure, wind speed and direction)
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -220,6 +224,10 @@ AHT10: TelemetrySensorType.ValueType  # 23
 """
 AHT10 Integrated temperature and humidity sensor
 """
+DFROBOT_LARK: TelemetrySensorType.ValueType  # 24
+"""
+DFRobot Lark Weather station (temperature, humidity, pressure, wind speed and direction)
+"""
 global___TelemetrySensorType = TelemetrySensorType
 
 @typing_extensions.final
@@ -286,6 +294,10 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     DISTANCE_FIELD_NUMBER: builtins.int
     LUX_FIELD_NUMBER: builtins.int
     WHITE_LUX_FIELD_NUMBER: builtins.int
+    IR_LUX_FIELD_NUMBER: builtins.int
+    UV_LUX_FIELD_NUMBER: builtins.int
+    WIND_DIRECTION_FIELD_NUMBER: builtins.int
+    WIND_SPEED_FIELD_NUMBER: builtins.int
     temperature: builtins.float
     """
     Temperature measured
@@ -327,6 +339,23 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     """
     VEML7700 high accuracy white light(irradiance) not calibrated digital 16-bit resolution sensor.
     """
+    ir_lux: builtins.float
+    """
+    Infrared lux
+    """
+    uv_lux: builtins.float
+    """
+    Ultraviolet lux
+    """
+    wind_direction: builtins.int
+    """
+    Wind direction in degrees
+    0 degrees = North, 90 = East, etc...
+    """
+    wind_speed: builtins.float
+    """
+    Wind speed in m/s
+    """
     def __init__(
         self,
         *,
@@ -340,8 +369,12 @@ class EnvironmentMetrics(google.protobuf.message.Message):
         distance: builtins.float = ...,
         lux: builtins.float = ...,
         white_lux: builtins.float = ...,
+        ir_lux: builtins.float = ...,
+        uv_lux: builtins.float = ...,
+        wind_direction: builtins.int = ...,
+        wind_speed: builtins.float = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "lux", b"lux", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "voltage", b"voltage", "white_lux", b"white_lux"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "ir_lux", b"ir_lux", "lux", b"lux", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "uv_lux", b"uv_lux", "voltage", b"voltage", "white_lux", b"white_lux", "wind_direction", b"wind_direction", "wind_speed", b"wind_speed"]) -> None: ...
 
 global___EnvironmentMetrics = EnvironmentMetrics
 

@@ -116,6 +116,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     wiphone https://www.wiphone.io/
     """
+    WIO_WM1110: _HardwareModel.ValueType  # 21
+    """
+    WIO Tracker WM1110 family from Seeed Studio. Includes wio-1110-tracker and wio-1110-sdk
+    """
     STATION_G1: _HardwareModel.ValueType  # 25
     """
     B&Q Consulting Station Edition G1: https://uniteng.com/wiki/doku.php?id=meshtastic:station
@@ -390,6 +394,10 @@ LoRAType device: https://loratype.org/
 WIPHONE: HardwareModel.ValueType  # 20
 """
 wiphone https://www.wiphone.io/
+"""
+WIO_WM1110: HardwareModel.ValueType  # 21
+"""
+WIO Tracker WM1110 family from Seeed Studio. Includes wio-1110-tracker and wio-1110-sdk
 """
 STATION_G1: HardwareModel.ValueType  # 25
 """
@@ -2417,3 +2425,102 @@ class NodeRemoteHardwarePin(google.protobuf.message.Message):
     def ClearField(self, field_name: typing_extensions.Literal["node_num", b"node_num", "pin", b"pin"]) -> None: ...
 
 global___NodeRemoteHardwarePin = NodeRemoteHardwarePin
+
+@typing_extensions.final
+class ChunkedPayload(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PAYLOAD_ID_FIELD_NUMBER: builtins.int
+    CHUNK_COUNT_FIELD_NUMBER: builtins.int
+    CHUNK_INDEX_FIELD_NUMBER: builtins.int
+    PAYLOAD_CHUNK_FIELD_NUMBER: builtins.int
+    payload_id: builtins.int
+    """
+    The ID of the entire payload
+    """
+    chunk_count: builtins.int
+    """
+    The total number of chunks in the payload
+    """
+    chunk_index: builtins.int
+    """
+    The current chunk index in the total
+    """
+    payload_chunk: builtins.bytes
+    """
+    The binary data of the current chunk
+    """
+    def __init__(
+        self,
+        *,
+        payload_id: builtins.int = ...,
+        chunk_count: builtins.int = ...,
+        chunk_index: builtins.int = ...,
+        payload_chunk: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["chunk_count", b"chunk_count", "chunk_index", b"chunk_index", "payload_chunk", b"payload_chunk", "payload_id", b"payload_id"]) -> None: ...
+
+global___ChunkedPayload = ChunkedPayload
+
+@typing_extensions.final
+class resend_chunks(google.protobuf.message.Message):
+    """
+    Wrapper message for broken repeated oneof support
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CHUNKS_FIELD_NUMBER: builtins.int
+    @property
+    def chunks(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def __init__(
+        self,
+        *,
+        chunks: collections.abc.Iterable[builtins.int] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["chunks", b"chunks"]) -> None: ...
+
+global___resend_chunks = resend_chunks
+
+@typing_extensions.final
+class ChunkedPayloadResponse(google.protobuf.message.Message):
+    """
+    Responses to a ChunkedPayload request
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PAYLOAD_ID_FIELD_NUMBER: builtins.int
+    REQUEST_TRANSFER_FIELD_NUMBER: builtins.int
+    ACCEPT_TRANSFER_FIELD_NUMBER: builtins.int
+    RESEND_CHUNKS_FIELD_NUMBER: builtins.int
+    payload_id: builtins.int
+    """
+    The ID of the entire payload
+    """
+    request_transfer: builtins.bool
+    """
+    Request to transfer chunked payload
+    """
+    accept_transfer: builtins.bool
+    """
+    Accept the transfer chunked payload
+    """
+    @property
+    def resend_chunks(self) -> global___resend_chunks:
+        """
+        Request missing indexes in the chunked payload
+        """
+    def __init__(
+        self,
+        *,
+        payload_id: builtins.int = ...,
+        request_transfer: builtins.bool = ...,
+        accept_transfer: builtins.bool = ...,
+        resend_chunks: global___resend_chunks | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["accept_transfer", b"accept_transfer", "payload_variant", b"payload_variant", "request_transfer", b"request_transfer", "resend_chunks", b"resend_chunks"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["accept_transfer", b"accept_transfer", "payload_id", b"payload_id", "payload_variant", b"payload_variant", "request_transfer", b"request_transfer", "resend_chunks", b"resend_chunks"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["payload_variant", b"payload_variant"]) -> typing_extensions.Literal["request_transfer", "accept_transfer", "resend_chunks"] | None: ...
+
+global___ChunkedPayloadResponse = ChunkedPayloadResponse
