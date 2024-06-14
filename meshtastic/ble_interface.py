@@ -57,7 +57,6 @@ class BLEInterface(MeshInterface):
         except BLEInterface.BLEError as e:
             self.close()
             our_exit(e.message, 1)
-            return
 
         logging.debug("Mesh init starting")
         MeshInterface.__init__(self, debugOut = debugOut, noProto = noProto, noNodes = noNodes)
