@@ -1,8 +1,6 @@
 """Meshtastic unit tests for ble_interface.py"""
 import logging
 
-import pytest
-
 from meshtastic.ble_interface import BLEClient, BLEInterface
 
 def test_ble_client_no_addr_logs_message(caplog):

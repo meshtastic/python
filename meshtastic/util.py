@@ -270,7 +270,6 @@ def our_exit(message, return_value=1) -> NoReturn:
     """
     print(message)
     sys.exit(return_value)
-    return
 
 
 def support_info():
