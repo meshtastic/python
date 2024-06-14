@@ -1,14 +1,17 @@
 """Meshtastic unit tests for ble_interface.py"""
 import logging
-from unittest.mock import patch
 
 import pytest
 
 from meshtastic.ble_interface import BLEClient, BLEInterface
 
 def test_ble_client_no_addr_logs_message(caplog):
+    """
+    We want to see a debug message describing the error
+    if we try to initialize a BLEClient with no address.
+    """
     caplog.set_level(level=logging.DEBUG)
-    test_client = BLEClient(address=None)
+    BLEClient(address=None)
     assert "No address provided - only discover method will work." in caplog.text
 
 def test_ble_interface_no_addr_returns_only_basic_object():
@@ -27,10 +30,6 @@ def test_ble_interface_bogus_addr_exits_process():
     If we initialize BLEInterface with a BT address that doesn't
     exist, we should exit the process
     """
-    # with patch('meshtastic.util.our_exit') as patch_exit:
-    #     patch_exit.return_value = None
-    #     test_interface = BLEInterface(address="bogus")
-    #     patch_exit.assert_called_once()
     with pytest.raises(SystemExit) as exc:
-        test_interface = BLEInterface(address="bogus")
+        BLEInterface(address="bogus")
     assert exc.value.code == 1
