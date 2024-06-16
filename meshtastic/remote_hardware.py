@@ -8,7 +8,7 @@ from meshtastic import portnums_pb2, remote_hardware_pb2
 from meshtastic.util import our_exit
 
 
-def onGPIOreceive(packet, interface):
+def onGPIOreceive(packet, interface) -> None:
     """Callback for received GPIO responses"""
     logging.debug(f"packet:{packet} interface:{interface}")
     gpioValue = 0
@@ -37,7 +37,7 @@ class RemoteHardwareClient:
     code for how you can connect to your own custom meshtastic services
     """
 
-    def __init__(self, iface):
+    def __init__(self, iface) -> None:
         """
         Constructor
 

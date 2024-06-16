@@ -1,11 +1,12 @@
 """Bluetooth interface
 """
+import io
 import logging
 import time
 import struct
 import asyncio
 from threading import Thread, Event
-from typing import Optional
+from typing import List, Optional, Tuple
 
 from bleak import BleakScanner, BleakClient
 
@@ -32,7 +33,7 @@ class BLEInterface(MeshInterface):
         MESH = False
 
 
-    def __init__(self, address: Optional[str], noProto: bool = False, debugOut = None, noNodes: bool = False):
+    def __init__(self, address: Optional[str], noProto: bool = False, debugOut: Optional[io.TextIOWrapper] = None, noNodes: bool = False) -> None:
         self.state = BLEInterface.BLEState()
 
         if not address:
@@ -72,14 +73,14 @@ class BLEInterface(MeshInterface):
         self.client.start_notify(FROMNUM_UUID, self.from_num_handler)
 
 
-    async def from_num_handler(self, _, b): # pylint: disable=C0116
+    async def from_num_handler(self, _, b: bytes) -> None: # pylint: disable=C0116
         from_num = struct.unpack('<I', bytes(b))[0]
         logging.debug(f"FROMNUM notify: {from_num}")
         self.should_read = True
 
 
-    def scan(self):
-        "Scan for available BLE devices"
+    def scan(self) -> List[Tuple]:
+        """Scan for available BLE devices"""
         with BLEClient() as client:
             return [
                 (x[0], x[1]) for x in (client.discover(
@@ -89,8 +90,8 @@ class BLEInterface(MeshInterface):
             ]
 
 
-    def find_device(self, address):
-        "Find a device by address"
+    def find_device(self, address: Optional[str]):
+        """Find a device by address"""
         meshtastic_devices = self.scan()
 
         addressed_devices = list(filter(lambda x: address in (x[1].local_name, x[0].name), meshtastic_devices))
@@ -106,18 +107,21 @@ class BLEInterface(MeshInterface):
             raise BLEInterface.BLEError(f"More than one Meshtastic BLE peripheral with identifier or address '{address}' found.")
         return addressed_devices[0][0]
 
-    def _sanitize_address(address): # pylint: disable=E0213
-        "Standardize BLE address by removing extraneous characters and lowercasing"
-        return address \
-            .replace("-", "") \
-            .replace("_", "") \
-            .replace(":", "") \
-            .lower()
+    def _sanitize_address(address: Optional[str]) -> Optional[str]: # pylint: disable=E0213
+        """Standardize BLE address by removing extraneous characters and lowercasing"""
+        if address is None:
+            return None
+        else:
+            return address \
+                .replace("-", "") \
+                .replace("_", "") \
+                .replace(":", "") \
+                .lower()
 
-    def connect(self, address):
+    def connect(self, address) -> BLEClient:
         "Connect to a device by address"
         device = self.find_device(address)
-        client = BLEClient(device.address)
+        client: BLEClient = BLEClient(device.address)
         client.connect()
         try:
             client.pair()
@@ -128,12 +132,12 @@ class BLEInterface(MeshInterface):
         return client
 
 
-    def _receiveFromRadioImpl(self):
+    def _receiveFromRadioImpl(self) -> None:
         self._receiveThread_started.set()
         while self._receiveThread_started.is_set():
             if self.should_read:
                 self.should_read = False
-                retries = 0
+                retries: int = 0
                 while True:
                     b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
                     if not b:
@@ -148,8 +152,8 @@ class BLEInterface(MeshInterface):
                 time.sleep(0.1)
         self._receiveThread_stopped.set()
 
-    def _sendToRadioImpl(self, toRadio):
-        b = toRadio.SerializeToString()
+    def _sendToRadioImpl(self, toRadio) -> None:
+        b: bytes = toRadio.SerializeToString()
         if b:
             logging.debug(f"TORADIO write: {b.hex()}")
             self.client.write_gatt_char(TORADIO_UUID, b, response = True)
@@ -158,7 +162,7 @@ class BLEInterface(MeshInterface):
             self.should_read = True
 
 
-    def close(self):
+    def close(self) -> None:
         if self.state.MESH:
             MeshInterface.close(self)
 
@@ -173,7 +177,7 @@ class BLEInterface(MeshInterface):
 
 class BLEClient():
     """Client for managing connection to a BLE device"""
-    def __init__(self, address = None, **kwargs):
+    def __init__(self, address = None, **kwargs) -> None:
         self._eventThread = Thread(target = self._run_event_loop)
         self._eventThread_started = Event()
         self._eventThread_stopped = Event()

@@ -4,7 +4,7 @@ import logging
 import platform
 import time
 
-from typing import Optional
+from typing import List, Optional
 
 import serial # type: ignore[import-untyped]
 
@@ -18,7 +18,7 @@ if platform.system() != "Windows":
 class SerialInterface(StreamInterface):
     """Interface class for meshtastic devices over a serial link"""
 
-    def __init__(self, devPath: Optional[str]=None, debugOut=None, noProto=False, connectNow=True, noNodes: bool=False):
+    def __init__(self, devPath: Optional[str]=None, debugOut=None, noProto: bool=False, connectNow: bool=True, noNodes: bool=False) -> None:
         """Constructor, opens a connection to a specified serial port, or if unspecified try to
         find one Meshtastic device by probing
 
@@ -31,13 +31,13 @@ class SerialInterface(StreamInterface):
         self.devPath: Optional[str] = devPath
 
         if self.devPath is None:
-            ports = meshtastic.util.findPorts(True)
+            ports: List[str] = meshtastic.util.findPorts(True)
             logging.debug(f"ports:{ports}")
             if len(ports) == 0:
                 print("No Serial Meshtastic device detected, attempting TCP connection on localhost.")
                 return
             elif len(ports) > 1:
-                message = "Warning: Multiple serial ports were detected so one serial port must be specified with the '--port'.\n"
+                message: str = "Warning: Multiple serial ports were detected so one serial port must be specified with the '--port'.\n"
                 message += f"  Ports detected:{ports}"
                 meshtastic.util.our_exit(message)
             else:
@@ -65,7 +65,7 @@ class SerialInterface(StreamInterface):
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow, noNodes=noNodes
         )
 
-    def close(self):
+    def close(self) -> None:
         """Close a connection to the device"""
         self.stream.flush()
         time.sleep(0.1)

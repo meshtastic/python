@@ -5,6 +5,9 @@ import logging
 import sys
 import time
 import traceback
+import io
+
+from typing import List, Optional
 
 from dotmap import DotMap # type: ignore[import-untyped]
 from pubsub import pub # type: ignore[import-untyped]
@@ -15,19 +18,19 @@ from meshtastic.serial_interface import SerialInterface
 from meshtastic.tcp_interface import TCPInterface
 
 """The interfaces we are using for our tests"""
-interfaces = None
+interfaces: List = []
 
 """A list of all packets we received while the current test was running"""
-receivedPackets = None
+receivedPackets: Optional[List] = None
 
-testsRunning = False
+testsRunning: bool = False
 
-testNumber = 0
+testNumber: int = 0
 
 sendingInterface = None
 
 
-def onReceive(packet, interface):
+def onReceive(packet, interface) -> None:
     """Callback invoked when a packet arrives"""
     if sendingInterface == interface:
         pass
@@ -42,20 +45,20 @@ def onReceive(packet, interface):
                 receivedPackets.append(p)
 
 
-def onNode(node):
+def onNode(node) -> None:
     """Callback invoked when the node DB changes"""
     print(f"Node changed: {node}")
 
 
-def subscribe():
+def subscribe() -> None:
     """Subscribe to the topics the user probably wants to see, prints output to stdout"""
 
     pub.subscribe(onNode, "meshtastic.node")
 
 
 def testSend(
-    fromInterface, toInterface, isBroadcast=False, asBinary=False, wantAck=False
-):
+    fromInterface, toInterface, isBroadcast: bool=False, asBinary: bool=False, wantAck: bool=False
+) -> bool:
     """
     Sends one test packet between two nodes and then returns success or failure
 
@@ -93,16 +96,16 @@ def testSend(
     return False  # Failed to send
 
 
-def runTests(numTests=50, wantAck=False, maxFailures=0):
+def runTests(numTests: int=50, wantAck: bool=False, maxFailures: int=0) -> bool:
     """Run the tests."""
     logging.info(f"Running {numTests} tests with wantAck={wantAck}")
-    numFail = 0
-    numSuccess = 0
+    numFail: int = 0
+    numSuccess: int = 0
     for _ in range(numTests):
         # pylint: disable=W0603
         global testNumber
         testNumber = testNumber + 1
-        isBroadcast = True
+        isBroadcast:bool = True
         # asBinary=(i % 2 == 0)
         success = testSend(
             interfaces[0], interfaces[1], isBroadcast, asBinary=False, wantAck=wantAck
@@ -126,10 +129,10 @@ def runTests(numTests=50, wantAck=False, maxFailures=0):
     return True
 
 
-def testThread(numTests=50):
+def testThread(numTests=50) -> bool:
     """Test thread"""
     logging.info("Found devices, starting tests...")
-    result = runTests(numTests, wantAck=True)
+    result: bool = runTests(numTests, wantAck=True)
     if result:
         # Run another test
         # Allow a few dropped packets
@@ -137,25 +140,25 @@ def testThread(numTests=50):
     return result
 
 
-def onConnection(topic=pub.AUTO_TOPIC):
+def onConnection(topic=pub.AUTO_TOPIC) -> None:
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
 
 
-def openDebugLog(portName):
+def openDebugLog(portName) -> io.TextIOWrapper:
     """Open the debug log file"""
     debugname = "log" + portName.replace("/", "_")
     logging.info(f"Writing serial debugging to {debugname}")
     return open(debugname, "w+", buffering=1, encoding="utf8")
 
 
-def testAll(numTests=5):
+def testAll(numTests: int=5) -> bool:
     """
     Run a series of tests using devices we can find.
     This is called from the cli with the "--test" option.
 
     """
-    ports = meshtastic.util.findPorts(True)
+    ports: List[str] = meshtastic.util.findPorts(True)
     if len(ports) < 2:
         meshtastic.util.our_exit(
             "Warning: Must have at least two devices connected to USB."
@@ -175,7 +178,7 @@ def testAll(numTests=5):
     )
 
     logging.info("Ports opened, starting test")
-    result = testThread(numTests)
+    result: bool = testThread(numTests)
 
     for i in interfaces:
         i.close()
@@ -183,7 +186,7 @@ def testAll(numTests=5):
     return result
 
 
-def testSimulator():
+def testSimulator() -> None:
     """
     Assume that someone has launched meshtastic-native as a simulated node.
     Talk to that node over TCP, do some operations and if they are successful
@@ -195,7 +198,7 @@ def testSimulator():
     logging.basicConfig(level=logging.DEBUG)
     logging.info("Connecting to simulator on localhost!")
     try:
-        iface = TCPInterface("localhost")
+        iface: meshtastic.tcp_interface.TCPInterface = TCPInterface("localhost")
         iface.showInfo()
         iface.localNode.showInfo()
         iface.localNode.exitSimulator()
