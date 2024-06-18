@@ -1,7 +1,7 @@
 """Meshtastic unit tests for ble_interface.py"""
 import logging
 
-from meshtastic.ble_interface import BLEClient, BLEInterface
+from meshtastic.ble_interface import BLEClient
 
 def test_ble_client_no_addr_logs_message(caplog):
     """
@@ -14,7 +14,7 @@ def test_ble_client_no_addr_logs_message(caplog):
 
 # def test_ble_interface_no_addr_returns_only_basic_object():
 #     """
-#     We want BLEState to be the only property of the BLEInterface if 
+#     We want BLEState to be the only property of the BLEInterface if
 #     it's initialized with an address of None.
 #     """
 #     test_interface = BLEInterface(address=None)
