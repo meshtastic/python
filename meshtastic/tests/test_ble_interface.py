@@ -24,6 +24,7 @@ def test_ble_interface_no_addr_returns_only_basic_object():
     assert isinstance(test_interface_dict['state'], BLEInterface.BLEState)
 
 # TODO: figure out why GitHub Actions just hangs on this test.
+# Does it need to have the BT library need mocking?
 # def test_ble_interface_bogus_addr_exits_process():
 #     """
 #     If we initialize BLEInterface with a BT address that doesn't
