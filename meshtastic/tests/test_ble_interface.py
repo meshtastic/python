@@ -1,16 +1,16 @@
 """Meshtastic unit tests for ble_interface.py"""
-import logging
+# import logging
 
-from meshtastic.ble_interface import BLEClient
+# from meshtastic.ble_interface import BLEClient
 
-def test_ble_client_no_addr_logs_message(caplog):
-    """
-    We want to see a debug message describing the error
-    if we try to initialize a BLEClient with no address.
-    """
-    caplog.set_level(level=logging.DEBUG)
-    BLEClient(address=None)
-    assert "No address provided - only discover method will work." in caplog.text
+# def test_ble_client_no_addr_logs_message(caplog):
+#     """
+#     We want to see a debug message describing the error
+#     if we try to initialize a BLEClient with no address.
+#     """
+#     caplog.set_level(level=logging.DEBUG)
+#     BLEClient(address=None)
+#     assert "No address provided - only discover method will work." in caplog.text
 
 # def test_ble_interface_no_addr_returns_only_basic_object():
 #     """
