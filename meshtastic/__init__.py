@@ -127,6 +127,7 @@ class ResponseHandler(NamedTuple):
 
     # requestId: int - used only as a key
     callback: Callable
+    ackPermitted: bool = False
     # FIXME, add timestamp and age out old requests
 
 
