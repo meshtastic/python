@@ -37,8 +37,6 @@ setup(
         "protobuf>=5.26.0",
         "requests>=2.25.0",
         "pypubsub>=4.0.3",
-        "dotmap>=1.3.14",
-        "pexpect>=4.6.0",
         "pyqrcode>=1.2.1",
         "tabulate>=0.8.9",
         "timeago>=1.0.15",
