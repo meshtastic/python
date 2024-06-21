@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from .. import mesh_pb2, config_pb2, BROADCAST_ADDR, LOCAL_ADDR
-from ..mesh_interface import MeshInterface
+from ..mesh_interface import MeshInterface, _timeago
 from ..node import Node
 
 # TODO
@@ -684,3 +684,14 @@ def test_waitConnected_isConnected_timeout(capsys):
         out, err = capsys.readouterr()
         assert re.search(r"warn about something", err, re.MULTILINE)
         assert out == ""
+
+
+@pytest.mark.unit
+def test_timeago():
+    assert _timeago(0) == "now"
+    assert _timeago(1) == "1 sec ago"
+    assert _timeago(15) == "15 secs ago"
+    assert _timeago(333) == "5 mins ago"
+    assert _timeago(99999) == "1 day ago"
+    assert _timeago(9999999) == "3 months ago"
+    assert _timeago(-999) == "now"

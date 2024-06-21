@@ -41,6 +41,29 @@ from meshtastic.util import (
 )
 
 
+def _timeago(delta_secs: int) -> str:
+    """Convert a number of seconds in the past into a short, friendly string
+    e.g. "now", "30 sec ago",  "1 hour ago"
+    Zero or negative intervals simply return "now"
+    """
+    intervals = (
+        ("year", 60 * 60 * 24 * 365),
+        ("month", 60 * 60 * 24 * 30),
+        ("day", 60 * 60 * 24),
+        ("hour", 60 * 60),
+        ("min", 60),
+        ("sec", 1),
+    )
+    for name, interval_duration in intervals:
+        if delta_secs < interval_duration:
+            continue
+        x = delta_secs // interval_duration
+        plur = "s" if x > 1 else ""
+        return f"{x} {name}{plur} ago"
+
+    return "now"
+
+
 class MeshInterface: # pylint: disable=R0902
     """Interface class for meshtastic devices
 
@@ -163,22 +186,7 @@ class MeshInterface: # pylint: disable=R0902
             delta_secs = int(delta.total_seconds())
             if delta_secs < 0:
                 return None  # not handling a timestamp from the future
-            intervals = (
-                ("year", 60 * 60 * 24 * 365),
-                ("month", 60 * 60 * 24 * 30),
-                ("day", 60 * 60 * 24),
-                ("hour", 60 * 60),
-                ("min", 60),
-                ("sec", 1),
-            )
-            for name, interval_duration in intervals:
-                if delta_secs < interval_duration:
-                    continue
-                x = delta_secs // interval_duration
-                plur = "s" if x > 1 else ""
-                return f"{x} {name}{plur} ago"
-
-            return "now"
+            return _timeago(delta_secs)
 
         rows: List[Dict[str, Any]] = []
         if self.nodesByNum:
