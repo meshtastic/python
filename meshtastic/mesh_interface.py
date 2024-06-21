@@ -296,6 +296,7 @@ class MeshInterface: # pylint: disable=R0902
         wantAck: bool=False,
         wantResponse: bool=False,
         onResponse: Optional[Callable[[dict], Any]]=None,
+        onResponseAckPermitted: bool=False,
         channelIndex: int=0,
     ):
         """Send a data packet to some other node
@@ -315,6 +316,10 @@ class MeshInterface: # pylint: disable=R0902
             onResponse -- A closure of the form funct(packet), that will be
                     called when a response packet arrives (or the transaction
                     is NAKed due to non receipt)
+            onResponseAckPermitted -- should the onResponse callback be called
+                    for regular ACKs (True) or just data responses & NAKs (False)
+                    Note that if the onResponse callback is called 'onAckNak' this
+                    will implicitly be true.
             channelIndex - channel number to use
 
         Returns the sent packet. The id field will be populated in this packet
@@ -346,7 +351,7 @@ class MeshInterface: # pylint: disable=R0902
 
         if onResponse is not None:
             logging.debug(f"Setting a response handler for requestId {meshPacket.id}")
-            self._addResponseHandler(meshPacket.id, onResponse)
+            self._addResponseHandler(meshPacket.id, onResponse, ackPermitted=onResponseAckPermitted)
         p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck)
         return p
 
@@ -528,8 +533,8 @@ class MeshInterface: # pylint: disable=R0902
             if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
                 our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
 
-    def _addResponseHandler(self, requestId: int, callback: Callable[[dict], Any]):
-        self.responseHandlers[requestId] = ResponseHandler(callback)
+    def _addResponseHandler(self, requestId: int, callback: Callable[[dict], Any], ackPermitted: bool=False):
+        self.responseHandlers[requestId] = ResponseHandler(callback=callback, ackPermitted=ackPermitted)
 
     def _sendPacket(self, meshPacket: mesh_pb2.MeshPacket, destinationId: Union[int,str]=BROADCAST_ADDR, wantAck: bool=False):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
@@ -1129,16 +1134,18 @@ class MeshInterface: # pylint: disable=R0902
             requestId = decoded.get("requestId")
             if requestId is not None:
                 logging.debug(f"Got a response for requestId {requestId}")
-                # We ignore ACK packets, but send NAKs and data responses to the handlers
+                # We ignore ACK packets unless the callback is named `onAckNak`
+                # or the handler is set as ackPermitted, but send NAKs and
+                # other, data-containing responses to the handlers
                 routing = decoded.get("routing")
                 isAck = routing is not None and ("errorReason" not in routing or routing["errorReason"] == "NONE")
-                if not isAck:
-                    # we keep the responseHandler in dict until we get a non ack
-                    handler = self.responseHandlers.pop(requestId, None)
-                    if handler is not None:
-                        if not isAck or (isAck and handler.__name__ == "onAckNak"):
-                            logging.debug(f"Calling response handler for requestId {requestId}")
-                            handler.callback(asDict)
+                # we keep the responseHandler in dict until we actually call it
+                handler = self.responseHandlers.get(requestId, None)
+                if handler is not None:
+                    if (not isAck) or handler.callback.__name__ == "onAckNak" or handler.ackPermitted:
+                        handler = self.responseHandlers.pop(requestId, None)
+                        logging.debug(f"Calling response handler for requestId {requestId}")
+                        handler.callback(asDict)
 
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         publishingThread.queueWork(
