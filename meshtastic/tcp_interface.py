@@ -2,7 +2,7 @@
 """
 import logging
 import socket
-from typing import Optional
+from typing import Optional, cast
 
 from meshtastic.stream_interface import StreamInterface
 
@@ -14,9 +14,9 @@ class TCPInterface(StreamInterface):
         self,
         hostname: str,
         debugOut=None,
-        noProto=False,
-        connectNow=True,
-        portNumber=4403,
+        noProto: bool=False,
+        connectNow: bool=True,
+        portNumber: int=4403,
         noNodes:bool=False,
     ):
         """Constructor, opens a connection to a specified IP address/hostname
@@ -27,14 +27,16 @@ class TCPInterface(StreamInterface):
 
         self.stream = None
 
-        self.hostname = hostname
-        self.portNumber = portNumber
+        self.hostname: str = hostname
+        self.portNumber: int = portNumber
+
+        self.socket: Optional[socket.socket] = None
 
         if connectNow:
             logging.debug(f"Connecting to {hostname}") # type: ignore[str-bytes-safe]
-            server_address = (hostname, portNumber)
-            sock = socket.create_connection(server_address)
-            self.socket: Optional[socket.socket] = sock
+            server_address: tuple[str, int] = (hostname, portNumber)
+            sock: Optional[socket.socket] = socket.create_connection(server_address)
+            self.socket = sock
         else:
             self.socket = None
 
@@ -42,25 +44,26 @@ class TCPInterface(StreamInterface):
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow, noNodes=noNodes
         )
 
-    def _socket_shutdown(self):
+    def _socket_shutdown(self) -> None:
         """Shutdown the socket.
         Note: Broke out this line so the exception could be unit tested.
         """
-        self.socket.shutdown(socket.SHUT_RDWR)
+        if socket:
+            cast(socket.socket, self.socket).shutdown(socket.SHUT_RDWR)
 
-    def myConnect(self):
+    def myConnect(self) -> None:
         """Connect to socket"""
-        server_address = (self.hostname, self.portNumber)
-        sock = socket.create_connection(server_address)
+        server_address: tuple[str, int] = (self.hostname, self.portNumber)
+        sock: Optional[socket.socket] = socket.create_connection(server_address)
         self.socket = sock
 
-    def close(self):
+    def close(self) -> None:
         """Close a connection to the device"""
         logging.debug("Closing TCP stream")
         StreamInterface.close(self)
         # Sometimes the socket read might be blocked in the reader thread.
         # Therefore we force the shutdown by closing the socket here
-        self._wantExit = True
+        self._wantExit: bool = True
         if not self.socket is None:
             try:
                 self._socket_shutdown()
@@ -68,10 +71,14 @@ class TCPInterface(StreamInterface):
                 pass  # Ignore errors in shutdown, because we might have a race with the server
             self.socket.close()
 
-    def _writeBytes(self, b):
+    def _writeBytes(self, b: bytes) -> None:
         """Write an array of bytes to our stream and flush"""
-        self.socket.send(b)
+        if self.socket:
+            self.socket.send(b)
 
-    def _readBytes(self, length):
+    def _readBytes(self, length) -> Optional[bytes]:
         """Read an array of bytes from our stream"""
-        return self.socket.recv(length)
+        if self.socket:
+            return self.socket.recv(length)
+        else:
+            return None
