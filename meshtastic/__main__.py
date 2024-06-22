@@ -21,7 +21,8 @@ from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware, B
 from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
-from meshtastic.power_mon import PowerMonClient
+from meshtastic.powermon import RidenPowerSupply
+from meshtastic.slog.power_mon import PowerMonClient
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -1090,8 +1091,9 @@ def common():
             # We assume client is fully connected now
             onConnected(client)
 
-            if args.power_mon:
-                PowerMonClient(args.power_mon, client)
+            if args.power_riden:
+                meter = RidenPowerSupply(args.power_riden)
+                PowerMonClient(meter, client)
 
 
             have_tunnel = platform.system() == "Linux"
@@ -1506,8 +1508,14 @@ def initParser():
     )
 
     group.add_argument(
-        "--power-mon",
-        help="Capture any power monitor records.  You must use --power-mon /dev/ttyUSBxxx to specify which port the power supply is on",
+        "--power-riden",
+        help="Talk to a Riden power-supply. You must specify the device path, i.e. /dev/ttyUSBxxx",
+    )
+
+    group.add_argument(
+        "--power-ppk2",
+        help="Talk to a Nordic Power Profiler Kit 2",
+        action="store_true",
     )
 
     group.add_argument(

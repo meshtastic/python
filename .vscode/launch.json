@@ -172,7 +172,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": false,
-      "args": ["--power-mon", "/dev/ttyUSB1", "--port", "/dev/ttyUSB0", "--noproto", "--seriallog", "stdout"]
+      "args": ["--power-riden", "/dev/ttyUSB0", "--port", "/dev/ttyACM0", "--noproto", "--seriallog", "stdout"]
     },
     {
       "name": "meshtastic test",
