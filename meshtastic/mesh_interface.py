@@ -29,7 +29,7 @@ from meshtastic import (
     NODELESS_WANT_CONFIG_ID,
     ResponseHandler,
     protocols,
-    publishingThread,
+    publishingThread
 )
 from meshtastic.util import (
     Acknowledgment,
@@ -40,7 +40,7 @@ from meshtastic.util import (
     stripnl,
     message_to_json,
 )
-
+from meshtastic.observable import Observable
 
 class MeshInterface: # pylint: disable=R0902
     """Interface class for meshtastic devices
@@ -71,6 +71,7 @@ class MeshInterface: # pylint: disable=R0902
         self.nodes: Optional[Dict[str,Dict]] = None  # FIXME
         self.isConnected: threading.Event = threading.Event()
         self.noProto: bool = noProto
+        self.onLogMessage = Observable()
         self.localNode: meshtastic.node.Node = meshtastic.node.Node(self, -1)  # We fixup nodenum later
         self.myInfo: Optional[mesh_pb2.MyNodeInfo] = None  # We don't have device info yet
         self.metadata: Optional[mesh_pb2.DeviceMetadata] = None  # We don't have device metadata yet
@@ -110,6 +111,10 @@ class MeshInterface: # pylint: disable=R0902
         if traceback is not None:
             logging.error(f"Traceback: {traceback}")
         self.close()
+
+    def _handleLogLine(self, line):
+        """Handle a line of log output from the device."""
+        self.onLogMessage.fire(message=line)
 
     def showInfo(self, file=sys.stdout) -> str:  # pylint: disable=W0613
         """Show human readable summary about this object"""

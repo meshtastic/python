@@ -106,7 +106,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": ["--debug", "--set", "power.is_power_saving", "1"]
+      "args": ["--set", "power.powermon_enables", "65527"]
     },
     {
       "name": "meshtastic debug setPref telemetry.environment_measurement_enabled",
@@ -164,7 +164,15 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": ["--debug", "--seriallog", "stdout"]
+      "args": ["--noproto", "--seriallog", "stdout"]
+    },
+    {
+      "name": "meshtastic powermon",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--power-mon", "/dev/ttyUSB1", "--port", "/dev/ttyUSB0", "--noproto", "--seriallog", "stdout"]
     },
     {
       "name": "meshtastic test",

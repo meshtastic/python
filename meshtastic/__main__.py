@@ -21,6 +21,7 @@ from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware, B
 from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
+from meshtastic.power_mon import PowerMonClient
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -1089,6 +1090,10 @@ def common():
             # We assume client is fully connected now
             onConnected(client)
 
+            if args.power_mon:
+                PowerMonClient(args.power_mon, client)
+
+
             have_tunnel = platform.system() == "Linux"
             if (
                 args.noproto or args.reply or (have_tunnel and args.tunnel) or args.listen
@@ -1497,6 +1502,17 @@ def initParser():
     group.add_argument(
         "--test",
         help="Run stress test against all connected Meshtastic devices",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--power-mon",
+        help="Capture any power monitor records.  You must use --power-mon /dev/ttyUSBxxx to specify which port the power supply is on",
+    )
+
+    group.add_argument(
+        "--power-stress",
+        help="Perform power monitor stress testing, to capture a power consumption profile for the device (also requires --power-mon)",
         action="store_true",
     )
 
