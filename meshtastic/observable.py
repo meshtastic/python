@@ -1,9 +1,12 @@
+"""A basic implementation of the observer pattern."""
 
-
-class Event(object):
+class Event:
     """A simple event class."""
 
-class Observable(object):
+    def __init__(self, source) -> None:
+        self.source = source
+
+class Observable:
     """A class that represents an observable object.
     
     To publish an event call fire(type="progress", percent=50) or whatever.  It will call  
@@ -27,8 +30,7 @@ class Observable(object):
         Args:
             **attrs: Arbitrary keyword arguments to be passed to the callback functions.
         """
-        e = Event()
-        e.source = self
+        e = Event(self)
         for k, v in attrs.items():
             setattr(e, k, v)
         for fn in self.callbacks:
