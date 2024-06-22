@@ -18,23 +18,24 @@ jobs:
           - "3.10"
           - "3.11"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install Python 3
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
       - name: Uninstall meshtastic
         run: |
-          pip3 uninstall meshtastic
+          pip3 uninstall -y meshtastic
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip3 install poetry
       - name: Install meshtastic from local
         run: |
+          poetry install
           poetry run meshtastic --version
       - name: Run pylint
         run: poetry run pylint meshtastic examples/ --ignore-patterns ".*_pb2.pyi?$"
       - name: Check types with mypy
-        run: mypy meshtastic/
+        run: poetry run mypy meshtastic/
       - name: Run tests with pytest
         run: poetry run pytest --cov=meshtastic
       - name: Generate coverage report
@@ -60,10 +61,12 @@ jobs:
           - "3.10"
           - "3.11"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install Python 3
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
       - name: Install meshtastic from local
         run: |
+          python -m pip install --upgrade pip
+          pip3 install poetry
           poetry install
-          meshtastic --version
+          poetry run meshtastic --version
