@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "meshtastic"
-version = "2.3.7"
+version = "2.3.11"
 description = "Python API & client shell for talking to Meshtastic devices"
 authors = ["Meshtastic Developers <contact@meshtastic.org>"]
 license = "GPL-3.0-only"
@@ -38,6 +38,7 @@ pdoc3 = "^0.10.0"
 autopep8 = "^2.1.0"
 pylint = "^3.2.3"
 pytap2 = "^2.3.0"
+pyinstaller = "^6.8.0"
 
 [tool.poetry.extras]
 tunnel = ["pytap2"]
