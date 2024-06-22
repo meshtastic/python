@@ -10,7 +10,7 @@ class Event:
 
     def __getattr__(self, name: str) -> typing.Any:
         """We dynamically add attributes to this class, so stub out __getattr__ so that mypy doesn't complain."""
-        pass
+
 
 class Observable:
     """A class that represents an observable object.

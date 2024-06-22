@@ -55,4 +55,3 @@ class RidenPowerSupply(PowerSupply):
         """Get the current watt-hour reading."""
         self.r.update()
         return self.r.wh
-
