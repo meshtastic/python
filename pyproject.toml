@@ -29,7 +29,7 @@ types-requests = "^2.31.0.20240406"
 types-setuptools = "^69.5.0.20240423"
 types-pyyaml = "^6.0.12.20240311"
 packaging = "^24.0"
-riden = {git = "https://github.com/geeksville/riden.git#ecbda543cf566346dd28558d957b4aa7fe116a83"}
+riden = {git = "https://github.com/geeksville/riden.git#1.2.1"}
 pandas = "^2.2.2"
 
 [tool.poetry.group.dev.dependencies]
@@ -41,6 +41,7 @@ autopep8 = "^2.1.0"
 pylint = "^3.2.3"
 pytap2 = "^2.3.0"
 pyinstaller = "^6.8.0"
+pandas-stubs = "^2.2.2.240603"
 
 [tool.poetry.extras]
 tunnel = ["pytap2"]

@@ -73,7 +73,7 @@ class PowerMonClient:
         self.rawData = pd.DataFrame(columns=self.columns) # use time as the index
 
         # for efficiency reasons we keep new data in a list - only adding to rawData when needfed
-        self.newData = []
+        self.newData: list[dict] = []
 
         self.power = power = PowerSupply(portName)
         power.powerOn()

@@ -3,8 +3,10 @@ set -e
 # You may consider running: "pytest -m smoke1" instead of this test.
 
 echo "Linting"
-
 poetry run pylint meshtastic examples/ --ignore-patterns ".*_pb2.pyi?$"
+
+echo "Checking types"
+poetry run mypy meshtastic/
 
 echo "Running (crude) prerelease tests to verify sanity"
 
