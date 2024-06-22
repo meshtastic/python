@@ -22,7 +22,7 @@ from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
 from meshtastic.powermon import RidenPowerSupply
-from meshtastic.slog.power_mon import PowerMonClient
+from meshtastic.slog import StructuredLogger
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -1087,21 +1087,24 @@ def common():
                             f"Error connecting to localhost:{ex}", 1
                         )
 
-
             # We assume client is fully connected now
             onConnected(client)
 
+            meter = None # assume no power meter
             if args.power_riden:
                 meter = RidenPowerSupply(args.power_riden)
-                PowerMonClient(meter, client)
 
+            StructuredLogger(client, meter)
 
             have_tunnel = platform.system() == "Linux"
             if (
                 args.noproto or args.reply or (have_tunnel and args.tunnel) or args.listen
             ):  # loop until someone presses ctrlc
-                while True:
-                    time.sleep(1000)
+                try:
+                    while True:
+                        time.sleep(1000)
+                except KeyboardInterrupt:
+                    logging.info("Exiting due to keyboard interrupt")
 
         # don't call exit, background threads might be running still
         # sys.exit(0)

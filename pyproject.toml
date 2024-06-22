@@ -31,6 +31,7 @@ types-pyyaml = "^6.0.12.20240311"
 packaging = "^24.0"
 riden = {git = "https://github.com/geeksville/riden.git#1.2.1"}
 pandas = "^2.2.2"
+parse = "^1.20.2"
 
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.103.2"
