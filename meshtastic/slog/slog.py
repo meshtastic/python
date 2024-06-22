@@ -50,6 +50,7 @@ class StructuredLogger:
         self.pMeter = pMeter
         self.columns = ["time", "power"]
         self.rawData = pd.DataFrame(columns=self.columns)  # use time as the index
+        # self.rawData.set_index("time", inplace=True)
 
         # for efficiency reasons we keep new data in a list - only adding to rawData when needed
         self.newData: list[dict] = []
@@ -64,8 +65,18 @@ class StructuredLogger:
         -------
             pd.DataFrame: The raw data.
         """
-        df = pd.DataFrame(self.newData, columns=self.columns)
-        self.rawData = pd.concat([self.rawData, df], ignore_index=True)
+
+        df = pd.DataFrame(self.newData)
+
+        # We prefer some columns to be integers
+        intcols = [ "bitmask" ]
+        for c in intcols:
+            if c in df:
+                df[c] = df[c].astype('Int64')
+
+        # df.set_index("time")
+        # Add new data, creating new columns as needed (an outer join)
+        self.rawData = pd.concat([self.rawData, df], axis=0, ignore_index=True)
         self.newData = []
 
         return self.rawData
@@ -97,6 +108,7 @@ class StructuredLogger:
                     if self.pMeter: # if we have a power meter include a fresh power reading
                         di["power"] = self.pMeter.getWatts()
                     self.newData.append(di)
+                    self.getRawData()
                 else:
                     logging.warning(f"Failed to parse slog {ev.message} with {d.format}")
             else:
