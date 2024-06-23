@@ -163,7 +163,7 @@
       "type": "python",
       "request": "launch",
       "module": "meshtastic",
-      "justMyCode": true,
+      "justMyCode": false,
       "args": ["--noproto", "--seriallog", "stdout"]
     },
     {
