@@ -7,8 +7,8 @@
 # protoc looks for mypy plugin in the python path
 source $(poetry env info --path)/bin/activate
 
-./nanopb-0.4.6/generator-bin/protoc -I=protobufs --python_out ./ --mypy_out ./ ./protobufs/meshtastic/*.proto
-./nanopb-0.4.6/generator-bin/protoc -I=protobufs --python_out ./meshtastic/ --mypy_out ./meshtastic/ ./protobufs/nanopb.proto
+./nanopb-0.4.8/generator-bin/protoc -I=protobufs --python_out ./ --mypy_out ./ ./protobufs/meshtastic/*.proto
+./nanopb-0.4.8/generator-bin/protoc -I=protobufs --python_out ./meshtastic/ --mypy_out ./meshtastic/ ./protobufs/nanopb.proto
 
 # workaround for import bug in protoc https://github.com/protocolbuffers/protobuf/issues/1491#issuecomment-690618628
 
