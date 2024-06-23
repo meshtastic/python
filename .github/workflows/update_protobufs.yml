@@ -22,6 +22,11 @@ jobs:
           tar xvzf nanopb-0.4.6-linux-x86.tar.gz
           mv nanopb-0.4.6-linux-x86 nanopb-0.4.6
 
+      - name: Install poetry (needed by regen-protobufs.sh)
+        run: |
+          python -m pip install --upgrade pip
+          pip3 install poetry
+
       - name: Re-generate protocol buffers
         run: |
           ./bin/regen-protobufs.sh
