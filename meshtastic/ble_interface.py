@@ -51,9 +51,9 @@ class BLEInterface(MeshInterface):
             self.client = self.connect(address)
             self.state.BLE = True
             logging.debug("BLE connected")
-        # except BLEInterface.BLEError as e:
-        finally:
+        except BLEInterface.BLEError as e:
             self.close()
+            raise e
 
         logging.debug("Mesh init starting")
         MeshInterface.__init__(self, debugOut = debugOut, noProto = noProto, noNodes = noNodes)
@@ -112,17 +112,13 @@ class BLEInterface(MeshInterface):
             .replace(":", "") \
             .lower()
 
-    def connect(self, address):
+    def connect(self, address: Optional[str] = None):
         "Connect to a device by address"
+
+        # Bleak docs recommend always doing a scan before connecting (even if we know addr)
         device = self.find_device(address)
         client = BLEClient(device.address)
         client.connect()
-        try:
-            client.pair()
-        except NotImplementedError:
-            # Some bluetooth backends do not require explicit pairing.
-            # See Bleak docs for details on this.
-            pass
         return client
 
 
@@ -212,7 +208,7 @@ class BLEClient():
 
     def __enter__(self):
         return self
-
+    
     def __exit__(self, _type, _value, _traceback):
         self.close()
 

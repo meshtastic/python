@@ -1122,11 +1122,11 @@ def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
         action="store_true",
     )
 
-    group.add_argument(
+    outer.add_argument(
         "--ble-dest",
         help="The BLE device address or name to connect to",
         default=None,
-    )
+    )    
 
     return parser
 
