@@ -1050,7 +1050,7 @@ def common():
                 meshtastic.util.our_exit("BLE scan finished", 0)
                 return
             elif args.ble:
-                client = BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes)
+                client = BLEInterface(args.ble_dest, debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes)
             elif args.host:
                 try:
                     client = meshtastic.tcp_interface.TCPInterface(
@@ -1118,6 +1118,12 @@ def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
 
     group.add_argument(
         "--ble",
+        help="The BLE device address or name to connect to",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ble-dest",
         help="The BLE device address or name to connect to",
         default=None,
     )

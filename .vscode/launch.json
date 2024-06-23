@@ -77,6 +77,14 @@
       "args": ["--debug", "--info"]
     },
     {
+      "name": "meshtastic debug BLE",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--ble", "--info"]
+    },
+    {
       "name": "meshtastic debug set region",
       "type": "python",
       "request": "launch",
