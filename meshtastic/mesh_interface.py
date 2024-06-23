@@ -40,7 +40,6 @@ from meshtastic.util import (
     stripnl,
     message_to_json,
 )
-from meshtastic.observable import Observable
 
 class MeshInterface: # pylint: disable=R0902
     """Interface class for meshtastic devices
@@ -71,7 +70,6 @@ class MeshInterface: # pylint: disable=R0902
         self.nodes: Optional[Dict[str,Dict]] = None  # FIXME
         self.isConnected: threading.Event = threading.Event()
         self.noProto: bool = noProto
-        self.onLogMessage = Observable()
         self.localNode: meshtastic.node.Node = meshtastic.node.Node(self, -1)  # We fixup nodenum later
         self.myInfo: Optional[mesh_pb2.MyNodeInfo] = None  # We don't have device info yet
         self.metadata: Optional[mesh_pb2.DeviceMetadata] = None  # We don't have device metadata yet
@@ -93,6 +91,12 @@ class MeshInterface: # pylint: disable=R0902
         self.queue: collections.OrderedDict = collections.OrderedDict()
         self._localChannels = None
 
+        # We could have just not passed in debugOut to MeshInterface, and instead told consumers to subscribe to
+        # the meshtastic.log.line publish instead.  Alas though changing that now would be a breaking API change
+        # for any external consumers of the library.
+        if debugOut:
+            pub.subscribe(MeshInterface._printLogLine, "meshtastic.log.line")
+
     def close(self):
         """Shutdown this interface"""
         if self.heartbeatTimer:
@@ -112,9 +116,14 @@ class MeshInterface: # pylint: disable=R0902
             logging.error(f"Traceback: {traceback}")
         self.close()
 
-    def _handleLogLine(self, line):
+    @staticmethod
+    def _printLogLine(line, interface):
+        """Print a line of log output"""
+        interface.debugOut.write(line + "\n")
+
+    def _handleLogLine(self, line: str) -> None:
         """Handle a line of log output from the device."""
-        self.onLogMessage.fire(message=line)
+        pub.sendMessage("meshtastic.log.line", line=line, interface=self)
 
     def showInfo(self, file=sys.stdout) -> str:  # pylint: disable=W0613
         """Show human readable summary about this object"""

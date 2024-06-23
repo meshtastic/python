@@ -31,6 +31,7 @@ type of packet, you should subscribe to the full topic name.  If you want to see
 - meshtastic.receive.user(packet)
 - meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
+- meshtastic.log.line(line) - a raw unparsed log line from the radio
 
 We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for
 that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet

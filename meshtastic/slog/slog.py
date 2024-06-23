@@ -8,9 +8,9 @@ from dataclasses import dataclass
 
 import parse
 import pandas as pd
+from pubsub import pub # type: ignore[import-untyped]
 
 from meshtastic.mesh_interface import MeshInterface
-from meshtastic.observable import Event
 from meshtastic.powermon import PowerMeter
 
 
@@ -20,14 +20,14 @@ class LogDef:
     code: str           # i.e. PM or B or whatever... see meshtastic slog documentation
     format: str         # A format string that can be used to parse the arguments
 
-    def __init__(self, code: str, format: str) -> None:
+    def __init__(self, code: str, fmt: str) -> None:
         """Initialize the LogDef object.
 
             code (str): The code.
             format (str): The format.
         """
         self.code = code
-        self.format = parse.compile(format)
+        self.format = parse.compile(fmt)
 
 """A dictionary mapping from logdef code to logdef"""
 log_defs = {d.code: d for d in [
@@ -56,7 +56,7 @@ class StructuredLogger:
         self.newData: list[dict] = []
 
         atexit.register(self._exitHandler)
-        client.onLogMessage.subscribe(self._onLogMessage)
+        pub.subscribe(self._onLogMessage, "meshtastic.log.line")
 
     def getRawData(self) -> pd.DataFrame:
         """Get the raw data.
@@ -87,12 +87,12 @@ class StructuredLogger:
         logging.info(f"Storing slog in {fn}")
         self.getRawData().to_csv(fn)
 
-    def _onLogMessage(self, ev: Event) -> None:
+    def _onLogMessage(self, line: str, interface: MeshInterface) -> None:  # pylint: disable=unused-argument
         """Handle log messages.
 
-            ev (Event): The log event.
+            line (str): the line of log output
         """
-        m = log_regex.match(ev.message)
+        m = log_regex.match(line)
         if m:
             src = m.group(1)
             args = m.group(2)
@@ -110,6 +110,6 @@ class StructuredLogger:
                     self.newData.append(di)
                     self.getRawData()
                 else:
-                    logging.warning(f"Failed to parse slog {ev.message} with {d.format}")
+                    logging.warning(f"Failed to parse slog {line} with {d.format}")
             else:
-                logging.warning(f"Unknown Structured Log: {ev.message}")
+                logging.warning(f"Unknown Structured Log: {line}")

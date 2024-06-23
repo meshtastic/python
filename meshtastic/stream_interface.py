@@ -142,9 +142,6 @@ class StreamInterface(MeshInterface):
         else:
             self.cur_log_line += utf
 
-        if self.debugOut is not None:
-            self.debugOut.write(utf)
-
     def __reader(self):
         """The reader thread that reads bytes from our stream"""
         logging.debug("in __reader()")
