@@ -21,8 +21,8 @@ from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware, B
 from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
-from meshtastic.powermon import RidenPowerSupply, PPK2PowerSupply
-from meshtastic.slog import StructuredLogger
+from meshtastic.powermon import RidenPowerSupply, PPK2PowerSupply, SimPowerSupply
+from meshtastic.slog import LogSet
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -1090,21 +1090,26 @@ def common():
             # We assume client is fully connected now
             onConnected(client)
 
+            # Setup power meters
             meter = None # assume no power meter
             if args.power_riden:
                 meter = RidenPowerSupply(args.power_riden)
-            elif args.power_ppk2:
+            elif args.power_ppk2_supply or args.power_ppk2_meter:
                 meter = PPK2PowerSupply()
+                meter.setIsSupply(args.power_ppk2_supply)
+            elif args.power_sim:
+                meter = SimPowerSupply()
 
             if meter and args.power_voltage:
                 v = float(args.power_voltage)
-                if v < 1.0 or v >5.0:
+                if v < 0.5 or v >5.0:
                     meshtastic.util.our_exit("Voltage must be between 1.0 and 5.0")
                 logging.info(f"Setting power supply to {v} volts")
                 meter.v = v
                 meter.powerOn()
 
-            StructuredLogger(client, meter)
+            # Setup loggers
+            LogSet(client, meter)
 
             have_tunnel = platform.system() == "Linux"
             if (
@@ -1520,14 +1525,28 @@ def initParser():
         action="store_true",
     )
 
-    group.add_argument(
+    power_supply_group = group.add_mutually_exclusive_group()
+
+    power_supply_group.add_argument(
         "--power-riden",
         help="Talk to a Riden power-supply. You must specify the device path, i.e. /dev/ttyUSBxxx",
     )
 
-    group.add_argument(
-        "--power-ppk2",
-        help="Talk to a Nordic Power Profiler Kit 2",
+    power_supply_group.add_argument(
+        "--power-ppk2-meter",
+        help="Talk to a Nordic Power Profiler Kit 2 (in meter mode)",
+        action="store_true",
+    )
+
+    power_supply_group.add_argument(
+        "--power-ppk2-supply",
+        help="Talk to a Nordic Power Profiler Kit 2 (in supply mode)",
+        action="store_true",
+    )
+
+    power_supply_group.add_argument(
+        "--power-sim",
+        help="Use a simulated power meter (for development)",
         action="store_true",
     )
 

@@ -4,6 +4,7 @@
         "boardid",
         "Meshtastic",
         "powermon",
+        "pyarrow",
         "TORADIO",
         "Vids"
     ],

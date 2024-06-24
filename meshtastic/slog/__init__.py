@@ -1,3 +1,3 @@
-"""Structured logging framework (see dev docs for more info)"""
+"""Structured logging framework (see dev docs for more info)."""
 
-from .slog import StructuredLogger
+from .slog import LogSet
