@@ -24,8 +24,10 @@ import serial.tools.list_ports # type: ignore[import-untyped]
 from meshtastic.supported_device import supported_devices
 from meshtastic.version import get_active_version
 
-"""Some devices such as a seger jlink or st-link we never want to accidentally open"""
-blacklistVids = dict.fromkeys([0x1366, 0x0483])
+"""Some devices such as a seger jlink or st-link we never want to accidentally open
+0x1915 NordicSemi (PPK2)
+"""
+blacklistVids = dict.fromkeys([0x1366, 0x0483, 0x1915])
 
 """Some devices are highly likely to be meshtastic.
 0x239a RAK4631
