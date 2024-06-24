@@ -21,7 +21,7 @@ from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware, B
 from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
-from meshtastic.powermon import RidenPowerSupply
+from meshtastic.powermon import RidenPowerSupply, PPK2PowerSupply
 from meshtastic.slog import StructuredLogger
 
 def onReceive(packet, interface):
@@ -1093,6 +1093,16 @@ def common():
             meter = None # assume no power meter
             if args.power_riden:
                 meter = RidenPowerSupply(args.power_riden)
+            elif args.power_ppk2:
+                meter = PPK2PowerSupply()
+
+            if meter and args.power_voltage:
+                v = float(args.power_voltage)
+                if v < 1.0 or v >5.0:
+                    meshtastic.util.our_exit("Voltage must be between 1.0 and 5.0")
+                logging.info(f"Setting power supply to {v} volts")
+                meter.v = v
+                meter.powerOn()
 
             StructuredLogger(client, meter)
 
@@ -1519,6 +1529,11 @@ def initParser():
         "--power-ppk2",
         help="Talk to a Nordic Power Profiler Kit 2",
         action="store_true",
+    )
+
+    group.add_argument(
+        "--power-voltage",
+        help="Set the specified voltage on the power-supply. Be VERY careful, you can burn things up.",
     )
 
     group.add_argument(

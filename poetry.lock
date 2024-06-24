@@ -929,6 +929,20 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "ppk2-api"
+version = "0.9.2"
+description = "API for Nordic Semiconductor's Power Profiler Kit II (PPK 2)."
+optional = false
+python-versions = "*"
+files = [
+    {file = "ppk2-api-0.9.2.tar.gz", hash = "sha256:e8fb29f782ba6e5bd2e0286079163c495cfffce336f9b149430348c043b25300"},
+    {file = "ppk2_api-0.9.2-py3-none-any.whl", hash = "sha256:b7fb02156f87d8430bbce0006876d38c8309ada671fbcd15848173b431198803"},
+]
+
+[package.dependencies]
+pyserial = "*"
+
+[[package]]
 name = "protobuf"
 version = "5.27.1"
 description = ""
@@ -1794,4 +1808,4 @@ tunnel = []
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.13"
-content-hash = "cc81bcd3e4671bde3375f2f08334d6a3b87b38c97f2676d7266cab980082659e"
+content-hash = "7719c01f112a7864acdec0a82e7131aa33a646d84459cc0cc6db0eadf94933c7"
