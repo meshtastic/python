@@ -20,6 +20,9 @@ class PowerMeter:
         self.prevPowerTime = datetime.now()
         self.prevWattHour = self._getRawWattHour()
 
+    def close(self) -> None:
+        """Close the power meter."""
+
     def getAverageWatts(self) -> float:
         """Get watts consumed since last call to this method."""
         now = datetime.now()

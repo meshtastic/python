@@ -37,6 +37,11 @@ class PPK2PowerSupply(PowerSupply):
 
         super().__init__()  # we call this late so that the port is already open and _getRawWattHour callback works
 
+    def close(self) -> None:
+        """Close the power meter."""
+        self.r.stop_measuring()
+        super().close()
+
     def setIsSupply(self, s: bool):
         """If in supply mode we will provide power ourself, otherwise we are just an amp meter."""
         if (

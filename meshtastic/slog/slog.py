@@ -73,6 +73,7 @@ class PowerLogger:
     def close(self) -> None:
         """Close the PowerLogger and stop logging."""
         if self.is_logging:
+            self.pMeter.close()
             self.is_logging = False
             self.thread.join()
             self.writer.close()
