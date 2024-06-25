@@ -93,9 +93,9 @@ class StructuredLogger:
         """
         self.client = client
         self.writer = ArrowWriter(f"{dir_path}/slog.arrow")
-        self.raw_file = open(
+        self.raw_file = open(  # pylint: disable=consider-using-with
             f"{dir_path}/raw.txt", "w", encoding="utf8"
-        ) # pylint: disable=consider-using-with
+        )
         self.listener = pub.subscribe(self._onLogMessage, TOPIC_MESHTASTIC_LOG_LINE)
 
     def close(self) -> None:
@@ -105,8 +105,8 @@ class StructuredLogger:
         self.raw_file.close()  # Close the raw.txt file
 
     def _onLogMessage(
-        self, line: str, interface: MeshInterface
-    ) -> None:  # pylint: disable=unused-argument
+        self, line: str, interface: MeshInterface  # pylint: disable=unused-argument
+    ) -> None:
         """Handle log messages.
 
         line (str): the line of log output
