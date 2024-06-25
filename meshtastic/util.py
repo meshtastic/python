@@ -266,9 +266,10 @@ class Acknowledgment:
 class DeferredExecution:
     """A thread that accepts closures to run, and runs them as they are received"""
 
-    def __init__(self, name=None):
+    def __init__(self, name):
         self.queue = Queue()
-        self.thread = threading.Thread(target=self._run, args=(), name=name)
+        # this thread must be marked as daemon, otherwise it will prevent clients from exiting
+        self.thread = threading.Thread(target=self._run, args=(), name=name, daemon=True)
         self.thread.daemon = True
         self.thread.start()
 
