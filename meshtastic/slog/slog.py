@@ -162,12 +162,17 @@ class LogSet:
         else:
             self.power_logger = None
 
+        # Store a lambda so we can find it again to unregister
+        self.atexit_handler = lambda: self.close()
         atexit.register(self.close)
 
     def close(self) -> None:
         """Close the log set."""
 
-        logging.info(f"Closing slogs in {self.dir_name}")
-        self.slog_logger.close()
-        if self.power_logger:
-            self.power_logger.close()
+        if self.slog_logger:
+            logging.info(f"Closing slogs in {self.dir_name}")
+            atexit.unregister(self.atexit_handler)  # docs say it will silently ignore if not found
+            self.slog_logger.close()
+            if self.power_logger:
+                self.power_logger.close()
+            self.slog_logger = None

@@ -1108,9 +1108,10 @@ def common():
                 meter.v = v
                 meter.powerOn()
 
+            log_set = None
             if args.slog_out:
                 # Setup loggers
-                LogSet(client, args.slog_out if args.slog_out != 'default' else None, meter)
+                log_set = LogSet(client, args.slog_out if args.slog_out != 'default' else None, meter)
 
             have_tunnel = platform.system() == "Linux"
             if (
@@ -1121,6 +1122,9 @@ def common():
                         time.sleep(1000)
                 except KeyboardInterrupt:
                     logging.info("Exiting due to keyboard interrupt")
+
+            if log_set:
+                log_set.close()
 
         # don't call exit, background threads might be running still
         # sys.exit(0)
