@@ -23,6 +23,8 @@ class RidenPowerSupply(PowerSupply):
             f"Connected to Riden power supply: model {r.type}, sn {r.sn}, firmware {r.fw}. Date/time updated."
         )
         r.set_date_time(datetime.now())
+        self.prevWattHour = self._getRawWattHour()
+        self.nowWattHour = self.prevWattHour
         super().__init__()  # we call this late so that the port is already open and _getRawWattHour callback works
 
     def setMaxCurrent(self, i: float):
@@ -35,6 +37,19 @@ class RidenPowerSupply(PowerSupply):
             self.v
         )  # my WM1110 devboard header is directly connected to the 3.3V rail
         self.r.set_output(1)
+
+    def get_average_current_mA(self) -> float:
+        """Returns average current of last measurement in mA (since last call to this method)"""
+        now = datetime.now()
+        nowWattHour = self._getRawWattHour()
+        watts = (
+            (nowWattHour - self.prevWattHour)
+            / (now - self.prevPowerTime).total_seconds()
+            * 3600
+        )
+        self.prevPowerTime = now
+        self.prevWattHour = nowWattHour
+        return watts / 1000
 
     def _getRawWattHour(self) -> float:
         """Get the current watt-hour reading."""

@@ -18,27 +18,26 @@ class PowerMeter:
     def __init__(self):
         """Initialize the PowerMeter object."""
         self.prevPowerTime = datetime.now()
-        self.prevWattHour = self._getRawWattHour()
 
     def close(self) -> None:
         """Close the power meter."""
 
-    def getAverageWatts(self) -> float:
-        """Get watts consumed since last call to this method."""
-        now = datetime.now()
-        nowWattHour = self._getRawWattHour()
-        watts = (
-            (nowWattHour - self.prevWattHour)
-            / (now - self.prevPowerTime).total_seconds()
-            * 3600
-        )
-        self.prevPowerTime = now
-        self.prevWattHour = nowWattHour
-        return watts
-
-    def _getRawWattHour(self) -> float:
-        """Get the current watt-hour reading (without any offset correction)."""
+    def get_average_current_mA(self) -> float:
+        """Returns average current of last measurement in mA (since last call to this method)"""
         return math.nan
+
+    def get_min_current_mA(self):
+        """Returns max current in mA (since last call to this method)."""
+        # Subclasses must override for a better implementation
+        return self.get_average_current_mA()
+
+    def get_max_current_mA(self):
+        """Returns max current in mA (since last call to this method)."""
+        # Subclasses must override for a better implementation
+        return self.get_average_current_mA()
+
+    def reset_measurements(self):
+        """Reset current measurements."""
 
 
 class PowerSupply(PowerMeter):

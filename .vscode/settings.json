@@ -3,6 +3,7 @@
         "bitmask",
         "boardid",
         "Meshtastic",
+        "milliwatt",
         "powermon",
         "pyarrow",
         "TORADIO",

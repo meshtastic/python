@@ -65,8 +65,13 @@ class PowerLogger:
     def _logging_thread(self) -> None:
         """Background thread for logging the current watts reading."""
         while self.is_logging:
-            watts = self.pMeter.getAverageWatts()
-            d = {"time": datetime.now(), "watts": watts}
+            d = {
+                "time": datetime.now(),
+                "average_mW": self.pMeter.get_average_current_mA(),
+                "max_mW": self.pMeter.get_max_current_mA(),
+                "min_mW": self.pMeter.get_min_current_mA(),
+            }
+            self.pMeter.reset_measurements()
             self.writer.add_row(d)
             time.sleep(self.interval)
 
@@ -164,7 +169,9 @@ class LogSet:
 
         logging.info(f"Writing slogs to {dir_name}")
 
-        self.slog_logger: Optional[StructuredLogger] = StructuredLogger(client, self.dir_name)
+        self.slog_logger: Optional[StructuredLogger] = StructuredLogger(
+            client, self.dir_name
+        )
         self.power_logger: Optional[PowerLogger] = (
             None
             if not power_meter
