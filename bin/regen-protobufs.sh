@@ -4,6 +4,9 @@
 #gsed -i 's/import "\//import ".\//g' ./protobufs/meshtastic/*
 #gsed -i 's/package meshtastic;//g' ./protobufs/meshtastic/*
 
+# protoc looks for mypy plugin in the python path
+source $(poetry env info --path)/bin/activate
+
 ./nanopb-0.4.6/generator-bin/protoc -I=protobufs --python_out ./ --mypy_out ./ ./protobufs/meshtastic/*.proto
 ./nanopb-0.4.6/generator-bin/protoc -I=protobufs --python_out ./meshtastic/ --mypy_out ./meshtastic/ ./protobufs/nanopb.proto
 
