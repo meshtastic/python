@@ -42,7 +42,7 @@ class StreamInterface(MeshInterface):
         self.cur_log_line = ""
 
         # FIXME, figure out why daemon=True causes reader thread to exit too early
-        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
+        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True, name="stream reader")
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto, noNodes=noNodes)
 
