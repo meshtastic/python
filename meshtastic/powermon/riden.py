@@ -4,7 +4,9 @@ import logging
 from datetime import datetime
 
 from riden import Riden
+
 from .power_supply import PowerSupply
+
 
 class RidenPowerSupply(PowerSupply):
     """Interface for talking to Riden programmable bench-top power supplies.
@@ -14,14 +16,14 @@ class RidenPowerSupply(PowerSupply):
     def __init__(self, portName: str = "/dev/ttyUSB0"):
         """Initialize the RidenPowerSupply object.
 
-            portName (str, optional): The port name of the power supply. Defaults to "/dev/ttyUSB0".
+        portName (str, optional): The port name of the power supply. Defaults to "/dev/ttyUSB0".
         """
         self.r = r = Riden(port=portName, baudrate=115200, address=1)
         logging.info(
             f"Connected to Riden power supply: model {r.type}, sn {r.sn}, firmware {r.fw}. Date/time updated."
         )
         r.set_date_time(datetime.now())
-        super().__init__() # we call this late so that the port is already open and _getRawWattHour callback works
+        super().__init__()  # we call this late so that the port is already open and _getRawWattHour callback works
 
     def setMaxCurrent(self, i: float):
         """Set the maximum current the supply will provide."""
@@ -29,7 +31,9 @@ class RidenPowerSupply(PowerSupply):
 
     def powerOn(self):
         """Power on the supply, with reasonable defaults for meshtastic devices."""
-        self.r.set_v_set(self.v)  # my WM1110 devboard header is directly connected to the 3.3V rail
+        self.r.set_v_set(
+            self.v
+        )  # my WM1110 devboard header is directly connected to the 3.3V rail
         self.r.set_output(1)
 
     def _getRawWattHour(self) -> float:

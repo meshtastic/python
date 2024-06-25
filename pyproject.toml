@@ -23,9 +23,10 @@ pypubsub = "^4.0.3"
 bleak = "^0.21.1"
 packaging = "^24.0"
 riden = { git = "https://github.com/geeksville/riden.git#1.2.1" }
-pandas = "^2.2.2"
 parse = "^1.20.2"
 ppk2-api = "^0.9.2"
+pyarrow = "^16.1.0"
+pyarrow-stubs = "^10.0.1.7"
 
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.103.2"
