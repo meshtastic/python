@@ -1,3 +1,5 @@
+"""Utilities for Apache Arrow serialization."""
+
 import pyarrow as pa
 
 chunk_size = 1000  # disk writes are batched based on this number of rows

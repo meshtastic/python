@@ -2,10 +2,10 @@
 
 import atexit
 import logging
+import os
 import re
 import threading
 import time
-import os
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
@@ -18,7 +18,6 @@ from meshtastic.mesh_interface import MeshInterface
 from meshtastic.powermon import PowerMeter
 
 from .arrow import ArrowWriter
-import os
 
 
 @dataclass(init=False)
@@ -58,7 +57,9 @@ class PowerLogger:
         self.writer = ArrowWriter(file_path)
         self.interval = interval
         self.is_logging = True
-        self.thread = threading.Thread(target=self._logging_thread, name="PowerLogger", daemon=True)
+        self.thread = threading.Thread(
+            target=self._logging_thread, name="PowerLogger", daemon=True
+        )
         self.thread.start()
 
     def _logging_thread(self) -> None:
@@ -92,10 +93,9 @@ class StructuredLogger:
         """
         self.client = client
         self.writer = ArrowWriter(f"{dir_path}/slog.arrow")
-        # trunk-ignore(pylint/R1732)
         self.raw_file = open(
             f"{dir_path}/raw.txt", "w", encoding="utf8"
-        )
+        ) # pylint: disable=consider-using-with
         self.listener = pub.subscribe(self._onLogMessage, TOPIC_MESHTASTIC_LOG_LINE)
 
     def close(self) -> None:
@@ -163,15 +163,16 @@ class LogSet:
             self.power_logger = None
 
         # Store a lambda so we can find it again to unregister
-        self.atexit_handler = lambda: self.close()
-        atexit.register(self.close)
+        self.atexit_handler = lambda: self.close()  # pylint: disable=unnecessary-lambda
 
     def close(self) -> None:
         """Close the log set."""
 
         if self.slog_logger:
             logging.info(f"Closing slogs in {self.dir_name}")
-            atexit.unregister(self.atexit_handler)  # docs say it will silently ignore if not found
+            atexit.unregister(
+                self.atexit_handler
+            )  # docs say it will silently ignore if not found
             self.slog_logger.close()
             if self.power_logger:
                 self.power_logger.close()

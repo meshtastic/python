@@ -2,9 +2,8 @@
 
 import math
 import time
-from typing import *
 
-from .power_supply import PowerError, PowerSupply
+from .power_supply import PowerSupply
 
 
 class SimPowerSupply(PowerSupply):

@@ -1,7 +1,7 @@
 """code logging power consumption of meshtastic devices."""
 
 import logging
-from typing import *
+from typing import Optional
 
 from ppk2_api import ppk2_api
 
@@ -56,5 +56,3 @@ class PPK2PowerSupply(PowerSupply):
     def powerOff(self):
         """Power off the supply."""
         self.r.toggle_DUT_power("OFF")
-
-
