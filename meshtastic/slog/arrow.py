@@ -13,7 +13,7 @@ class ArrowWriter:
 
         file_name (str): The name of the file to write to.
         """
-        self.sink = pa.OSFile(file_name, "wb")
+        self.sink = pa.OSFile(file_name, "wb")  # type: ignore
         self.new_rows: list[dict] = []
         self.schema: pa.Schema | None = None  # haven't yet learned the schema
         self.writer: pa.RecordBatchFileWriter | None = None

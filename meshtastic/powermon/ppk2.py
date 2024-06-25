@@ -1,9 +1,9 @@
-"""code logging power consumption of meshtastic devices."""
+"""Classes for logging power consumption of meshtastic devices."""
 
 import logging
 from typing import Optional
 
-from ppk2_api import ppk2_api
+from ppk2_api import ppk2_api  # type: ignore[import-untyped]
 
 from .power_supply import PowerError, PowerSupply
 

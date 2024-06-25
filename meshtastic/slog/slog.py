@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
-import parse
+import parse  # type: ignore[import-untyped]
 import platformdirs
 from pubsub import pub  # type: ignore[import-untyped]
 
@@ -25,7 +25,7 @@ class LogDef:
     """Log definition."""
 
     code: str  # i.e. PM or B or whatever... see meshtastic slog documentation
-    format: str  # A format string that can be used to parse the arguments
+    format: parse.Parser  # A format string that can be used to parse the arguments
 
     def __init__(self, code: str, fmt: str) -> None:
         """Initialize the LogDef object.
@@ -138,7 +138,7 @@ class LogSet:
         self,
         client: MeshInterface,
         dir_name: Optional[str] = None,
-        power_meter: PowerMeter = None,
+        power_meter: Optional[PowerMeter] = None,
     ) -> None:
         """Initialize the PowerMonClient object.
 
@@ -156,11 +156,12 @@ class LogSet:
 
         logging.info(f"Writing slogs to {dir_name}")
 
-        self.slog_logger = StructuredLogger(client, self.dir_name)
-        if power_meter:
-            self.power_logger = PowerLogger(power_meter, f"{self.dir_name}/power.arrow")
-        else:
-            self.power_logger = None
+        self.slog_logger: Optional[StructuredLogger] = StructuredLogger(client, self.dir_name)
+        self.power_logger: Optional[PowerLogger] = (
+            None
+            if not power_meter
+            else PowerLogger(power_meter, f"{self.dir_name}/power.arrow")
+        )
 
         # Store a lambda so we can find it again to unregister
         self.atexit_handler = lambda: self.close()  # pylint: disable=unnecessary-lambda

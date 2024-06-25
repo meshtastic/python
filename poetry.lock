@@ -1746,4 +1746,4 @@ tunnel = []
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.13"
-content-hash = "b42cdca565b7cbe0ba16405328144b06cd8394d64cb41dac4def2c68d1f1e4b4"
+content-hash = "ad12848e1311886733ea3205795e49e405c2012e9dcff2df6e926ef1cd1dd4b0"
