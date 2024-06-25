@@ -985,9 +985,33 @@ def export_config(interface):
     print(config)
     return config
 
+def create_power_meter():
+    """Setup the power meter."""
+
+    args = mt_config.args
+    meter = None # assume no power meter
+    if args.power_riden:
+        meter = RidenPowerSupply(args.power_riden)
+    elif args.power_ppk2_supply or args.power_ppk2_meter:
+        meter = PPK2PowerSupply()
+        meter.setIsSupply(args.power_ppk2_supply)
+    elif args.power_sim:
+        meter = SimPowerSupply()
+
+    if meter and args.power_voltage:
+        v = float(args.power_voltage)
+        if v < 0.5 or v >5.0:
+            meshtastic.util.our_exit("Voltage must be between 1.0 and 5.0")
+        logging.info(f"Setting power supply to {v} volts")
+        meter.v = v
+        meter.powerOn()
+
+        if args.power_wait:
+            input("Powered on, press enter to continue...")
+    return meter
 
 def common():
-    """Shared code for all of our command line wrappers"""
+    """Shared code for all of our command line wrappers."""
     logfile = None
     args = mt_config.args
     parser = mt_config.parser
@@ -1003,6 +1027,8 @@ def common():
         if args.support:
             meshtastic.util.support_info()
             meshtastic.util.our_exit("", 0)
+
+        meter = create_power_meter()
 
         if args.ch_index is not None:
             channelIndex = int(args.ch_index)
@@ -1092,24 +1118,6 @@ def common():
 
             # We assume client is fully connected now
             onConnected(client)
-
-            # Setup power meters
-            meter = None # assume no power meter
-            if args.power_riden:
-                meter = RidenPowerSupply(args.power_riden)
-            elif args.power_ppk2_supply or args.power_ppk2_meter:
-                meter = PPK2PowerSupply()
-                meter.setIsSupply(args.power_ppk2_supply)
-            elif args.power_sim:
-                meter = SimPowerSupply()
-
-            if meter and args.power_voltage:
-                v = float(args.power_voltage)
-                if v < 0.5 or v >5.0:
-                    meshtastic.util.our_exit("Voltage must be between 1.0 and 5.0")
-                logging.info(f"Setting power supply to {v} volts")
-                meter.v = v
-                meter.powerOn()
 
             log_set = None
             if args.slog_out:
@@ -1533,7 +1541,9 @@ def initParser():
         action="store_true",
     )
 
-    power_supply_group = group.add_mutually_exclusive_group()
+    power_group = parser.add_argument_group('Power Testing', 'Options for power testing/logging.')
+
+    power_supply_group = power_group.add_mutually_exclusive_group()
 
     power_supply_group.add_argument(
         "--power-riden",
@@ -1558,21 +1568,28 @@ def initParser():
         action="store_true",
     )
 
-    group.add_argument(
+    power_group.add_argument(
         "--power-voltage",
         help="Set the specified voltage on the power-supply. Be VERY careful, you can burn things up.",
     )
 
-    group.add_argument(
+    power_group.add_argument(
         "--power-stress",
         help="Perform power monitor stress testing, to capture a power consumption profile for the device (also requires --power-mon)",
         action="store_true",
     )
 
-    group.add_argument(
+    power_group.add_argument(
+        "--power-wait",
+        help="Prompt the user to wait for device reset before looking for device serial ports (some boards kill power to USB serial port)",
+        action="store_true",
+    )
+
+    power_group.add_argument(
         "--slog-out",
         help="A directory to store structured logging to, or 'default' for automatically selected.",
     )
+
     group.add_argument(
         "--ble-scan",
         help="Scan for Meshtastic BLE devices",

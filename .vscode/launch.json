@@ -180,7 +180,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": false,
-      "args": ["--slog-out", "default", "--power-ppk2-meter", "--power-voltage", "3.3", "--port", "/dev/ttyUSB0", "--noproto", "--seriallog", "stdout"]
+      "args": ["--slog-out", "default", "--power-ppk2-meter", "--power-wait", "--power-voltage", "3.3", "--noproto", "--seriallog", "stdout"]
     },
     {
       "name": "meshtastic test",
