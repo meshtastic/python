@@ -5,16 +5,20 @@ import logging
 import re
 import threading
 import time
+import os
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
 import parse
+import platformdirs
 from pubsub import pub  # type: ignore[import-untyped]
 
 from meshtastic.mesh_interface import MeshInterface
 from meshtastic.powermon import PowerMeter
 
 from .arrow import ArrowWriter
+import os
 
 
 @dataclass(init=False)
@@ -54,13 +58,13 @@ class PowerLogger:
         self.writer = ArrowWriter(file_path)
         self.interval = interval
         self.is_logging = True
-        self.thread = threading.Thread(target=self._logging_thread, name="PowerLogger")
+        self.thread = threading.Thread(target=self._logging_thread, name="PowerLogger", daemon=True)
         self.thread.start()
 
     def _logging_thread(self) -> None:
         """Background thread for logging the current watts reading."""
         while self.is_logging:
-            watts = self.pMeter.getWatts()
+            watts = self.pMeter.getAverageWatts()
             d = {"time": datetime.now(), "watts": watts}
             self.writer.add_row(d)
             time.sleep(self.interval)
@@ -72,26 +76,33 @@ class PowerLogger:
             self.thread.join()
             self.writer.close()
 
+
 # FIXME move these defs somewhere else
 TOPIC_MESHTASTIC_LOG_LINE = "meshtastic.log.line"
 
+
 class StructuredLogger:
-    """Sniffs device logs for structured log messages, extracts those into pandas/CSV format."""
+    """Sniffs device logs for structured log messages, extracts those into apache arrow format.
+    Also writes the raw log messages to raw.txt"""
 
-    def __init__(self, client: MeshInterface, file_path: str) -> None:
-        """Initialize the PowerMonClient object.
+    def __init__(self, client: MeshInterface, dir_path: str) -> None:
+        """Initialize the StructuredLogger object.
 
-        power (PowerSupply): The power supply object.
         client (MeshInterface): The MeshInterface object to monitor.
         """
         self.client = client
-        self.writer = ArrowWriter(file_path)
+        self.writer = ArrowWriter(f"{dir_path}/slog.arrow")
+        # trunk-ignore(pylint/R1732)
+        self.raw_file = open(
+            f"{dir_path}/raw.txt", "w", encoding="utf8"
+        )
         self.listener = pub.subscribe(self._onLogMessage, TOPIC_MESHTASTIC_LOG_LINE)
 
     def close(self) -> None:
         """Stop logging."""
         pub.unsubscribe(self.listener, TOPIC_MESHTASTIC_LOG_LINE)
         self.writer.close()
+        self.raw_file.close()  # Close the raw.txt file
 
     def _onLogMessage(
         self, line: str, interface: MeshInterface
@@ -104,7 +115,6 @@ class StructuredLogger:
         if m:
             src = m.group(1)
             args = m.group(2)
-
             args += " "  # append a space so that if the last arg is an empty str it will still be accepted as a match
             logging.debug(f"SLog {src}, reason: {args}")
             d = log_defs.get(src)
@@ -118,35 +128,46 @@ class StructuredLogger:
                     logging.warning(f"Failed to parse slog {line} with {d.format}")
             else:
                 logging.warning(f"Unknown Structured Log: {line}")
+        self.raw_file.write(line + "\n")  # Write the raw log
 
 
 class LogSet:
     """A complete set of meshtastic log/metadata for a particular run."""
 
-    def __init__(self, client: MeshInterface, power_meter: PowerMeter = None) -> None:
+    def __init__(
+        self,
+        client: MeshInterface,
+        dir_name: Optional[str] = None,
+        power_meter: PowerMeter = None,
+    ) -> None:
         """Initialize the PowerMonClient object.
 
         power (PowerSupply): The power supply object.
         client (MeshInterface): The MeshInterface object to monitor.
         """
-        self.dir_name = "/tmp"  # FIXME
 
-        self.slog_logger = StructuredLogger(client, f"{self.dir_name}/slog.arrow")
+        if not dir_name:
+            app_name = "meshtastic"
+            app_author = "meshtastic"
+            app_dir = platformdirs.user_data_dir(app_name, app_author)
+            dir_name = f"{app_dir}/slogs/{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+            os.makedirs(dir_name, exist_ok=True)
+        self.dir_name = dir_name
+
+        logging.info(f"Writing slogs to {dir_name}")
+
+        self.slog_logger = StructuredLogger(client, self.dir_name)
         if power_meter:
             self.power_logger = PowerLogger(power_meter, f"{self.dir_name}/power.arrow")
         else:
             self.power_logger = None
 
-        atexit.register(self._exitHandler)
+        atexit.register(self.close)
 
     def close(self) -> None:
         """Close the log set."""
 
-        logging.info(f"Storing slog in {self.dir_name}")
+        logging.info(f"Closing slogs in {self.dir_name}")
         self.slog_logger.close()
         if self.power_logger:
             self.power_logger.close()
-
-    def _exitHandler(self) -> None:
-        """Exit handler."""
-        self.close()

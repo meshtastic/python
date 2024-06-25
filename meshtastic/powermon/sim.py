@@ -10,7 +10,7 @@ from .power_supply import PowerError, PowerSupply
 class SimPowerSupply(PowerSupply):
     """A simulated power supply for testing."""
 
-    def getWatts(self) -> float:
+    def getAverageWatts(self) -> float:
         """Get the total amount of power that is currently being consumed."""
 
         # Sim a 20mW load that varies sinusoidally

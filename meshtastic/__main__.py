@@ -1108,8 +1108,9 @@ def common():
                 meter.v = v
                 meter.powerOn()
 
-            # Setup loggers
-            LogSet(client, meter)
+            if args.slog_out:
+                # Setup loggers
+                LogSet(client, args.slog_out if args.slog_out != 'default' else None, meter)
 
             have_tunnel = platform.system() == "Linux"
             if (
@@ -1561,6 +1562,10 @@ def initParser():
         action="store_true",
     )
 
+    group.add_argument(
+        "--slog-out",
+        help="A directory to store structured logging to, or 'default' for automatically selected.",
+    )
     group.add_argument(
         "--ble-scan",
         help="Scan for Meshtastic BLE devices",

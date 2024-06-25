@@ -57,6 +57,4 @@ class PPK2PowerSupply(PowerSupply):
         """Power off the supply."""
         self.r.toggle_DUT_power("OFF")
 
-    def _getRawWattHour(self) -> float:
-        """Get the current watt-hour reading."""
-        return 4  # FIXME
+

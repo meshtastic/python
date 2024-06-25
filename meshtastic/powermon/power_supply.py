@@ -20,8 +20,8 @@ class PowerMeter:
         self.prevPowerTime = datetime.now()
         self.prevWattHour = self._getRawWattHour()
 
-    def getWatts(self) -> float:
-        """Get the total amount of power that is currently being consumed."""
+    def getAverageWatts(self) -> float:
+        """Get watts consumed since last call to this method."""
         now = datetime.now()
         nowWattHour = self._getRawWattHour()
         watts = (
