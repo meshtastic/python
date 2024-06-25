@@ -152,6 +152,13 @@ class LogSet:
             app_dir = platformdirs.user_data_dir(app_name, app_author)
             dir_name = f"{app_dir}/slogs/{datetime.now().strftime('%Y%m%d-%H%M%S')}"
             os.makedirs(dir_name, exist_ok=True)
+
+            # Also make a 'latest' directory that always points to the most recent logs
+            # symlink might fail on some platforms, if it does fail silently
+            if os.path.exists(f"{app_dir}/slogs/latest"):
+                os.unlink(f"{app_dir}/slogs/latest")
+            os.symlink(dir_name, f"{app_dir}/slogs/latest", target_is_directory=True)
+
         self.dir_name = dir_name
 
         logging.info(f"Writing slogs to {dir_name}")
