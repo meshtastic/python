@@ -76,7 +76,7 @@ from typing import *
 
 import google.protobuf.json_format
 import serial # type: ignore[import-untyped]
-import timeago # type: ignore[import-untyped]
+from dotmap import DotMap # type: ignore[import-untyped]
 from google.protobuf.json_format import MessageToJson
 from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
