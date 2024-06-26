@@ -688,6 +688,7 @@ def test_waitConnected_isConnected_timeout(capsys):
 
 @pytest.mark.unit
 def test_timeago():
+    """Test that the _timeago function returns sane values"""
     assert _timeago(0) == "now"
     assert _timeago(1) == "1 sec ago"
     assert _timeago(15) == "15 secs ago"
