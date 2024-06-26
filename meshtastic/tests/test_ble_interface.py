@@ -15,7 +15,7 @@ def test_ble_client_no_addr_logs_message(caplog):
     test_ble_client = BLEClient(address=None)
     test_ble_client.close()
     assert "No address provided - only discover method will work." in caplog.text
-    
+
 
 def test_ble_interface_no_addr_returns_only_basic_object():
     """
@@ -36,5 +36,5 @@ def test_ble_interface_bogus_addr_exits_process():
     exist, we should exit the process
     """
     with pytest.raises(SystemExit) as exc:
-        test_ble_int = BLEInterface(address="bogus")
+        BLEInterface(address="bogus")
     assert exc.value.code == 1
