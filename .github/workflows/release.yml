@@ -152,31 +152,31 @@ jobs:
           asset_name: readme.txt
           asset_content_type: text/plain
 
-  build-and-publish-windows:
-    runs-on: windows-latest
-    needs: release_create
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.release_create.outputs.new_sha }}
+  # build-and-publish-windows:
+  #   runs-on: windows-latest
+  #   needs: release_create
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         ref: ${{ needs.release_create.outputs.new_sha }}
 
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
+  #     - name: Set up Python 3.9
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: "3.9"
 
-      - name: Build
-        run: |
-          pip install poetry
-          bin/build-bin.sh
+  #     - name: Build
+  #       run: |
+  #         pip install poetry
+  #         bin/build-bin.sh
 
-      - name: Add windows to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.release_create.outputs.upload_url }}
-          asset_path: dist/meshtastic.exe
-          asset_name: meshtastic_windows
-          asset_content_type: application/zip
+  #     - name: Add windows to release
+  #       uses: actions/upload-release-asset@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ needs.release_create.outputs.upload_url }}
+  #         asset_path: dist/meshtastic.exe
+  #         asset_name: meshtastic_windows
+  #         asset_content_type: application/zip
