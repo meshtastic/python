@@ -121,6 +121,14 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     WIO Tracker WM1110 family from Seeed Studio. Includes wio-1110-tracker and wio-1110-sdk
     """
+    RAK2560: _HardwareModel.ValueType  # 22
+    """
+    RAK2560 Solar base station based on RAK4630
+    """
+    HELTEC_HRU_3601: _HardwareModel.ValueType  # 23
+    """
+    Heltec HRU-3601: https://heltec.org/project/hru-3601/
+    """
     STATION_G1: _HardwareModel.ValueType  # 25
     """
     B&Q Consulting Station Edition G1: https://uniteng.com/wiki/doku.php?id=meshtastic:station
@@ -295,6 +303,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     RadioMaster 900 Bandit Nano, https://www.radiomasterrc.com/products/bandit-nano-expresslrs-rf-module
     ESP32-D0WDQ6 With SX1276/SKY66122, SSD1306 OLED and No GPS
     """
+    HELTEC_CAPSULE_SENSOR_V3: _HardwareModel.ValueType  # 65
+    """
+    Heltec Capsule Sensor V3 with ESP32-S3 CPU, Portable LoRa device that can replace GNSS modules or sensors
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -399,6 +411,14 @@ wiphone https://www.wiphone.io/
 WIO_WM1110: HardwareModel.ValueType  # 21
 """
 WIO Tracker WM1110 family from Seeed Studio. Includes wio-1110-tracker and wio-1110-sdk
+"""
+RAK2560: HardwareModel.ValueType  # 22
+"""
+RAK2560 Solar base station based on RAK4630
+"""
+HELTEC_HRU_3601: HardwareModel.ValueType  # 23
+"""
+Heltec HRU-3601: https://heltec.org/project/hru-3601/
 """
 STATION_G1: HardwareModel.ValueType  # 25
 """
@@ -573,6 +593,10 @@ RADIOMASTER_900_BANDIT_NANO: HardwareModel.ValueType  # 64
 """
 RadioMaster 900 Bandit Nano, https://www.radiomasterrc.com/products/bandit-nano-expresslrs-rf-module
 ESP32-D0WDQ6 With SX1276/SKY66122, SSD1306 OLED and No GPS
+"""
+HELTEC_CAPSULE_SENSOR_V3: HardwareModel.ValueType  # 65
+"""
+Heltec Capsule Sensor V3 with ESP32-S3 CPU, Portable LoRa device that can replace GNSS modules or sensors
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
@@ -2034,6 +2058,7 @@ class FromRadio(google.protobuf.message.Message):
     XMODEMPACKET_FIELD_NUMBER: builtins.int
     METADATA_FIELD_NUMBER: builtins.int
     MQTTCLIENTPROXYMESSAGE_FIELD_NUMBER: builtins.int
+    FILEINFO_FIELD_NUMBER: builtins.int
     id: builtins.int
     """
     The packet id, used to allow the phone to request missing read packets from the FIFO,
@@ -2121,6 +2146,12 @@ class FromRadio(google.protobuf.message.Message):
         MQTT Client Proxy Message (device sending to client / phone for publishing to MQTT)
         """
 
+    @property
+    def fileInfo(self) -> global___FileInfo:
+        """
+        File system manifest messages
+        """
+
     def __init__(
         self,
         *,
@@ -2138,12 +2169,41 @@ class FromRadio(google.protobuf.message.Message):
         xmodemPacket: meshtastic.protobuf.xmodem_pb2.XModem | None = ...,
         metadata: global___DeviceMetadata | None = ...,
         mqttClientProxyMessage: global___MqttClientProxyMessage | None = ...,
+        fileInfo: global___FileInfo | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["channel", b"channel", "config", b"config", "config_complete_id", b"config_complete_id", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel", b"channel", "config", b"config", "config_complete_id", b"config_complete_id", "id", b"id", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["packet", "my_info", "node_info", "config", "log_record", "config_complete_id", "rebooted", "moduleConfig", "channel", "queueStatus", "xmodemPacket", "metadata", "mqttClientProxyMessage"] | None: ...
+    def HasField(self, field_name: typing.Literal["channel", b"channel", "config", b"config", "config_complete_id", b"config_complete_id", "fileInfo", b"fileInfo", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["channel", b"channel", "config", b"config", "config_complete_id", b"config_complete_id", "fileInfo", b"fileInfo", "id", b"id", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["packet", "my_info", "node_info", "config", "log_record", "config_complete_id", "rebooted", "moduleConfig", "channel", "queueStatus", "xmodemPacket", "metadata", "mqttClientProxyMessage", "fileInfo"] | None: ...
 
 global___FromRadio = FromRadio
+
+@typing.final
+class FileInfo(google.protobuf.message.Message):
+    """
+    Individual File info for the device
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    FILE_NAME_FIELD_NUMBER: builtins.int
+    SIZE_BYTES_FIELD_NUMBER: builtins.int
+    file_name: builtins.str
+    """
+    The fully qualified path of the file
+    """
+    size_bytes: builtins.int
+    """
+    The size of the file in bytes
+    """
+    def __init__(
+        self,
+        *,
+        file_name: builtins.str = ...,
+        size_bytes: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["file_name", b"file_name", "size_bytes", b"size_bytes"]) -> None: ...
+
+global___FileInfo = FileInfo
 
 @typing.final
 class ToRadio(google.protobuf.message.Message):

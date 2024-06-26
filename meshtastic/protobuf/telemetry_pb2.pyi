@@ -123,6 +123,10 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     DFRobot Lark Weather station (temperature, humidity, pressure, wind speed and direction)
     """
+    NAU7802: _TelemetrySensorType.ValueType  # 25
+    """
+    NAU7802 Scale Chip or compatible
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -229,6 +233,10 @@ DFROBOT_LARK: TelemetrySensorType.ValueType  # 24
 """
 DFRobot Lark Weather station (temperature, humidity, pressure, wind speed and direction)
 """
+NAU7802: TelemetrySensorType.ValueType  # 25
+"""
+NAU7802 Scale Chip or compatible
+"""
 global___TelemetrySensorType = TelemetrySensorType
 
 @typing.final
@@ -299,6 +307,7 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     UV_LUX_FIELD_NUMBER: builtins.int
     WIND_DIRECTION_FIELD_NUMBER: builtins.int
     WIND_SPEED_FIELD_NUMBER: builtins.int
+    WEIGHT_FIELD_NUMBER: builtins.int
     temperature: builtins.float
     """
     Temperature measured
@@ -357,6 +366,10 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     """
     Wind speed in m/s
     """
+    weight: builtins.float
+    """
+    Weight in KG
+    """
     def __init__(
         self,
         *,
@@ -374,8 +387,9 @@ class EnvironmentMetrics(google.protobuf.message.Message):
         uv_lux: builtins.float = ...,
         wind_direction: builtins.int = ...,
         wind_speed: builtins.float = ...,
+        weight: builtins.float = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "ir_lux", b"ir_lux", "lux", b"lux", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "uv_lux", b"uv_lux", "voltage", b"voltage", "white_lux", b"white_lux", "wind_direction", b"wind_direction", "wind_speed", b"wind_speed"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "ir_lux", b"ir_lux", "lux", b"lux", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "uv_lux", b"uv_lux", "voltage", b"voltage", "weight", b"weight", "white_lux", b"white_lux", "wind_direction", b"wind_direction", "wind_speed", b"wind_speed"]) -> None: ...
 
 global___EnvironmentMetrics = EnvironmentMetrics
 
@@ -574,3 +588,31 @@ class Telemetry(google.protobuf.message.Message):
     def WhichOneof(self, oneof_group: typing.Literal["variant", b"variant"]) -> typing.Literal["device_metrics", "environment_metrics", "air_quality_metrics", "power_metrics"] | None: ...
 
 global___Telemetry = Telemetry
+
+@typing.final
+class Nau7802Config(google.protobuf.message.Message):
+    """
+    NAU7802 Telemetry configuration, for saving to flash
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ZEROOFFSET_FIELD_NUMBER: builtins.int
+    CALIBRATIONFACTOR_FIELD_NUMBER: builtins.int
+    zeroOffset: builtins.int
+    """
+    The offset setting for the NAU7802
+    """
+    calibrationFactor: builtins.float
+    """
+    The calibration factor for the NAU7802
+    """
+    def __init__(
+        self,
+        *,
+        zeroOffset: builtins.int = ...,
+        calibrationFactor: builtins.float = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["calibrationFactor", b"calibrationFactor", "zeroOffset", b"zeroOffset"]) -> None: ...
+
+global___Nau7802Config = Nau7802Config
