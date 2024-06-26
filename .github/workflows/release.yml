@@ -41,7 +41,7 @@ jobs:
       - name: Get version
         id: get_version
         run: >-
-          poetry version
+          poetry version --short
 
       - name: Create GitHub release
         uses: actions/create-release@v1
