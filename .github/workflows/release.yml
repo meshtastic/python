@@ -41,7 +41,7 @@ jobs:
       - name: Get version
         id: get_version
         run: >-
-          poetry version --short
+          poetry version --short | sed 's/^/::set-output name=version::/'
 
       - name: Create GitHub release
         uses: actions/create-release@v1
