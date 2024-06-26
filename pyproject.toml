@@ -46,6 +46,16 @@ types-setuptools = "^69.5.0.20240423"
 types-pyyaml = "^6.0.12.20240311"
 pyarrow-stubs = "^10.0.1.7"
 
+
+
+
+# If you are doing power analysis you probably want these extra devtools
+[tool.poetry.group.analysis]
+optional = true
+
+[tool.poetry.group.analysis.dependencies]
+jupyterlab = "^4.2.2"
+
 [tool.poetry.extras]
 tunnel = ["pytap2"]
 
@@ -58,6 +68,7 @@ mesh-tunnel = "meshtastic.__main__:tunnelMain [tunnel]"
 # then you can do stuff like "poe code" to run vscode inside this environment
 [tool.poe.tasks]
 code = "code ."
+juypter = "poetry run jupyter lab"
 
 [build-system]
 requires = ["poetry-core"]
