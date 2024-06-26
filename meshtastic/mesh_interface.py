@@ -18,10 +18,13 @@ from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
 
 import meshtastic.node
-from meshtastic import (
+
+from meshtastic.protobuf import (
     mesh_pb2,
     portnums_pb2,
     telemetry_pb2,
+)
+from meshtastic import (
     BROADCAST_ADDR,
     BROADCAST_NUM,
     LOCAL_ADDR,
