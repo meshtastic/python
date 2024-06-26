@@ -1,8 +1,6 @@
 """Meshtastic unit tests for ble_interface.py"""
 import logging
 
-import pytest
-
 from meshtastic.ble_interface import BLEClient, BLEInterface
 
 
