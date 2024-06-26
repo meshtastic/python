@@ -31,12 +31,22 @@ class PPK2PowerSupply(PowerSupply):
             else:
                 portName = devs[0]
 
-        self.r = r = ppk2_api.PPK2_MP(portName)  # serial port will be different for you
+        self.current_max = 0
+        self.current_min = 0
+        self.current_sum = 0
+        self.current_num_samples = 0
+
+        # for tracking avera data read length (to determine if we are sleeping efficiently in measurement_loop)
+        self.total_data_len = 0
+        self.num_data_reads = 0
+        self.max_data_len = 0
+
+        self.r = r = ppk2_api.PPK2_API(portName)  # serial port will be different for you
         r.get_modifiers()
 
         self.r.start_measuring()  # send command to ppk2
-        self.current_measurements = [0.0]  # reset current measurements to 0mA
         self.measuring = True
+        self.reset_measurements()
 
         self.measurement_thread = threading.Thread(
             target=self.measurement_loop, daemon=True, name="ppk2 measurement"
@@ -50,32 +60,54 @@ class PPK2PowerSupply(PowerSupply):
     def measurement_loop(self):
         """Endless measurement loop will run in a thread."""
         while self.measuring:
+            # always reads 4096 bytes, even if there is no new samples - or possibly the python single thread (because of global interpreter lock)
+            # is always behind and thefore we are inherently dropping samples semi randomly!!!
             read_data = self.r.get_data()
-            if read_data != b"":
+            if read_data != b'':
                 samples, _ = self.r.get_samples(read_data)
-                self.current_measurements += samples
-            time.sleep(0.001)  # FIXME figure out correct sleep duration
+
+                # update invariants
+                self.current_max = max(self.current_max, max(samples))
+                self.current_min = min(self.current_min, min(samples))
+                self.current_sum += sum(samples)
+                self.current_num_samples += len(samples)
+                # logging.debug(f"PPK2 data_len={len(read_data)}, sample_len={len(samples)}")
+
+            self.num_data_reads += 1
+            self.total_data_len += len(read_data)
+            self.max_data_len = max(self.max_data_len, len(read_data))
+
+            time.sleep(0.01)  # FIXME figure out correct sleep duration
 
     def get_min_current_mA(self):
         """Returns max current in mA (since last call to this method)."""
-        return min(self.current_measurements) / 1000
+        return self.current_min / 1000
 
     def get_max_current_mA(self):
         """Returns max current in mA (since last call to this method)."""
-        return max(self.current_measurements) / 1000
+        return self.current_max / 1000
 
     def get_average_current_mA(self):
         """Returns average current in mA (since last call to this method)."""
-        average_current_mA = (
-            sum(self.current_measurements) / len(self.current_measurements)
-        ) / 1000  # measurements are in microamperes, divide by 1000
-
-        return average_current_mA
+        if self.current_num_samples == 0:
+            return 0
+        else:
+            return self.current_sum / self.current_num_samples / 1000  # measurements are in microamperes, divide by 1000
 
     def reset_measurements(self):
         """Reset current measurements."""
         # Use the last reading as the new only reading (to ensure we always have a valid current reading)
-        self.current_measurements = [ self.current_measurements[-1] ]
+        self.current_max = 0
+        self.current_min = 0
+        self.current_sum = 0
+        self.current_num_samples = 0
+
+        #if self.num_data_reads:
+        #    logging.debug(f"max data len = {self.max_data_len},avg {self.total_data_len/self.num_data_reads}, num reads={self.num_data_reads}")
+        # Summary stats for performance monitoring
+        self.num_data_reads = 0
+        self.total_data_len = 0
+        self.max_data_len = 0
 
     def close(self) -> None:
         """Close the power meter."""
