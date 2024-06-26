@@ -5,6 +5,7 @@ import re
 from unittest.mock import MagicMock, patch
 
 import pytest
+from hypothesis import given, strategies as st
 
 from .. import mesh_pb2, config_pb2, BROADCAST_ADDR, LOCAL_ADDR
 from ..mesh_interface import MeshInterface, _timeago
@@ -696,3 +697,9 @@ def test_timeago():
     assert _timeago(99999) == "1 day ago"
     assert _timeago(9999999) == "3 months ago"
     assert _timeago(-999) == "now"
+
+@given(seconds=st.integers())
+def test_timeago_fuzz(seconds):
+    """Fuzz _timeago to ensure it works with any integer"""
+    val = _timeago(seconds)
+    assert re.match(r"(now|\d+ (secs?|mins?|hours?|days?|months?|years?))", val)
