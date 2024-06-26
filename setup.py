@@ -40,7 +40,6 @@ setup(
         "dotmap>=1.3.14",
         "pyqrcode>=1.2.1",
         "tabulate>=0.8.9",
-        "timeago>=1.0.15",
         "pyyaml",
         "bleak>=0.21.1",
         "packaging",
