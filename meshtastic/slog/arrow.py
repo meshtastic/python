@@ -33,7 +33,8 @@ class ArrowWriter:
         """Write the new rows to the file."""
         if len(self.new_rows) > 0:
             if self.schema is None:
-                self.schema = pa.Table.from_pylist(self.new_rows).schema
+                # only need to look at the first row to learn the schema
+                self.schema = pa.Table.from_pylist([self.new_rows[0]]).schema
                 self.writer = pa.ipc.new_stream(self.sink, self.schema)
 
             self.writer.write_batch(pa.RecordBatch.from_pylist(self.new_rows))
@@ -75,3 +76,4 @@ class FeatherWriter(ArrowWriter):
 
             # See https://stackoverflow.com/a/72406099 for more info and performance testing measurements
             feather.write_feather(array, dest_name, compression="zstd")
+            os.remove(src_name)

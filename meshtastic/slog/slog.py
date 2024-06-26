@@ -5,6 +5,7 @@ import logging
 import os
 import re
 import threading
+import io
 import time
 from dataclasses import dataclass
 from datetime import datetime
@@ -99,7 +100,7 @@ class StructuredLogger:
         """
         self.client = client
         self.writer = FeatherWriter(f"{dir_path}/slog")
-        self.raw_file = open(  # pylint: disable=consider-using-with
+        self.raw_file: Optional[io.TextIOWrapper] = open(  # pylint: disable=consider-using-with
             f"{dir_path}/raw.txt", "w", encoding="utf8"
         )
         self.listener = pub.subscribe(self._onLogMessage, TOPIC_MESHTASTIC_LOG_LINE)
@@ -108,7 +109,9 @@ class StructuredLogger:
         """Stop logging."""
         pub.unsubscribe(self.listener, TOPIC_MESHTASTIC_LOG_LINE)
         self.writer.close()
-        self.raw_file.close()  # Close the raw.txt file
+        f = self.raw_file
+        self.raw_file = None  # mark that we are shutting down
+        f.close()  # Close the raw.txt file
 
     def _onLogMessage(
         self, line: str, interface: MeshInterface  # pylint: disable=unused-argument
@@ -134,7 +137,8 @@ class StructuredLogger:
                     logging.warning(f"Failed to parse slog {line} with {d.format}")
             else:
                 logging.warning(f"Unknown Structured Log: {line}")
-        self.raw_file.write(line + "\n")  # Write the raw log
+        if self.raw_file:
+            self.raw_file.write(line + "\n")  # Write the raw log
 
 
 class LogSet:
