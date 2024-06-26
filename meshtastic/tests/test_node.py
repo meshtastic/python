@@ -6,8 +6,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from .. import localonly_pb2, config_pb2
-from ..channel_pb2 import Channel # pylint: disable=E0611
+from ..protobuf import localonly_pb2, config_pb2
+from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 from ..node import Node
 from ..serial_interface import SerialInterface
 from ..mesh_interface import MeshInterface
