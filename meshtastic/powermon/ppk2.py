@@ -31,6 +31,7 @@ class PPK2PowerSupply(PowerSupply):
             else:
                 portName = devs[0]
 
+        self.measuring = False
         self.current_max = 0
         self.current_min = 0
         self.current_sum = 0
@@ -41,20 +42,15 @@ class PPK2PowerSupply(PowerSupply):
         self.num_data_reads = 0
         self.max_data_len = 0
 
-        self.r = r = ppk2_api.PPK2_API(portName)  # serial port will be different for you
+        self.r = r = ppk2_api.PPK2_API(
+            portName
+        )  # serial port will be different for you
         r.get_modifiers()
-
-        self.r.start_measuring()  # send command to ppk2
-        self.measuring = True
-        self.reset_measurements()
 
         self.measurement_thread = threading.Thread(
             target=self.measurement_loop, daemon=True, name="ppk2 measurement"
         )
-        self.measurement_thread.start()
-
         logging.info("Connected to Power Profiler Kit II (PPK2)")
-
         super().__init__()  # we call this late so that the port is already open and _getRawWattHour callback works
 
     def measurement_loop(self):
@@ -63,15 +59,20 @@ class PPK2PowerSupply(PowerSupply):
             # always reads 4096 bytes, even if there is no new samples - or possibly the python single thread (because of global interpreter lock)
             # is always behind and thefore we are inherently dropping samples semi randomly!!!
             read_data = self.r.get_data()
-            if read_data != b'':
+            if read_data != b"":
                 samples, _ = self.r.get_samples(read_data)
 
                 # update invariants
-                self.current_max = max(self.current_max, max(samples))
-                self.current_min = min(self.current_min, min(samples))
-                self.current_sum += sum(samples)
-                self.current_num_samples += len(samples)
-                # logging.debug(f"PPK2 data_len={len(read_data)}, sample_len={len(samples)}")
+                if len(samples) > 0:
+                    if self.current_num_samples == 0:
+                        self.current_min = samples[
+                            0
+                        ]  # we need at least one sample to get an initial min
+                    self.current_max = max(self.current_max, max(samples))
+                    self.current_min = min(self.current_min, min(samples))
+                    self.current_sum += sum(samples)
+                    self.current_num_samples += len(samples)
+                    # logging.debug(f"PPK2 data_len={len(read_data)}, sample_len={len(samples)}")
 
             self.num_data_reads += 1
             self.total_data_len += len(read_data)
@@ -92,7 +93,9 @@ class PPK2PowerSupply(PowerSupply):
         if self.current_num_samples == 0:
             return 0
         else:
-            return self.current_sum / self.current_num_samples / 1000  # measurements are in microamperes, divide by 1000
+            return (
+                self.current_sum / self.current_num_samples / 1000
+            )  # measurements are in microamperes, divide by 1000
 
     def reset_measurements(self):
         """Reset current measurements."""
@@ -102,7 +105,7 @@ class PPK2PowerSupply(PowerSupply):
         self.current_sum = 0
         self.current_num_samples = 0
 
-        #if self.num_data_reads:
+        # if self.num_data_reads:
         #    logging.debug(f"max data len = {self.max_data_len},avg {self.total_data_len/self.num_data_reads}, num reads={self.num_data_reads}")
         # Summary stats for performance monitoring
         self.num_data_reads = 0
@@ -124,12 +127,24 @@ class PPK2PowerSupply(PowerSupply):
         )  # set source voltage in mV BEFORE setting source mode
         # Note: source voltage must be set even if we are using the amp meter mode
 
-        if (
-            not s
-        ):  # min power outpuf of PPK2.  If less than this assume we want just meter mode.
+        # must be after setting source voltage and before setting mode
+        self.r.start_measuring()  # send command to ppk2
+
+        if not s:  # min power outpuf of PPK2.  If less than this assume we want just meter mode.
             self.r.use_ampere_meter()
         else:
             self.r.use_source_meter()  # set source meter mode
+
+        if not self.measurement_thread.is_alive():
+            self.measuring = True
+            self.reset_measurements()
+
+            # We can't start reading from the thread until vdd is set, so start running the thread now
+            self.measurement_thread.start()
+            time.sleep(
+                0.2
+            )  # FIXME - crufty way to ensure we do one set of reads to discard bogus fake power readings in the FIFO
+            self.reset_measurements()
 
     def powerOn(self):
         """Power on the supply."""
