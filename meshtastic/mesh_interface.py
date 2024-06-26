@@ -14,7 +14,6 @@ from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import google.protobuf.json_format
-import timeago # type: ignore[import-untyped]
 from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
 
@@ -40,6 +39,29 @@ from meshtastic.util import (
     stripnl,
     message_to_json,
 )
+
+def _timeago(delta_secs: int) -> str:
+    """Convert a number of seconds in the past into a short, friendly string
+    e.g. "now", "30 sec ago",  "1 hour ago"
+    Zero or negative intervals simply return "now"
+    """
+    intervals = (
+        ("year", 60 * 60 * 24 * 365),
+        ("month", 60 * 60 * 24 * 30),
+        ("day", 60 * 60 * 24),
+        ("hour", 60 * 60),
+        ("min", 60),
+        ("sec", 1),
+    )
+    for name, interval_duration in intervals:
+        if delta_secs < interval_duration:
+            continue
+        x = delta_secs // interval_duration
+        plur = "s" if x > 1 else ""
+        return f"{x} {name}{plur} ago"
+
+    return "now"
+
 
 class MeshInterface: # pylint: disable=R0902
     """Interface class for meshtastic devices
@@ -172,11 +194,13 @@ class MeshInterface: # pylint: disable=R0902
 
         def getTimeAgo(ts) -> Optional[str]:
             """Format how long ago have we heard from this node (aka timeago)."""
-            return (
-                timeago.format(datetime.fromtimestamp(ts), datetime.now())
-                if ts
-                else None
-            )
+            if ts is None:
+                return None
+            delta = datetime.now() - datetime.fromtimestamp(ts)
+            delta_secs = int(delta.total_seconds())
+            if delta_secs < 0:
+                return None  # not handling a timestamp from the future
+            return _timeago(delta_secs)
 
         rows: List[Dict[str, Any]] = []
         if self.nodesByNum:
