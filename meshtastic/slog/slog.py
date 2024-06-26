@@ -17,7 +17,7 @@ from pubsub import pub  # type: ignore[import-untyped]
 from meshtastic.mesh_interface import MeshInterface
 from meshtastic.powermon import PowerMeter
 
-from .arrow import ArrowWriter
+from .arrow import FeatherWriter
 
 
 @dataclass(init=False)
@@ -54,7 +54,7 @@ class PowerLogger:
     def __init__(self, pMeter: PowerMeter, file_path: str, interval=0.2) -> None:
         """Initialize the PowerLogger object."""
         self.pMeter = pMeter
-        self.writer = ArrowWriter(file_path)
+        self.writer = FeatherWriter(file_path)
         self.interval = interval
         self.is_logging = True
         self.thread = threading.Thread(
@@ -98,7 +98,7 @@ class StructuredLogger:
         client (MeshInterface): The MeshInterface object to monitor.
         """
         self.client = client
-        self.writer = ArrowWriter(f"{dir_path}/slog.arrow")
+        self.writer = FeatherWriter(f"{dir_path}/slog")
         self.raw_file = open(  # pylint: disable=consider-using-with
             f"{dir_path}/raw.txt", "w", encoding="utf8"
         )
@@ -175,7 +175,7 @@ class LogSet:
         self.power_logger: Optional[PowerLogger] = (
             None
             if not power_meter
-            else PowerLogger(power_meter, f"{self.dir_name}/power.arrow")
+            else PowerLogger(power_meter, f"{self.dir_name}/power")
         )
 
         # Store a lambda so we can find it again to unregister

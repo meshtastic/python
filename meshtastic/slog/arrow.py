@@ -1,6 +1,10 @@
 """Utilities for Apache Arrow serialization."""
 
+import logging
+import os
+
 import pyarrow as pa
+import pyarrow.feather as feather
 
 chunk_size = 1000  # disk writes are batched based on this number of rows
 
@@ -42,3 +46,32 @@ class ArrowWriter:
         self.new_rows.append(row_dict)
         if len(self.new_rows) >= chunk_size:
             self._write()
+
+
+class FeatherWriter(ArrowWriter):
+    """A smaller more interoperable version of arrow files.
+    Uses a temporary .arrow file (which could be huge) but converts to a much smaller (but still fast)
+    feather file.
+    """
+
+    def __init__(self, file_name: str):
+        super().__init__(file_name + ".arrow")
+        self.base_file_name = file_name
+
+    def close(self):
+        super().close()
+        src_name = self.base_file_name + ".arrow"
+        dest_name = self.base_file_name + ".feather"
+        if os.path.getsize(src_name) == 0:
+            logging.warning(f"Discarding empty file: {src_name}")
+            os.remove(src_name)
+        else:
+            logging.info(f"Compressing log data into {dest_name}")
+
+            # note: must use open_stream, not open_file/read_table because the streaming layout is different
+            # data = feather.read_table(src_name)
+            with pa.memory_map(src_name) as source:
+                array = pa.ipc.open_stream(source).read_all()
+
+            # See https://stackoverflow.com/a/72406099 for more info and performance testing measurements
+            feather.write_feather(array, dest_name, compression="zstd")
