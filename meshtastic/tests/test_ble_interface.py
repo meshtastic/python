@@ -29,13 +29,12 @@ def test_ble_interface_no_addr_returns_only_basic_object():
     assert isinstance(test_interface_dict['state'], BLEInterface.BLEState)
 
 # TODO: this method definitely requires a Bluetooth device be present and on
-# TODO: mock out whatever it needs
-# def test_ble_interface_bogus_addr_exits_process():
-#     """
-#     If we initialize BLEInterface with a BT address that doesn't
-#     exist, we should exit the process
-#     """
-#     with pytest.raises(SystemExit) as exc:
-#         test_ble_int = BLEInterface(address="bogus")
-#     assert exc.value.code == 1
-#     test_ble_int.client.close()
+# TODO: mock out whatever it needs.
+def test_ble_interface_bogus_addr_exits_process():
+    """
+    If we initialize BLEInterface with a BT address that doesn't
+    exist, we should exit the process
+    """
+    with pytest.raises(SystemExit) as exc:
+        test_ble_int = BLEInterface(address="bogus")
+    assert exc.value.code == 1

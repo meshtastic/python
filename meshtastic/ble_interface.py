@@ -55,6 +55,7 @@ class BLEInterface(MeshInterface):
             self.state.BLE = True
             logging.debug("BLE connected")
         except BLEInterface.BLEError as e:
+            logging.debug(f"we have an error: {e}")
             self.close()
             our_exit(e.message, 1)
 
