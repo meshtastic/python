@@ -4,7 +4,9 @@
         "boardid",
         "Meshtastic",
         "milliwatt",
+        "portnums",
         "powermon",
+        "POWERSTRESS",
         "pyarrow",
         "TORADIO",
         "Vids"

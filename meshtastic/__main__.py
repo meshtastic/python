@@ -11,6 +11,7 @@ import os
 import platform
 import sys
 import time
+from typing import Optional
 
 import pyqrcode # type: ignore[import-untyped]
 import yaml
@@ -25,8 +26,10 @@ from meshtastic import remote_hardware, BROADCAST_ADDR
 from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
-from meshtastic.powermon import RidenPowerSupply, PPK2PowerSupply, SimPowerSupply
+from meshtastic.powermon import RidenPowerSupply, PPK2PowerSupply, SimPowerSupply, PowerStress, PowerMeter
 from meshtastic.slog import LogSet
+
+meter: Optional[PowerMeter] = None
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -849,6 +852,15 @@ def onConnected(interface):
             qr = pyqrcode.create(url)
             print(qr.terminal())
 
+        if args.slog_out:
+            # Setup loggers
+            global meter
+            LogSet(interface, args.slog_out if args.slog_out != 'default' else None, meter)
+
+        if args.power_stress:
+            stress = PowerStress(interface)
+            stress.run()
+
         if args.listen:
             closeNow = False
 
@@ -989,6 +1001,7 @@ def export_config(interface):
 def create_power_meter():
     """Setup the power meter."""
 
+    global meter
     args = mt_config.args
     meter = None # assume no power meter
     if args.power_riden:
@@ -1009,7 +1022,6 @@ def create_power_meter():
 
         if args.power_wait:
             input("Powered on, press enter to continue...")
-    return meter
 
 def common():
     """Shared code for all of our command line wrappers."""
@@ -1029,7 +1041,7 @@ def common():
             meshtastic.util.support_info()
             meshtastic.util.our_exit("", 0)
 
-        meter = create_power_meter()
+        create_power_meter()
 
         if args.ch_index is not None:
             channelIndex = int(args.ch_index)
@@ -1120,11 +1132,6 @@ def common():
             # We assume client is fully connected now
             onConnected(client)
 
-            log_set = None
-            if args.slog_out:
-                # Setup loggers
-                log_set = LogSet(client, args.slog_out if args.slog_out != 'default' else None, meter)
-
             have_tunnel = platform.system() == "Linux"
             if (
                 args.noproto or args.reply or (have_tunnel and args.tunnel) or args.listen
@@ -1134,9 +1141,6 @@ def common():
                         time.sleep(1000)
                 except KeyboardInterrupt:
                     logging.info("Exiting due to keyboard interrupt")
-
-            if log_set:
-                log_set.close()
 
         # don't call exit, background threads might be running still
         # sys.exit(0)

@@ -97,6 +97,7 @@ from .protobuf import (
     remote_hardware_pb2,
     storeforward_pb2,
     telemetry_pb2,
+    powermon_pb2
 )
 from . import (
     util,
@@ -228,6 +229,9 @@ protocols = {
     portnums_pb2.PortNum.SIMULATOR_APP: KnownProtocol("simulator", mesh_pb2.Compressed),
     portnums_pb2.PortNum.TRACEROUTE_APP: KnownProtocol(
         "traceroute", mesh_pb2.RouteDiscovery
+    ),
+    portnums_pb2.PortNum.POWERSTRESS_APP: KnownProtocol(
+        "powerstress", powermon_pb2.PowerStressMessage
     ),
     portnums_pb2.PortNum.WAYPOINT_APP: KnownProtocol("waypoint", mesh_pb2.Waypoint),
     portnums_pb2.PortNum.PAXCOUNTER_APP: KnownProtocol("paxcounter", paxcount_pb2.Paxcount),
