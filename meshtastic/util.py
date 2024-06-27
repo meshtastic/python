@@ -25,14 +25,16 @@ from meshtastic.supported_device import supported_devices
 from meshtastic.version import get_active_version
 
 """Some devices such as a seger jlink or st-link we never want to accidentally open
-0x1915 NordicSemi (PPK2)
+     1915 NordicSemi (PPK2)
+     0925 Lakeview Research Saleae Logic (logic analyzer)
+04b4:602a Cypress Semiconductor Corp. Hantek DSO-6022BL (oscilloscope)
 """
-blacklistVids = dict.fromkeys([0x1366, 0x0483, 0x1915])
+blacklistVids = dict.fromkeys([0x1366, 0x0483, 0x1915, 0x0925])
 
 """Some devices are highly likely to be meshtastic.
 0x239a RAK4631
 0x303a Heltec tracker"""
-whitelistVids = dict.fromkeys([0x239a, 0x303a])
+whitelistVids = dict.fromkeys([0x239a, 0x303a, 0x04b4])
 
 
 def quoteBooleans(a_string):
