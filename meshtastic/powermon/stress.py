@@ -47,7 +47,7 @@ class PowerStressClient:
             self.node_id,
             portnums_pb2.POWERSTRESS_APP,
             wantAck=True,
-            wantResponse=False,
+            wantResponse=True,
             onResponse=onResponse,
             onResponseAckPermitted=True
         )
@@ -64,7 +64,7 @@ class PowerStress:
         # Send the power stress command
         gotAck = False
 
-        def onResponse(packet, interface):
+        def onResponse(packet: dict):  # pylint: disable=unused-argument
             nonlocal gotAck
             gotAck = True
 

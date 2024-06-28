@@ -1,11 +1,11 @@
 """code logging power consumption of meshtastic devices."""
 
 import atexit
+import io
 import logging
 import os
 import re
 import threading
-import io
 import time
 from dataclasses import dataclass
 from datetime import datetime
@@ -100,10 +100,17 @@ class StructuredLogger:
         """
         self.client = client
         self.writer = FeatherWriter(f"{dir_path}/slog")
-        self.raw_file: Optional[io.TextIOWrapper] = open(  # pylint: disable=consider-using-with
+        self.raw_file: Optional[
+            io.TextIOWrapper
+        ] = open(  # pylint: disable=consider-using-with
             f"{dir_path}/raw.txt", "w", encoding="utf8"
         )
-        self.listener = pub.subscribe(self._onLogMessage, TOPIC_MESHTASTIC_LOG_LINE)
+
+        # We need a closure here because the subscription API is very strict about exact arg matching
+        def listen_glue(line, interface):  # pylint: disable=unused-argument
+            self._onLogMessage(line)
+
+        self.listener = pub.subscribe(listen_glue, TOPIC_MESHTASTIC_LOG_LINE)
 
     def close(self) -> None:
         """Stop logging."""
@@ -113,9 +120,7 @@ class StructuredLogger:
         self.raw_file = None  # mark that we are shutting down
         f.close()  # Close the raw.txt file
 
-    def _onLogMessage(
-        self, line: str, interface: MeshInterface  # pylint: disable=unused-argument
-    ) -> None:
+    def _onLogMessage(self, line: str) -> None:
         """Handle log messages.
 
         line (str): the line of log output
@@ -126,17 +131,20 @@ class StructuredLogger:
             args = m.group(2)
             args += " "  # append a space so that if the last arg is an empty str it will still be accepted as a match
             logging.debug(f"SLog {src}, reason: {args}")
-            d = log_defs.get(src)
-            if d:
-                r = d.format.parse(args)  # get the values with the correct types
-                if r:
-                    di = r.named
-                    di["time"] = datetime.now()
-                    self.writer.add_row(di)
-                else:
-                    logging.warning(f"Failed to parse slog {line} with {d.format}")
+            if(src != "PM"):
+                logging.warning(f"Not yet handling structured log {src} (FIXME)")
             else:
-                logging.warning(f"Unknown Structured Log: {line}")
+                d = log_defs.get(src)
+                if d:
+                    r = d.format.parse(args)  # get the values with the correct types
+                    if r:
+                        di = r.named
+                        di["time"] = datetime.now()
+                        self.writer.add_row(di)
+                    else:
+                        logging.warning(f"Failed to parse slog {line} with {d.format}")
+                else:
+                    logging.warning(f"Unknown Structured Log: {line}")
         if self.raw_file:
             self.raw_file.write(line + "\n")  # Write the raw log
 

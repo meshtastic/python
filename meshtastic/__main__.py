@@ -852,14 +852,14 @@ def onConnected(interface):
             qr = pyqrcode.create(url)
             print(qr.terminal())
 
-        if args.slog_out:
+        if args.slog_out or args.power_stress:
             # Setup loggers
             global meter
             LogSet(interface, args.slog_out if args.slog_out != 'default' else None, meter)
 
-        if args.power_stress:
-            stress = PowerStress(interface)
-            stress.run()
+            if args.power_stress:
+                stress = PowerStress(interface)
+                stress.run()
 
         if args.listen:
             closeNow = False
