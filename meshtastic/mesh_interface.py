@@ -150,6 +150,11 @@ class MeshInterface: # pylint: disable=R0902
         """Handle a line of log output from the device."""
         pub.sendMessage("meshtastic.log.line", line=line, interface=self)
 
+    def _handleLogRecord(self, record: mesh_pb2.LogRecord) -> None:
+        """Handle a log record which was received encapsulated in a protobuf."""
+        # For now we just try to format the line as if it had come in over the serial port
+        self._handleLogLine(record.message)
+
     def showInfo(self, file=sys.stdout) -> str:  # pylint: disable=W0613
         """Show human readable summary about this object"""
         owner = f"Owner: {self.getLongName()} ({self.getShortName()})"
@@ -927,7 +932,8 @@ class MeshInterface: # pylint: disable=R0902
             self._handleChannel(fromRadio.channel)
         elif fromRadio.HasField("packet"):
             self._handlePacketFromRadio(fromRadio.packet)
-
+        elif fromRadio.HasField("log_record"):
+            self._handleLogRecord(fromRadio.log_record)
         elif fromRadio.HasField("queueStatus"):
             self._handleQueueStatusFromRadio(fromRadio.queueStatus)
 
