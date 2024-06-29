@@ -36,7 +36,6 @@ mypy-protobuf = "^3.6.0"
 types-protobuf = "^5.26.0.20240422"
 types-tabulate = "^0.9.0.20240106"
 types-requests = "^2.31.0.20240406"
-types-setuptools = "^69.5.0.20240423"
 types-pyyaml = "^6.0.12.20240311"
 
 [tool.poetry.extras]
