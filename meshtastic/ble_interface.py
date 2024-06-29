@@ -45,7 +45,7 @@ class BLEInterface(MeshInterface):
         self.should_read = False
 
         logging.debug("Threads starting")
-        self._receiveThread = Thread(target=self._receiveFromRadioImpl)
+        self._receiveThread = Thread(target=self._receiveFromRadioImpl, name="BLEReceive", daemon=True)
         self._receiveThread_started = Event()
         self._receiveThread_stopped = Event()
         self._receiveThread.start()
@@ -62,6 +62,8 @@ class BLEInterface(MeshInterface):
             self.close()
             raise e
 
+        self.client.start_notify(LOGRADIO_UUID, self.log_radio_handler)
+
         logging.debug("Mesh init starting")
         MeshInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, noNodes=noNodes
@@ -75,9 +77,10 @@ class BLEInterface(MeshInterface):
 
         logging.debug("Register FROMNUM notify callback")
         self.client.start_notify(FROMNUM_UUID, self.from_num_handler)
-        self.client.start_notify(LOGRADIO_UUID, self.log_radio_handler)
 
-    async def from_num_handler(self, _, b):  # pylint: disable=C0116
+    def from_num_handler(self, _, b):  # pylint: disable=C0116
+        """Handle callbacks for fromnum notify.
+        Note: this method does not need to be async because it is just setting a bool."""
         from_num = struct.unpack("<I", bytes(b))[0]
         logging.debug(f"FROMNUM notify: {from_num}")
         self.should_read = True
@@ -95,13 +98,12 @@ class BLEInterface(MeshInterface):
         else:
             print(log_radio, end=None)
 
-        self.should_read = False
-
     @staticmethod
     def scan() -> list[BLEDevice]:
         """Scan for available BLE devices."""
         with BLEClient() as client:
-            response = client.discover(return_adv=True, service_uuids=[SERVICE_UUID])
+            logging.info("Scanning for BLE devices (takes 10 seconds)...")
+            response = client.discover(timeout=10, return_adv=True, service_uuids=[SERVICE_UUID])
 
             devices = response.values()
 
@@ -116,20 +118,15 @@ class BLEInterface(MeshInterface):
     def find_device(self, address: Optional[str]) -> BLEDevice:
         """Find a device by address."""
 
-        # Bleak scan is buggy (only on linux?) Try a few times
-        for _ in range(5):
-            addressed_devices = BLEInterface.scan()
+        addressed_devices = BLEInterface.scan()
 
-            if address:
-                addressed_devices = list(
-                    filter(
-                        lambda x: address == x.name or address == x.address,
-                        addressed_devices,
-                    )
+        if address:
+            addressed_devices = list(
+                filter(
+                    lambda x: address == x.name or address == x.address,
+                    addressed_devices,
                 )
-            # We finally found something?
-            if len(addressed_devices) > 0:
-                break
+            )
 
         if len(addressed_devices) == 0:
             raise BLEInterface.BLEError(
@@ -152,6 +149,7 @@ class BLEInterface(MeshInterface):
         device = self.find_device(address)
         client = BLEClient(device.address)
         client.connect()
+        client.discover()
         return client
 
     def _receiveFromRadioImpl(self):
@@ -182,11 +180,12 @@ class BLEInterface(MeshInterface):
         if b:
             logging.debug(f"TORADIO write: {b.hex()}")
             try:
-                self.client.write_gatt_char(TORADIO_UUID, b, response=False)
+                self.client.write_gatt_char(TORADIO_UUID, b, response=True)  # FIXME: or False?
+                # search Bleak src for org.bluez.Error.InProgress
             except Exception as e:
-                raise BLEInterface.BLEError("Error writing BLE") from e
+                raise BLEInterface.BLEError("Error writing BLE (are you in the 'bluetooth' user group? did you enter the pairing PIN on your computer?)") from e
             # Allow to propagate and then make sure we read
-            time.sleep(0.1)
+            time.sleep(0.01)
             self.should_read = True
 
     def close(self):
@@ -206,7 +205,7 @@ class BLEClient:
     """Client for managing connection to a BLE device"""
 
     def __init__(self, address=None, **kwargs):
-        self._eventThread = Thread(target=self._run_event_loop, name="BLEClient")
+        self._eventThread = Thread(target=self._run_event_loop, name="BLEClient", daemon=True)
         self._eventThread_started = Event()
         self._eventThread_stopped = Event()
         self._eventThread.start()
