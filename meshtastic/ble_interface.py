@@ -19,10 +19,10 @@ FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
 
 
 class BLEInterface(MeshInterface):
-    """MeshInterface using BLE to connect to devices"""
+    """MeshInterface using BLE to connect to devices."""
 
     class BLEError(Exception):
-        """An exception class for BLE errors"""
+        """An exception class for BLE errors."""
 
         def __init__(self, message):
             self.message = message
@@ -54,7 +54,7 @@ class BLEInterface(MeshInterface):
         logging.debug("Threads running")
 
         try:
-            logging.debug(f"BLE connecting to: {address}")
+            logging.debug(f"BLE connecting to: {address if address else 'any'}")
             self.client = self.connect(address)
             self.state.BLE = True
             logging.debug("BLE connected")
@@ -178,7 +178,7 @@ class BLEClient:
     """Client for managing connection to a BLE device"""
 
     def __init__(self, address=None, **kwargs):
-        self._eventThread = Thread(target=self._run_event_loop)
+        self._eventThread = Thread(target=self._run_event_loop, name="BLEClient")
         self._eventThread_started = Event()
         self._eventThread_stopped = Event()
         self._eventThread.start()
