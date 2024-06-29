@@ -763,6 +763,17 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "print-color"
+version = "0.4.6"
+description = "A simple package to print in color to the terminal"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "print_color-0.4.6-py3-none-any.whl", hash = "sha256:494bd1cdb84daf481f0e63bd22b3c32f7d52827d8f5d9138a96bb01ca8ba9299"},
+    {file = "print_color-0.4.6.tar.gz", hash = "sha256:d3aafc1666c8d31a85fffa6ee8e4f269f5d5e338d685b4e6179915c71867c585"},
+]
+
+[[package]]
 name = "protobuf"
 version = "5.27.1"
 description = ""
@@ -1552,4 +1563,4 @@ tunnel = []
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8,<3.13"
-content-hash = "8548a8b432a3f62db158f5b35254b05b2599aafe75ef12100471937fd4603e3c"
+content-hash = "8e82c70af84ffd1525ece9c446bf06c9a1a1235cdf3bb6c563413daf389de353"

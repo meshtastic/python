@@ -21,6 +21,7 @@ pyyaml = "^6.0.1"
 pypubsub = "^4.0.3"
 bleak = "^0.21.1"
 packaging = "^24.0"
+print-color = "^0.4.6"
 
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.103.2"
