@@ -10,7 +10,15 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": false,
-      "args": ["--debug", "--ble", "24:62:AB:DD:DF:3A"]
+      "args": ["--ble", "--ble-dest", "Meshtastic_9f6e"]
+    },
+     {
+      "name": "meshtastic BLE scan",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--debug", "--ble-scan"]
     },
     {
       "name": "meshtastic admin",
@@ -75,6 +83,14 @@
       "module": "meshtastic",
       "justMyCode": true,
       "args": ["--debug", "--info"]
+    },
+    {
+      "name": "meshtastic debug BLE",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--ble", "--info"]
     },
     {
       "name": "meshtastic debug set region",
