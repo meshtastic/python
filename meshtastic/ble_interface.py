@@ -26,10 +26,7 @@ class BLEInterface(MeshInterface):
 
     class BLEError(Exception):
         """An exception class for BLE errors."""
-
-        def __init__(self, message):
-            self.message = message
-            super().__init__(self.message)
+        pass
 
     class BLEState:  # pylint: disable=C0115
         THREADS = False
@@ -118,15 +115,21 @@ class BLEInterface(MeshInterface):
 
     def find_device(self, address: Optional[str]) -> BLEDevice:
         """Find a device by address."""
-        addressed_devices = BLEInterface.scan()
 
-        if address:
-            addressed_devices = list(
-                filter(
-                    lambda x: address == x.name or address == x.address,
-                    addressed_devices,
+        # Bleak scan is buggy (only on linux?) Try a few times
+        for _ in range(5):
+            addressed_devices = BLEInterface.scan()
+
+            if address:
+                addressed_devices = list(
+                    filter(
+                        lambda x: address == x.name or address == x.address,
+                        addressed_devices,
+                    )
                 )
-            )
+            # We finally found something?
+            if len(addressed_devices) > 0:
+                break
 
         if len(addressed_devices) == 0:
             raise BLEInterface.BLEError(
@@ -158,7 +161,10 @@ class BLEInterface(MeshInterface):
                 self.should_read = False
                 retries = 0
                 while True:
-                    b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
+                    try:
+                        b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
+                    except Exception as e:
+                        raise BLEInterface.BLEError("Error reading BLE") from e
                     if not b:
                         if retries < 5:
                             time.sleep(0.1)
@@ -175,7 +181,10 @@ class BLEInterface(MeshInterface):
         b = toRadio.SerializeToString()
         if b:
             logging.debug(f"TORADIO write: {b.hex()}")
-            self.client.write_gatt_char(TORADIO_UUID, b, response=True)
+            try:
+                self.client.write_gatt_char(TORADIO_UUID, b, response=False)
+            except Exception as e:
+                raise BLEInterface.BLEError("Error writing BLE") from e
             # Allow to propagate and then make sure we read
             time.sleep(0.1)
             self.should_read = True
