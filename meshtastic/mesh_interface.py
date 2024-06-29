@@ -16,6 +16,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import google.protobuf.json_format
 from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
+import print_color  # type: ignore[import-untyped]
 
 import meshtastic.node
 
@@ -143,8 +144,21 @@ class MeshInterface: # pylint: disable=R0902
 
     @staticmethod
     def _printLogLine(line, interface):
-        """Print a line of log output"""
-        interface.debugOut.write(line + "\n")
+        """Print a line of log output."""
+        if interface.debugOut == sys.stdout:
+            # this isn't quite correct (could cause false positives), but currently our formatting differs between different log representations
+            if "DEBUG" in line:
+                print_color.print(line, color="cyan", end=None)
+            elif "INFO" in line:
+                print_color.print(line, color="white", end=None)
+            elif "WARN" in line:
+                print_color.print(line, color="yellow", end=None)
+            elif "ERR" in line:
+                print_color.print(line, color="red", end=None)
+            else:
+                print_color.print(line, end=None)
+        else:
+            interface.debugOut.write(line + "\n")
 
     def _handleLogLine(self, line: str) -> None:
         """Handle a line of log output from the device."""
