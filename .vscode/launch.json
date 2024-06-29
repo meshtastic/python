@@ -12,6 +12,14 @@
       "justMyCode": false,
       "args": ["--debug", "--ble", "24:62:AB:DD:DF:3A"]
     },
+     {
+      "name": "meshtastic BLE scan",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--debug", "--ble-scan"]
+    },
     {
       "name": "meshtastic admin",
       "type": "python",

@@ -1041,12 +1041,8 @@ def common():
             subscribe()
             if args.ble_scan:
                 logging.debug("BLE scan starting")
-                client = BLEInterface(None, debugOut=logfile, noProto=args.noproto)
-                try:
-                    for x in client.scan():
-                        print(f"Found: name='{x[1].local_name}' address='{x[0].address}'")
-                finally:
-                    client.close()
+                for x in BLEInterface.scan():
+                    print(f"Found: name='{x.name}' address='{x.address}'")
                 meshtastic.util.our_exit("BLE scan finished", 0)
                 return
             elif args.ble:
