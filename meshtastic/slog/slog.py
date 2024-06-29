@@ -131,7 +131,7 @@ class StructuredLogger:
             args = m.group(2)
             args += " "  # append a space so that if the last arg is an empty str it will still be accepted as a match
             logging.debug(f"SLog {src}, reason: {args}")
-            if(src != "PM"):
+            if src != "PM":
                 logging.warning(f"Not yet handling structured log {src} (FIXME)")
             else:
                 d = log_defs.get(src)
