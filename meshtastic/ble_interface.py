@@ -9,10 +9,9 @@ from threading import Thread
 from typing import Optional
 
 from bleak import BleakClient, BleakScanner, BLEDevice
-from print_color import print
+import print_color
 
 from meshtastic.mesh_interface import MeshInterface
-from meshtastic.util import our_exit
 
 SERVICE_UUID = "6ba1b218-15a8-461f-9fa8-5dcae273eafd"
 TORADIO_UUID = "f75c76d2-129e-4dad-a1dd-7866124401e7"
@@ -26,8 +25,6 @@ class BLEInterface(MeshInterface):
 
     class BLEError(Exception):
         """An exception class for BLE errors."""
-
-        pass
 
     def __init__(
         self,
@@ -85,15 +82,15 @@ class BLEInterface(MeshInterface):
     async def log_radio_handler(self, _, b):  # pylint: disable=C0116
         log_radio = b.decode("utf-8").replace("\n", "")
         if log_radio.startswith("DEBUG"):
-            print(log_radio, color="cyan", end=None)
+            print_color.print(log_radio, color="cyan", end=None)
         elif log_radio.startswith("INFO"):
-            print(log_radio, color="white", end=None)
+            print_color.print(log_radio, color="white", end=None)
         elif log_radio.startswith("WARN"):
-            print(log_radio, color="yellow", end=None)
+            print_color.print(log_radio, color="yellow", end=None)
         elif log_radio.startswith("ERROR"):
-            print(log_radio, color="red", end=None)
+            print_color.print(log_radio, color="red", end=None)
         else:
-            print(log_radio, end=None)
+            print_color.print(log_radio, end=None)
 
     @staticmethod
     def scan() -> list[BLEDevice]:
@@ -122,7 +119,7 @@ class BLEInterface(MeshInterface):
         if address:
             addressed_devices = list(
                 filter(
-                    lambda x: address == x.name or address == x.address,
+                    lambda x: address in (x.name, x.address),
                     addressed_devices,
                 )
             )

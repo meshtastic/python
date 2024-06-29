@@ -1044,7 +1044,6 @@ def common():
                 for x in BLEInterface.scan():
                     print(f"Found: name='{x.name}' address='{x.address}'")
                 meshtastic.util.our_exit("BLE scan finished", 0)
-                return
             elif args.ble:
                 client = BLEInterface(args.ble_dest, debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes)
             elif args.host:
@@ -1122,7 +1121,7 @@ def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
         "--ble-dest",
         help="The BLE device address or name to connect to",
         default=None,
-    )    
+    )
 
     return parser
 
