@@ -8,8 +8,9 @@ import time
 from threading import Thread
 from typing import Optional
 
-from bleak import BleakClient, BleakScanner, BLEDevice
 import print_color
+from bleak import BleakClient, BleakScanner, BLEDevice
+from bleak.exc import BleakDBusError, BleakError
 
 from meshtastic.mesh_interface import MeshInterface
 
@@ -62,14 +63,14 @@ class BLEInterface(MeshInterface):
         if not self.noProto:
             self._waitConnected(timeout=60.0)
             self.waitForConfig()
-        logging.debug("Mesh init finished")
 
         logging.debug("Register FROMNUM notify callback")
         self.client.start_notify(FROMNUM_UUID, self.from_num_handler)
 
         # We MUST run atexit (if we can) because otherwise (at least on linux) the BLE device is not disconnected
         # and future connection attempts will fail.  (BlueZ kinda sucks)
-        self._exit_handler = atexit.register(self.close)
+        # Note: the on disconnected callback will call our self.close which will make us nicely wait for threads to exit
+        self._exit_handler = atexit.register(self.client.disconnect)
 
     def from_num_handler(self, _, b):  # pylint: disable=C0116
         """Handle callbacks for fromnum notify.
@@ -143,7 +144,7 @@ class BLEInterface(MeshInterface):
 
         # Bleak docs recommend always doing a scan before connecting (even if we know addr)
         device = self.find_device(address)
-        client = BLEClient(device.address)
+        client = BLEClient(device.address, disconnected_callback=lambda _: self.close)
         client.connect()
         client.discover()
         return client
@@ -153,11 +154,20 @@ class BLEInterface(MeshInterface):
             if self.should_read:
                 self.should_read = False
                 retries = 0
-                while True:
+                while self._want_receive:
                     try:
                         b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
-                    except Exception as e:
-                        raise BLEInterface.BLEError("Error reading BLE") from e
+                    except BleakDBusError as e:
+                        # Device disconnected probably, so end our read loop immediately
+                        logging.debug(f"Device disconnected, shutting down {e}")
+                        self._want_receive = False
+                    except BleakError as e:
+                        # We were definitely disconnected
+                        if "Not connected" in str(e):
+                            logging.debug(f"Device disconnected, shutting down {e}")
+                            self._want_receive = False
+                        else:
+                            raise BLEInterface.BLEError("Error reading BLE") from e
                     if not b:
                         if retries < 5:
                             time.sleep(0.1)
@@ -188,7 +198,10 @@ class BLEInterface(MeshInterface):
 
     def close(self):
         atexit.unregister(self._exit_handler)
-        MeshInterface.close(self)
+        try:
+            MeshInterface.close(self)
+        except Exception as e:
+            logging.error(f"Error closing mesh interface: {e}")
 
         if self._want_receive:
             self.want_receive = False  # Tell the thread we want it to stop
