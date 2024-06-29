@@ -24,8 +24,16 @@ import serial.tools.list_ports # type: ignore[import-untyped]
 from meshtastic.supported_device import supported_devices
 from meshtastic.version import get_active_version
 
-"""Some devices such as a seger jlink we never want to accidentally open"""
-blacklistVids = dict.fromkeys([0x1366])
+"""Some devices such as a seger jlink or st-link we never want to accidentally open
+0x1915 NordicSemi (PPK2)
+"""
+blacklistVids = dict.fromkeys([0x1366, 0x0483, 0x1915])
+
+"""Some devices are highly likely to be meshtastic.
+0x239a RAK4631
+0x303a Heltec tracker"""
+whitelistVids = dict.fromkeys([0x239a, 0x303a])
+
 
 def quoteBooleans(a_string):
     """Quote booleans
@@ -130,19 +138,35 @@ def findPorts(eliminate_duplicates: bool=False) -> List[str]:
     Returns:
         list -- a list of device paths
     """
-    l = list(
+    all_ports = serial.tools.list_ports.comports()
+
+    # look for 'likely' meshtastic devices
+    ports = list(
         map(
             lambda port: port.device,
             filter(
-                lambda port: port.vid is not None and port.vid not in blacklistVids,
-                serial.tools.list_ports.comports(),
+                lambda port: port.vid is not None and port.vid in whitelistVids,
+                all_ports,
             ),
         )
     )
-    l.sort()
+
+    # if no likely devices, just list everything not blacklisted
+    if len(ports) == 0:
+        ports = list(
+            map(
+                lambda port: port.device,
+                filter(
+                    lambda port: port.vid is not None and port.vid not in blacklistVids,
+                    all_ports,
+                ),
+            )
+        )
+
+    ports.sort()
     if eliminate_duplicates:
-        l = eliminate_duplicate_port(l)
-    return l
+        ports = eliminate_duplicate_port(ports)
+    return ports
 
 
 class dotdict(dict):

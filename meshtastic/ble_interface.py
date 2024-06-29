@@ -6,6 +6,7 @@ import struct
 import time
 from threading import Event, Thread
 from typing import Optional
+from print_color import print
 
 from bleak import BleakClient, BleakScanner, BLEDevice
 
@@ -16,6 +17,8 @@ SERVICE_UUID = "6ba1b218-15a8-461f-9fa8-5dcae273eafd"
 TORADIO_UUID = "f75c76d2-129e-4dad-a1dd-7866124401e7"
 FROMRADIO_UUID = "2c55e69e-4993-11ed-b878-0242ac120002"
 FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
+LOGRADIO_UUID = "6c6fd238-78fa-436b-aacf-15c5be1ef2e2"
+
 
 
 class BLEInterface(MeshInterface):
@@ -75,11 +78,27 @@ class BLEInterface(MeshInterface):
 
         logging.debug("Register FROMNUM notify callback")
         self.client.start_notify(FROMNUM_UUID, self.from_num_handler)
+        self.client.start_notify(LOGRADIO_UUID, self.log_radio_handler)
 
     async def from_num_handler(self, _, b):  # pylint: disable=C0116
         from_num = struct.unpack("<I", bytes(b))[0]
         logging.debug(f"FROMNUM notify: {from_num}")
         self.should_read = True
+
+    async def log_radio_handler(self, _, b): # pylint: disable=C0116
+        log_radio = b.decode('utf-8').replace('\n', '')
+        if log_radio.startswith("DEBUG"):
+            print(log_radio, color="cyan", end=None)
+        elif log_radio.startswith("INFO"):
+            print(log_radio, color="white", end=None)
+        elif log_radio.startswith("WARN"):
+            print(log_radio, color="yellow", end=None)
+        elif log_radio.startswith("ERROR"):
+            print(log_radio, color="red", end=None)
+        else:
+            print(log_radio, end=None)
+
+        self.should_read = False
 
     @staticmethod
     def scan() -> list[BLEDevice]:
