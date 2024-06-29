@@ -8,7 +8,7 @@ import time
 from threading import Thread
 from typing import Optional
 
-import print_color
+import print_color  # type: ignore[import-untyped]
 from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
 
@@ -139,7 +139,7 @@ class BLEInterface(MeshInterface):
         "Standardize BLE address by removing extraneous characters and lowercasing."
         return address.replace("-", "").replace("_", "").replace(":", "").lower()
 
-    def connect(self, address: Optional[str] = None):
+    def connect(self, address: Optional[str] = None) -> "BLEClient":
         "Connect to a device by address."
 
         # Bleak docs recommend always doing a scan before connecting (even if we know addr)
