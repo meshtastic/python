@@ -15,7 +15,7 @@ echo "Fixing up protobuf paths in ${TMPDIR} temp directory"
 
 
 # Ensure a clean build
-rm -r "${TMPDIR}"
+[ -e "${TMPDIR}" ] && rm -r "${TMPDIR}"
 
 INDIR=${TMPDIR}/in/meshtastic/protobuf
 OUTDIR=${TMPDIR}/out
