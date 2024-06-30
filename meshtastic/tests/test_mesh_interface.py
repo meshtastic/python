@@ -7,7 +7,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from hypothesis import given, strategies as st
 
-from .. import mesh_pb2, config_pb2, BROADCAST_ADDR, LOCAL_ADDR
+from ..protobuf import mesh_pb2, config_pb2
+from .. import BROADCAST_ADDR, LOCAL_ADDR
 from ..mesh_interface import MeshInterface, _timeago
 from ..node import Node
 

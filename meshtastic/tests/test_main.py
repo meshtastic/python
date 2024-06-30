@@ -21,7 +21,7 @@ from meshtastic.__main__ import (
 )
 from meshtastic import mt_config
 
-from ..channel_pb2 import Channel # pylint: disable=E0611
+from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 
 # from ..ble_interface import BLEInterface
 from ..node import Node
