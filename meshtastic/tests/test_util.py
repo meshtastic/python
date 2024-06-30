@@ -9,7 +9,7 @@ import pytest
 from hypothesis import given, strategies as st
 
 from meshtastic.supported_device import SupportedDevice
-from meshtastic.mesh_pb2 import MyNodeInfo
+from meshtastic.protobuf import mesh_pb2
 from meshtastic.util import (
     Timeout,
     active_ports_on_supported_devices,
@@ -555,7 +555,7 @@ def test_active_ports_on_supported_devices_mac_duplicates_check(mock_platform, m
 @pytest.mark.unit
 def test_message_to_json_shows_all():
     """Test that message_to_json prints fields that aren't included in data passed in"""
-    actual = json.loads(message_to_json(MyNodeInfo()))
+    actual = json.loads(message_to_json(mesh_pb2.MyNodeInfo()))
     expected = { "myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0 }
     assert actual == expected
 

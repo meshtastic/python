@@ -17,7 +17,8 @@ from pubsub import pub # type: ignore[import-untyped]
 import meshtastic.test
 import meshtastic.util
 from meshtastic import mt_config
-from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware, BROADCAST_ADDR
+from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
+from meshtastic import remote_hardware, BROADCAST_ADDR
 from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
