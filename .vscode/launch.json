@@ -164,7 +164,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": ["--debug", "--seriallog", "stdout"]
+      "args": ["--debug", "--seriallog"]
     },
     {
       "name": "meshtastic test",
