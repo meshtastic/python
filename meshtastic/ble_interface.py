@@ -205,7 +205,7 @@ class BLEInterface(MeshInterface):
 
         if self._want_receive:
             self.want_receive = False  # Tell the thread we want it to stop
-            self._receiveThread.join()
+            self._receiveThread.join(timeout=2) # If bleak is hung, don't wait for the thread to exit (it is critical we disconnect)
             self._receiveThread = None
 
         if self.client:
