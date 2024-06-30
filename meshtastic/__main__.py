@@ -1101,20 +1101,24 @@ def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
     outer = parser.add_argument_group('Connection', 'Optional arguments that specify how to connect to a Meshtastic device.')
     group = outer.add_mutually_exclusive_group()
     group.add_argument(
-        "--port",
-        help="The port of the device to connect to using serial, e.g. /dev/ttyUSB0.",
+        "--port", "--serial", "-s",
+        help="The port of the device to connect to using serial, e.g. /dev/ttyUSB0. (defaults to trying to detect a port)",
+        nargs="?",
+        const=None,
         default=None,
     )
 
     group.add_argument(
-        "--host",
-        help="The hostname or IP address of the device to connect to using TCP",
+        "--host", "--tcp", "-t",
+        help="Connect to a device using TCP, optionally passing hostname or IP address to use. (defaults to '%(const)s')",
+        nargs="?",
         default=None,
+        const="localhost"
     )
 
     group.add_argument(
-        "--ble",
-        help="Connect to a BLE device, optionally specifying a device name (defaults to 'any')",
+        "--ble", "-b",
+        help="Connect to a BLE device, optionally specifying a device name (defaults to '%(const)s')",
         nargs="?",
         default=None,
         const="any"
