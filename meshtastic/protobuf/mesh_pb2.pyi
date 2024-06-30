@@ -121,6 +121,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     WIO Tracker WM1110 family from Seeed Studio. Includes wio-1110-tracker and wio-1110-sdk
     """
+    RAK2560: _HardwareModel.ValueType  # 22
+    """
+    RAK2560 Solar base station based on RAK4630
+    """
     STATION_G1: _HardwareModel.ValueType  # 25
     """
     B&Q Consulting Station Edition G1: https://uniteng.com/wiki/doku.php?id=meshtastic:station
@@ -295,6 +299,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     RadioMaster 900 Bandit Nano, https://www.radiomasterrc.com/products/bandit-nano-expresslrs-rf-module
     ESP32-D0WDQ6 With SX1276/SKY66122, SSD1306 OLED and No GPS
     """
+    HELTEC_CAPSULE_SENSOR_V3: _HardwareModel.ValueType  # 65
+    """
+    Heltec Capsule Sensor V3 with ESP32-S3 CPU, Portable LoRa device that can replace GNSS modules or sensors
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -399,6 +407,10 @@ wiphone https://www.wiphone.io/
 WIO_WM1110: HardwareModel.ValueType  # 21
 """
 WIO Tracker WM1110 family from Seeed Studio. Includes wio-1110-tracker and wio-1110-sdk
+"""
+RAK2560: HardwareModel.ValueType  # 22
+"""
+RAK2560 Solar base station based on RAK4630
 """
 STATION_G1: HardwareModel.ValueType  # 25
 """
@@ -573,6 +585,10 @@ RADIOMASTER_900_BANDIT_NANO: HardwareModel.ValueType  # 64
 """
 RadioMaster 900 Bandit Nano, https://www.radiomasterrc.com/products/bandit-nano-expresslrs-rf-module
 ESP32-D0WDQ6 With SX1276/SKY66122, SSD1306 OLED and No GPS
+"""
+HELTEC_CAPSULE_SENSOR_V3: HardwareModel.ValueType  # 65
+"""
+Heltec Capsule Sensor V3 with ESP32-S3 CPU, Portable LoRa device that can replace GNSS modules or sensors
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """

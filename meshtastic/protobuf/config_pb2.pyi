@@ -960,6 +960,79 @@ class Config(google.protobuf.message.Message):
         TFT Full Color Displays (not implemented yet)
         """
 
+        class _CompassOrientation:
+            ValueType = typing.NewType("ValueType", builtins.int)
+            V: typing_extensions.TypeAlias = ValueType
+
+        class _CompassOrientationEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Config.DisplayConfig._CompassOrientation.ValueType], builtins.type):
+            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+            DEGREES_0: Config.DisplayConfig._CompassOrientation.ValueType  # 0
+            """
+            The compass and the display are in the same orientation.
+            """
+            DEGREES_90: Config.DisplayConfig._CompassOrientation.ValueType  # 1
+            """
+            Rotate the compass by 90 degrees.
+            """
+            DEGREES_180: Config.DisplayConfig._CompassOrientation.ValueType  # 2
+            """
+            Rotate the compass by 180 degrees.
+            """
+            DEGREES_270: Config.DisplayConfig._CompassOrientation.ValueType  # 3
+            """
+            Rotate the compass by 270 degrees.
+            """
+            DEGREES_0_INVERTED: Config.DisplayConfig._CompassOrientation.ValueType  # 4
+            """
+            Don't rotate the compass, but invert the result.
+            """
+            DEGREES_90_INVERTED: Config.DisplayConfig._CompassOrientation.ValueType  # 5
+            """
+            Rotate the compass by 90 degrees and invert.
+            """
+            DEGREES_180_INVERTED: Config.DisplayConfig._CompassOrientation.ValueType  # 6
+            """
+            Rotate the compass by 180 degrees and invert.
+            """
+            DEGREES_270_INVERTED: Config.DisplayConfig._CompassOrientation.ValueType  # 7
+            """
+            Rotate the compass by 270 degrees and invert.
+            """
+
+        class CompassOrientation(_CompassOrientation, metaclass=_CompassOrientationEnumTypeWrapper): ...
+        DEGREES_0: Config.DisplayConfig.CompassOrientation.ValueType  # 0
+        """
+        The compass and the display are in the same orientation.
+        """
+        DEGREES_90: Config.DisplayConfig.CompassOrientation.ValueType  # 1
+        """
+        Rotate the compass by 90 degrees.
+        """
+        DEGREES_180: Config.DisplayConfig.CompassOrientation.ValueType  # 2
+        """
+        Rotate the compass by 180 degrees.
+        """
+        DEGREES_270: Config.DisplayConfig.CompassOrientation.ValueType  # 3
+        """
+        Rotate the compass by 270 degrees.
+        """
+        DEGREES_0_INVERTED: Config.DisplayConfig.CompassOrientation.ValueType  # 4
+        """
+        Don't rotate the compass, but invert the result.
+        """
+        DEGREES_90_INVERTED: Config.DisplayConfig.CompassOrientation.ValueType  # 5
+        """
+        Rotate the compass by 90 degrees and invert.
+        """
+        DEGREES_180_INVERTED: Config.DisplayConfig.CompassOrientation.ValueType  # 6
+        """
+        Rotate the compass by 180 degrees and invert.
+        """
+        DEGREES_270_INVERTED: Config.DisplayConfig.CompassOrientation.ValueType  # 7
+        """
+        Rotate the compass by 270 degrees and invert.
+        """
+
         SCREEN_ON_SECS_FIELD_NUMBER: builtins.int
         GPS_FORMAT_FIELD_NUMBER: builtins.int
         AUTO_SCREEN_CAROUSEL_SECS_FIELD_NUMBER: builtins.int
@@ -970,6 +1043,7 @@ class Config(google.protobuf.message.Message):
         DISPLAYMODE_FIELD_NUMBER: builtins.int
         HEADING_BOLD_FIELD_NUMBER: builtins.int
         WAKE_ON_TAP_OR_MOTION_FIELD_NUMBER: builtins.int
+        COMPASS_ORIENTATION_FIELD_NUMBER: builtins.int
         screen_on_secs: builtins.int
         """
         Number of seconds the screen stays on after pressing the user button or receiving a message
@@ -1013,6 +1087,10 @@ class Config(google.protobuf.message.Message):
         """
         Should we wake the screen up on accelerometer detected motion or tap
         """
+        compass_orientation: global___Config.DisplayConfig.CompassOrientation.ValueType
+        """
+        Indicates how to rotate or invert the compass output to accurate display on the display.
+        """
         def __init__(
             self,
             *,
@@ -1026,8 +1104,9 @@ class Config(google.protobuf.message.Message):
             displaymode: global___Config.DisplayConfig.DisplayMode.ValueType = ...,
             heading_bold: builtins.bool = ...,
             wake_on_tap_or_motion: builtins.bool = ...,
+            compass_orientation: global___Config.DisplayConfig.CompassOrientation.ValueType = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["auto_screen_carousel_secs", b"auto_screen_carousel_secs", "compass_north_top", b"compass_north_top", "displaymode", b"displaymode", "flip_screen", b"flip_screen", "gps_format", b"gps_format", "heading_bold", b"heading_bold", "oled", b"oled", "screen_on_secs", b"screen_on_secs", "units", b"units", "wake_on_tap_or_motion", b"wake_on_tap_or_motion"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["auto_screen_carousel_secs", b"auto_screen_carousel_secs", "compass_north_top", b"compass_north_top", "compass_orientation", b"compass_orientation", "displaymode", b"displaymode", "flip_screen", b"flip_screen", "gps_format", b"gps_format", "heading_bold", b"heading_bold", "oled", b"oled", "screen_on_secs", b"screen_on_secs", "units", b"units", "wake_on_tap_or_motion", b"wake_on_tap_or_motion"]) -> None: ...
 
     @typing.final
     class LoRaConfig(google.protobuf.message.Message):
