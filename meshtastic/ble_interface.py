@@ -6,7 +6,7 @@ import logging
 import struct
 import time
 from threading import Thread
-from typing import Optional
+from typing import List, Optional
 
 import print_color  # type: ignore[import-untyped]
 from bleak import BleakClient, BleakScanner, BLEDevice
@@ -94,7 +94,7 @@ class BLEInterface(MeshInterface):
             print_color.print(log_radio, end=None)
 
     @staticmethod
-    def scan() -> list[BLEDevice]:
+    def scan() -> List[BLEDevice]:
         """Scan for available BLE devices."""
         with BLEClient() as client:
             logging.info("Scanning for BLE devices (takes 10 seconds)...")
