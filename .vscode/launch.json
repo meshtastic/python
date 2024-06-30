@@ -204,7 +204,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": false,
-      "args": ["--slog-out", "default", "--power-ppk2-meter", "--power-stress", "--power-voltage", "3.3", "--seriallog", "stdout"]
+      "args": ["--slog-out", "default", "--power-ppk2-meter", "--power-stress", "--power-voltage", "3.3", "--seriallog"]
     },
     {
       "name": "meshtastic test",

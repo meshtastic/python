@@ -1212,7 +1212,10 @@ def initParser():
 
     group.add_argument(
         "--seriallog",
-        help="Log device serial output to either 'stdout', 'none' or a filename to append to.",
+        help="Log device serial output to either 'none' or a filename to append to.  Defaults to 'stdout' if no filename specified.",
+        nargs='?',
+        const="stdout",
+        default=None
     )
 
     group.add_argument(

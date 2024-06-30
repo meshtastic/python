@@ -523,11 +523,11 @@ class MeshInterface: # pylint: disable=R0902
         asDict = google.protobuf.json_format.MessageToDict(routeDiscovery)
 
         print("Route traced:")
-        routeStr = self._nodeNumToId(p["to"])
+        routeStr = self._nodeNumToId(p["to"]) or f"{p['to']:08x}"
         if "route" in asDict:
             for nodeNum in asDict["route"]:
-                routeStr += " --> " + self._nodeNumToId(nodeNum)
-        routeStr += " --> " + self._nodeNumToId(p["from"])
+                routeStr += " --> " + (self._nodeNumToId(nodeNum) or f"{nodeNum:08x}")
+        routeStr += " --> " + (self._nodeNumToId(p["from"]) or f"{p['from']:08x}")
         print(routeStr)
 
         self._acknowledgment.receivedTraceRoute = True
@@ -1055,7 +1055,7 @@ class MeshInterface: # pylint: disable=R0902
             position["longitude"] = float(position["longitudeI"] * Decimal("1e-7"))
         return position
 
-    def _nodeNumToId(self, num):
+    def _nodeNumToId(self, num: int) -> Optional[str]:
         """Map a node node number to a node ID
 
         Arguments:
@@ -1068,7 +1068,7 @@ class MeshInterface: # pylint: disable=R0902
             return BROADCAST_ADDR
 
         try:
-            return self.nodesByNum[num]["user"]["id"]
+            return self.nodesByNum[num]["user"]["id"] #type: ignore[index]
         except:
             logging.debug(f"Node {num} not found for fromId")
             return None

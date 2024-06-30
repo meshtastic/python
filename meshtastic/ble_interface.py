@@ -6,7 +6,7 @@ import logging
 import struct
 import time
 from threading import Thread
-from typing import Optional
+from typing import List, Optional
 
 from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
@@ -84,7 +84,7 @@ class BLEInterface(MeshInterface):
         self._handleLogLine(log_radio)
 
     @staticmethod
-    def scan() -> list[BLEDevice]:
+    def scan() -> List[BLEDevice]:
         """Scan for available BLE devices."""
         with BLEClient() as client:
             logging.info("Scanning for BLE devices (takes 10 seconds)...")
@@ -195,7 +195,7 @@ class BLEInterface(MeshInterface):
 
         if self._want_receive:
             self.want_receive = False  # Tell the thread we want it to stop
-            self._receiveThread.join()
+            self._receiveThread.join(timeout=2) # If bleak is hung, don't wait for the thread to exit (it is critical we disconnect)
             self._receiveThread = None
 
         if self.client:
