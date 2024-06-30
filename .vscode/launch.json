@@ -10,7 +10,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": false,
-      "args": ["--ble", "--ble-dest", "Meshtastic_9f6e"]
+      "args": ["--ble", "Meshtastic_9f6e"]
     },
      {
       "name": "meshtastic BLE scan",
