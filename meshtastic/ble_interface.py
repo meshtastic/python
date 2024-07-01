@@ -90,20 +90,22 @@ class BLEInterface(MeshInterface):
         self.should_read = True
 
     async def log_radio_handler(self, _, b):  # pylint: disable=C0116
-        if b is not mesh_pb2.LogRecord:
-            return
+        log_record = mesh_pb2.LogRecord()
+        log_record.ParseFromString(bytes(b))
+        log_record.message.replace("\n", "")
 
-        log_record = b
+        message = f'[{log_record.source}] {log_record.message}' if log_record.source else log_record.message
+
         if log_record.DEBUG:
-            print_color.print(log_record.message, color="cyan", end=None)
+            print_color.print(message, color="cyan", end=None)
         elif log_record.INFO:
-            print_color.print(log_record.message, color="white", end=None)
+            print_color.print(message, color="white", end=None)
         elif log_record.WARNING:
-            print_color.print(log_record.message, color="yellow", end=None)
+            print_color.print(message, color="yellow", end=None)
         elif log_record.ERROR:
-            print_color.print(log_record.message, color="red", end=None)
+            print_color.print(message, color="red", end=None)
         else:
-            print_color.print(log_record.message, end=None)
+            print_color.print(message, end=None)
 
     async def legacy_log_radio_handler(self, _, b):  # pylint: disable=C0116
         log_radio = b.decode("utf-8").replace("\n", "")
