@@ -1443,16 +1443,6 @@ def initParser():
     )
 
     group.add_argument(
-        "--gpio-wrb", nargs=2, help="Set a particular GPIO # to 1 or 0", action="append"
-    )
-
-    group.add_argument("--gpio-rd", help="Read from a GPIO mask (ex: '0x10')")
-
-    group.add_argument(
-        "--gpio-watch", help="Start watching a GPIO mask for changes (ex: '0x10')"
-    )
-
-    group.add_argument(
         "--no-time",
         help="Suppress sending the current time to the mesh",
         action="store_true",
@@ -1490,7 +1480,7 @@ def initParser():
         "--pos-fields",
         help="Specify fields to send when sending a position. Use no argument for a list of valid values. "
         "Can pass multiple values as a space separated list like "
-        "this: '--pos-fields POS_ALTITUDE POS_ALT_MSL'",
+        "this: '--pos-fields ALTITUDE HEADING SPEED'",
         nargs="*",
         action="store",
     )
@@ -1530,6 +1520,21 @@ def initParser():
         help="Just stay open and listen to the protobuf stream. Enables debug logging.",
         action="store_true",
     )
+
+    remoteHardwareArgs = parser.add_argument_group('Remote Hardware', 'Arguments related to the Remote Hardware module')
+
+    remoteHardwareArgs.add_argument(
+        "--gpio-wrb", nargs=2, help="Set a particular GPIO # to 1 or 0", action="append"
+    )
+
+    remoteHardwareArgs.add_argument(
+        "--gpio-rd", help="Read from a GPIO mask (ex: '0x10')"
+    )
+
+    remoteHardwareArgs.add_argument(
+        "--gpio-watch", help="Start watching a GPIO mask for changes (ex: '0x10')"
+    )
+
 
     have_tunnel = platform.system() == "Linux"
     if have_tunnel:
