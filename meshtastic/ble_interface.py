@@ -56,7 +56,8 @@ class BLEInterface(MeshInterface):
             self.close()
             raise e
 
-        self.client.start_notify(LOGRADIO_UUID, self.log_radio_handler)
+        if self.client.has_characteristic(LOGRADIO_UUID):
+            self.client.start_notify(LOGRADIO_UUID, self.log_radio_handler)
 
         logging.debug("Mesh configure starting")
         self._startConfig()
@@ -247,6 +248,10 @@ class BLEClient:
 
     def write_gatt_char(self, *args, **kwargs):  # pylint: disable=C0116
         self.async_await(self.bleak_client.write_gatt_char(*args, **kwargs))
+
+    def has_characteristic(self, specifier):
+        """Check if the connected node supports a specified characteristic."""
+        return bool(self.bleak_client.services.get_characteristic(specifier))
 
     def start_notify(self, *args, **kwargs):  # pylint: disable=C0116
         self.async_await(self.bleak_client.start_notify(*args, **kwargs))
