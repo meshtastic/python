@@ -1480,7 +1480,7 @@ def initParser():
         "--pos-fields",
         help="Specify fields to send when sending a position. Use no argument for a list of valid values. "
         "Can pass multiple values as a space separated list like "
-        "this: '--pos-fields POS_ALTITUDE POS_ALT_MSL'",
+        "this: '--pos-fields ALTITUDE HEADING SPEED'",
         nargs="*",
         action="store",
     )
