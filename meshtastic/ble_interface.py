@@ -2,6 +2,7 @@
 """
 import asyncio
 import atexit
+import google.protobuf
 import logging
 import struct
 import time
@@ -9,16 +10,14 @@ from threading import Thread
 from typing import List, Optional
 import print_color  # type: ignore[import-untyped]
 
-from .protobuf import (
-    mesh_pb2,
-)
-import google.protobuf
-
 from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
 
 from meshtastic.mesh_interface import MeshInterface
 
+from .protobuf import (
+    mesh_pb2,
+)
 SERVICE_UUID = "6ba1b218-15a8-461f-9fa8-5dcae273eafd"
 TORADIO_UUID = "f75c76d2-129e-4dad-a1dd-7866124401e7"
 FROMRADIO_UUID = "2c55e69e-4993-11ed-b878-0242ac120002"
