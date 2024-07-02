@@ -125,6 +125,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     RAK2560 Solar base station based on RAK4630
     """
+    HELTEC_HRU_3601: _HardwareModel.ValueType  # 23
+    """
+    Heltec HRU-3601: https://heltec.org/project/hru-3601/
+    """
     STATION_G1: _HardwareModel.ValueType  # 25
     """
     B&Q Consulting Station Edition G1: https://uniteng.com/wiki/doku.php?id=meshtastic:station
@@ -411,6 +415,10 @@ WIO Tracker WM1110 family from Seeed Studio. Includes wio-1110-tracker and wio-1
 RAK2560: HardwareModel.ValueType  # 22
 """
 RAK2560 Solar base station based on RAK4630
+"""
+HELTEC_HRU_3601: HardwareModel.ValueType  # 23
+"""
+Heltec HRU-3601: https://heltec.org/project/hru-3601/
 """
 STATION_G1: HardwareModel.ValueType  # 25
 """

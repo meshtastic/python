@@ -580,6 +580,7 @@ class Config(google.protobuf.message.Message):
         LS_SECS_FIELD_NUMBER: builtins.int
         MIN_WAKE_SECS_FIELD_NUMBER: builtins.int
         DEVICE_BATTERY_INA_ADDRESS_FIELD_NUMBER: builtins.int
+        POWERMON_ENABLES_FIELD_NUMBER: builtins.int
         is_power_saving: builtins.bool
         """
         Description: Will sleep everything as much as possible, for the tracker and sensor role this will also include the lora radio. 
@@ -623,6 +624,11 @@ class Config(google.protobuf.message.Message):
         """
         I2C address of INA_2XX to use for reading device battery voltage
         """
+        powermon_enables: builtins.int
+        """
+        If non-zero, we want powermon log outputs.  With the particular (bitfield) sources enabled.
+        Note: we picked an ID of 32 so that lower more efficient IDs can be used for more frequently used options.
+        """
         def __init__(
             self,
             *,
@@ -634,8 +640,9 @@ class Config(google.protobuf.message.Message):
             ls_secs: builtins.int = ...,
             min_wake_secs: builtins.int = ...,
             device_battery_ina_address: builtins.int = ...,
+            powermon_enables: builtins.int = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["adc_multiplier_override", b"adc_multiplier_override", "device_battery_ina_address", b"device_battery_ina_address", "is_power_saving", b"is_power_saving", "ls_secs", b"ls_secs", "min_wake_secs", b"min_wake_secs", "on_battery_shutdown_after_secs", b"on_battery_shutdown_after_secs", "sds_secs", b"sds_secs", "wait_bluetooth_secs", b"wait_bluetooth_secs"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["adc_multiplier_override", b"adc_multiplier_override", "device_battery_ina_address", b"device_battery_ina_address", "is_power_saving", b"is_power_saving", "ls_secs", b"ls_secs", "min_wake_secs", b"min_wake_secs", "on_battery_shutdown_after_secs", b"on_battery_shutdown_after_secs", "powermon_enables", b"powermon_enables", "sds_secs", b"sds_secs", "wait_bluetooth_secs", b"wait_bluetooth_secs"]) -> None: ...
 
     @typing.final
     class NetworkConfig(google.protobuf.message.Message):
@@ -1530,6 +1537,7 @@ class Config(google.protobuf.message.Message):
         ENABLED_FIELD_NUMBER: builtins.int
         MODE_FIELD_NUMBER: builtins.int
         FIXED_PIN_FIELD_NUMBER: builtins.int
+        DEVICE_LOGGING_ENABLED_FIELD_NUMBER: builtins.int
         enabled: builtins.bool
         """
         Enable Bluetooth on the device
@@ -1542,14 +1550,19 @@ class Config(google.protobuf.message.Message):
         """
         Specified PIN for PairingMode.FixedPin
         """
+        device_logging_enabled: builtins.bool
+        """
+        Enables device (serial style logs) over Bluetooth
+        """
         def __init__(
             self,
             *,
             enabled: builtins.bool = ...,
             mode: global___Config.BluetoothConfig.PairingMode.ValueType = ...,
             fixed_pin: builtins.int = ...,
+            device_logging_enabled: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["enabled", b"enabled", "fixed_pin", b"fixed_pin", "mode", b"mode"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["device_logging_enabled", b"device_logging_enabled", "enabled", b"enabled", "fixed_pin", b"fixed_pin", "mode", b"mode"]) -> None: ...
 
     DEVICE_FIELD_NUMBER: builtins.int
     POSITION_FIELD_NUMBER: builtins.int
