@@ -7,18 +7,24 @@ import struct
 import time
 from threading import Thread
 from typing import List, Optional
-
 import print_color  # type: ignore[import-untyped]
+
 from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
 
+import google.protobuf
+
 from meshtastic.mesh_interface import MeshInterface
 
+from .protobuf import (
+    mesh_pb2,
+)
 SERVICE_UUID = "6ba1b218-15a8-461f-9fa8-5dcae273eafd"
 TORADIO_UUID = "f75c76d2-129e-4dad-a1dd-7866124401e7"
 FROMRADIO_UUID = "2c55e69e-4993-11ed-b878-0242ac120002"
 FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
-LOGRADIO_UUID = "6c6fd238-78fa-436b-aacf-15c5be1ef2e2"
+LEGACY_LOGRADIO_UUID = "6c6fd238-78fa-436b-aacf-15c5be1ef2e2"
+LOGRADIO_UUID = "5a3d6e49-06e6-4423-9944-e9de8cdf9547"
 
 
 class BLEInterface(MeshInterface):
@@ -56,6 +62,9 @@ class BLEInterface(MeshInterface):
             self.close()
             raise e
 
+        if self.client.has_characteristic(LEGACY_LOGRADIO_UUID):
+            self.client.start_notify(LEGACY_LOGRADIO_UUID, self.legacy_log_radio_handler)
+
         if self.client.has_characteristic(LOGRADIO_UUID):
             self.client.start_notify(LOGRADIO_UUID, self.log_radio_handler)
 
@@ -82,6 +91,26 @@ class BLEInterface(MeshInterface):
         self.should_read = True
 
     async def log_radio_handler(self, _, b):  # pylint: disable=C0116
+        log_record = mesh_pb2.LogRecord()
+        try:
+            log_record.ParseFromString(bytes(b))
+        except google.protobuf.message.DecodeError:
+            return
+
+        message = f'[{log_record.source}] {log_record.message}' if log_record.source else log_record.message
+
+        if log_record.DEBUG:
+            print_color.print(message, color="cyan", end=None)
+        elif log_record.INFO:
+            print_color.print(message, color="white", end=None)
+        elif log_record.WARNING:
+            print_color.print(message, color="yellow", end=None)
+        elif log_record.ERROR:
+            print_color.print(message, color="red", end=None)
+        else:
+            print_color.print(message, end=None)
+
+    async def legacy_log_radio_handler(self, _, b):  # pylint: disable=C0116
         log_radio = b.decode("utf-8").replace("\n", "")
         if log_radio.startswith("DEBUG"):
             print_color.print(log_radio, color="cyan", end=None)
