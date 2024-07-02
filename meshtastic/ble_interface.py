@@ -7,12 +7,13 @@ import struct
 import time
 from threading import Thread
 from typing import List, Optional
+import print_color  # type: ignore[import-untyped]
 
 from .protobuf import (
     mesh_pb2,
 )
+import google.protobuf
 
-import print_color  # type: ignore[import-untyped]
 from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
 
@@ -91,8 +92,11 @@ class BLEInterface(MeshInterface):
 
     async def log_radio_handler(self, _, b):  # pylint: disable=C0116
         log_record = mesh_pb2.LogRecord()
-        log_record.ParseFromString(bytes(b))
-        log_record.message.replace("\n", "")
+        try:
+            log_record.ParseFromString(bytes(b))
+            log_record.message = log_record.message.replace("\n", "")
+        except google.protobuf.message.DecodeError:
+            return
 
         message = f'[{log_record.source}] {log_record.message}' if log_record.source else log_record.message
 
