@@ -93,7 +93,6 @@ class BLEInterface(MeshInterface):
         log_record = mesh_pb2.LogRecord()
         try:
             log_record.ParseFromString(bytes(b))
-            log_record.message = log_record.message.replace("\n", "")
         except google.protobuf.message.DecodeError:
             return
 
