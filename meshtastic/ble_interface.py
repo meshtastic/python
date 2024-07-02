@@ -2,7 +2,6 @@
 """
 import asyncio
 import atexit
-import google.protobuf
 import logging
 import struct
 import time
@@ -12,6 +11,8 @@ import print_color  # type: ignore[import-untyped]
 
 from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
+
+import google.protobuf
 
 from meshtastic.mesh_interface import MeshInterface
 
