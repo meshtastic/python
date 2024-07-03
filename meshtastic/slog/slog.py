@@ -118,7 +118,8 @@ class StructuredLogger:
         self.writer.close()
         f = self.raw_file
         self.raw_file = None  # mark that we are shutting down
-        f.close()  # Close the raw.txt file
+        if f:
+            f.close()  # Close the raw.txt file
 
     def _onLogMessage(self, line: str) -> None:
         """Handle log messages.

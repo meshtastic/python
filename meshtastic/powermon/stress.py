@@ -3,10 +3,7 @@
 import logging
 import time
 
-from pubsub import pub  # type: ignore[import-untyped]
-
-from meshtastic.protobuf import portnums_pb2
-from meshtastic.protobuf.powermon_pb2 import PowerStressMessage
+from ..protobuf import ( portnums_pb2, powermon_pb2 )
 
 
 def onPowerStressResponse(packet, interface):
@@ -20,7 +17,7 @@ class PowerStressClient:
     The client stub for talking to the firmware PowerStress module.
     """
 
-    def __init__(self, iface, node_id = None):
+    def __init__(self, iface, node_id=None):
         """
         Create a new PowerStressClient instance.
 
@@ -31,14 +28,18 @@ class PowerStressClient:
         if not node_id:
             node_id = iface.myInfo.my_node_num
 
-        self.node_id = node_id            
+        self.node_id = node_id
         # No need to subscribe - because we
         # pub.subscribe(onGPIOreceive, "meshtastic.receive.powerstress")
 
     def sendPowerStress(
-        self, cmd: PowerStressMessage.Opcode.ValueType, num_seconds: float = 0.0, onResponse=None
+        self,
+        cmd: powermon_pb2.PowerStressMessage.Opcode.ValueType,
+        num_seconds: float = 0.0,
+        onResponse=None,
     ):
-        r = PowerStressMessage()
+        """Client goo for talking with the device side agent."""
+        r = powermon_pb2.PowerStressMessage()
         r.cmd = cmd
         r.num_seconds = num_seconds
 
@@ -49,15 +50,15 @@ class PowerStressClient:
             wantAck=True,
             wantResponse=True,
             onResponse=onResponse,
-            onResponseAckPermitted=True
+            onResponseAckPermitted=True,
         )
+
 
 class PowerStress:
     """Walk the UUT through a set of power states so we can capture repeatable power consumption measurements."""
 
     def __init__(self, iface):
         self.client = PowerStressClient(iface)
-
 
     def run(self):
         """Run the power stress test."""
@@ -68,8 +69,10 @@ class PowerStress:
             nonlocal gotAck
             gotAck = True
 
-        logging.info("Starting power stress test, attempting to contact UUT...")   
-        self.client.sendPowerStress(PowerStressMessage.PRINT_INFO, onResponse=onResponse)
+        logging.info("Starting power stress test, attempting to contact UUT...")
+        self.client.sendPowerStress(
+            powermon_pb2.PowerStressMessage.PRINT_INFO, onResponse=onResponse
+        )
 
         # Wait for the response
         while not gotAck:

@@ -854,7 +854,7 @@ def onConnected(interface):
 
         if args.slog_out or args.power_stress:
             # Setup loggers
-            global meter
+            global meter  # pylint: disable=global-variable-not-assigned
             LogSet(interface, args.slog_out if args.slog_out != 'default' else None, meter)
 
             if args.power_stress:
@@ -1001,9 +1001,8 @@ def export_config(interface):
 def create_power_meter():
     """Setup the power meter."""
 
-    global meter
+    global meter  # pylint: disable=global-statement
     args = mt_config.args
-    meter = None # assume no power meter
     if args.power_riden:
         meter = RidenPowerSupply(args.power_riden)
     elif args.power_ppk2_supply or args.power_ppk2_meter:

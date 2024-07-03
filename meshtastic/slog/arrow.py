@@ -4,7 +4,7 @@ import logging
 import os
 
 import pyarrow as pa
-import pyarrow.feather as feather
+from pyarrow import feather
 
 chunk_size = 1000  # disk writes are batched based on this number of rows
 

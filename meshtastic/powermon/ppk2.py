@@ -9,7 +9,6 @@ from ppk2_api import ppk2_api  # type: ignore[import-untyped]
 
 from .power_supply import PowerError, PowerSupply
 
-
 class PPK2PowerSupply(PowerSupply):
     """Interface for talking with the NRF PPK2 high-resolution micro-power supply.
     Power Profiler Kit II is what you should google to find it for purchase.
@@ -130,7 +129,9 @@ class PPK2PowerSupply(PowerSupply):
         # must be after setting source voltage and before setting mode
         self.r.start_measuring()  # send command to ppk2
 
-        if not s:  # min power outpuf of PPK2.  If less than this assume we want just meter mode.
+        if (
+            not s
+        ):  # min power outpuf of PPK2.  If less than this assume we want just meter mode.
             self.r.use_ampere_meter()
         else:
             self.r.use_source_meter()  # set source meter mode
