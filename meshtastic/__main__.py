@@ -852,10 +852,10 @@ def onConnected(interface):
             qr = pyqrcode.create(url)
             print(qr.terminal())
 
-        if args.slog_out or args.power_stress:
+        if args.slog or args.power_stress:
             # Setup loggers
             global meter  # pylint: disable=global-variable-not-assigned
-            LogSet(interface, args.slog_out if args.slog_out != 'default' else None, meter)
+            LogSet(interface, args.slog if args.slog != 'default' else None, meter)
 
             if args.power_stress:
                 stress = PowerStress(interface)
@@ -1584,8 +1584,11 @@ def initParser():
     )
 
     power_group.add_argument(
-        "--slog-out",
-        help="A directory to store structured logging to, or 'default' for automatically selected.",
+        "--slog",
+        help="Store structured-logs (slogs) for this run, optionally you can specifiy a destination directory",
+        nargs="?",
+        default=None,
+        const="default"
     )
 
     group.add_argument(
