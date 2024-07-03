@@ -307,6 +307,23 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Heltec Capsule Sensor V3 with ESP32-S3 CPU, Portable LoRa device that can replace GNSS modules or sensors
     """
+    HELTEC_VISION_MASTER_T190: _HardwareModel.ValueType  # 66
+    """
+    Heltec Vision Master T190 with ESP32-S3 CPU, and a 1.90 inch TFT display
+    """
+    HELTEC_VISION_MASTER_E213: _HardwareModel.ValueType  # 67
+    """
+    Heltec Vision Master E213 with ESP32-S3 CPU, and a 2.13 inch E-Ink display
+    """
+    HELTEC_VISION_MASTER_E290: _HardwareModel.ValueType  # 68
+    """
+    Heltec Vision Master E290 with ESP32-S3 CPU, and a 2.9 inch E-Ink display
+    """
+    HELTEC_MESH_NODE_T114: _HardwareModel.ValueType  # 69
+    """
+    Heltec Mesh Node T114 board with nRF52840 CPU, and a 1.14 inch TFT display, Ultimate low-power design,
+    specifically adapted for the Meshtatic project
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -597,6 +614,23 @@ ESP32-D0WDQ6 With SX1276/SKY66122, SSD1306 OLED and No GPS
 HELTEC_CAPSULE_SENSOR_V3: HardwareModel.ValueType  # 65
 """
 Heltec Capsule Sensor V3 with ESP32-S3 CPU, Portable LoRa device that can replace GNSS modules or sensors
+"""
+HELTEC_VISION_MASTER_T190: HardwareModel.ValueType  # 66
+"""
+Heltec Vision Master T190 with ESP32-S3 CPU, and a 1.90 inch TFT display
+"""
+HELTEC_VISION_MASTER_E213: HardwareModel.ValueType  # 67
+"""
+Heltec Vision Master E213 with ESP32-S3 CPU, and a 2.13 inch E-Ink display
+"""
+HELTEC_VISION_MASTER_E290: HardwareModel.ValueType  # 68
+"""
+Heltec Vision Master E290 with ESP32-S3 CPU, and a 2.9 inch E-Ink display
+"""
+HELTEC_MESH_NODE_T114: HardwareModel.ValueType  # 69
+"""
+Heltec Mesh Node T114 board with nRF52840 CPU, and a 1.14 inch TFT display, Ultimate low-power design,
+specifically adapted for the Meshtatic project
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """

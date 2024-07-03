@@ -748,9 +748,8 @@ class MeshInterface: # pylint: disable=R0902
 
         def callback():
             self.heartbeatTimer = None
-            prefs = self.localNode.localConfig
-            i = prefs.power.ls_secs / 2
-            logging.debug(f"Sending heartbeat, interval {i}")
+            i = 300
+            logging.debug(f"Sending heartbeat, interval {i} seconds")
             if i != 0:
                 self.heartbeatTimer = threading.Timer(i, callback)
                 self.heartbeatTimer.start()
