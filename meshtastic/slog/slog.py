@@ -110,7 +110,7 @@ class StructuredLogger:
     """Sniffs device logs for structured log messages, extracts those into apache arrow format.
     Also writes the raw log messages to raw.txt"""
 
-    def __init__(self, client: MeshInterface, dir_path: str) -> None:
+    def __init__(self, client: MeshInterface, dir_path: str, include_raw=True) -> None:
         """Initialize the StructuredLogger object.
 
         client (MeshInterface): The MeshInterface object to monitor.
@@ -122,6 +122,10 @@ class StructuredLogger:
         all_fields = reduce(
             (lambda x, y: x + y), map(lambda x: x.fields, log_defs.values())
         )
+
+        self.include_raw = include_raw
+        if self.include_raw:
+            all_fields.append(("raw", pa.string()))
 
         self.writer.set_schema(pa.schema(all_fields))
 
@@ -151,6 +155,9 @@ class StructuredLogger:
 
         line (str): the line of log output
         """
+
+        di = {}  # the dictionary of the fields we found to log
+
         m = log_regex.match(line)
         if m:
             src = m.group(1)
@@ -163,12 +170,17 @@ class StructuredLogger:
                 r = d.format.parse(args)  # get the values with the correct types
                 if r:
                     di = r.named
-                    di["time"] = datetime.now()
-                    self.writer.add_row(di)
                 else:
                     logging.warning(f"Failed to parse slog {line} with {d.format}")
             else:
                 logging.warning(f"Unknown Structured Log: {line}")
+
+        # Store our structured log record
+        if di or self.include_raw:
+            di["time"] = datetime.now()
+            if self.include_raw:
+                di["raw"] = line
+            self.writer.add_row(di)
 
         if self.raw_file:
             self.raw_file.write(line + "\n")  # Write the raw log
