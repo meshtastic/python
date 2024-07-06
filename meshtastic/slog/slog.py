@@ -9,10 +9,12 @@ import threading
 import time
 from dataclasses import dataclass
 from datetime import datetime
+from functools import reduce
 from typing import Optional
 
 import parse  # type: ignore[import-untyped]
 import platformdirs
+import pyarrow as pa
 from pubsub import pub  # type: ignore[import-untyped]
 
 from meshtastic.mesh_interface import MeshInterface
@@ -26,15 +28,29 @@ class LogDef:
     """Log definition."""
 
     code: str  # i.e. PM or B or whatever... see meshtastic slog documentation
+    fields: list[tuple[str, pa.DataType]]  # A list of field names and their arrow types
     format: parse.Parser  # A format string that can be used to parse the arguments
 
-    def __init__(self, code: str, fmt: str) -> None:
+    def __init__(self, code: str, fields: list[tuple[str, pa.DataType]]) -> None:
         """Initialize the LogDef object.
 
         code (str): The code.
         format (str): The format.
+
         """
         self.code = code
+        self.fields = fields
+
+        fmt = ""
+        for idx, f in enumerate(fields):
+            if idx != 0:
+                fmt += ","
+
+            # make the format string
+            suffix = (
+                "" if f[1] == pa.string() else ":d"
+            )  # treat as a string or an int (the only types we have so far)
+            fmt += "{" + f[0] + suffix + "}"
         self.format = parse.compile(fmt)
 
 
@@ -42,8 +58,9 @@ class LogDef:
 log_defs = {
     d.code: d
     for d in [
-        LogDef("B", "{boardid:d},{version}"),
-        LogDef("PM", "{bitmask:d},{reason}"),
+        LogDef("B", [("board_id", pa.uint32()), ("sw_version", pa.string())]),
+        LogDef("PM", [("pm_mask", pa.uint64()), ("pm_reason", pa.string())]),
+        LogDef("PS", [("ps_state", pa.uint64())]),
     ]
 }
 log_regex = re.compile(".*S:([0-9A-Za-z]+):(.*)")
@@ -99,7 +116,15 @@ class StructuredLogger:
         client (MeshInterface): The MeshInterface object to monitor.
         """
         self.client = client
+
+        # Setup the arrow writer (and its schema)
         self.writer = FeatherWriter(f"{dir_path}/slog")
+        all_fields = reduce(
+            (lambda x, y: x + y), map(lambda x: x.fields, log_defs.values())
+        )
+
+        self.writer.set_schema(pa.schema(all_fields))
+
         self.raw_file: Optional[
             io.TextIOWrapper
         ] = open(  # pylint: disable=consider-using-with
@@ -131,21 +156,20 @@ class StructuredLogger:
             src = m.group(1)
             args = m.group(2)
             args += " "  # append a space so that if the last arg is an empty str it will still be accepted as a match
-            logging.debug(f"SLog {src}, reason: {args}")
-            if src != "PM":
-                logging.warning(f"Not yet handling structured log {src} (FIXME)")
-            else:
-                d = log_defs.get(src)
-                if d:
-                    r = d.format.parse(args)  # get the values with the correct types
-                    if r:
-                        di = r.named
-                        di["time"] = datetime.now()
-                        self.writer.add_row(di)
-                    else:
-                        logging.warning(f"Failed to parse slog {line} with {d.format}")
+            logging.debug(f"SLog {src}, args: {args}")
+
+            d = log_defs.get(src)
+            if d:
+                r = d.format.parse(args)  # get the values with the correct types
+                if r:
+                    di = r.named
+                    di["time"] = datetime.now()
+                    self.writer.add_row(di)
                 else:
-                    logging.warning(f"Unknown Structured Log: {line}")
+                    logging.warning(f"Failed to parse slog {line} with {d.format}")
+            else:
+                logging.warning(f"Unknown Structured Log: {line}")
+
         if self.raw_file:
             self.raw_file.write(line + "\n")  # Write the raw log
 

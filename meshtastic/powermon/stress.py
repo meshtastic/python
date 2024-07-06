@@ -95,11 +95,13 @@ class PowerStress:
         num_seconds = 5.0
         states = [
             powermon_pb2.PowerStressMessage.LED_ON,
+            powermon_pb2.PowerStressMessage.LED_OFF,
             powermon_pb2.PowerStressMessage.BT_OFF,
             powermon_pb2.PowerStressMessage.BT_ON,
             powermon_pb2.PowerStressMessage.CPU_FULLON,
             powermon_pb2.PowerStressMessage.CPU_IDLE,
-            powermon_pb2.PowerStressMessage.CPU_DEEPSLEEP,
+            # FIXME - can't test deepsleep yet because the ttyACM device disappears.  Fix the python code to retry connections
+            # powermon_pb2.PowerStressMessage.CPU_DEEPSLEEP,
         ]
         for s in states:
             s_name = powermon_pb2.PowerStressMessage.Opcode.Name(s)

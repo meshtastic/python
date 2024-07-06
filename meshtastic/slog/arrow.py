@@ -29,13 +29,22 @@ class ArrowWriter:
             self.writer.close()
         self.sink.close()
 
+    def set_schema(self, schema: pa.Schema):
+        """Set the schema for the file.
+        Only needed for datasets where we can't learn it from the first record written.
+
+        schema (pa.Schema): The schema to use.
+        """
+        assert self.schema is None
+        self.schema = schema
+        self.writer = pa.ipc.new_stream(self.sink, schema)
+
     def _write(self):
         """Write the new rows to the file."""
         if len(self.new_rows) > 0:
             if self.schema is None:
                 # only need to look at the first row to learn the schema
-                self.schema = pa.Table.from_pylist([self.new_rows[0]]).schema
-                self.writer = pa.ipc.new_stream(self.sink, self.schema)
+                self.set_schema(pa.Table.from_pylist([self.new_rows[0]]).schema)
 
             self.writer.write_batch(pa.RecordBatch.from_pylist(self.new_rows))
             self.new_rows = []
