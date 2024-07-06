@@ -53,9 +53,10 @@ class BLEInterface(MeshInterface):
         self._receiveThread.start()
         logging.debug("Threads running")
 
+        self.client: Optional[BLEClient] = None
         try:
             logging.debug(f"BLE connecting to: {address if address else 'any'}")
-            self.client: Optional[BLEClient] = self.connect(address)
+            self.client = self.connect(address)
             logging.debug("BLE connected")
         except BLEInterface.BLEError as e:
             self.close()
@@ -207,7 +208,6 @@ class BLEInterface(MeshInterface):
             self.should_read = True
 
     def close(self):
-        atexit.unregister(self._exit_handler)
         try:
             MeshInterface.close(self)
         except Exception as e:
@@ -219,6 +219,7 @@ class BLEInterface(MeshInterface):
             self._receiveThread = None
 
         if self.client:
+            atexit.unregister(self._exit_handler)
             self.client.disconnect()
             self.client.close()
             self.client = None
