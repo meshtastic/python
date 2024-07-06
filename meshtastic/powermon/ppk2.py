@@ -118,8 +118,10 @@ class PPK2PowerSupply(PowerSupply):
         self.measurement_thread.join()  # wait for our thread to finish
         super().close()
 
-    def setIsSupply(self, s: bool):
+    def setIsSupply(self, is_supply: bool):
         """If in supply mode we will provide power ourself, otherwise we are just an amp meter."""
+
+        assert self.v > 0.8  # We must set a valid voltage before calling this method
 
         self.r.set_source_voltage(
             int(self.v * 1000)
@@ -130,7 +132,7 @@ class PPK2PowerSupply(PowerSupply):
         self.r.start_measuring()  # send command to ppk2
 
         if (
-            not s
+            not is_supply
         ):  # min power outpuf of PPK2.  If less than this assume we want just meter mode.
             self.r.use_ampere_meter()
         else:

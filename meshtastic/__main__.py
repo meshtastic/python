@@ -1009,24 +1009,34 @@ def create_power_meter():
 
     global meter  # pylint: disable=global-statement
     args = mt_config.args
+
+    # If the user specified a voltage, make sure it is valid
+    v = 0.0
+    if args.power_voltage:
+        v = float(args.power_voltage)
+        if v < 0.8 or v > 5.0:
+            meshtastic.util.our_exit("Voltage must be between 0.8 and 5.0")
+
     if args.power_riden:
         meter = RidenPowerSupply(args.power_riden)
     elif args.power_ppk2_supply or args.power_ppk2_meter:
         meter = PPK2PowerSupply()
+        assert v > 0, "Voltage must be specified for PPK2"
+        meter.v = v  # PPK2 requires setting voltage before selecting supply mode
         meter.setIsSupply(args.power_ppk2_supply)
     elif args.power_sim:
         meter = SimPowerSupply()
 
-    if meter and args.power_voltage:
-        v = float(args.power_voltage)
-        if v < 0.5 or v >5.0:
-            meshtastic.util.our_exit("Voltage must be between 1.0 and 5.0")
+    if meter and v:
         logging.info(f"Setting power supply to {v} volts")
         meter.v = v
         meter.powerOn()
 
         if args.power_wait:
             input("Powered on, press enter to continue...")
+        else:
+            logging.info("Powered-on, waiting for device to boot")
+            time.sleep(5)
 
 def common():
     """Shared code for all of our command line wrappers."""
