@@ -852,14 +852,16 @@ def onConnected(interface):
             qr = pyqrcode.create(url)
             print(qr.terminal())
 
+        log_set: Optional[LogSet] = None  # we need to keep a reference to the logset so it doesn't get GCed early
         if args.slog or args.power_stress:
             # Setup loggers
             global meter  # pylint: disable=global-variable-not-assigned
-            LogSet(interface, args.slog if args.slog != 'default' else None, meter)
+            log_set = LogSet(interface, args.slog if args.slog != 'default' else None, meter)
 
             if args.power_stress:
                 stress = PowerStress(interface)
                 stress.run()
+                closeNow = True # exit immediately after stress test
 
         if args.listen:
             closeNow = False
@@ -895,6 +897,8 @@ def onConnected(interface):
         # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
         if (not args.seriallog) and closeNow:
             interface.close()  # after running command then exit
+            if log_set:
+                log_set.close()
 
     except Exception as ex:
         print(f"Aborting due to: {ex}")
