@@ -46,7 +46,9 @@ class ArrowWriter:
                 # only need to look at the first row to learn the schema
                 self.set_schema(pa.Table.from_pylist([self.new_rows[0]]).schema)
 
-            self.writer.write_batch(pa.RecordBatch.from_pylist(self.new_rows))
+            self.writer.write_batch(
+                pa.RecordBatch.from_pylist(self.new_rows, schema=self.schema)
+            )
             self.new_rows = []
 
     def add_row(self, row_dict: dict):
