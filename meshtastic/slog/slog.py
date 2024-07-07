@@ -51,7 +51,9 @@ class LogDef:
                 "" if f[1] == pa.string() else ":d"
             )  # treat as a string or an int (the only types we have so far)
             fmt += "{" + f[0] + suffix + "}"
-        self.format = parse.compile(fmt)
+        self.format = parse.compile(
+            fmt
+        )  # We include a catchall matcher at the end - to ignore stuff we don't understand
 
 
 """A dictionary mapping from logdef code to logdef"""
@@ -60,7 +62,7 @@ log_defs = {
     for d in [
         LogDef("B", [("board_id", pa.uint32()), ("sw_version", pa.string())]),
         LogDef("PM", [("pm_mask", pa.uint64()), ("pm_reason", pa.string())]),
-        LogDef("PS", [("ps_state", pa.uint64())]),
+        LogDef("PS", [("ps_state", pa.uint32())]),
     ]
 }
 log_regex = re.compile(".*S:([0-9A-Za-z]+):(.*)")
@@ -139,11 +141,14 @@ class StructuredLogger:
         def listen_glue(line, interface):  # pylint: disable=unused-argument
             self._onLogMessage(line)
 
-        self.listener = pub.subscribe(listen_glue, TOPIC_MESHTASTIC_LOG_LINE)
+        self._listen_glue = (
+            listen_glue  # we must save this so it doesn't get garbage collected
+        )
+        self._listener = pub.subscribe(listen_glue, TOPIC_MESHTASTIC_LOG_LINE)
 
     def close(self) -> None:
         """Stop logging."""
-        pub.unsubscribe(self.listener, TOPIC_MESHTASTIC_LOG_LINE)
+        pub.unsubscribe(self._listener, TOPIC_MESHTASTIC_LOG_LINE)
         self.writer.close()
         f = self.raw_file
         self.raw_file = None  # mark that we are shutting down
@@ -162,14 +167,25 @@ class StructuredLogger:
         if m:
             src = m.group(1)
             args = m.group(2)
-            args += " "  # append a space so that if the last arg is an empty str it will still be accepted as a match
             logging.debug(f"SLog {src}, args: {args}")
 
             d = log_defs.get(src)
             if d:
+                last_field = d.fields[-1]
+                last_is_str = last_field[1] == pa.string()
+                if last_is_str:
+                    args += " "
+                    # append a space so that if the last arg is an empty str
+                    # it will still be accepted as a match for a str
+
                 r = d.format.parse(args)  # get the values with the correct types
                 if r:
                     di = r.named
+                    if last_is_str:
+                        di[last_field[0]] = di[last_field[0]].strip()  # remove the trailing space we added
+                        if di[last_field[0]] == "":
+                            # If the last field is an empty string, remove it
+                            del di[last_field[0]]
                 else:
                     logging.warning(f"Failed to parse slog {line} with {d.format}")
             else:
