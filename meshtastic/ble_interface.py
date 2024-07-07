@@ -196,7 +196,7 @@ class BLEInterface(MeshInterface):
 
     def _sendToRadioImpl(self, toRadio):
         b = toRadio.SerializeToString()
-        if b:
+        if b and self.client:  # we silently ignore writes while we are shutting down
             logging.debug(f"TORADIO write: {b.hex()}")
             try:
                 self.client.write_gatt_char(
@@ -219,10 +219,11 @@ class BLEInterface(MeshInterface):
 
         if self._want_receive:
             self.want_receive = False  # Tell the thread we want it to stop
-            self._receiveThread.join(
-                timeout=2
-            )  # If bleak is hung, don't wait for the thread to exit (it is critical we disconnect)
-            self._receiveThread = None
+            if self._receiveThread:
+                self._receiveThread.join(
+                    timeout=2
+                )  # If bleak is hung, don't wait for the thread to exit (it is critical we disconnect)
+                self._receiveThread = None
 
         if self.client:
             atexit.unregister(self._exit_handler)
