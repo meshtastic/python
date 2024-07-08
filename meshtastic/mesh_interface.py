@@ -214,7 +214,7 @@ class MeshInterface:  # pylint: disable=R0902
         return infos
 
     def showNodes(
-        self, includeSelf: bool = True, file=sys.stdout
+        self, includeSelf: bool = True
     ) -> str:  # pylint: disable=W0613
         """Show table summary of nodes in mesh"""
 

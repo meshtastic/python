@@ -2,6 +2,7 @@
 
 import logging
 import os
+from typing import Optional
 
 import pyarrow as pa
 from pyarrow import feather
@@ -19,8 +20,8 @@ class ArrowWriter:
         """
         self.sink = pa.OSFile(file_name, "wb")  # type: ignore
         self.new_rows: list[dict] = []
-        self.schema: pa.Schema | None = None  # haven't yet learned the schema
-        self.writer: pa.RecordBatchFileWriter | None = None
+        self.schema: Optional[pa.Schema] = None  # haven't yet learned the schema
+        self.writer: Optional[pa.RecordBatchStreamWriter] = None
 
     def close(self):
         """Close the stream and writes the file as needed."""

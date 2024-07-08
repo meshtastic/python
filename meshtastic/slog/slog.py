@@ -129,7 +129,10 @@ class StructuredLogger:
         if self.include_raw:
             all_fields.append(("raw", pa.string()))
 
-        self.writer.set_schema(pa.schema(all_fields))
+        # pass in our name->type tuples a pa.fields
+        self.writer.set_schema(
+            pa.schema(map(lambda x: pa.field(x[0], x[1]), all_fields))
+        )
 
         self.raw_file: Optional[
             io.TextIOWrapper
@@ -182,7 +185,9 @@ class StructuredLogger:
                 if r:
                     di = r.named
                     if last_is_str:
-                        di[last_field[0]] = di[last_field[0]].strip()  # remove the trailing space we added
+                        di[last_field[0]] = di[
+                            last_field[0]
+                        ].strip()  # remove the trailing space we added
                         if di[last_field[0]] == "":
                             # If the last field is an empty string, remove it
                             del di[last_field[0]]
