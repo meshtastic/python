@@ -811,6 +811,9 @@ def onConnected(interface):
                         f"*** A newer version v{pypi_version} is available!"
                         ' Consider running "pip install --upgrade meshtastic" ***\n'
                     )
+                if sys.version_info[0] == 3 and sys.version_info[1] < 9:
+                    print("  *** this version of the CLI is the last that supports python 3.8 ***")
+                    print("  *** please update your python installation ***")
             else:
                 print("Showing info of remote node is not supported.")
                 print(
