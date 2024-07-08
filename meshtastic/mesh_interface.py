@@ -371,13 +371,14 @@ class MeshInterface:  # pylint: disable=R0902
     def sendData(
         self,
         data,
-        destinationId: Union[int, str] = BROADCAST_ADDR,
-        portNum: portnums_pb2.PortNum.ValueType = portnums_pb2.PortNum.PRIVATE_APP,
-        wantAck: bool = False,
-        wantResponse: bool = False,
-        onResponse: Optional[Callable[[dict], Any]] = None,
-        onResponseAckPermitted: bool = False,
-        channelIndex: int = 0,
+        destinationId: Union[int, str]=BROADCAST_ADDR,
+        portNum: portnums_pb2.PortNum.ValueType=portnums_pb2.PortNum.PRIVATE_APP,
+        wantAck: bool=False,
+        wantResponse: bool=False,
+        onResponse: Optional[Callable[[dict], Any]]=None,
+        onResponseAckPermitted: bool=False,
+        channelIndex: int=0,
+        hopLimit: Optional[int]=None,
     ):
         """Send a data packet to some other node
 
@@ -400,7 +401,8 @@ class MeshInterface:  # pylint: disable=R0902
                     for regular ACKs (True) or just data responses & NAKs (False)
                     Note that if the onResponse callback is called 'onAckNak' this
                     will implicitly be true.
-            channelIndex - channel number to use
+            channelIndex -- channel number to use
+            hopLimit -- hop limit to use
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -431,10 +433,8 @@ class MeshInterface:  # pylint: disable=R0902
 
         if onResponse is not None:
             logging.debug(f"Setting a response handler for requestId {meshPacket.id}")
-            self._addResponseHandler(
-                meshPacket.id, onResponse, ackPermitted=onResponseAckPermitted
-            )
-        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck)
+            self._addResponseHandler(meshPacket.id, onResponse, ackPermitted=onResponseAckPermitted)
+        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit)
         return p
 
     def sendPosition(
@@ -539,6 +539,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=True,
             onResponse=self.onResponseTraceRoute,
             channelIndex=channelIndex,
+            hopLimit=hopLimit,
         )
         # extend timeout based on number of nodes, limit by configured hopLimit
         waitFactor = min(len(self.nodes) - 1 if self.nodes else 0, hopLimit)
@@ -645,8 +646,9 @@ class MeshInterface:  # pylint: disable=R0902
     def _sendPacket(
         self,
         meshPacket: mesh_pb2.MeshPacket,
-        destinationId: Union[int, str] = BROADCAST_ADDR,
-        wantAck: bool = False,
+        destinationId: Union[int,str]=BROADCAST_ADDR,
+        wantAck: bool=False,
+        hopLimit: Optional[int]=None
     ):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead.
@@ -688,9 +690,12 @@ class MeshInterface:  # pylint: disable=R0902
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
-        loraConfig = getattr(self.localNode.localConfig, "lora")
-        hopLimit = getattr(loraConfig, "hop_limit")
-        meshPacket.hop_limit = hopLimit
+
+        if hopLimit is not None:
+            meshPacket.hop_limit = hopLimit
+        else:
+            loraConfig = getattr(self.localNode.localConfig, "lora")
+            meshPacket.hop_limit = getattr(loraConfig, "hop_limit")
 
         # if the user hasn't set an ID for this packet (likely and recommended),
         # we should pick a new unique ID so the message can be tracked.
