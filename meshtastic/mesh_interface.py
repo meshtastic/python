@@ -16,6 +16,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import google.protobuf.json_format
 from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
+import print_color  # type: ignore[import-untyped]
 
 import meshtastic.node
 
@@ -31,7 +32,7 @@ from meshtastic import (
     NODELESS_WANT_CONFIG_ID,
     ResponseHandler,
     protocols,
-    publishingThread,
+    publishingThread
 )
 from meshtastic.util import (
     Acknowledgment,
@@ -42,7 +43,6 @@ from meshtastic.util import (
     stripnl,
     message_to_json,
 )
-
 
 def _timeago(delta_secs: int) -> str:
     """Convert a number of seconds in the past into a short, friendly string
@@ -117,6 +117,12 @@ class MeshInterface: # pylint: disable=R0902
         self.queue: collections.OrderedDict = collections.OrderedDict()
         self._localChannels = None
 
+        # We could have just not passed in debugOut to MeshInterface, and instead told consumers to subscribe to
+        # the meshtastic.log.line publish instead.  Alas though changing that now would be a breaking API change
+        # for any external consumers of the library.
+        if debugOut:
+            pub.subscribe(MeshInterface._printLogLine, "meshtastic.log.line")
+
     def close(self):
         """Shutdown this interface"""
         if self.heartbeatTimer:
@@ -135,6 +141,33 @@ class MeshInterface: # pylint: disable=R0902
         if traceback is not None:
             logging.error(f"Traceback: {traceback}")
         self.close()
+
+    @staticmethod
+    def _printLogLine(line, interface):
+        """Print a line of log output."""
+        if interface.debugOut == sys.stdout:
+            # this isn't quite correct (could cause false positives), but currently our formatting differs between different log representations
+            if "DEBUG" in line:
+                print_color.print(line, color="cyan", end=None)
+            elif "INFO" in line:
+                print_color.print(line, color="white", end=None)
+            elif "WARN" in line:
+                print_color.print(line, color="yellow", end=None)
+            elif "ERR" in line:
+                print_color.print(line, color="red", end=None)
+            else:
+                print_color.print(line, end=None)
+        else:
+            interface.debugOut.write(line + "\n")
+
+    def _handleLogLine(self, line: str) -> None:
+        """Handle a line of log output from the device."""
+        pub.sendMessage("meshtastic.log.line", line=line, interface=self)
+
+    def _handleLogRecord(self, record: mesh_pb2.LogRecord) -> None:
+        """Handle a log record which was received encapsulated in a protobuf."""
+        # For now we just try to format the line as if it had come in over the serial port
+        self._handleLogLine(record.message)
 
     def showInfo(self, file=sys.stdout) -> str:  # pylint: disable=W0613
         """Show human readable summary about this object"""
@@ -924,7 +957,8 @@ class MeshInterface: # pylint: disable=R0902
             self._handleChannel(fromRadio.channel)
         elif fromRadio.HasField("packet"):
             self._handlePacketFromRadio(fromRadio.packet)
-
+        elif fromRadio.HasField("log_record"):
+            self._handleLogRecord(fromRadio.log_record)
         elif fromRadio.HasField("queueStatus"):
             self._handleQueueStatusFromRadio(fromRadio.queueStatus)
 

@@ -6,11 +6,11 @@
   "configurations": [
     {
       "name": "meshtastic BLE",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": false,
-      "args": ["--ble", "Meshtastic_9f6e"]
+      "args": ["--ble", "--info", "--seriallog", "stdout"]
     },
      {
       "name": "meshtastic BLE scan",
@@ -22,7 +22,7 @@
     },
     {
       "name": "meshtastic admin",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -30,7 +30,7 @@
     },
     {
       "name": "meshtastic tunnel",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -38,7 +38,7 @@
     },
     {
       "name": "meshtastic set chan",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -46,7 +46,7 @@
     },
     {
       "name": "meshtastic debug",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -54,7 +54,7 @@
     },
     {
       "name": "meshtastic listen",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -62,7 +62,7 @@
     },
     {
       "name": "meshtastic debug getPref",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -70,7 +70,7 @@
     },
     {
       "name": "meshtastic debug getPref telemetry",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -78,7 +78,7 @@
     },
     {
       "name": "meshtastic debug info",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -94,7 +94,7 @@
     },
     {
       "name": "meshtastic debug set region",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -102,7 +102,7 @@
     },
     {
       "name": "meshtastic debug set bluetooth fixed pin",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -110,7 +110,7 @@
     },
     {
       "name": "meshtastic debug get bluetooth fixed pin",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -118,15 +118,15 @@
     },
     {
       "name": "meshtastic debug setPref",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
-      "args": ["--debug", "--set", "power.is_power_saving", "1"]
+      "args": ["--set", "power.powermon_enables", "65527"]
     },
     {
       "name": "meshtastic debug setPref telemetry.environment_measurement_enabled",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -134,7 +134,7 @@
     },
     {
       "name": "meshtastic debug setPref telemetry.environment_screen_enabled",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -142,7 +142,7 @@
     },
     {
       "name": "meshtastic debug setPref telemetry",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -150,7 +150,7 @@
     },
     {
       "name": "meshtastic setpref",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -158,7 +158,7 @@
     },
     {
       "name": "meshtastic --ch-set",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -167,7 +167,7 @@
     
     {
       "name": "meshtastic seturl",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -176,15 +176,39 @@
     },
     {
       "name": "meshtastic shell",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
-      "justMyCode": true,
-      "args": ["--debug", "--seriallog"]
+      "justMyCode": false,
+      "args": ["--noproto", "--seriallog", "stdout"]
+    },
+    {
+      "name": "meshtastic powermon sim",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--slog-out", "default", "--power-sim", "--power-voltage", "3.3", "--port", "/dev/ttyUSB0", "--noproto", "--seriallog", "stdout"]
+    },
+    {
+      "name": "meshtastic powermon ppk2",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--slog-out", "default", "--power-ppk2-meter", "--power-wait", "--power-voltage", "3.3", "--noproto", "--seriallog", "stdout"]
+    },
+    {
+      "name": "meshtastic stress ppk2",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--slog-out", "default", "--power-ppk2-meter", "--power-stress", "--power-voltage", "3.3", "--seriallog"]
     },
     {
       "name": "meshtastic test",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -192,7 +216,7 @@
     },
     {
       "name": "meshtastic settime",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -200,7 +224,7 @@
     },
     {
       "name": "meshtastic sendtext",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,
@@ -208,7 +232,7 @@
     },
     {
       "name": "meshtastic showNodes",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": true,

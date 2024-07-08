@@ -31,6 +31,7 @@ type of packet, you should subscribe to the full topic name.  If you want to see
 - meshtastic.receive.user(packet)
 - meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
+- meshtastic.log.line(line) - a raw unparsed log line from the radio
 
 We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for
 that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet
@@ -96,6 +97,7 @@ from .protobuf import (
     remote_hardware_pb2,
     storeforward_pb2,
     telemetry_pb2,
+    powermon_pb2
 )
 from . import (
     util,
@@ -227,6 +229,9 @@ protocols = {
     portnums_pb2.PortNum.SIMULATOR_APP: KnownProtocol("simulator", mesh_pb2.Compressed),
     portnums_pb2.PortNum.TRACEROUTE_APP: KnownProtocol(
         "traceroute", mesh_pb2.RouteDiscovery
+    ),
+    portnums_pb2.PortNum.POWERSTRESS_APP: KnownProtocol(
+        "powerstress", powermon_pb2.PowerStressMessage
     ),
     portnums_pb2.PortNum.WAYPOINT_APP: KnownProtocol("waypoint", mesh_pb2.Waypoint),
     portnums_pb2.PortNum.PAXCOUNTER_APP: KnownProtocol("paxcounter", paxcount_pb2.Paxcount),

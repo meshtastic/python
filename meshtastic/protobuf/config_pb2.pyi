@@ -56,6 +56,7 @@ class Config(google.protobuf.message.Message):
             ROUTER_CLIENT: Config.DeviceConfig._Role.ValueType  # 3
             """
             Description: Combination of both ROUTER and CLIENT. Not for mobile devices.
+            Deprecated in v2.3.15 because improper usage is impacting public meshes: Use ROUTER or CLIENT instead.
             """
             REPEATER: Config.DeviceConfig._Role.ValueType  # 4
             """
@@ -131,6 +132,7 @@ class Config(google.protobuf.message.Message):
         ROUTER_CLIENT: Config.DeviceConfig.Role.ValueType  # 3
         """
         Description: Combination of both ROUTER and CLIENT. Not for mobile devices.
+        Deprecated in v2.3.15 because improper usage is impacting public meshes: Use ROUTER or CLIENT instead.
         """
         REPEATER: Config.DeviceConfig.Role.ValueType  # 4
         """
