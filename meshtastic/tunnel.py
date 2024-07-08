@@ -22,7 +22,8 @@ import threading
 from pubsub import pub # type: ignore[import-untyped]
 from pytap2 import TapDevice
 
-from meshtastic import portnums_pb2, mt_config
+from meshtastic.protobuf import portnums_pb2
+from meshtastic import mt_config
 from meshtastic.util import ipstr, readnet_u16
 
 

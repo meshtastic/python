@@ -17,7 +17,8 @@ from pubsub import pub # type: ignore[import-untyped]
 import meshtastic.test
 import meshtastic.util
 from meshtastic import mt_config
-from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware, BROADCAST_ADDR
+from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
+from meshtastic import remote_hardware, BROADCAST_ADDR
 from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
@@ -1041,16 +1042,11 @@ def common():
             subscribe()
             if args.ble_scan:
                 logging.debug("BLE scan starting")
-                client = BLEInterface(None, debugOut=logfile, noProto=args.noproto)
-                try:
-                    for x in client.scan():
-                        print(f"Found: name='{x[1].local_name}' address='{x[0].address}'")
-                finally:
-                    client.close()
+                for x in BLEInterface.scan():
+                    print(f"Found: name='{x.name}' address='{x.address}'")
                 meshtastic.util.our_exit("BLE scan finished", 0)
-                return
             elif args.ble:
-                client = BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes)
+                client = BLEInterface(args.ble if args.ble != "any" else None, debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes)
             elif args.host:
                 try:
                     client = meshtastic.tcp_interface.TCPInterface(
@@ -1105,21 +1101,27 @@ def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
     outer = parser.add_argument_group('Connection', 'Optional arguments that specify how to connect to a Meshtastic device.')
     group = outer.add_mutually_exclusive_group()
     group.add_argument(
-        "--port",
-        help="The port of the device to connect to using serial, e.g. /dev/ttyUSB0.",
+        "--port", "--serial", "-s",
+        help="The port of the device to connect to using serial, e.g. /dev/ttyUSB0. (defaults to trying to detect a port)",
+        nargs="?",
+        const=None,
         default=None,
     )
 
     group.add_argument(
-        "--host",
-        help="The hostname or IP address of the device to connect to using TCP",
+        "--host", "--tcp", "-t",
+        help="Connect to a device using TCP, optionally passing hostname or IP address to use. (defaults to '%(const)s')",
+        nargs="?",
         default=None,
+        const="localhost"
     )
 
     group.add_argument(
-        "--ble",
-        help="The BLE device address or name to connect to",
+        "--ble", "-b",
+        help="Connect to a BLE device, optionally specifying a device name (defaults to '%(const)s')",
+        nargs="?",
         default=None,
+        const="any"
     )
 
     return parser
@@ -1169,7 +1171,10 @@ def initParser():
 
     group.add_argument(
         "--seriallog",
-        help="Log device serial output to either 'stdout', 'none' or a filename to append to.",
+        help="Log device serial output to either 'none' or a filename to append to.  Defaults to 'stdout' if no filename specified.",
+        nargs='?',
+        const="stdout",
+        default=None
     )
 
     group.add_argument(
@@ -1438,16 +1443,6 @@ def initParser():
     )
 
     group.add_argument(
-        "--gpio-wrb", nargs=2, help="Set a particular GPIO # to 1 or 0", action="append"
-    )
-
-    group.add_argument("--gpio-rd", help="Read from a GPIO mask (ex: '0x10')")
-
-    group.add_argument(
-        "--gpio-watch", help="Start watching a GPIO mask for changes (ex: '0x10')"
-    )
-
-    group.add_argument(
         "--no-time",
         help="Suppress sending the current time to the mesh",
         action="store_true",
@@ -1485,7 +1480,7 @@ def initParser():
         "--pos-fields",
         help="Specify fields to send when sending a position. Use no argument for a list of valid values. "
         "Can pass multiple values as a space separated list like "
-        "this: '--pos-fields POS_ALTITUDE POS_ALT_MSL'",
+        "this: '--pos-fields ALTITUDE HEADING SPEED'",
         nargs="*",
         action="store",
     )
@@ -1525,6 +1520,21 @@ def initParser():
         help="Just stay open and listen to the protobuf stream. Enables debug logging.",
         action="store_true",
     )
+
+    remoteHardwareArgs = parser.add_argument_group('Remote Hardware', 'Arguments related to the Remote Hardware module')
+
+    remoteHardwareArgs.add_argument(
+        "--gpio-wrb", nargs=2, help="Set a particular GPIO # to 1 or 0", action="append"
+    )
+
+    remoteHardwareArgs.add_argument(
+        "--gpio-rd", help="Read from a GPIO mask (ex: '0x10')"
+    )
+
+    remoteHardwareArgs.add_argument(
+        "--gpio-watch", help="Start watching a GPIO mask for changes (ex: '0x10')"
+    )
+
 
     have_tunnel = platform.system() == "Linux"
     if have_tunnel:

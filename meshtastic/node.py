@@ -7,7 +7,7 @@ import time
 
 from typing import Union
 
-from meshtastic import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, mesh_pb2, portnums_pb2
+from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, mesh_pb2, portnums_pb2
 from meshtastic.util import (
     Timeout,
     camel_to_snake,
@@ -128,7 +128,7 @@ class Node:
             print("Requesting current config from remote node (this can take a while).")
 
         msgIndex = configType.index
-        if configType.containing_type.full_name in ("meshtastic.LocalConfig", "LocalConfig"):
+        if configType.containing_type.name == "LocalConfig":
             p = admin_pb2.AdminMessage()
             p.get_config_request = msgIndex
             self._sendAdmin(p, wantResponse=True, onResponse=onResponse)

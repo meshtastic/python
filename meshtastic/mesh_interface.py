@@ -14,15 +14,17 @@ from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import google.protobuf.json_format
-import timeago # type: ignore[import-untyped]
 from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
 
 import meshtastic.node
-from meshtastic import (
+
+from meshtastic.protobuf import (
     mesh_pb2,
     portnums_pb2,
     telemetry_pb2,
+)
+from meshtastic import (
     BROADCAST_ADDR,
     BROADCAST_NUM,
     LOCAL_ADDR,
@@ -40,6 +42,29 @@ from meshtastic.util import (
     stripnl,
     message_to_json,
 )
+
+
+def _timeago(delta_secs: int) -> str:
+    """Convert a number of seconds in the past into a short, friendly string
+    e.g. "now", "30 sec ago",  "1 hour ago"
+    Zero or negative intervals simply return "now"
+    """
+    intervals = (
+        ("year", 60 * 60 * 24 * 365),
+        ("month", 60 * 60 * 24 * 30),
+        ("day", 60 * 60 * 24),
+        ("hour", 60 * 60),
+        ("min", 60),
+        ("sec", 1),
+    )
+    for name, interval_duration in intervals:
+        if delta_secs < interval_duration:
+            continue
+        x = delta_secs // interval_duration
+        plur = "s" if x > 1 else ""
+        return f"{x} {name}{plur} ago"
+
+    return "now"
 
 
 class MeshInterface: # pylint: disable=R0902
@@ -158,11 +183,13 @@ class MeshInterface: # pylint: disable=R0902
 
         def getTimeAgo(ts) -> Optional[str]:
             """Format how long ago have we heard from this node (aka timeago)."""
-            return (
-                timeago.format(datetime.fromtimestamp(ts), datetime.now())
-                if ts
-                else None
-            )
+            if ts is None:
+                return None
+            delta = datetime.now() - datetime.fromtimestamp(ts)
+            delta_secs = int(delta.total_seconds())
+            if delta_secs < 0:
+                return None  # not handling a timestamp from the future
+            return _timeago(delta_secs)
 
         rows: List[Dict[str, Any]] = []
         if self.nodesByNum:
@@ -296,6 +323,7 @@ class MeshInterface: # pylint: disable=R0902
         wantAck: bool=False,
         wantResponse: bool=False,
         onResponse: Optional[Callable[[dict], Any]]=None,
+        onResponseAckPermitted: bool=False,
         channelIndex: int=0,
     ):
         """Send a data packet to some other node
@@ -315,6 +343,10 @@ class MeshInterface: # pylint: disable=R0902
             onResponse -- A closure of the form funct(packet), that will be
                     called when a response packet arrives (or the transaction
                     is NAKed due to non receipt)
+            onResponseAckPermitted -- should the onResponse callback be called
+                    for regular ACKs (True) or just data responses & NAKs (False)
+                    Note that if the onResponse callback is called 'onAckNak' this
+                    will implicitly be true.
             channelIndex - channel number to use
 
         Returns the sent packet. The id field will be populated in this packet
@@ -346,7 +378,7 @@ class MeshInterface: # pylint: disable=R0902
 
         if onResponse is not None:
             logging.debug(f"Setting a response handler for requestId {meshPacket.id}")
-            self._addResponseHandler(meshPacket.id, onResponse)
+            self._addResponseHandler(meshPacket.id, onResponse, ackPermitted=onResponseAckPermitted)
         p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck)
         return p
 
@@ -458,11 +490,11 @@ class MeshInterface: # pylint: disable=R0902
         asDict = google.protobuf.json_format.MessageToDict(routeDiscovery)
 
         print("Route traced:")
-        routeStr = self._nodeNumToId(p["to"])
+        routeStr = self._nodeNumToId(p["to"]) or f"{p['to']:08x}"
         if "route" in asDict:
             for nodeNum in asDict["route"]:
-                routeStr += " --> " + self._nodeNumToId(nodeNum)
-        routeStr += " --> " + self._nodeNumToId(p["from"])
+                routeStr += " --> " + (self._nodeNumToId(nodeNum) or f"{nodeNum:08x}")
+        routeStr += " --> " + (self._nodeNumToId(p["from"]) or f"{p['from']:08x}")
         print(routeStr)
 
         self._acknowledgment.receivedTraceRoute = True
@@ -528,8 +560,8 @@ class MeshInterface: # pylint: disable=R0902
             if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
                 our_exit("No response from node. At least firmware 2.1.22 is required on the destination node.")
 
-    def _addResponseHandler(self, requestId: int, callback: Callable[[dict], Any]):
-        self.responseHandlers[requestId] = ResponseHandler(callback)
+    def _addResponseHandler(self, requestId: int, callback: Callable[[dict], Any], ackPermitted: bool=False):
+        self.responseHandlers[requestId] = ResponseHandler(callback=callback, ackPermitted=ackPermitted)
 
     def _sendPacket(self, meshPacket: mesh_pb2.MeshPacket, destinationId: Union[int,str]=BROADCAST_ADDR, wantAck: bool=False):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
@@ -683,9 +715,8 @@ class MeshInterface: # pylint: disable=R0902
 
         def callback():
             self.heartbeatTimer = None
-            prefs = self.localNode.localConfig
-            i = prefs.power.ls_secs / 2
-            logging.debug(f"Sending heartbeat, interval {i}")
+            i = 300
+            logging.debug(f"Sending heartbeat, interval {i} seconds")
             if i != 0:
                 self.heartbeatTimer = threading.Timer(i, callback)
                 self.heartbeatTimer.start()
@@ -989,7 +1020,7 @@ class MeshInterface: # pylint: disable=R0902
             position["longitude"] = float(position["longitudeI"] * Decimal("1e-7"))
         return position
 
-    def _nodeNumToId(self, num):
+    def _nodeNumToId(self, num: int) -> Optional[str]:
         """Map a node node number to a node ID
 
         Arguments:
@@ -1002,7 +1033,7 @@ class MeshInterface: # pylint: disable=R0902
             return BROADCAST_ADDR
 
         try:
-            return self.nodesByNum[num]["user"]["id"]
+            return self.nodesByNum[num]["user"]["id"] #type: ignore[index]
         except:
             logging.debug(f"Node {num} not found for fromId")
             return None
@@ -1129,16 +1160,18 @@ class MeshInterface: # pylint: disable=R0902
             requestId = decoded.get("requestId")
             if requestId is not None:
                 logging.debug(f"Got a response for requestId {requestId}")
-                # We ignore ACK packets, but send NAKs and data responses to the handlers
+                # We ignore ACK packets unless the callback is named `onAckNak`
+                # or the handler is set as ackPermitted, but send NAKs and
+                # other, data-containing responses to the handlers
                 routing = decoded.get("routing")
                 isAck = routing is not None and ("errorReason" not in routing or routing["errorReason"] == "NONE")
-                if not isAck:
-                    # we keep the responseHandler in dict until we get a non ack
-                    handler = self.responseHandlers.pop(requestId, None)
-                    if handler is not None:
-                        if not isAck or (isAck and handler.__name__ == "onAckNak"):
-                            logging.debug(f"Calling response handler for requestId {requestId}")
-                            handler.callback(asDict)
+                # we keep the responseHandler in dict until we actually call it
+                handler = self.responseHandlers.get(requestId, None)
+                if handler is not None:
+                    if (not isAck) or handler.callback.__name__ == "onAckNak" or handler.ackPermitted:
+                        handler = self.responseHandlers.pop(requestId, None)
+                        logging.debug(f"Calling response handler for requestId {requestId}")
+                        handler.callback(asDict)
 
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         publishingThread.queueWork(

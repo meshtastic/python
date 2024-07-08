@@ -76,13 +76,15 @@ from typing import *
 
 import google.protobuf.json_format
 import serial # type: ignore[import-untyped]
-import timeago # type: ignore[import-untyped]
 from dotmap import DotMap # type: ignore[import-untyped]
 from google.protobuf.json_format import MessageToJson
 from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
 
-from meshtastic import (
+from meshtastic.node import Node
+from meshtastic.util import DeferredExecution, Timeout, catchAndIgnore, fixme, stripnl
+
+from .protobuf import (
     admin_pb2,
     apponly_pb2,
     channel_pb2,
@@ -94,10 +96,10 @@ from meshtastic import (
     remote_hardware_pb2,
     storeforward_pb2,
     telemetry_pb2,
+)
+from . import (
     util,
 )
-from meshtastic.node import Node
-from meshtastic.util import DeferredExecution, Timeout, catchAndIgnore, fixme, stripnl
 
 # Note: To follow PEP224, comments should be after the module variable.
 
@@ -128,6 +130,7 @@ class ResponseHandler(NamedTuple):
 
     # requestId: int - used only as a key
     callback: Callable
+    ackPermitted: bool = False
     # FIXME, add timestamp and age out old requests
 
 
