@@ -322,9 +322,6 @@ def support_info():
         )
     else:
         print(f" meshtastic: v{the_version}")
-    if sys.version_info[0] == 3 and sys.version_info[1] < 9:
-        print("  *** this version of the CLI is the last that supports python 3.8 ***")
-        print("  *** please update your python installation ***")
     print(f" Executable: {sys.argv[0]}")
     print(
         f" Python: {platform.python_version()} {platform.python_implementation()} {platform.python_compiler()}"
