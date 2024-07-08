@@ -566,7 +566,13 @@ class MeshInterface: # pylint: disable=R0902
     def _addResponseHandler(self, requestId: int, callback: Callable[[dict], Any], ackPermitted: bool=False):
         self.responseHandlers[requestId] = ResponseHandler(callback=callback, ackPermitted=ackPermitted)
 
-    def _sendPacket(self, meshPacket: mesh_pb2.MeshPacket, destinationId: Union[int,str]=BROADCAST_ADDR, wantAck: bool=False, hopLimit: Optional[int]=None):
+    def _sendPacket(
+        self,
+        meshPacket: mesh_pb2.MeshPacket,
+        destinationId: Union[int,str]=BROADCAST_ADDR,
+        wantAck: bool=False,
+        hopLimit: Optional[int]=None
+    ):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead.
 
