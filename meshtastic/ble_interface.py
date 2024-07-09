@@ -3,6 +3,7 @@
 import asyncio
 import atexit
 import logging
+import platform
 import struct
 import time
 from threading import Thread
@@ -80,7 +81,8 @@ class BLEInterface(MeshInterface):
         # We MUST run atexit (if we can) because otherwise (at least on linux) the BLE device is not disconnected
         # and future connection attempts will fail.  (BlueZ kinda sucks)
         # Note: the on disconnected callback will call our self.close which will make us nicely wait for threads to exit
-        self._exit_handler = atexit.register(self.client.disconnect)
+        if platform.system() == "Linux":
+            self._exit_handler = atexit.register(self.client.disconnect)
 
     def from_num_handler(self, _, b):  # pylint: disable=C0116
         """Handle callbacks for fromnum notify.
@@ -227,7 +229,8 @@ class BLEInterface(MeshInterface):
             self.should_read = True
 
     def close(self):
-        atexit.unregister(self._exit_handler)
+        if platform.system() == "Linux":
+            atexit.unregister(self._exit_handler)
         try:
             MeshInterface.close(self)
         except Exception as e:
@@ -238,7 +241,7 @@ class BLEInterface(MeshInterface):
             self._receiveThread.join(timeout=2) # If bleak is hung, don't wait for the thread to exit (it is critical we disconnect)
             self._receiveThread = None
 
-        if self.client:
+        if hasattr(self, "client"):
             self.client.disconnect()
             self.client.close()
             self.client = None
