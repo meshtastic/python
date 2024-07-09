@@ -118,10 +118,10 @@ class BLEInterface(MeshInterface):
                 .replace(":", "") \
                 .lower()
 
-    def connect(self, address) -> BLEClient:
+    def connect(self, address):
         "Connect to a device by address"
         device = self.find_device(address)
-        client: BLEClient = BLEClient(device.address)
+        client = BLEClient(device.address)
         client.connect()
         try:
             client.pair()
