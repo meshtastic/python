@@ -82,17 +82,23 @@ class PowerLogger:
         )
         self.thread.start()
 
+    def store_current_reading(self, now: datetime | None = None) -> None:
+        """Store current power measurement."""
+        if now is None:
+            now = datetime.now()
+        d = {
+            "time": now,
+            "average_mW": self.pMeter.get_average_current_mA(),
+            "max_mW": self.pMeter.get_max_current_mA(),
+            "min_mW": self.pMeter.get_min_current_mA(),
+        }
+        self.pMeter.reset_measurements()
+        self.writer.add_row(d)
+
     def _logging_thread(self) -> None:
         """Background thread for logging the current watts reading."""
         while self.is_logging:
-            d = {
-                "time": datetime.now(),
-                "average_mW": self.pMeter.get_average_current_mA(),
-                "max_mW": self.pMeter.get_max_current_mA(),
-                "min_mW": self.pMeter.get_min_current_mA(),
-            }
-            self.pMeter.reset_measurements()
-            self.writer.add_row(d)
+            self.store_current_reading()
             time.sleep(self.interval)
 
     def close(self) -> None:
@@ -112,12 +118,19 @@ class StructuredLogger:
     """Sniffs device logs for structured log messages, extracts those into apache arrow format.
     Also writes the raw log messages to raw.txt"""
 
-    def __init__(self, client: MeshInterface, dir_path: str, include_raw=True) -> None:
+    def __init__(
+        self,
+        client: MeshInterface,
+        dir_path: str,
+        power_logger: PowerLogger | None = None,
+        include_raw=True,
+    ) -> None:
         """Initialize the StructuredLogger object.
 
         client (MeshInterface): The MeshInterface object to monitor.
         """
         self.client = client
+        self.power_logger = power_logger
 
         # Setup the arrow writer (and its schema)
         self.writer = FeatherWriter(f"{dir_path}/slog")
@@ -128,6 +141,9 @@ class StructuredLogger:
         self.include_raw = include_raw
         if self.include_raw:
             all_fields.append(("raw", pa.string()))
+
+        # Use timestamp as the first column
+        all_fields.insert(0, ("time", pa.timestamp("us")))
 
         # pass in our name->type tuples a pa.fields
         self.writer.set_schema(
@@ -198,10 +214,15 @@ class StructuredLogger:
 
         # Store our structured log record
         if di or self.include_raw:
-            di["time"] = datetime.now()
+            now = datetime.now()
+            di["time"] = now
             if self.include_raw:
                 di["raw"] = line
             self.writer.add_row(di)
+
+            # If we have a sibling power logger, make sure we have a power measurement with the EXACT same timestamp
+            if self.power_logger:
+                self.power_logger.store_current_reading(now)
 
         if self.raw_file:
             self.raw_file.write(line + "\n")  # Write the raw log
@@ -239,13 +260,14 @@ class LogSet:
 
         logging.info(f"Writing slogs to {dir_name}")
 
-        self.slog_logger: Optional[StructuredLogger] = StructuredLogger(
-            client, self.dir_name
-        )
         self.power_logger: Optional[PowerLogger] = (
             None
             if not power_meter
             else PowerLogger(power_meter, f"{self.dir_name}/power")
+        )
+
+        self.slog_logger: Optional[StructuredLogger] = StructuredLogger(
+            client, self.dir_name, power_logger=self.power_logger
         )
 
         # Store a lambda so we can find it again to unregister
