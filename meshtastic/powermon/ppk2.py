@@ -46,7 +46,10 @@ class PPK2PowerSupply(PowerSupply):
         # Normally we just sleep with a timeout on this condition (polling the power measurement data repeatedly)
         # but any time our measurements have been fully consumed (via reset_measurements) we notify() this condition
         # to trigger a new reading ASAP.
-        self.want_measurement = threading.Condition()
+        self._want_measurement = threading.Condition()
+
+        # To guard against a brief window while updating measured values
+        self._result_lock = threading.Condition()
 
         self.r = r = ppk2_api.PPK2_API(
             portName
@@ -62,8 +65,10 @@ class PPK2PowerSupply(PowerSupply):
     def measurement_loop(self):
         """Endless measurement loop will run in a thread."""
         while self.measuring:
-            with self.want_measurement:
-                self.want_measurement.wait(0.0001 if self.num_data_reads == 0 else 0.001)
+            with self._want_measurement:
+                self._want_measurement.wait(
+                    0.0001 if self.num_data_reads == 0 else 0.001
+                )
                 # normally we poll using this timeout, but sometimes
                 # reset_measurement() will notify us to read immediately
 
@@ -75,17 +80,20 @@ class PPK2PowerSupply(PowerSupply):
 
                     # update invariants
                     if len(samples) > 0:
-                        if (
-                            self.current_num_samples == 0
-                        ):  # First set of new reads, reset min/max
+                        if self.current_num_samples == 0:
+                            # First set of new reads, reset min/max
                             self.current_max = 0
-                            self.current_min = samples[
-                                0
-                            ]  # we need at least one sample to get an initial min
+                            self.current_min = samples[0]
+                            # we need at least one sample to get an initial min
+
+                        # The following operations could be expensive, so do outside of the lock
+                        # FIXME - change all these lists into numpy arrays to use lots less CPU
                         self.current_max = max(self.current_max, max(samples))
                         self.current_min = min(self.current_min, min(samples))
-                        self.current_sum += sum(samples)
-                        self.current_num_samples += len(samples)
+                        latest_sum = sum(samples)
+                        with self._result_lock:
+                            self.current_sum += latest_sum
+                            self.current_num_samples += len(samples)
                         # logging.debug(f"PPK2 data_len={len(read_data)}, sample_len={len(samples)}")
 
                 self.num_data_reads += 1
@@ -102,13 +110,14 @@ class PPK2PowerSupply(PowerSupply):
 
     def get_average_current_mA(self):
         """Return the average current in mA."""
-        if self.current_num_samples != 0:
-            # If we have new samples, calculate a new average
-            self.current_average = self.current_sum / self.current_num_samples
+        with self._result_lock:
+            if self.current_num_samples != 0:
+                # If we have new samples, calculate a new average
+                self.current_average = self.current_sum / self.current_num_samples
 
-        # Even if we don't have new samples, return the last calculated average
-        # measurements are in microamperes, divide by 1000
-        return self.current_average / 1000
+            # Even if we don't have new samples, return the last calculated average
+            # measurements are in microamperes, divide by 1000
+            return self.current_average / 1000
 
     def reset_measurements(self):
         """Reset current measurements."""
@@ -122,8 +131,9 @@ class PPK2PowerSupply(PowerSupply):
         self.num_data_reads = 0
         self.total_data_len = 0
         self.max_data_len = 0
-        with self.want_measurement:
-            self.want_measurement.notify()  # notify the measurement loop to read immediately
+
+        with self._want_measurement:
+            self._want_measurement.notify()  # notify the measurement loop to read immediately
 
     def close(self) -> None:
         """Close the power meter."""
