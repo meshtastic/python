@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 import pyarrow as pa
 import pyarrow.feather as feather
 from dash import Dash, Input, Output, callback, dash_table, dcc, html
+import dash_bootstrap_components as dbc
 
 from .. import mesh_pb2, powermon_pb2
 
@@ -83,7 +84,9 @@ pmon_raises = pmon_events[pmon_events["pm_raises"].notnull()]
 
 def create_dash():
     """Create a Dash application for visualizing power consumption data."""
-    app = Dash()
+    app = Dash(
+        external_stylesheets=[dbc.themes.BOOTSTRAP]
+    )
 
     def set_legend(f, name):
         f["data"][0]["showlegend"] = True
