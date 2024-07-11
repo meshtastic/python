@@ -37,6 +37,14 @@
       "args": ["--tunnel", "--debug"]
     },
     {
+      "name": "meshtastic analysis",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic.analysis",
+      "justMyCode": true,
+      "args": [""]
+    },
+    {
       "name": "meshtastic set chan",
       "type": "debugpy",
       "request": "launch",
