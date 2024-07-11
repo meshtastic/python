@@ -71,7 +71,7 @@ log_regex = re.compile(".*S:([0-9A-Za-z]+):(.*)")
 class PowerLogger:
     """Logs current watts reading periodically using PowerMeter and ArrowWriter."""
 
-    def __init__(self, pMeter: PowerMeter, file_path: str, interval=0.2) -> None:
+    def __init__(self, pMeter: PowerMeter, file_path: str, interval=0.01) -> None:
         """Initialize the PowerLogger object."""
         self.pMeter = pMeter
         self.writer = FeatherWriter(file_path)

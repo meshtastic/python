@@ -63,7 +63,7 @@ class PPK2PowerSupply(PowerSupply):
         """Endless measurement loop will run in a thread."""
         while self.measuring:
             with self.want_measurement:
-                self.want_measurement.wait(0.0001 if self.num_data_reads == 0 else 0.01)
+                self.want_measurement.wait(0.0001 if self.num_data_reads == 0 else 0.001)
                 # normally we poll using this timeout, but sometimes
                 # reset_measurement() will notify us to read immediately
 
