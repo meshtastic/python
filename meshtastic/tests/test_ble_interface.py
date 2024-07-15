@@ -1,6 +1,7 @@
 """Meshtastic unit tests for ble_interface.py"""
 import logging
 import os
+from unittest.mock import patch
 
 import pytest
 
@@ -40,6 +41,16 @@ def test_ble_interface_sanitize_address_returns_no_colon():
     _sanitize_address should only return strings without colons
     """
     assert BLEInterface._sanitize_address("hello:world") == "helloworld"
+
+def test_linux_exit_handler():
+    """
+    Given a platform.system of Linux (or as I like to call it, Ganoo plus Linux), 
+    we should register an exit handler.
+    """
+    with patch("platform.system") as fake_platform:
+        fake_platform.return_value = "Linux"
+        test_interface = BLEInterface(address="")
+        assert test_interface._exit_handler is not None
 
 
 @pytest.mark.skipif(os.environ.get("CI") == "true", reason="Bluetooth tests are not supported in CI environment")

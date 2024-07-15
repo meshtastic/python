@@ -27,6 +27,7 @@ ppk2-api = "^0.9.2"
 pyarrow = "^16.1.0"
 platformdirs = "^4.2.2"
 print-color = "^0.4.6"
+dbus-fast = "^2.22.1"
 
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.103.2"
