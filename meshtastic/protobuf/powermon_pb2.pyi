@@ -95,3 +95,127 @@ class PowerMon(google.protobuf.message.Message):
     ) -> None: ...
 
 global___PowerMon = PowerMon
+
+@typing.final
+class PowerStressMessage(google.protobuf.message.Message):
+    """
+    PowerStress testing support via the C++ PowerStress module
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _Opcode:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _OpcodeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[PowerStressMessage._Opcode.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNSET: PowerStressMessage._Opcode.ValueType  # 0
+        """
+        Unset/unused
+        """
+        PRINT_INFO: PowerStressMessage._Opcode.ValueType  # 1
+        """Print board version slog and send an ack that we are alive and ready to process commands"""
+        FORCE_QUIET: PowerStressMessage._Opcode.ValueType  # 2
+        """Try to turn off all automatic processing of packets, screen, sleeping, etc (to make it easier to measure in isolation)"""
+        END_QUIET: PowerStressMessage._Opcode.ValueType  # 3
+        """Stop powerstress processing - probably by just rebooting the board"""
+        SCREEN_ON: PowerStressMessage._Opcode.ValueType  # 16
+        """Turn the screen on"""
+        SCREEN_OFF: PowerStressMessage._Opcode.ValueType  # 17
+        """Turn the screen off"""
+        CPU_IDLE: PowerStressMessage._Opcode.ValueType  # 32
+        """Let the CPU run but we assume mostly idling for num_seconds"""
+        CPU_DEEPSLEEP: PowerStressMessage._Opcode.ValueType  # 33
+        """Force deep sleep for FIXME seconds"""
+        CPU_FULLON: PowerStressMessage._Opcode.ValueType  # 34
+        """Spin the CPU as fast as possible for num_seconds"""
+        LED_ON: PowerStressMessage._Opcode.ValueType  # 48
+        """Turn the LED on for num_seconds (and leave it on - for baseline power measurement purposes)"""
+        LED_OFF: PowerStressMessage._Opcode.ValueType  # 49
+        """Force the LED off for num_seconds"""
+        LORA_OFF: PowerStressMessage._Opcode.ValueType  # 64
+        """Completely turn off the LORA radio for num_seconds"""
+        LORA_TX: PowerStressMessage._Opcode.ValueType  # 65
+        """Send Lora packets for num_seconds"""
+        LORA_RX: PowerStressMessage._Opcode.ValueType  # 66
+        """Receive Lora packets for num_seconds (node will be mostly just listening, unless an external agent is helping stress this by sending packets on the current channel)"""
+        BT_OFF: PowerStressMessage._Opcode.ValueType  # 80
+        """Turn off the BT radio for num_seconds"""
+        BT_ON: PowerStressMessage._Opcode.ValueType  # 81
+        """Turn on the BT radio for num_seconds"""
+        WIFI_OFF: PowerStressMessage._Opcode.ValueType  # 96
+        """Turn off the WIFI radio for num_seconds"""
+        WIFI_ON: PowerStressMessage._Opcode.ValueType  # 97
+        """Turn on the WIFI radio for num_seconds"""
+        GPS_OFF: PowerStressMessage._Opcode.ValueType  # 112
+        """Turn off the GPS radio for num_seconds"""
+        GPS_ON: PowerStressMessage._Opcode.ValueType  # 113
+        """Turn on the GPS radio for num_seconds"""
+
+    class Opcode(_Opcode, metaclass=_OpcodeEnumTypeWrapper):
+        """
+        What operation would we like the UUT to perform.
+        note: senders should probably set want_response in their request packets, so that they can know when the state
+        machine has started processing their request
+        """
+
+    UNSET: PowerStressMessage.Opcode.ValueType  # 0
+    """
+    Unset/unused
+    """
+    PRINT_INFO: PowerStressMessage.Opcode.ValueType  # 1
+    """Print board version slog and send an ack that we are alive and ready to process commands"""
+    FORCE_QUIET: PowerStressMessage.Opcode.ValueType  # 2
+    """Try to turn off all automatic processing of packets, screen, sleeping, etc (to make it easier to measure in isolation)"""
+    END_QUIET: PowerStressMessage.Opcode.ValueType  # 3
+    """Stop powerstress processing - probably by just rebooting the board"""
+    SCREEN_ON: PowerStressMessage.Opcode.ValueType  # 16
+    """Turn the screen on"""
+    SCREEN_OFF: PowerStressMessage.Opcode.ValueType  # 17
+    """Turn the screen off"""
+    CPU_IDLE: PowerStressMessage.Opcode.ValueType  # 32
+    """Let the CPU run but we assume mostly idling for num_seconds"""
+    CPU_DEEPSLEEP: PowerStressMessage.Opcode.ValueType  # 33
+    """Force deep sleep for FIXME seconds"""
+    CPU_FULLON: PowerStressMessage.Opcode.ValueType  # 34
+    """Spin the CPU as fast as possible for num_seconds"""
+    LED_ON: PowerStressMessage.Opcode.ValueType  # 48
+    """Turn the LED on for num_seconds (and leave it on - for baseline power measurement purposes)"""
+    LED_OFF: PowerStressMessage.Opcode.ValueType  # 49
+    """Force the LED off for num_seconds"""
+    LORA_OFF: PowerStressMessage.Opcode.ValueType  # 64
+    """Completely turn off the LORA radio for num_seconds"""
+    LORA_TX: PowerStressMessage.Opcode.ValueType  # 65
+    """Send Lora packets for num_seconds"""
+    LORA_RX: PowerStressMessage.Opcode.ValueType  # 66
+    """Receive Lora packets for num_seconds (node will be mostly just listening, unless an external agent is helping stress this by sending packets on the current channel)"""
+    BT_OFF: PowerStressMessage.Opcode.ValueType  # 80
+    """Turn off the BT radio for num_seconds"""
+    BT_ON: PowerStressMessage.Opcode.ValueType  # 81
+    """Turn on the BT radio for num_seconds"""
+    WIFI_OFF: PowerStressMessage.Opcode.ValueType  # 96
+    """Turn off the WIFI radio for num_seconds"""
+    WIFI_ON: PowerStressMessage.Opcode.ValueType  # 97
+    """Turn on the WIFI radio for num_seconds"""
+    GPS_OFF: PowerStressMessage.Opcode.ValueType  # 112
+    """Turn off the GPS radio for num_seconds"""
+    GPS_ON: PowerStressMessage.Opcode.ValueType  # 113
+    """Turn on the GPS radio for num_seconds"""
+
+    CMD_FIELD_NUMBER: builtins.int
+    NUM_SECONDS_FIELD_NUMBER: builtins.int
+    cmd: global___PowerStressMessage.Opcode.ValueType
+    """
+    What type of HardwareMessage is this?
+    """
+    num_seconds: builtins.float
+    def __init__(
+        self,
+        *,
+        cmd: global___PowerStressMessage.Opcode.ValueType = ...,
+        num_seconds: builtins.float = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["cmd", b"cmd", "num_seconds", b"num_seconds"]) -> None: ...
+
+global___PowerStressMessage = PowerStressMessage

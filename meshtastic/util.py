@@ -25,9 +25,13 @@ from meshtastic.supported_device import supported_devices
 from meshtastic.version import get_active_version
 
 """Some devices such as a seger jlink or st-link we never want to accidentally open
-0x1915 NordicSemi (PPK2)
+     0483 STMicroelectronics ST-LINK/V2
+     0136 SEGGER J-Link
+     1915 NordicSemi (PPK2)
+     0925 Lakeview Research Saleae Logic (logic analyzer)
+04b4:602a Cypress Semiconductor Corp. Hantek DSO-6022BL (oscilloscope)
 """
-blacklistVids = dict.fromkeys([0x1366, 0x0483, 0x1915])
+blacklistVids = dict.fromkeys([0x1366, 0x0483, 0x1915, 0x0925, 0x04b4])
 
 """Some devices are highly likely to be meshtastic.
 0x239a RAK4631
@@ -266,9 +270,10 @@ class Acknowledgment:
 class DeferredExecution:
     """A thread that accepts closures to run, and runs them as they are received"""
 
-    def __init__(self, name=None):
+    def __init__(self, name):
         self.queue = Queue()
-        self.thread = threading.Thread(target=self._run, args=(), name=name)
+        # this thread must be marked as daemon, otherwise it will prevent clients from exiting
+        self.thread = threading.Thread(target=self._run, args=(), name=name, daemon=True)
         self.thread.daemon = True
         self.thread.start()
 

@@ -39,9 +39,10 @@ class StreamInterface(MeshInterface):
         self._wantExit = False
 
         self.is_windows11 = is_windows11()
+        self.cur_log_line = ""
 
         # FIXME, figure out why daemon=True causes reader thread to exit too early
-        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
+        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True, name="stream reader")
 
         MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto, noNodes=noNodes)
 
@@ -124,6 +125,23 @@ class StreamInterface(MeshInterface):
         if self._rxThread != threading.current_thread():
             self._rxThread.join()  # wait for it to exit
 
+    def _handleLogByte(self, b):
+        """Handle a byte that is part of a log message from the device."""
+
+        utf = "?"  # assume we might fail
+        try:
+            utf = b.decode("utf-8")
+        except:
+            pass
+
+        if utf == "\r":
+            pass    # ignore
+        elif utf == "\n":
+            self._handleLogLine(self.cur_log_line)
+            self.cur_log_line = ""
+        else:
+            self.cur_log_line += utf
+
     def __reader(self):
         """The reader thread that reads bytes from our stream"""
         logging.debug("in __reader()")
@@ -146,11 +164,9 @@ class StreamInterface(MeshInterface):
                     if ptr == 0:  # looking for START1
                         if c != START1:
                             self._rxBuf = empty  # failed to find start
-                            if self.debugOut is not None:
-                                try:
-                                    self.debugOut.write(b.decode("utf-8"))
-                                except:
-                                    self.debugOut.write("?")
+                            # This must be a log message from the device
+
+                            self._handleLogByte(b)
 
                     elif ptr == 1:  # looking for START2
                         if c != START2:

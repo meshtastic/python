@@ -8,7 +8,6 @@ import struct
 import time
 from threading import Thread
 from typing import List, Optional
-import print_color  # type: ignore[import-untyped]
 
 from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
@@ -100,30 +99,11 @@ class BLEInterface(MeshInterface):
             return
 
         message = f'[{log_record.source}] {log_record.message}' if log_record.source else log_record.message
-
-        if log_record.DEBUG:
-            print_color.print(message, color="cyan", end=None)
-        elif log_record.INFO:
-            print_color.print(message, color="white", end=None)
-        elif log_record.WARNING:
-            print_color.print(message, color="yellow", end=None)
-        elif log_record.ERROR:
-            print_color.print(message, color="red", end=None)
-        else:
-            print_color.print(message, end=None)
+        self._handleLogLine(message)
 
     async def legacy_log_radio_handler(self, _, b):  # pylint: disable=C0116
         log_radio = b.decode("utf-8").replace("\n", "")
-        if log_radio.startswith("DEBUG"):
-            print_color.print(log_radio, color="cyan", end=None)
-        elif log_radio.startswith("INFO"):
-            print_color.print(log_radio, color="white", end=None)
-        elif log_radio.startswith("WARN"):
-            print_color.print(log_radio, color="yellow", end=None)
-        elif log_radio.startswith("ERROR"):
-            print_color.print(log_radio, color="red", end=None)
-        else:
-            print_color.print(log_radio, end=None)
+        self._handleLogLine(log_radio)
 
     @staticmethod
     def scan() -> List[BLEDevice]:

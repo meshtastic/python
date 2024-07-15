@@ -1,6 +1,9 @@
-#!python3
 """ Main Meshtastic
 """
+
+# We just hit the 1600 line limit for main.py, but I currently have a huge set of powermon/structured logging changes
+# later we can have a separate changelist to refactor main.py into smaller files
+# pylint: disable=too-many-lines
 
 import argparse
 import logging
@@ -8,6 +11,7 @@ import os
 import platform
 import sys
 import time
+from typing import Optional
 
 import pyqrcode # type: ignore[import-untyped]
 import yaml
@@ -22,6 +26,10 @@ from meshtastic import remote_hardware, BROADCAST_ADDR
 from meshtastic.version import get_active_version
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
+from meshtastic.powermon import RidenPowerSupply, PPK2PowerSupply, SimPowerSupply, PowerStress, PowerMeter
+from meshtastic.slog import LogSet
+
+meter: Optional[PowerMeter] = None
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -844,6 +852,15 @@ def onConnected(interface):
             qr = pyqrcode.create(url)
             print(qr.terminal())
 
+        if args.slog or args.power_stress:
+            # Setup loggers
+            global meter  # pylint: disable=global-variable-not-assigned
+            LogSet(interface, args.slog if args.slog != 'default' else None, meter)
+
+            if args.power_stress:
+                stress = PowerStress(interface)
+                stress.run()
+
         if args.listen:
             closeNow = False
 
@@ -981,9 +998,32 @@ def export_config(interface):
     print(config)
     return config
 
+def create_power_meter():
+    """Setup the power meter."""
+
+    global meter  # pylint: disable=global-statement
+    args = mt_config.args
+    if args.power_riden:
+        meter = RidenPowerSupply(args.power_riden)
+    elif args.power_ppk2_supply or args.power_ppk2_meter:
+        meter = PPK2PowerSupply()
+        meter.setIsSupply(args.power_ppk2_supply)
+    elif args.power_sim:
+        meter = SimPowerSupply()
+
+    if meter and args.power_voltage:
+        v = float(args.power_voltage)
+        if v < 0.5 or v >5.0:
+            meshtastic.util.our_exit("Voltage must be between 1.0 and 5.0")
+        logging.info(f"Setting power supply to {v} volts")
+        meter.v = v
+        meter.powerOn()
+
+        if args.power_wait:
+            input("Powered on, press enter to continue...")
 
 def common():
-    """Shared code for all of our command line wrappers"""
+    """Shared code for all of our command line wrappers."""
     logfile = None
     args = mt_config.args
     parser = mt_config.parser
@@ -999,6 +1039,8 @@ def common():
         if args.support:
             meshtastic.util.support_info()
             meshtastic.util.our_exit("", 0)
+
+        create_power_meter()
 
         if args.ch_index is not None:
             channelIndex = int(args.ch_index)
@@ -1081,7 +1123,6 @@ def common():
                             f"Error connecting to localhost:{ex}", 1
                         )
 
-
             # We assume client is fully connected now
             onConnected(client)
 
@@ -1089,8 +1130,11 @@ def common():
             if (
                 args.noproto or args.reply or (have_tunnel and args.tunnel) or args.listen
             ):  # loop until someone presses ctrlc
-                while True:
-                    time.sleep(1000)
+                try:
+                    while True:
+                        time.sleep(1000)
+                except KeyboardInterrupt:
+                    logging.info("Exiting due to keyboard interrupt")
 
         # don't call exit, background threads might be running still
         # sys.exit(0)
@@ -1493,6 +1537,58 @@ def initParser():
         "--test",
         help="Run stress test against all connected Meshtastic devices",
         action="store_true",
+    )
+
+    power_group = parser.add_argument_group('Power Testing', 'Options for power testing/logging.')
+
+    power_supply_group = power_group.add_mutually_exclusive_group()
+
+    power_supply_group.add_argument(
+        "--power-riden",
+        help="Talk to a Riden power-supply. You must specify the device path, i.e. /dev/ttyUSBxxx",
+    )
+
+    power_supply_group.add_argument(
+        "--power-ppk2-meter",
+        help="Talk to a Nordic Power Profiler Kit 2 (in meter mode)",
+        action="store_true",
+    )
+
+    power_supply_group.add_argument(
+        "--power-ppk2-supply",
+        help="Talk to a Nordic Power Profiler Kit 2 (in supply mode)",
+        action="store_true",
+    )
+
+    power_supply_group.add_argument(
+        "--power-sim",
+        help="Use a simulated power meter (for development)",
+        action="store_true",
+    )
+
+    power_group.add_argument(
+        "--power-voltage",
+        help="Set the specified voltage on the power-supply. Be VERY careful, you can burn things up.",
+    )
+
+    power_group.add_argument(
+        "--power-stress",
+        help="Perform power monitor stress testing, to capture a power consumption profile for the device (also requires --power-mon)",
+        action="store_true",
+    )
+
+    power_group.add_argument(
+        "--power-wait",
+        help="Prompt the user to wait for device reset before looking for device serial ports (some boards kill power to USB serial port)",
+        action="store_true",
+    )
+
+    power_group.add_argument(
+        "--slog",
+        help="Store structured-logs (slogs) for this run, optionally you can specifiy a destination directory",
+        nargs="?",
+        default=None,
+        const="default"
     )
 
     group.add_argument(

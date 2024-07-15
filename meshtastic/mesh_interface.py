@@ -16,6 +16,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import google.protobuf.json_format
 from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
+import print_color  # type: ignore[import-untyped]
 
 import meshtastic.node
 
@@ -31,7 +32,7 @@ from meshtastic import (
     NODELESS_WANT_CONFIG_ID,
     ResponseHandler,
     protocols,
-    publishingThread,
+    publishingThread
 )
 from meshtastic.util import (
     Acknowledgment,
@@ -42,7 +43,6 @@ from meshtastic.util import (
     stripnl,
     message_to_json,
 )
-
 
 def _timeago(delta_secs: int) -> str:
     """Convert a number of seconds in the past into a short, friendly string
@@ -117,6 +117,12 @@ class MeshInterface: # pylint: disable=R0902
         self.queue: collections.OrderedDict = collections.OrderedDict()
         self._localChannels = None
 
+        # We could have just not passed in debugOut to MeshInterface, and instead told consumers to subscribe to
+        # the meshtastic.log.line publish instead.  Alas though changing that now would be a breaking API change
+        # for any external consumers of the library.
+        if debugOut:
+            pub.subscribe(MeshInterface._printLogLine, "meshtastic.log.line")
+
     def close(self):
         """Shutdown this interface"""
         if self.heartbeatTimer:
@@ -135,6 +141,33 @@ class MeshInterface: # pylint: disable=R0902
         if traceback is not None:
             logging.error(f"Traceback: {traceback}")
         self.close()
+
+    @staticmethod
+    def _printLogLine(line, interface):
+        """Print a line of log output."""
+        if interface.debugOut == sys.stdout:
+            # this isn't quite correct (could cause false positives), but currently our formatting differs between different log representations
+            if "DEBUG" in line:
+                print_color.print(line, color="cyan", end=None)
+            elif "INFO" in line:
+                print_color.print(line, color="white", end=None)
+            elif "WARN" in line:
+                print_color.print(line, color="yellow", end=None)
+            elif "ERR" in line:
+                print_color.print(line, color="red", end=None)
+            else:
+                print_color.print(line, end=None)
+        else:
+            interface.debugOut.write(line + "\n")
+
+    def _handleLogLine(self, line: str) -> None:
+        """Handle a line of log output from the device."""
+        pub.sendMessage("meshtastic.log.line", line=line, interface=self)
+
+    def _handleLogRecord(self, record: mesh_pb2.LogRecord) -> None:
+        """Handle a log record which was received encapsulated in a protobuf."""
+        # For now we just try to format the line as if it had come in over the serial port
+        self._handleLogLine(record.message)
 
     def showInfo(self, file=sys.stdout) -> str:  # pylint: disable=W0613
         """Show human readable summary about this object"""
@@ -325,6 +358,7 @@ class MeshInterface: # pylint: disable=R0902
         onResponse: Optional[Callable[[dict], Any]]=None,
         onResponseAckPermitted: bool=False,
         channelIndex: int=0,
+        hopLimit: Optional[int]=None,
     ):
         """Send a data packet to some other node
 
@@ -347,7 +381,8 @@ class MeshInterface: # pylint: disable=R0902
                     for regular ACKs (True) or just data responses & NAKs (False)
                     Note that if the onResponse callback is called 'onAckNak' this
                     will implicitly be true.
-            channelIndex - channel number to use
+            channelIndex -- channel number to use
+            hopLimit -- hop limit to use
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -379,7 +414,7 @@ class MeshInterface: # pylint: disable=R0902
         if onResponse is not None:
             logging.debug(f"Setting a response handler for requestId {meshPacket.id}")
             self._addResponseHandler(meshPacket.id, onResponse, ackPermitted=onResponseAckPermitted)
-        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck)
+        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit)
         return p
 
     def sendPosition(
@@ -478,6 +513,7 @@ class MeshInterface: # pylint: disable=R0902
             wantResponse=True,
             onResponse=self.onResponseTraceRoute,
             channelIndex=channelIndex,
+            hopLimit=hopLimit,
         )
         # extend timeout based on number of nodes, limit by configured hopLimit
         waitFactor = min(len(self.nodes) - 1 if self.nodes else 0, hopLimit)
@@ -520,6 +556,9 @@ class MeshInterface: # pylint: disable=R0902
                     air_util_tx = metrics.get("airUtilTx")
                     if air_util_tx is not None:
                         r.device_metrics.air_util_tx = air_util_tx
+                    uptime_seconds = metrics.get("uptimeSeconds")
+                    if uptime_seconds is not None:
+                        r.device_metrics.uptime_seconds = uptime_seconds
 
         if wantResponse:
             onResponse = self.onResponseTelemetry
@@ -555,6 +594,8 @@ class MeshInterface: # pylint: disable=R0902
                 )
             if telemetry.device_metrics.air_util_tx is not None:
                 print(f"Transmit air utilization: {telemetry.device_metrics.air_util_tx:.2f}%")
+            if telemetry.device_metrics.uptime_seconds is not None:
+                print(f"Uptime: {telemetry.device_metrics.uptime_seconds} s")
 
         elif p["decoded"]["portnum"] == 'ROUTING_APP':
             if p["decoded"]["routing"]["errorReason"] == 'NO_RESPONSE':
@@ -563,7 +604,13 @@ class MeshInterface: # pylint: disable=R0902
     def _addResponseHandler(self, requestId: int, callback: Callable[[dict], Any], ackPermitted: bool=False):
         self.responseHandlers[requestId] = ResponseHandler(callback=callback, ackPermitted=ackPermitted)
 
-    def _sendPacket(self, meshPacket: mesh_pb2.MeshPacket, destinationId: Union[int,str]=BROADCAST_ADDR, wantAck: bool=False):
+    def _sendPacket(
+        self,
+        meshPacket: mesh_pb2.MeshPacket,
+        destinationId: Union[int,str]=BROADCAST_ADDR,
+        wantAck: bool=False,
+        hopLimit: Optional[int]=None
+    ):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead.
 
@@ -604,9 +651,12 @@ class MeshInterface: # pylint: disable=R0902
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
-        loraConfig = getattr(self.localNode.localConfig, "lora")
-        hopLimit = getattr(loraConfig, "hop_limit")
-        meshPacket.hop_limit = hopLimit
+
+        if hopLimit is not None:
+            meshPacket.hop_limit = hopLimit
+        else:
+            loraConfig = getattr(self.localNode.localConfig, "lora")
+            meshPacket.hop_limit = getattr(loraConfig, "hop_limit")
 
         # if the user hasn't set an ID for this packet (likely and recommended),
         # we should pick a new unique ID so the message can be tracked.
@@ -912,7 +962,8 @@ class MeshInterface: # pylint: disable=R0902
             self._handleChannel(fromRadio.channel)
         elif fromRadio.HasField("packet"):
             self._handlePacketFromRadio(fromRadio.packet)
-
+        elif fromRadio.HasField("log_record"):
+            self._handleLogRecord(fromRadio.log_record)
         elif fromRadio.HasField("queueStatus"):
             self._handleQueueStatusFromRadio(fromRadio.queueStatus)
 
