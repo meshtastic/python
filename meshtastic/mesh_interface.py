@@ -589,6 +589,9 @@ class MeshInterface:  # pylint: disable=R0902
                     air_util_tx = metrics.get("airUtilTx")
                     if air_util_tx is not None:
                         r.device_metrics.air_util_tx = air_util_tx
+                    uptime_seconds = metrics.get("uptimeSeconds")
+                    if uptime_seconds is not None:
+                        r.device_metrics.uptime_seconds = uptime_seconds
 
         if wantResponse:
             onResponse = self.onResponseTelemetry
@@ -626,6 +629,8 @@ class MeshInterface:  # pylint: disable=R0902
                 print(
                     f"Transmit air utilization: {telemetry.device_metrics.air_util_tx:.2f}%"
                 )
+            if telemetry.device_metrics.uptime_seconds is not None:
+                print(f"Uptime: {telemetry.device_metrics.uptime_seconds} s")
 
         elif p["decoded"]["portnum"] == "ROUTING_APP":
             if p["decoded"]["routing"]["errorReason"] == "NO_RESPONSE":
