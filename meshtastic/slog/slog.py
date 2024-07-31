@@ -23,6 +23,17 @@ from meshtastic.powermon import PowerMeter
 from .arrow import FeatherWriter
 
 
+def root_dir() -> str:
+    """Return the root directory for slog files."""
+
+    app_name = "meshtastic"
+    app_author = "meshtastic"
+    app_dir = platformdirs.user_data_dir(app_name, app_author)
+    dir_name = f"{app_dir}/slogs"
+    os.makedirs(dir_name, exist_ok=True)
+    return dir_name
+
+
 @dataclass(init=False)
 class LogDef:
     """Log definition."""
@@ -244,17 +255,15 @@ class LogSet:
         """
 
         if not dir_name:
-            app_name = "meshtastic"
-            app_author = "meshtastic"
-            app_dir = platformdirs.user_data_dir(app_name, app_author)
-            dir_name = f"{app_dir}/slogs/{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+            app_dir = root_dir()
+            dir_name = f"{app_dir}/{datetime.now().strftime('%Y%m%d-%H%M%S')}"
             os.makedirs(dir_name, exist_ok=True)
 
             # Also make a 'latest' directory that always points to the most recent logs
             # symlink might fail on some platforms, if it does fail silently
-            if os.path.exists(f"{app_dir}/slogs/latest"):
-                os.unlink(f"{app_dir}/slogs/latest")
-            os.symlink(dir_name, f"{app_dir}/slogs/latest", target_is_directory=True)
+            if os.path.exists(f"{app_dir}/latest"):
+                os.unlink(f"{app_dir}/latest")
+            os.symlink(dir_name, f"{app_dir}/latest", target_is_directory=True)
 
         self.dir_name = dir_name
 

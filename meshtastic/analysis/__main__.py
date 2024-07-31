@@ -1,6 +1,9 @@
 """Post-run analysis tools for meshtastic."""
 
+import argparse
 import logging
+
+import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -8,29 +11,13 @@ import plotly.graph_objects as go
 import pyarrow as pa
 import pyarrow.feather as feather
 from dash import Dash, Input, Output, callback, dash_table, dcc, html
-import dash_bootstrap_components as dbc
 
 from .. import mesh_pb2, powermon_pb2
-
-# per https://arrow.apache.org/docs/python/pandas.html#reducing-memory-use-in-table-to-pandas
-# use this to get nullable int fields treated as ints rather than floats in pandas
-dtype_mapping = {
-    pa.int8(): pd.Int8Dtype(),
-    pa.int16(): pd.Int16Dtype(),
-    pa.int32(): pd.Int32Dtype(),
-    pa.int64(): pd.Int64Dtype(),
-    pa.uint8(): pd.UInt8Dtype(),
-    pa.uint16(): pd.UInt16Dtype(),
-    pa.uint32(): pd.UInt32Dtype(),
-    pa.uint64(): pd.UInt64Dtype(),
-    pa.bool_(): pd.BooleanDtype(),
-    pa.float32(): pd.Float32Dtype(),
-    pa.float64(): pd.Float64Dtype(),
-    pa.string(): pd.StringDtype(),
-}
+from ..slog import root_dir
 
 # Configure panda options
 pd.options.mode.copy_on_write = True
+
 
 def to_pmon_names(arr) -> list[str]:
     """Convert the power monitor state numbers to their corresponding names.
@@ -39,6 +26,7 @@ def to_pmon_names(arr) -> list[str]:
 
     Returns the List of corresponding power monitor state names.
     """
+
     def to_pmon_name(n):
         try:
             s = powermon_pb2.PowerMon.State.Name(int(n))
@@ -48,6 +36,7 @@ def to_pmon_names(arr) -> list[str]:
 
     return [to_pmon_name(x) for x in arr]
 
+
 def read_pandas(filepath: str) -> pd.DataFrame:
     """Read a feather file and convert it to a pandas DataFrame.
 
@@ -55,7 +44,24 @@ def read_pandas(filepath: str) -> pd.DataFrame:
 
     Returns the pandas DataFrame.
     """
+    # per https://arrow.apache.org/docs/python/pandas.html#reducing-memory-use-in-table-to-pandas
+    # use this to get nullable int fields treated as ints rather than floats in pandas
+    dtype_mapping = {
+        pa.int8(): pd.Int8Dtype(),
+        pa.int16(): pd.Int16Dtype(),
+        pa.int32(): pd.Int32Dtype(),
+        pa.int64(): pd.Int64Dtype(),
+        pa.uint8(): pd.UInt8Dtype(),
+        pa.uint16(): pd.UInt16Dtype(),
+        pa.uint32(): pd.UInt32Dtype(),
+        pa.uint64(): pd.UInt64Dtype(),
+        pa.bool_(): pd.BooleanDtype(),
+        pa.float32(): pd.Float32Dtype(),
+        pa.float64(): pd.Float64Dtype(),
+        pa.string(): pd.StringDtype(),
+    }
     return feather.read_table(filepath).to_pandas(types_mapper=dtype_mapping.get)
+
 
 def get_pmon_raises(dslog: pd.DataFrame) -> pd.DataFrame:
     """Get the power monitor raises from the slog DataFrame.
@@ -69,7 +75,9 @@ def get_pmon_raises(dslog: pd.DataFrame) -> pd.DataFrame:
     pm_masks = pd.Series(pmon_events["pm_mask"]).to_numpy()
 
     # possible to do this with pandas rolling windows if I was smarter?
-    pm_changes = [(pm_masks[i - 1] ^ x if i != 0 else x) for i, x in enumerate(pm_masks)]
+    pm_changes = [
+        (pm_masks[i - 1] ^ x if i != 0 else x) for i, x in enumerate(pm_masks)
+    ]
     pm_raises = [(pm_masks[i] & x) for i, x in enumerate(pm_changes)]
     pm_falls = [(~pm_masks[i] & x if i != 0 else 0) for i, x in enumerate(pm_changes)]
 
@@ -81,14 +89,17 @@ def get_pmon_raises(dslog: pd.DataFrame) -> pd.DataFrame:
 
     def get_endtime(row):
         """Find the corresponding fall event."""
-        following = pmon_falls[(pmon_falls["pm_falls"] == row["pm_raises"]) &
-                            (pmon_falls["time"] > row["time"])]
+        following = pmon_falls[
+            (pmon_falls["pm_falls"] == row["pm_raises"])
+            & (pmon_falls["time"] > row["time"])
+        ]
         return following.iloc[0] if not following.empty else None
 
     # HMM - setting end_time doesn't work yet - leave off for now
     # pmon_raises['end_time'] = pmon_raises.apply(get_endtime, axis=1)
 
     return pmon_raises
+
 
 def get_board_info(dslog: pd.DataFrame) -> tuple:
     """Get the board information from the slog DataFrame.
@@ -102,6 +113,18 @@ def get_board_info(dslog: pd.DataFrame) -> tuple:
     board_id = mesh_pb2.HardwareModel.Name(board_info.iloc[0]["board_id"])
     return (board_id, sw_version)
 
+
+def create_argparser() -> argparse.ArgumentParser:
+    """Create the argument parser for the script."""
+    parser = argparse.ArgumentParser(description="Meshtastic power analysis tools")
+    group = parser
+    group.add_argument(
+        "--slog",
+        help="Specify the structured-logs directory (defaults to latest log directory)",
+    )
+    return parser
+
+
 def create_dash(slog_path: str) -> Dash:
     """Create a Dash application for visualizing power consumption data.
 
@@ -109,12 +132,15 @@ def create_dash(slog_path: str) -> Dash:
 
     Returns the Dash application.
     """
-    app = Dash(
-        external_stylesheets=[dbc.themes.BOOTSTRAP]
-    )
+    app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-    dpwr = read_pandas(f"{slog_path}/power.feather")
-    dslog = read_pandas(f"{slog_path}/slog.feather")
+    parser = create_argparser()
+    args = parser.parse_args()
+    if not args.slog:
+        args.slog = f"{root_dir()}/latest"
+
+    dpwr = read_pandas(f"{args.slog}/power.feather")
+    dslog = read_pandas(f"{args.slog}/slog.feather")
 
     pmon_raises = get_pmon_raises(dslog)
 
@@ -145,18 +171,22 @@ def create_dash(slog_path: str) -> Dash:
 
     # App layout
     app.layout = [
-        html.Div(children="Early Meshtastic power analysis tool testing..."),
+        html.Div(children="Meshtastic power analysis tool testing..."),
         dcc.Graph(figure=fig),
     ]
 
     return app
 
+
 def main():
     """Entry point of the script."""
     app = create_dash(slog_path="/home/kevinh/.local/share/meshtastic/slogs/latest")
     port = 8051
-    logging.info(f"Running Dash visualization webapp on port {port} (publicly accessible)")
-    app.run_server(debug=True, host='0.0.0.0', port=port)
+    logging.info(
+        f"Running Dash visualization webapp on port {port} (publicly accessible)"
+    )
+    app.run_server(debug=True, host="0.0.0.0", port=port)
+
 
 if __name__ == "__main__":
     main()

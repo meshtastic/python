@@ -41,8 +41,8 @@
       "type": "debugpy",
       "request": "launch",
       "module": "meshtastic.analysis",
-      "justMyCode": true,
-      "args": [""]
+      "justMyCode": false,
+      "args": []
     },
     {
       "name": "meshtastic set chan",
