@@ -30,7 +30,7 @@ jobs:
           pip3 install poetry
       - name: Install meshtastic from local
         run: |
-          poetry install --all-extras
+          poetry install --all-extras --with dev
           poetry run meshtastic --version
       - name: Run pylint
         run: poetry run pylint meshtastic examples/ --ignore-patterns ".*_pb2.pyi?$"
@@ -68,5 +68,5 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip3 install poetry
-          poetry install --all-extras
+          poetry install
           poetry run meshtastic --version
