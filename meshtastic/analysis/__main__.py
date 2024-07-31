@@ -2,15 +2,16 @@
 
 import argparse
 import logging
+from typing import cast
 
-import dash_bootstrap_components as dbc
+import dash_bootstrap_components as dbc  # type: ignore[import-untyped]
 import numpy as np
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
+import plotly.express as px  # type: ignore[import-untyped]
+import plotly.graph_objects as go  # type: ignore[import-untyped]
 import pyarrow as pa
-import pyarrow.feather as feather
-from dash import Dash, Input, Output, callback, dash_table, dcc, html
+from dash import Dash, dcc, html  # type: ignore[import-untyped]
+from pyarrow import feather
 
 from .. import mesh_pb2, powermon_pb2
 from ..slog import root_dir
@@ -60,7 +61,8 @@ def read_pandas(filepath: str) -> pd.DataFrame:
         pa.float64(): pd.Float64Dtype(),
         pa.string(): pd.StringDtype(),
     }
-    return feather.read_table(filepath).to_pandas(types_mapper=dtype_mapping.get)
+
+    return cast(pd.DataFrame, feather.read_table(filepath).to_pandas(types_mapper=dtype_mapping.get))  # type: ignore[arg-type]
 
 
 def get_pmon_raises(dslog: pd.DataFrame) -> pd.DataFrame:
@@ -87,6 +89,7 @@ def get_pmon_raises(dslog: pd.DataFrame) -> pd.DataFrame:
     pmon_raises = pmon_events[pmon_events["pm_raises"].notnull()][["time", "pm_raises"]]
     pmon_falls = pmon_events[pmon_events["pm_falls"].notnull()]
 
+    # pylint: disable=unused-variable
     def get_endtime(row):
         """Find the corresponding fall event."""
         following = pmon_falls[
@@ -134,13 +137,8 @@ def create_dash(slog_path: str) -> Dash:
     """
     app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-    parser = create_argparser()
-    args = parser.parse_args()
-    if not args.slog:
-        args.slog = f"{root_dir()}/latest"
-
-    dpwr = read_pandas(f"{args.slog}/power.feather")
-    dslog = read_pandas(f"{args.slog}/slog.feather")
+    dpwr = read_pandas(f"{slog_path}/power.feather")
+    dslog = read_pandas(f"{slog_path}/slog.feather")
 
     pmon_raises = get_pmon_raises(dslog)
 
@@ -167,7 +165,9 @@ def create_dash(slog_path: str) -> Dash:
 
     fig = go.Figure(data=max_pwr_points.data + avg_pwr_lines.data + pmon_points.data)
 
-    fig.update_layout(legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
+    fig.update_layout(
+        legend={"yanchor": "top", "y": 0.99, "xanchor": "left", "x": 0.01}
+    )
 
     # App layout
     app.layout = [
@@ -180,11 +180,16 @@ def create_dash(slog_path: str) -> Dash:
 
 def main():
     """Entry point of the script."""
-    app = create_dash(slog_path="/home/kevinh/.local/share/meshtastic/slogs/latest")
+
+    parser = create_argparser()
+    args = parser.parse_args()
+    if not args.slog:
+        args.slog = f"{root_dir()}/latest"
+
+    app = create_dash(slog_path=args.slog)
     port = 8051
-    logging.info(
-        f"Running Dash visualization webapp on port {port} (publicly accessible)"
-    )
+    logging.info(f"Running Dash visualization of {args.slog} (publicly accessible)")
+
     app.run_server(debug=True, host="0.0.0.0", port=port)
 
 
