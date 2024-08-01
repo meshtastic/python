@@ -1,0 +1,349 @@
+[RadioIf] getFromRadio=STATE_SEND_PACKETS
+[RadioIf] Can not send yet, busyRx
+Telling client we have new packets 3
+BLE notify fromNum
+[Blink] S:PM:0x000009c8,
+[Blink] S:PM:0x00000948,
+toRadioWriteCb data 0x2001ffea, len 26
+PACKET FROM PHONE (id=0x8f26f64c fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP)
+[RadioIf] Ignore false preamble detection.
+[RadioIf] S:PM:0x00000940,
+[RadioIf] Starting low level send (id=0x8f26f64b fr=0x46 to=0xff, WantAck=0, HopLim=3 Ch=0x8 encrypted hopStart=3 priority=64)
+[RadioIf] S:PM:0x00000950,
+[RadioIf] (bw=250, sf=11, cr=4/5) packet symLen=8 ms, payloadSize=25, time 419 ms
+[RadioIf] AirTime - Packet transmitted : 419ms
+Telling client we have new packets 4
+BLE notify fromNum
+[Router] Add packet record (id=0x8f26f64c fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725846)
+[Router] handleReceived(REMOTE) (id=0x8f26f64c fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725846)
+[Router] Module 'powerstress' wantsPacket=1
+[Router] Received powerstress from=0x0, id=0x8f26f64c, portnum=74, payloadlen=2
+[Router] Received PowerStress cmd=1
+[Router] S:B:9,2.3.15.177d19ac
+[Router] Asked module 'powerstress' to send a response
+[Router] Module 'powerstress' handled and skipped other processing
+[Router] No one responded, send a nak
+[Router] Alloc an err=8,to=0x67f63246,idFrom=0x8f26f64c,id=0x5fa26660
+[Router] Enqueued local (id=0x5fa26660 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64c rxtime=1720725847 priority=120)
+[Router] Rx someone rebroadcasting for us (id=0x5fa26660 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64c rxtime=1720725847 priority=120)
+[Router] didn't find pending packet
+[Router] Add packet record (id=0x5fa26660 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64c rxtime=1720725847 priority=120)
+[Router] handleReceived(REMOTE) (id=0x5fa26660 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64c rxtime=1720725847 priority=120)
+[Router] Module 'canned' wantsPacket=1
+[Router] showing standard frames
+[Router] Showing 0 module frames
+[Router] Total frame count: 103
+[Router] Added modules.  numframes: 0
+[Router] Finished building frames. numframes: 7
+[Router] Module 'canned' considered
+[Router] Module 'routing' wantsPacket=1
+[Router] Received routing from=0x67f63246, id=0x5fa26660, portnum=5, payloadlen=2
+[Router] Routing sniffing (id=0x5fa26660 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64c rxtime=1720725847 priority=120)
+[Router] Received a nak for 0x8f26f64c, stopping retransmissions
+[Router] Delivering rx packet (id=0x5fa26660 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64c rxtime=1720725847 priority=120)
+[Router] Update DB node 0x67f63246, rx_time=1720725847
+[Router] Forwarding to phone (id=0x5fa26660 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64c rxtime=1720725847 priority=120)
+[Router] Module 'routing' considered
+[RadioIf] Completed sending (id=0x8f26f64b fr=0x46 to=0xff, WantAck=0, HopLim=3 Ch=0x8 encrypted hopStart=3 priority=64)
+[RadioIf] S:PM:0x00000940,
+[RadioIf] S:PM:0x00000948,
+Telling client we have new packets 5
+BLE notify fromNum
+[RadioIf] S:PM:0x00000940,
+[RadioIf] Starting low level send (id=0x5fa2665f fr=0x46 to=0xff, WantAck=0, HopLim=3 Ch=0x8 encrypted hopStart=3 priority=10)
+[RadioIf] S:PM:0x00000950,
+[RadioIf] (bw=250, sf=11, cr=4/5) packet symLen=8 ms, payloadSize=66, time 722 ms
+[RadioIf] AirTime - Packet transmitted : 722ms
+[Blink] S:PM:0x000009d0,
+[Blink] S:PM:0x00000950,
+getFromRadio=STATE_SEND_PACKETS
+getFromRadio=STATE_SEND_PACKETS
+phone downloaded packet (id=0x5fa26660 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64c rxtime=1720725847 priority=120)
+toRadioWriteCb data 0x2001ffea, len 31
+PACKET FROM PHONE (id=0x8f26f64d fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP)
+Enqueued local (id=0x8f26f64d fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725848)
+Telling client we have new packets 6
+BLE notify fromNum
+[Router] Add packet record (id=0x8f26f64d fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725848)
+[Router] handleReceived(REMOTE) (id=0x8f26f64d fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725848)
+[Router] Module 'powerstress' wantsPacket=1
+[Router] Received powerstress from=0x0, id=0x8f26f64d, portnum=74, payloadlen=7
+[Router] Received PowerStress cmd=48
+[Router] Asked module 'powerstress' to send a response
+[Router] Module 'powerstress' handled and skipped other processing
+[Router] No one responded, send a nak
+[Router] Alloc an err=8,to=0x67f63246,idFrom=0x8f26f64d,id=0x5fa26661
+[Router] Enqueued local (id=0x5fa26661 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64d rxtime=1720725848 priority=120)
+[Router] Rx someone rebroadcasting for us (id=0x5fa26661 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64d rxtime=1720725848 priority=120)
+[Router] didn't find pending packet
+[Router] Add packet record (id=0x5fa26661 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64d rxtime=1720725848 priority=120)
+[Router] handleReceived(REMOTE) (id=0x5fa26661 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64d rxtime=1720725848 priority=120)
+[Router] Module 'canned' wantsPacket=1
+[Router] Showing 0 module frames
+[Router] Total frame count: 103
+[Router] Added modules.  numframes: 0
+[Router] Finished building frames. numframes: 7
+[Router] Module 'canned' considered
+[Router] Module 'routing' wantsPacket=1
+[Router] Received routing from=0x67f63246, id=0x5fa26661, portnum=5, payloadlen=2
+[Router] Routing sniffing (id=0x5fa26661 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64d rxtime=1720725848 priority=120)
+[Router] Received a nak for 0x8f26f64d, stopping retransmissions
+[Router] Delivering rx packet (id=0x5fa26661 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64d rxtime=1720725848 priority=120)
+[Router] Update DB node 0x67f63246, rx_time=1720725848
+[Router] Forwarding to phone (id=0x5fa26661 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64d rxtime=1720725848 priority=120)
+[Router] Module 'routing' considered
+[PowerStressModule] S:PS:48
+[PowerStressModule] S:PM:0x000009d0,
+[RadioIf] Completed sending (id=0x5fa2665f fr=0x46 to=0xff, WantAck=0, HopLim=3 Ch=0x8 encrypted hopStart=3 priority=10)
+[RadioIf] S:PM:0x000009c0,
+[RadioIf] S:PM:0x000009c8,
+Telling client we have new packets 7
+BLE notify fromNum
+getFromRadio=STATE_SEND_PACKETS
+phone downloaded packet (id=0x5fa26661 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64d rxtime=1720725848 priority=120)
+toRadioWriteCb data 0x2001ffea, len 31
+PACKET FROM PHONE (id=0x8f26f64e fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP)
+Enqueued local (id=0x8f26f64e fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725853)
+Telling client we have new packets 8
+[Router] Add packet record (id=0x8f26f64e fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725853)
+[Router] handleReceived(REMOTE) (id=0x8f26f64e fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725853)
+[Router] Module 'powerstress' wantsPacket=1
+[Router] Received powerstress from=0x0, id=0x8f26f64e, portnum=74, payloadlen=7
+[Router] Received PowerStress cmd=49
+[Router] PowerStress operation 48 already in progress! Can't start new command
+[Router] Asked module 'powerstress' to send a response
+[Router] Module 'powerstress' handled and skipped other processing
+[Router] No one responded, send a nak
+[Router] Alloc an err=8,to=0x67f63246,idFrom=0x8f26f64e,id=0x5fa26662
+[Router] Enqueued local (id=0x5fa26662 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64e rxtime=1720725853 priority=120)
+[Router] Rx someone rebroadcasting for us (id=0x5fa26662 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64e rxtime=1720725853 priority=120)
+[Router] didn't find pending packet
+[Router] Add packet record (id=0x5fa26662 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64e rxtime=1720725853 priority=120)
+[Router] handleReceived(REMOTE) (id=0x5fa26662 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64e rxtime=1720725853 priority=120)
+[Router] Module 'canned' wantsPacket=1
+[Router] showing standard frames
+[Router] Showing 0 module frames
+[Router] Total frame count: 103
+[Router] Added modules.  numframes: 0
+[Router] Finished building frames. numframes: 7
+[Router] Module 'canned' considered
+[Router] Module 'routing' wantsPacket=1
+[Router] Received routing from=0x67f63246, id=0x5fa26662, portnum=5, payloadlen=2
+[Router] Routing sniffing (id=0x5fa26662 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64e rxtime=1720725853 priority=120)
+[Router] Received a nak for 0x8f26f64e, stopping retransmissions
+[Router] Delivering rx packet (id=0x5fa26662 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64e rxtime=1720725853 priority=120)
+[Router] Update DB node 0x67f63246, rx_time=1720725853
+[Router] Forwarding to phone (id=0x5fa26662 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64e rxtime=1720725853 priority=120)
+[Router] Module 'routing' considered
+[PowerStressModule] S:PS:0
+Telling client we have new packets 9
+BLE notify fromNum
+[Power] Battery: usbPower=0, isCharging=0, batMv=3191, batPct=4
+getFromRadio=STATE_SEND_PACKETS
+phone downloaded packet (id=0x5fa26662 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64e rxtime=1720725853 priority=120)
+toRadioWriteCb data 0x2001ffea, len 31
+PACKET FROM PHONE (id=0x8f26f64f fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP)
+Enqueued local (id=0x8f26f64f fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725858)
+Telling client we have new packets 10
+BLE notify fromNum
+[Router] Add packet record (id=0x8f26f64f fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725858)
+[Router] handleReceived(REMOTE) (id=0x8f26f64f fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725858)
+[Router] Module 'powerstress' wantsPacket=1
+[Router] Received powerstress from=0x0, id=0x8f26f64f, portnum=74, payloadlen=7
+[Router] Received PowerStress cmd=80
+[Router] Asked module 'powerstress' to send a response
+[Router] Module 'powerstress' handled and skipped other processing
+[Router] No one responded, send a nak
+[Router] Alloc an err=8,to=0x67f63246,idFrom=0x8f26f64f,id=0x5fa26663
+[Router] Enqueued local (id=0x5fa26663 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64f rxtime=1720725858 priority=120)
+[Router] Rx someone rebroadcasting for us (id=0x5fa26663 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64f rxtime=1720725858 priority=120)
+[Router] didn't find pending packet
+[Router] Add packet record (id=0x5fa26663 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64f rxtime=1720725858 priority=120)
+[Router] handleReceived(REMOTE) (id=0x5fa26663 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64f rxtime=1720725858 priority=120)
+[Router] Module 'canned' wantsPacket=1
+[Router] showing standard frames
+[Router] Showing 0 module frames
+[Router] Added modules.  numframes: 0
+[Router] Finished building frames. numframes: 7
+[Router] Module 'canned' considered
+[Router] Module 'routing' wantsPacket=1
+[Router] Received routing from=0x67f63246, id=0x5fa26663, portnum=5, payloadlen=2
+[Router] Routing sniffing (id=0x5fa26663 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64f rxtime=1720725858 priority=120)
+[Router] Received a nak for 0x8f26f64f, stopping retransmissions
+[Router] Delivering rx packet (id=0x5fa26663 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64f rxtime=1720725858 priority=120)
+[Router] Update DB node 0x67f63246, rx_time=1720725858
+[Router] Forwarding to phone (id=0x5fa26663 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64f rxtime=1720725858 priority=120)
+[Router] Module 'routing' considered
+[PowerStressModule] S:PS:80
+[PowerStressModule] S:PM:0x00000988,
+[PowerStressModule] Disable NRF52 bluetooth
+Telling client we have new packets 11
+BLE notify fromNum
+[DeviceTelemetryModule] (Sending): air_util_tx=0.031694, channel_utilization=1.901667, battery_level=4, voltage=3.191000, uptime=50
+[DeviceTelemetryModule] updateTelemetry LOCAL
+[DeviceTelemetryModule] Node status update: 1 online, 82 total
+[DeviceTelemetryModule] Sending packet to mesh
+[DeviceTelemetryModule] Update DB node 0x67f63246, rx_time=1720725859
+[DeviceTelemetryModule] handleReceived(LOCAL) (id=0x5fa26664 fr=0x46 to=0xff, WantAck=0, HopLim=3 Ch=0x0 Portnum=67 rxtime=1720725859 priority=10)
+[DeviceTelemetryModule] No modules interested in portnum=67, src=LOCAL
+[DeviceTelemetryModule] localSend to channel 0
+[DeviceTelemetryModule] Add packet record (id=0x5fa26664 fr=0x46 to=0xff, WantAck=0, HopLim=3 Ch=0x0 Portnum=67 rxtime=1720725859 priority=10)
+[DeviceTelemetryModule] Expanding short PSK #1
+[DeviceTelemetryModule] Using AES128 key!
+[DeviceTelemetryModule] nRF52 encrypt fr=67f63246, num=5fa26664, numBytes=30!
+[DeviceTelemetryModule] enqueuing for send (id=0x5fa26664 fr=0x46 to=0xff, WantAck=0, HopLim=3 Ch=0x8 encrypted rxtime=1720725859 hopStart=3 priority=10)
+[DeviceTelemetryModule] txGood=2,rxGood=0,rxBad=0
+[DeviceTelemetryModule] Using channel 0 (hash 0x8)
+[DeviceTelemetryModule] Expanding short PSK #1
+[DeviceTelemetryModule] Using AES128 key!
+[DeviceTelemetryModule] nRF52 encrypt fr=67f63246, num=5fa26664, numBytes=30!
+[DeviceTelemetryModule] decoded message (id=0x5fa26664 fr=0x46 to=0xff, WantAck=0, HopLim=3 Ch=0x0 Portnum=67 rxtime=1720725859 hopStart=3 priority=10)
+Telling client we have new packets 13
+BLE notify fromNum
+[RadioIf] Can not send yet, busyRx
+[RadioIf] Can not send yet, busyRx
+[RadioIf] Can not send yet, busyRx
+[RadioIf] Can not send yet, busyRx
+getFromRadio=STATE_SEND_PACKETS
+[RadioIf] Can not send yet, busyRx
+[RadioIf] Can not send yet, busyRx
+[RadioIf] Can not send yet, busyRx
+[RadioIf] Can not send yet, busyRx
+[RadioIf] Can not send yet, busyRx
+getFromRadio=STATE_SEND_PACKETS
+phone downloaded packet (id=0x5fa26663 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f64f rxtime=1720725858 priority=120)
+[RadioIf] Ignore false preamble detection.
+[RadioIf] S:PM:0x00000980,
+[RadioIf] Starting low level send (id=0x5fa26664 fr=0x46 to=0xff, WantAck=0, HopLim=3 Ch=0x8 encrypted rxtime=1720725859 hopStart=3 priority=10)
+[RadioIf] S:PM:0x00000990,
+[RadioIf] (bw=250, sf=11, cr=4/5) packet symLen=8 ms, payloadSize=46, time 575 ms
+[RadioIf] AirTime - Packet transmitted : 575ms
+getFromRadio=STATE_SEND_PACKETS
+phone downloaded packet (id=0x5fa26664 fr=0x46 to=0xff, WantAck=0, HopLim=3 Ch=0x0 Portnum=67 rxtime=1720725859 hopStart=3 priority=10)
+[RadioIf] Completed sending (id=0x5fa26664 fr=0x46 to=0xff, WantAck=0, HopLim=3 Ch=0x8 encrypted rxtime=1720725859 hopStart=3 priority=10)
+[RadioIf] S:PM:0x00000980,
+[RadioIf] S:PM:0x00000988,
+toRadioWriteCb data 0x2001ffea, len 31
+PACKET FROM PHONE (id=0x8f26f650 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP)
+Enqueued local (id=0x8f26f650 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725864)
+Telling client we have new packets 14
+BLE notify fromNum
+[Router] Add packet record (id=0x8f26f650 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725864)
+[Router] handleReceived(REMOTE) (id=0x8f26f650 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725864)
+[Router] Module 'powerstress' wantsPacket=1
+[Router] Received powerstress from=0x0, id=0x8f26f650, portnum=74, payloadlen=7
+[Router] Received PowerStress cmd=81
+[Router] PowerStress operation 80 already in progress! Can't start new command
+[Router] Asked module 'powerstress' to send a response
+[Router] Module 'powerstress' handled and skipped other processing
+[Router] No one responded, send a nak
+[Router] Alloc an err=8,to=0x67f63246,idFrom=0x8f26f650,id=0x5fa26665
+[Router] Enqueued local (id=0x5fa26665 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f650 rxtime=1720725864 priority=120)
+[Router] Rx someone rebroadcasting for us (id=0x5fa26665 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f650 rxtime=1720725864 priority=120)
+[Router] didn't find pending packet
+[Router] Add packet record (id=0x5fa26665 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f650 rxtime=1720725864 priority=120)
+[Router] handleReceived(REMOTE) (id=0x5fa26665 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f650 rxtime=1720725864 priority=120)
+[Router] Module 'canned' wantsPacket=1
+[Router] showing standard frames
+[Router] Showing 0 module frames
+[Router] Total frame count: 103
+[Router] Added modules.  numframes: 0
+[Router] Finished building frames. numframes: 7
+[Router] Module 'canned' considered
+[Router] Module 'routing' wantsPacket=1
+[Router] Received routing from=0x67f63246, id=0x5fa26665, portnum=5, payloadlen=2
+[Router] Routing sniffing (id=0x5fa26665 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f650 rxtime=1720725864 priority=120)
+[Router] Received a nak for 0x8f26f650, stopping retransmissions
+[Router] Delivering rx packet (id=0x5fa26665 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f650 rxtime=1720725864 priority=120)
+[Router] Update DB node 0x67f63246, rx_time=1720725864
+[Router] Forwarding to phone (id=0x5fa26665 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f650 rxtime=1720725864 priority=120)
+[Router] Module 'routing' considered
+Telling client we have new packets 15
+BLE notify fromNum
+getFromRadio=STATE_SEND_PACKETS
+[PowerStressModule] S:PS:0
+getFromRadio=STATE_SEND_PACKETS
+phone downloaded packet (id=0x5fa26665 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f650 rxtime=1720725864 priority=120)
+toRadioWriteCb data 0x2001ffea, len 31
+PACKET FROM PHONE (id=0x8f26f651 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP)
+Enqueued local (id=0x8f26f651 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725869)
+Telling client we have new packets 16
+BLE notify fromNum
+[Router] Add packet record (id=0x8f26f651 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725869)
+[Router] handleReceived(REMOTE) (id=0x8f26f651 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725869)
+[Router] Module 'powerstress' wantsPacket=1
+[Router] Received powerstress from=0x0, id=0x8f26f651, portnum=74, payloadlen=7
+[Router] Received PowerStress cmd=34
+[Router] Asked module 'powerstress' to send a response
+[Router] Module 'powerstress' handled and skipped other processing
+[Router] No one responded, send a nak
+[Router] Alloc an err=8,to=0x67f63246,idFrom=0x8f26f651,id=0x5fa26666
+[Router] Enqueued local (id=0x5fa26666 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f651 rxtime=1720725869 priority=120)
+[Router] Rx someone rebroadcasting for us (id=0x5fa26666 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f651 rxtime=1720725869 priority=120)
+[Router] didn't find pending packet
+[Router] Add packet record (id=0x5fa26666 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f651 rxtime=1720725869 priority=120)
+[Router] handleReceived(REMOTE) (id=0x5fa26666 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f651 rxtime=1720725869 priority=120)
+[Router] Module 'canned' wantsPacket=1
+[Router] showing standard frames
+[Router] Showing 0 module frames
+[Router] Total frame count: 103
+[Router] Added modules.  numframes: 0
+[Router] Finished building frames. numframes: 7
+[Router] Module 'canned' considered
+[Router] Module 'routing' wantsPacket=1
+[Router] Received routing from=0x67f63246, id=0x5fa26666, portnum=5, payloadlen=2
+[Router] Routing sniffing (id=0x5fa26666 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f651 rxtime=1720725869 priority=120)
+[Router] Received a nak for 0x8f26f651, stopping retransmissions
+[Router] Delivering rx packet (id=0x5fa26666 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f651 rxtime=1720725869 priority=120)
+[Router] Update DB node 0x67f63246, rx_time=1720725869
+[Router] Forwarding to phone (id=0x5fa26666 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f651 rxtime=1720725869 priority=120)
+[Router] Module 'routing' considered
+[PowerStressModule] S:PS:34
+[PowerStressModule] getFromRadio=STATE_SEND_PACKETS
+[PowerStressModule] getFromRadio=STATE_SEND_PACKETS
+[PowerStressModule] phone downloaded packet (id=0x5fa26666 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f651 rxtime=1720725869 priority=120)
+Telling client we have new packets 17
+BLE notify fromNum
+[Power] Battery: usbPower=0, isCharging=0, batMv=3202, batPct=5
+[PowerStressModule] S:PS:0
+toRadioWriteCb data 0x2001ffea, len 31
+PACKET FROM PHONE (id=0x8f26f652 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP)
+Enqueued local (id=0x8f26f652 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725874)
+Telling client we have new packets 18
+[Router] Add packet record (id=0x8f26f652 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725874)
+[Router] handleReceived(REMOTE) (id=0x8f26f652 fr=0x00 to=0x46, WantAck=1, HopLim=3 Ch=0x0 Portnum=74 WANTRESP rxtime=1720725875)
+[Router] Module 'powerstress' wantsPacket=1
+[Router] Received powerstress from=0x0, id=0x8f26f652, portnum=74, payloadlen=7
+[Router] Received PowerStress cmd=32
+[Router] Asked module 'powerstress' to send a response
+[Router] Module 'powerstress' handled and skipped other processing
+[Router] No one responded, send a nak
+[Router] Alloc an err=8,to=0x67f63246,idFrom=0x8f26f652,id=0x5fa26667
+[Router] Enqueued local (id=0x5fa26667 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f652 rxtime=1720725875 priority=120)
+[Router] Rx someone rebroadcasting for us (id=0x5fa26667 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f652 rxtime=1720725875 priority=120)
+[Router] didn't find pending packet
+[Router] Add packet record (id=0x5fa26667 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f652 rxtime=1720725875 priority=120)
+[Router] handleReceived(REMOTE) (id=0x5fa26667 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f652 rxtime=1720725875 priority=120)
+[Router] Module 'canned' wantsPacket=1
+[Router] showing standard frames
+[Router] Showing 0 module frames
+[Router] Total frame count: 103
+[Router] Added modules.  numframes: 0
+[Router] Finished building frames. numframes: 7
+[Router] Module 'canned' considered
+[Router] Module 'routing' wantsPacket=1
+[Router] Received routing from=0x67f63246, id=0x5fa26667, portnum=5, payloadlen=2
+[Router] Routing sniffing (id=0x5fa26667 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f652 rxtime=1720725875 priority=120)
+[Router] Received a nak for 0x8f26f652, stopping retransmissions
+[Router] Delivering rx packet (id=0x5fa26667 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f652 rxtime=1720725875 priority=120)
+[Router] Update DB node 0x67f63246, rx_time=1720725875
+[Router] Forwarding to phone (id=0x5fa26667 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f652 rxtime=1720725875 priority=120)
+[Router] Module 'routing' considered
+[PowerStressModule] S:PS:32
+Telling client we have new packets 19
+BLE notify fromNum
+getFromRadio=STATE_SEND_PACKETS
+phone downloaded packet (id=0x5fa26667 fr=0x46 to=0x46, WantAck=0, HopLim=3 Ch=0x0 Portnum=5 requestId=8f26f652 rxtime=1720725875 priority=120)
+toRadioWriteCb data 0x2001ffea, len 2
+Disconnecting from phone
+[PowerStressModule] S:PS:0

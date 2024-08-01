@@ -125,6 +125,12 @@ def create_argparser() -> argparse.ArgumentParser:
         "--slog",
         help="Specify the structured-logs directory (defaults to latest log directory)",
     )
+    group.add_argument(
+        "--no-server",
+        action="store_true",
+        help="Exit immediately, without running the visualization web server",
+    )
+
     return parser
 
 
@@ -190,7 +196,10 @@ def main():
     port = 8051
     logging.info(f"Running Dash visualization of {args.slog} (publicly accessible)")
 
-    app.run_server(debug=True, host="0.0.0.0", port=port)
+    if not args.no_server:
+        app.run_server(debug=True, host="0.0.0.0", port=port)
+    else:
+        logging.info("Exiting without running visualization server")
 
 
 if __name__ == "__main__":
