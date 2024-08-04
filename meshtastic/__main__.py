@@ -1501,17 +1501,17 @@ def initParser():
 
     group.add_argument(
         "--setalt",
-        help="Set device altitude in meters (allows use without GPS), and enable fixed position.",
+        help="Set device altitude in meters (allows use without GPS), and enable fixed position. When providing positions with `--setlat`, `--setlon`, and `--setalt`, missing values will be set to 0.",
     )
 
     group.add_argument(
         "--setlat",
-        help="Set device latitude (allows use without GPS), and enable fixed position. Accepts a decimal value or an integer premultiplied by 1e7.",
+        help="Set device latitude (allows use without GPS), and enable fixed position. Accepts a decimal value or an integer premultiplied by 1e7. When providing positions with `--setlat`, `--setlon`, and `--setalt`, missing values will be set to 0.",
     )
 
     group.add_argument(
         "--setlon",
-        help="Set device longitude (allows use without GPS), and enable fixed position. Accepts a decimal value or an integer premultiplied by 1e7.",
+        help="Set device longitude (allows use without GPS), and enable fixed position. Accepts a decimal value or an integer premultiplied by 1e7. When providing positions with `--setlat`, `--setlon`, and `--setalt`, missing values will be set to 0.",
     )
 
     group.add_argument(
