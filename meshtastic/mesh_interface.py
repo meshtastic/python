@@ -1135,7 +1135,7 @@ class MeshInterface: # pylint: disable=R0902
         # We normally decompose the payload into a dictionary so that the client
         # doesn't need to understand protobufs.  But advanced clients might
         # want the raw protobuf, so we provide it in "raw"
-        asDict["raw"] = meshPacket
+        asDict["raw"] = stripnl(meshPacket)
 
         # from might be missing if the nodenum was zero.
         if not hack and "from" not in asDict:
@@ -1201,7 +1201,7 @@ class MeshInterface: # pylint: disable=R0902
                     p = google.protobuf.json_format.MessageToDict(pb)
                     asDict["decoded"][handler.name] = p
                     # Also provide the protobuf raw
-                    asDict["decoded"][handler.name]["raw"] = pb
+                    asDict["decoded"][handler.name]["raw"] = stripnl(pb)
 
                 # Call specialized onReceive if necessary
                 if handler.onReceive is not None:
@@ -1225,6 +1225,7 @@ class MeshInterface: # pylint: disable=R0902
                         handler.callback(asDict)
 
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
+        asDictJson = json.dumps(asDict, indent=2, default=str)
         publishingThread.queueWork(
-            lambda: pub.sendMessage(topic, packet=asDict, interface=self)
+            lambda: pub.sendMessage(topic, packet=asDictJson, interface=self)
         )
