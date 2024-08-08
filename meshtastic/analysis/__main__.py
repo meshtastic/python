@@ -2,7 +2,7 @@
 
 import argparse
 import logging
-from typing import cast
+from typing import cast, List
 
 import dash_bootstrap_components as dbc  # type: ignore[import-untyped]
 import numpy as np
@@ -20,7 +20,7 @@ from ..slog import root_dir
 pd.options.mode.copy_on_write = True
 
 
-def to_pmon_names(arr) -> list[str]:
+def to_pmon_names(arr) -> List[str]:
     """Convert the power monitor state numbers to their corresponding names.
 
     arr (list): List of power monitor state numbers.

@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from functools import reduce
-from typing import Optional
+from typing import Optional, List, Tuple
 
 import parse  # type: ignore[import-untyped]
 import platformdirs
@@ -39,10 +39,10 @@ class LogDef:
     """Log definition."""
 
     code: str  # i.e. PM or B or whatever... see meshtastic slog documentation
-    fields: list[tuple[str, pa.DataType]]  # A list of field names and their arrow types
+    fields: List[Tuple[str, pa.DataType]]  # A list of field names and their arrow types
     format: parse.Parser  # A format string that can be used to parse the arguments
 
-    def __init__(self, code: str, fields: list[tuple[str, pa.DataType]]) -> None:
+    def __init__(self, code: str, fields: List[Tuple[str, pa.DataType]]) -> None:
         """Initialize the LogDef object.
 
         code (str): The code.
@@ -93,7 +93,7 @@ class PowerLogger:
         )
         self.thread.start()
 
-    def store_current_reading(self, now: datetime | None = None) -> None:
+    def store_current_reading(self, now: Optional[datetime] = None) -> None:
         """Store current power measurement."""
         if now is None:
             now = datetime.now()
@@ -133,7 +133,7 @@ class StructuredLogger:
         self,
         client: MeshInterface,
         dir_path: str,
-        power_logger: PowerLogger | None = None,
+        power_logger: Optional[PowerLogger] = None,
         include_raw=True,
     ) -> None:
         """Initialize the StructuredLogger object.
