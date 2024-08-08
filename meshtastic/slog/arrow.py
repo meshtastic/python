@@ -3,7 +3,7 @@
 import logging
 import threading
 import os
-from typing import Optional
+from typing import Optional, List
 
 import pyarrow as pa
 from pyarrow import feather
@@ -20,7 +20,7 @@ class ArrowWriter:
         file_name (str): The name of the file to write to.
         """
         self.sink = pa.OSFile(file_name, "wb")  # type: ignore
-        self.new_rows: list[dict] = []
+        self.new_rows: List[dict] = []
         self.schema: Optional[pa.Schema] = None  # haven't yet learned the schema
         self.writer: Optional[pa.RecordBatchStreamWriter] = None
         self._lock = threading.Condition()  # Ensure only one thread writes at a time
