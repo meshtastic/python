@@ -11,6 +11,8 @@ from ..protobuf import mesh_pb2, config_pb2
 from .. import BROADCAST_ADDR, LOCAL_ADDR
 from ..mesh_interface import MeshInterface, _timeago
 from ..node import Node
+from ..slog import LogSet
+from ..powermon import SimPowerSupply
 
 # TODO
 # from ..config import Config
@@ -47,11 +49,15 @@ def test_MeshInterface(capsys):
 
     iface.localNode.localConfig.lora.CopyFrom(config_pb2.Config.LoRaConfig())
 
+    # Also get some coverage of the structured logging/power meter stuff by turning it on as well
+    log_set = LogSet(iface, None, SimPowerSupply())
+
     iface.showInfo()
     iface.localNode.showInfo()
     iface.showNodes()
     iface.sendText("hello")
     iface.close()
+    log_set.close()
     out, err = capsys.readouterr()
     assert re.search(r"Owner: None \(None\)", out, re.MULTILINE)
     assert re.search(r"Nodes", out, re.MULTILINE)

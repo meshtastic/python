@@ -37,6 +37,14 @@
       "args": ["--tunnel", "--debug"]
     },
     {
+      "name": "meshtastic analysis",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic.analysis",
+      "justMyCode": false,
+      "args": []
+    },
+    {
       "name": "meshtastic set chan",
       "type": "debugpy",
       "request": "launch",
@@ -204,7 +212,7 @@
       "request": "launch",
       "module": "meshtastic",
       "justMyCode": false,
-      "args": ["--slog-out", "default", "--power-ppk2-meter", "--power-stress", "--power-voltage", "3.3", "--seriallog"]
+      "args": ["--slog", "--power-ppk2-supply", "--power-stress", "--power-voltage", "3.3", "--ble"]
     },
     {
       "name": "meshtastic test",

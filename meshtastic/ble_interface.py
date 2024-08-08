@@ -8,16 +8,14 @@ import time
 from threading import Thread
 from typing import List, Optional
 
+import google.protobuf
 from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
 
-import google.protobuf
-
 from meshtastic.mesh_interface import MeshInterface
 
-from .protobuf import (
-    mesh_pb2,
-)
+from .protobuf import mesh_pb2
+
 SERVICE_UUID = "6ba1b218-15a8-461f-9fa8-5dcae273eafd"
 TORADIO_UUID = "f75c76d2-129e-4dad-a1dd-7866124401e7"
 FROMRADIO_UUID = "2c55e69e-4993-11ed-b878-0242ac120002"
@@ -53,16 +51,19 @@ class BLEInterface(MeshInterface):
         self._receiveThread.start()
         logging.debug("Threads running")
 
+        self.client: Optional[BLEClient] = None
         try:
             logging.debug(f"BLE connecting to: {address if address else 'any'}")
-            self.client: Optional[BLEClient] = self.connect(address)
+            self.client = self.connect(address)
             logging.debug("BLE connected")
         except BLEInterface.BLEError as e:
             self.close()
             raise e
 
         if self.client.has_characteristic(LEGACY_LOGRADIO_UUID):
-            self.client.start_notify(LEGACY_LOGRADIO_UUID, self.legacy_log_radio_handler)
+            self.client.start_notify(
+                LEGACY_LOGRADIO_UUID, self.legacy_log_radio_handler
+            )
 
         if self.client.has_characteristic(LOGRADIO_UUID):
             self.client.start_notify(LOGRADIO_UUID, self.log_radio_handler)
@@ -93,11 +94,15 @@ class BLEInterface(MeshInterface):
         log_record = mesh_pb2.LogRecord()
         try:
             log_record.ParseFromString(bytes(b))
-        except google.protobuf.message.DecodeError:
-            return
 
-        message = f'[{log_record.source}] {log_record.message}' if log_record.source else log_record.message
-        self._handleLogLine(message)
+            message = (
+                f"[{log_record.source}] {log_record.message}"
+                if log_record.source
+                else log_record.message
+            )
+            self._handleLogLine(message)
+        except google.protobuf.message.DecodeError:
+            logging.warning("Malformed LogRecord received. Skipping.")
 
     async def legacy_log_radio_handler(self, _, b):  # pylint: disable=C0116
         log_radio = b.decode("utf-8").replace("\n", "")
@@ -191,7 +196,7 @@ class BLEInterface(MeshInterface):
 
     def _sendToRadioImpl(self, toRadio):
         b = toRadio.SerializeToString()
-        if b:
+        if b and self.client:  # we silently ignore writes while we are shutting down
             logging.debug(f"TORADIO write: {b.hex()}")
             try:
                 self.client.write_gatt_char(
@@ -207,7 +212,6 @@ class BLEInterface(MeshInterface):
             self.should_read = True
 
     def close(self):
-        atexit.unregister(self._exit_handler)
         try:
             MeshInterface.close(self)
         except Exception as e:
@@ -215,10 +219,14 @@ class BLEInterface(MeshInterface):
 
         if self._want_receive:
             self.want_receive = False  # Tell the thread we want it to stop
-            self._receiveThread.join(timeout=2) # If bleak is hung, don't wait for the thread to exit (it is critical we disconnect)
-            self._receiveThread = None
+            if self._receiveThread:
+                self._receiveThread.join(
+                    timeout=2
+                )  # If bleak is hung, don't wait for the thread to exit (it is critical we disconnect)
+                self._receiveThread = None
 
         if self.client:
+            atexit.unregister(self._exit_handler)
             self.client.disconnect()
             self.client.close()
             self.client = None

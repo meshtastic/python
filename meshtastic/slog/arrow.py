@@ -1,7 +1,9 @@
 """Utilities for Apache Arrow serialization."""
 
 import logging
+import threading
 import os
+from typing import Optional
 
 import pyarrow as pa
 from pyarrow import feather
@@ -19,34 +21,49 @@ class ArrowWriter:
         """
         self.sink = pa.OSFile(file_name, "wb")  # type: ignore
         self.new_rows: list[dict] = []
-        self.schema: pa.Schema | None = None  # haven't yet learned the schema
-        self.writer: pa.RecordBatchFileWriter | None = None
+        self.schema: Optional[pa.Schema] = None  # haven't yet learned the schema
+        self.writer: Optional[pa.RecordBatchStreamWriter] = None
+        self._lock = threading.Condition()  # Ensure only one thread writes at a time
 
     def close(self):
         """Close the stream and writes the file as needed."""
-        self._write()
-        if self.writer:
-            self.writer.close()
-        self.sink.close()
+        with self._lock:
+            self._write()
+            if self.writer:
+                self.writer.close()
+            self.sink.close()
+
+    def set_schema(self, schema: pa.Schema):
+        """Set the schema for the file.
+        Only needed for datasets where we can't learn it from the first record written.
+
+        schema (pa.Schema): The schema to use.
+        """
+        with self._lock:
+            assert self.schema is None
+            self.schema = schema
+            self.writer = pa.ipc.new_stream(self.sink, schema)
 
     def _write(self):
         """Write the new rows to the file."""
         if len(self.new_rows) > 0:
             if self.schema is None:
                 # only need to look at the first row to learn the schema
-                self.schema = pa.Table.from_pylist([self.new_rows[0]]).schema
-                self.writer = pa.ipc.new_stream(self.sink, self.schema)
+                self.set_schema(pa.Table.from_pylist([self.new_rows[0]]).schema)
 
-            self.writer.write_batch(pa.RecordBatch.from_pylist(self.new_rows))
+            self.writer.write_batch(
+                pa.RecordBatch.from_pylist(self.new_rows, schema=self.schema)
+            )
             self.new_rows = []
 
     def add_row(self, row_dict: dict):
         """Add a row to the arrow file.
         We will automatically learn the schema from the first row. But all rows must use that schema.
         """
-        self.new_rows.append(row_dict)
-        if len(self.new_rows) >= chunk_size:
-            self._write()
+        with self._lock:
+            self.new_rows.append(row_dict)
+            if len(self.new_rows) >= chunk_size:
+                self._write()
 
 
 class FeatherWriter(ArrowWriter):
