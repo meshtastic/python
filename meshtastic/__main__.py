@@ -34,14 +34,13 @@ try:
     from meshtastic.slog import LogSet
     have_powermon = True
     powermon_exception = None
+    meter: Optional[PowerMeter] = None
 except ImportError as e:
     have_powermon = False
     powermon_exception = e
+    meter = None
 from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
 from meshtastic.version import get_active_version
-
-meter: Optional[PowerMeter] = None
-
 
 def onReceive(packet, interface):
     """Callback invoked when a packet arrives"""
@@ -897,7 +896,7 @@ def onConnected(interface):
             qr = pyqrcode.create(url)
             print(qr.terminal())
 
-        log_set: Optional[LogSet] = None  # type: ignore[annotation-unchecked]
+        log_set: Optional = None  # type: ignore[annotation-unchecked]
         # we need to keep a reference to the logset so it doesn't get GCed early
 
         if args.slog or args.power_stress:
