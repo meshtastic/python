@@ -31,13 +31,13 @@ try:
         RidenPowerSupply,
         SimPowerSupply,
     )
+    from meshtastic.slog import LogSet
     have_powermon = True
     powermon_exception = None
 except ImportError as e:
     have_powermon = False
     powermon_exception = e
 from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
-from meshtastic.slog import LogSet
 from meshtastic.version import get_active_version
 
 meter: Optional[PowerMeter] = None
