@@ -23,13 +23,19 @@ import meshtastic.util
 from meshtastic import BROADCAST_ADDR, mt_config, remote_hardware
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
-from meshtastic.powermon import (
-    PowerMeter,
-    PowerStress,
-    PPK2PowerSupply,
-    RidenPowerSupply,
-    SimPowerSupply,
-)
+try:
+    from meshtastic.powermon import (
+        PowerMeter,
+        PowerStress,
+        PPK2PowerSupply,
+        RidenPowerSupply,
+        SimPowerSupply,
+    )
+    have_powermon = True
+    powermon_exception = None
+except ImportError as e:
+    have_powermon = False
+    powermon_exception = e
 from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
 from meshtastic.slog import LogSet
 from meshtastic.version import get_active_version
@@ -895,16 +901,22 @@ def onConnected(interface):
         # we need to keep a reference to the logset so it doesn't get GCed early
 
         if args.slog or args.power_stress:
-            # Setup loggers
-            global meter  # pylint: disable=global-variable-not-assigned
-            log_set = LogSet(
-                interface, args.slog if args.slog != "default" else None, meter
-            )
+            if have_powermon:
+                # Setup loggers
+                global meter  # pylint: disable=global-variable-not-assigned
+                log_set = LogSet(
+                    interface, args.slog if args.slog != "default" else None, meter
+                )
 
-            if args.power_stress:
-                stress = PowerStress(interface)
-                stress.run()
-                closeNow = True  # exit immediately after stress test
+                if args.power_stress:
+                    stress = PowerStress(interface)
+                    stress.run()
+                    closeNow = True  # exit immediately after stress test
+            else:
+                meshtastic.util.our_exit("The powermon module could not be loaded. "
+                                         "You may need to run `poetry install --with powermon`. "
+                                         "Import Error was: " + powermon_exception)
+
 
         if args.listen:
             closeNow = False
@@ -1101,7 +1113,8 @@ def common():
             meshtastic.util.support_info()
             meshtastic.util.our_exit("", 0)
 
-        create_power_meter()
+        if have_powermon:
+            create_power_meter()
 
         if args.ch_index is not None:
             channelIndex = int(args.ch_index)
