@@ -1063,6 +1063,10 @@ class MeshInterface:  # pylint: disable=R0902
                 self.localNode.localConfig.bluetooth.CopyFrom(
                     fromRadio.config.bluetooth
                 )
+            elif fromRadio.config.HasField("security"):
+                self.localNode.localConfig.security.CopyFrom(
+                    fromRadio.config.security
+                )
 
             elif fromRadio.moduleConfig.HasField("mqtt"):
                 self.localNode.moduleConfig.mqtt.CopyFrom(fromRadio.moduleConfig.mqtt)

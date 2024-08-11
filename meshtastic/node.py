@@ -170,6 +170,8 @@ class Node:
             p.set_config.lora.CopyFrom(self.localConfig.lora)
         elif config_name == "bluetooth":
             p.set_config.bluetooth.CopyFrom(self.localConfig.bluetooth)
+        elif config_name == "security":
+            p.set_config.security.CopyFrom(self.localConfig.security)
         elif config_name == "mqtt":
             p.set_module_config.mqtt.CopyFrom(self.moduleConfig.mqtt)
         elif config_name == "serial":
