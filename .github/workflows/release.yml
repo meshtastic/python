@@ -26,7 +26,7 @@ jobs:
 
       - name: Bump version
         run: >-
-          poetry version patch
+          poetry version minor
 
       - name: Commit updated version.
         id: commit_updated
