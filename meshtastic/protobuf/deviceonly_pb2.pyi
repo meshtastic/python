@@ -10,6 +10,7 @@ import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import meshtastic.protobuf.channel_pb2
+import meshtastic.protobuf.config_pb2
 import meshtastic.protobuf.localonly_pb2
 import meshtastic.protobuf.mesh_pb2
 import meshtastic.protobuf.telemetry_pb2
@@ -113,6 +114,67 @@ class PositionLite(google.protobuf.message.Message):
 global___PositionLite = PositionLite
 
 @typing.final
+class UserLite(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MACADDR_FIELD_NUMBER: builtins.int
+    LONG_NAME_FIELD_NUMBER: builtins.int
+    SHORT_NAME_FIELD_NUMBER: builtins.int
+    HW_MODEL_FIELD_NUMBER: builtins.int
+    IS_LICENSED_FIELD_NUMBER: builtins.int
+    ROLE_FIELD_NUMBER: builtins.int
+    PUBLIC_KEY_FIELD_NUMBER: builtins.int
+    macaddr: builtins.bytes
+    """
+    This is the addr of the radio.
+    """
+    long_name: builtins.str
+    """
+    A full name for this user, i.e. "Kevin Hester"
+    """
+    short_name: builtins.str
+    """
+    A VERY short name, ideally two characters.
+    Suitable for a tiny OLED screen
+    """
+    hw_model: meshtastic.protobuf.mesh_pb2.HardwareModel.ValueType
+    """
+    TBEAM, HELTEC, etc...
+    Starting in 1.2.11 moved to hw_model enum in the NodeInfo object.
+    Apps will still need the string here for older builds
+    (so OTA update can find the right image), but if the enum is available it will be used instead.
+    """
+    is_licensed: builtins.bool
+    """
+    In some regions Ham radio operators have different bandwidth limitations than others.
+    If this user is a licensed operator, set this flag.
+    Also, "long_name" should be their licence number.
+    """
+    role: meshtastic.protobuf.config_pb2.Config.DeviceConfig.Role.ValueType
+    """
+    Indicates that the user's role in the mesh
+    """
+    public_key: builtins.bytes
+    """
+    The public key of the user's device.
+    This is sent out to other nodes on the mesh to allow them to compute a shared secret key.
+    """
+    def __init__(
+        self,
+        *,
+        macaddr: builtins.bytes = ...,
+        long_name: builtins.str = ...,
+        short_name: builtins.str = ...,
+        hw_model: meshtastic.protobuf.mesh_pb2.HardwareModel.ValueType = ...,
+        is_licensed: builtins.bool = ...,
+        role: meshtastic.protobuf.config_pb2.Config.DeviceConfig.Role.ValueType = ...,
+        public_key: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["hw_model", b"hw_model", "is_licensed", b"is_licensed", "long_name", b"long_name", "macaddr", b"macaddr", "public_key", b"public_key", "role", b"role", "short_name", b"short_name"]) -> None: ...
+
+global___UserLite = UserLite
+
+@typing.final
 class NodeInfoLite(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -157,7 +219,7 @@ class NodeInfoLite(google.protobuf.message.Message):
     Persists between NodeDB internal clean ups
     """
     @property
-    def user(self) -> meshtastic.protobuf.mesh_pb2.User:
+    def user(self) -> global___UserLite:
         """
         The user info for this node
         """
@@ -179,7 +241,7 @@ class NodeInfoLite(google.protobuf.message.Message):
         self,
         *,
         num: builtins.int = ...,
-        user: meshtastic.protobuf.mesh_pb2.User | None = ...,
+        user: global___UserLite | None = ...,
         position: global___PositionLite | None = ...,
         snr: builtins.float = ...,
         last_heard: builtins.int = ...,

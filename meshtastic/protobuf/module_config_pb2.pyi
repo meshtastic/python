@@ -992,7 +992,7 @@ class ModuleConfig(google.protobuf.message.Message):
         allow_input_source: builtins.str
         """
         Input event origin accepted by the canned message module.
-        Can be e.g. "rotEnc1", "upDownEnc1" or keyword "_any"
+        Can be e.g. "rotEnc1", "upDownEnc1", "scanAndSelect", "cardkb", "serialkb", or keyword "_any"
         """
         send_bell: builtins.bool
         """

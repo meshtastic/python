@@ -332,6 +332,23 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Seeed studio T1000-E tracker card. NRF52840 w/ LR1110 radio, GPS, button, buzzer, and sensors.
     """
+    RAK3172: _HardwareModel.ValueType  # 72
+    """
+    RAK3172 STM32WLE5 Module (https://store.rakwireless.com/products/wisduo-lpwan-module-rak3172)
+    """
+    WIO_E5: _HardwareModel.ValueType  # 73
+    """
+    Seeed Studio Wio-E5 (either mini or Dev kit) using STM32WL chip.
+    """
+    RADIOMASTER_900_BANDIT: _HardwareModel.ValueType  # 74
+    """
+    RadioMaster 900 Bandit, https://www.radiomasterrc.com/products/bandit-expresslrs-rf-module
+    SSD1306 OLED and No GPS
+    """
+    ME25LS01_4Y10TD: _HardwareModel.ValueType  # 75
+    """
+    Minewsemi ME25LS01 (ME25LE01_V1.0). NRF52840 w/ LR1110 radio, buttons and leds and pins.
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -648,6 +665,23 @@ TRACKER_T1000_E: HardwareModel.ValueType  # 71
 """
 Seeed studio T1000-E tracker card. NRF52840 w/ LR1110 radio, GPS, button, buzzer, and sensors.
 """
+RAK3172: HardwareModel.ValueType  # 72
+"""
+RAK3172 STM32WLE5 Module (https://store.rakwireless.com/products/wisduo-lpwan-module-rak3172)
+"""
+WIO_E5: HardwareModel.ValueType  # 73
+"""
+Seeed Studio Wio-E5 (either mini or Dev kit) using STM32WL chip.
+"""
+RADIOMASTER_900_BANDIT: HardwareModel.ValueType  # 74
+"""
+RadioMaster 900 Bandit, https://www.radiomasterrc.com/products/bandit-expresslrs-rf-module
+SSD1306 OLED and No GPS
+"""
+ME25LS01_4Y10TD: HardwareModel.ValueType  # 75
+"""
+Minewsemi ME25LS01 (ME25LE01_V1.0). NRF52840 w/ LR1110 radio, buttons and leds and pins.
+"""
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
 ------------------------------------------------------------------------------------------------------------------------------------------
@@ -747,6 +781,17 @@ class _CriticalErrorCodeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapp
     A (likely software but possibly hardware) failure was detected while trying to send packets.
     If this occurs on your board, please post in the forum so that we can ask you to collect some information to allow fixing this bug
     """
+    FLASH_CORRUPTION_RECOVERABLE: _CriticalErrorCode.ValueType  # 12
+    """
+    Corruption was detected on the flash filesystem but we were able to repair things.
+    If you see this failure in the field please post in the forum because we are interested in seeing if this is occurring in the field.
+    """
+    FLASH_CORRUPTION_UNRECOVERABLE: _CriticalErrorCode.ValueType  # 13
+    """
+    Corruption was detected on the flash filesystem but we were unable to repair things.
+    NOTE: Your node will probably need to be reconfigured the next time it reboots (it will lose the region code etc...)
+    If you see this failure in the field please post in the forum because we are interested in seeing if this is occurring in the field.
+    """
 
 class CriticalErrorCode(_CriticalErrorCode, metaclass=_CriticalErrorCodeEnumTypeWrapper):
     """
@@ -804,6 +849,17 @@ RADIO_SPI_BUG: CriticalErrorCode.ValueType  # 11
 """
 A (likely software but possibly hardware) failure was detected while trying to send packets.
 If this occurs on your board, please post in the forum so that we can ask you to collect some information to allow fixing this bug
+"""
+FLASH_CORRUPTION_RECOVERABLE: CriticalErrorCode.ValueType  # 12
+"""
+Corruption was detected on the flash filesystem but we were able to repair things.
+If you see this failure in the field please post in the forum because we are interested in seeing if this is occurring in the field.
+"""
+FLASH_CORRUPTION_UNRECOVERABLE: CriticalErrorCode.ValueType  # 13
+"""
+Corruption was detected on the flash filesystem but we were unable to repair things.
+NOTE: Your node will probably need to be reconfigured the next time it reboots (it will lose the region code etc...)
+If you see this failure in the field please post in the forum because we are interested in seeing if this is occurring in the field.
 """
 global___CriticalErrorCode = CriticalErrorCode
 
@@ -1051,22 +1107,22 @@ class Position(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        latitude_i: builtins.int = ...,
-        longitude_i: builtins.int = ...,
-        altitude: builtins.int = ...,
+        latitude_i: builtins.int | None = ...,
+        longitude_i: builtins.int | None = ...,
+        altitude: builtins.int | None = ...,
         time: builtins.int = ...,
         location_source: global___Position.LocSource.ValueType = ...,
         altitude_source: global___Position.AltSource.ValueType = ...,
         timestamp: builtins.int = ...,
         timestamp_millis_adjust: builtins.int = ...,
-        altitude_hae: builtins.int = ...,
-        altitude_geoidal_separation: builtins.int = ...,
+        altitude_hae: builtins.int | None = ...,
+        altitude_geoidal_separation: builtins.int | None = ...,
         PDOP: builtins.int = ...,
         HDOP: builtins.int = ...,
         VDOP: builtins.int = ...,
         gps_accuracy: builtins.int = ...,
-        ground_speed: builtins.int = ...,
-        ground_track: builtins.int = ...,
+        ground_speed: builtins.int | None = ...,
+        ground_track: builtins.int | None = ...,
         fix_quality: builtins.int = ...,
         fix_type: builtins.int = ...,
         sats_in_view: builtins.int = ...,
@@ -1075,7 +1131,22 @@ class Position(google.protobuf.message.Message):
         seq_number: builtins.int = ...,
         precision_bits: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["HDOP", b"HDOP", "PDOP", b"PDOP", "VDOP", b"VDOP", "altitude", b"altitude", "altitude_geoidal_separation", b"altitude_geoidal_separation", "altitude_hae", b"altitude_hae", "altitude_source", b"altitude_source", "fix_quality", b"fix_quality", "fix_type", b"fix_type", "gps_accuracy", b"gps_accuracy", "ground_speed", b"ground_speed", "ground_track", b"ground_track", "latitude_i", b"latitude_i", "location_source", b"location_source", "longitude_i", b"longitude_i", "next_update", b"next_update", "precision_bits", b"precision_bits", "sats_in_view", b"sats_in_view", "sensor_id", b"sensor_id", "seq_number", b"seq_number", "time", b"time", "timestamp", b"timestamp", "timestamp_millis_adjust", b"timestamp_millis_adjust"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_altitude", b"_altitude", "_altitude_geoidal_separation", b"_altitude_geoidal_separation", "_altitude_hae", b"_altitude_hae", "_ground_speed", b"_ground_speed", "_ground_track", b"_ground_track", "_latitude_i", b"_latitude_i", "_longitude_i", b"_longitude_i", "altitude", b"altitude", "altitude_geoidal_separation", b"altitude_geoidal_separation", "altitude_hae", b"altitude_hae", "ground_speed", b"ground_speed", "ground_track", b"ground_track", "latitude_i", b"latitude_i", "longitude_i", b"longitude_i"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["HDOP", b"HDOP", "PDOP", b"PDOP", "VDOP", b"VDOP", "_altitude", b"_altitude", "_altitude_geoidal_separation", b"_altitude_geoidal_separation", "_altitude_hae", b"_altitude_hae", "_ground_speed", b"_ground_speed", "_ground_track", b"_ground_track", "_latitude_i", b"_latitude_i", "_longitude_i", b"_longitude_i", "altitude", b"altitude", "altitude_geoidal_separation", b"altitude_geoidal_separation", "altitude_hae", b"altitude_hae", "altitude_source", b"altitude_source", "fix_quality", b"fix_quality", "fix_type", b"fix_type", "gps_accuracy", b"gps_accuracy", "ground_speed", b"ground_speed", "ground_track", b"ground_track", "latitude_i", b"latitude_i", "location_source", b"location_source", "longitude_i", b"longitude_i", "next_update", b"next_update", "precision_bits", b"precision_bits", "sats_in_view", b"sats_in_view", "sensor_id", b"sensor_id", "seq_number", b"seq_number", "time", b"time", "timestamp", b"timestamp", "timestamp_millis_adjust", b"timestamp_millis_adjust"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_altitude", b"_altitude"]) -> typing.Literal["altitude"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_altitude_geoidal_separation", b"_altitude_geoidal_separation"]) -> typing.Literal["altitude_geoidal_separation"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_altitude_hae", b"_altitude_hae"]) -> typing.Literal["altitude_hae"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ground_speed", b"_ground_speed"]) -> typing.Literal["ground_speed"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ground_track", b"_ground_track"]) -> typing.Literal["ground_track"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_latitude_i", b"_latitude_i"]) -> typing.Literal["latitude_i"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_longitude_i", b"_longitude_i"]) -> typing.Literal["longitude_i"] | None: ...
 
 global___Position = Position
 
@@ -1113,6 +1184,7 @@ class User(google.protobuf.message.Message):
     HW_MODEL_FIELD_NUMBER: builtins.int
     IS_LICENSED_FIELD_NUMBER: builtins.int
     ROLE_FIELD_NUMBER: builtins.int
+    PUBLIC_KEY_FIELD_NUMBER: builtins.int
     id: builtins.str
     """
     A globally unique ID string for this user.
@@ -1152,6 +1224,11 @@ class User(google.protobuf.message.Message):
     """
     Indicates that the user's role in the mesh
     """
+    public_key: builtins.bytes
+    """
+    The public key of the user's device.
+    This is sent out to other nodes on the mesh to allow them to compute a shared secret key.
+    """
     def __init__(
         self,
         *,
@@ -1162,32 +1239,57 @@ class User(google.protobuf.message.Message):
         hw_model: global___HardwareModel.ValueType = ...,
         is_licensed: builtins.bool = ...,
         role: meshtastic.protobuf.config_pb2.Config.DeviceConfig.Role.ValueType = ...,
+        public_key: builtins.bytes = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["hw_model", b"hw_model", "id", b"id", "is_licensed", b"is_licensed", "long_name", b"long_name", "macaddr", b"macaddr", "role", b"role", "short_name", b"short_name"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["hw_model", b"hw_model", "id", b"id", "is_licensed", b"is_licensed", "long_name", b"long_name", "macaddr", b"macaddr", "public_key", b"public_key", "role", b"role", "short_name", b"short_name"]) -> None: ...
 
 global___User = User
 
 @typing.final
 class RouteDiscovery(google.protobuf.message.Message):
     """
-    A message used in our Dynamic Source Routing protocol (RFC 4728 based)
+    A message used in a traceroute
     """
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     ROUTE_FIELD_NUMBER: builtins.int
+    SNR_TOWARDS_FIELD_NUMBER: builtins.int
+    ROUTE_BACK_FIELD_NUMBER: builtins.int
+    SNR_BACK_FIELD_NUMBER: builtins.int
     @property
     def route(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
         """
-        The list of nodenums this packet has visited so far
+        The list of nodenums this packet has visited so far to the destination.
+        """
+
+    @property
+    def snr_towards(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
+        """
+        The list of SNRs (in dB, scaled by 4) in the route towards the destination.
+        """
+
+    @property
+    def route_back(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
+        """
+        The list of nodenums the packet has visited on the way back from the destination.
+        """
+
+    @property
+    def snr_back(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
+        """
+        The list of SNRs (in dB, scaled by 4) in the route back from the destination.
         """
 
     def __init__(
         self,
         *,
         route: collections.abc.Iterable[builtins.int] | None = ...,
+        snr_towards: collections.abc.Iterable[builtins.int] | None = ...,
+        route_back: collections.abc.Iterable[builtins.int] | None = ...,
+        snr_back: collections.abc.Iterable[builtins.int] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["route", b"route"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["route", b"route", "route_back", b"route_back", "snr_back", b"snr_back", "snr_towards", b"snr_towards"]) -> None: ...
 
 global___RouteDiscovery = RouteDiscovery
 
@@ -1255,6 +1357,14 @@ class Routing(google.protobuf.message.Message):
         The application layer service on the remote node received your request, but considered your request not authorized
         (i.e you did not send the request on the required bound channel)
         """
+        PKI_FAILED: Routing._Error.ValueType  # 34
+        """
+        The client specified a PKI transport, but the node was unable to send the packet using PKI (and did not send the message at all)
+        """
+        PKI_UNKNOWN_PUBKEY: Routing._Error.ValueType  # 35
+        """
+        The receiving node does not have a Public Key to decode with
+        """
 
     class Error(_Error, metaclass=_ErrorEnumTypeWrapper):
         """
@@ -1311,6 +1421,14 @@ class Routing(google.protobuf.message.Message):
     """
     The application layer service on the remote node received your request, but considered your request not authorized
     (i.e you did not send the request on the required bound channel)
+    """
+    PKI_FAILED: Routing.Error.ValueType  # 34
+    """
+    The client specified a PKI transport, but the node was unable to send the packet using PKI (and did not send the message at all)
+    """
+    PKI_UNKNOWN_PUBKEY: Routing.Error.ValueType  # 35
+    """
+    The receiving node does not have a Public Key to decode with
     """
 
     ROUTE_REQUEST_FIELD_NUMBER: builtins.int
@@ -1475,15 +1593,20 @@ class Waypoint(google.protobuf.message.Message):
         self,
         *,
         id: builtins.int = ...,
-        latitude_i: builtins.int = ...,
-        longitude_i: builtins.int = ...,
+        latitude_i: builtins.int | None = ...,
+        longitude_i: builtins.int | None = ...,
         expire: builtins.int = ...,
         locked_to: builtins.int = ...,
         name: builtins.str = ...,
         description: builtins.str = ...,
         icon: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["description", b"description", "expire", b"expire", "icon", b"icon", "id", b"id", "latitude_i", b"latitude_i", "locked_to", b"locked_to", "longitude_i", b"longitude_i", "name", b"name"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_latitude_i", b"_latitude_i", "_longitude_i", b"_longitude_i", "latitude_i", b"latitude_i", "longitude_i", b"longitude_i"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_latitude_i", b"_latitude_i", "_longitude_i", b"_longitude_i", "description", b"description", "expire", b"expire", "icon", b"icon", "id", b"id", "latitude_i", b"latitude_i", "locked_to", b"locked_to", "longitude_i", b"longitude_i", "name", b"name"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_latitude_i", b"_latitude_i"]) -> typing.Literal["latitude_i"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_longitude_i", b"_longitude_i"]) -> typing.Literal["longitude_i"] | None: ...
 
 global___Waypoint = Waypoint
 
@@ -1683,6 +1806,8 @@ class MeshPacket(google.protobuf.message.Message):
     DELAYED_FIELD_NUMBER: builtins.int
     VIA_MQTT_FIELD_NUMBER: builtins.int
     HOP_START_FIELD_NUMBER: builtins.int
+    PUBLIC_KEY_FIELD_NUMBER: builtins.int
+    PKI_ENCRYPTED_FIELD_NUMBER: builtins.int
     to: builtins.int
     """
     The (immediate) destination for this packet
@@ -1766,6 +1891,14 @@ class MeshPacket(google.protobuf.message.Message):
     Hop limit with which the original packet started. Sent via LoRa using three bits in the unencrypted header.
     When receiving a packet, the difference between hop_start and hop_limit gives how many hops it traveled.
     """
+    public_key: builtins.bytes
+    """
+    Records the public key the packet was encrypted with, if applicable.
+    """
+    pki_encrypted: builtins.bool
+    """
+    Indicates whether the packet was en/decrypted using PKI
+    """
     @property
     def decoded(self) -> global___Data:
         """
@@ -1789,9 +1922,11 @@ class MeshPacket(google.protobuf.message.Message):
         delayed: global___MeshPacket.Delayed.ValueType = ...,
         via_mqtt: builtins.bool = ...,
         hop_start: builtins.int = ...,
+        public_key: builtins.bytes = ...,
+        pki_encrypted: builtins.bool = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["decoded", b"decoded", "encrypted", b"encrypted", "payload_variant", b"payload_variant"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel", b"channel", "decoded", b"decoded", "delayed", b"delayed", "encrypted", b"encrypted", "from", b"from", "hop_limit", b"hop_limit", "hop_start", b"hop_start", "id", b"id", "payload_variant", b"payload_variant", "priority", b"priority", "rx_rssi", b"rx_rssi", "rx_snr", b"rx_snr", "rx_time", b"rx_time", "to", b"to", "via_mqtt", b"via_mqtt", "want_ack", b"want_ack"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["channel", b"channel", "decoded", b"decoded", "delayed", b"delayed", "encrypted", b"encrypted", "from", b"from", "hop_limit", b"hop_limit", "hop_start", b"hop_start", "id", b"id", "payload_variant", b"payload_variant", "pki_encrypted", b"pki_encrypted", "priority", b"priority", "public_key", b"public_key", "rx_rssi", b"rx_rssi", "rx_snr", b"rx_snr", "rx_time", b"rx_time", "to", b"to", "via_mqtt", b"via_mqtt", "want_ack", b"want_ack"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["decoded", "encrypted"] | None: ...
 
 global___MeshPacket = MeshPacket
@@ -2109,6 +2244,7 @@ class FromRadio(google.protobuf.message.Message):
     METADATA_FIELD_NUMBER: builtins.int
     MQTTCLIENTPROXYMESSAGE_FIELD_NUMBER: builtins.int
     FILEINFO_FIELD_NUMBER: builtins.int
+    CLIENTNOTIFICATION_FIELD_NUMBER: builtins.int
     id: builtins.int
     """
     The packet id, used to allow the phone to request missing read packets from the FIFO,
@@ -2202,6 +2338,12 @@ class FromRadio(google.protobuf.message.Message):
         File system manifest messages
         """
 
+    @property
+    def clientNotification(self) -> global___ClientNotification:
+        """
+        Notification message to the client
+        """
+
     def __init__(
         self,
         *,
@@ -2220,12 +2362,58 @@ class FromRadio(google.protobuf.message.Message):
         metadata: global___DeviceMetadata | None = ...,
         mqttClientProxyMessage: global___MqttClientProxyMessage | None = ...,
         fileInfo: global___FileInfo | None = ...,
+        clientNotification: global___ClientNotification | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["channel", b"channel", "config", b"config", "config_complete_id", b"config_complete_id", "fileInfo", b"fileInfo", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel", b"channel", "config", b"config", "config_complete_id", b"config_complete_id", "fileInfo", b"fileInfo", "id", b"id", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["packet", "my_info", "node_info", "config", "log_record", "config_complete_id", "rebooted", "moduleConfig", "channel", "queueStatus", "xmodemPacket", "metadata", "mqttClientProxyMessage", "fileInfo"] | None: ...
+    def HasField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "fileInfo", b"fileInfo", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "fileInfo", b"fileInfo", "id", b"id", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["packet", "my_info", "node_info", "config", "log_record", "config_complete_id", "rebooted", "moduleConfig", "channel", "queueStatus", "xmodemPacket", "metadata", "mqttClientProxyMessage", "fileInfo", "clientNotification"] | None: ...
 
 global___FromRadio = FromRadio
+
+@typing.final
+class ClientNotification(google.protobuf.message.Message):
+    """
+    A notification message from the device to the client
+    To be used for important messages that should to be displayed to the user
+    in the form of push notifications or validation messages when saving
+    invalid configuration.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    REPLY_ID_FIELD_NUMBER: builtins.int
+    TIME_FIELD_NUMBER: builtins.int
+    LEVEL_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    reply_id: builtins.int
+    """
+    The id of the packet we're notifying in response to
+    """
+    time: builtins.int
+    """
+    Seconds since 1970 - or 0 for unknown/unset
+    """
+    level: global___LogRecord.Level.ValueType
+    """
+    The level type of notification
+    """
+    message: builtins.str
+    """
+    The message body of the notification
+    """
+    def __init__(
+        self,
+        *,
+        reply_id: builtins.int | None = ...,
+        time: builtins.int = ...,
+        level: global___LogRecord.Level.ValueType = ...,
+        message: builtins.str = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_reply_id", b"_reply_id", "reply_id", b"reply_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_reply_id", b"_reply_id", "level", b"level", "message", b"message", "reply_id", b"reply_id", "time", b"time"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_reply_id", b"_reply_id"]) -> typing.Literal["reply_id"] | None: ...
+
+global___ClientNotification = ClientNotification
 
 @typing.final
 class FileInfo(google.protobuf.message.Message):

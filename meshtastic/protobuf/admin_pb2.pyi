@@ -68,6 +68,12 @@ class AdminMessage(google.protobuf.message.Message):
         """
         TODO: REPLACE
         """
+        SECURITY_CONFIG: AdminMessage._ConfigType.ValueType  # 7
+        """
+        TODO: REPLACE
+        """
+        SESSIONKEY_CONFIG: AdminMessage._ConfigType.ValueType  # 8
+        """"""
 
     class ConfigType(_ConfigType, metaclass=_ConfigTypeEnumTypeWrapper):
         """
@@ -102,6 +108,12 @@ class AdminMessage(google.protobuf.message.Message):
     """
     TODO: REPLACE
     """
+    SECURITY_CONFIG: AdminMessage.ConfigType.ValueType  # 7
+    """
+    TODO: REPLACE
+    """
+    SESSIONKEY_CONFIG: AdminMessage.ConfigType.ValueType  # 8
+    """"""
 
     class _ModuleConfigType:
         ValueType = typing.NewType("ValueType", builtins.int)
@@ -220,6 +232,7 @@ class AdminMessage(google.protobuf.message.Message):
     TODO: REPLACE
     """
 
+    SESSION_PASSKEY_FIELD_NUMBER: builtins.int
     GET_CHANNEL_REQUEST_FIELD_NUMBER: builtins.int
     GET_CHANNEL_RESPONSE_FIELD_NUMBER: builtins.int
     GET_OWNER_REQUEST_FIELD_NUMBER: builtins.int
@@ -253,14 +266,22 @@ class AdminMessage(google.protobuf.message.Message):
     REMOVE_FAVORITE_NODE_FIELD_NUMBER: builtins.int
     SET_FIXED_POSITION_FIELD_NUMBER: builtins.int
     REMOVE_FIXED_POSITION_FIELD_NUMBER: builtins.int
+    SET_TIME_ONLY_FIELD_NUMBER: builtins.int
     BEGIN_EDIT_SETTINGS_FIELD_NUMBER: builtins.int
     COMMIT_EDIT_SETTINGS_FIELD_NUMBER: builtins.int
+    FACTORY_RESET_DEVICE_FIELD_NUMBER: builtins.int
     REBOOT_OTA_SECONDS_FIELD_NUMBER: builtins.int
     EXIT_SIMULATOR_FIELD_NUMBER: builtins.int
     REBOOT_SECONDS_FIELD_NUMBER: builtins.int
     SHUTDOWN_SECONDS_FIELD_NUMBER: builtins.int
-    FACTORY_RESET_FIELD_NUMBER: builtins.int
+    FACTORY_RESET_CONFIG_FIELD_NUMBER: builtins.int
     NODEDB_RESET_FIELD_NUMBER: builtins.int
+    session_passkey: builtins.bytes
+    """
+    The node generates this key and sends it with any get_x_response packets.
+    The client MUST include the same key with any set_x commands. Key expires after 300 seconds.
+    Prevents replay attacks for admin messages.
+    """
     get_channel_request: builtins.int
     """
     Send the specified channel in the response to this message
@@ -343,6 +364,11 @@ class AdminMessage(google.protobuf.message.Message):
     """
     Clear fixed position coordinates and then set position.fixed_position = false
     """
+    set_time_only: builtins.int
+    """
+    Set time only on the node
+    Convenience method to set the time on the node (as Net quality) without any other position data
+    """
     begin_edit_settings: builtins.bool
     """
     Begins an edit transaction for config, module config, owner, and channel settings changes
@@ -351,6 +377,10 @@ class AdminMessage(google.protobuf.message.Message):
     commit_edit_settings: builtins.bool
     """
     Commits an open transaction for any edits made to config, module config, owner, and channel settings
+    """
+    factory_reset_device: builtins.int
+    """
+    Tell the node to factory reset config everything; all device state and configuration will be returned to factory defaults and BLE bonds will be cleared.
     """
     reboot_ota_seconds: builtins.int
     """
@@ -370,9 +400,9 @@ class AdminMessage(google.protobuf.message.Message):
     """
     Tell the node to shutdown in this many seconds (or <0 to cancel shutdown)
     """
-    factory_reset: builtins.int
+    factory_reset_config: builtins.int
     """
-    Tell the node to factory reset, all device settings will be returned to factory defaults.
+    Tell the node to factory reset config; all device state and configuration will be returned to factory defaults; BLE bonds will be preserved.
     """
     nodedb_reset: builtins.int
     """
@@ -463,6 +493,7 @@ class AdminMessage(google.protobuf.message.Message):
     def __init__(
         self,
         *,
+        session_passkey: builtins.bytes = ...,
         get_channel_request: builtins.int = ...,
         get_channel_response: meshtastic.protobuf.channel_pb2.Channel | None = ...,
         get_owner_request: builtins.bool = ...,
@@ -496,18 +527,20 @@ class AdminMessage(google.protobuf.message.Message):
         remove_favorite_node: builtins.int = ...,
         set_fixed_position: meshtastic.protobuf.mesh_pb2.Position | None = ...,
         remove_fixed_position: builtins.bool = ...,
+        set_time_only: builtins.int = ...,
         begin_edit_settings: builtins.bool = ...,
         commit_edit_settings: builtins.bool = ...,
+        factory_reset_device: builtins.int = ...,
         reboot_ota_seconds: builtins.int = ...,
         exit_simulator: builtins.bool = ...,
         reboot_seconds: builtins.int = ...,
         shutdown_seconds: builtins.int = ...,
-        factory_reset: builtins.int = ...,
+        factory_reset_config: builtins.int = ...,
         nodedb_reset: builtins.int = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["begin_edit_settings", b"begin_edit_settings", "commit_edit_settings", b"commit_edit_settings", "delete_file_request", b"delete_file_request", "enter_dfu_mode_request", b"enter_dfu_mode_request", "exit_simulator", b"exit_simulator", "factory_reset", b"factory_reset", "get_canned_message_module_messages_request", b"get_canned_message_module_messages_request", "get_canned_message_module_messages_response", b"get_canned_message_module_messages_response", "get_channel_request", b"get_channel_request", "get_channel_response", b"get_channel_response", "get_config_request", b"get_config_request", "get_config_response", b"get_config_response", "get_device_connection_status_request", b"get_device_connection_status_request", "get_device_connection_status_response", b"get_device_connection_status_response", "get_device_metadata_request", b"get_device_metadata_request", "get_device_metadata_response", b"get_device_metadata_response", "get_module_config_request", b"get_module_config_request", "get_module_config_response", b"get_module_config_response", "get_node_remote_hardware_pins_request", b"get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", b"get_node_remote_hardware_pins_response", "get_owner_request", b"get_owner_request", "get_owner_response", b"get_owner_response", "get_ringtone_request", b"get_ringtone_request", "get_ringtone_response", b"get_ringtone_response", "nodedb_reset", b"nodedb_reset", "payload_variant", b"payload_variant", "reboot_ota_seconds", b"reboot_ota_seconds", "reboot_seconds", b"reboot_seconds", "remove_by_nodenum", b"remove_by_nodenum", "remove_favorite_node", b"remove_favorite_node", "remove_fixed_position", b"remove_fixed_position", "set_canned_message_module_messages", b"set_canned_message_module_messages", "set_channel", b"set_channel", "set_config", b"set_config", "set_favorite_node", b"set_favorite_node", "set_fixed_position", b"set_fixed_position", "set_ham_mode", b"set_ham_mode", "set_module_config", b"set_module_config", "set_owner", b"set_owner", "set_ringtone_message", b"set_ringtone_message", "set_scale", b"set_scale", "shutdown_seconds", b"shutdown_seconds"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["begin_edit_settings", b"begin_edit_settings", "commit_edit_settings", b"commit_edit_settings", "delete_file_request", b"delete_file_request", "enter_dfu_mode_request", b"enter_dfu_mode_request", "exit_simulator", b"exit_simulator", "factory_reset", b"factory_reset", "get_canned_message_module_messages_request", b"get_canned_message_module_messages_request", "get_canned_message_module_messages_response", b"get_canned_message_module_messages_response", "get_channel_request", b"get_channel_request", "get_channel_response", b"get_channel_response", "get_config_request", b"get_config_request", "get_config_response", b"get_config_response", "get_device_connection_status_request", b"get_device_connection_status_request", "get_device_connection_status_response", b"get_device_connection_status_response", "get_device_metadata_request", b"get_device_metadata_request", "get_device_metadata_response", b"get_device_metadata_response", "get_module_config_request", b"get_module_config_request", "get_module_config_response", b"get_module_config_response", "get_node_remote_hardware_pins_request", b"get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", b"get_node_remote_hardware_pins_response", "get_owner_request", b"get_owner_request", "get_owner_response", b"get_owner_response", "get_ringtone_request", b"get_ringtone_request", "get_ringtone_response", b"get_ringtone_response", "nodedb_reset", b"nodedb_reset", "payload_variant", b"payload_variant", "reboot_ota_seconds", b"reboot_ota_seconds", "reboot_seconds", b"reboot_seconds", "remove_by_nodenum", b"remove_by_nodenum", "remove_favorite_node", b"remove_favorite_node", "remove_fixed_position", b"remove_fixed_position", "set_canned_message_module_messages", b"set_canned_message_module_messages", "set_channel", b"set_channel", "set_config", b"set_config", "set_favorite_node", b"set_favorite_node", "set_fixed_position", b"set_fixed_position", "set_ham_mode", b"set_ham_mode", "set_module_config", b"set_module_config", "set_owner", b"set_owner", "set_ringtone_message", b"set_ringtone_message", "set_scale", b"set_scale", "shutdown_seconds", b"shutdown_seconds"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["get_channel_request", "get_channel_response", "get_owner_request", "get_owner_response", "get_config_request", "get_config_response", "get_module_config_request", "get_module_config_response", "get_canned_message_module_messages_request", "get_canned_message_module_messages_response", "get_device_metadata_request", "get_device_metadata_response", "get_ringtone_request", "get_ringtone_response", "get_device_connection_status_request", "get_device_connection_status_response", "set_ham_mode", "get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", "enter_dfu_mode_request", "delete_file_request", "set_scale", "set_owner", "set_channel", "set_config", "set_module_config", "set_canned_message_module_messages", "set_ringtone_message", "remove_by_nodenum", "set_favorite_node", "remove_favorite_node", "set_fixed_position", "remove_fixed_position", "begin_edit_settings", "commit_edit_settings", "reboot_ota_seconds", "exit_simulator", "reboot_seconds", "shutdown_seconds", "factory_reset", "nodedb_reset"] | None: ...
+    def HasField(self, field_name: typing.Literal["begin_edit_settings", b"begin_edit_settings", "commit_edit_settings", b"commit_edit_settings", "delete_file_request", b"delete_file_request", "enter_dfu_mode_request", b"enter_dfu_mode_request", "exit_simulator", b"exit_simulator", "factory_reset_config", b"factory_reset_config", "factory_reset_device", b"factory_reset_device", "get_canned_message_module_messages_request", b"get_canned_message_module_messages_request", "get_canned_message_module_messages_response", b"get_canned_message_module_messages_response", "get_channel_request", b"get_channel_request", "get_channel_response", b"get_channel_response", "get_config_request", b"get_config_request", "get_config_response", b"get_config_response", "get_device_connection_status_request", b"get_device_connection_status_request", "get_device_connection_status_response", b"get_device_connection_status_response", "get_device_metadata_request", b"get_device_metadata_request", "get_device_metadata_response", b"get_device_metadata_response", "get_module_config_request", b"get_module_config_request", "get_module_config_response", b"get_module_config_response", "get_node_remote_hardware_pins_request", b"get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", b"get_node_remote_hardware_pins_response", "get_owner_request", b"get_owner_request", "get_owner_response", b"get_owner_response", "get_ringtone_request", b"get_ringtone_request", "get_ringtone_response", b"get_ringtone_response", "nodedb_reset", b"nodedb_reset", "payload_variant", b"payload_variant", "reboot_ota_seconds", b"reboot_ota_seconds", "reboot_seconds", b"reboot_seconds", "remove_by_nodenum", b"remove_by_nodenum", "remove_favorite_node", b"remove_favorite_node", "remove_fixed_position", b"remove_fixed_position", "set_canned_message_module_messages", b"set_canned_message_module_messages", "set_channel", b"set_channel", "set_config", b"set_config", "set_favorite_node", b"set_favorite_node", "set_fixed_position", b"set_fixed_position", "set_ham_mode", b"set_ham_mode", "set_module_config", b"set_module_config", "set_owner", b"set_owner", "set_ringtone_message", b"set_ringtone_message", "set_scale", b"set_scale", "set_time_only", b"set_time_only", "shutdown_seconds", b"shutdown_seconds"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["begin_edit_settings", b"begin_edit_settings", "commit_edit_settings", b"commit_edit_settings", "delete_file_request", b"delete_file_request", "enter_dfu_mode_request", b"enter_dfu_mode_request", "exit_simulator", b"exit_simulator", "factory_reset_config", b"factory_reset_config", "factory_reset_device", b"factory_reset_device", "get_canned_message_module_messages_request", b"get_canned_message_module_messages_request", "get_canned_message_module_messages_response", b"get_canned_message_module_messages_response", "get_channel_request", b"get_channel_request", "get_channel_response", b"get_channel_response", "get_config_request", b"get_config_request", "get_config_response", b"get_config_response", "get_device_connection_status_request", b"get_device_connection_status_request", "get_device_connection_status_response", b"get_device_connection_status_response", "get_device_metadata_request", b"get_device_metadata_request", "get_device_metadata_response", b"get_device_metadata_response", "get_module_config_request", b"get_module_config_request", "get_module_config_response", b"get_module_config_response", "get_node_remote_hardware_pins_request", b"get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", b"get_node_remote_hardware_pins_response", "get_owner_request", b"get_owner_request", "get_owner_response", b"get_owner_response", "get_ringtone_request", b"get_ringtone_request", "get_ringtone_response", b"get_ringtone_response", "nodedb_reset", b"nodedb_reset", "payload_variant", b"payload_variant", "reboot_ota_seconds", b"reboot_ota_seconds", "reboot_seconds", b"reboot_seconds", "remove_by_nodenum", b"remove_by_nodenum", "remove_favorite_node", b"remove_favorite_node", "remove_fixed_position", b"remove_fixed_position", "session_passkey", b"session_passkey", "set_canned_message_module_messages", b"set_canned_message_module_messages", "set_channel", b"set_channel", "set_config", b"set_config", "set_favorite_node", b"set_favorite_node", "set_fixed_position", b"set_fixed_position", "set_ham_mode", b"set_ham_mode", "set_module_config", b"set_module_config", "set_owner", b"set_owner", "set_ringtone_message", b"set_ringtone_message", "set_scale", b"set_scale", "set_time_only", b"set_time_only", "shutdown_seconds", b"shutdown_seconds"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["get_channel_request", "get_channel_response", "get_owner_request", "get_owner_response", "get_config_request", "get_config_response", "get_module_config_request", "get_module_config_response", "get_canned_message_module_messages_request", "get_canned_message_module_messages_response", "get_device_metadata_request", "get_device_metadata_response", "get_ringtone_request", "get_ringtone_response", "get_device_connection_status_request", "get_device_connection_status_response", "set_ham_mode", "get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", "enter_dfu_mode_request", "delete_file_request", "set_scale", "set_owner", "set_channel", "set_config", "set_module_config", "set_canned_message_module_messages", "set_ringtone_message", "remove_by_nodenum", "set_favorite_node", "remove_favorite_node", "set_fixed_position", "remove_fixed_position", "set_time_only", "begin_edit_settings", "commit_edit_settings", "factory_reset_device", "reboot_ota_seconds", "exit_simulator", "reboot_seconds", "shutdown_seconds", "factory_reset_config", "nodedb_reset"] | None: ...
 
 global___AdminMessage = AdminMessage
 

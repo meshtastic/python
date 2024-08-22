@@ -29,6 +29,7 @@ class LocalConfig(google.protobuf.message.Message):
     LORA_FIELD_NUMBER: builtins.int
     BLUETOOTH_FIELD_NUMBER: builtins.int
     VERSION_FIELD_NUMBER: builtins.int
+    SECURITY_FIELD_NUMBER: builtins.int
     version: builtins.int
     """
     A version integer used to invalidate old save files when we make
@@ -77,6 +78,12 @@ class LocalConfig(google.protobuf.message.Message):
         The part of the config that is specific to the Bluetooth settings
         """
 
+    @property
+    def security(self) -> meshtastic.protobuf.config_pb2.Config.SecurityConfig:
+        """
+        The part of the config that is specific to Security settings
+        """
+
     def __init__(
         self,
         *,
@@ -88,9 +95,10 @@ class LocalConfig(google.protobuf.message.Message):
         lora: meshtastic.protobuf.config_pb2.Config.LoRaConfig | None = ...,
         bluetooth: meshtastic.protobuf.config_pb2.Config.BluetoothConfig | None = ...,
         version: builtins.int = ...,
+        security: meshtastic.protobuf.config_pb2.Config.SecurityConfig | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "position", b"position", "power", b"power"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "position", b"position", "power", b"power", "version", b"version"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "position", b"position", "power", b"power", "security", b"security"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "position", b"position", "power", b"power", "security", b"security", "version", b"version"]) -> None: ...
 
 global___LocalConfig = LocalConfig
 

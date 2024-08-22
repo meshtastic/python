@@ -256,11 +256,13 @@ class Config(google.protobuf.message.Message):
         serial_enabled: builtins.bool
         """
         Disabling this will disable the SerialConsole by not initilizing the StreamAPI
+        Moved to SecurityConfig
         """
         debug_log_enabled: builtins.bool
         """
         By default we turn off logging as soon as an API client connects (to keep shared serial link quiet).
         Set this to true to leave the debug log outputting even when API is active.
+        Moved to SecurityConfig
         """
         button_gpio: builtins.int
         """
@@ -289,6 +291,7 @@ class Config(google.protobuf.message.Message):
         """
         If true, device is considered to be "managed" by a mesh administrator
         Clients should then limit available configuration and administrative options inside the user interface
+        Moved to SecurityConfig
         """
         disable_triple_click: builtins.bool
         """
@@ -1303,6 +1306,7 @@ class Config(google.protobuf.message.Message):
             VERY_LONG_SLOW: Config.LoRaConfig._ModemPreset.ValueType  # 2
             """
             Very Long Range - Slow
+            Deprecated in 2.5: Works only with txco and is unusably slow
             """
             MEDIUM_SLOW: Config.LoRaConfig._ModemPreset.ValueType  # 3
             """
@@ -1324,6 +1328,12 @@ class Config(google.protobuf.message.Message):
             """
             Long Range - Moderately Fast
             """
+            SHORT_TURBO: Config.LoRaConfig._ModemPreset.ValueType  # 8
+            """
+            Short Range - Turbo
+            This is the fastest preset and the only one with 500kHz bandwidth.
+            It is not legal to use in all regions due to this wider bandwidth.
+            """
 
         class ModemPreset(_ModemPreset, metaclass=_ModemPresetEnumTypeWrapper):
             """
@@ -1342,6 +1352,7 @@ class Config(google.protobuf.message.Message):
         VERY_LONG_SLOW: Config.LoRaConfig.ModemPreset.ValueType  # 2
         """
         Very Long Range - Slow
+        Deprecated in 2.5: Works only with txco and is unusably slow
         """
         MEDIUM_SLOW: Config.LoRaConfig.ModemPreset.ValueType  # 3
         """
@@ -1362,6 +1373,12 @@ class Config(google.protobuf.message.Message):
         LONG_MODERATE: Config.LoRaConfig.ModemPreset.ValueType  # 7
         """
         Long Range - Moderately Fast
+        """
+        SHORT_TURBO: Config.LoRaConfig.ModemPreset.ValueType  # 8
+        """
+        Short Range - Turbo
+        This is the fastest preset and the only one with 500kHz bandwidth.
+        It is not legal to use in all regions due to this wider bandwidth.
         """
 
         USE_PRESET_FIELD_NUMBER: builtins.int
@@ -1561,6 +1578,7 @@ class Config(google.protobuf.message.Message):
         device_logging_enabled: builtins.bool
         """
         Enables device (serial style logs) over Bluetooth
+        Moved to SecurityConfig
         """
         def __init__(
             self,
@@ -1572,6 +1590,80 @@ class Config(google.protobuf.message.Message):
         ) -> None: ...
         def ClearField(self, field_name: typing.Literal["device_logging_enabled", b"device_logging_enabled", "enabled", b"enabled", "fixed_pin", b"fixed_pin", "mode", b"mode"]) -> None: ...
 
+    @typing.final
+    class SecurityConfig(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        PUBLIC_KEY_FIELD_NUMBER: builtins.int
+        PRIVATE_KEY_FIELD_NUMBER: builtins.int
+        ADMIN_KEY_FIELD_NUMBER: builtins.int
+        IS_MANAGED_FIELD_NUMBER: builtins.int
+        SERIAL_ENABLED_FIELD_NUMBER: builtins.int
+        DEBUG_LOG_API_ENABLED_FIELD_NUMBER: builtins.int
+        BLUETOOTH_LOGGING_ENABLED_FIELD_NUMBER: builtins.int
+        ADMIN_CHANNEL_ENABLED_FIELD_NUMBER: builtins.int
+        public_key: builtins.bytes
+        """
+        The public key of the user's device.
+        Sent out to other nodes on the mesh to allow them to compute a shared secret key.
+        """
+        private_key: builtins.bytes
+        """
+        The private key of the device.
+        Used to create a shared key with a remote device.
+        """
+        admin_key: builtins.bytes
+        """
+        The public key authorized to send admin messages to this node.
+        """
+        is_managed: builtins.bool
+        """
+        If true, device is considered to be "managed" by a mesh administrator via admin messages
+        Device is managed by a mesh administrator.
+        """
+        serial_enabled: builtins.bool
+        """
+        Serial Console over the Stream API."
+        """
+        debug_log_api_enabled: builtins.bool
+        """
+        By default we turn off logging as soon as an API client connects (to keep shared serial link quiet).
+        Output live debug logging over serial.
+        """
+        bluetooth_logging_enabled: builtins.bool
+        """
+        Enables device (serial style logs) over Bluetooth
+        """
+        admin_channel_enabled: builtins.bool
+        """
+        Allow incoming device control over the insecure legacy admin channel.
+        """
+        def __init__(
+            self,
+            *,
+            public_key: builtins.bytes = ...,
+            private_key: builtins.bytes = ...,
+            admin_key: builtins.bytes = ...,
+            is_managed: builtins.bool = ...,
+            serial_enabled: builtins.bool = ...,
+            debug_log_api_enabled: builtins.bool = ...,
+            bluetooth_logging_enabled: builtins.bool = ...,
+            admin_channel_enabled: builtins.bool = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["admin_channel_enabled", b"admin_channel_enabled", "admin_key", b"admin_key", "bluetooth_logging_enabled", b"bluetooth_logging_enabled", "debug_log_api_enabled", b"debug_log_api_enabled", "is_managed", b"is_managed", "private_key", b"private_key", "public_key", b"public_key", "serial_enabled", b"serial_enabled"]) -> None: ...
+
+    @typing.final
+    class SessionkeyConfig(google.protobuf.message.Message):
+        """
+        Blank config request, strictly for getting the session key
+        """
+
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        def __init__(
+            self,
+        ) -> None: ...
+
     DEVICE_FIELD_NUMBER: builtins.int
     POSITION_FIELD_NUMBER: builtins.int
     POWER_FIELD_NUMBER: builtins.int
@@ -1579,6 +1671,8 @@ class Config(google.protobuf.message.Message):
     DISPLAY_FIELD_NUMBER: builtins.int
     LORA_FIELD_NUMBER: builtins.int
     BLUETOOTH_FIELD_NUMBER: builtins.int
+    SECURITY_FIELD_NUMBER: builtins.int
+    SESSIONKEY_FIELD_NUMBER: builtins.int
     @property
     def device(self) -> global___Config.DeviceConfig: ...
     @property
@@ -1593,6 +1687,10 @@ class Config(google.protobuf.message.Message):
     def lora(self) -> global___Config.LoRaConfig: ...
     @property
     def bluetooth(self) -> global___Config.BluetoothConfig: ...
+    @property
+    def security(self) -> global___Config.SecurityConfig: ...
+    @property
+    def sessionkey(self) -> global___Config.SessionkeyConfig: ...
     def __init__(
         self,
         *,
@@ -1603,9 +1701,11 @@ class Config(google.protobuf.message.Message):
         display: global___Config.DisplayConfig | None = ...,
         lora: global___Config.LoRaConfig | None = ...,
         bluetooth: global___Config.BluetoothConfig | None = ...,
+        security: global___Config.SecurityConfig | None = ...,
+        sessionkey: global___Config.SessionkeyConfig | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "payload_variant", b"payload_variant", "position", b"position", "power", b"power"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "payload_variant", b"payload_variant", "position", b"position", "power", b"power"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["device", "position", "power", "network", "display", "lora", "bluetooth"] | None: ...
+    def HasField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "payload_variant", b"payload_variant", "position", b"position", "power", b"power", "security", b"security", "sessionkey", b"sessionkey"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "payload_variant", b"payload_variant", "position", b"position", "power", b"power", "security", b"security", "sessionkey", b"sessionkey"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["device", "position", "power", "network", "display", "lora", "bluetooth", "security", "sessionkey"] | None: ...
 
 global___Config = Config
