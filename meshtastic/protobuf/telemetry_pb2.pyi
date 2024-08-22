@@ -308,6 +308,8 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     WIND_DIRECTION_FIELD_NUMBER: builtins.int
     WIND_SPEED_FIELD_NUMBER: builtins.int
     WEIGHT_FIELD_NUMBER: builtins.int
+    WIND_GUST_FIELD_NUMBER: builtins.int
+    WIND_LULL_FIELD_NUMBER: builtins.int
     temperature: builtins.float
     """
     Temperature measured
@@ -370,6 +372,14 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     """
     Weight in KG
     """
+    wind_gust: builtins.float
+    """
+    Wind gust in m/s
+    """
+    wind_lull: builtins.float
+    """
+    Wind lull in m/s
+    """
     def __init__(
         self,
         *,
@@ -388,8 +398,10 @@ class EnvironmentMetrics(google.protobuf.message.Message):
         wind_direction: builtins.int = ...,
         wind_speed: builtins.float = ...,
         weight: builtins.float = ...,
+        wind_gust: builtins.float = ...,
+        wind_lull: builtins.float = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "ir_lux", b"ir_lux", "lux", b"lux", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "uv_lux", b"uv_lux", "voltage", b"voltage", "weight", b"weight", "white_lux", b"white_lux", "wind_direction", b"wind_direction", "wind_speed", b"wind_speed"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "ir_lux", b"ir_lux", "lux", b"lux", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "uv_lux", b"uv_lux", "voltage", b"voltage", "weight", b"weight", "white_lux", b"white_lux", "wind_direction", b"wind_direction", "wind_gust", b"wind_gust", "wind_lull", b"wind_lull", "wind_speed", b"wind_speed"]) -> None: ...
 
 global___EnvironmentMetrics = EnvironmentMetrics
 

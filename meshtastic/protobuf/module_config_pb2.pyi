@@ -503,6 +503,8 @@ class ModuleConfig(google.protobuf.message.Message):
             NMEA: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 4
             CALTOPO: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 5
             """NMEA messages specifically tailored for CalTopo"""
+            WS85: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 6
+            """Ecowitt WS85 weather station"""
 
         class Serial_Mode(_Serial_Mode, metaclass=_Serial_ModeEnumTypeWrapper):
             """
@@ -516,6 +518,8 @@ class ModuleConfig(google.protobuf.message.Message):
         NMEA: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 4
         CALTOPO: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 5
         """NMEA messages specifically tailored for CalTopo"""
+        WS85: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 6
+        """Ecowitt WS85 weather station"""
 
         ENABLED_FIELD_NUMBER: builtins.int
         ECHO_FIELD_NUMBER: builtins.int
@@ -701,6 +705,7 @@ class ModuleConfig(google.protobuf.message.Message):
         RECORDS_FIELD_NUMBER: builtins.int
         HISTORY_RETURN_MAX_FIELD_NUMBER: builtins.int
         HISTORY_RETURN_WINDOW_FIELD_NUMBER: builtins.int
+        IS_SERVER_FIELD_NUMBER: builtins.int
         enabled: builtins.bool
         """
         Enable the Store and Forward Module
@@ -721,6 +726,10 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         TODO: REPLACE
         """
+        is_server: builtins.bool
+        """
+        Set to true to let this node act as a server that stores received messages and resends them upon request.
+        """
         def __init__(
             self,
             *,
@@ -729,8 +738,9 @@ class ModuleConfig(google.protobuf.message.Message):
             records: builtins.int = ...,
             history_return_max: builtins.int = ...,
             history_return_window: builtins.int = ...,
+            is_server: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["enabled", b"enabled", "heartbeat", b"heartbeat", "history_return_max", b"history_return_max", "history_return_window", b"history_return_window", "records", b"records"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["enabled", b"enabled", "heartbeat", b"heartbeat", "history_return_max", b"history_return_max", "history_return_window", b"history_return_window", "is_server", b"is_server", "records", b"records"]) -> None: ...
 
     @typing.final
     class RangeTestConfig(google.protobuf.message.Message):

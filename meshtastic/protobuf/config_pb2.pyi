@@ -1378,6 +1378,7 @@ class Config(google.protobuf.message.Message):
         OVERRIDE_DUTY_CYCLE_FIELD_NUMBER: builtins.int
         SX126X_RX_BOOSTED_GAIN_FIELD_NUMBER: builtins.int
         OVERRIDE_FREQUENCY_FIELD_NUMBER: builtins.int
+        PA_FAN_DISABLED_FIELD_NUMBER: builtins.int
         IGNORE_INCOMING_FIELD_NUMBER: builtins.int
         IGNORE_MQTT_FIELD_NUMBER: builtins.int
         use_preset: builtins.bool
@@ -1465,6 +1466,10 @@ class Config(google.protobuf.message.Message):
         Please respect your local laws and regulations. If you are a HAM, make sure you
         enable HAM mode and turn off encryption.
         """
+        pa_fan_disabled: builtins.bool
+        """
+        If true, disable the build-in PA FAN using pin define in RF95_FAN_EN.
+        """
         ignore_mqtt: builtins.bool
         """
         If true, the device will not process any packets received via LoRa that passed via MQTT anywhere on the path towards it.
@@ -1494,10 +1499,11 @@ class Config(google.protobuf.message.Message):
             override_duty_cycle: builtins.bool = ...,
             sx126x_rx_boosted_gain: builtins.bool = ...,
             override_frequency: builtins.float = ...,
+            pa_fan_disabled: builtins.bool = ...,
             ignore_incoming: collections.abc.Iterable[builtins.int] | None = ...,
             ignore_mqtt: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["bandwidth", b"bandwidth", "channel_num", b"channel_num", "coding_rate", b"coding_rate", "frequency_offset", b"frequency_offset", "hop_limit", b"hop_limit", "ignore_incoming", b"ignore_incoming", "ignore_mqtt", b"ignore_mqtt", "modem_preset", b"modem_preset", "override_duty_cycle", b"override_duty_cycle", "override_frequency", b"override_frequency", "region", b"region", "spread_factor", b"spread_factor", "sx126x_rx_boosted_gain", b"sx126x_rx_boosted_gain", "tx_enabled", b"tx_enabled", "tx_power", b"tx_power", "use_preset", b"use_preset"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["bandwidth", b"bandwidth", "channel_num", b"channel_num", "coding_rate", b"coding_rate", "frequency_offset", b"frequency_offset", "hop_limit", b"hop_limit", "ignore_incoming", b"ignore_incoming", "ignore_mqtt", b"ignore_mqtt", "modem_preset", b"modem_preset", "override_duty_cycle", b"override_duty_cycle", "override_frequency", b"override_frequency", "pa_fan_disabled", b"pa_fan_disabled", "region", b"region", "spread_factor", b"spread_factor", "sx126x_rx_boosted_gain", b"sx126x_rx_boosted_gain", "tx_enabled", b"tx_enabled", "tx_power", b"tx_power", "use_preset", b"use_preset"]) -> None: ...
 
     @typing.final
     class BluetoothConfig(google.protobuf.message.Message):
