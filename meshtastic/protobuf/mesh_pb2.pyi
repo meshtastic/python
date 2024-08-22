@@ -324,6 +324,14 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     Heltec Mesh Node T114 board with nRF52840 CPU, and a 1.14 inch TFT display, Ultimate low-power design,
     specifically adapted for the Meshtatic project
     """
+    SENSECAP_INDICATOR: _HardwareModel.ValueType  # 70
+    """
+    Sensecap Indicator from Seeed Studio. ESP32-S3 device with TFT and RP2040 coprocessor
+    """
+    TRACKER_T1000_E: _HardwareModel.ValueType  # 71
+    """
+    Seeed studio T1000-E tracker card. NRF52840 w/ LR1110 radio, GPS, button, buzzer, and sensors.
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -631,6 +639,14 @@ HELTEC_MESH_NODE_T114: HardwareModel.ValueType  # 69
 """
 Heltec Mesh Node T114 board with nRF52840 CPU, and a 1.14 inch TFT display, Ultimate low-power design,
 specifically adapted for the Meshtatic project
+"""
+SENSECAP_INDICATOR: HardwareModel.ValueType  # 70
+"""
+Sensecap Indicator from Seeed Studio. ESP32-S3 device with TFT and RP2040 coprocessor
+"""
+TRACKER_T1000_E: HardwareModel.ValueType  # 71
+"""
+Seeed studio T1000-E tracker card. NRF52840 w/ LR1110 radio, GPS, button, buzzer, and sensors.
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
