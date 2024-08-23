@@ -803,9 +803,9 @@ class MeshInterface:  # pylint: disable=R0902
             )
         else:
             nextPacketId = (self.currentPacketId + 1) & 0xFFFFFFFF
-            nextPacketId = nextPacketId & (0xFFFFFFFF >> 22)             # mask upper 22 bits
-            randomPart = (random.randint(0, 0x7FFFFFFF) << 10) & 0xFFFFFFFF # generate number with 10 zeros at end
-            self.currentPacketId = nextPacketId | randomPart             # combine
+            nextPacketId = nextPacketId & 0x3FF                           # == (0xFFFFFFFF >> 22), masks upper 22 bits
+            randomPart = (random.randint(0, 0x3FFFFF) << 10) & 0xFFFFFFFF # generate number with 10 zeros at end
+            self.currentPacketId = nextPacketId | randomPart              # combine
             return self.currentPacketId
 
     def _disconnected(self):
