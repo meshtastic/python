@@ -802,7 +802,10 @@ class MeshInterface:  # pylint: disable=R0902
                 "Not connected yet, can not generate packet"
             )
         else:
-            self.currentPacketId = (self.currentPacketId + 1) & 0xFFFFFFFF
+            nextPacketId = (self.currentPacketId + 1) & 0xFFFFFFFF
+            nextPacketId = nextPacketId & (0xFFFFFFFF >> 22)             # mask upper 22 bits
+            randomPart = (random.randint(0, 0x7FFFFFFF) << 10) & 0xFFFFFFFF # generate number with 10 zeros at end
+            self.currentPacketId = nextPacketId | randomPart             # combine
             return self.currentPacketId
 
     def _disconnected(self):
