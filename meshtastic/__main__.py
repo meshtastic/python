@@ -39,7 +39,7 @@ except ImportError as e:
     have_powermon = False
     powermon_exception = e
     meter = None
-from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
+from meshtastic.protobuf import admin_pb2, channel_pb2, config_pb2, portnums_pb2
 from meshtastic.version import get_active_version
 
 def onReceive(packet, interface):
@@ -334,7 +334,11 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
             print(f"Setting device owner to {args.set_owner}")
-            interface.getNode(args.dest, False).setOwner(args.set_owner)
+            node = interface.getNode(args.dest, False)
+            node.requestConfig(
+                admin_pb2.AdminMessage.SESSIONKEY_CONFIG
+            )
+            node.setOwner(args.set_owner)
 
         if args.set_owner_short:
             closeNow = True

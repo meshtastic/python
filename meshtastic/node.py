@@ -88,6 +88,7 @@ class Node:
     def onResponseRequestSettings(self, p):
         """Handle the response packets for requesting settings _requestSettings()"""
         logging.debug(f"onResponseRequestSetting() p:{p}")
+        config_values = None
         if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
@@ -102,7 +103,8 @@ class Node:
                 config_type = self.localConfig.DESCRIPTOR.fields_by_name.get(
                     camel_to_snake(field)
                 )
-                config_values = getattr(self.localConfig, config_type.name)
+                if config_type is not None:
+                    config_values = getattr(self.localConfig, config_type.name)
             elif "getModuleConfigResponse" in adminMessage:
                 resp = adminMessage["getModuleConfigResponse"]
                 field = list(resp.keys())[0]
@@ -115,9 +117,10 @@ class Node:
                     "Did not receive a valid response. Make sure to have a shared channel named 'admin'."
                 )
                 return
-            for key, value in resp[field].items():
-                setattr(config_values, camel_to_snake(key), value)
-            print(f"{str(camel_to_snake(field))}:\n{str(config_values)}")
+            if config_values is not None:
+                for key, value in resp[field].items():
+                    setattr(config_values, camel_to_snake(key), value)
+                print(f"{str(camel_to_snake(field))}:\n{str(config_values)}")
 
     def requestConfig(self, configType):
         """Request the config from the node via admin message"""
@@ -126,16 +129,18 @@ class Node:
         else:
             onResponse = self.onResponseRequestSettings
             print("Requesting current config from remote node (this can take a while).")
+        p = admin_pb2.AdminMessage()
+        if isinstance(configType, int):
+            p.get_config_request = configType
 
-        msgIndex = configType.index
-        if configType.containing_type.name == "LocalConfig":
-            p = admin_pb2.AdminMessage()
-            p.get_config_request = msgIndex
-            self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
         else:
-            p = admin_pb2.AdminMessage()
-            p.get_module_config_request = msgIndex
-            self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
+            msgIndex = configType.index
+            if configType.containing_type.name == "LocalConfig":
+                p.get_config_request = msgIndex
+            else:
+                p.get_module_config_request = msgIndex
+
+        self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
         if onResponse:
             self.iface.waitForAckNak()
 
