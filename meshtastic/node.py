@@ -95,7 +95,7 @@ class Node:
         else:
             self.iface._acknowledgment.receivedAck = True
             print("")
-            adminMessage: admin_pb2.AdminMessage = p["decoded"]["admin"]
+            adminMessage = p["decoded"]["admin"]
             if "getConfigResponse" in adminMessage:
                 resp = adminMessage["getConfigResponse"]
                 field = list(resp.keys())[0]

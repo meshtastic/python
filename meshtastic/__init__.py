@@ -202,10 +202,9 @@ def _receiveInfoUpdate(iface, asDict):
 def _onAdminReceive(iface, asDict):
     """Special auto parsing for received messages"""
     logging.debug(f"in _onAdminReceive() asDict:{asDict}")
-    if "decoded" in asDict:
-        if "admin" in asDict["decoded"] and "from" in asDict:
-            adminMessage: admin_pb2.AdminMessage = asDict["decoded"]["admin"]
-            iface._getOrCreateByNum(asDict["from"])["adminSessionPassKey"] = adminMessage["raw"].session_passkey
+    if "decoded" in asDict and "from" in asDict and "admin" in asDict["decoded"]
+        adminMessage: admin_pb2.AdminMessage = asDict["decoded"]["admin"]["raw"]
+        iface._getOrCreateByNum(asDict["from"])["adminSessionPassKey"] = adminMessage.session_passkey
 
 """Well known message payloads can register decoders for automatic protobuf parsing"""
 protocols = {
@@ -225,7 +224,9 @@ protocols = {
     portnums_pb2.PortNum.NODEINFO_APP: KnownProtocol(
         "user", mesh_pb2.User, _onNodeInfoReceive
     ),
-    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage),
+    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol(
+        "admin", admin_pb2.AdminMessage, _onAdminReceive
+    ),
     portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
     portnums_pb2.PortNum.TELEMETRY_APP: KnownProtocol(
         "telemetry", telemetry_pb2.Telemetry
@@ -245,7 +246,4 @@ protocols = {
     portnums_pb2.PortNum.STORE_FORWARD_APP: KnownProtocol("storeforward", storeforward_pb2.StoreAndForward),
     portnums_pb2.PortNum.NEIGHBORINFO_APP: KnownProtocol("neighborinfo", mesh_pb2.NeighborInfo),
     portnums_pb2.PortNum.MAP_REPORT_APP: KnownProtocol("mapreport", mqtt_pb2.MapReport),
-    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol(
-        "admin", admin_pb2.AdminMessage, _onAdminReceive
-    ),
 }
