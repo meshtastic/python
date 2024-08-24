@@ -260,6 +260,7 @@ class MeshInterface:  # pylint: disable=R0902
                             "AKA": user.get("shortName", "N/A"),
                             "ID": user["id"],
                             "Hardware": user.get("hwModel", "UNSET"),
+                            "Pubkey": user.get("publicKey", "UNSET"),
                         }
                     )
 
@@ -782,6 +783,13 @@ class MeshInterface:  # pylint: disable=R0902
             return user.get("shortName", None)
         return None
 
+    def getPublicKey(self):
+        """Get Public Key"""
+        user = self.getMyUser()
+        if user is not None:
+            return user.get("publicKey", None)
+        return None
+
     def _waitConnected(self, timeout=30.0):
         """Block until the initial node db download is complete, or timeout
         and raise an exception"""
@@ -1066,7 +1074,10 @@ class MeshInterface:  # pylint: disable=R0902
                 self.localNode.localConfig.bluetooth.CopyFrom(
                     fromRadio.config.bluetooth
                 )
-
+            elif fromRadio.config.HasField("security"):
+                self.localNode.localConfig.security.CopyFrom(
+                    fromRadio.config.security
+                )
             elif fromRadio.moduleConfig.HasField("mqtt"):
                 self.localNode.moduleConfig.mqtt.CopyFrom(fromRadio.moduleConfig.mqtt)
             elif fromRadio.moduleConfig.HasField("serial"):
