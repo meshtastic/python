@@ -199,6 +199,13 @@ def _receiveInfoUpdate(iface, asDict):
         iface._getOrCreateByNum(asDict["from"])["snr"] = asDict.get("rxSnr")
         iface._getOrCreateByNum(asDict["from"])["hopLimit"] = asDict.get("hopLimit")
 
+def _onAdminReceive(iface, asDict):
+    """Special auto parsing for received messages"""
+    logging.debug(f"in _onAdminReceive() asDict:{asDict}")
+    if "decoded" in asDict:
+        if "admin" in asDict["decoded"] and "from" in asDict:
+            adminMessage: admin_pb2.AdminMessage = asDict["decoded"]["admin"]
+            iface._getOrCreateByNum(asDict["from"])["adminSessionPassKey"] = adminMessage["raw"].session_passkey
 
 """Well known message payloads can register decoders for automatic protobuf parsing"""
 protocols = {
@@ -238,4 +245,7 @@ protocols = {
     portnums_pb2.PortNum.STORE_FORWARD_APP: KnownProtocol("storeforward", storeforward_pb2.StoreAndForward),
     portnums_pb2.PortNum.NEIGHBORINFO_APP: KnownProtocol("neighborinfo", mesh_pb2.NeighborInfo),
     portnums_pb2.PortNum.MAP_REPORT_APP: KnownProtocol("mapreport", mqtt_pb2.MapReport),
+    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol(
+        "admin", admin_pb2.AdminMessage, _onAdminReceive
+    ),
 }
