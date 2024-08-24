@@ -95,7 +95,7 @@ class Node:
         else:
             self.iface._acknowledgment.receivedAck = True
             print("")
-            adminMessage = p["decoded"]["admin"]
+            adminMessage: admin_pb2.AdminMessage = p["decoded"]["admin"]
             if "getConfigResponse" in adminMessage:
                 resp = adminMessage["getConfigResponse"]
                 field = list(resp.keys())[0]
@@ -833,7 +833,12 @@ class Node:
             ):  # unless a special channel index was used, we want to use the admin index
                 adminIndex = self.iface.localNode._getAdminChannelIndex()
             logging.debug(f"adminIndex:{adminIndex}")
-
+            if isinstance(self.nodeNum, int):
+                nodeid = self.nodeNum
+            elif self.nodeNum.startswith("!"):
+                nodeid = int(self.nodeNum[1:],16)
+            if ("adminSessionPassKey" in self.iface._getOrCreateByNum(nodeid)):
+                p.session_passkey = self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey")
             return self.iface.sendData(
                 p,
                 self.nodeNum,
