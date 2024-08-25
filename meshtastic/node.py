@@ -375,6 +375,7 @@ class Node:
 
         p = admin_pb2.AdminMessage()
         p.set_config.lora.CopyFrom(channelSet.lora_config)
+        self.ensureSessionKey()
         self._sendAdmin(p)
 
     def onResponseRequestRingtone(self, p):
@@ -676,6 +677,7 @@ class Node:
 
     def setFixedPosition(self, lat: Union[int, float], lon: Union[int, float], alt: int):
         """Tell the node to set fixed position to the provided value and enable the fixed position setting"""
+        self.ensureSessionKey()
         if self != self.iface.localNode:
             logging.error("Setting position of remote nodes is not supported.")
             return None
