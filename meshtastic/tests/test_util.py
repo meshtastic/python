@@ -597,21 +597,25 @@ def test_roundtrip_snake_to_camel_camel_to_snake(a_string):
 
 @given(st.text())
 def test_fuzz_camel_to_snake(a_string):
+    """Test that camel_to_snake produces outputs with underscores for multi-word camelcase"""
     result = camel_to_snake(a_string)
     assert "_" in result or result == a_string.lower()
 
 @given(st.text())
 def test_fuzz_snake_to_camel(a_string):
+    """Test that snake_to_camel removes underscores"""
     result = snake_to_camel(a_string)
     assert "_" not in result or result == a_string.split("_")[0] + "".join(ele.title() for ele in a_string.split("_")[1:])
 
 @given(st.text())
 def test_fuzz_stripnl(s):
+    """Test that stripnl always takes away newlines"""
     result = stripnl(s)
     assert "\n" not in result
 
 @given(st.binary())
 def test_fuzz_pskToString(psk):
+    """Test that pskToString produces sane output for any bytes"""
     result = pskToString(psk)
     if len(psk) == 0:
         assert result == "unencrypted"
@@ -628,6 +632,7 @@ def test_fuzz_pskToString(psk):
 
 @given(st.text())
 def test_fuzz_fromStr(valstr):
+    """Test that fromStr produces mostly-useful output given any string"""
     result = fromStr(valstr)
     if valstr.startswith("0x"):
         assert isinstance(result, bytes)
