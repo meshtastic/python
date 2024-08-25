@@ -813,6 +813,7 @@ class MeshInterface:  # pylint: disable=R0902
         )
 
     def sendHeartbeat(self):
+        """Sends a heartbeat to the radio. Can be used to verify the connection is healthy."""
         p = mesh_pb2.ToRadio()
         p.heartbeat.CopyFrom(mesh_pb2.Heartbeat())
         self._sendToRadio(p)
