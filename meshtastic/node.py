@@ -854,9 +854,9 @@ class Node:
             logging.debug(f"adminIndex:{adminIndex}")
             if isinstance(self.nodeNum, int):
                 nodeid = self.nodeNum
-            elif self.nodeNum.startswith("!"):
+            else: # assume string starting with !
                 nodeid = int(self.nodeNum[1:],16)
-            if ("adminSessionPassKey" in self.iface._getOrCreateByNum(nodeid)):
+            if "adminSessionPassKey" in self.iface._getOrCreateByNum(nodeid):
                 p.session_passkey = self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey")
             return self.iface.sendData(
                 p,
@@ -869,9 +869,15 @@ class Node:
             )
 
     def ensureSessionKey(self):
-        if isinstance(self.nodeNum, int):
-            nodeid = self.nodeNum
-        elif self.nodeNum.startswith("!"):
-            nodeid = int(self.nodeNum[1:],16)
-        if self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey") is None:
-            self.requestConfig(admin_pb2.AdminMessage.SESSIONKEY_CONFIG)
+        """If our entry in iface.nodesByNum doesn't already have an adminSessionPassKey, make a request to get one"""
+        if self.noProto:
+            logging.warning(
+                f"Not ensuring session key, because protocol use is disabled by noProto"
+            )
+        else:
+            if isinstance(self.nodeNum, int):
+                nodeid = self.nodeNum
+            else: # assume string starting with !
+                nodeid = int(self.nodeNum[1:],16)
+            if self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey") is None:
+                self.requestConfig(admin_pb2.AdminMessage.SESSIONKEY_CONFIG)

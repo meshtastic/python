@@ -231,7 +231,9 @@ def test_node(capsys):
 @pytest.mark.unit
 def test_exitSimulator(caplog):
     """Test exitSimulator"""
-    anode = Node("foo", "bar", noProto=True)
+    interface = MeshInterface()
+    interface.nodesByNum = {}
+    anode = Node(interface, "!ba400000", noProto=True)
     with caplog.at_level(logging.DEBUG):
         anode.exitSimulator()
     assert re.search(r"in exitSimulator", caplog.text, re.MULTILINE)
@@ -240,7 +242,9 @@ def test_exitSimulator(caplog):
 @pytest.mark.unit
 def test_reboot(caplog):
     """Test reboot"""
-    anode = Node(MeshInterface(), 1234567890, noProto=True)
+    interface = MeshInterface()
+    interface.nodesByNum = {}
+    anode = Node(interface, 1234567890, noProto=True)
     with caplog.at_level(logging.DEBUG):
         anode.reboot()
     assert re.search(r"Telling node to reboot", caplog.text, re.MULTILINE)
@@ -249,7 +253,9 @@ def test_reboot(caplog):
 @pytest.mark.unit
 def test_shutdown(caplog):
     """Test shutdown"""
-    anode = Node(MeshInterface(), 1234567890, noProto=True)
+    interface = MeshInterface()
+    interface.nodesByNum = {}
+    anode = Node(interface, 1234567890, noProto=True)
     with caplog.at_level(logging.DEBUG):
         anode.shutdown()
     assert re.search(r"Telling node to shutdown", caplog.text, re.MULTILINE)
