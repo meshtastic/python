@@ -88,6 +88,7 @@ class Node:
     def onResponseRequestSettings(self, p):
         """Handle the response packets for requesting settings _requestSettings()"""
         logging.debug(f"onResponseRequestSetting() p:{p}")
+        config_values = None
         if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
                 print(f'Error on response: {p["decoded"]["routing"]["errorReason"]}')
@@ -102,7 +103,8 @@ class Node:
                 config_type = self.localConfig.DESCRIPTOR.fields_by_name.get(
                     camel_to_snake(field)
                 )
-                config_values = getattr(self.localConfig, config_type.name)
+                if config_type is not None:
+                    config_values = getattr(self.localConfig, config_type.name)
             elif "getModuleConfigResponse" in adminMessage:
                 resp = adminMessage["getModuleConfigResponse"]
                 field = list(resp.keys())[0]
@@ -115,9 +117,10 @@ class Node:
                     "Did not receive a valid response. Make sure to have a shared channel named 'admin'."
                 )
                 return
-            for key, value in resp[field].items():
-                setattr(config_values, camel_to_snake(key), value)
-            print(f"{str(camel_to_snake(field))}:\n{str(config_values)}")
+            if config_values is not None:
+                for key, value in resp[field].items():
+                    setattr(config_values, camel_to_snake(key), value)
+                print(f"{str(camel_to_snake(field))}:\n{str(config_values)}")
 
     def requestConfig(self, configType):
         """Request the config from the node via admin message"""
@@ -126,16 +129,18 @@ class Node:
         else:
             onResponse = self.onResponseRequestSettings
             print("Requesting current config from remote node (this can take a while).")
+        p = admin_pb2.AdminMessage()
+        if isinstance(configType, int):
+            p.get_config_request = configType
 
-        msgIndex = configType.index
-        if configType.containing_type.name == "LocalConfig":
-            p = admin_pb2.AdminMessage()
-            p.get_config_request = msgIndex
-            self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
         else:
-            p = admin_pb2.AdminMessage()
-            p.get_module_config_request = msgIndex
-            self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
+            msgIndex = configType.index
+            if configType.containing_type.name == "LocalConfig":
+                p.get_config_request = msgIndex
+            else:
+                p.get_module_config_request = msgIndex
+
+        self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
         if onResponse:
             self.iface.waitForAckNak()
 
@@ -216,7 +221,7 @@ class Node:
 
     def writeChannel(self, channelIndex, adminIndex=0):
         """Write the current (edited) channel to the device"""
-
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.set_channel.CopyFrom(self.channels[channelIndex])
         self._sendAdmin(p, adminIndex=adminIndex)
@@ -284,6 +289,7 @@ class Node:
     def setOwner(self, long_name=None, short_name=None, is_licensed=False):
         """Set device owner name"""
         logging.debug(f"in setOwner nodeNum:{self.nodeNum}")
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
 
         nChars = 4
@@ -417,7 +423,7 @@ class Node:
 
         if len(ringtone) > 230:
             our_exit("Warning: The ringtone must be less than 230 characters.")
-
+        self.ensureSessionKey()
         # split into chunks
         chunks = []
         chunks_size = 230
@@ -493,7 +499,7 @@ class Node:
 
         if len(message) > 200:
             our_exit("Warning: The canned message must be less than 200 characters.")
-
+        self.ensureSessionKey()
         # split into chunks
         chunks = []
         chunks_size = 200
@@ -520,6 +526,7 @@ class Node:
     def exitSimulator(self):
         """Tell a simulator node to exit (this message
         is ignored for other nodes)"""
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.exit_simulator = True
         logging.debug("in exitSimulator()")
@@ -528,6 +535,7 @@ class Node:
 
     def reboot(self, secs: int = 10):
         """Tell the node to reboot."""
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.reboot_seconds = secs
         logging.info(f"Telling node to reboot in {secs} seconds")
@@ -541,6 +549,7 @@ class Node:
 
     def beginSettingsTransaction(self):
         """Tell the node to open a transaction to edit settings."""
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.begin_edit_settings = True
         logging.info(f"Telling open a transaction to edit settings")
@@ -554,6 +563,7 @@ class Node:
 
     def commitSettingsTransaction(self):
         """Tell the node to commit the open transaction for editing settings."""
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.commit_edit_settings = True
         logging.info(f"Telling node to commit open transaction for editing settings")
@@ -567,6 +577,7 @@ class Node:
 
     def rebootOTA(self, secs: int = 10):
         """Tell the node to reboot into factory firmware."""
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.reboot_ota_seconds = secs
         logging.info(f"Telling node to reboot to OTA in {secs} seconds")
@@ -580,6 +591,7 @@ class Node:
 
     def enterDFUMode(self):
         """Tell the node to enter DFU mode (NRF52)."""
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.enter_dfu_mode_request = True
         logging.info(f"Telling node to enable DFU mode")
@@ -593,6 +605,7 @@ class Node:
 
     def shutdown(self, secs: int = 10):
         """Tell the node to shutdown."""
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.shutdown_seconds = secs
         logging.info(f"Telling node to shutdown in {secs} seconds")
@@ -617,6 +630,7 @@ class Node:
 
     def factoryReset(self):
         """Tell the node to factory reset."""
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.factory_reset = True
         logging.info(f"Telling node to factory reset")
@@ -630,6 +644,7 @@ class Node:
 
     def removeNode(self, nodeId: Union[int, str]):
         """Tell the node to remove a specific node by ID"""
+        self.ensureSessionKey()
         if isinstance(nodeId, str):
             if nodeId.startswith("!"):
                 nodeId = int(nodeId[1:], 16)
@@ -647,6 +662,7 @@ class Node:
 
     def resetNodeDb(self):
         """Tell the node to reset its list of nodes."""
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.nodedb_reset = True
         logging.info(f"Telling node to reset the NodeDB")
@@ -684,6 +700,7 @@ class Node:
 
     def removeFixedPosition(self):
         """Tell the node to remove the fixed position and set the fixed position setting to false"""
+        self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.remove_fixed_position = True
         logging.info(f"Telling node to remove fixed position")
@@ -848,3 +865,11 @@ class Node:
                 onResponse=onResponse,
                 channelIndex=adminIndex,
             )
+
+    def ensureSessionKey(self):
+        if isinstance(self.nodeNum, int):
+            nodeid = self.nodeNum
+        elif self.nodeNum.startswith("!"):
+            nodeid = int(self.nodeNum[1:],16)
+        if self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey") is None:
+            self.requestConfig(admin_pb2.AdminMessage.SESSIONKEY_CONFIG)

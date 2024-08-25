@@ -202,7 +202,7 @@ def _receiveInfoUpdate(iface, asDict):
 def _onAdminReceive(iface, asDict):
     """Special auto parsing for received messages"""
     logging.debug(f"in _onAdminReceive() asDict:{asDict}")
-    if "decoded" in asDict and "from" in asDict and "admin" in asDict["decoded"]
+    if "decoded" in asDict and "from" in asDict and "admin" in asDict["decoded"]:
         adminMessage: admin_pb2.AdminMessage = asDict["decoded"]["admin"]["raw"]
         iface._getOrCreateByNum(asDict["from"])["adminSessionPassKey"] = adminMessage.session_passkey
 
