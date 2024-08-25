@@ -978,13 +978,6 @@ class MeshInterface:  # pylint: disable=R0902
             self.localNode.nodeNum = self.myInfo.my_node_num
             logging.debug(f"Received myinfo: {stripnl(fromRadio.my_info)}")
 
-            failmsg = None
-
-            if failmsg:
-                self.failure = MeshInterface.MeshInterfaceError(failmsg)
-                self.isConnected.set()  # let waitConnected return this exception
-                self.close()
-
         elif fromRadio.HasField("metadata"):
             self.metadata = fromRadio.metadata
             logging.debug(f"Received device metadata: {stripnl(fromRadio.metadata)}")
