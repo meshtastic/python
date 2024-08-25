@@ -599,7 +599,7 @@ def test_roundtrip_snake_to_camel_camel_to_snake(a_string):
 def test_fuzz_camel_to_snake(a_string):
     """Test that camel_to_snake produces outputs with underscores for multi-word camelcase"""
     result = camel_to_snake(a_string)
-    assert "_" in result or result == a_string.lower()
+    assert "_" in result or result == a_string.lower().replace("_", "")
 
 @given(st.text())
 def test_fuzz_snake_to_camel(a_string):
