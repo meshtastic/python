@@ -812,19 +812,22 @@ class MeshInterface:  # pylint: disable=R0902
             lambda: pub.sendMessage("meshtastic.connection.lost", interface=self)
         )
 
+    def sendHeartbeat(self):
+        """Sends a heartbeat to the radio. Can be used to verify the connection is healthy."""
+        p = mesh_pb2.ToRadio()
+        p.heartbeat.CopyFrom(mesh_pb2.Heartbeat())
+        self._sendToRadio(p)
+
     def _startHeartbeat(self):
         """We need to send a heartbeat message to the device every X seconds"""
 
         def callback():
             self.heartbeatTimer = None
-            i = 300
-            logging.debug(f"Sending heartbeat, interval {i} seconds")
-            if i != 0:
-                self.heartbeatTimer = threading.Timer(i, callback)
-                self.heartbeatTimer.start()
-                p = mesh_pb2.ToRadio()
-                p.heartbeat.CopyFrom(mesh_pb2.Heartbeat())
-                self._sendToRadio(p)
+            interval = 300
+            logging.debug(f"Sending heartbeat, interval {interval} seconds")
+            self.heartbeatTimer = threading.Timer(interval, callback)
+            self.heartbeatTimer.start()
+            self.sendHeartbeat()
 
         callback()  # run our periodic callback now, it will make another timer if necessary
 
