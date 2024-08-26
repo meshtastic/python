@@ -571,9 +571,9 @@ class MeshInterface:  # pylint: disable=R0902
 
         print(routeStr) # Print the route towards destination
 
-        # Only if there is an SNR entry (for the origin) it's valid, even though route might be empty (direct connection)
+        # Only if hopStart is set and there is an SNR entry (for the origin) it's valid, even though route might be empty (direct connection)
         lenBack = 0 if "routeBack" not in asDict else len(asDict["routeBack"])
-        backValid = "snrBack" in asDict and len(asDict["snrBack"]) == lenBack + 1
+        backValid = "hopStart" in p and "snrBack" in asDict and len(asDict["snrBack"]) == lenBack + 1
         if backValid:
             print("Route traced back to us:")
             routeStr = self._nodeNumToId(p["from"], False) or f"{p['from']:08x}" # Start with origin of response
