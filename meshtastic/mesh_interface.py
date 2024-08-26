@@ -1185,7 +1185,7 @@ class MeshInterface:  # pylint: disable=R0902
         if num == BROADCAST_NUM:
             if isDest:
                 return BROADCAST_ADDR
-            else: 
+            else:
                 return "Unknown"
 
         try:
