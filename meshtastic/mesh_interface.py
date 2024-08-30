@@ -472,11 +472,6 @@ class MeshInterface:  # pylint: disable=R0902
             p.altitude = int(altitude)
             logging.debug(f"p.altitude:{p.altitude}")
 
-        if timeSec == 0:
-            timeSec = int(time.time())  # returns unix timestamp in seconds
-        p.time = timeSec
-        logging.debug(f"p.time:{p.time}")
-
         if wantResponse:
             onResponse = self.onResponsePosition
         else:
