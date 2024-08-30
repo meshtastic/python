@@ -442,7 +442,6 @@ class MeshInterface:  # pylint: disable=R0902
         latitude: float = 0.0,
         longitude: float = 0.0,
         altitude: int = 0,
-        timeSec: int = 0,
         destinationId: Union[int, str] = BROADCAST_ADDR,
         wantAck: bool = False,
         wantResponse: bool = False,
@@ -453,8 +452,6 @@ class MeshInterface:  # pylint: disable=R0902
 
         Also, the device software will notice this packet and use it to automatically
         set its notion of the local position.
-
-        If timeSec is not specified (recommended), we will use the local machine time.
 
         Returns the sent packet. The id field will be populated in this packet and
         can be used to track future message acks/naks.
