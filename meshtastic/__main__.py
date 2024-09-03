@@ -778,7 +778,8 @@ def onConnected(interface):
             channelIndex = mt_config.channel_index
             if channelIndex is None:
                 meshtastic.util.our_exit("Warning: Need to specify '--ch-index'.", 1)
-            ch = interface.getNode(args.dest).channels[channelIndex]
+            node = interface.getNode(args.dest)
+            ch = node.channels[channelIndex]
 
             if args.ch_enable or args.ch_disable:
                 print(
@@ -836,7 +837,7 @@ def onConnected(interface):
                 ch.role = channel_pb2.Channel.Role.DISABLED
 
             print(f"Writing modified channels to device")
-            interface.getNode(args.dest).writeChannel(channelIndex)
+            node.writeChannel(channelIndex)
 
         if args.get_canned_message:
             closeNow = True
