@@ -25,14 +25,14 @@ class Node:
     Includes methods for localConfig, moduleConfig and channels
     """
 
-    def __init__(self, iface, nodeNum, noProto=False):
+    def __init__(self, iface, nodeNum, noProto=False, timeout: int = 300):
         """Constructor"""
         self.iface = iface
         self.nodeNum = nodeNum
         self.localConfig = localonly_pb2.LocalConfig()
         self.moduleConfig = localonly_pb2.LocalModuleConfig()
         self.channels = None
-        self._timeout = Timeout(maxSecs=300)
+        self._timeout = Timeout(maxSecs=timeout)
         self.partialChannels = None
         self.noProto = noProto
         self.cannedPluginMessage = None

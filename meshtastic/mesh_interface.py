@@ -314,13 +314,13 @@ class MeshInterface:  # pylint: disable=R0902
         return table
 
     def getNode(
-        self, nodeId: str, requestChannels: bool = True, requestChannelRetries: int = 3
+        self, nodeId: str, requestChannels: bool = True, requestChannelRetries: int = 3, timeout: int = 300
     ) -> meshtastic.node.Node:
         """Return a node object which contains device settings and channel info"""
         if nodeId in (LOCAL_ADDR, BROADCAST_ADDR):
             return self.localNode
         else:
-            n = meshtastic.node.Node(self, nodeId)
+            n = meshtastic.node.Node(self, nodeId, timeout=timeout)
             # Only request device settings and channel info when necessary
             if requestChannels:
                 logging.debug("About to requestChannels")
