@@ -1424,6 +1424,12 @@ def initParser():
     )
 
     group.add_argument(
+        "--channel-fetch-retries",
+        help=("Attempt to retrieve channel settings for --ch-set this many times before giving up."),
+        default=3,
+    )
+
+    group.add_argument(
         "--ch-vlongslow",
         help="Change to the very long-range and slow channel",
         action="store_true",

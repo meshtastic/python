@@ -77,13 +77,14 @@ class Node:
         self.channels = channels
         self._fixupChannels()
 
-    def requestChannels(self):
+    def requestChannels(self, startingIndex: int = 0):
         """Send regular MeshPackets to ask channels."""
         logging.debug(f"requestChannels for nodeNum:{self.nodeNum}")
-        self.channels = None
-        self.partialChannels = []  # We keep our channels in a temp array until finished
-
-        self._requestChannel(0)
+        # only initialize if we're starting out fresh
+        if startingIndex == 0:
+            self.channels = None
+            self.partialChannels = []  # We keep our channels in a temp array until finished
+        self._requestChannel(startingIndex)
 
     def onResponseRequestSettings(self, p):
         """Handle the response packets for requesting settings _requestSettings()"""
