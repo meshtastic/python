@@ -273,6 +273,11 @@ def onConnected(interface):
     try:
         args = mt_config.args
 
+        # convenient place to store any keyword args we pass to getNode
+        getNode_kwargs = {
+            "requestChannelRetries": int(args.channel_fetch_retries)
+        }
+
         # do not print this line if we are exporting the config
         if not args.export_config:
             print("Connected to radio")
@@ -334,13 +339,13 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
             print(f"Setting device owner to {args.set_owner}")
-            interface.getNode(args.dest, False).setOwner(args.set_owner)
+            interface.getNode(args.dest, False, **getNode_kwargs).setOwner(args.set_owner)
 
         if args.set_owner_short:
             closeNow = True
             waitForAckNak = True
             print(f"Setting device owner short to {args.set_owner_short}")
-            interface.getNode(args.dest, False).setOwner(
+            interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
                 long_name=None, short_name=args.set_owner_short
             )
 
@@ -349,7 +354,7 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
             print(f"Setting canned plugin message to {args.set_canned_message}")
-            interface.getNode(args.dest, False).set_canned_message(
+            interface.getNode(args.dest, False, **getNode_kwargs).set_canned_message(
                 args.set_canned_message
             )
 
@@ -358,12 +363,12 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
             print(f"Setting ringtone to {args.set_ringtone}")
-            interface.getNode(args.dest, False).set_ringtone(args.set_ringtone)
+            interface.getNode(args.dest, False, **getNode_kwargs).set_ringtone(args.set_ringtone)
 
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
             closeNow = True
-            positionConfig = interface.getNode(args.dest).localConfig.position
+            positionConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig.position
             allFields = 0
 
             try:
@@ -382,12 +387,12 @@ def onConnected(interface):
                 print(f"Setting position fields to {allFields}")
                 setPref(positionConfig, "position_flags", f"{allFields:d}")
                 print("Writing modified preferences to device")
-                interface.getNode(args.dest).writeConfig("position")
+                interface.getNode(args.dest, **getNode_kwargs).writeConfig("position")
 
         elif args.pos_fields is not None:
             # If --pos-fields invoked without args, read and display current value
             closeNow = True
-            positionConfig = interface.getNode(args.dest).localConfig.position
+            positionConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig.position
 
             fieldNames = []
             for bit in positionConfig.PositionFlags.values():
@@ -398,56 +403,56 @@ def onConnected(interface):
         if args.set_ham:
             closeNow = True
             print(f"Setting Ham ID to {args.set_ham} and turning off encryption")
-            interface.getNode(args.dest).setOwner(args.set_ham, is_licensed=True)
+            interface.getNode(args.dest, **getNode_kwargs).setOwner(args.set_ham, is_licensed=True)
             # Must turn off encryption on primary channel
-            interface.getNode(args.dest).turnOffEncryptionOnPrimaryChannel()
+            interface.getNode(args.dest, **getNode_kwargs).turnOffEncryptionOnPrimaryChannel()
 
         if args.reboot:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).reboot()
+            interface.getNode(args.dest, False, **getNode_kwargs).reboot()
 
         if args.reboot_ota:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).rebootOTA()
+            interface.getNode(args.dest, False, **getNode_kwargs).rebootOTA()
 
         if args.enter_dfu:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).enterDFUMode()
+            interface.getNode(args.dest, False, **getNode_kwargs).enterDFUMode()
 
         if args.shutdown:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).shutdown()
+            interface.getNode(args.dest, False, **getNode_kwargs).shutdown()
 
         if args.device_metadata:
             closeNow = True
-            interface.getNode(args.dest, False).getMetadata()
+            interface.getNode(args.dest, False, **getNode_kwargs).getMetadata()
 
         if args.begin_edit:
             closeNow = True
-            interface.getNode(args.dest, False).beginSettingsTransaction()
+            interface.getNode(args.dest, False, **getNode_kwargs).beginSettingsTransaction()
 
         if args.commit_edit:
             closeNow = True
-            interface.getNode(args.dest, False).commitSettingsTransaction()
+            interface.getNode(args.dest, False, **getNode_kwargs).commitSettingsTransaction()
 
         if args.factory_reset:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).factoryReset()
+            interface.getNode(args.dest, False, **getNode_kwargs).factoryReset()
 
         if args.remove_node:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).removeNode(args.remove_node)
+            interface.getNode(args.dest, False, **getNode_kwargs).removeNode(args.remove_node)
 
         if args.reset_nodedb:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).resetNodeDb()
+            interface.getNode(args.dest, False, **getNode_kwargs).resetNodeDb()
 
         if args.sendtext:
             closeNow = True
@@ -461,7 +466,7 @@ def onConnected(interface):
                     args.dest,
                     wantAck=True,
                     channelIndex=channelIndex,
-                    onResponse=interface.getNode(args.dest, False).onAckNak,
+                    onResponse=interface.getNode(args.dest, False, **getNode_kwargs).onAckNak,
                 )
             else:
                 meshtastic.util.our_exit(
@@ -552,7 +557,7 @@ def onConnected(interface):
         if args.set:
             closeNow = True
             waitForAckNak = True
-            node = interface.getNode(args.dest, False)
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
 
             # Handle the int/float/bool arguments
             pref = None
@@ -591,19 +596,19 @@ def onConnected(interface):
                 configuration = yaml.safe_load(file)
                 closeNow = True
 
-                interface.getNode(args.dest, False).beginSettingsTransaction()
+                interface.getNode(args.dest, False, **getNode_kwargs).beginSettingsTransaction()
 
                 if "owner" in configuration:
                     print(f"Setting device owner to {configuration['owner']}")
                     waitForAckNak = True
-                    interface.getNode(args.dest, False).setOwner(configuration["owner"])
+                    interface.getNode(args.dest, False, **getNode_kwargs).setOwner(configuration["owner"])
 
                 if "owner_short" in configuration:
                     print(
                         f"Setting device owner short to {configuration['owner_short']}"
                     )
                     waitForAckNak = True
-                    interface.getNode(args.dest, False).setOwner(
+                    interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
                         long_name=None, short_name=configuration["owner_short"]
                     )
 
@@ -612,17 +617,17 @@ def onConnected(interface):
                         f"Setting device owner short to {configuration['ownerShort']}"
                     )
                     waitForAckNak = True
-                    interface.getNode(args.dest, False).setOwner(
+                    interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
                         long_name=None, short_name=configuration["ownerShort"]
                     )
 
                 if "channel_url" in configuration:
                     print("Setting channel url to", configuration["channel_url"])
-                    interface.getNode(args.dest).setURL(configuration["channel_url"])
+                    interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channel_url"])
 
                 if "channelUrl" in configuration:
                     print("Setting channel url to", configuration["channelUrl"])
-                    interface.getNode(args.dest).setURL(configuration["channelUrl"])
+                    interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channelUrl"])
 
                 if "location" in configuration:
                     alt = 0
@@ -647,28 +652,28 @@ def onConnected(interface):
                     interface.localNode.writeConfig("position")
 
                 if "config" in configuration:
-                    localConfig = interface.getNode(args.dest).localConfig
+                    localConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig
                     for section in configuration["config"]:
                         traverseConfig(
                             section, configuration["config"][section], localConfig
                         )
-                        interface.getNode(args.dest).writeConfig(
+                        interface.getNode(args.dest, **getNode_kwargs).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
 
                 if "module_config" in configuration:
-                    moduleConfig = interface.getNode(args.dest).moduleConfig
+                    moduleConfig = interface.getNode(args.dest, **getNode_kwargs).moduleConfig
                     for section in configuration["module_config"]:
                         traverseConfig(
                             section,
                             configuration["module_config"][section],
                             moduleConfig,
                         )
-                        interface.getNode(args.dest).writeConfig(
+                        interface.getNode(args.dest, **getNode_kwargs).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
 
-                interface.getNode(args.dest, False).commitSettingsTransaction()
+                interface.getNode(args.dest, False, **getNode_kwargs).commitSettingsTransaction()
                 print("Writing modified configuration to device")
 
         if args.export_config:
@@ -681,7 +686,7 @@ def onConnected(interface):
 
         if args.seturl:
             closeNow = True
-            interface.getNode(args.dest).setURL(args.seturl)
+            interface.getNode(args.dest, **getNode_kwargs).setURL(args.seturl)
 
         # handle changing channels
 
@@ -697,7 +702,7 @@ def onConnected(interface):
                 meshtastic.util.our_exit(
                     "Warning: Channel name must be shorter. Channel not added."
                 )
-            n = interface.getNode(args.dest)
+            n = interface.getNode(args.dest, **getNode_kwargs)
             ch = n.getChannelByName(args.ch_add)
             if ch:
                 meshtastic.util.our_exit(
@@ -736,7 +741,7 @@ def onConnected(interface):
                     )
                 else:
                     print(f"Deleting channel {channelIndex}")
-                    ch = interface.getNode(args.dest).deleteChannel(channelIndex)
+                    ch = interface.getNode(args.dest, **getNode_kwargs).deleteChannel(channelIndex)
 
         def setSimpleConfig(modem_preset):
             """Set one of the simple modem_config"""
@@ -746,9 +751,9 @@ def onConnected(interface):
                     "Warning: Cannot set modem preset for non-primary channel", 1
                 )
             # Overwrite modem_preset
-            prefs = interface.getNode(args.dest).localConfig
+            prefs = interface.getNode(args.dest, **getNode_kwargs).localConfig
             prefs.lora.modem_preset = modem_preset
-            interface.getNode(args.dest).writeConfig("lora")
+            interface.getNode(args.dest, **getNode_kwargs).writeConfig("lora")
 
         # handle the simple radio set commands
         if args.ch_vlongslow:
@@ -778,7 +783,7 @@ def onConnected(interface):
             channelIndex = mt_config.channel_index
             if channelIndex is None:
                 meshtastic.util.our_exit("Warning: Need to specify '--ch-index'.", 1)
-            node = interface.getNode(args.dest)
+            node = interface.getNode(args.dest, **getNode_kwargs)
             ch = node.channels[channelIndex]
 
             if args.ch_enable or args.ch_disable:
@@ -842,12 +847,12 @@ def onConnected(interface):
         if args.get_canned_message:
             closeNow = True
             print("")
-            interface.getNode(args.dest).get_canned_message()
+            interface.getNode(args.dest, **getNode_kwargs).get_canned_message()
 
         if args.get_ringtone:
             closeNow = True
             print("")
-            interface.getNode(args.dest).get_ringtone()
+            interface.getNode(args.dest, **getNode_kwargs).get_ringtone()
 
         if args.info:
             print("")
@@ -855,7 +860,7 @@ def onConnected(interface):
             if args.dest == BROADCAST_ADDR:
                 interface.showInfo()
                 print("")
-                interface.getNode(args.dest).showInfo()
+                interface.getNode(args.dest, **getNode_kwargs).showInfo()
                 closeNow = True
                 print("")
                 pypi_version = meshtastic.util.check_if_newer_version()
@@ -872,7 +877,7 @@ def onConnected(interface):
 
         if args.get:
             closeNow = True
-            node = interface.getNode(args.dest, False)
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
             for pref in args.get:
                 found = getPref(node, pref[0])
 
@@ -888,7 +893,7 @@ def onConnected(interface):
 
         if args.qr or args.qr_all:
             closeNow = True
-            url = interface.getNode(args.dest, True).getURL(includeAll=args.qr_all)
+            url = interface.getNode(args.dest, True, **getNode_kwargs).getURL(includeAll=args.qr_all)
             if args.qr_all:
                 urldesc = "Complete URL (includes all channels)"
             else:
@@ -943,7 +948,7 @@ def onConnected(interface):
             print(
                 f"Waiting for an acknowledgment from remote node (this could take a while)"
             )
-            interface.getNode(args.dest, False).iface.waitForAckNak()
+            interface.getNode(args.dest, False, **getNode_kwargs).iface.waitForAckNak()
 
         if args.wait_to_disconnect:
             print(f"Waiting {args.wait_to_disconnect} seconds before disconnecting")
