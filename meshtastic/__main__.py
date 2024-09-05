@@ -314,21 +314,6 @@ def onConnected(interface):
             print("Setting device position and enabling fixed position setting")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.localNode.setFixedPosition(lat, lon, alt)
-        elif not args.no_time:
-            # We normally provide a current time to the mesh when we connect
-            if (
-                interface.localNode.nodeNum in interface.nodesByNum
-                and "position" in interface.nodesByNum[interface.localNode.nodeNum]
-            ):
-                # send the same position the node already knows, just to update time
-                position = interface.nodesByNum[interface.localNode.nodeNum]["position"]
-                interface.sendPosition(
-                    position.get("latitude", 0.0),
-                    position.get("longitude", 0.0),
-                    position.get("altitude", 0.0),
-                )
-            else:
-                interface.sendPosition()
 
         if args.set_owner:
             closeNow = True
@@ -1588,7 +1573,7 @@ def initParser():
 
     group.add_argument(
         "--no-time",
-        help="Suppress sending the current time to the mesh",
+        help="Deprecated. Retained for backwards compatibility in scripts, but is a no-op.",
         action="store_true",
     )
 
