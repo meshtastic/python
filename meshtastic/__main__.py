@@ -315,19 +315,16 @@ def onConnected(interface):
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.localNode.setFixedPosition(lat, lon, alt)
 
-        if args.set_owner:
+        if args.set_owner or args.set_owner_short:
             closeNow = True
             waitForAckNak = True
-            print(f"Setting device owner to {args.set_owner}")
-            interface.getNode(args.dest, False).setOwner(args.set_owner)
-
-        if args.set_owner_short:
-            closeNow = True
-            waitForAckNak = True
-            print(f"Setting device owner short to {args.set_owner_short}")
-            interface.getNode(args.dest, False).setOwner(
-                long_name=None, short_name=args.set_owner_short
-            )
+            if args.set_owner and args.set_owner_short:
+                print(f"Setting device owner to {args.set_owner} and short name to {args.set_owner_short}")
+            elif args.set_owner:
+                print(f"Setting device owner to {args.set_owner}")
+            else: # short name only
+                print(f"Setting device owner short to {args.set_owner_short}")
+            interface.getNode(args.dest, False).setOwner(long_name=args.set_owner, short_name=args.set_owner_short)
 
         # TODO: add to export-config and configure
         if args.set_canned_message:
@@ -1453,6 +1450,10 @@ def initParser():
     group.add_argument("--set-owner", help="Set device owner name", action="store")
 
     group.add_argument(
+        "--set-owner-short", help="Set device owner short name", action="store"
+    )
+
+    group.add_argument(
         "--set-canned-message",
         help="Set the canned messages plugin message (up to 200 characters).",
         action="store",
@@ -1462,10 +1463,6 @@ def initParser():
         "--set-ringtone",
         help="Set the Notification Ringtone (up to 230 characters).",
         action="store",
-    )
-
-    group.add_argument(
-        "--set-owner-short", help="Set device owner short name", action="store"
     )
 
     group.add_argument(
