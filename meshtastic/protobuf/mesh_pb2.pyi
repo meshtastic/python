@@ -747,6 +747,17 @@ class _CriticalErrorCodeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapp
     A (likely software but possibly hardware) failure was detected while trying to send packets.
     If this occurs on your board, please post in the forum so that we can ask you to collect some information to allow fixing this bug
     """
+    FLASH_CORRUPTION_RECOVERABLE: _CriticalErrorCode.ValueType  # 12
+    """
+    Corruption was detected on the flash filesystem but we were able to repair things.
+    If you see this failure in the field please post in the forum because we are interested in seeing if this is occurring in the field.
+    """
+    FLASH_CORRUPTION_UNRECOVERABLE: _CriticalErrorCode.ValueType  # 13
+    """
+    Corruption was detected on the flash filesystem but we were unable to repair things.
+    NOTE: Your node will probably need to be reconfigured the next time it reboots (it will lose the region code etc...)
+    If you see this failure in the field please post in the forum because we are interested in seeing if this is occurring in the field.
+    """
 
 class CriticalErrorCode(_CriticalErrorCode, metaclass=_CriticalErrorCodeEnumTypeWrapper):
     """
@@ -804,6 +815,17 @@ RADIO_SPI_BUG: CriticalErrorCode.ValueType  # 11
 """
 A (likely software but possibly hardware) failure was detected while trying to send packets.
 If this occurs on your board, please post in the forum so that we can ask you to collect some information to allow fixing this bug
+"""
+FLASH_CORRUPTION_RECOVERABLE: CriticalErrorCode.ValueType  # 12
+"""
+Corruption was detected on the flash filesystem but we were able to repair things.
+If you see this failure in the field please post in the forum because we are interested in seeing if this is occurring in the field.
+"""
+FLASH_CORRUPTION_UNRECOVERABLE: CriticalErrorCode.ValueType  # 13
+"""
+Corruption was detected on the flash filesystem but we were unable to repair things.
+NOTE: Your node will probably need to be reconfigured the next time it reboots (it will lose the region code etc...)
+If you see this failure in the field please post in the forum because we are interested in seeing if this is occurring in the field.
 """
 global___CriticalErrorCode = CriticalErrorCode
 
