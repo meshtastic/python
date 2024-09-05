@@ -314,35 +314,17 @@ def onConnected(interface):
             print("Setting device position and enabling fixed position setting")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.localNode.setFixedPosition(lat, lon, alt)
-        elif not args.no_time:
-            # We normally provide a current time to the mesh when we connect
-            if (
-                interface.localNode.nodeNum in interface.nodesByNum
-                and "position" in interface.nodesByNum[interface.localNode.nodeNum]
-            ):
-                # send the same position the node already knows, just to update time
-                position = interface.nodesByNum[interface.localNode.nodeNum]["position"]
-                interface.sendPosition(
-                    position.get("latitude", 0.0),
-                    position.get("longitude", 0.0),
-                    position.get("altitude", 0.0),
-                )
-            else:
-                interface.sendPosition()
 
-        if args.set_owner:
+        if args.set_owner or args.set_owner_short:
             closeNow = True
             waitForAckNak = True
-            print(f"Setting device owner to {args.set_owner}")
-            interface.getNode(args.dest, False).setOwner(args.set_owner)
-
-        if args.set_owner_short:
-            closeNow = True
-            waitForAckNak = True
-            print(f"Setting device owner short to {args.set_owner_short}")
-            interface.getNode(args.dest, False).setOwner(
-                long_name=None, short_name=args.set_owner_short
-            )
+            if args.set_owner and args.set_owner_short:
+                print(f"Setting device owner to {args.set_owner} and short name to {args.set_owner_short}")
+            elif args.set_owner:
+                print(f"Setting device owner to {args.set_owner}")
+            else: # short name only
+                print(f"Setting device owner short to {args.set_owner_short}")
+            interface.getNode(args.dest, False).setOwner(long_name=args.set_owner, short_name=args.set_owner_short)
 
         # TODO: add to export-config and configure
         if args.set_canned_message:
@@ -778,7 +760,8 @@ def onConnected(interface):
             channelIndex = mt_config.channel_index
             if channelIndex is None:
                 meshtastic.util.our_exit("Warning: Need to specify '--ch-index'.", 1)
-            ch = interface.getNode(args.dest).channels[channelIndex]
+            node = interface.getNode(args.dest)
+            ch = node.channels[channelIndex]
 
             if args.ch_enable or args.ch_disable:
                 print(
@@ -836,7 +819,7 @@ def onConnected(interface):
                 ch.role = channel_pb2.Channel.Role.DISABLED
 
             print(f"Writing modified channels to device")
-            interface.getNode(args.dest).writeChannel(channelIndex)
+            node.writeChannel(channelIndex)
 
         if args.get_canned_message:
             closeNow = True
@@ -1467,6 +1450,10 @@ def initParser():
     group.add_argument("--set-owner", help="Set device owner name", action="store")
 
     group.add_argument(
+        "--set-owner-short", help="Set device owner short name", action="store"
+    )
+
+    group.add_argument(
         "--set-canned-message",
         help="Set the canned messages plugin message (up to 200 characters).",
         action="store",
@@ -1476,10 +1463,6 @@ def initParser():
         "--set-ringtone",
         help="Set the Notification Ringtone (up to 230 characters).",
         action="store",
-    )
-
-    group.add_argument(
-        "--set-owner-short", help="Set device owner short name", action="store"
     )
 
     group.add_argument(
@@ -1587,7 +1570,7 @@ def initParser():
 
     group.add_argument(
         "--no-time",
-        help="Suppress sending the current time to the mesh",
+        help="Deprecated. Retained for backwards compatibility in scripts, but is a no-op.",
         action="store_true",
     )
 

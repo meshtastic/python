@@ -5,7 +5,7 @@ import base64
 import logging
 import time
 
-from typing import Union
+from typing import Optional, Union
 
 from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, mesh_pb2, portnums_pb2
 from meshtastic.util import (
@@ -286,7 +286,7 @@ class Node:
                 return c.index
         return 0
 
-    def setOwner(self, long_name=None, short_name=None, is_licensed=False):
+    def setOwner(self, long_name: Optional[str]=None, short_name: Optional[str]=None, is_licensed: bool=False):
         """Set device owner name"""
         logging.debug(f"in setOwner nodeNum:{self.nodeNum}")
         self.ensureSessionKey()
