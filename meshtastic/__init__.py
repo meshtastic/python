@@ -191,6 +191,16 @@ def _onNodeInfoReceive(iface, asDict):
             iface.nodes[p["id"]] = n
             _receiveInfoUpdate(iface, asDict)
 
+def _onTelemetryReceive(iface, asDict):
+    """Automatically update device metrics on received packets"""
+    logging.debug(f"in _onTelemetryReceive() asDict:{asDict}")
+    deviceMetrics = asDict.get("decoded", {}).get("telemetry", {}).get("deviceMetrics")
+    if "from" in asDict and deviceMetrics is not None:
+        node = iface._getOrCreateByNum(asDict["from"])
+        newMetrics = node.get("deviceMetrics", {})
+        newMetrics.update(deviceMetrics)
+        logging.debug(f"updating metrics for {asDict['from']} to {newMetrics}")
+        node["deviceMetrics"] = newMetrics
 
 def _receiveInfoUpdate(iface, asDict):
     if "from" in asDict:
@@ -221,7 +231,7 @@ protocols = {
     portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage),
     portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
     portnums_pb2.PortNum.TELEMETRY_APP: KnownProtocol(
-        "telemetry", telemetry_pb2.Telemetry
+        "telemetry", telemetry_pb2.Telemetry, _onTelemetryReceive
     ),
     portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol(
         "remotehw", remote_hardware_pb2.HardwareMessage
