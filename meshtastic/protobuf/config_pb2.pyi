@@ -239,7 +239,6 @@ class Config(google.protobuf.message.Message):
 
         ROLE_FIELD_NUMBER: builtins.int
         SERIAL_ENABLED_FIELD_NUMBER: builtins.int
-        DEBUG_LOG_ENABLED_FIELD_NUMBER: builtins.int
         BUTTON_GPIO_FIELD_NUMBER: builtins.int
         BUZZER_GPIO_FIELD_NUMBER: builtins.int
         REBROADCAST_MODE_FIELD_NUMBER: builtins.int
@@ -256,12 +255,6 @@ class Config(google.protobuf.message.Message):
         serial_enabled: builtins.bool
         """
         Disabling this will disable the SerialConsole by not initilizing the StreamAPI
-        Moved to SecurityConfig
-        """
-        debug_log_enabled: builtins.bool
-        """
-        By default we turn off logging as soon as an API client connects (to keep shared serial link quiet).
-        Set this to true to leave the debug log outputting even when API is active.
         Moved to SecurityConfig
         """
         button_gpio: builtins.int
@@ -310,7 +303,6 @@ class Config(google.protobuf.message.Message):
             *,
             role: global___Config.DeviceConfig.Role.ValueType = ...,
             serial_enabled: builtins.bool = ...,
-            debug_log_enabled: builtins.bool = ...,
             button_gpio: builtins.int = ...,
             buzzer_gpio: builtins.int = ...,
             rebroadcast_mode: global___Config.DeviceConfig.RebroadcastMode.ValueType = ...,
@@ -321,7 +313,7 @@ class Config(google.protobuf.message.Message):
             tzdef: builtins.str = ...,
             led_heartbeat_disabled: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["button_gpio", b"button_gpio", "buzzer_gpio", b"buzzer_gpio", "debug_log_enabled", b"debug_log_enabled", "disable_triple_click", b"disable_triple_click", "double_tap_as_button_press", b"double_tap_as_button_press", "is_managed", b"is_managed", "led_heartbeat_disabled", b"led_heartbeat_disabled", "node_info_broadcast_secs", b"node_info_broadcast_secs", "rebroadcast_mode", b"rebroadcast_mode", "role", b"role", "serial_enabled", b"serial_enabled", "tzdef", b"tzdef"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["button_gpio", b"button_gpio", "buzzer_gpio", b"buzzer_gpio", "disable_triple_click", b"disable_triple_click", "double_tap_as_button_press", b"double_tap_as_button_press", "is_managed", b"is_managed", "led_heartbeat_disabled", b"led_heartbeat_disabled", "node_info_broadcast_secs", b"node_info_broadcast_secs", "rebroadcast_mode", b"rebroadcast_mode", "role", b"role", "serial_enabled", b"serial_enabled", "tzdef", b"tzdef"]) -> None: ...
 
     @typing.final
     class PositionConfig(google.protobuf.message.Message):
@@ -1398,6 +1390,7 @@ class Config(google.protobuf.message.Message):
         PA_FAN_DISABLED_FIELD_NUMBER: builtins.int
         IGNORE_INCOMING_FIELD_NUMBER: builtins.int
         IGNORE_MQTT_FIELD_NUMBER: builtins.int
+        CONFIG_OK_TO_MQTT_FIELD_NUMBER: builtins.int
         use_preset: builtins.bool
         """
         When enabled, the `modem_preset` fields will be adhered to, else the `bandwidth`/`spread_factor`/`coding_rate`
@@ -1491,6 +1484,10 @@ class Config(google.protobuf.message.Message):
         """
         If true, the device will not process any packets received via LoRa that passed via MQTT anywhere on the path towards it.
         """
+        config_ok_to_mqtt: builtins.bool
+        """
+        Sets the ok_to_mqtt bit on outgoing packets
+        """
         @property
         def ignore_incoming(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
             """
@@ -1519,8 +1516,9 @@ class Config(google.protobuf.message.Message):
             pa_fan_disabled: builtins.bool = ...,
             ignore_incoming: collections.abc.Iterable[builtins.int] | None = ...,
             ignore_mqtt: builtins.bool = ...,
+            config_ok_to_mqtt: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["bandwidth", b"bandwidth", "channel_num", b"channel_num", "coding_rate", b"coding_rate", "frequency_offset", b"frequency_offset", "hop_limit", b"hop_limit", "ignore_incoming", b"ignore_incoming", "ignore_mqtt", b"ignore_mqtt", "modem_preset", b"modem_preset", "override_duty_cycle", b"override_duty_cycle", "override_frequency", b"override_frequency", "pa_fan_disabled", b"pa_fan_disabled", "region", b"region", "spread_factor", b"spread_factor", "sx126x_rx_boosted_gain", b"sx126x_rx_boosted_gain", "tx_enabled", b"tx_enabled", "tx_power", b"tx_power", "use_preset", b"use_preset"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["bandwidth", b"bandwidth", "channel_num", b"channel_num", "coding_rate", b"coding_rate", "config_ok_to_mqtt", b"config_ok_to_mqtt", "frequency_offset", b"frequency_offset", "hop_limit", b"hop_limit", "ignore_incoming", b"ignore_incoming", "ignore_mqtt", b"ignore_mqtt", "modem_preset", b"modem_preset", "override_duty_cycle", b"override_duty_cycle", "override_frequency", b"override_frequency", "pa_fan_disabled", b"pa_fan_disabled", "region", b"region", "spread_factor", b"spread_factor", "sx126x_rx_boosted_gain", b"sx126x_rx_boosted_gain", "tx_enabled", b"tx_enabled", "tx_power", b"tx_power", "use_preset", b"use_preset"]) -> None: ...
 
     @typing.final
     class BluetoothConfig(google.protobuf.message.Message):
@@ -1562,7 +1560,6 @@ class Config(google.protobuf.message.Message):
         ENABLED_FIELD_NUMBER: builtins.int
         MODE_FIELD_NUMBER: builtins.int
         FIXED_PIN_FIELD_NUMBER: builtins.int
-        DEVICE_LOGGING_ENABLED_FIELD_NUMBER: builtins.int
         enabled: builtins.bool
         """
         Enable Bluetooth on the device
@@ -1575,20 +1572,14 @@ class Config(google.protobuf.message.Message):
         """
         Specified PIN for PairingMode.FixedPin
         """
-        device_logging_enabled: builtins.bool
-        """
-        Enables device (serial style logs) over Bluetooth
-        Moved to SecurityConfig
-        """
         def __init__(
             self,
             *,
             enabled: builtins.bool = ...,
             mode: global___Config.BluetoothConfig.PairingMode.ValueType = ...,
             fixed_pin: builtins.int = ...,
-            device_logging_enabled: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["device_logging_enabled", b"device_logging_enabled", "enabled", b"enabled", "fixed_pin", b"fixed_pin", "mode", b"mode"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["enabled", b"enabled", "fixed_pin", b"fixed_pin", "mode", b"mode"]) -> None: ...
 
     @typing.final
     class SecurityConfig(google.protobuf.message.Message):
@@ -1600,7 +1591,6 @@ class Config(google.protobuf.message.Message):
         IS_MANAGED_FIELD_NUMBER: builtins.int
         SERIAL_ENABLED_FIELD_NUMBER: builtins.int
         DEBUG_LOG_API_ENABLED_FIELD_NUMBER: builtins.int
-        BLUETOOTH_LOGGING_ENABLED_FIELD_NUMBER: builtins.int
         ADMIN_CHANNEL_ENABLED_FIELD_NUMBER: builtins.int
         public_key: builtins.bytes
         """
@@ -1611,10 +1601,6 @@ class Config(google.protobuf.message.Message):
         """
         The private key of the device.
         Used to create a shared key with a remote device.
-        """
-        admin_key: builtins.bytes
-        """
-        The public key authorized to send admin messages to this node.
         """
         is_managed: builtins.bool
         """
@@ -1628,29 +1614,30 @@ class Config(google.protobuf.message.Message):
         debug_log_api_enabled: builtins.bool
         """
         By default we turn off logging as soon as an API client connects (to keep shared serial link quiet).
-        Output live debug logging over serial.
-        """
-        bluetooth_logging_enabled: builtins.bool
-        """
-        Enables device (serial style logs) over Bluetooth
+        Output live debug logging over serial or bluetooth is set to true.
         """
         admin_channel_enabled: builtins.bool
         """
         Allow incoming device control over the insecure legacy admin channel.
         """
+        @property
+        def admin_key(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.bytes]:
+            """
+            The public key authorized to send admin messages to this node.
+            """
+
         def __init__(
             self,
             *,
             public_key: builtins.bytes = ...,
             private_key: builtins.bytes = ...,
-            admin_key: builtins.bytes = ...,
+            admin_key: collections.abc.Iterable[builtins.bytes] | None = ...,
             is_managed: builtins.bool = ...,
             serial_enabled: builtins.bool = ...,
             debug_log_api_enabled: builtins.bool = ...,
-            bluetooth_logging_enabled: builtins.bool = ...,
             admin_channel_enabled: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["admin_channel_enabled", b"admin_channel_enabled", "admin_key", b"admin_key", "bluetooth_logging_enabled", b"bluetooth_logging_enabled", "debug_log_api_enabled", b"debug_log_api_enabled", "is_managed", b"is_managed", "private_key", b"private_key", "public_key", b"public_key", "serial_enabled", b"serial_enabled"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["admin_channel_enabled", b"admin_channel_enabled", "admin_key", b"admin_key", "debug_log_api_enabled", b"debug_log_api_enabled", "is_managed", b"is_managed", "private_key", b"private_key", "public_key", b"public_key", "serial_enabled", b"serial_enabled"]) -> None: ...
 
     @typing.final
     class SessionkeyConfig(google.protobuf.message.Message):

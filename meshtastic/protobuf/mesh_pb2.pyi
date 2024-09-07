@@ -349,6 +349,18 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Minewsemi ME25LS01 (ME25LE01_V1.0). NRF52840 w/ LR1110 radio, buttons and leds and pins.
     """
+    RP2040_FEATHER_RFM95: _HardwareModel.ValueType  # 76
+    """
+    RP2040_FEATHER_RFM95
+    Adafruit Feather RP2040 with RFM95 LoRa Radio RFM95 with SX1272, SSD1306 OLED
+    https://www.adafruit.com/product/5714
+    https://www.adafruit.com/product/326
+    https://www.adafruit.com/product/938
+     ^^^ short A0 to switch to I2C address 0x3C
+    """
+    M5STACK_COREBASIC: _HardwareModel.ValueType  # 77
+    """M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, Paper) https://m5stack.com/"""
+    M5STACK_CORE2: _HardwareModel.ValueType  # 78
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -682,6 +694,18 @@ ME25LS01_4Y10TD: HardwareModel.ValueType  # 75
 """
 Minewsemi ME25LS01 (ME25LE01_V1.0). NRF52840 w/ LR1110 radio, buttons and leds and pins.
 """
+RP2040_FEATHER_RFM95: HardwareModel.ValueType  # 76
+"""
+RP2040_FEATHER_RFM95
+Adafruit Feather RP2040 with RFM95 LoRa Radio RFM95 with SX1272, SSD1306 OLED
+https://www.adafruit.com/product/5714
+https://www.adafruit.com/product/326
+https://www.adafruit.com/product/938
+ ^^^ short A0 to switch to I2C address 0x3C
+"""
+M5STACK_COREBASIC: HardwareModel.ValueType  # 77
+"""M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, Paper) https://m5stack.com/"""
+M5STACK_CORE2: HardwareModel.ValueType  # 78
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
 ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1482,6 +1506,7 @@ class Data(google.protobuf.message.Message):
     REQUEST_ID_FIELD_NUMBER: builtins.int
     REPLY_ID_FIELD_NUMBER: builtins.int
     EMOJI_FIELD_NUMBER: builtins.int
+    BITFIELD_FIELD_NUMBER: builtins.int
     portnum: meshtastic.protobuf.portnums_pb2.PortNum.ValueType
     """
     Formerly named typ and of type Type
@@ -1524,6 +1549,10 @@ class Data(google.protobuf.message.Message):
     Defaults to false. If true, then what is in the payload should be treated as an emoji like giving
     a message a heart or poop emoji.
     """
+    bitfield: builtins.int
+    """
+    Bitfield for extra flags. First use is to indicate that user approves the packet being uploaded to MQTT.
+    """
     def __init__(
         self,
         *,
@@ -1535,8 +1564,11 @@ class Data(google.protobuf.message.Message):
         request_id: builtins.int = ...,
         reply_id: builtins.int = ...,
         emoji: builtins.int = ...,
+        bitfield: builtins.int | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["dest", b"dest", "emoji", b"emoji", "payload", b"payload", "portnum", b"portnum", "reply_id", b"reply_id", "request_id", b"request_id", "source", b"source", "want_response", b"want_response"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_bitfield", b"_bitfield", "bitfield", b"bitfield"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_bitfield", b"_bitfield", "bitfield", b"bitfield", "dest", b"dest", "emoji", b"emoji", "payload", b"payload", "portnum", b"portnum", "reply_id", b"reply_id", "request_id", b"request_id", "source", b"source", "want_response", b"want_response"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_bitfield", b"_bitfield"]) -> typing.Literal["bitfield"] | None: ...
 
 global___Data = Data
 
@@ -1690,6 +1722,15 @@ class MeshPacket(google.protobuf.message.Message):
         If priority is unset but the message is marked as want_ack,
         assume it is important and use a slightly higher priority
         """
+        RESPONSE: MeshPacket._Priority.ValueType  # 80
+        """
+        If priority is unset but the packet is a response to a request, we want it to get there relatively quickly.
+        Furthermore, responses stop relaying packets directed to a node early.
+        """
+        HIGH: MeshPacket._Priority.ValueType  # 100
+        """
+        Higher priority for specific message types (portnums) to distinguish between other reliable packets.
+        """
         ACK: MeshPacket._Priority.ValueType  # 120
         """
         Ack/naks are sent with very high priority to ensure that retransmission
@@ -1743,6 +1784,15 @@ class MeshPacket(google.protobuf.message.Message):
     """
     If priority is unset but the message is marked as want_ack,
     assume it is important and use a slightly higher priority
+    """
+    RESPONSE: MeshPacket.Priority.ValueType  # 80
+    """
+    If priority is unset but the packet is a response to a request, we want it to get there relatively quickly.
+    Furthermore, responses stop relaying packets directed to a node early.
+    """
+    HIGH: MeshPacket.Priority.ValueType  # 100
+    """
+    Higher priority for specific message types (portnums) to distinguish between other reliable packets.
     """
     ACK: MeshPacket.Priority.ValueType  # 120
     """

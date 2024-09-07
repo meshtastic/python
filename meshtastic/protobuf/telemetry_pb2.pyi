@@ -139,6 +139,10 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     MAX17048 1S lipo battery sensor (voltage, state of charge, time to go)
     """
+    CUSTOM_SENSOR: _TelemetrySensorType.ValueType  # 29
+    """
+    Custom I2C sensor implementation based on https://github.com/meshtastic/i2c-sensor
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -260,6 +264,10 @@ ICM-20948 9-Axis digital motion processor
 MAX17048: TelemetrySensorType.ValueType  # 28
 """
 MAX17048 1S lipo battery sensor (voltage, state of charge, time to go)
+"""
+CUSTOM_SENSOR: TelemetrySensorType.ValueType  # 29
+"""
+Custom I2C sensor implementation based on https://github.com/meshtastic/i2c-sensor
 """
 global___TelemetrySensorType = TelemetrySensorType
 
