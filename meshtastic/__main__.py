@@ -233,8 +233,8 @@ def setPref(config, comp_name, valStr) -> bool:
                 print(f"    {temp_name}")
             return False
 
-    # note: 'ignore_incoming' is a repeating field
-    if snake_name != "ignore_incoming":
+    # repeating fields need to be handled with append, not setattr
+    if pref.label != pref.LABEL_REPEATED:
         try:
             if config_type.message_type is not None:
                 config_values = getattr(config_part, config_type.name)
@@ -249,11 +249,11 @@ def setPref(config, comp_name, valStr) -> bool:
         config_values = getattr(config, config_type.name)
         if val == 0:
             # clear values
-            print("Clearing ignore_incoming list")
-            del config_values.ignore_incoming[:]
+            print(f"Clearing {pref.name} list")
+            del getattr(config_values, pref.name)[:]
         else:
-            print(f"Adding '{val}' to the ignore_incoming list")
-            config_values.ignore_incoming.extend([int(valStr)])
+            print(f"Adding '{val}' to the {pref.name} list")
+            getattr(config_values, pref.name).append(val)
 
     prefix = f"{'.'.join(name[0:-1])}." if config_type.message_type is not None else ""
     if mt_config.camel_case:
