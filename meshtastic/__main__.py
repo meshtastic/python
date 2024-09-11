@@ -416,10 +416,11 @@ def onConnected(interface):
             closeNow = True
             interface.getNode(args.dest, False).commitSettingsTransaction()
 
-        if args.factory_reset:
+        if args.factory_reset or args.factory_reset_device:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).factoryReset()
+            full = bool(args.factory_reset_device)
+            interface.getNode(args.dest, False).factoryReset(full=full)
 
         if args.remove_node:
             closeNow = True
@@ -1549,8 +1550,14 @@ def initParser():
     )
 
     group.add_argument(
-        "--factory-reset",
-        help="Tell the destination node to install the default config",
+        "--factory-reset", "--factory-reset-config",
+        help="Tell the destination node to install the default config, preserving BLE bonds & PKI keys",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--factory-reset-device",
+        help="Tell the destination node to install the default config and clear BLE bonds & PKI keys",
         action="store_true",
     )
 

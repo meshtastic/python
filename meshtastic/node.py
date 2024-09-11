@@ -629,12 +629,16 @@ class Node:
         )
         self.iface.waitForAckNak()
 
-    def factoryReset(self):
+    def factoryReset(self, full: bool = False):
         """Tell the node to factory reset."""
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
-        p.factory_reset = True
-        logging.info(f"Telling node to factory reset")
+        if full:
+            p.factory_reset_device = True
+            logging.info(f"Telling node to factory reset (full device reset)")
+        else:
+            p.factory_reset_config = True
+            logging.info(f"Telling node to factory reset (config reset)")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
