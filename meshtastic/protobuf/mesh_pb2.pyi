@@ -332,6 +332,19 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Seeed studio T1000-E tracker card. NRF52840 w/ LR1110 radio, GPS, button, buzzer, and sensors.
     """
+    RAK3172: _HardwareModel.ValueType  # 72
+    """
+    RAK3172 STM32WLE5 Module (https://store.rakwireless.com/products/wisduo-lpwan-module-rak3172)
+    """
+    WIO_E5: _HardwareModel.ValueType  # 73
+    """
+    Seeed Studio Wio-E5 (either mini or Dev kit) using STM32WL chip.
+    """
+    RADIOMASTER_900_BANDIT: _HardwareModel.ValueType  # 74
+    """
+    RadioMaster 900 Bandit, https://www.radiomasterrc.com/products/bandit-expresslrs-rf-module
+    SSD1306 OLED and No GPS
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -647,6 +660,19 @@ Sensecap Indicator from Seeed Studio. ESP32-S3 device with TFT and RP2040 coproc
 TRACKER_T1000_E: HardwareModel.ValueType  # 71
 """
 Seeed studio T1000-E tracker card. NRF52840 w/ LR1110 radio, GPS, button, buzzer, and sensors.
+"""
+RAK3172: HardwareModel.ValueType  # 72
+"""
+RAK3172 STM32WLE5 Module (https://store.rakwireless.com/products/wisduo-lpwan-module-rak3172)
+"""
+WIO_E5: HardwareModel.ValueType  # 73
+"""
+Seeed Studio Wio-E5 (either mini or Dev kit) using STM32WL chip.
+"""
+RADIOMASTER_900_BANDIT: HardwareModel.ValueType  # 74
+"""
+RadioMaster 900 Bandit, https://www.radiomasterrc.com/products/bandit-expresslrs-rf-module
+SSD1306 OLED and No GPS
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """

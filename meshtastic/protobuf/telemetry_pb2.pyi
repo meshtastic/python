@@ -127,6 +127,18 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     NAU7802 Scale Chip or compatible
     """
+    BMP3XX: _TelemetrySensorType.ValueType  # 26
+    """
+    BMP3XX High accuracy temperature and pressure
+    """
+    ICM20948: _TelemetrySensorType.ValueType  # 27
+    """
+    ICM-20948 9-Axis digital motion processor
+    """
+    MAX17048: _TelemetrySensorType.ValueType  # 28
+    """
+    MAX17048 1S lipo battery sensor (voltage, state of charge, time to go)
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -236,6 +248,18 @@ DFRobot Lark Weather station (temperature, humidity, pressure, wind speed and di
 NAU7802: TelemetrySensorType.ValueType  # 25
 """
 NAU7802 Scale Chip or compatible
+"""
+BMP3XX: TelemetrySensorType.ValueType  # 26
+"""
+BMP3XX High accuracy temperature and pressure
+"""
+ICM20948: TelemetrySensorType.ValueType  # 27
+"""
+ICM-20948 9-Axis digital motion processor
+"""
+MAX17048: TelemetrySensorType.ValueType  # 28
+"""
+MAX17048 1S lipo battery sensor (voltage, state of charge, time to go)
 """
 global___TelemetrySensorType = TelemetrySensorType
 
