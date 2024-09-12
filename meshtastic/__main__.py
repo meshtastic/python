@@ -729,9 +729,11 @@ def onConnected(interface):
                     "Warning: Cannot set modem preset for non-primary channel", 1
                 )
             # Overwrite modem_preset
-            prefs = interface.getNode(args.dest).localConfig
-            prefs.lora.modem_preset = modem_preset
-            interface.getNode(args.dest).writeConfig("lora")
+            node = interface.getNode(args.dest, False)
+            if len(node.localConfig.ListFields()) == 0:
+                node.requestConfig(node.localConfig.DESCRIPTOR.fields_by_name.get("lora"))
+            node.localConfig.lora.modem_preset = modem_preset
+            node.writeConfig("lora")
 
         # handle the simple radio set commands
         if args.ch_vlongslow:
