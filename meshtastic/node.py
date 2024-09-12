@@ -98,6 +98,7 @@ class Node:
             print("")
             adminMessage = p["decoded"]["admin"]
             if "getConfigResponse" in adminMessage:
+                oneof = "get_config_response"
                 resp = adminMessage["getConfigResponse"]
                 field = list(resp.keys())[0]
                 config_type = self.localConfig.DESCRIPTOR.fields_by_name.get(
@@ -106,6 +107,7 @@ class Node:
                 if config_type is not None:
                     config_values = getattr(self.localConfig, config_type.name)
             elif "getModuleConfigResponse" in adminMessage:
+                oneof = "get_module_config_response"
                 resp = adminMessage["getModuleConfigResponse"]
                 field = list(resp.keys())[0]
                 config_type = self.moduleConfig.DESCRIPTOR.fields_by_name.get(
@@ -118,8 +120,8 @@ class Node:
                 )
                 return
             if config_values is not None:
-                for key, value in resp[field].items():
-                    setattr(config_values, camel_to_snake(key), value)
+                raw_config = getattr(getattr(adminMessage['raw'], oneof), field)
+                config_values.CopyFrom(raw_config)
                 print(f"{str(camel_to_snake(field))}:\n{str(config_values)}")
 
     def requestConfig(self, configType):
