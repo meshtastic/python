@@ -176,6 +176,22 @@ def test_getNode_not_local_timeout(capsys):
         assert re.match(r"Timed out trying to retrieve channel info, retrying", out)
         assert err == ""
 
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_getNode_not_local_timeout_attempts(capsys):
+    """Test getNode not local, simulate timeout"""
+    iface = MeshInterface(noProto=True)
+    anode = MagicMock(autospec=Node)
+    anode.waitForConfig.return_value = False
+    with patch("meshtastic.node.Node", return_value=anode):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            iface.getNode("bar2", requestChannelAttempts=2)
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert out == 'Timed out trying to retrieve channel info, retrying\nError: Timed out waiting for channels, giving up\n'
+        assert err == ""
+
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
