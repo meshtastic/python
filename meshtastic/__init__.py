@@ -191,6 +191,16 @@ def _onNodeInfoReceive(iface, asDict):
             iface.nodes[p["id"]] = n
             _receiveInfoUpdate(iface, asDict)
 
+def _onTelemetryReceive(iface, asDict):
+    """Automatically update device metrics on received packets"""
+    logging.debug(f"in _onTelemetryReceive() asDict:{asDict}")
+    deviceMetrics = asDict.get("decoded", {}).get("telemetry", {}).get("deviceMetrics")
+    if "from" in asDict and deviceMetrics is not None:
+        node = iface._getOrCreateByNum(asDict["from"])
+        newMetrics = node.get("deviceMetrics", {})
+        newMetrics.update(deviceMetrics)
+        logging.debug(f"updating metrics for {asDict['from']} to {newMetrics}")
+        node["deviceMetrics"] = newMetrics
 
 def _receiveInfoUpdate(iface, asDict):
     if "from" in asDict:
@@ -199,6 +209,12 @@ def _receiveInfoUpdate(iface, asDict):
         iface._getOrCreateByNum(asDict["from"])["snr"] = asDict.get("rxSnr")
         iface._getOrCreateByNum(asDict["from"])["hopLimit"] = asDict.get("hopLimit")
 
+def _onAdminReceive(iface, asDict):
+    """Special auto parsing for received messages"""
+    logging.debug(f"in _onAdminReceive() asDict:{asDict}")
+    if "decoded" in asDict and "from" in asDict and "admin" in asDict["decoded"]:
+        adminMessage = asDict["decoded"]["admin"]["raw"]
+        iface._getOrCreateByNum(asDict["from"])["adminSessionPassKey"] = adminMessage.session_passkey
 
 """Well known message payloads can register decoders for automatic protobuf parsing"""
 protocols = {
@@ -218,10 +234,12 @@ protocols = {
     portnums_pb2.PortNum.NODEINFO_APP: KnownProtocol(
         "user", mesh_pb2.User, _onNodeInfoReceive
     ),
-    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage),
+    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol(
+        "admin", admin_pb2.AdminMessage, _onAdminReceive
+    ),
     portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
     portnums_pb2.PortNum.TELEMETRY_APP: KnownProtocol(
-        "telemetry", telemetry_pb2.Telemetry
+        "telemetry", telemetry_pb2.Telemetry, _onTelemetryReceive
     ),
     portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol(
         "remotehw", remote_hardware_pb2.HardwareMessage

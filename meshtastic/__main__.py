@@ -233,8 +233,8 @@ def setPref(config, comp_name, valStr) -> bool:
                 print(f"    {temp_name}")
             return False
 
-    # note: 'ignore_incoming' is a repeating field
-    if snake_name != "ignore_incoming":
+    # repeating fields need to be handled with append, not setattr
+    if pref.label != pref.LABEL_REPEATED:
         try:
             if config_type.message_type is not None:
                 config_values = getattr(config_part, config_type.name)
@@ -249,11 +249,11 @@ def setPref(config, comp_name, valStr) -> bool:
         config_values = getattr(config, config_type.name)
         if val == 0:
             # clear values
-            print("Clearing ignore_incoming list")
-            del config_values.ignore_incoming[:]
+            print(f"Clearing {pref.name} list")
+            del getattr(config_values, pref.name)[:]
         else:
-            print(f"Adding '{val}' to the ignore_incoming list")
-            config_values.ignore_incoming.extend([int(valStr)])
+            print(f"Adding '{val}' to the {pref.name} list")
+            getattr(config_values, pref.name).append(val)
 
     prefix = f"{'.'.join(name[0:-1])}." if config_type.message_type is not None else ""
     if mt_config.camel_case:
@@ -320,35 +320,17 @@ def onConnected(interface):
             print("Setting device position and enabling fixed position setting")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.localNode.setFixedPosition(lat, lon, alt)
-        elif not args.no_time:
-            # We normally provide a current time to the mesh when we connect
-            if (
-                interface.localNode.nodeNum in interface.nodesByNum
-                and "position" in interface.nodesByNum[interface.localNode.nodeNum]
-            ):
-                # send the same position the node already knows, just to update time
-                position = interface.nodesByNum[interface.localNode.nodeNum]["position"]
-                interface.sendPosition(
-                    position.get("latitude", 0.0),
-                    position.get("longitude", 0.0),
-                    position.get("altitude", 0.0),
-                )
-            else:
-                interface.sendPosition()
 
-        if args.set_owner:
+        if args.set_owner or args.set_owner_short:
             closeNow = True
             waitForAckNak = True
-            print(f"Setting device owner to {args.set_owner}")
-            interface.getNode(args.dest, False, **getNode_kwargs).setOwner(args.set_owner)
-
-        if args.set_owner_short:
-            closeNow = True
-            waitForAckNak = True
-            print(f"Setting device owner short to {args.set_owner_short}")
-            interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
-                long_name=None, short_name=args.set_owner_short
-            )
+            if args.set_owner and args.set_owner_short:
+                print(f"Setting device owner to {args.set_owner} and short name to {args.set_owner_short}")
+            elif args.set_owner:
+                print(f"Setting device owner to {args.set_owner}")
+            else: # short name only
+                print(f"Setting device owner short to {args.set_owner_short}")
+            interface.getNode(args.dest, False, **getNode_kwargs).setOwner(long_name=args.set_owner, short_name=args.set_owner_short)
 
         # TODO: add to export-config and configure
         if args.set_canned_message:
@@ -440,10 +422,12 @@ def onConnected(interface):
             closeNow = True
             interface.getNode(args.dest, False, **getNode_kwargs).commitSettingsTransaction()
 
-        if args.factory_reset:
+        if args.factory_reset or args.factory_reset_device:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False, **getNode_kwargs).factoryReset()
+
+            full = bool(args.factory_reset_device)
+            interface.getNode(args.dest, False, **getNode_kwargs).factoryReset(full=full)
 
         if args.remove_node:
             closeNow = True
@@ -752,9 +736,11 @@ def onConnected(interface):
                     "Warning: Cannot set modem preset for non-primary channel", 1
                 )
             # Overwrite modem_preset
-            prefs = interface.getNode(args.dest, **getNode_kwargs).localConfig
-            prefs.lora.modem_preset = modem_preset
-            interface.getNode(args.dest, **getNode_kwargs).writeConfig("lora")
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
+            if len(node.localConfig.ListFields()) == 0:
+                node.requestConfig(node.localConfig.DESCRIPTOR.fields_by_name.get("lora"))
+            node.localConfig.lora.modem_preset = modem_preset
+            node.writeConfig("lora")
 
         # handle the simple radio set commands
         if args.ch_vlongslow:
@@ -1488,6 +1474,10 @@ def initParser():
     group.add_argument("--set-owner", help="Set device owner name", action="store")
 
     group.add_argument(
+        "--set-owner-short", help="Set device owner short name", action="store"
+    )
+
+    group.add_argument(
         "--set-canned-message",
         help="Set the canned messages plugin message (up to 200 characters).",
         action="store",
@@ -1497,10 +1487,6 @@ def initParser():
         "--set-ringtone",
         help="Set the Notification Ringtone (up to 230 characters).",
         action="store",
-    )
-
-    group.add_argument(
-        "--set-owner-short", help="Set device owner short name", action="store"
     )
 
     group.add_argument(
@@ -1587,8 +1573,14 @@ def initParser():
     )
 
     group.add_argument(
-        "--factory-reset",
-        help="Tell the destination node to install the default config",
+        "--factory-reset", "--factory-reset-config",
+        help="Tell the destination node to install the default config, preserving BLE bonds & PKI keys",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--factory-reset-device",
+        help="Tell the destination node to install the default config and clear BLE bonds & PKI keys",
         action="store_true",
     )
 
@@ -1608,7 +1600,7 @@ def initParser():
 
     group.add_argument(
         "--no-time",
-        help="Suppress sending the current time to the mesh",
+        help="Deprecated. Retained for backwards compatibility in scripts, but is a no-op.",
         action="store_true",
     )
 

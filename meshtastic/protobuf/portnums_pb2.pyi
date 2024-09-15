@@ -154,7 +154,7 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     TRACEROUTE_APP: _PortNum.ValueType  # 70
     """
     Provides a traceroute functionality to show the route a packet towards
-    a certain destination would take on the mesh.
+    a certain destination would take on the mesh. Contains a RouteDiscovery message as payload.
     ENCODING: Protobuf
     """
     NEIGHBORINFO_APP: _PortNum.ValueType  # 71
@@ -339,7 +339,7 @@ ENCODING: Protobuf (?)
 TRACEROUTE_APP: PortNum.ValueType  # 70
 """
 Provides a traceroute functionality to show the route a packet towards
-a certain destination would take on the mesh.
+a certain destination would take on the mesh. Contains a RouteDiscovery message as payload.
 ENCODING: Protobuf
 """
 NEIGHBORINFO_APP: PortNum.ValueType  # 71

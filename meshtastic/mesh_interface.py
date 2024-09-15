@@ -260,6 +260,7 @@ class MeshInterface:  # pylint: disable=R0902
                             "AKA": user.get("shortName", "N/A"),
                             "ID": user["id"],
                             "Hardware": user.get("hwModel", "UNSET"),
+                            "Pubkey": user.get("publicKey", "UNSET"),
                         }
                     )
 
@@ -456,7 +457,6 @@ class MeshInterface:  # pylint: disable=R0902
         latitude: float = 0.0,
         longitude: float = 0.0,
         altitude: int = 0,
-        timeSec: int = 0,
         destinationId: Union[int, str] = BROADCAST_ADDR,
         wantAck: bool = False,
         wantResponse: bool = False,
@@ -467,8 +467,6 @@ class MeshInterface:  # pylint: disable=R0902
 
         Also, the device software will notice this packet and use it to automatically
         set its notion of the local position.
-
-        If timeSec is not specified (recommended), we will use the local machine time.
 
         Returns the sent packet. The id field will be populated in this packet and
         can be used to track future message acks/naks.
@@ -485,11 +483,6 @@ class MeshInterface:  # pylint: disable=R0902
         if altitude != 0:
             p.altitude = int(altitude)
             logging.debug(f"p.altitude:{p.altitude}")
-
-        if timeSec == 0:
-            timeSec = int(time.time())  # returns unix timestamp in seconds
-        p.time = timeSec
-        logging.debug(f"p.time:{p.time}")
 
         if wantResponse:
             onResponse = self.onResponsePosition
@@ -561,17 +554,46 @@ class MeshInterface:  # pylint: disable=R0902
 
     def onResponseTraceRoute(self, p: dict):
         """on response for trace route"""
+        UNK_SNR = -128 # Value representing unknown SNR
+
         routeDiscovery = mesh_pb2.RouteDiscovery()
         routeDiscovery.ParseFromString(p["decoded"]["payload"])
         asDict = google.protobuf.json_format.MessageToDict(routeDiscovery)
 
-        print("Route traced:")
-        routeStr = self._nodeNumToId(p["to"]) or f"{p['to']:08x}"
-        if "route" in asDict:
-            for nodeNum in asDict["route"]:
-                routeStr += " --> " + (self._nodeNumToId(nodeNum) or f"{nodeNum:08x}")
-        routeStr += " --> " + (self._nodeNumToId(p["from"]) or f"{p['from']:08x}")
-        print(routeStr)
+        print("Route traced towards destination:")
+        routeStr = self._nodeNumToId(p["to"], False) or f"{p['to']:08x}" # Start with destination of response
+
+        # SNR list should have one more entry than the route, as the final destination adds its SNR also
+        lenTowards = 0 if "route" not in asDict else len(asDict["route"])
+        snrTowardsValid = "snrTowards" in asDict and len(asDict["snrTowards"]) == lenTowards + 1
+        if lenTowards > 0: # Loop through hops in route and add SNR if available
+            for idx, nodeNum in enumerate(asDict["route"]):
+                routeStr += " --> " + (self._nodeNumToId(nodeNum, False) or f"{nodeNum:08x}") \
+                         + " (" + (str(asDict["snrTowards"][idx] / 4) if snrTowardsValid and asDict["snrTowards"][idx] != UNK_SNR else "?") + "dB)"
+
+        # End with origin of response
+        routeStr += " --> " + (self._nodeNumToId(p["from"], False) or f"{p['from']:08x}") \
+                 + " (" + (str(asDict["snrTowards"][-1] / 4) if snrTowardsValid and asDict["snrTowards"][-1] != UNK_SNR else "?") + "dB)"
+
+        print(routeStr) # Print the route towards destination
+
+        # Only if hopStart is set and there is an SNR entry (for the origin) it's valid, even though route might be empty (direct connection)
+        lenBack = 0 if "routeBack" not in asDict else len(asDict["routeBack"])
+        backValid = "hopStart" in p and "snrBack" in asDict and len(asDict["snrBack"]) == lenBack + 1
+        if backValid:
+            print("Route traced back to us:")
+            routeStr = self._nodeNumToId(p["from"], False) or f"{p['from']:08x}" # Start with origin of response
+
+            if lenBack > 0: # Loop through hops in routeBack and add SNR if available
+                for idx, nodeNum in enumerate(asDict["routeBack"]):
+                    routeStr += " --> " + (self._nodeNumToId(nodeNum, False) or f"{nodeNum:08x}") \
+                             + " (" + (str(asDict["snrBack"][idx] / 4) if asDict["snrBack"][idx] != UNK_SNR else "?") + "dB)"
+
+            # End with destination of response (us)
+            routeStr += " --> " + (self._nodeNumToId(p["to"], False) or f"{p['to']:08x}") \
+                     + " (" + (str(asDict["snrBack"][-1] / 4) if asDict["snrBack"][-1] != UNK_SNR else "?") + "dB)"
+
+            print(routeStr) # Print the route back to us
 
         self._acknowledgment.receivedTraceRoute = True
 
@@ -796,6 +818,13 @@ class MeshInterface:  # pylint: disable=R0902
             return user.get("shortName", None)
         return None
 
+    def getPublicKey(self):
+        """Get Public Key"""
+        user = self.getMyUser()
+        if user is not None:
+            return user.get("publicKey", None)
+        return None
+
     def _waitConnected(self, timeout=30.0):
         """Block until the initial node db download is complete, or timeout
         and raise an exception"""
@@ -816,7 +845,10 @@ class MeshInterface:  # pylint: disable=R0902
                 "Not connected yet, can not generate packet"
             )
         else:
-            self.currentPacketId = (self.currentPacketId + 1) & 0xFFFFFFFF
+            nextPacketId = (self.currentPacketId + 1) & 0xFFFFFFFF
+            nextPacketId = nextPacketId & 0x3FF                           # == (0xFFFFFFFF >> 22), masks upper 22 bits
+            randomPart = (random.randint(0, 0x3FFFFF) << 10) & 0xFFFFFFFF # generate number with 10 zeros at end
+            self.currentPacketId = nextPacketId | randomPart              # combine
             return self.currentPacketId
 
     def _disconnected(self):
@@ -1073,7 +1105,10 @@ class MeshInterface:  # pylint: disable=R0902
                 self.localNode.localConfig.bluetooth.CopyFrom(
                     fromRadio.config.bluetooth
                 )
-
+            elif fromRadio.config.HasField("security"):
+                self.localNode.localConfig.security.CopyFrom(
+                    fromRadio.config.security
+                )
             elif fromRadio.moduleConfig.HasField("mqtt"):
                 self.localNode.moduleConfig.mqtt.CopyFrom(fromRadio.moduleConfig.mqtt)
             elif fromRadio.moduleConfig.HasField("serial"):
@@ -1139,17 +1174,21 @@ class MeshInterface:  # pylint: disable=R0902
             position["longitude"] = float(position["longitudeI"] * Decimal("1e-7"))
         return position
 
-    def _nodeNumToId(self, num: int) -> Optional[str]:
+    def _nodeNumToId(self, num: int, isDest = True) -> Optional[str]:
         """Map a node node number to a node ID
 
         Arguments:
             num {int} -- Node number
+            isDest {bool} -- True if the node number is a destination (to show broadcast address or unknown node)
 
         Returns:
             string -- Node ID
         """
         if num == BROADCAST_NUM:
-            return BROADCAST_ADDR
+            if isDest:
+                return BROADCAST_ADDR
+            else:
+                return "Unknown"
 
         try:
             return self.nodesByNum[num]["user"]["id"]  # type: ignore[index]
@@ -1222,7 +1261,7 @@ class MeshInterface:  # pylint: disable=R0902
 
         # /add fromId and toId fields based on the node ID
         try:
-            asDict["fromId"] = self._nodeNumToId(asDict["from"])
+            asDict["fromId"] = self._nodeNumToId(asDict["from"], False)
         except Exception as ex:
             logging.warning(f"Not populating fromId {ex}")
         try:

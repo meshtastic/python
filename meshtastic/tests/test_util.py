@@ -594,3 +594,59 @@ def test_roundtrip_snake_to_camel_camel_to_snake(a_string):
     value0 = snake_to_camel(a_string=a_string)
     value1 = camel_to_snake(a_string=value0)
     assert a_string == value1, (a_string, value1)
+
+@given(st.text())
+def test_fuzz_camel_to_snake(a_string):
+    """Test that camel_to_snake produces outputs with underscores for multi-word camelcase"""
+    result = camel_to_snake(a_string)
+    assert "_" in result or result == a_string.lower().replace("_", "")
+
+@given(st.text())
+def test_fuzz_snake_to_camel(a_string):
+    """Test that snake_to_camel removes underscores"""
+    result = snake_to_camel(a_string)
+    assert "_" not in result or result == a_string.split("_")[0] + "".join(ele.title() for ele in a_string.split("_")[1:])
+
+@given(st.text())
+def test_fuzz_stripnl(s):
+    """Test that stripnl always takes away newlines"""
+    result = stripnl(s)
+    assert "\n" not in result
+
+@given(st.binary())
+def test_fuzz_pskToString(psk):
+    """Test that pskToString produces sane output for any bytes"""
+    result = pskToString(psk)
+    if len(psk) == 0:
+        assert result == "unencrypted"
+    elif len(psk) == 1:
+        b = psk[0]
+        if b == 0:
+            assert result == "unencrypted"
+        elif b == 1:
+            assert result == "default"
+        else:
+            assert result == f"simple{b - 1}"
+    else:
+        assert result == "secret"
+
+@given(st.text())
+def test_fuzz_fromStr(valstr):
+    """Test that fromStr produces mostly-useful output given any string"""
+    result = fromStr(valstr)
+    if valstr.startswith("0x"):
+        assert isinstance(result, bytes)
+    elif valstr.startswith("base64:"):
+        assert isinstance(result, bytes)
+    elif len(valstr) == 0:
+        assert result == b''
+    elif valstr.lower() in {"t", "true", "yes"}:
+        assert result is True
+    elif valstr.lower() in {"f", "false", "no"}:
+        assert result is False
+    else:
+        try:
+            int(valstr)
+            assert isinstance(result, int)
+        except ValueError:
+            assert isinstance(result, str)
