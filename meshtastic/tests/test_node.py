@@ -842,6 +842,32 @@ def test_requestChannel_localNode(caplog):
             assert re.search(r"Requesting channel 0", caplog.text, re.MULTILINE)
             assert not re.search(r"from remote node", caplog.text, re.MULTILINE)
 
+@pytest.mark.unit
+def test_requestChannels_non_localNode(caplog):
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, "bar", noProto=True)
+        anode.partialChannels = ['0']
+        with caplog.at_level(logging.DEBUG):
+            anode.requestChannels(0)
+            assert re.search(f"Requesting channel 0 info from remote node", caplog.text, re.MULTILINE)
+            assert anode.partialChannels == []
+
+@pytest.mark.unit
+def test_requestChannels_non_localNode_starting_index(caplog):
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, "bar", noProto=True)
+        anode.partialChannels = ['1']
+        with caplog.at_level(logging.DEBUG):
+            anode.requestChannels(3)
+            assert re.search(f"Requesting channel 3 info from remote node", caplog.text, re.MULTILINE)
+            # make sure it hasn't been initialized
+            assert anode.partialChannels == ['1']
 
 # @pytest.mark.unit
 # def test_onResponseRequestCannedMessagePluginMesagePart1(caplog):
