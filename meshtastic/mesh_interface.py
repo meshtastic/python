@@ -315,7 +315,7 @@ class MeshInterface:  # pylint: disable=R0902
         return table
 
     def getNode(
-        self, nodeId: str, requestChannels: bool = True, requestChannelRetries: int = 3, timeout: int = 300
+        self, nodeId: str, requestChannels: bool = True, requestChannelAttempts: int = 3, timeout: int = 300
     ) -> meshtastic.node.Node:
         """Return a node object which contains device settings and channel info"""
         if nodeId in (LOCAL_ADDR, BROADCAST_ADDR):
@@ -326,7 +326,7 @@ class MeshInterface:  # pylint: disable=R0902
             if requestChannels:
                 logging.debug("About to requestChannels")
                 n.requestChannels()
-                retries_left = requestChannelRetries
+                retries_left = requestChannelAttempts
                 last_index: int = 0
                 while retries_left > 0:
                     retries_left -= 1
@@ -334,7 +334,7 @@ class MeshInterface:  # pylint: disable=R0902
                         new_index: int = len(n.partialChannels) if n.partialChannels else 0
                         # each time we get a new channel, reset the counter
                         if new_index != last_index:
-                            retries_left = requestChannelRetries - 1
+                            retries_left = requestChannelAttempts - 1
                         if retries_left <= 0:
                             our_exit(f"Error: Timed out waiting for channels, giving up")
                         print("Timed out trying to retrieve channel info, retrying")
