@@ -844,6 +844,7 @@ def test_requestChannel_localNode(caplog):
 
 @pytest.mark.unit
 def test_requestChannels_non_localNode(caplog):
+    """Test requestChannels() with a starting index of 0"""
     iface = MagicMock(autospec=SerialInterface)
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         mo.localNode.getChannelByName.return_value = None
@@ -857,6 +858,7 @@ def test_requestChannels_non_localNode(caplog):
 
 @pytest.mark.unit
 def test_requestChannels_non_localNode_starting_index(caplog):
+    """Test requestChannels() with a starting index of non-0"""
     iface = MagicMock(autospec=SerialInterface)
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         mo.localNode.getChannelByName.return_value = None
