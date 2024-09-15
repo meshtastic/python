@@ -5,7 +5,7 @@ import base64
 import logging
 import time
 
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, mesh_pb2, portnums_pb2
 from meshtastic.util import (
@@ -33,7 +33,7 @@ class Node:
         self.moduleConfig = localonly_pb2.LocalModuleConfig()
         self.channels = None
         self._timeout = Timeout(maxSecs=timeout)
-        self.partialChannels = None
+        self.partialChannels: Optional[List] = None
         self.noProto = noProto
         self.cannedPluginMessage = None
         self.cannedPluginMessageMessages = None
