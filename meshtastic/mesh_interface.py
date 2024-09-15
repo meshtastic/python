@@ -330,14 +330,14 @@ class MeshInterface:  # pylint: disable=R0902
                 while retries_left > 0:
                     retries_left -= 1
                     if not n.waitForConfig():
-                        new_index: int = len(n.partialChannels)
+                        new_index: int = len(n.partialChannels) if n.partialChannels else 0
                         # each time we get a new channel, reset the counter
                         if new_index != last_index:
                             retries_left = requestChannelRetries - 1
                         if retries_left <= 0:
                             our_exit(f"Error: Timed out waiting for channels, giving up")
                         print("Timed out trying to retrieve channel info, retrying")
-                        n.requestChannels(startingIndex=len(n.partialChannels))
+                        n.requestChannels(startingIndex=new_index)
                         last_index = new_index
                     else:
                         break
