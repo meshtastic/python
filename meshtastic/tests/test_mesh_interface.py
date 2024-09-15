@@ -173,7 +173,7 @@ def test_getNode_not_local_timeout(capsys):
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
-        assert re.match(r"Error: Timed out waiting for channels", out)
+        assert re.match(r"Timed out trying to retrieve channel info, retrying", out)
         assert err == ""
 
 
