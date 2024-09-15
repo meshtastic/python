@@ -275,7 +275,7 @@ def onConnected(interface):
 
         # convenient place to store any keyword args we pass to getNode
         getNode_kwargs = {
-            "requestChannelRetries": args.channel_fetch_attempts,
+            "requestChannelAttempts": args.channel_fetch_attempts,
             "timeout": args.timeout
         }
 
