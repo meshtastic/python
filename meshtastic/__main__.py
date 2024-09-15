@@ -275,8 +275,8 @@ def onConnected(interface):
 
         # convenient place to store any keyword args we pass to getNode
         getNode_kwargs = {
-            "requestChannelRetries": int(args.channel_fetch_retries),
-            "timeout": int(args.timeout)
+            "requestChannelRetries": args.channel_fetch_retries,
+            "timeout": args.timeout
         }
 
         # do not print this line if we are exporting the config
@@ -1433,12 +1433,14 @@ def initParser():
         "--channel-fetch-retries",
         help=("Attempt to retrieve channel settings for --ch-set this many times before giving up."),
         default=3,
+        type=int,
     )
 
     group.add_argument(
         "--timeout",
         help="How long to wait for replies",
-        default=300
+        default=300,
+        type=int,
     )
 
     group.add_argument(
