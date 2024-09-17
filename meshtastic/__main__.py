@@ -1159,7 +1159,7 @@ def common():
                         tcp_hostname, tcp_port = args.host.split(':')
                     else:
                         tcp_hostname = args.host
-                        tcp_port = 4403
+                        tcp_port = meshtastic.tcp_interface.DEFAULT_TCP_PORT
                     client = meshtastic.tcp_interface.TCPInterface(
                         tcp_hostname,
                         portNumber=tcp_port,
