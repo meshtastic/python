@@ -1155,8 +1155,14 @@ def common():
                 )
             elif args.host:
                 try:
+                    if ":" in args.host:
+                        tcp_hostname, tcp_port = args.host.split(':')
+                    else:
+                        tcp_hostname = args.host
+                        tcp_port = 4403
                     client = meshtastic.tcp_interface.TCPInterface(
-                        args.host,
+                        tcp_hostname,
+                        portNumber=tcp_port,
                         debugOut=logfile,
                         noProto=args.noproto,
                         noNodes=args.no_nodes,
