@@ -5,7 +5,7 @@ import base64
 import logging
 import time
 
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, mesh_pb2, portnums_pb2
 from meshtastic.util import (
@@ -25,15 +25,15 @@ class Node:
     Includes methods for localConfig, moduleConfig and channels
     """
 
-    def __init__(self, iface, nodeNum, noProto=False):
+    def __init__(self, iface, nodeNum, noProto=False, timeout: int = 300):
         """Constructor"""
         self.iface = iface
         self.nodeNum = nodeNum
         self.localConfig = localonly_pb2.LocalConfig()
         self.moduleConfig = localonly_pb2.LocalModuleConfig()
         self.channels = None
-        self._timeout = Timeout(maxSecs=300)
-        self.partialChannels = None
+        self._timeout = Timeout(maxSecs=timeout)
+        self.partialChannels: Optional[List] = None
         self.noProto = noProto
         self.cannedPluginMessage = None
         self.cannedPluginMessageMessages = None
@@ -77,13 +77,14 @@ class Node:
         self.channels = channels
         self._fixupChannels()
 
-    def requestChannels(self):
+    def requestChannels(self, startingIndex: int = 0):
         """Send regular MeshPackets to ask channels."""
         logging.debug(f"requestChannels for nodeNum:{self.nodeNum}")
-        self.channels = None
-        self.partialChannels = []  # We keep our channels in a temp array until finished
-
-        self._requestChannel(0)
+        # only initialize if we're starting out fresh
+        if startingIndex == 0:
+            self.channels = None
+            self.partialChannels = []  # We keep our channels in a temp array until finished
+        self._requestChannel(startingIndex)
 
     def onResponseRequestSettings(self, p):
         """Handle the response packets for requesting settings _requestSettings()"""
