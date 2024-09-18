@@ -253,7 +253,9 @@ def setPref(config, comp_name, valStr) -> bool:
             del getattr(config_values, pref.name)[:]
         else:
             print(f"Adding '{val}' to the {pref.name} list")
-            getattr(config_values, pref.name).append(val)
+            cur_vals = [x for x in getattr(config_values, pref.name) if x not in [0, "", b""]]
+            cur_vals.append(val)
+            getattr(config_values, pref.name)[:] = cur_vals
 
     prefix = f"{'.'.join(name[0:-1])}." if config_type.message_type is not None else ""
     if mt_config.camel_case:
