@@ -248,9 +248,15 @@ class TAKPacket(google.protobuf.message.Message):
     STATUS_FIELD_NUMBER: builtins.int
     PLI_FIELD_NUMBER: builtins.int
     CHAT_FIELD_NUMBER: builtins.int
+    DETAIL_FIELD_NUMBER: builtins.int
     is_compressed: builtins.bool
     """
     Are the payloads strings compressed for LoRA transport?
+    """
+    detail: builtins.bytes
+    """
+    Generic CoT detail XML
+    May be compressed / truncated by the sender
     """
     @property
     def contact(self) -> global___Contact:
@@ -291,10 +297,11 @@ class TAKPacket(google.protobuf.message.Message):
         status: global___Status | None = ...,
         pli: global___PLI | None = ...,
         chat: global___GeoChat | None = ...,
+        detail: builtins.bytes = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["chat", b"chat", "contact", b"contact", "group", b"group", "payload_variant", b"payload_variant", "pli", b"pli", "status", b"status"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["chat", b"chat", "contact", b"contact", "group", b"group", "is_compressed", b"is_compressed", "payload_variant", b"payload_variant", "pli", b"pli", "status", b"status"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["pli", "chat"] | None: ...
+    def HasField(self, field_name: typing.Literal["chat", b"chat", "contact", b"contact", "detail", b"detail", "group", b"group", "payload_variant", b"payload_variant", "pli", b"pli", "status", b"status"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["chat", b"chat", "contact", b"contact", "detail", b"detail", "group", b"group", "is_compressed", b"is_compressed", "payload_variant", b"payload_variant", "pli", b"pli", "status", b"status"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["pli", "chat", "detail"] | None: ...
 
 global___TAKPacket = TAKPacket
 

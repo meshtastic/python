@@ -7,6 +7,7 @@ import builtins
 import google.protobuf.descriptor
 import google.protobuf.message
 import meshtastic.protobuf.localonly_pb2
+import meshtastic.protobuf.mesh_pb2
 import typing
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
@@ -25,6 +26,9 @@ class DeviceProfile(google.protobuf.message.Message):
     CHANNEL_URL_FIELD_NUMBER: builtins.int
     CONFIG_FIELD_NUMBER: builtins.int
     MODULE_CONFIG_FIELD_NUMBER: builtins.int
+    FIXED_POSITION_FIELD_NUMBER: builtins.int
+    RINGTONE_FIELD_NUMBER: builtins.int
+    CANNED_MESSAGES_FIELD_NUMBER: builtins.int
     long_name: builtins.str
     """
     Long name for the node
@@ -36,6 +40,14 @@ class DeviceProfile(google.protobuf.message.Message):
     channel_url: builtins.str
     """
     The url of the channels from our node
+    """
+    ringtone: builtins.str
+    """
+    Ringtone for ExternalNotification
+    """
+    canned_messages: builtins.str
+    """
+    Predefined messages for CannedMessage
     """
     @property
     def config(self) -> meshtastic.protobuf.localonly_pb2.LocalConfig:
@@ -49,6 +61,12 @@ class DeviceProfile(google.protobuf.message.Message):
         The ModuleConfig of the node
         """
 
+    @property
+    def fixed_position(self) -> meshtastic.protobuf.mesh_pb2.Position:
+        """
+        Fixed position data
+        """
+
     def __init__(
         self,
         *,
@@ -57,17 +75,26 @@ class DeviceProfile(google.protobuf.message.Message):
         channel_url: builtins.str | None = ...,
         config: meshtastic.protobuf.localonly_pb2.LocalConfig | None = ...,
         module_config: meshtastic.protobuf.localonly_pb2.LocalModuleConfig | None = ...,
+        fixed_position: meshtastic.protobuf.mesh_pb2.Position | None = ...,
+        ringtone: builtins.str | None = ...,
+        canned_messages: builtins.str | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_channel_url", b"_channel_url", "_config", b"_config", "_long_name", b"_long_name", "_module_config", b"_module_config", "_short_name", b"_short_name", "channel_url", b"channel_url", "config", b"config", "long_name", b"long_name", "module_config", b"module_config", "short_name", b"short_name"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_channel_url", b"_channel_url", "_config", b"_config", "_long_name", b"_long_name", "_module_config", b"_module_config", "_short_name", b"_short_name", "channel_url", b"channel_url", "config", b"config", "long_name", b"long_name", "module_config", b"module_config", "short_name", b"short_name"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_canned_messages", b"_canned_messages", "_channel_url", b"_channel_url", "_config", b"_config", "_fixed_position", b"_fixed_position", "_long_name", b"_long_name", "_module_config", b"_module_config", "_ringtone", b"_ringtone", "_short_name", b"_short_name", "canned_messages", b"canned_messages", "channel_url", b"channel_url", "config", b"config", "fixed_position", b"fixed_position", "long_name", b"long_name", "module_config", b"module_config", "ringtone", b"ringtone", "short_name", b"short_name"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_canned_messages", b"_canned_messages", "_channel_url", b"_channel_url", "_config", b"_config", "_fixed_position", b"_fixed_position", "_long_name", b"_long_name", "_module_config", b"_module_config", "_ringtone", b"_ringtone", "_short_name", b"_short_name", "canned_messages", b"canned_messages", "channel_url", b"channel_url", "config", b"config", "fixed_position", b"fixed_position", "long_name", b"long_name", "module_config", b"module_config", "ringtone", b"ringtone", "short_name", b"short_name"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_canned_messages", b"_canned_messages"]) -> typing.Literal["canned_messages"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_channel_url", b"_channel_url"]) -> typing.Literal["channel_url"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_config", b"_config"]) -> typing.Literal["config"] | None: ...
     @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_fixed_position", b"_fixed_position"]) -> typing.Literal["fixed_position"] | None: ...
+    @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_long_name", b"_long_name"]) -> typing.Literal["long_name"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_module_config", b"_module_config"]) -> typing.Literal["module_config"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ringtone", b"_ringtone"]) -> typing.Literal["ringtone"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_short_name", b"_short_name"]) -> typing.Literal["short_name"] | None: ...
 

@@ -1389,6 +1389,14 @@ class Routing(google.protobuf.message.Message):
         """
         The receiving node does not have a Public Key to decode with
         """
+        ADMIN_BAD_SESSION_KEY: Routing._Error.ValueType  # 36
+        """
+        Admin packet otherwise checks out, but uses a bogus or expired session key
+        """
+        ADMIN_PUBLIC_KEY_UNAUTHORIZED: Routing._Error.ValueType  # 37
+        """
+        Admin packet sent using PKC, but not from a public key on the admin key list
+        """
 
     class Error(_Error, metaclass=_ErrorEnumTypeWrapper):
         """
@@ -1453,6 +1461,14 @@ class Routing(google.protobuf.message.Message):
     PKI_UNKNOWN_PUBKEY: Routing.Error.ValueType  # 35
     """
     The receiving node does not have a Public Key to decode with
+    """
+    ADMIN_BAD_SESSION_KEY: Routing.Error.ValueType  # 36
+    """
+    Admin packet otherwise checks out, but uses a bogus or expired session key
+    """
+    ADMIN_PUBLIC_KEY_UNAUTHORIZED: Routing.Error.ValueType  # 37
+    """
+    Admin packet sent using PKC, but not from a public key on the admin key list
     """
 
     ROUTE_REQUEST_FIELD_NUMBER: builtins.int
@@ -2080,11 +2096,12 @@ class NodeInfo(google.protobuf.message.Message):
         device_metrics: meshtastic.protobuf.telemetry_pb2.DeviceMetrics | None = ...,
         channel: builtins.int = ...,
         via_mqtt: builtins.bool = ...,
-        hops_away: builtins.int = ...,
+        hops_away: builtins.int | None = ...,
         is_favorite: builtins.bool = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["device_metrics", b"device_metrics", "position", b"position", "user", b"user"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "last_heard", b"last_heard", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "position", b"position", "user", b"user"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "last_heard", b"last_heard", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_hops_away", b"_hops_away"]) -> typing.Literal["hops_away"] | None: ...
 
 global___NodeInfo = NodeInfo
 
@@ -2695,6 +2712,7 @@ class DeviceMetadata(google.protobuf.message.Message):
     POSITION_FLAGS_FIELD_NUMBER: builtins.int
     HW_MODEL_FIELD_NUMBER: builtins.int
     HASREMOTEHARDWARE_FIELD_NUMBER: builtins.int
+    HASPKC_FIELD_NUMBER: builtins.int
     firmware_version: builtins.str
     """
     Device firmware version string
@@ -2735,6 +2753,10 @@ class DeviceMetadata(google.protobuf.message.Message):
     """
     Has Remote Hardware enabled
     """
+    hasPKC: builtins.bool
+    """
+    Has PKC capabilities
+    """
     def __init__(
         self,
         *,
@@ -2748,8 +2770,9 @@ class DeviceMetadata(google.protobuf.message.Message):
         position_flags: builtins.int = ...,
         hw_model: global___HardwareModel.ValueType = ...,
         hasRemoteHardware: builtins.bool = ...,
+        hasPKC: builtins.bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["canShutdown", b"canShutdown", "device_state_version", b"device_state_version", "firmware_version", b"firmware_version", "hasBluetooth", b"hasBluetooth", "hasEthernet", b"hasEthernet", "hasRemoteHardware", b"hasRemoteHardware", "hasWifi", b"hasWifi", "hw_model", b"hw_model", "position_flags", b"position_flags", "role", b"role"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["canShutdown", b"canShutdown", "device_state_version", b"device_state_version", "firmware_version", b"firmware_version", "hasBluetooth", b"hasBluetooth", "hasEthernet", b"hasEthernet", "hasPKC", b"hasPKC", "hasRemoteHardware", b"hasRemoteHardware", "hasWifi", b"hasWifi", "hw_model", b"hw_model", "position_flags", b"position_flags", "role", b"role"]) -> None: ...
 
 global___DeviceMetadata = DeviceMetadata
 
