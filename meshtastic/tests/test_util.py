@@ -649,7 +649,11 @@ def test_fuzz_fromStr(valstr):
             int(valstr)
             assert isinstance(result, int)
         except ValueError:
-            assert isinstance(result, str)
+            try:
+                float(valstr)
+                assert isinstance(result, float)
+            except ValueError:
+                assert isinstance(result, str)
 
 def test_shorthex():
     """Test the shortest hex string representations"""
