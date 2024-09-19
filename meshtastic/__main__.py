@@ -286,19 +286,14 @@ def onConnected(interface):
             print("Connected to radio")
 
         if args.remove_position:
-            if args.dest != BROADCAST_ADDR:
-                print("Setting positions of remote nodes is not supported.")
-                return
             closeNow = True
+            waitForAckNak = True
+
             print("Removing fixed position and disabling fixed position setting")
-            interface.localNode.removeFixedPosition()
+            interface.getNode(args.dest, False, **getNode_kwargs).removeFixedPosition()
         elif args.setlat or args.setlon or args.setalt:
-            if args.dest != BROADCAST_ADDR:
-                print(
-                    "Setting latitude, longitude, and altitude of remote nodes is not supported."
-                )
-                return
             closeNow = True
+            waitForAckNak = True
 
             alt = 0
             lat = 0
@@ -321,7 +316,7 @@ def onConnected(interface):
 
             print("Setting device position and enabling fixed position setting")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
-            interface.localNode.setFixedPosition(lat, lon, alt)
+            interface.getNode(args.dest, False, **getNode_kwargs).setFixedPosition(lat, lon, alt)
 
         if args.set_owner or args.set_owner_short:
             closeNow = True

@@ -685,9 +685,6 @@ class Node:
     def setFixedPosition(self, lat: Union[int, float], lon: Union[int, float], alt: int):
         """Tell the node to set fixed position to the provided value and enable the fixed position setting"""
         self.ensureSessionKey()
-        if self != self.iface.localNode:
-            logging.error("Setting position of remote nodes is not supported.")
-            return None
 
         p = mesh_pb2.Position()
         if isinstance(lat, float) and lat != 0.0:
@@ -705,7 +702,12 @@ class Node:
 
         a = admin_pb2.AdminMessage()
         a.set_fixed_position.CopyFrom(p)
-        return self._sendAdmin(a)
+
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(a, onResponse=onResponse)
 
     def removeFixedPosition(self):
         """Tell the node to remove the fixed position and set the fixed position setting to false"""
@@ -714,7 +716,11 @@ class Node:
         p.remove_fixed_position = True
         logging.info(f"Telling node to remove fixed position")
 
-        return self._sendAdmin(p)
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
 
     def _fixupChannels(self):
         """Fixup indexes and add disabled channels as needed"""
