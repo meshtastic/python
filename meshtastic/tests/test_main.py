@@ -726,8 +726,8 @@ def test_main_sendtext_with_dest(mock_findPorts, mock_serial, mocked_open, mock_
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-def test_main_removeposition_invalid(capsys):
-    """Test --remove-position with an invalid dest"""
+def test_main_removeposition_remote(capsys):
+    """Test --remove-position with a remote dest"""
     sys.argv = ["", "--remove-position", "--dest", "!12345678"]
     mt_config.args = sys.argv
     iface = MagicMock(autospec=SerialInterface)
@@ -735,14 +735,15 @@ def test_main_removeposition_invalid(capsys):
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"remote nodes is not supported", out, re.MULTILINE)
+        assert re.search(r"Removing fixed position and disabling fixed position setting", out, re.MULTILINE)
+        assert re.search(r"Waiting for an acknowledgment from remote node", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-def test_main_setlat_invalid(capsys):
-    """Test --setlat with an invalid dest"""
+def test_main_setlat_remote(capsys):
+    """Test --setlat with a remote dest"""
     sys.argv = ["", "--setlat", "37.5", "--dest", "!12345678"]
     mt_config.args = sys.argv
     iface = MagicMock(autospec=SerialInterface)
@@ -750,7 +751,8 @@ def test_main_setlat_invalid(capsys):
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"remote nodes is not supported", out, re.MULTILINE)
+        assert re.search(r"Setting device position and enabling fixed position setting", out, re.MULTILINE)
+        assert re.search(r"Waiting for an acknowledgment from remote node", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
@@ -769,7 +771,7 @@ def test_main_removeposition(capsys):
     mocked_node.removeFixedPosition.side_effect = mock_removeFixedPosition
 
     iface = MagicMock(autospec=SerialInterface)
-    iface.localNode = mocked_node
+    iface.getNode.return_value = mocked_node
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         main()
@@ -796,7 +798,7 @@ def test_main_setlat(capsys):
     mocked_node.setFixedPosition.side_effect = mock_setFixedPosition
 
     iface = MagicMock(autospec=SerialInterface)
-    iface.localNode = mocked_node
+    iface.getNode.return_value = mocked_node
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         main()
@@ -825,7 +827,7 @@ def test_main_setlon(capsys):
     mocked_node.setFixedPosition.side_effect = mock_setFixedPosition
 
     iface = MagicMock(autospec=SerialInterface)
-    iface.localNode = mocked_node
+    iface.getNode.return_value = mocked_node
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         main()
@@ -854,7 +856,7 @@ def test_main_setalt(capsys):
     mocked_node.setFixedPosition.side_effect = mock_setFixedPosition
 
     iface = MagicMock(autospec=SerialInterface)
-    iface.localNode = mocked_node
+    iface.getNode.return_value = mocked_node
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         main()
