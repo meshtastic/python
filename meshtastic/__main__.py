@@ -285,6 +285,9 @@ def onConnected(interface):
         if not args.export_config:
             print("Connected to radio")
 
+        if args.set_time is not None:
+            interface.getNode(args.dest, False, **getNode_kwargs).setTime(args.set_time)
+
         if args.remove_position:
             closeNow = True
             waitForAckNak = True
@@ -1595,6 +1598,16 @@ def initParser():
         "--reset-nodedb",
         help="Tell the destination node to clear its list of nodes",
         action="store_true",
+    )
+
+    group.add_argument(
+        "--set-time",
+        help="Set the time to the provided unix epoch timestamp, or the system's current time if omitted or 0.",
+        action="store",
+        type=int,
+        nargs="?",
+        default=None,
+        const=0,
     )
 
     group.add_argument(
