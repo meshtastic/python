@@ -722,6 +722,21 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
+    def setTime(self, timeSec: int = 0):
+        """Tell the node to set its time to the provided timestamp, or the system's current time if not provided or 0."""
+        self.ensureSessionKey()
+        if timeSec == 0:
+            timeSec = int(time.time())
+        p = admin_pb2.AdminMessage()
+        p.set_time_only = timeSec
+        logging.info(f"Setting node time to {timeSec}")
+
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
     def _fixupChannels(self):
         """Fixup indexes and add disabled channels as needed"""
 
