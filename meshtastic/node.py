@@ -894,6 +894,7 @@ class Node:
                 wantResponse=wantResponse,
                 onResponse=onResponse,
                 channelIndex=adminIndex,
+                pkiEncrypted=True,
             )
 
     def ensureSessionKey(self):
