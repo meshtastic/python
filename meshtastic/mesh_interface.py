@@ -394,7 +394,9 @@ class MeshInterface:  # pylint: disable=R0902
         onResponseAckPermitted: bool=False,
         channelIndex: int=0,
         hopLimit: Optional[int]=None,
-    ):
+        pkiEncrypted: Optional[bool]=False,
+        publicKey: Optional[bytes]=None,
+    ): # pylint: disable=R0913
         """Send a data packet to some other node
 
         Keyword Arguments:
@@ -449,7 +451,7 @@ class MeshInterface:  # pylint: disable=R0902
         if onResponse is not None:
             logging.debug(f"Setting a response handler for requestId {meshPacket.id}")
             self._addResponseHandler(meshPacket.id, onResponse, ackPermitted=onResponseAckPermitted)
-        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit)
+        p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit, pkiEncrypted=pkiEncrypted, publicKey=publicKey)
         return p
 
     def sendPosition(
@@ -689,7 +691,9 @@ class MeshInterface:  # pylint: disable=R0902
         meshPacket: mesh_pb2.MeshPacket,
         destinationId: Union[int,str]=BROADCAST_ADDR,
         wantAck: bool=False,
-        hopLimit: Optional[int]=None
+        hopLimit: Optional[int]=None,
+        pkiEncrypted: Optional[bool]=False,
+        publicKey: Optional[bytes]=None,
     ):
         """Send a MeshPacket to the specified node (or if unspecified, broadcast).
         You probably don't want this - use sendData instead.
@@ -737,6 +741,12 @@ class MeshInterface:  # pylint: disable=R0902
         else:
             loraConfig = getattr(self.localNode.localConfig, "lora")
             meshPacket.hop_limit = getattr(loraConfig, "hop_limit")
+
+        if pkiEncrypted:
+            meshPacket.pki_encrypted = True
+
+        if publicKey is not None:
+            meshPacket.public_key = publicKey
 
         # if the user hasn't set an ID for this packet (likely and recommended),
         # we should pick a new unique ID so the message can be tracked.
