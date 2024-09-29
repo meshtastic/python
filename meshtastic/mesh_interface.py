@@ -396,7 +396,7 @@ class MeshInterface:  # pylint: disable=R0902
         hopLimit: Optional[int]=None,
         pkiEncrypted: Optional[bool]=False,
         publicKey: Optional[bytes]=None,
-    ):
+    ): # pylint: disable=R0913
         """Send a data packet to some other node
 
         Keyword Arguments:
