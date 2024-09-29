@@ -129,6 +129,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Heltec HRU-3601: https://heltec.org/project/hru-3601/
     """
+    HELTEC_WIRELESS_BRIDGE: _HardwareModel.ValueType  # 24
+    """
+    Heltec Wireless Bridge
+    """
     STATION_G1: _HardwareModel.ValueType  # 25
     """
     B&Q Consulting Station Edition G1: https://uniteng.com/wiki/doku.php?id=meshtastic:station
@@ -201,7 +205,7 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     M5STACK: _HardwareModel.ValueType  # 42
     """
-    M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, Paper) https://m5stack.com/
+    M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, CoreS3, Paper) https://m5stack.com/
     """
     HELTEC_V3: _HardwareModel.ValueType  # 43
     """
@@ -359,8 +363,12 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
      ^^^ short A0 to switch to I2C address 0x3C
     """
     M5STACK_COREBASIC: _HardwareModel.ValueType  # 77
-    """M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, Paper) https://m5stack.com/"""
+    """M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, CoreS3, Paper) https://m5stack.com/"""
     M5STACK_CORE2: _HardwareModel.ValueType  # 78
+    RPI_PICO2: _HardwareModel.ValueType  # 79
+    """Pico2 with Waveshare Hat, same as Pico"""
+    M5STACK_CORES3: _HardwareModel.ValueType  # 80
+    """M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, CoreS3, Paper) https://m5stack.com/"""
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -474,6 +482,10 @@ HELTEC_HRU_3601: HardwareModel.ValueType  # 23
 """
 Heltec HRU-3601: https://heltec.org/project/hru-3601/
 """
+HELTEC_WIRELESS_BRIDGE: HardwareModel.ValueType  # 24
+"""
+Heltec Wireless Bridge
+"""
 STATION_G1: HardwareModel.ValueType  # 25
 """
 B&Q Consulting Station Edition G1: https://uniteng.com/wiki/doku.php?id=meshtastic:station
@@ -546,7 +558,7 @@ Custom Disaster Radio esp32 v3 device https://github.com/sudomesh/disaster-radio
 """
 M5STACK: HardwareModel.ValueType  # 42
 """
-M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, Paper) https://m5stack.com/
+M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, CoreS3, Paper) https://m5stack.com/
 """
 HELTEC_V3: HardwareModel.ValueType  # 43
 """
@@ -704,8 +716,12 @@ https://www.adafruit.com/product/938
  ^^^ short A0 to switch to I2C address 0x3C
 """
 M5STACK_COREBASIC: HardwareModel.ValueType  # 77
-"""M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, Paper) https://m5stack.com/"""
+"""M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, CoreS3, Paper) https://m5stack.com/"""
 M5STACK_CORE2: HardwareModel.ValueType  # 78
+RPI_PICO2: HardwareModel.ValueType  # 79
+"""Pico2 with Waveshare Hat, same as Pico"""
+M5STACK_CORES3: HardwareModel.ValueType  # 80
+"""M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, CoreS3, Paper) https://m5stack.com/"""
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
 ------------------------------------------------------------------------------------------------------------------------------------------
