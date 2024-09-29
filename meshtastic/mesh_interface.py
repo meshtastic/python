@@ -140,13 +140,13 @@ class MeshInterface:  # pylint: disable=R0902
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, trace):
         if exc_type is not None and exc_value is not None:
             logging.error(
                 f"An exception of type {exc_type} with value {exc_value} has occurred"
             )
-        if traceback is not None:
-            logging.error(f"Traceback: {traceback}")
+        if trace is not None:
+            logging.error(f"Traceback: {trace}")
         self.close()
 
     @staticmethod
