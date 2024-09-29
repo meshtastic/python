@@ -8,6 +8,7 @@ import random
 import sys
 import threading
 import time
+import traceback
 from datetime import datetime
 from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional, Union
@@ -1023,10 +1024,17 @@ class MeshInterface:  # pylint: disable=R0902
 
         Called by subclasses."""
         fromRadio = mesh_pb2.FromRadio()
-        fromRadio.ParseFromString(fromRadioBytes)
         logging.debug(
             f"in mesh_interface.py _handleFromRadio() fromRadioBytes: {fromRadioBytes}"
         )
+        try:
+            fromRadio.ParseFromString(fromRadioBytes)
+        except Exception as ex:
+            logging.error(
+                    f"Error while parsing FromRadio bytes:{fromRadioBytes} {ex}"
+            )
+            traceback.print_exc()
+            raise ex
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
         logging.debug(f"Received from radio: {fromRadio}")
         if fromRadio.HasField("my_info"):
