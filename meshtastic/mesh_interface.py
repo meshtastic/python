@@ -914,6 +914,8 @@ class MeshInterface:  # pylint: disable=R0902
         startConfig = mesh_pb2.ToRadio()
         if self.configId is None or not self.noNodes:
             self.configId = random.randint(0, 0xFFFFFFFF)
+            if self.configId == NODELESS_WANT_CONFIG_ID:
+                self.configId = self.configId + 1
         startConfig.want_config_id = self.configId
         self._sendToRadio(startConfig)
 
