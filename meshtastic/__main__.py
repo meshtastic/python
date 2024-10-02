@@ -1228,7 +1228,7 @@ def common():
 
 
 def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
-    """Add connection specifiation arguments"""
+    """Add connection specification arguments"""
 
     outer = parser.add_argument_group(
         "Connection",
@@ -1264,96 +1264,61 @@ def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
         const="any",
     )
 
+    outer.add_argument(
+        "--ble-scan",
+        help="Scan for Meshtastic BLE devices that may be available to connect to",
+        action="store_true",
+    )
+
     return parser
 
-
-def initParser():
-    """Initialize the command line argument parsing."""
-    parser = mt_config.parser
-    args = mt_config.args
-
-    # The "Help" group includes the help option and other informational stuff about the CLI itself
-    outerHelpGroup = parser.add_argument_group("Help")
-    helpGroup = outerHelpGroup.add_mutually_exclusive_group()
-    helpGroup.add_argument(
-        "-h", "--help", action="help", help="show this help message and exit"
+def addSelectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add node/channel specification arguments"""
+    group = parser.add_argument_group(
+        "Selection",
+        "Arguments that select channels to use, destination nodes, etc."
     )
 
-    the_version = get_active_version()
-    helpGroup.add_argument("--version", action="version", version=f"{the_version}")
-
-    helpGroup.add_argument(
-        "--support",
-        action="store_true",
-        help="Show support info (useful when troubleshooting an issue)",
+    group.add_argument(
+        "--dest",
+        help="The destination node id for any sent commands, if not set '^all' or '^local' is assumed as appropriate",
+        default=None,
+        metavar="!xxxxxxxx",
     )
 
-    # Connection arguments to indicate a device to connect to
-    parser = addConnectionArgs(parser)
+    group.add_argument(
+        "--ch-index",
+        help="Set the specified channel index for channel-specific commands. Channels start at 0 (0 is the PRIMARY channel).",
+        action="store",
+    )
 
-    # Arguments concerning viewing and setting configuration
+    return parser
 
-    # Arguments for sending or requesting things from the local device
+def addImportExportArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add import/export config arguments"""
+    group = parser.add_argument_group(
+        "Import/Export",
+        "Arguments that concern importing and exporting configuration of Meshtastic devices",
+    )
 
-    # Arguments for sending or requesting things from the mesh
-
-    # All the rest of the arguments
-    group = parser.add_argument_group("optional arguments")
     group.add_argument(
         "--configure",
         help="Specify a path to a yaml(.yml) file containing the desired settings for the connected device.",
         action="append",
     )
-
     group.add_argument(
         "--export-config",
         help="Export the configuration in yaml(.yml) format.",
         action="store_true",
     )
+    return parser
 
-    group.add_argument(
-        "--seriallog",
-        help="Log device serial output to either 'none' or a filename to append to.  Defaults to 'stdout' if no filename specified.",
-        nargs="?",
-        const="stdout",
-        default=None,
-    )
+def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments to do with configuring a device"""
 
-    group.add_argument(
-        "--info",
-        help="Read and display the radio config information",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--get-canned-message",
-        help="Show the canned message plugin message",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--get-ringtone", help="Show the stored ringtone", action="store_true"
-    )
-
-    group.add_argument(
-        "--nodes",
-        help="Print Node List in a pretty formatted table",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--qr",
-        help=(
-            "Display a QR code for the node's primary channel (or all channels with --qr-all). "
-            "Also shows the shareable channel URL."
-        ),
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--qr-all",
-        help="Display a QR code and URL for all of the node's channels.",
-        action="store_true",
+    group = parser.add_argument_group(
+        "Configuration",
+        "Arguments that concern general configuration of Meshtastic devices",
     )
 
     group.add_argument(
@@ -1373,12 +1338,102 @@ def initParser():
         action="append",
     )
 
-    group.add_argument("--seturl", help="Set a channel URL", action="store")
+    group.add_argument(
+        "--begin-edit",
+        help="Tell the node to open a transaction to edit settings",
+        action="store_true",
+    )
 
     group.add_argument(
-        "--ch-index",
-        help="Set the specified channel index. Channels start at 0 (0 is the PRIMARY channel).",
+        "--commit-edit",
+        help="Tell the node to commit open settings transaction",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--get-canned-message",
+        help="Show the canned message plugin message",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--set-canned-message",
+        help="Set the canned messages plugin message (up to 200 characters).",
         action="store",
+    )
+
+    group.add_argument(
+        "--get-ringtone", help="Show the stored ringtone", action="store_true"
+    )
+
+    group.add_argument(
+        "--set-ringtone",
+        help="Set the Notification Ringtone (up to 230 characters).",
+        action="store",
+    )
+
+    group.add_argument(
+        "--ch-vlongslow",
+        help="Change to the very long-range and slow modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-longslow",
+        help="Change to the long-range and slow modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-longfast",
+        help="Change to the long-range and fast modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-medslow",
+        help="Change to the med-range and slow modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-medfast",
+        help="Change to the med-range and fast modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-shortslow",
+        help="Change to the short-range and slow modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-shortfast",
+        help="Change to the short-range and fast modem preset",
+        action="store_true",
+    )
+
+    group.add_argument("--set-owner", help="Set device owner name", action="store")
+
+    group.add_argument(
+        "--set-owner-short", help="Set device owner short name", action="store"
+    )
+
+    group.add_argument(
+        "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store"
+    )
+
+    group.add_argument("--seturl", help="Set a channel URL", action="store")
+
+    return parser
+
+def addChannelConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments to do with configuring channels"""
+
+    group = parser.add_argument_group(
+        "Channel Configuration",
+        "Arguments that concern configuration of channels",
     )
 
     group.add_argument(
@@ -1389,23 +1444,6 @@ def initParser():
 
     group.add_argument(
         "--ch-del", help="Delete the ch-index channel", action="store_true"
-    )
-
-    group.add_argument(
-        "--ch-enable",
-        help="Enable the specified channel",
-        action="store_true",
-        dest="ch_enable",
-        default=False,
-    )
-
-    # Note: We are doing a double negative here (Do we want to disable? If ch_disable==True, then disable.)
-    group.add_argument(
-        "--ch-disable",
-        help="Disable the specified channel",
-        action="store_true",
-        dest="ch_disable",
-        default=False,
     )
 
     group.add_argument(
@@ -1423,210 +1461,52 @@ def initParser():
 
     group.add_argument(
         "--channel-fetch-attempts",
-        help=("Attempt to retrieve channel settings for --ch-set this many times before giving up."),
+        help=("Attempt to retrieve channel settings for --ch-set this many times before giving up. Default %(default)s."),
         default=3,
         type=int,
     )
 
     group.add_argument(
-        "--timeout",
-        help="How long to wait for replies",
-        default=300,
-        type=int,
-    )
-
-    group.add_argument(
-        "--ch-vlongslow",
-        help="Change to the very long-range and slow channel",
+        "--qr",
+        help=(
+            "Display a QR code for the node's primary channel (or all channels with --qr-all). "
+            "Also shows the shareable channel URL."
+        ),
         action="store_true",
     )
 
     group.add_argument(
-        "--ch-longslow",
-        help="Change to the long-range and slow channel",
+        "--qr-all",
+        help="Display a QR code and URL for all of the node's channels.",
         action="store_true",
     )
 
     group.add_argument(
-        "--ch-longfast",
-        help="Change to the long-range and fast channel",
+        "--ch-enable",
+        help="Enable the specified channel. Use --ch-add instead whenever possible.",
         action="store_true",
+        dest="ch_enable",
+        default=False,
     )
 
+    # Note: We are doing a double negative here (Do we want to disable? If ch_disable==True, then disable.)
     group.add_argument(
-        "--ch-medslow",
-        help="Change to the med-range and slow channel",
+        "--ch-disable",
+        help="Disable the specified channel Use --ch-del instead whenever possible.",
         action="store_true",
+        dest="ch_disable",
+        default=False,
     )
 
-    group.add_argument(
-        "--ch-medfast",
-        help="Change to the med-range and fast channel",
-        action="store_true",
-    )
+    return parser
 
-    group.add_argument(
-        "--ch-shortslow",
-        help="Change to the short-range and slow channel",
-        action="store_true",
-    )
+def addPositionConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments to do with fixed positions and position config"""
 
-    group.add_argument(
-        "--ch-shortfast",
-        help="Change to the short-range and fast channel",
-        action="store_true",
+    group = parser.add_argument_group(
+        "Position Configuration",
+        "Arguments that modify fixed position and other position-related configuration.",
     )
-
-    group.add_argument("--set-owner", help="Set device owner name", action="store")
-
-    group.add_argument(
-        "--set-owner-short", help="Set device owner short name", action="store"
-    )
-
-    group.add_argument(
-        "--set-canned-message",
-        help="Set the canned messages plugin message (up to 200 characters).",
-        action="store",
-    )
-
-    group.add_argument(
-        "--set-ringtone",
-        help="Set the Notification Ringtone (up to 230 characters).",
-        action="store",
-    )
-
-    group.add_argument(
-        "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store"
-    )
-
-    group.add_argument(
-        "--dest",
-        help="The destination node id for any sent commands, if not set '^all' or '^local' is assumed as appropriate",
-        default=None,
-    )
-
-    group.add_argument(
-        "--sendtext",
-        help="Send a text message. Can specify a destination '--dest' and/or channel index '--ch-index'.",
-    )
-
-    group.add_argument(
-        "--traceroute",
-        help="Traceroute from connected node to a destination. "
-        "You need pass the destination ID as argument, like "
-        "this: '--traceroute !ba4bf9d0' "
-        "Only nodes that have the encryption key can be traced.",
-    )
-
-    group.add_argument(
-        "--request-telemetry",
-        help="Request telemetry from a node. "
-        "You need to pass the destination ID as argument with '--dest'. "
-        "For repeaters, the nodeNum is required.",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--request-position",
-        help="Request the position from a node. "
-        "You need to pass the destination ID as an argument with '--dest'. "
-        "For repeaters, the nodeNum is required.",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--ack",
-        help="Use in combination with --sendtext to wait for an acknowledgment.",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--reboot", help="Tell the destination node to reboot", action="store_true"
-    )
-
-    group.add_argument(
-        "--reboot-ota",
-        help="Tell the destination node to reboot into factory firmware (ESP32)",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--enter-dfu",
-        help="Tell the destination node to enter DFU mode (NRF52)",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--shutdown", help="Tell the destination node to shutdown", action="store_true"
-    )
-
-    group.add_argument(
-        "--device-metadata",
-        help="Get the device metadata from the node",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--begin-edit",
-        help="Tell the node to open a transaction to edit settings",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--commit-edit",
-        help="Tell the node to commit open settings transaction",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--factory-reset", "--factory-reset-config",
-        help="Tell the destination node to install the default config, preserving BLE bonds & PKI keys",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--factory-reset-device",
-        help="Tell the destination node to install the default config and clear BLE bonds & PKI keys",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--remove-node",
-        help="Tell the destination node to remove a specific node from its DB, by node number or ID",
-    )
-    group.add_argument(
-        "--reset-nodedb",
-        help="Tell the destination node to clear its list of nodes",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--set-time",
-        help="Set the time to the provided unix epoch timestamp, or the system's current time if omitted or 0.",
-        action="store",
-        type=int,
-        nargs="?",
-        default=None,
-        const=0,
-    )
-
-    group.add_argument(
-        "--reply", help="Reply to received messages", action="store_true"
-    )
-
-    group.add_argument(
-        "--no-time",
-        help="Deprecated. Retained for backwards compatibility in scripts, but is a no-op.",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--no-nodes",
-        help="Request that the node not send node info to the client. "
-        "Will break things that depend on the nodedb, but will speed up startup. Requires 2.3.11+ firmware.",
-        action="store_true",
-    )
-
     group.add_argument(
         "--setalt",
         help="Set device altitude in meters (allows use without GPS), and enable fixed position. "
@@ -1659,6 +1539,215 @@ def initParser():
         nargs="*",
         action="store",
     )
+    return parser
+
+def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments concerning local-only information & actions"""
+    group = parser.add_argument_group(
+        "Local Actions",
+        "Arguments that take actions or request information from the local node only.",
+    )
+
+    group.add_argument(
+        "--info",
+        help="Read and display the radio config information",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--nodes",
+        help="Print Node List in a pretty formatted table",
+        action="store_true",
+    )
+
+    return parser
+
+def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments concerning information & actions that may interact with the mesh"""
+    group = parser.add_argument_group(
+        "Remote Actions",
+        "Arguments that take actions or request information from either the local node or remote nodes via the mesh.",
+    )
+
+    group.add_argument(
+        "--sendtext",
+        help="Send a text message. Can specify a destination '--dest' and/or channel index '--ch-index'.",
+    )
+
+    group.add_argument(
+        "--traceroute",
+        help="Traceroute from connected node to a destination. "
+        "You need pass the destination ID as argument, like "
+        "this: '--traceroute !ba4bf9d0' "
+        "Only nodes that have the encryption key can be traced.",
+    )
+
+    group.add_argument(
+        "--request-telemetry",
+        help="Request telemetry from a node. "
+        "You need to pass the destination ID as argument with '--dest'. "
+        "For repeaters, the nodeNum is required.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--request-position",
+        help="Request the position from a node. "
+        "You need to pass the destination ID as an argument with '--dest'. "
+        "For repeaters, the nodeNum is required.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--reply", help="Reply to received messages", action="store_true"
+    )
+
+    return parser
+
+def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments concerning admin actions that may interact with the mesh"""
+
+    outer = parser.add_argument_group(
+        "Remote Admin Actions",
+        "Arguments that interact with local node or remote nodes via the mesh, requiring admin access.",
+    )
+
+    group = outer.add_mutually_exclusive_group()
+
+    group.add_argument(
+        "--reboot", help="Tell the destination node to reboot", action="store_true"
+    )
+
+    group.add_argument(
+        "--reboot-ota",
+        help="Tell the destination node to reboot into factory firmware (ESP32)",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--enter-dfu",
+        help="Tell the destination node to enter DFU mode (NRF52)",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--shutdown", help="Tell the destination node to shutdown", action="store_true"
+    )
+
+    group.add_argument(
+        "--device-metadata",
+        help="Get the device metadata from the node",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--factory-reset", "--factory-reset-config",
+        help="Tell the destination node to install the default config, preserving BLE bonds & PKI keys",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--factory-reset-device",
+        help="Tell the destination node to install the default config and clear BLE bonds & PKI keys",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--remove-node",
+        help="Tell the destination node to remove a specific node from its DB, by node number or ID",
+        metavar="!xxxxxxxx"
+    )
+    group.add_argument(
+        "--reset-nodedb",
+        help="Tell the destination node to clear its list of nodes",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--set-time",
+        help="Set the time to the provided unix epoch timestamp, or the system's current time if omitted or 0.",
+        action="store",
+        type=int,
+        nargs="?",
+        default=None,
+        const=0,
+        metavar="TIMESTAMP",
+    )
+
+    return parser
+
+def initParser():
+    """Initialize the command line argument parsing."""
+    parser = mt_config.parser
+    args = mt_config.args
+
+    # The "Help" group includes the help option and other informational stuff about the CLI itself
+    outerHelpGroup = parser.add_argument_group("Help")
+    helpGroup = outerHelpGroup.add_mutually_exclusive_group()
+    helpGroup.add_argument(
+        "-h", "--help", action="help", help="show this help message and exit"
+    )
+
+    the_version = get_active_version()
+    helpGroup.add_argument("--version", action="version", version=f"{the_version}")
+
+    helpGroup.add_argument(
+        "--support",
+        action="store_true",
+        help="Show support info (useful when troubleshooting an issue)",
+    )
+
+    # Connection arguments to indicate a device to connect to
+    parser = addConnectionArgs(parser)
+
+    # Selection arguments to denote nodes and channels to use
+    parser = addSelectionArgs(parser)
+
+    # Arguments concerning viewing and setting configuration
+    parser = addImportExportArgs(parser)
+    parser = addConfigArgs(parser)
+    parser = addPositionConfigArgs(parser)
+    parser = addChannelConfigArgs(parser)
+
+    # Arguments for sending or requesting things from the local device
+    parser = addLocalActionArgs(parser)
+
+    # Arguments for sending or requesting things from the mesh
+    parser = addRemoteActionArgs(parser)
+    parser = addRemoteAdminArgs(parser)
+
+    # All the rest of the arguments
+    group = parser.add_argument_group("Miscellaneous arguments")
+
+    group.add_argument(
+        "--seriallog",
+        help="Log device serial output to either 'none' or a filename to append to.  Defaults to '%(const)s' if no filename specified.",
+        nargs="?",
+        const="stdout",
+        default=None,
+        metavar="LOG_DESTINATION",
+    )
+
+    group.add_argument(
+        "--ack",
+        help="Use in combination with compatible actions (e.g. --sendtext) to wait for an acknowledgment.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--timeout",
+        help="How long to wait for replies. Default %(default)ss.",
+        default=300,
+        type=int,
+        metavar="SECONDS",
+    )
+
+    group.add_argument(
+        "--no-nodes",
+        help="Request that the node not send node info to the client. "
+        "Will break things that depend on the nodedb, but will speed up startup. Requires 2.3.11+ firmware.",
+        action="store_true",
+    )
 
     group.add_argument(
         "--debug", help="Show API library debug log messages", action="store_true"
@@ -1667,6 +1756,33 @@ def initParser():
     group.add_argument(
         "--test",
         help="Run stress test against all connected Meshtastic devices",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--wait-to-disconnect",
+        help="How many seconds to wait before disconnecting from the device.",
+        const="5",
+        nargs="?",
+        action="store",
+        metavar="SECONDS",
+    )
+
+    group.add_argument(
+        "--noproto",
+        help="Don't start the API, just function as a dumb serial terminal.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--listen",
+        help="Just stay open and listen to the protobuf stream. Enables debug logging.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--no-time",
+        help="Deprecated. Retained for backwards compatibility in scripts, but is a no-op.",
         action="store_true",
     )
 
@@ -1724,31 +1840,6 @@ def initParser():
         const="default",
     )
 
-    group.add_argument(
-        "--ble-scan",
-        help="Scan for Meshtastic BLE devices",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--wait-to-disconnect",
-        help="How many seconds to wait before disconnecting from the device.",
-        const="5",
-        nargs="?",
-        action="store",
-    )
-
-    group.add_argument(
-        "--noproto",
-        help="Don't start the API, just function as a dumb serial terminal.",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--listen",
-        help="Just stay open and listen to the protobuf stream. Enables debug logging.",
-        action="store_true",
-    )
 
     remoteHardwareArgs = parser.add_argument_group(
         "Remote Hardware", "Arguments related to the Remote Hardware module"
