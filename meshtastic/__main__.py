@@ -1290,6 +1290,7 @@ def addSelectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser
         "--ch-index",
         help="Set the specified channel index for channel-specific commands. Channels start at 0 (0 is the PRIMARY channel).",
         action="store",
+        metavar="INDEX",
     )
 
     return parser
@@ -1329,6 +1330,7 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         ),
         nargs=1,
         action="append",
+        metavar="FIELD"
     )
 
     group.add_argument(
@@ -1336,6 +1338,7 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         help="Set a preferences field. Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')",
         nargs=2,
         action="append",
+        metavar=("FIELD", "VALUE"),
     )
 
     group.add_argument(
@@ -1370,6 +1373,7 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         "--set-ringtone",
         help="Set the Notification Ringtone (up to 230 characters).",
         action="store",
+        metavar="RINGTONE",
     )
 
     group.add_argument(
@@ -1457,6 +1461,7 @@ def addChannelConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPa
         ),
         nargs=2,
         action="append",
+        metavar=("FIELD", "VALUE"),
     )
 
     group.add_argument(
@@ -1464,6 +1469,7 @@ def addChannelConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPa
         help=("Attempt to retrieve channel settings for --ch-set this many times before giving up. Default %(default)s."),
         default=3,
         type=int,
+        metavar="ATTEMPTS",
     )
 
     group.add_argument(
@@ -1572,6 +1578,7 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
     group.add_argument(
         "--sendtext",
         help="Send a text message. Can specify a destination '--dest' and/or channel index '--ch-index'.",
+        metavar="TEXT",
     )
 
     group.add_argument(
@@ -1579,7 +1586,8 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
         help="Traceroute from connected node to a destination. "
         "You need pass the destination ID as argument, like "
         "this: '--traceroute !ba4bf9d0' "
-        "Only nodes that have the encryption key can be traced.",
+        "Only nodes with a shared channel can be traced.",
+        metavar="!xxxxxxxx",
     )
 
     group.add_argument(
