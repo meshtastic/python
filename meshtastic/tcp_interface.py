@@ -6,6 +6,7 @@ from typing import Optional, cast
 
 from meshtastic.stream_interface import StreamInterface
 
+DEFAULT_TCP_PORT = 4403
 
 class TCPInterface(StreamInterface):
     """Interface class for meshtastic devices over a TCP link"""
@@ -16,7 +17,7 @@ class TCPInterface(StreamInterface):
         debugOut=None,
         noProto: bool=False,
         connectNow: bool=True,
-        portNumber: int=4403,
+        portNumber: int=DEFAULT_TCP_PORT,
         noNodes:bool=False,
     ):
         """Constructor, opens a connection to a specified IP address/hostname

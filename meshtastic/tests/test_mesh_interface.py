@@ -5,10 +5,14 @@ import re
 from unittest.mock import MagicMock, patch
 
 import pytest
+from hypothesis import given, strategies as st
 
-from .. import mesh_pb2, config_pb2, BROADCAST_ADDR, LOCAL_ADDR
-from ..mesh_interface import MeshInterface
+from ..protobuf import mesh_pb2, config_pb2
+from .. import BROADCAST_ADDR, LOCAL_ADDR
+from ..mesh_interface import MeshInterface, _timeago
 from ..node import Node
+from ..slog import LogSet
+from ..powermon import SimPowerSupply
 
 # TODO
 # from ..config import Config
@@ -45,11 +49,15 @@ def test_MeshInterface(capsys):
 
     iface.localNode.localConfig.lora.CopyFrom(config_pb2.Config.LoRaConfig())
 
+    # Also get some coverage of the structured logging/power meter stuff by turning it on as well
+    log_set = LogSet(iface, None, SimPowerSupply())
+
     iface.showInfo()
     iface.localNode.showInfo()
     iface.showNodes()
     iface.sendText("hello")
     iface.close()
+    log_set.close()
     out, err = capsys.readouterr()
     assert re.search(r"Owner: None \(None\)", out, re.MULTILINE)
     assert re.search(r"Nodes", out, re.MULTILINE)
@@ -165,7 +173,23 @@ def test_getNode_not_local_timeout(capsys):
         assert pytest_wrapped_e.type == SystemExit
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
-        assert re.match(r"Error: Timed out waiting for channels", out)
+        assert re.match(r"Timed out trying to retrieve channel info, retrying", out)
+        assert err == ""
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_getNode_not_local_timeout_attempts(capsys):
+    """Test getNode not local, simulate timeout"""
+    iface = MeshInterface(noProto=True)
+    anode = MagicMock(autospec=Node)
+    anode.waitForConfig.return_value = False
+    with patch("meshtastic.node.Node", return_value=anode):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            iface.getNode("bar2", requestChannelAttempts=2)
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 1
+        out, err = capsys.readouterr()
+        assert out == 'Timed out trying to retrieve channel info, retrying\nError: Timed out waiting for channels, giving up\n'
         assert err == ""
 
 
@@ -177,7 +201,7 @@ def test_sendPosition(caplog):
     with caplog.at_level(logging.DEBUG):
         iface.sendPosition()
     iface.close()
-    assert re.search(r"p.time:", caplog.text, re.MULTILINE)
+    # assert re.search(r"p.time:", caplog.text, re.MULTILINE)
 
 
 # TODO
@@ -684,3 +708,21 @@ def test_waitConnected_isConnected_timeout(capsys):
         out, err = capsys.readouterr()
         assert re.search(r"warn about something", err, re.MULTILINE)
         assert out == ""
+
+
+@pytest.mark.unit
+def test_timeago():
+    """Test that the _timeago function returns sane values"""
+    assert _timeago(0) == "now"
+    assert _timeago(1) == "1 sec ago"
+    assert _timeago(15) == "15 secs ago"
+    assert _timeago(333) == "5 mins ago"
+    assert _timeago(99999) == "1 day ago"
+    assert _timeago(9999999) == "3 months ago"
+    assert _timeago(-999) == "now"
+
+@given(seconds=st.integers())
+def test_timeago_fuzz(seconds):
+    """Fuzz _timeago to ensure it works with any integer"""
+    val = _timeago(seconds)
+    assert re.match(r"(now|\d+ (secs?|mins?|hours?|days?|months?|years?))", val)

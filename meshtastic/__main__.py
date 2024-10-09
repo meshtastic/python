@@ -1,6 +1,9 @@
-#!python3
 """ Main Meshtastic
 """
+
+# We just hit the 1600 line limit for main.py, but I currently have a huge set of powermon/structured logging changes
+# later we can have a separate changelist to refactor main.py into smaller files
+# pylint: disable=too-many-lines
 
 import argparse
 import logging
@@ -8,20 +11,36 @@ import os
 import platform
 import sys
 import time
-from typing import List
+from typing import List, Optional
 
-import pyqrcode # type: ignore[import-untyped]
+import pyqrcode  # type: ignore[import-untyped]
 import yaml
 from google.protobuf.json_format import MessageToDict
-from pubsub import pub # type: ignore[import-untyped]
+from pubsub import pub  # type: ignore[import-untyped]
 
 import meshtastic.test
 import meshtastic.util
-from meshtastic import mt_config
-from meshtastic import channel_pb2, config_pb2, portnums_pb2, remote_hardware, BROADCAST_ADDR
-from meshtastic.version import get_active_version
+from meshtastic import BROADCAST_ADDR, mt_config, remote_hardware
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
+try:
+    from meshtastic.powermon import (
+        PowerMeter,
+        PowerStress,
+        PPK2PowerSupply,
+        RidenPowerSupply,
+        SimPowerSupply,
+    )
+    from meshtastic.slog import LogSet
+    have_powermon = True
+    powermon_exception = None
+    meter: Optional[PowerMeter] = None
+except ImportError as e:
+    have_powermon = False
+    powermon_exception = e
+    meter = None
+from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
+from meshtastic.version import get_active_version
 
 def onReceive(packet, interface) -> None:
     """Callback invoked when a packet arrives"""
@@ -58,11 +77,13 @@ def onConnection(interface, topic=pub.AUTO_TOPIC) -> None:  # pylint: disable=W0
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
 
+
 def checkChannel(interface: MeshInterface, channelIndex: int) -> bool:
     """Given an interface and channel index, return True if that channel is non-disabled on the local node"""
     ch = interface.localNode.getChannelByChannelIndex(channelIndex)
     logging.debug(f"ch:{ch}")
-    return (ch and ch.role != channel_pb2.Channel.Role.DISABLED)
+    return ch and ch.role != channel_pb2.Channel.Role.DISABLED
+
 
 def getPref(node, comp_name) -> bool:
     """Get a channel or preferences value"""
@@ -138,6 +159,7 @@ def splitCompoundName(comp_name: str) -> List[str]:
         name.append(comp_name)
     return name
 
+
 def traverseConfig(config_root, config, interface_config) -> bool:
     """Iterate through current config level preferences and either traverse deeper if preference is a dict or set preference"""
     snake_name = meshtastic.util.camel_to_snake(config_root)
@@ -146,13 +168,10 @@ def traverseConfig(config_root, config, interface_config) -> bool:
         if isinstance(config[pref], dict):
             traverseConfig(pref_name, config[pref], interface_config)
         else:
-            setPref(
-                interface_config,
-                pref_name,
-                str(config[pref])
-            )
+            setPref(interface_config, pref_name, str(config[pref]))
 
     return True
+
 
 def setPref(config, comp_name, valStr) -> bool:
     """Set a channel or preferences value"""
@@ -214,8 +233,8 @@ def setPref(config, comp_name, valStr) -> bool:
                 print(f"    {temp_name}")
             return False
 
-    # note: 'ignore_incoming' is a repeating field
-    if snake_name != "ignore_incoming":
+    # repeating fields need to be handled with append, not setattr
+    if pref.label != pref.LABEL_REPEATED:
         try:
             if config_type.message_type is not None:
                 config_values = getattr(config_part, config_type.name)
@@ -230,11 +249,13 @@ def setPref(config, comp_name, valStr) -> bool:
         config_values = getattr(config, config_type.name)
         if val == 0:
             # clear values
-            print("Clearing ignore_incoming list")
-            del config_values.ignore_incoming[:]
+            print(f"Clearing {pref.name} list")
+            del getattr(config_values, pref.name)[:]
         else:
-            print(f"Adding '{val}' to the ignore_incoming list")
-            config_values.ignore_incoming.extend([int(valStr)])
+            print(f"Adding '{val}' to the {pref.name} list")
+            cur_vals = [x for x in getattr(config_values, pref.name) if x not in [0, "", b""]]
+            cur_vals.append(val)
+            getattr(config_values, pref.name)[:] = cur_vals
 
     prefix = f"{'.'.join(name[0:-1])}." if config_type.message_type is not None else ""
     if mt_config.camel_case:
@@ -254,22 +275,28 @@ def onConnected(interface):
     try:
         args = mt_config.args
 
+        # convenient place to store any keyword args we pass to getNode
+        getNode_kwargs = {
+            "requestChannelAttempts": args.channel_fetch_attempts,
+            "timeout": args.timeout
+        }
+
         # do not print this line if we are exporting the config
         if not args.export_config:
             print("Connected to radio")
 
+        if args.set_time is not None:
+            interface.getNode(args.dest, False, **getNode_kwargs).setTime(args.set_time)
+
         if args.remove_position:
-            if args.dest != BROADCAST_ADDR:
-                print("Setting positions of remote nodes is not supported.")
-                return
             closeNow = True
+            waitForAckNak = True
+
             print("Removing fixed position and disabling fixed position setting")
-            interface.localNode.removeFixedPosition()
+            interface.getNode(args.dest, False, **getNode_kwargs).removeFixedPosition()
         elif args.setlat or args.setlon or args.setalt:
-            if args.dest != BROADCAST_ADDR:
-                print("Setting latitude, longitude, and altitude of remote nodes is not supported.")
-                return
             closeNow = True
+            waitForAckNak = True
 
             alt = 0
             lat = 0
@@ -292,36 +319,25 @@ def onConnected(interface):
 
             print("Setting device position and enabling fixed position setting")
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
-            interface.localNode.setFixedPosition(lat, lon, alt)
-        elif not args.no_time:
-            # We normally provide a current time to the mesh when we connect
-            if interface.localNode.nodeNum in interface.nodesByNum and "position" in interface.nodesByNum[interface.localNode.nodeNum]:
-                # send the same position the node already knows, just to update time
-                position = interface.nodesByNum[interface.localNode.nodeNum]["position"]
-                interface.sendPosition(position.get("latitude", 0.0), position.get("longitude", 0.0), position.get("altitude", 0.0))
-            else:
-                interface.sendPosition()
+            interface.getNode(args.dest, False, **getNode_kwargs).setFixedPosition(lat, lon, alt)
 
-        if args.set_owner:
+        if args.set_owner or args.set_owner_short:
             closeNow = True
             waitForAckNak = True
-            print(f"Setting device owner to {args.set_owner}")
-            interface.getNode(args.dest, False).setOwner(args.set_owner)
-
-        if args.set_owner_short:
-            closeNow = True
-            waitForAckNak = True
-            print(f"Setting device owner short to {args.set_owner_short}")
-            interface.getNode(args.dest, False).setOwner(
-                long_name=None, short_name=args.set_owner_short
-            )
+            if args.set_owner and args.set_owner_short:
+                print(f"Setting device owner to {args.set_owner} and short name to {args.set_owner_short}")
+            elif args.set_owner:
+                print(f"Setting device owner to {args.set_owner}")
+            else: # short name only
+                print(f"Setting device owner short to {args.set_owner_short}")
+            interface.getNode(args.dest, False, **getNode_kwargs).setOwner(long_name=args.set_owner, short_name=args.set_owner_short)
 
         # TODO: add to export-config and configure
         if args.set_canned_message:
             closeNow = True
             waitForAckNak = True
             print(f"Setting canned plugin message to {args.set_canned_message}")
-            interface.getNode(args.dest, False).set_canned_message(
+            interface.getNode(args.dest, False, **getNode_kwargs).set_canned_message(
                 args.set_canned_message
             )
 
@@ -330,12 +346,12 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
             print(f"Setting ringtone to {args.set_ringtone}")
-            interface.getNode(args.dest, False).set_ringtone(args.set_ringtone)
+            interface.getNode(args.dest, False, **getNode_kwargs).set_ringtone(args.set_ringtone)
 
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
             closeNow = True
-            positionConfig = interface.getNode(args.dest).localConfig.position
+            positionConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig.position
             allFields = 0
 
             try:
@@ -354,12 +370,12 @@ def onConnected(interface):
                 print(f"Setting position fields to {allFields}")
                 setPref(positionConfig, "position_flags", f"{allFields:d}")
                 print("Writing modified preferences to device")
-                interface.getNode(args.dest).writeConfig("position")
+                interface.getNode(args.dest, **getNode_kwargs).writeConfig("position")
 
         elif args.pos_fields is not None:
             # If --pos-fields invoked without args, read and display current value
             closeNow = True
-            positionConfig = interface.getNode(args.dest).localConfig.position
+            positionConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig.position
 
             fieldNames = []
             for bit in positionConfig.PositionFlags.values():
@@ -370,56 +386,58 @@ def onConnected(interface):
         if args.set_ham:
             closeNow = True
             print(f"Setting Ham ID to {args.set_ham} and turning off encryption")
-            interface.getNode(args.dest).setOwner(args.set_ham, is_licensed=True)
+            interface.getNode(args.dest, **getNode_kwargs).setOwner(args.set_ham, is_licensed=True)
             # Must turn off encryption on primary channel
-            interface.getNode(args.dest).turnOffEncryptionOnPrimaryChannel()
+            interface.getNode(args.dest, **getNode_kwargs).turnOffEncryptionOnPrimaryChannel()
 
         if args.reboot:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).reboot()
+            interface.getNode(args.dest, False, **getNode_kwargs).reboot()
 
         if args.reboot_ota:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).rebootOTA()
+            interface.getNode(args.dest, False, **getNode_kwargs).rebootOTA()
 
         if args.enter_dfu:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).enterDFUMode()
+            interface.getNode(args.dest, False, **getNode_kwargs).enterDFUMode()
 
         if args.shutdown:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).shutdown()
+            interface.getNode(args.dest, False, **getNode_kwargs).shutdown()
 
         if args.device_metadata:
             closeNow = True
-            interface.getNode(args.dest, False).getMetadata()
+            interface.getNode(args.dest, False, **getNode_kwargs).getMetadata()
 
         if args.begin_edit:
             closeNow = True
-            interface.getNode(args.dest, False).beginSettingsTransaction()
+            interface.getNode(args.dest, False, **getNode_kwargs).beginSettingsTransaction()
 
         if args.commit_edit:
             closeNow = True
-            interface.getNode(args.dest, False).commitSettingsTransaction()
+            interface.getNode(args.dest, False, **getNode_kwargs).commitSettingsTransaction()
 
-        if args.factory_reset:
+        if args.factory_reset or args.factory_reset_device:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).factoryReset()
+
+            full = bool(args.factory_reset_device)
+            interface.getNode(args.dest, False, **getNode_kwargs).factoryReset(full=full)
 
         if args.remove_node:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).removeNode(args.remove_node)
+            interface.getNode(args.dest, False, **getNode_kwargs).removeNode(args.remove_node)
 
         if args.reset_nodedb:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False).resetNodeDb()
+            interface.getNode(args.dest, False, **getNode_kwargs).resetNodeDb()
 
         if args.sendtext:
             closeNow = True
@@ -433,7 +451,7 @@ def onConnected(interface):
                     args.dest,
                     wantAck=True,
                     channelIndex=channelIndex,
-                    onResponse=interface.getNode(args.dest, False).onAckNak,
+                    onResponse=interface.getNode(args.dest, False, **getNode_kwargs).onAckNak,
                 )
             else:
                 meshtastic.util.our_exit(
@@ -446,7 +464,9 @@ def onConnected(interface):
             dest = str(args.traceroute)
             channelIndex = mt_config.channel_index or 0
             if checkChannel(interface, channelIndex):
-                print(f"Sending traceroute request to {dest} on channelIndex:{channelIndex} (this could take a while)")
+                print(
+                    f"Sending traceroute request to {dest} on channelIndex:{channelIndex} (this could take a while)"
+                )
                 interface.sendTraceRoute(dest, hopLimit, channelIndex=channelIndex)
 
         if args.request_telemetry:
@@ -455,8 +475,14 @@ def onConnected(interface):
             else:
                 channelIndex = mt_config.channel_index or 0
                 if checkChannel(interface, channelIndex):
-                    print(f"Sending telemetry request to {args.dest} on channelIndex:{channelIndex} (this could take a while)")
-                    interface.sendTelemetry(destinationId=args.dest, wantResponse=True, channelIndex=channelIndex)
+                    print(
+                        f"Sending telemetry request to {args.dest} on channelIndex:{channelIndex} (this could take a while)"
+                    )
+                    interface.sendTelemetry(
+                        destinationId=args.dest,
+                        wantResponse=True,
+                        channelIndex=channelIndex,
+                    )
 
         if args.request_position:
             if args.dest == BROADCAST_ADDR:
@@ -464,8 +490,14 @@ def onConnected(interface):
             else:
                 channelIndex = mt_config.channel_index or 0
                 if checkChannel(interface, channelIndex):
-                    print(f"Sending position request to {args.dest} on channelIndex:{channelIndex} (this could take a while)")
-                    interface.sendPosition(destinationId=args.dest, wantResponse=True, channelIndex=channelIndex)
+                    print(
+                        f"Sending position request to {args.dest} on channelIndex:{channelIndex} (this could take a while)"
+                    )
+                    interface.sendPosition(
+                        destinationId=args.dest,
+                        wantResponse=True,
+                        channelIndex=channelIndex,
+                    )
 
         if args.gpio_wrb or args.gpio_rd or args.gpio_watch:
             if args.dest == BROADCAST_ADDR:
@@ -510,7 +542,7 @@ def onConnected(interface):
         if args.set:
             closeNow = True
             waitForAckNak = True
-            node = interface.getNode(args.dest, False)
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
 
             # Handle the int/float/bool arguments
             pref = None
@@ -549,19 +581,19 @@ def onConnected(interface):
                 configuration = yaml.safe_load(file)
                 closeNow = True
 
-                interface.getNode(args.dest, False).beginSettingsTransaction()
+                interface.getNode(args.dest, False, **getNode_kwargs).beginSettingsTransaction()
 
                 if "owner" in configuration:
                     print(f"Setting device owner to {configuration['owner']}")
                     waitForAckNak = True
-                    interface.getNode(args.dest, False).setOwner(configuration["owner"])
+                    interface.getNode(args.dest, False, **getNode_kwargs).setOwner(configuration["owner"])
 
                 if "owner_short" in configuration:
                     print(
                         f"Setting device owner short to {configuration['owner_short']}"
                     )
                     waitForAckNak = True
-                    interface.getNode(args.dest, False).setOwner(
+                    interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
                         long_name=None, short_name=configuration["owner_short"]
                     )
 
@@ -570,17 +602,17 @@ def onConnected(interface):
                         f"Setting device owner short to {configuration['ownerShort']}"
                     )
                     waitForAckNak = True
-                    interface.getNode(args.dest, False).setOwner(
+                    interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
                         long_name=None, short_name=configuration["ownerShort"]
                     )
 
                 if "channel_url" in configuration:
                     print("Setting channel url to", configuration["channel_url"])
-                    interface.getNode(args.dest).setURL(configuration["channel_url"])
+                    interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channel_url"])
 
                 if "channelUrl" in configuration:
                     print("Setting channel url to", configuration["channelUrl"])
-                    interface.getNode(args.dest).setURL(configuration["channelUrl"])
+                    interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channelUrl"])
 
                 if "location" in configuration:
                     alt = 0
@@ -605,22 +637,28 @@ def onConnected(interface):
                     interface.localNode.writeConfig("position")
 
                 if "config" in configuration:
-                    localConfig = interface.getNode(args.dest).localConfig
+                    localConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig
                     for section in configuration["config"]:
-                        traverseConfig(section, configuration["config"][section], localConfig)
-                        interface.getNode(args.dest).writeConfig(
+                        traverseConfig(
+                            section, configuration["config"][section], localConfig
+                        )
+                        interface.getNode(args.dest, **getNode_kwargs).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
 
                 if "module_config" in configuration:
-                    moduleConfig = interface.getNode(args.dest).moduleConfig
+                    moduleConfig = interface.getNode(args.dest, **getNode_kwargs).moduleConfig
                     for section in configuration["module_config"]:
-                        traverseConfig(section, configuration["module_config"][section], moduleConfig)
-                        interface.getNode(args.dest).writeConfig(
+                        traverseConfig(
+                            section,
+                            configuration["module_config"][section],
+                            moduleConfig,
+                        )
+                        interface.getNode(args.dest, **getNode_kwargs).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
 
-                interface.getNode(args.dest, False).commitSettingsTransaction()
+                interface.getNode(args.dest, False, **getNode_kwargs).commitSettingsTransaction()
                 print("Writing modified configuration to device")
 
         if args.export_config:
@@ -633,7 +671,7 @@ def onConnected(interface):
 
         if args.seturl:
             closeNow = True
-            interface.getNode(args.dest).setURL(args.seturl)
+            interface.getNode(args.dest, **getNode_kwargs).setURL(args.seturl)
 
         # handle changing channels
 
@@ -649,7 +687,7 @@ def onConnected(interface):
                 meshtastic.util.our_exit(
                     "Warning: Channel name must be shorter. Channel not added."
                 )
-            n = interface.getNode(args.dest)
+            n = interface.getNode(args.dest, **getNode_kwargs)
             ch = n.getChannelByName(args.ch_add)
             if ch:
                 meshtastic.util.our_exit(
@@ -668,7 +706,9 @@ def onConnected(interface):
                 print(f"Writing modified channels to device")
                 n.writeChannel(ch.index)
                 if channelIndex is None:
-                    print(f"Setting newly-added channel's {ch.index} as '--ch-index' for further modifications")
+                    print(
+                        f"Setting newly-added channel's {ch.index} as '--ch-index' for further modifications"
+                    )
                     mt_config.channel_index = ch.index
 
         if args.ch_del:
@@ -686,7 +726,7 @@ def onConnected(interface):
                     )
                 else:
                     print(f"Deleting channel {channelIndex}")
-                    ch = interface.getNode(args.dest).deleteChannel(channelIndex)
+                    ch = interface.getNode(args.dest, **getNode_kwargs).deleteChannel(channelIndex)
 
         def setSimpleConfig(modem_preset):
             """Set one of the simple modem_config"""
@@ -696,9 +736,11 @@ def onConnected(interface):
                     "Warning: Cannot set modem preset for non-primary channel", 1
                 )
             # Overwrite modem_preset
-            prefs = interface.getNode(args.dest).localConfig
-            prefs.lora.modem_preset = modem_preset
-            interface.getNode(args.dest).writeConfig("lora")
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
+            if len(node.localConfig.ListFields()) == 0:
+                node.requestConfig(node.localConfig.DESCRIPTOR.fields_by_name.get("lora"))
+            node.localConfig.lora.modem_preset = modem_preset
+            node.writeConfig("lora")
 
         # handle the simple radio set commands
         if args.ch_vlongslow:
@@ -728,7 +770,8 @@ def onConnected(interface):
             channelIndex = mt_config.channel_index
             if channelIndex is None:
                 meshtastic.util.our_exit("Warning: Need to specify '--ch-index'.", 1)
-            ch = interface.getNode(args.dest).channels[channelIndex]
+            node = interface.getNode(args.dest, **getNode_kwargs)
+            ch = node.channels[channelIndex]
 
             if args.ch_enable or args.ch_disable:
                 print(
@@ -754,7 +797,7 @@ def onConnected(interface):
                 else:
                     found = setPref(ch.settings, pref[0], pref[1])
                 if not found:
-                    category_settings = ['module_settings']
+                    category_settings = ["module_settings"]
                     print(
                         f"{ch.settings.__class__.__name__} does not have an attribute {pref[0]}."
                     )
@@ -764,7 +807,9 @@ def onConnected(interface):
                             print(f"{field.name}")
                         else:
                             print(f"{field.name}:")
-                            config = ch.settings.DESCRIPTOR.fields_by_name.get(field.name)
+                            config = ch.settings.DESCRIPTOR.fields_by_name.get(
+                                field.name
+                            )
                             names = []
                             for sub_field in config.message_type.fields:
                                 tmp_name = f"{field.name}.{sub_field.name}"
@@ -784,17 +829,17 @@ def onConnected(interface):
                 ch.role = channel_pb2.Channel.Role.DISABLED
 
             print(f"Writing modified channels to device")
-            interface.getNode(args.dest).writeChannel(channelIndex)
+            node.writeChannel(channelIndex)
 
         if args.get_canned_message:
             closeNow = True
             print("")
-            interface.getNode(args.dest).get_canned_message()
+            interface.getNode(args.dest, **getNode_kwargs).get_canned_message()
 
         if args.get_ringtone:
             closeNow = True
             print("")
-            interface.getNode(args.dest).get_ringtone()
+            interface.getNode(args.dest, **getNode_kwargs).get_ringtone()
 
         if args.info:
             print("")
@@ -802,7 +847,7 @@ def onConnected(interface):
             if args.dest == BROADCAST_ADDR:
                 interface.showInfo()
                 print("")
-                interface.getNode(args.dest).showInfo()
+                interface.getNode(args.dest, **getNode_kwargs).showInfo()
                 closeNow = True
                 print("")
                 pypi_version = meshtastic.util.check_if_newer_version()
@@ -819,7 +864,7 @@ def onConnected(interface):
 
         if args.get:
             closeNow = True
-            node = interface.getNode(args.dest, False)
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
             for pref in args.get:
                 found = getPref(node, pref[0])
 
@@ -835,7 +880,7 @@ def onConnected(interface):
 
         if args.qr or args.qr_all:
             closeNow = True
-            url = interface.getNode(args.dest, True).getURL(includeAll=args.qr_all)
+            url = interface.getNode(args.dest, True, **getNode_kwargs).getURL(includeAll=args.qr_all)
             if args.qr_all:
                 urldesc = "Complete URL (includes all channels)"
             else:
@@ -843,6 +888,27 @@ def onConnected(interface):
             print(f"{urldesc}: {url}")
             qr = pyqrcode.create(url)
             print(qr.terminal())
+
+        log_set: Optional = None  # type: ignore[annotation-unchecked]
+        # we need to keep a reference to the logset so it doesn't get GCed early
+
+        if args.slog or args.power_stress:
+            if have_powermon:
+                # Setup loggers
+                global meter  # pylint: disable=global-variable-not-assigned
+                log_set = LogSet(
+                    interface, args.slog if args.slog != "default" else None, meter
+                )
+
+                if args.power_stress:
+                    stress = PowerStress(interface)
+                    stress.run()
+                    closeNow = True  # exit immediately after stress test
+            else:
+                meshtastic.util.our_exit("The powermon module could not be loaded. "
+                                         "You may need to run `poetry install --with powermon`. "
+                                         "Import Error was: " + powermon_exception)
+
 
         if args.listen:
             closeNow = False
@@ -869,15 +935,19 @@ def onConnected(interface):
             print(
                 f"Waiting for an acknowledgment from remote node (this could take a while)"
             )
-            interface.getNode(args.dest, False).iface.waitForAckNak()
+            interface.getNode(args.dest, False, **getNode_kwargs).iface.waitForAckNak()
 
         if args.wait_to_disconnect:
-            print(f"Waiting {args.wait_to_disconnect} seconds before disconnecting" )
+            print(f"Waiting {args.wait_to_disconnect} seconds before disconnecting")
             time.sleep(int(args.wait_to_disconnect))
 
         # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
         if (not args.seriallog) and closeNow:
             interface.close()  # after running command then exit
+
+        # Close any structured logs after we've done all of our API operations
+        if log_set:
+            log_set.close()
 
     except Exception as ex:
         print(f"Aborting due to: {ex}")
@@ -982,8 +1052,43 @@ def export_config(interface) -> str:
     return config_txt
 
 
+def create_power_meter():
+    """Setup the power meter."""
+
+    global meter  # pylint: disable=global-statement
+    args = mt_config.args
+
+    # If the user specified a voltage, make sure it is valid
+    v = 0.0
+    if args.power_voltage:
+        v = float(args.power_voltage)
+        if v < 0.8 or v > 5.0:
+            meshtastic.util.our_exit("Voltage must be between 0.8 and 5.0")
+
+    if args.power_riden:
+        meter = RidenPowerSupply(args.power_riden)
+    elif args.power_ppk2_supply or args.power_ppk2_meter:
+        meter = PPK2PowerSupply()
+        assert v > 0, "Voltage must be specified for PPK2"
+        meter.v = v  # PPK2 requires setting voltage before selecting supply mode
+        meter.setIsSupply(args.power_ppk2_supply)
+    elif args.power_sim:
+        meter = SimPowerSupply()
+
+    if meter and v:
+        logging.info(f"Setting power supply to {v} volts")
+        meter.v = v
+        meter.powerOn()
+
+        if args.power_wait:
+            input("Powered on, press enter to continue...")
+        else:
+            logging.info("Powered-on, waiting for device to boot")
+            time.sleep(5)
+
+
 def common():
-    """Shared code for all of our command line wrappers"""
+    """Shared code for all of our command line wrappers."""
     logfile = None
     args = mt_config.args
     parser = mt_config.parser
@@ -999,6 +1104,9 @@ def common():
         if args.support:
             meshtastic.util.support_info()
             meshtastic.util.our_exit("", 0)
+
+        if have_powermon:
+            create_power_meter()
 
         if args.ch_index is not None:
             channelIndex = int(args.ch_index)
@@ -1042,29 +1150,39 @@ def common():
             subscribe()
             if args.ble_scan:
                 logging.debug("BLE scan starting")
-                client = BLEInterface(None, debugOut=logfile, noProto=args.noproto)
-                try:
-                    for x in client.scan():
-                        print(f"Found: name='{x[1].local_name}' address='{x[0].address}'")
-                finally:
-                    client.close()
+                for x in BLEInterface.scan():
+                    print(f"Found: name='{x.name}' address='{x.address}'")
                 meshtastic.util.our_exit("BLE scan finished", 0)
-                return
             elif args.ble:
-                client = BLEInterface(args.ble, debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes)
+                client = BLEInterface(
+                    args.ble if args.ble != "any" else None,
+                    debugOut=logfile,
+                    noProto=args.noproto,
+                    noNodes=args.no_nodes,
+                )
             elif args.host:
                 try:
+                    if ":" in args.host:
+                        tcp_hostname, tcp_port = args.host.split(':')
+                    else:
+                        tcp_hostname = args.host
+                        tcp_port = meshtastic.tcp_interface.DEFAULT_TCP_PORT
                     client = meshtastic.tcp_interface.TCPInterface(
-                        args.host, debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes
+                        tcp_hostname,
+                        portNumber=tcp_port,
+                        debugOut=logfile,
+                        noProto=args.noproto,
+                        noNodes=args.no_nodes,
                     )
                 except Exception as ex:
-                    meshtastic.util.our_exit(
-                        f"Error connecting to {args.host}:{ex}", 1
-                    )
+                    meshtastic.util.our_exit(f"Error connecting to {args.host}:{ex}", 1)
             else:
                 try:
                     client = meshtastic.serial_interface.SerialInterface(
-                        args.port, debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes
+                        args.port,
+                        debugOut=logfile,
+                        noProto=args.noproto,
+                        noNodes=args.no_nodes,
                     )
                 except PermissionError as ex:
                     username = os.getlogin()
@@ -1079,103 +1197,159 @@ def common():
                 if client.devPath is None:
                     try:
                         client = meshtastic.tcp_interface.TCPInterface(
-                            "localhost", debugOut=logfile, noProto=args.noproto, noNodes=args.no_nodes
+                            "localhost",
+                            debugOut=logfile,
+                            noProto=args.noproto,
+                            noNodes=args.no_nodes,
                         )
                     except Exception as ex:
                         meshtastic.util.our_exit(
                             f"Error connecting to localhost:{ex}", 1
                         )
 
-
             # We assume client is fully connected now
             onConnected(client)
 
             have_tunnel = platform.system() == "Linux"
             if (
-                args.noproto or args.reply or (have_tunnel and args.tunnel) or args.listen
+                args.noproto
+                or args.reply
+                or (have_tunnel and args.tunnel)
+                or args.listen
             ):  # loop until someone presses ctrlc
-                while True:
-                    time.sleep(1000)
+                try:
+                    while True:
+                        time.sleep(1000)
+                except KeyboardInterrupt:
+                    logging.info("Exiting due to keyboard interrupt")
 
         # don't call exit, background threads might be running still
         # sys.exit(0)
 
-def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
-    """Add connection specifiation arguments"""
 
-    outer = parser.add_argument_group('Connection', 'Optional arguments that specify how to connect to a Meshtastic device.')
+def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add connection specification arguments"""
+
+    outer = parser.add_argument_group(
+        "Connection",
+        "Optional arguments that specify how to connect to a Meshtastic device.",
+    )
     group = outer.add_mutually_exclusive_group()
     group.add_argument(
         "--port",
-        help="The port of the device to connect to using serial, e.g. /dev/ttyUSB0.",
+        "--serial",
+        "-s",
+        help="The port of the device to connect to using serial, e.g. /dev/ttyUSB0. (defaults to trying to detect a port)",
+        nargs="?",
+        const=None,
         default=None,
     )
 
     group.add_argument(
         "--host",
-        help="The hostname or IP address of the device to connect to using TCP",
+        "--tcp",
+        "-t",
+        help="Connect to a device using TCP, optionally passing hostname or IP address to use. (defaults to '%(const)s')",
+        nargs="?",
         default=None,
+        const="localhost",
     )
 
     group.add_argument(
         "--ble",
-        help="The BLE device address or name to connect to",
+        "-b",
+        help="Connect to a BLE device, optionally specifying a device name (defaults to '%(const)s')",
+        nargs="?",
         default=None,
+        const="any",
+    )
+
+    outer.add_argument(
+        "--ble-scan",
+        help="Scan for Meshtastic BLE devices that may be available to connect to",
+        action="store_true",
     )
 
     return parser
 
-
-def initParser():
-    """Initialize the command line argument parsing."""
-    parser = mt_config.parser
-    args = mt_config.args
-
-    # The "Help" group includes the help option and other informational stuff about the CLI itself
-    outerHelpGroup = parser.add_argument_group('Help')
-    helpGroup = outerHelpGroup.add_mutually_exclusive_group()
-    helpGroup.add_argument("-h", "--help", action="help", help="show this help message and exit")
-
-    the_version = get_active_version()
-    helpGroup.add_argument("--version", action="version", version=f"{the_version}")
-
-    helpGroup.add_argument(
-        "--support",
-        action="store_true",
-        help="Show support info (useful when troubleshooting an issue)",
+def addSelectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add node/channel specification arguments"""
+    group = parser.add_argument_group(
+        "Selection",
+        "Arguments that select channels to use, destination nodes, etc."
     )
 
-    # Connection arguments to indicate a device to connect to
-    parser = addConnectionArgs(parser)
+    group.add_argument(
+        "--dest",
+        help="The destination node id for any sent commands, if not set '^all' or '^local' is assumed as appropriate",
+        default=None,
+        metavar="!xxxxxxxx",
+    )
 
-    # Arguments concerning viewing and setting configuration
+    group.add_argument(
+        "--ch-index",
+        help="Set the specified channel index for channel-specific commands. Channels start at 0 (0 is the PRIMARY channel).",
+        action="store",
+        metavar="INDEX",
+    )
 
-    # Arguments for sending or requesting things from the local device
+    return parser
 
-    # Arguments for sending or requesting things from the mesh
+def addImportExportArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add import/export config arguments"""
+    group = parser.add_argument_group(
+        "Import/Export",
+        "Arguments that concern importing and exporting configuration of Meshtastic devices",
+    )
 
-    # All the rest of the arguments
-    group = parser.add_argument_group("optional arguments")
     group.add_argument(
         "--configure",
         help="Specify a path to a yaml(.yml) file containing the desired settings for the connected device.",
         action="append",
     )
-
     group.add_argument(
         "--export-config",
         help="Export the configuration in yaml(.yml) format.",
         action="store_true",
     )
+    return parser
 
-    group.add_argument(
-        "--seriallog",
-        help="Log device serial output to either 'stdout', 'none' or a filename to append to.",
+def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments to do with configuring a device"""
+
+    group = parser.add_argument_group(
+        "Configuration",
+        "Arguments that concern general configuration of Meshtastic devices",
     )
 
     group.add_argument(
-        "--info",
-        help="Read and display the radio config information",
+        "--get",
+        help=(
+            "Get a preferences field. Use an invalid field such as '0' to get a list of all fields."
+            " Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')"
+        ),
+        nargs=1,
+        action="append",
+        metavar="FIELD"
+    )
+
+    group.add_argument(
+        "--set",
+        help="Set a preferences field. Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')",
+        nargs=2,
+        action="append",
+        metavar=("FIELD", "VALUE"),
+    )
+
+    group.add_argument(
+        "--begin-edit",
+        help="Tell the node to open a transaction to edit settings",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--commit-edit",
+        help="Tell the node to commit open settings transaction",
         action="store_true",
     )
 
@@ -1186,13 +1360,116 @@ def initParser():
     )
 
     group.add_argument(
+        "--set-canned-message",
+        help="Set the canned messages plugin message (up to 200 characters).",
+        action="store",
+    )
+
+    group.add_argument(
         "--get-ringtone", help="Show the stored ringtone", action="store_true"
     )
 
     group.add_argument(
-        "--nodes",
-        help="Print Node List in a pretty formatted table",
+        "--set-ringtone",
+        help="Set the Notification Ringtone (up to 230 characters).",
+        action="store",
+        metavar="RINGTONE",
+    )
+
+    group.add_argument(
+        "--ch-vlongslow",
+        help="Change to the very long-range and slow modem preset",
         action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-longslow",
+        help="Change to the long-range and slow modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-longfast",
+        help="Change to the long-range and fast modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-medslow",
+        help="Change to the med-range and slow modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-medfast",
+        help="Change to the med-range and fast modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-shortslow",
+        help="Change to the short-range and slow modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-shortfast",
+        help="Change to the short-range and fast modem preset",
+        action="store_true",
+    )
+
+    group.add_argument("--set-owner", help="Set device owner name", action="store")
+
+    group.add_argument(
+        "--set-owner-short", help="Set device owner short name", action="store"
+    )
+
+    group.add_argument(
+        "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store"
+    )
+
+    group.add_argument("--seturl", help="Set a channel URL", action="store")
+
+    return parser
+
+def addChannelConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments to do with configuring channels"""
+
+    group = parser.add_argument_group(
+        "Channel Configuration",
+        "Arguments that concern configuration of channels",
+    )
+
+    group.add_argument(
+        "--ch-add",
+        help="Add a secondary channel, you must specify a channel name",
+        default=None,
+    )
+
+    group.add_argument(
+        "--ch-del", help="Delete the ch-index channel", action="store_true"
+    )
+
+    group.add_argument(
+        "--ch-set",
+        help=(
+            "Set a channel parameter. To see channel settings available:'--ch-set all all --ch-index 0'. "
+            "Can set the 'psk' using this command. To disable encryption on primary channel:'--ch-set psk none --ch-index 0'. "
+            "To set encryption with a new random key on second channel:'--ch-set psk random --ch-index 1'. "
+            "To set encryption back to the default:'--ch-set psk default --ch-index 0'. To set encryption with your "
+            "own key: '--ch-set psk 0x1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b --ch-index 0'."
+        ),
+        nargs=2,
+        action="append",
+        metavar=("FIELD", "VALUE"),
+    )
+
+    group.add_argument(
+        "--channel-fetch-attempts",
+        help=("Attempt to retrieve channel settings for --ch-set this many times before giving up. Default %(default)s."),
+        default=3,
+        type=int,
+        metavar="ATTEMPTS",
     )
 
     group.add_argument(
@@ -1211,43 +1488,8 @@ def initParser():
     )
 
     group.add_argument(
-        "--get",
-        help=(
-            "Get a preferences field. Use an invalid field such as '0' to get a list of all fields."
-            " Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')"
-        ),
-        nargs=1,
-        action="append",
-    )
-
-    group.add_argument(
-        "--set",
-        help="Set a preferences field. Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')",
-        nargs=2,
-        action="append",
-    )
-
-    group.add_argument("--seturl", help="Set a channel URL", action="store")
-
-    group.add_argument(
-        "--ch-index",
-        help="Set the specified channel index. Channels start at 0 (0 is the PRIMARY channel).",
-        action="store",
-    )
-
-    group.add_argument(
-        "--ch-add",
-        help="Add a secondary channel, you must specify a channel name",
-        default=None,
-    )
-
-    group.add_argument(
-        "--ch-del", help="Delete the ch-index channel", action="store_true"
-    )
-
-    group.add_argument(
         "--ch-enable",
-        help="Enable the specified channel",
+        help="Enable the specified channel. Use --ch-add instead whenever possible.",
         action="store_true",
         dest="ch_enable",
         default=False,
@@ -1256,98 +1498,87 @@ def initParser():
     # Note: We are doing a double negative here (Do we want to disable? If ch_disable==True, then disable.)
     group.add_argument(
         "--ch-disable",
-        help="Disable the specified channel",
+        help="Disable the specified channel Use --ch-del instead whenever possible.",
         action="store_true",
         dest="ch_disable",
         default=False,
     )
 
+    return parser
+
+def addPositionConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments to do with fixed positions and position config"""
+
+    group = parser.add_argument_group(
+        "Position Configuration",
+        "Arguments that modify fixed position and other position-related configuration.",
+    )
     group.add_argument(
-        "--ch-set",
-        help=(
-            "Set a channel parameter. To see channel settings available:'--ch-set all all --ch-index 0'. "
-            "Can set the 'psk' using this command. To disable encryption on primary channel:'--ch-set psk none --ch-index 0'. "
-            "To set encryption with a new random key on second channel:'--ch-set psk random --ch-index 1'. "
-            "To set encryption back to the default:'--ch-set psk default --ch-index 0'. To set encryption with your "
-            "own key: '--ch-set psk 0x1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b --ch-index 0'."
-        ),
-        nargs=2,
-        action="append",
+        "--setalt",
+        help="Set device altitude in meters (allows use without GPS), and enable fixed position. "
+        "When providing positions with `--setlat`, `--setlon`, and `--setalt`, missing values will be set to 0.",
     )
 
     group.add_argument(
-        "--ch-vlongslow",
-        help="Change to the very long-range and slow channel",
+        "--setlat",
+        help="Set device latitude (allows use without GPS), and enable fixed position. Accepts a decimal value or an integer premultiplied by 1e7. "
+        "When providing positions with `--setlat`, `--setlon`, and `--setalt`, missing values will be set to 0.",
+    )
+
+    group.add_argument(
+        "--setlon",
+        help="Set device longitude (allows use without GPS), and enable fixed position. Accepts a decimal value or an integer premultiplied by 1e7. "
+        "When providing positions with `--setlat`, `--setlon`, and `--setalt`, missing values will be set to 0.",
+    )
+
+    group.add_argument(
+        "--remove-position",
+        help="Clear any existing fixed position and disable fixed position.",
         action="store_true",
     )
 
     group.add_argument(
-        "--ch-longslow",
-        help="Change to the long-range and slow channel",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--ch-longfast",
-        help="Change to the long-range and fast channel",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--ch-medslow",
-        help="Change to the med-range and slow channel",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--ch-medfast",
-        help="Change to the med-range and fast channel",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--ch-shortslow",
-        help="Change to the short-range and slow channel",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--ch-shortfast",
-        help="Change to the short-range and fast channel",
-        action="store_true",
-    )
-
-    group.add_argument("--set-owner", help="Set device owner name", action="store")
-
-    group.add_argument(
-        "--set-canned-message",
-        help="Set the canned messages plugin message (up to 200 characters).",
+        "--pos-fields",
+        help="Specify fields to send when sending a position. Use no argument for a list of valid values. "
+        "Can pass multiple values as a space separated list like "
+        "this: '--pos-fields ALTITUDE HEADING SPEED'",
+        nargs="*",
         action="store",
     )
+    return parser
 
-    group.add_argument(
-        "--set-ringtone",
-        help="Set the Notification Ringtone (up to 230 characters).",
-        action="store",
+def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments concerning local-only information & actions"""
+    group = parser.add_argument_group(
+        "Local Actions",
+        "Arguments that take actions or request information from the local node only.",
     )
 
     group.add_argument(
-        "--set-owner-short", help="Set device owner short name", action="store"
+        "--info",
+        help="Read and display the radio config information",
+        action="store_true",
     )
 
     group.add_argument(
-        "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store"
+        "--nodes",
+        help="Print Node List in a pretty formatted table",
+        action="store_true",
     )
 
-    group.add_argument(
-        "--dest",
-        help="The destination node id for any sent commands, if not set '^all' or '^local' is assumed as appropriate",
-        default=None,
+    return parser
+
+def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments concerning information & actions that may interact with the mesh"""
+    group = parser.add_argument_group(
+        "Remote Actions",
+        "Arguments that take actions or request information from either the local node or remote nodes via the mesh.",
     )
 
     group.add_argument(
         "--sendtext",
         help="Send a text message. Can specify a destination '--dest' and/or channel index '--ch-index'.",
+        metavar="TEXT",
     )
 
     group.add_argument(
@@ -1355,7 +1586,8 @@ def initParser():
         help="Traceroute from connected node to a destination. "
         "You need pass the destination ID as argument, like "
         "this: '--traceroute !ba4bf9d0' "
-        "Only nodes that have the encryption key can be traced.",
+        "Only nodes with a shared channel can be traced.",
+        metavar="!xxxxxxxx",
     )
 
     group.add_argument(
@@ -1375,10 +1607,20 @@ def initParser():
     )
 
     group.add_argument(
-        "--ack",
-        help="Use in combination with --sendtext to wait for an acknowledgment.",
-        action="store_true",
+        "--reply", help="Reply to received messages", action="store_true"
     )
+
+    return parser
+
+def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments concerning admin actions that may interact with the mesh"""
+
+    outer = parser.add_argument_group(
+        "Remote Admin Actions",
+        "Arguments that interact with local node or remote nodes via the mesh, requiring admin access.",
+    )
+
+    group = outer.add_mutually_exclusive_group()
 
     group.add_argument(
         "--reboot", help="Tell the destination node to reboot", action="store_true"
@@ -1407,26 +1649,21 @@ def initParser():
     )
 
     group.add_argument(
-        "--begin-edit",
-        help="Tell the node to open a transaction to edit settings",
+        "--factory-reset", "--factory-reset-config",
+        help="Tell the destination node to install the default config, preserving BLE bonds & PKI keys",
         action="store_true",
     )
 
     group.add_argument(
-        "--commit-edit",
-        help="Tell the node to commit open settings transaction",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--factory-reset",
-        help="Tell the destination node to install the default config",
+        "--factory-reset-device",
+        help="Tell the destination node to install the default config and clear BLE bonds & PKI keys",
         action="store_true",
     )
 
     group.add_argument(
         "--remove-node",
-        help="Tell the destination node to remove a specific node from its DB, by node number or ID"
+        help="Tell the destination node to remove a specific node from its DB, by node number or ID",
+        metavar="!xxxxxxxx"
     )
     group.add_argument(
         "--reset-nodedb",
@@ -1435,23 +1672,82 @@ def initParser():
     )
 
     group.add_argument(
-        "--reply", help="Reply to received messages", action="store_true"
+        "--set-time",
+        help="Set the time to the provided unix epoch timestamp, or the system's current time if omitted or 0.",
+        action="store",
+        type=int,
+        nargs="?",
+        default=None,
+        const=0,
+        metavar="TIMESTAMP",
     )
 
-    group.add_argument(
-        "--gpio-wrb", nargs=2, help="Set a particular GPIO # to 1 or 0", action="append"
+    return parser
+
+def initParser():
+    """Initialize the command line argument parsing."""
+    parser = mt_config.parser
+    args = mt_config.args
+
+    # The "Help" group includes the help option and other informational stuff about the CLI itself
+    outerHelpGroup = parser.add_argument_group("Help")
+    helpGroup = outerHelpGroup.add_mutually_exclusive_group()
+    helpGroup.add_argument(
+        "-h", "--help", action="help", help="show this help message and exit"
     )
 
-    group.add_argument("--gpio-rd", help="Read from a GPIO mask (ex: '0x10')")
+    the_version = get_active_version()
+    helpGroup.add_argument("--version", action="version", version=f"{the_version}")
 
-    group.add_argument(
-        "--gpio-watch", help="Start watching a GPIO mask for changes (ex: '0x10')"
-    )
-
-    group.add_argument(
-        "--no-time",
-        help="Suppress sending the current time to the mesh",
+    helpGroup.add_argument(
+        "--support",
         action="store_true",
+        help="Show support info (useful when troubleshooting an issue)",
+    )
+
+    # Connection arguments to indicate a device to connect to
+    parser = addConnectionArgs(parser)
+
+    # Selection arguments to denote nodes and channels to use
+    parser = addSelectionArgs(parser)
+
+    # Arguments concerning viewing and setting configuration
+    parser = addImportExportArgs(parser)
+    parser = addConfigArgs(parser)
+    parser = addPositionConfigArgs(parser)
+    parser = addChannelConfigArgs(parser)
+
+    # Arguments for sending or requesting things from the local device
+    parser = addLocalActionArgs(parser)
+
+    # Arguments for sending or requesting things from the mesh
+    parser = addRemoteActionArgs(parser)
+    parser = addRemoteAdminArgs(parser)
+
+    # All the rest of the arguments
+    group = parser.add_argument_group("Miscellaneous arguments")
+
+    group.add_argument(
+        "--seriallog",
+        help="Log device serial output to either 'none' or a filename to append to.  Defaults to '%(const)s' if no filename specified.",
+        nargs="?",
+        const="stdout",
+        default=None,
+        metavar="LOG_DESTINATION",
+    )
+
+    group.add_argument(
+        "--ack",
+        help="Use in combination with compatible actions (e.g. --sendtext) to wait for an acknowledgment.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--timeout",
+        help="How long to wait for replies. Default %(default)ss.",
+        default=300,
+        type=int,
+        metavar="SECONDS",
     )
 
     group.add_argument(
@@ -1459,36 +1755,6 @@ def initParser():
         help="Request that the node not send node info to the client. "
         "Will break things that depend on the nodedb, but will speed up startup. Requires 2.3.11+ firmware.",
         action="store_true",
-    )
-
-    group.add_argument(
-        "--setalt",
-        help="Set device altitude in meters (allows use without GPS), and enable fixed position.",
-    )
-
-    group.add_argument(
-        "--setlat",
-        help="Set device latitude (allows use without GPS), and enable fixed position. Accepts a decimal value or an integer premultiplied by 1e7.",
-    )
-
-    group.add_argument(
-        "--setlon",
-        help="Set device longitude (allows use without GPS), and enable fixed position. Accepts a decimal value or an integer premultiplied by 1e7.",
-    )
-
-    group.add_argument(
-        "--remove-position",
-        help="Clear any existing fixed position and disable fixed position.",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--pos-fields",
-        help="Specify fields to send when sending a position. Use no argument for a list of valid values. "
-        "Can pass multiple values as a space separated list like "
-        "this: '--pos-fields POS_ALTITUDE POS_ALT_MSL'",
-        nargs="*",
-        action="store",
     )
 
     group.add_argument(
@@ -1502,17 +1768,12 @@ def initParser():
     )
 
     group.add_argument(
-        "--ble-scan",
-        help="Scan for Meshtastic BLE devices",
-        action="store_true",
-    )
-
-    group.add_argument(
         "--wait-to-disconnect",
         help="How many seconds to wait before disconnecting from the device.",
         const="5",
         nargs="?",
         action="store",
+        metavar="SECONDS",
     )
 
     group.add_argument(
@@ -1527,9 +1788,88 @@ def initParser():
         action="store_true",
     )
 
+    group.add_argument(
+        "--no-time",
+        help="Deprecated. Retained for backwards compatibility in scripts, but is a no-op.",
+        action="store_true",
+    )
+
+    power_group = parser.add_argument_group(
+        "Power Testing", "Options for power testing/logging."
+    )
+
+    power_supply_group = power_group.add_mutually_exclusive_group()
+
+    power_supply_group.add_argument(
+        "--power-riden",
+        help="Talk to a Riden power-supply. You must specify the device path, i.e. /dev/ttyUSBxxx",
+    )
+
+    power_supply_group.add_argument(
+        "--power-ppk2-meter",
+        help="Talk to a Nordic Power Profiler Kit 2 (in meter mode)",
+        action="store_true",
+    )
+
+    power_supply_group.add_argument(
+        "--power-ppk2-supply",
+        help="Talk to a Nordic Power Profiler Kit 2 (in supply mode)",
+        action="store_true",
+    )
+
+    power_supply_group.add_argument(
+        "--power-sim",
+        help="Use a simulated power meter (for development)",
+        action="store_true",
+    )
+
+    power_group.add_argument(
+        "--power-voltage",
+        help="Set the specified voltage on the power-supply. Be VERY careful, you can burn things up.",
+    )
+
+    power_group.add_argument(
+        "--power-stress",
+        help="Perform power monitor stress testing, to capture a power consumption profile for the device (also requires --power-mon)",
+        action="store_true",
+    )
+
+    power_group.add_argument(
+        "--power-wait",
+        help="Prompt the user to wait for device reset before looking for device serial ports (some boards kill power to USB serial port)",
+        action="store_true",
+    )
+
+    power_group.add_argument(
+        "--slog",
+        help="Store structured-logs (slogs) for this run, optionally you can specifiy a destination directory",
+        nargs="?",
+        default=None,
+        const="default",
+    )
+
+
+    remoteHardwareArgs = parser.add_argument_group(
+        "Remote Hardware", "Arguments related to the Remote Hardware module"
+    )
+
+    remoteHardwareArgs.add_argument(
+        "--gpio-wrb", nargs=2, help="Set a particular GPIO # to 1 or 0", action="append"
+    )
+
+    remoteHardwareArgs.add_argument(
+        "--gpio-rd", help="Read from a GPIO mask (ex: '0x10')"
+    )
+
+    remoteHardwareArgs.add_argument(
+        "--gpio-watch", help="Start watching a GPIO mask for changes (ex: '0x10')"
+    )
+
     have_tunnel = platform.system() == "Linux"
     if have_tunnel:
-        tunnelArgs = parser.add_argument_group('Tunnel', 'Arguments related to establishing a tunnel device over the mesh.')
+        tunnelArgs = parser.add_argument_group(
+            "Tunnel", "Arguments related to establishing a tunnel device over the mesh."
+        )
         tunnelArgs.add_argument(
             "--tunnel",
             action="store_true",
@@ -1544,7 +1884,6 @@ def initParser():
 
     parser.set_defaults(deprecated=None)
 
-
     args = parser.parse_args()
     mt_config.args = args
     mt_config.parser = parser
@@ -1555,7 +1894,8 @@ def main():
     parser = argparse.ArgumentParser(
         add_help=False,
         epilog="If no connection arguments are specified, we search for a compatible serial device, "
-               "and if none is found, then attempt a TCP connection to localhost.")
+        "and if none is found, then attempt a TCP connection to localhost.",
+    )
     mt_config.parser = parser
     initParser()
     common()

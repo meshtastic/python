@@ -24,8 +24,20 @@ import serial.tools.list_ports # type: ignore[import-untyped]
 from meshtastic.supported_device import supported_devices
 from meshtastic.version import get_active_version
 
-"""Some devices such as a seger jlink we never want to accidentally open"""
-blacklistVids: Dict = dict.fromkeys([0x1366])
+"""Some devices such as a seger jlink or st-link we never want to accidentally open
+     0483 STMicroelectronics ST-LINK/V2
+     0136 SEGGER J-Link
+     1915 NordicSemi (PPK2)
+     0925 Lakeview Research Saleae Logic (logic analyzer)
+04b4:602a Cypress Semiconductor Corp. Hantek DSO-6022BL (oscilloscope)
+"""
+blacklistVids: Dict = dict.fromkeys([0x1366, 0x0483, 0x1915, 0x0925, 0x04b4])
+
+"""Some devices are highly likely to be meshtastic.
+0x239a RAK4631
+0x303a Heltec tracker"""
+whitelistVids = dict.fromkeys([0x239a, 0x303a])
+
 
 def quoteBooleans(a_string: str) -> str:
     """Quote booleans
@@ -71,7 +83,7 @@ def fromStr(valstr: str) -> Any:
         val = bytes()
     elif valstr.startswith("0x"):
         # if needed convert to string with asBytes.decode('utf-8')
-        val = bytes.fromhex(valstr[2:])
+        val = bytes.fromhex(valstr[2:].zfill(2))
     elif valstr.startswith("base64:"):
         val = base64.b64decode(valstr[7:])
     elif valstr.lower() in {"t", "true", "yes"}:
@@ -131,19 +143,35 @@ def findPorts(eliminate_duplicates: bool=False) -> List[str]:
     Returns:
         list -- a list of device paths
     """
-    l: List = list(
+    all_ports = serial.tools.list_ports.comports()
+
+    # look for 'likely' meshtastic devices
+    ports: List = list(
         map(
             lambda port: port.device,
             filter(
-                lambda port: port.vid is not None and port.vid not in blacklistVids,
-                serial.tools.list_ports.comports(),
+                lambda port: port.vid is not None and port.vid in whitelistVids,
+                all_ports,
             ),
         )
     )
-    l.sort()
+
+    # if no likely devices, just list everything not blacklisted
+    if len(ports) == 0:
+        ports = list(
+            map(
+                lambda port: port.device,
+                filter(
+                    lambda port: port.vid is not None and port.vid not in blacklistVids,
+                    all_ports,
+                ),
+            )
+        )
+
+    ports.sort()
     if eliminate_duplicates:
-        l = eliminate_duplicate_port(l)
-    return l
+        ports = eliminate_duplicate_port(ports)
+    return ports
 
 
 class dotdict(dict):
@@ -243,9 +271,10 @@ class Acknowledgment:
 class DeferredExecution:
     """A thread that accepts closures to run, and runs them as they are received"""
 
-    def __init__(self, name=None) -> None:
+    def __init__(self, name) -> None:
         self.queue: Queue = Queue()
-        self.thread = threading.Thread(target=self._run, args=(), name=name)
+        # this thread must be marked as daemon, otherwise it will prevent clients from exiting
+        self.thread = threading.Thread(target=self._run, args=(), name=name, daemon=True)
         self.thread.daemon = True
         self.thread.start()
 

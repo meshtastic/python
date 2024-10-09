@@ -13,35 +13,34 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install Python 3
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
       - name: Uninstall meshtastic
         run: |
-          pip3 uninstall meshtastic
+          pip3 uninstall -y meshtastic
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip3 install -r requirements.txt
+          pip3 install poetry
       - name: Install meshtastic from local
         run: |
-          pip3 install .
-          which meshtastic
-          meshtastic --version
+          poetry install --all-extras --with dev,powermon
+          poetry run meshtastic --version
       - name: Run pylint
-        run: pylint meshtastic examples/ --ignore-patterns ".*_pb2.pyi?$"
+        run: poetry run pylint meshtastic examples/ --ignore-patterns ".*_pb2.pyi?$"
       - name: Check types with mypy
-        run: mypy meshtastic/
+        run: poetry run mypy meshtastic/
       - name: Run tests with pytest
-        run: pytest --cov=meshtastic
+        run: poetry run pytest --cov=meshtastic
       - name: Generate coverage report
         run: |
-          pytest --cov=meshtastic --cov-report=xml
+          poetry run pytest --cov=meshtastic --cov-report=xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -57,16 +56,17 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install Python 3
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
       - name: Install meshtastic from local
         run: |
-          pip3 install .
-          which meshtastic
-          meshtastic --version
+          python -m pip install --upgrade pip
+          pip3 install poetry
+          poetry install
+          poetry run meshtastic --version

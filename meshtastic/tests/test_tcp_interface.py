@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from .. import config_pb2
+from ..protobuf import config_pb2
 from ..tcp_interface import TCPInterface
 
 

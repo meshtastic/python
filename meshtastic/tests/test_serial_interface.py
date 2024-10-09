@@ -6,7 +6,7 @@ from unittest.mock import mock_open, patch
 import pytest
 
 from ..serial_interface import SerialInterface
-from .. import config_pb2
+from ..protobuf import config_pb2
 
 
 @pytest.mark.unit

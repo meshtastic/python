@@ -16,3 +16,5 @@ __pycache__
 examples/__pycache__
 meshtastic.spec
 .hypothesis/
+coverage.xml
+.ipynb_checkpoints

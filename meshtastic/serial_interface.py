@@ -67,9 +67,10 @@ class SerialInterface(StreamInterface):
 
     def close(self) -> None:
         """Close a connection to the device"""
-        self.stream.flush()
-        time.sleep(0.1)
-        self.stream.flush()
-        time.sleep(0.1)
+        if self.stream:  # Stream can be null if we were already closed
+            self.stream.flush()  # FIXME: why are there these  two flushes with 100ms sleeps?  This shouldn't be necessary
+            time.sleep(0.1)
+            self.stream.flush()
+            time.sleep(0.1)
         logging.debug("Closing Serial stream")
         StreamInterface.close(self)

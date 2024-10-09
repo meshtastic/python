@@ -31,6 +31,7 @@ type of packet, you should subscribe to the full topic name.  If you want to see
 - meshtastic.receive.user(packet)
 - meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)
 - meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
+- meshtastic.log.line(line) - a raw unparsed log line from the radio
 
 We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for
 that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet
@@ -76,13 +77,15 @@ from typing import *
 
 import google.protobuf.json_format
 import serial # type: ignore[import-untyped]
-import timeago # type: ignore[import-untyped]
 from dotmap import DotMap # type: ignore[import-untyped]
 from google.protobuf.json_format import MessageToJson
 from pubsub import pub # type: ignore[import-untyped]
 from tabulate import tabulate
 
-from meshtastic import (
+from meshtastic.node import Node
+from meshtastic.util import DeferredExecution, Timeout, catchAndIgnore, fixme, stripnl
+
+from .protobuf import (
     admin_pb2,
     apponly_pb2,
     channel_pb2,
@@ -94,10 +97,11 @@ from meshtastic import (
     remote_hardware_pb2,
     storeforward_pb2,
     telemetry_pb2,
+    powermon_pb2
+)
+from . import (
     util,
 )
-from meshtastic.node import Node
-from meshtastic.util import DeferredExecution, Timeout, catchAndIgnore, fixme, stripnl
 
 # Note: To follow PEP224, comments should be after the module variable.
 
@@ -128,6 +132,7 @@ class ResponseHandler(NamedTuple):
 
     # requestId: int - used only as a key
     callback: Callable
+    ackPermitted: bool = False
     # FIXME, add timestamp and age out old requests
 
 
@@ -186,6 +191,16 @@ def _onNodeInfoReceive(iface, asDict):
             iface.nodes[p["id"]] = n
             _receiveInfoUpdate(iface, asDict)
 
+def _onTelemetryReceive(iface, asDict):
+    """Automatically update device metrics on received packets"""
+    logging.debug(f"in _onTelemetryReceive() asDict:{asDict}")
+    deviceMetrics = asDict.get("decoded", {}).get("telemetry", {}).get("deviceMetrics")
+    if "from" in asDict and deviceMetrics is not None:
+        node = iface._getOrCreateByNum(asDict["from"])
+        newMetrics = node.get("deviceMetrics", {})
+        newMetrics.update(deviceMetrics)
+        logging.debug(f"updating metrics for {asDict['from']} to {newMetrics}")
+        node["deviceMetrics"] = newMetrics
 
 def _receiveInfoUpdate(iface, asDict):
     if "from" in asDict:
@@ -194,6 +209,12 @@ def _receiveInfoUpdate(iface, asDict):
         iface._getOrCreateByNum(asDict["from"])["snr"] = asDict.get("rxSnr")
         iface._getOrCreateByNum(asDict["from"])["hopLimit"] = asDict.get("hopLimit")
 
+def _onAdminReceive(iface, asDict):
+    """Special auto parsing for received messages"""
+    logging.debug(f"in _onAdminReceive() asDict:{asDict}")
+    if "decoded" in asDict and "from" in asDict and "admin" in asDict["decoded"]:
+        adminMessage = asDict["decoded"]["admin"]["raw"]
+        iface._getOrCreateByNum(asDict["from"])["adminSessionPassKey"] = adminMessage.session_passkey
 
 """Well known message payloads can register decoders for automatic protobuf parsing"""
 protocols = {
@@ -213,10 +234,12 @@ protocols = {
     portnums_pb2.PortNum.NODEINFO_APP: KnownProtocol(
         "user", mesh_pb2.User, _onNodeInfoReceive
     ),
-    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol("admin", admin_pb2.AdminMessage),
+    portnums_pb2.PortNum.ADMIN_APP: KnownProtocol(
+        "admin", admin_pb2.AdminMessage, _onAdminReceive
+    ),
     portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
     portnums_pb2.PortNum.TELEMETRY_APP: KnownProtocol(
-        "telemetry", telemetry_pb2.Telemetry
+        "telemetry", telemetry_pb2.Telemetry, _onTelemetryReceive
     ),
     portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol(
         "remotehw", remote_hardware_pb2.HardwareMessage
@@ -224,6 +247,9 @@ protocols = {
     portnums_pb2.PortNum.SIMULATOR_APP: KnownProtocol("simulator", mesh_pb2.Compressed),
     portnums_pb2.PortNum.TRACEROUTE_APP: KnownProtocol(
         "traceroute", mesh_pb2.RouteDiscovery
+    ),
+    portnums_pb2.PortNum.POWERSTRESS_APP: KnownProtocol(
+        "powerstress", powermon_pb2.PowerStressMessage
     ),
     portnums_pb2.PortNum.WAYPOINT_APP: KnownProtocol("waypoint", mesh_pb2.Waypoint),
     portnums_pb2.PortNum.PAXCOUNTER_APP: KnownProtocol("paxcounter", paxcount_pb2.Paxcount),

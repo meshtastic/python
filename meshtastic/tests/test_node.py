@@ -6,8 +6,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from .. import localonly_pb2, config_pb2
-from ..channel_pb2 import Channel # pylint: disable=E0611
+from ..protobuf import localonly_pb2, config_pb2
+from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 from ..node import Node
 from ..serial_interface import SerialInterface
 from ..mesh_interface import MeshInterface
@@ -231,7 +231,9 @@ def test_node(capsys):
 @pytest.mark.unit
 def test_exitSimulator(caplog):
     """Test exitSimulator"""
-    anode = Node("foo", "bar", noProto=True)
+    interface = MeshInterface()
+    interface.nodesByNum = {}
+    anode = Node(interface, "!ba400000", noProto=True)
     with caplog.at_level(logging.DEBUG):
         anode.exitSimulator()
     assert re.search(r"in exitSimulator", caplog.text, re.MULTILINE)
@@ -240,7 +242,9 @@ def test_exitSimulator(caplog):
 @pytest.mark.unit
 def test_reboot(caplog):
     """Test reboot"""
-    anode = Node(MeshInterface(), 1234567890, noProto=True)
+    interface = MeshInterface()
+    interface.nodesByNum = {}
+    anode = Node(interface, 1234567890, noProto=True)
     with caplog.at_level(logging.DEBUG):
         anode.reboot()
     assert re.search(r"Telling node to reboot", caplog.text, re.MULTILINE)
@@ -249,7 +253,9 @@ def test_reboot(caplog):
 @pytest.mark.unit
 def test_shutdown(caplog):
     """Test shutdown"""
-    anode = Node(MeshInterface(), 1234567890, noProto=True)
+    interface = MeshInterface()
+    interface.nodesByNum = {}
+    anode = Node(interface, 1234567890, noProto=True)
     with caplog.at_level(logging.DEBUG):
         anode.shutdown()
     assert re.search(r"Telling node to shutdown", caplog.text, re.MULTILINE)
@@ -836,6 +842,34 @@ def test_requestChannel_localNode(caplog):
             assert re.search(r"Requesting channel 0", caplog.text, re.MULTILINE)
             assert not re.search(r"from remote node", caplog.text, re.MULTILINE)
 
+@pytest.mark.unit
+def test_requestChannels_non_localNode(caplog):
+    """Test requestChannels() with a starting index of 0"""
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, "bar", noProto=True)
+        anode.partialChannels = ['0']
+        with caplog.at_level(logging.DEBUG):
+            anode.requestChannels(0)
+            assert re.search(f"Requesting channel 0 info from remote node", caplog.text, re.MULTILINE)
+            assert anode.partialChannels == []
+
+@pytest.mark.unit
+def test_requestChannels_non_localNode_starting_index(caplog):
+    """Test requestChannels() with a starting index of non-0"""
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        mo.localNode.getChannelByName.return_value = None
+        mo.myInfo.max_channels = 8
+        anode = Node(mo, "bar", noProto=True)
+        anode.partialChannels = ['1']
+        with caplog.at_level(logging.DEBUG):
+            anode.requestChannels(3)
+            assert re.search(f"Requesting channel 3 info from remote node", caplog.text, re.MULTILINE)
+            # make sure it hasn't been initialized
+            assert anode.partialChannels == ['1']
 
 # @pytest.mark.unit
 # def test_onResponseRequestCannedMessagePluginMesagePart1(caplog):
