@@ -1,5 +1,6 @@
 """Stream Interface base class
 """
+import io
 import logging
 import threading
 import time
