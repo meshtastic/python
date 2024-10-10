@@ -11,7 +11,7 @@ import os
 import platform
 import sys
 import time
-from typing import Optional
+from typing import List, Optional
 
 import pyqrcode  # type: ignore[import-untyped]
 import yaml
@@ -42,7 +42,7 @@ except ImportError as e:
 from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
 from meshtastic.version import get_active_version
 
-def onReceive(packet, interface):
+def onReceive(packet, interface) -> None:
     """Callback invoked when a packet arrives"""
     args = mt_config.args
     try:
@@ -73,7 +73,7 @@ def onReceive(packet, interface):
         print(f"Warning: There is no field {ex} in the packet.")
 
 
-def onConnection(interface, topic=pub.AUTO_TOPIC):  # pylint: disable=W0613
+def onConnection(interface, topic=pub.AUTO_TOPIC) -> None:  # pylint: disable=W0613
     """Callback invoked when we connect/disconnect from a radio"""
     print(f"Connection changed: {topic.getName()}")
 
@@ -85,7 +85,7 @@ def checkChannel(interface: MeshInterface, channelIndex: int) -> bool:
     return ch and ch.role != channel_pb2.Channel.Role.DISABLED
 
 
-def getPref(node, comp_name):
+def getPref(node, comp_name) -> bool:
     """Get a channel or preferences value"""
 
     name = splitCompoundName(comp_name)
@@ -100,11 +100,11 @@ def getPref(node, comp_name):
     # First validate the input
     localConfig = node.localConfig
     moduleConfig = node.moduleConfig
-    found = False
+    found: bool = False
     for config in [localConfig, moduleConfig]:
         objDesc = config.DESCRIPTOR
         config_type = objDesc.fields_by_name.get(name[0])
-        pref = False
+        pref = False		#FIXME - checkme - Used here as boolean, but set 2 lines below as a string.
         if config_type:
             pref = config_type.message_type.fields_by_name.get(snake_name)
             if pref or wholeField:
@@ -151,16 +151,16 @@ def getPref(node, comp_name):
     return True
 
 
-def splitCompoundName(comp_name):
+def splitCompoundName(comp_name: str) -> List[str]:
     """Split compound (dot separated) preference name into parts"""
-    name = comp_name.split(".")
+    name: List[str] = comp_name.split(".")
     if len(name) < 2:
         name[0] = comp_name
         name.append(comp_name)
     return name
 
 
-def traverseConfig(config_root, config, interface_config):
+def traverseConfig(config_root, config, interface_config) -> bool:
     """Iterate through current config level preferences and either traverse deeper if preference is a dict or set preference"""
     snake_name = meshtastic.util.camel_to_snake(config_root)
     for pref in config:
@@ -955,7 +955,7 @@ def onConnected(interface):
         sys.exit(1)
 
 
-def printConfig(config):
+def printConfig(config) -> None:
     """print configuration"""
     objDesc = config.DESCRIPTOR
     for config_section in objDesc.fields:
@@ -972,12 +972,12 @@ def printConfig(config):
                 print(f"    {temp_name}")
 
 
-def onNode(node):
+def onNode(node) -> None:
     """Callback invoked when the node DB changes"""
     print(f"Node changed: {node}")
 
 
-def subscribe():
+def subscribe() -> None:
     """Subscribe to the topics the user probably wants to see, prints output to stdout"""
     pub.subscribe(onReceive, "meshtastic.receive")
     # pub.subscribe(onConnection, "meshtastic.connection")
@@ -988,7 +988,7 @@ def subscribe():
     # pub.subscribe(onNode, "meshtastic.node")
 
 
-def export_config(interface):
+def export_config(interface) -> str:
     """used in --export-config"""
     configObj = {}
 
@@ -1020,7 +1020,7 @@ def export_config(interface):
         if alt:
             configObj["location"]["alt"] = alt
 
-    config = MessageToDict(interface.localNode.localConfig)
+    config = MessageToDict(interface.localNode.localConfig)	#checkme - Used as a dictionary here and a string below
     if config:
         # Convert inner keys to correct snake/camelCase
         prefs = {}
@@ -1030,7 +1030,7 @@ def export_config(interface):
             else:
                 prefs[pref] = config[pref]
         if mt_config.camel_case:
-            configObj["config"] = config
+            configObj["config"] = config		#Identical command here and 2 lines below?
         else:
             configObj["config"] = config
 
@@ -1046,10 +1046,10 @@ def export_config(interface):
         else:
             configObj["module_config"] = prefs
 
-    config = "# start of Meshtastic configure yaml\n"
-    config += yaml.dump(configObj)
-    print(config)
-    return config
+    config_txt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out) was used as a string here and a Dictionary above
+    config_txt += yaml.dump(configObj)
+    print(config_txt)
+    return config_txt
 
 
 def create_power_meter():

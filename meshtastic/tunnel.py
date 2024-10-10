@@ -43,7 +43,7 @@ class Tunnel:
             self.message = message
             super().__init__(self.message)
 
-    def __init__(self, iface, subnet="10.115", netmask="255.255.0.0"):
+    def __init__(self, iface, subnet: str="10.115", netmask: str="255.255.0.0") -> None:
         """
         Constructor
 
