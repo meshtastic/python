@@ -5,6 +5,7 @@ import atexit
 import logging
 import struct
 import time
+import io
 from threading import Thread
 from typing import List, Optional, Tuple
 
