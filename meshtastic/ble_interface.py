@@ -151,7 +151,7 @@ class BLEInterface(MeshInterface):
             )
         return addressed_devices[0]
 
-    def _sanitize_address(address: Optional[str]) -> Optional[str]:  # pylint: disable=E0213
+    def _sanitize_address(self, address: Optional[str]) -> Optional[str]:  # pylint: disable=E0213
         "Standardize BLE address by removing extraneous characters and lowercasing."
         if address is None:
             return None

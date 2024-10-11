@@ -104,7 +104,7 @@ def getPref(node, comp_name) -> bool:
     for config in [localConfig, moduleConfig]:
         objDesc = config.DESCRIPTOR
         config_type = objDesc.fields_by_name.get(name[0])
-        pref = False		#FIXME - checkme - Used here as boolean, but set 2 lines below as a string.
+        pref = ""		#FIXME - is this correct to leave as an empty string if not found?
         if config_type:
             pref = config_type.message_type.fields_by_name.get(snake_name)
             if pref or wholeField:
