@@ -7,7 +7,7 @@ import struct
 import time
 import io
 from threading import Thread
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 import google.protobuf
 from bleak import BleakClient, BleakScanner, BLEDevice

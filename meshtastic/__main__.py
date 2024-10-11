@@ -1046,7 +1046,8 @@ def export_config(interface) -> str:
         else:
             configObj["module_config"] = prefs
 
-    config_txt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out) was used as a string here and a Dictionary above
+    config_txt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out)
+                                                                        #was used as a string here and a Dictionary above
     config_txt += yaml.dump(configObj)
     print(config_txt)
     return config_txt

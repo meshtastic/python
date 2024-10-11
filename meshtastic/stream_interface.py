@@ -6,9 +6,9 @@ import threading
 import time
 import traceback
 
-import serial # type: ignore[import-untyped]
-
 from typing import Optional, cast
+
+import serial # type: ignore[import-untyped]
 
 from meshtastic.mesh_interface import MeshInterface
 from meshtastic.util import is_windows11, stripnl

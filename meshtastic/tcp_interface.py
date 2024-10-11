@@ -49,7 +49,7 @@ class TCPInterface(StreamInterface):
         """Shutdown the socket.
         Note: Broke out this line so the exception could be unit tested.
         """
-        if socket:
+        if self.socket:		#mian: please check that this should be "if self.socket:"
             cast(socket.socket, self.socket).shutdown(socket.SHUT_RDWR)
 
     def myConnect(self) -> None:

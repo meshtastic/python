@@ -366,7 +366,8 @@ def convert_mac_addr(val: bytes) -> Union[str, bytes]:
     val - base64 encoded value (ex: '/c0gFyhb'))
     returns: a string formatted like a mac address (ex: 'fd:cd:20:17:28:5b')
     """
-    if not re.match("[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", val):		#FIXME - does the regex have to be bytes too to match val since val is bytes?
+    if not re.match("[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", val):	#FIXME - does the regex have to be bytes too to
+                                                                                #match val since val is bytes?
         val_as_bytes: bytes = base64.b64decode(val)
         return hexstr(val_as_bytes)
     return val
@@ -650,7 +651,7 @@ def check_if_newer_version() -> Optional[str]:
     try:
         parsed_act_version = pkg_version.parse(act_version)
         parsed_pypi_version = pkg_version.parse(pypi_version)
-        #Note: if handed "None" when we can't download the pypi_version, 
+        #Note: if handed "None" when we can't download the pypi_version,
         #this gets a TypeError:
         #"TypeError: expected string or bytes-like object, got 'NoneType'"
         #Handle that below?
