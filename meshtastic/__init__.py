@@ -194,13 +194,31 @@ def _onNodeInfoReceive(iface, asDict):
 def _onTelemetryReceive(iface, asDict):
     """Automatically update device metrics on received packets"""
     logging.debug(f"in _onTelemetryReceive() asDict:{asDict}")
-    deviceMetrics = asDict.get("decoded", {}).get("telemetry", {}).get("deviceMetrics")
-    if "from" in asDict and deviceMetrics is not None:
-        node = iface._getOrCreateByNum(asDict["from"])
-        newMetrics = node.get("deviceMetrics", {})
-        newMetrics.update(deviceMetrics)
-        logging.debug(f"updating metrics for {asDict['from']} to {newMetrics}")
-        node["deviceMetrics"] = newMetrics
+    if "from" not in asDict:
+        return
+
+    toUpdate = None
+
+    telemetry = asDict.get("decoded", {}).get("telemetry", {})
+    node = iface._getOrCreateByNum(asDict["from"])
+    if "deviceMetrics" in telemetry:
+        toUpdate = "deviceMetrics"
+    elif "environmentMetrics" in telemetry:
+        toUpdate = "environmentMetrics"
+    elif "airQualityMetrics" in telemetry:
+        toUpdate = "airQualityMetrics"
+    elif "powerMetrics" in telemetry:
+        toUpdate = "powerMetrics"
+    elif "localStats" in telemetry:
+        toUpdate = "localStats"
+    else:
+        return
+
+    updateObj = telemetry.get(toUpdate)
+    newMetrics = node.get(toUpdate, {})
+    newMetrics.update(updateObj)
+    logging.debug(f"updating {toUpdate} metrics for {asDict['from']} to {newMetrics}")
+    node[toUpdate] = newMetrics
 
 def _receiveInfoUpdate(iface, asDict):
     if "from" in asDict:
