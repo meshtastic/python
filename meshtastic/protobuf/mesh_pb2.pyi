@@ -369,6 +369,16 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """Pico2 with Waveshare Hat, same as Pico"""
     M5STACK_CORES3: _HardwareModel.ValueType  # 80
     """M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, CoreS3, Paper) https://m5stack.com/"""
+    SEEED_XIAO_S3: _HardwareModel.ValueType  # 81
+    """Seeed XIAO S3 DK"""
+    MS24SF1: _HardwareModel.ValueType  # 82
+    """
+    Nordic nRF52840+Semtech SX1262 LoRa BLE Combo Module. nRF52840+SX1262 MS24SF1
+    """
+    TLORA_C6: _HardwareModel.ValueType  # 83
+    """
+    Lilygo TLora-C6 with the new ESP32-C6 MCU
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -722,6 +732,16 @@ RPI_PICO2: HardwareModel.ValueType  # 79
 """Pico2 with Waveshare Hat, same as Pico"""
 M5STACK_CORES3: HardwareModel.ValueType  # 80
 """M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, CoreS3, Paper) https://m5stack.com/"""
+SEEED_XIAO_S3: HardwareModel.ValueType  # 81
+"""Seeed XIAO S3 DK"""
+MS24SF1: HardwareModel.ValueType  # 82
+"""
+Nordic nRF52840+Semtech SX1262 LoRa BLE Combo Module. nRF52840+SX1262 MS24SF1
+"""
+TLORA_C6: HardwareModel.ValueType  # 83
+"""
+Lilygo TLora-C6 with the new ESP32-C6 MCU
+"""
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
 ------------------------------------------------------------------------------------------------------------------------------------------
