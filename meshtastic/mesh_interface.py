@@ -1,5 +1,6 @@
 """Mesh Interface class
 """
+# pylint: disable=R0917
 
 import collections
 import json

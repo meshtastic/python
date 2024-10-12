@@ -1,5 +1,5 @@
 """Meshtastic unit tests for __main__.py"""
-# pylint: disable=C0302,W0613
+# pylint: disable=C0302,W0613,R0917
 
 import logging
 import os
