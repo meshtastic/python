@@ -661,22 +661,32 @@ class MeshInterface:  # pylint: disable=R0902
             self._acknowledgment.receivedTelemetry = True
             telemetry = telemetry_pb2.Telemetry()
             telemetry.ParseFromString(p["decoded"]["payload"])
-
             print("Telemetry received:")
-            if telemetry.device_metrics.battery_level is not None:
-                print(f"Battery level: {telemetry.device_metrics.battery_level:.2f}%")
-            if telemetry.device_metrics.voltage is not None:
-                print(f"Voltage: {telemetry.device_metrics.voltage:.2f} V")
-            if telemetry.device_metrics.channel_utilization is not None:
-                print(
-                    f"Total channel utilization: {telemetry.device_metrics.channel_utilization:.2f}%"
-                )
-            if telemetry.device_metrics.air_util_tx is not None:
-                print(
-                    f"Transmit air utilization: {telemetry.device_metrics.air_util_tx:.2f}%"
-                )
-            if telemetry.device_metrics.uptime_seconds is not None:
-                print(f"Uptime: {telemetry.device_metrics.uptime_seconds} s")
+            # Check if the telemetry message has the device_metrics field
+            # This is the original code that was the default for --request-telemetry and is kept for compatibility
+            if telemetry.HasField("device_metrics"):
+                if telemetry.device_metrics.battery_level is not None:
+                    print(f"Battery level: {telemetry.device_metrics.battery_level:.2f}%")
+                if telemetry.device_metrics.voltage is not None:
+                    print(f"Voltage: {telemetry.device_metrics.voltage:.2f} V")
+                if telemetry.device_metrics.channel_utilization is not None:
+                    print(
+                        f"Total channel utilization: {telemetry.device_metrics.channel_utilization:.2f}%"
+                    )
+                if telemetry.device_metrics.air_util_tx is not None:
+                    print(
+                        f"Transmit air utilization: {telemetry.device_metrics.air_util_tx:.2f}%"
+                    )
+                if telemetry.device_metrics.uptime_seconds is not None:
+                    print(f"Uptime: {telemetry.device_metrics.uptime_seconds} s")
+            else:
+                # this is the new code if --request-telemetry <type> is used.
+                telemetry_dict = google.protobuf.json_format.MessageToDict(telemetry)
+                for key, value in telemetry_dict.items():
+                    if key != "time": # protobuf includes a time field that we don't print for device_metrics.
+                        print(f"{key}:")
+                        for sub_key, sub_value in value.items():
+                            print(f"  {sub_key}: {sub_value}")
 
         elif p["decoded"]["portnum"] == "ROUTING_APP":
             if p["decoded"]["routing"]["errorReason"] == "NO_RESPONSE":
