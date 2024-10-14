@@ -1842,7 +1842,7 @@ def initParser():
 
     power_group.add_argument(
         "--slog",
-        help="Store structured-logs (slogs) for this run, optionally you can specifiy a destination directory",
+        help="Store structured-logs (slogs) for this run, optionally you can specify a destination directory",
         nargs="?",
         default=None,
         const="default",
