@@ -475,13 +475,22 @@ def onConnected(interface):
             else:
                 channelIndex = mt_config.channel_index or 0
                 if checkChannel(interface, channelIndex):
+                    telemMap = {
+                        "device": "device_metrics",
+                        "environment": "environment_metrics",
+                        "air_quality": "air_quality_metrics",
+                        "airquality": "air_quality_metrics",
+                        "power": "power_metrics",
+                    }
+                    telemType = telemMap.get(args.request_telemetry, "device_metrics")
                     print(
-                        f"Sending telemetry request to {args.dest} on channelIndex:{channelIndex} (this could take a while)"
+                        f"Sending {telemType} telemetry request to {args.dest} on channelIndex:{channelIndex} (this could take a while)"
                     )
                     interface.sendTelemetry(
                         destinationId=args.dest,
                         wantResponse=True,
                         channelIndex=channelIndex,
+                        telemetryType=telemType,
                     )
 
         if args.request_position:
@@ -1592,10 +1601,14 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
 
     group.add_argument(
         "--request-telemetry",
-        help="Request telemetry from a node. "
+        help="Request telemetry from a node. With an argument, requests that specific type of telemetry.  "
         "You need to pass the destination ID as argument with '--dest'. "
         "For repeaters, the nodeNum is required.",
-        action="store_true",
+        action="store",
+        nargs="?",
+        default=None,
+        const="device",
+        metavar="TYPE",
     )
 
     group.add_argument(
