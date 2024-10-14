@@ -618,7 +618,7 @@ class MeshInterface:  # pylint: disable=R0902
         elif telemetryType == "power_metrics":
             r.power_metrics.CopyFrom(telemetry_pb2.PowerMetrics())
         else: # fall through to device metrics
-            if self.nodes is not None:
+            if self.nodesByNum is not None:
                 node = self.nodesByNum.get(self.localNode.nodeNum)
                 if node is not None:
                     metrics = node.get("deviceMetrics")
