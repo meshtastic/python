@@ -631,19 +631,15 @@ def onConnected(interface):
 
                     if "alt" in configuration["location"]:
                         alt = int(configuration["location"]["alt"] or 0)
-                        localConfig.position.fixed_position = True
                         print(f"Fixing altitude at {alt} meters")
                     if "lat" in configuration["location"]:
                         lat = float(configuration["location"]["lat"] or 0)
-                        localConfig.position.fixed_position = True
                         print(f"Fixing latitude at {lat} degrees")
                     if "lon" in configuration["location"]:
                         lon = float(configuration["location"]["lon"] or 0)
-                        localConfig.position.fixed_position = True
                         print(f"Fixing longitude at {lon} degrees")
                     print("Setting device position")
-                    interface.sendPosition(lat, lon, alt)
-                    interface.localNode.writeConfig("position")
+                    interface.localNode.setFixedPosition(lat, lon, alt)
 
                 if "config" in configuration:
                     localConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig
