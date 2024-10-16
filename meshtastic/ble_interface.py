@@ -218,7 +218,7 @@ class BLEInterface(MeshInterface):
             logging.error(f"Error closing mesh interface: {e}")
 
         if self._want_receive:
-            self.want_receive = False  # Tell the thread we want it to stop
+            self._want_receive = False  # Tell the thread we want it to stop
             if self._receiveThread:
                 self._receiveThread.join(
                     timeout=2
@@ -230,6 +230,7 @@ class BLEInterface(MeshInterface):
             self.client.disconnect()
             self.client.close()
             self.client = None
+        self._disconnected() # send the disconnected indicator up to clients
 
 
 class BLEClient:
