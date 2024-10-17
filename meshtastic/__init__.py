@@ -2,41 +2,44 @@
 # A library for the Meshtastic Client API
 
 Primary interfaces: SerialInterface, TCPInterface, BLEInterface
+
 Install with pip: "[pip3 install meshtastic](https://pypi.org/project/meshtastic/)"
+
 Source code on [github](https://github.com/meshtastic/python)
 
 notable properties of interface classes:
 
-- nodes - The database of received nodes.  Includes always up-to-date location and username information for each
+- `nodes` - The database of received nodes.  Includes always up-to-date location and username information for each
 node in the mesh.  This is a read-only datastructure.
-- nodesByNum - like "nodes" but keyed by nodeNum instead of nodeId
-- myInfo & metadata - Contain read-only information about the local radio device (software version, hardware version, etc)
-- localNode - Pointer to a node object for the local node
+- `nodesByNum` - like "nodes" but keyed by nodeNum instead of nodeId. As such, includes "unknown" nodes which haven't seen a User packet yet
+- `myInfo` & `metadata` - Contain read-only information about the local radio device (software version, hardware version, etc)
+- `localNode` - Pointer to a node object for the local node
 
 notable properties of nodes:
-- localConfig - Current radio settings, can be written to the radio with the `writeConfig` method.
-- moduleConfig - Current module settings, can be written to the radio with the `writeConfig` method.
-- channels - The node's channels, keyed by index.
+
+- `localConfig` - Current radio settings, can be written to the radio with the `writeConfig` method.
+- `moduleConfig` - Current module settings, can be written to the radio with the `writeConfig` method.
+- `channels` - The node's channels, keyed by index.
 
 # Published PubSub topics
 
 We use a [publish-subscribe](https://pypubsub.readthedocs.io/en/v4.0.3/) model to communicate asynchronous events.  Available
 topics:
 
-- meshtastic.connection.established - published once we've successfully connected to the radio and downloaded the node DB
-- meshtastic.connection.lost - published once we've lost our link to the radio
-- meshtastic.receive.text(packet) - delivers a received packet as a dictionary, if you only care about a particular
+- `meshtastic.connection.established` - published once we've successfully connected to the radio and downloaded the node DB
+- `meshtastic.connection.lost` - published once we've lost our link to the radio
+- `meshtastic.receive.text(packet)` - delivers a received packet as a dictionary, if you only care about a particular
 type of packet, you should subscribe to the full topic name.  If you want to see all packets, simply subscribe to "meshtastic.receive".
-- meshtastic.receive.position(packet)
-- meshtastic.receive.user(packet)
-- meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)
-- meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
-- meshtastic.log.line(line) - a raw unparsed log line from the radio
+- `meshtastic.receive.position(packet)`
+- `meshtastic.receive.user(packet)`
+- `meshtastic.receive.data.portnum(packet)` (where portnum is an integer or well known PortNum enum)
+- `meshtastic.node.updated(node = NodeInfo)` - published when a node in the DB changes (appears, location changed, username changed, etc...)
+- `meshtastic.log.line(line)` - a raw unparsed log line from the radio
 
-We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for
-that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet
-you'll see the fields in the dictionary.  decoded.data.payload will contain the raw bytes that were sent.  If the packet was sent with
-sendText, decoded.data.text will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for
+We receive position, user, or data packets from the mesh.  You probably only care about `meshtastic.receive.data`.  The first argument for
+that publish will be the packet.  Text or binary data packets (from `sendData` or `sendText`) will both arrive this way.  If you print packet
+you'll see the fields in the dictionary.  `decoded.data.payload` will contain the raw bytes that were sent.  If the packet was sent with
+`sendText`, `decoded.data.text` will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for
 unicode scripts they can be different.
 
 # Example Usage
