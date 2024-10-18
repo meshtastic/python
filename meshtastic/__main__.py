@@ -1034,6 +1034,15 @@ def export_config(interface):
                 prefs[meshtastic.util.snake_to_camel(pref)] = config[pref]
             else:
                 prefs[pref] = config[pref]
+            # mark base64 encoded fields as such
+            if pref == "security":
+                if 'privateKey' in prefs[pref]:
+                    prefs[pref]['privateKey'] = 'base64:' + prefs[pref]['privateKey']
+                if 'publicKey' in prefs[pref]:
+                    prefs[pref]['publicKey'] = 'base64:' + prefs[pref]['publicKey']
+                if 'adminKey' in prefs[pref]:
+                    for i in range(len(prefs[pref]['adminKey'])):
+                        prefs[pref]['adminKey'][i] = 'base64:' + prefs[pref]['adminKey'][i]
         if mt_config.camel_case:
             configObj["config"] = config
         else:
