@@ -247,10 +247,11 @@ class MeshInterface:  # pylint: disable=R0902
                 if not includeSelf and node["num"] == self.localNode.nodeNum:
                     continue
 
+                mqtt_suffix = ' (MQTT)' if node.get('viaMqtt') else ''
                 presumptive_id = f"!{node['num']:08x}"
                 row = {
                     "N": 0,
-                    "User": f"Meshtastic {presumptive_id[-4:]}",
+                    "User": f"Meshtastic {presumptive_id[-4:]}" + mqtt_suffix,
                     "ID": presumptive_id,
                 }
 
@@ -258,7 +259,7 @@ class MeshInterface:  # pylint: disable=R0902
                 if user:
                     row.update(
                         {
-                            "User": user.get("longName", "N/A"),
+                            "User": user.get("longName", "N/A") + mqtt_suffix,
                             "AKA": user.get("shortName", "N/A"),
                             "ID": user["id"],
                             "Hardware": user.get("hwModel", "UNSET"),
