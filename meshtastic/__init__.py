@@ -134,7 +134,9 @@ class ResponseHandler(NamedTuple):
     """A pending response callback, waiting for a response to one of our messages"""
 
     # requestId: int - used only as a key
+    #: a callable to call when a response is received
     callback: Callable
+    #: Whether ACKs and NAKs should be passed to this handler
     ackPermitted: bool = False
     # FIXME, add timestamp and age out old requests
 
@@ -142,11 +144,11 @@ class ResponseHandler(NamedTuple):
 class KnownProtocol(NamedTuple):
     """Used to automatically decode known protocol payloads"""
 
+    #: A descriptive name (e.g. "text", "user", "admin")
     name: str
-    # portnum: int, now a key
-    # If set, will be called to prase as a protocol buffer
+    #: If set, will be called to parse as a protocol buffer
     protobufFactory: Optional[Callable] = None
-    # If set, invoked as onReceive(interface, packet)
+    #: If set, invoked as onReceive(interface, packet)
     onReceive: Optional[Callable] = None
 
 
