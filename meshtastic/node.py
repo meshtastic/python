@@ -121,7 +121,7 @@ class Node:
                 )
                 return
             if config_values is not None:
-                raw_config = getattr(getattr(adminMessage['raw'], oneof), field)
+                raw_config = getattr(getattr(adminMessage['raw'], oneof), camel_to_snake(field))
                 config_values.CopyFrom(raw_config)
                 print(f"{str(camel_to_snake(field))}:\n{str(config_values)}")
 
