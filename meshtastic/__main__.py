@@ -241,6 +241,10 @@ def setPref(config, comp_name, raw_val) -> bool:
             # The setter didn't like our arg type guess try again as a string
             config_values = getattr(config_part, config_type.name)
             setattr(config_values, pref.name, str(val))
+    elif type(val) == list:
+        new_vals = [meshtastic.util.fromStr(x) for x in val]
+        config_values = getattr(config, config_type.name)
+        getattr(config_values, pref.name)[:] = new_vals
     else:
         config_values = getattr(config, config_type.name)
         if val == 0:
