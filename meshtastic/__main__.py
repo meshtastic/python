@@ -87,6 +87,10 @@ def checkChannel(interface: MeshInterface, channelIndex: int) -> bool:
 
 def getPref(node, comp_name):
     """Get a channel or preferences value"""
+    def _printSetting(config_type, uni_name, pref_value):
+        """Pretty print the setting"""
+        print(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
+        logging.debug(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
 
     name = splitCompoundName(comp_name)
     wholeField = name[0] == name[1]  # We want the whole field
@@ -114,7 +118,7 @@ def getPref(node, comp_name):
 
     if not found:
         print(
-            f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {uni_name}."
+            f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {uni_name}."
         )
         print("Choices are...")
         printConfig(localConfig)
@@ -127,11 +131,10 @@ def getPref(node, comp_name):
         config_values = getattr(config, config_type.name)
         if not wholeField:
             pref_value = getattr(config_values, pref.name)
-            print(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
-            logging.debug(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
+            _printSetting(config_type, uni_name, pref_value)
         else:
-            print(f"{str(config_type.name)}:\n{str(config_values)}")
-            logging.debug(f"{str(config_type.name)}: {str(config_values)}")
+            for field in config_values.ListFields():
+                _printSetting(config_type, field[0].name, field[1])
     else:
         # Always show whole field for remote node
         node.requestConfig(config_type)
