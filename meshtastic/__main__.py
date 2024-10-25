@@ -94,6 +94,7 @@ def getPref(node, comp_name):
     camel_name = meshtastic.util.snake_to_camel(name[1])
     # Note: protobufs has the keys in snake_case, so snake internally
     snake_name = meshtastic.util.camel_to_snake(name[1])
+    uni_name = camel_name if mt_config.camel_case else snake_name
     logging.debug(f"snake_name:{snake_name} camel_name:{camel_name}")
     logging.debug(f"use camel:{mt_config.camel_case}")
 
@@ -112,14 +113,9 @@ def getPref(node, comp_name):
                 break
 
     if not found:
-        if mt_config.camel_case:
-            print(
-                f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {snake_name}."
-            )
-        else:
-            print(
-                f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {snake_name}."
-            )
+        print(
+            f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {uni_name}."
+        )
         print("Choices are...")
         printConfig(localConfig)
         printConfig(moduleConfig)
@@ -131,16 +127,8 @@ def getPref(node, comp_name):
         config_values = getattr(config, config_type.name)
         if not wholeField:
             pref_value = getattr(config_values, pref.name)
-            if mt_config.camel_case:
-                print(f"{str(config_type.name)}.{camel_name}: {str(pref_value)}")
-                logging.debug(
-                    f"{str(config_type.name)}.{camel_name}: {str(pref_value)}"
-                )
-            else:
-                print(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
-                logging.debug(
-                    f"{str(config_type.name)}.{snake_name}: {str(pref_value)}"
-                )
+            print(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
+            logging.debug(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
         else:
             print(f"{str(config_type.name)}:\n{str(config_values)}")
             logging.debug(f"{str(config_type.name)}: {str(config_values)}")
