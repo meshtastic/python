@@ -177,6 +177,7 @@ def setPref(config, comp_name, valStr) -> bool:
 
     snake_name = meshtastic.util.camel_to_snake(name[-1])
     camel_name = meshtastic.util.snake_to_camel(name[-1])
+    uni_name = camel_name if mt_config.camel_case else snake_name
     logging.debug(f"snake_name:{snake_name}")
     logging.debug(f"camel_name:{camel_name}")
 
@@ -213,14 +214,9 @@ def setPref(config, comp_name, valStr) -> bool:
         if e:
             val = e.number
         else:
-            if mt_config.camel_case:
-                print(
-                    f"{name[0]}.{camel_name} does not have an enum called {val}, so you can not set it."
-                )
-            else:
-                print(
-                    f"{name[0]}.{snake_name} does not have an enum called {val}, so you can not set it."
-                )
+            print(
+                f"{name[0]}.{uni_name} does not have an enum called {val}, so you can not set it."
+            )
             print(f"Choices in sorted order are:")
             names = []
             for f in enumType.values:
@@ -255,10 +251,7 @@ def setPref(config, comp_name, valStr) -> bool:
             getattr(config_values, pref.name)[:] = cur_vals
 
     prefix = f"{'.'.join(name[0:-1])}." if config_type.message_type is not None else ""
-    if mt_config.camel_case:
-        print(f"Set {prefix}{camel_name} to {valStr}")
-    else:
-        print(f"Set {prefix}{snake_name} to {valStr}")
+    print(f"Set {prefix}{uni_name} to {valStr}")
 
     return True
 
