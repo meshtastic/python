@@ -165,12 +165,12 @@ def traverseConfig(config_root, config, interface_config):
         if isinstance(config[pref], dict):
             traverseConfig(pref_name, config[pref], interface_config)
         else:
-            setPref(interface_config, pref_name, str(config[pref]))
+            setPref(interface_config, pref_name, config[pref])
 
     return True
 
 
-def setPref(config, comp_name, valStr) -> bool:
+def setPref(config, comp_name, raw_val) -> bool:
     """Set a channel or preferences value"""
 
     name = splitCompoundName(comp_name)
@@ -199,10 +199,13 @@ def setPref(config, comp_name, valStr) -> bool:
     if (not pref) or (not config_type):
         return False
 
-    val = meshtastic.util.fromStr(valStr)
-    logging.debug(f"valStr:{valStr} val:{val}")
+    if isinstance(raw_val, str):
+        val = meshtastic.util.fromStr(raw_val)
+    else:
+        val = raw_val
+    logging.debug(f"valStr:{raw_val} val:{val}")
 
-    if snake_name == "wifi_psk" and len(valStr) < 8:
+    if snake_name == "wifi_psk" and len(str(raw_val)) < 8:
         print(f"Warning: network.wifi_psk must be 8 or more characters.")
         return False
 
@@ -237,7 +240,7 @@ def setPref(config, comp_name, valStr) -> bool:
         except TypeError:
             # The setter didn't like our arg type guess try again as a string
             config_values = getattr(config_part, config_type.name)
-            setattr(config_values, pref.name, valStr)
+            setattr(config_values, pref.name, str(val))
     else:
         config_values = getattr(config, config_type.name)
         if val == 0:
@@ -245,13 +248,13 @@ def setPref(config, comp_name, valStr) -> bool:
             print(f"Clearing {pref.name} list")
             del getattr(config_values, pref.name)[:]
         else:
-            print(f"Adding '{val}' to the {pref.name} list")
+            print(f"Adding '{raw_val}' to the {pref.name} list")
             cur_vals = [x for x in getattr(config_values, pref.name) if x not in [0, "", b""]]
             cur_vals.append(val)
             getattr(config_values, pref.name)[:] = cur_vals
 
     prefix = f"{'.'.join(name[0:-1])}." if config_type.message_type is not None else ""
-    print(f"Set {prefix}{uni_name} to {valStr}")
+    print(f"Set {prefix}{uni_name} to {raw_val}")
 
     return True
 
