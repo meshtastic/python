@@ -87,8 +87,12 @@ def checkChannel(interface: MeshInterface, channelIndex: int) -> bool:
 
 def getPref(node, comp_name):
     """Get a channel or preferences value"""
-    def _printSetting(config_type, uni_name, pref_value):
+    def _printSetting(config_type, uni_name, pref_value, repeated):
         """Pretty print the setting"""
+        if repeated:
+            pref_value = [meshtastic.util.toStr(v) for v in pref_value]
+        else:
+            pref_value = meshtastic.util.toStr(pref_value)
         print(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
         logging.debug(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
 
@@ -131,10 +135,12 @@ def getPref(node, comp_name):
         config_values = getattr(config, config_type.name)
         if not wholeField:
             pref_value = getattr(config_values, pref.name)
-            _printSetting(config_type, uni_name, pref_value)
+            repeated = pref.label == pref.LABEL_REPEATED
+            _printSetting(config_type, uni_name, pref_value, repeated)
         else:
             for field in config_values.ListFields():
-                _printSetting(config_type, field[0].name, field[1])
+                repeated = field[0].label == field[0].LABEL_REPEATED
+                _printSetting(config_type, field[0].name, field[1], repeated)
     else:
         # Always show whole field for remote node
         node.requestConfig(config_type)
