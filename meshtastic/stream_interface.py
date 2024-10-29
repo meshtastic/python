@@ -38,6 +38,7 @@ class StreamInterface(MeshInterface):
             raise Exception( # pylint: disable=W0719
                 "StreamInterface is now abstract (to update existing code create SerialInterface instead)"
             )
+        self.stream: Optional[serial.Serial] # only serial uses this, TCPInterface overrides the relevant methods instead
         self._rxBuf = bytes()  # empty
         self._wantExit = False
 
@@ -115,7 +116,7 @@ class StreamInterface(MeshInterface):
         bufLen: int = len(b)
         # We convert into a string, because the TCP code doesn't work with byte arrays
         header: bytes = bytes([START1, START2, (bufLen >> 8) & 0xFF, bufLen & 0xFF])
-        logging.debug(f"sending header:{header} b:{b}")
+        logging.debug(f"sending header:{header!r} b:{b!r}")
         self._writeBytes(header + b)
 
     def close(self) -> None:

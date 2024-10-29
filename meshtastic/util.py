@@ -369,13 +369,12 @@ def readnet_u16(p, offset: int) -> int:
     return p[offset] * 256 + p[offset + 1]
 
 
-def convert_mac_addr(val: bytes) -> Union[str, bytes]:
+def convert_mac_addr(val: str) -> Union[str, bytes]:
     """Convert the base 64 encoded value to a mac address
     val - base64 encoded value (ex: '/c0gFyhb'))
     returns: a string formatted like a mac address (ex: 'fd:cd:20:17:28:5b')
     """
-    if not re.match("[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", val):	#FIXME - does the regex have to be bytes too to
-                                                                                #match val since val is bytes?
+    if not re.match("[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", val):
         val_as_bytes: bytes = base64.b64decode(val)
         return hexstr(val_as_bytes)
     return val
@@ -656,6 +655,8 @@ def check_if_newer_version() -> Optional[str]:
         pass
     act_version = get_active_version()
 
+    if pypi_version is None:
+        return None
     try:
         parsed_act_version = pkg_version.parse(act_version)
         parsed_pypi_version = pkg_version.parse(pypi_version)

@@ -130,7 +130,7 @@ def getPref(node, comp_name) -> bool:
         return False
 
     # Check if we need to request the config
-    if len(config.ListFields()) != 0:
+    if len(config.ListFields()) != 0 and not isinstance(pref, str): # if str, it's still the empty string, I think
         # read the value
         config_values = getattr(config, config_type.name)
         if not wholeField:

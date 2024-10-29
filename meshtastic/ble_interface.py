@@ -174,6 +174,10 @@ class BLEInterface(MeshInterface):
                 self.should_read = False
                 retries: int = 0
                 while self._want_receive:
+                    if self.client is None:
+                        logging.debug(f"BLE client is None, shutting down")
+                        self._want_receive = False
+                        continue
                     try:
                         b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
                     except BleakDBusError as e:
