@@ -16,7 +16,7 @@ Events are delivered using a publish-subscribe model, and you can subscribe to o
 
 **[Getting Started Guide](https://meshtastic.org/docs/software/python/cli/installation)**
 
-(Documentation/API Reference is currently offline)
+**[API Documentation](https://python.meshtastic.org)**
 
 ## Call for Contributors
 
