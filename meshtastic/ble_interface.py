@@ -5,6 +5,7 @@ import atexit
 import logging
 import struct
 import time
+import io
 from threading import Thread
 from typing import List, Optional
 
@@ -34,9 +35,9 @@ class BLEInterface(MeshInterface):
         self,
         address: Optional[str],
         noProto: bool = False,
-        debugOut=None,
+        debugOut: Optional[io.TextIOWrapper]=None,
         noNodes: bool = False,
-    ):
+    ) -> None:
         MeshInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, noNodes=noNodes
         )
@@ -82,7 +83,7 @@ class BLEInterface(MeshInterface):
         # Note: the on disconnected callback will call our self.close which will make us nicely wait for threads to exit
         self._exit_handler = atexit.register(self.client.disconnect)
 
-    def from_num_handler(self, _, b):  # pylint: disable=C0116
+    def from_num_handler(self, _, b: bytes) -> None:  # pylint: disable=C0116
         """Handle callbacks for fromnum notify.
         Note: this method does not need to be async because it is just setting a bool.
         """
@@ -150,9 +151,12 @@ class BLEInterface(MeshInterface):
             )
         return addressed_devices[0]
 
-    def _sanitize_address(address):  # pylint: disable=E0213
+    def _sanitize_address(self, address: Optional[str]) -> Optional[str]:  # pylint: disable=E0213
         "Standardize BLE address by removing extraneous characters and lowercasing."
-        return address.replace("-", "").replace("_", "").replace(":", "").lower()
+        if address is None:
+            return None
+        else:
+            return address.replace("-", "").replace("_", "").replace(":", "").lower()
 
     def connect(self, address: Optional[str] = None) -> "BLEClient":
         "Connect to a device by address."
@@ -164,12 +168,16 @@ class BLEInterface(MeshInterface):
         client.discover()
         return client
 
-    def _receiveFromRadioImpl(self):
+    def _receiveFromRadioImpl(self) -> None:
         while self._want_receive:
             if self.should_read:
                 self.should_read = False
-                retries = 0
+                retries: int = 0
                 while self._want_receive:
+                    if self.client is None:
+                        logging.debug(f"BLE client is None, shutting down")
+                        self._want_receive = False
+                        continue
                     try:
                         b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
                     except BleakDBusError as e:
@@ -194,8 +202,8 @@ class BLEInterface(MeshInterface):
             else:
                 time.sleep(0.01)
 
-    def _sendToRadioImpl(self, toRadio):
-        b = toRadio.SerializeToString()
+    def _sendToRadioImpl(self, toRadio) -> None:
+        b: bytes = toRadio.SerializeToString()
         if b and self.client:  # we silently ignore writes while we are shutting down
             logging.debug(f"TORADIO write: {b.hex()}")
             try:
@@ -211,7 +219,7 @@ class BLEInterface(MeshInterface):
             time.sleep(0.01)
             self.should_read = True
 
-    def close(self):
+    def close(self) -> None:
         try:
             MeshInterface.close(self)
         except Exception as e:
@@ -236,7 +244,7 @@ class BLEInterface(MeshInterface):
 class BLEClient:
     """Client for managing connection to a BLE device"""
 
-    def __init__(self, address=None, **kwargs):
+    def __init__(self, address=None, **kwargs) -> None:
         self._eventLoop = asyncio.new_event_loop()
         self._eventThread = Thread(
             target=self._run_event_loop, name="BLEClient", daemon=True

@@ -111,13 +111,13 @@ from . import (
 LOCAL_ADDR = "^local"
 """A special ID that means the local node"""
 
-BROADCAST_NUM = 0xFFFFFFFF
+BROADCAST_NUM: int = 0xFFFFFFFF
 """if using 8 bit nodenums this will be shortened on the target"""
 
 BROADCAST_ADDR = "^all"
 """A special ID that means broadcast"""
 
-OUR_APP_VERSION = 20300
+OUR_APP_VERSION: int = 20300
 """The numeric buildnumber (shared with android apps) specifying the
    level of device code we are guaranteed to understand
 

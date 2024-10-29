@@ -13,6 +13,8 @@ with rather more easily once the code is simplified by this change.
 
 """
 
+from typing import Any, Optional
+
 def reset():
     """
     Restore the namespace to pristine condition.
@@ -33,5 +35,5 @@ args = None
 parser = None
 channel_index = None
 logfile = None
-tunnelInstance = None
+tunnelInstance: Optional[Any] = None
 camel_case = False
