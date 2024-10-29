@@ -1,5 +1,6 @@
 """ Serial interface class
 """
+# pylint: disable=R0917
 import logging
 import platform
 import time

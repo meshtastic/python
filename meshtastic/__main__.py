@@ -87,6 +87,14 @@ def checkChannel(interface: MeshInterface, channelIndex: int) -> bool:
 
 def getPref(node, comp_name) -> bool:
     """Get a channel or preferences value"""
+    def _printSetting(config_type, uni_name, pref_value, repeated):
+        """Pretty print the setting"""
+        if repeated:
+            pref_value = [meshtastic.util.toStr(v) for v in pref_value]
+        else:
+            pref_value = meshtastic.util.toStr(pref_value)
+        print(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
+        logging.debug(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
 
     name = splitCompoundName(comp_name)
     wholeField = name[0] == name[1]  # We want the whole field
@@ -94,6 +102,7 @@ def getPref(node, comp_name) -> bool:
     camel_name = meshtastic.util.snake_to_camel(name[1])
     # Note: protobufs has the keys in snake_case, so snake internally
     snake_name = meshtastic.util.camel_to_snake(name[1])
+    uni_name = camel_name if mt_config.camel_case else snake_name
     logging.debug(f"snake_name:{snake_name} camel_name:{camel_name}")
     logging.debug(f"use camel:{mt_config.camel_case}")
 
@@ -112,14 +121,9 @@ def getPref(node, comp_name) -> bool:
                 break
 
     if not found:
-        if mt_config.camel_case:
-            print(
-                f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {snake_name}."
-            )
-        else:
-            print(
-                f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {snake_name}."
-            )
+        print(
+            f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {uni_name}."
+        )
         print("Choices are...")
         printConfig(localConfig)
         printConfig(moduleConfig)
@@ -131,19 +135,12 @@ def getPref(node, comp_name) -> bool:
         config_values = getattr(config, config_type.name)
         if not wholeField:
             pref_value = getattr(config_values, pref.name)
-            if mt_config.camel_case:
-                print(f"{str(config_type.name)}.{camel_name}: {str(pref_value)}")
-                logging.debug(
-                    f"{str(config_type.name)}.{camel_name}: {str(pref_value)}"
-                )
-            else:
-                print(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
-                logging.debug(
-                    f"{str(config_type.name)}.{snake_name}: {str(pref_value)}"
-                )
+            repeated = pref.label == pref.LABEL_REPEATED
+            _printSetting(config_type, uni_name, pref_value, repeated)
         else:
-            print(f"{str(config_type.name)}:\n{str(config_values)}")
-            logging.debug(f"{str(config_type.name)}: {str(config_values)}")
+            for field in config_values.ListFields():
+                repeated = field[0].label == field[0].LABEL_REPEATED
+                _printSetting(config_type, field[0].name, field[1], repeated)
     else:
         # Always show whole field for remote node
         node.requestConfig(config_type)
@@ -168,18 +165,19 @@ def traverseConfig(config_root, config, interface_config) -> bool:
         if isinstance(config[pref], dict):
             traverseConfig(pref_name, config[pref], interface_config)
         else:
-            setPref(interface_config, pref_name, str(config[pref]))
+            setPref(interface_config, pref_name, config[pref])
 
     return True
 
 
-def setPref(config, comp_name, valStr) -> bool:
+def setPref(config, comp_name, raw_val) -> bool:
     """Set a channel or preferences value"""
 
     name = splitCompoundName(comp_name)
 
     snake_name = meshtastic.util.camel_to_snake(name[-1])
     camel_name = meshtastic.util.snake_to_camel(name[-1])
+    uni_name = camel_name if mt_config.camel_case else snake_name
     logging.debug(f"snake_name:{snake_name}")
     logging.debug(f"camel_name:{camel_name}")
 
@@ -201,10 +199,13 @@ def setPref(config, comp_name, valStr) -> bool:
     if (not pref) or (not config_type):
         return False
 
-    val = meshtastic.util.fromStr(valStr)
-    logging.debug(f"valStr:{valStr} val:{val}")
+    if isinstance(raw_val, str):
+        val = meshtastic.util.fromStr(raw_val)
+    else:
+        val = raw_val
+    logging.debug(f"valStr:{raw_val} val:{val}")
 
-    if snake_name == "wifi_psk" and len(valStr) < 8:
+    if snake_name == "wifi_psk" and len(str(raw_val)) < 8:
         print(f"Warning: network.wifi_psk must be 8 or more characters.")
         return False
 
@@ -216,14 +217,9 @@ def setPref(config, comp_name, valStr) -> bool:
         if e:
             val = e.number
         else:
-            if mt_config.camel_case:
-                print(
-                    f"{name[0]}.{camel_name} does not have an enum called {val}, so you can not set it."
-                )
-            else:
-                print(
-                    f"{name[0]}.{snake_name} does not have an enum called {val}, so you can not set it."
-                )
+            print(
+                f"{name[0]}.{uni_name} does not have an enum called {val}, so you can not set it."
+            )
             print(f"Choices in sorted order are:")
             names = []
             for f in enumType.values:
@@ -244,7 +240,11 @@ def setPref(config, comp_name, valStr) -> bool:
         except TypeError:
             # The setter didn't like our arg type guess try again as a string
             config_values = getattr(config_part, config_type.name)
-            setattr(config_values, pref.name, valStr)
+            setattr(config_values, pref.name, str(val))
+    elif type(val) == list:
+        new_vals = [meshtastic.util.fromStr(x) for x in val]
+        config_values = getattr(config, config_type.name)
+        getattr(config_values, pref.name)[:] = new_vals
     else:
         config_values = getattr(config, config_type.name)
         if val == 0:
@@ -252,16 +252,14 @@ def setPref(config, comp_name, valStr) -> bool:
             print(f"Clearing {pref.name} list")
             del getattr(config_values, pref.name)[:]
         else:
-            print(f"Adding '{val}' to the {pref.name} list")
+            print(f"Adding '{raw_val}' to the {pref.name} list")
             cur_vals = [x for x in getattr(config_values, pref.name) if x not in [0, "", b""]]
             cur_vals.append(val)
             getattr(config_values, pref.name)[:] = cur_vals
+        return True
 
     prefix = f"{'.'.join(name[0:-1])}." if config_type.message_type is not None else ""
-    if mt_config.camel_case:
-        print(f"Set {prefix}{camel_name} to {valStr}")
-    else:
-        print(f"Set {prefix}{snake_name} to {valStr}")
+    print(f"Set {prefix}{uni_name} to {raw_val}")
 
     return True
 
@@ -475,13 +473,22 @@ def onConnected(interface):
             else:
                 channelIndex = mt_config.channel_index or 0
                 if checkChannel(interface, channelIndex):
+                    telemMap = {
+                        "device": "device_metrics",
+                        "environment": "environment_metrics",
+                        "air_quality": "air_quality_metrics",
+                        "airquality": "air_quality_metrics",
+                        "power": "power_metrics",
+                    }
+                    telemType = telemMap.get(args.request_telemetry, "device_metrics")
                     print(
-                        f"Sending telemetry request to {args.dest} on channelIndex:{channelIndex} (this could take a while)"
+                        f"Sending {telemType} telemetry request to {args.dest} on channelIndex:{channelIndex} (this could take a while)"
                     )
                     interface.sendTelemetry(
                         destinationId=args.dest,
                         wantResponse=True,
                         channelIndex=channelIndex,
+                        telemetryType=telemType,
                     )
 
         if args.request_position:
@@ -622,19 +629,15 @@ def onConnected(interface):
 
                     if "alt" in configuration["location"]:
                         alt = int(configuration["location"]["alt"] or 0)
-                        localConfig.position.fixed_position = True
                         print(f"Fixing altitude at {alt} meters")
                     if "lat" in configuration["location"]:
                         lat = float(configuration["location"]["lat"] or 0)
-                        localConfig.position.fixed_position = True
                         print(f"Fixing latitude at {lat} degrees")
                     if "lon" in configuration["location"]:
                         lon = float(configuration["location"]["lon"] or 0)
-                        localConfig.position.fixed_position = True
                         print(f"Fixing longitude at {lon} degrees")
                     print("Setting device position")
-                    interface.sendPosition(lat, lon, alt)
-                    interface.localNode.writeConfig("position")
+                    interface.localNode.setFixedPosition(lat, lon, alt)
 
                 if "config" in configuration:
                     localConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig
@@ -1029,6 +1032,15 @@ def export_config(interface) -> str:
                 prefs[meshtastic.util.snake_to_camel(pref)] = config[pref]
             else:
                 prefs[pref] = config[pref]
+            # mark base64 encoded fields as such
+            if pref == "security":
+                if 'privateKey' in prefs[pref]:
+                    prefs[pref]['privateKey'] = 'base64:' + prefs[pref]['privateKey']
+                if 'publicKey' in prefs[pref]:
+                    prefs[pref]['publicKey'] = 'base64:' + prefs[pref]['publicKey']
+                if 'adminKey' in prefs[pref]:
+                    for i in range(len(prefs[pref]['adminKey'])):
+                        prefs[pref]['adminKey'][i] = 'base64:' + prefs[pref]['adminKey'][i]
         if mt_config.camel_case:
             configObj["config"] = config		#Identical command here and 2 lines below?
         else:
@@ -1593,10 +1605,14 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
 
     group.add_argument(
         "--request-telemetry",
-        help="Request telemetry from a node. "
+        help="Request telemetry from a node. With an argument, requests that specific type of telemetry.  "
         "You need to pass the destination ID as argument with '--dest'. "
         "For repeaters, the nodeNum is required.",
-        action="store_true",
+        action="store",
+        nargs="?",
+        default=None,
+        const="device",
+        metavar="TYPE",
     )
 
     group.add_argument(
@@ -1843,7 +1859,7 @@ def initParser():
 
     power_group.add_argument(
         "--slog",
-        help="Store structured-logs (slogs) for this run, optionally you can specifiy a destination directory",
+        help="Store structured-logs (slogs) for this run, optionally you can specify a destination directory",
         nargs="?",
         default=None,
         const="default",

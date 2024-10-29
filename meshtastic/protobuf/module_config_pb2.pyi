@@ -250,13 +250,54 @@ class ModuleConfig(google.protobuf.message.Message):
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+        class _TriggerType:
+            ValueType = typing.NewType("ValueType", builtins.int)
+            V: typing_extensions.TypeAlias = ValueType
+
+        class _TriggerTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ModuleConfig.DetectionSensorConfig._TriggerType.ValueType], builtins.type):
+            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+            LOGIC_LOW: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 0
+            """Event is triggered if pin is low"""
+            LOGIC_HIGH: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 1
+            """Event is triggered if pin is high"""
+            FALLING_EDGE: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 2
+            """Event is triggered when pin goes high to low"""
+            RISING_EDGE: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 3
+            """Event is triggered when pin goes low to high"""
+            EITHER_EDGE_ACTIVE_LOW: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 4
+            """Event is triggered on every pin state change, low is considered to be
+            "active"
+            """
+            EITHER_EDGE_ACTIVE_HIGH: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 5
+            """Event is triggered on every pin state change, high is considered to be
+            "active"
+            """
+
+        class TriggerType(_TriggerType, metaclass=_TriggerTypeEnumTypeWrapper): ...
+        LOGIC_LOW: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 0
+        """Event is triggered if pin is low"""
+        LOGIC_HIGH: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 1
+        """Event is triggered if pin is high"""
+        FALLING_EDGE: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 2
+        """Event is triggered when pin goes high to low"""
+        RISING_EDGE: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 3
+        """Event is triggered when pin goes low to high"""
+        EITHER_EDGE_ACTIVE_LOW: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 4
+        """Event is triggered on every pin state change, low is considered to be
+        "active"
+        """
+        EITHER_EDGE_ACTIVE_HIGH: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 5
+        """Event is triggered on every pin state change, high is considered to be
+        "active"
+        """
+
         ENABLED_FIELD_NUMBER: builtins.int
         MINIMUM_BROADCAST_SECS_FIELD_NUMBER: builtins.int
         STATE_BROADCAST_SECS_FIELD_NUMBER: builtins.int
         SEND_BELL_FIELD_NUMBER: builtins.int
         NAME_FIELD_NUMBER: builtins.int
         MONITOR_PIN_FIELD_NUMBER: builtins.int
-        DETECTION_TRIGGERED_HIGH_FIELD_NUMBER: builtins.int
+        DETECTION_TRIGGER_TYPE_FIELD_NUMBER: builtins.int
         USE_PULLUP_FIELD_NUMBER: builtins.int
         enabled: builtins.bool
         """
@@ -264,13 +305,15 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         minimum_broadcast_secs: builtins.int
         """
-        Interval in seconds of how often we can send a message to the mesh when a state change is detected
+        Interval in seconds of how often we can send a message to the mesh when a
+        trigger event is detected
         """
         state_broadcast_secs: builtins.int
         """
-        Interval in seconds of how often we should send a message to the mesh with the current state regardless of changes
-        When set to 0, only state changes will be broadcasted
-        Works as a sort of status heartbeat for peace of mind
+        Interval in seconds of how often we should send a message to the mesh
+        with the current state regardless of trigger events When set to 0, only
+        trigger events will be broadcasted Works as a sort of status heartbeat
+        for peace of mind
         """
         send_bell: builtins.bool
         """
@@ -287,10 +330,9 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         GPIO pin to monitor for state changes
         """
-        detection_triggered_high: builtins.bool
+        detection_trigger_type: global___ModuleConfig.DetectionSensorConfig.TriggerType.ValueType
         """
-        Whether or not the GPIO pin state detection is triggered on HIGH (1)
-        Otherwise LOW (0)
+        The type of trigger event to be used
         """
         use_pullup: builtins.bool
         """
@@ -306,10 +348,10 @@ class ModuleConfig(google.protobuf.message.Message):
             send_bell: builtins.bool = ...,
             name: builtins.str = ...,
             monitor_pin: builtins.int = ...,
-            detection_triggered_high: builtins.bool = ...,
+            detection_trigger_type: global___ModuleConfig.DetectionSensorConfig.TriggerType.ValueType = ...,
             use_pullup: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["detection_triggered_high", b"detection_triggered_high", "enabled", b"enabled", "minimum_broadcast_secs", b"minimum_broadcast_secs", "monitor_pin", b"monitor_pin", "name", b"name", "send_bell", b"send_bell", "state_broadcast_secs", b"state_broadcast_secs", "use_pullup", b"use_pullup"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["detection_trigger_type", b"detection_trigger_type", "enabled", b"enabled", "minimum_broadcast_secs", b"minimum_broadcast_secs", "monitor_pin", b"monitor_pin", "name", b"name", "send_bell", b"send_bell", "state_broadcast_secs", b"state_broadcast_secs", "use_pullup", b"use_pullup"]) -> None: ...
 
     @typing.final
     class AudioConfig(google.protobuf.message.Message):

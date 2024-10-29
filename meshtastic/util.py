@@ -101,6 +101,14 @@ def fromStr(valstr: str) -> Any:
     return val
 
 
+
+def toStr(raw_value):
+    """Convert a value to a string that can be used in a config file"""
+    if isinstance(raw_value, bytes):
+        return "base64:" + base64.b64encode(raw_value).decode("utf-8")
+    return str(raw_value)
+
+
 def pskToString(psk: bytes) -> str:
     """Given an array of PSK bytes, decode them into a human readable (but privacy protecting) string"""
     if len(psk) == 0:

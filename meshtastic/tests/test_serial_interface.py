@@ -1,4 +1,5 @@
 """Meshtastic unit tests for serial_interface.py"""
+# pylint: disable=R0917
 
 import re
 from unittest.mock import mock_open, patch

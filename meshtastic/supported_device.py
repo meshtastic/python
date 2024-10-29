@@ -1,6 +1,7 @@
 """ Supported Meshtastic Devices - This is a class and collection of Meshtastic devices.
     It is used for auto detection as to which device might be connected.
 """
+# pylint: disable=R0917
 
 # Goal is to detect which device and port to use from the supported devices
 # without installing any libraries that are not currently in the python meshtastic library

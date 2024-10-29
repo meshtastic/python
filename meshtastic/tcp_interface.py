@@ -1,5 +1,6 @@
 """TCPInterface class for interfacing with http endpoint
 """
+# pylint: disable=R0917
 import logging
 import socket
 from typing import Optional, cast

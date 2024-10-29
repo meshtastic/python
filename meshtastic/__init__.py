@@ -2,41 +2,44 @@
 # A library for the Meshtastic Client API
 
 Primary interfaces: SerialInterface, TCPInterface, BLEInterface
+
 Install with pip: "[pip3 install meshtastic](https://pypi.org/project/meshtastic/)"
+
 Source code on [github](https://github.com/meshtastic/python)
 
 notable properties of interface classes:
 
-- nodes - The database of received nodes.  Includes always up-to-date location and username information for each
+- `nodes` - The database of received nodes.  Includes always up-to-date location and username information for each
 node in the mesh.  This is a read-only datastructure.
-- nodesByNum - like "nodes" but keyed by nodeNum instead of nodeId
-- myInfo & metadata - Contain read-only information about the local radio device (software version, hardware version, etc)
-- localNode - Pointer to a node object for the local node
+- `nodesByNum` - like "nodes" but keyed by nodeNum instead of nodeId. As such, includes "unknown" nodes which haven't seen a User packet yet
+- `myInfo` & `metadata` - Contain read-only information about the local radio device (software version, hardware version, etc)
+- `localNode` - Pointer to a node object for the local node
 
 notable properties of nodes:
-- localConfig - Current radio settings, can be written to the radio with the `writeConfig` method.
-- moduleConfig - Current module settings, can be written to the radio with the `writeConfig` method.
-- channels - The node's channels, keyed by index.
+
+- `localConfig` - Current radio settings, can be written to the radio with the `writeConfig` method.
+- `moduleConfig` - Current module settings, can be written to the radio with the `writeConfig` method.
+- `channels` - The node's channels, keyed by index.
 
 # Published PubSub topics
 
 We use a [publish-subscribe](https://pypubsub.readthedocs.io/en/v4.0.3/) model to communicate asynchronous events.  Available
 topics:
 
-- meshtastic.connection.established - published once we've successfully connected to the radio and downloaded the node DB
-- meshtastic.connection.lost - published once we've lost our link to the radio
-- meshtastic.receive.text(packet) - delivers a received packet as a dictionary, if you only care about a particular
+- `meshtastic.connection.established` - published once we've successfully connected to the radio and downloaded the node DB
+- `meshtastic.connection.lost` - published once we've lost our link to the radio
+- `meshtastic.receive.text(packet)` - delivers a received packet as a dictionary, if you only care about a particular
 type of packet, you should subscribe to the full topic name.  If you want to see all packets, simply subscribe to "meshtastic.receive".
-- meshtastic.receive.position(packet)
-- meshtastic.receive.user(packet)
-- meshtastic.receive.data.portnum(packet) (where portnum is an integer or well known PortNum enum)
-- meshtastic.node.updated(node = NodeInfo) - published when a node in the DB changes (appears, location changed, username changed, etc...)
-- meshtastic.log.line(line) - a raw unparsed log line from the radio
+- `meshtastic.receive.position(packet)`
+- `meshtastic.receive.user(packet)`
+- `meshtastic.receive.data.portnum(packet)` (where portnum is an integer or well known PortNum enum)
+- `meshtastic.node.updated(node = NodeInfo)` - published when a node in the DB changes (appears, location changed, username changed, etc...)
+- `meshtastic.log.line(line)` - a raw unparsed log line from the radio
 
-We receive position, user, or data packets from the mesh.  You probably only care about meshtastic.receive.data.  The first argument for
-that publish will be the packet.  Text or binary data packets (from sendData or sendText) will both arrive this way.  If you print packet
-you'll see the fields in the dictionary.  decoded.data.payload will contain the raw bytes that were sent.  If the packet was sent with
-sendText, decoded.data.text will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for
+We receive position, user, or data packets from the mesh.  You probably only care about `meshtastic.receive.data`.  The first argument for
+that publish will be the packet.  Text or binary data packets (from `sendData` or `sendText`) will both arrive this way.  If you print packet
+you'll see the fields in the dictionary.  `decoded.data.payload` will contain the raw bytes that were sent.  If the packet was sent with
+`sendText`, `decoded.data.text` will **also** be populated with the decoded string.  For ASCII these two strings will be the same, but for
 unicode scripts they can be different.
 
 # Example Usage
@@ -131,7 +134,9 @@ class ResponseHandler(NamedTuple):
     """A pending response callback, waiting for a response to one of our messages"""
 
     # requestId: int - used only as a key
+    #: a callable to call when a response is received
     callback: Callable
+    #: Whether ACKs and NAKs should be passed to this handler
     ackPermitted: bool = False
     # FIXME, add timestamp and age out old requests
 
@@ -139,11 +144,11 @@ class ResponseHandler(NamedTuple):
 class KnownProtocol(NamedTuple):
     """Used to automatically decode known protocol payloads"""
 
+    #: A descriptive name (e.g. "text", "user", "admin")
     name: str
-    # portnum: int, now a key
-    # If set, will be called to prase as a protocol buffer
+    #: If set, will be called to parse as a protocol buffer
     protobufFactory: Optional[Callable] = None
-    # If set, invoked as onReceive(interface, packet)
+    #: If set, invoked as onReceive(interface, packet)
     onReceive: Optional[Callable] = None
 
 
@@ -194,13 +199,31 @@ def _onNodeInfoReceive(iface, asDict):
 def _onTelemetryReceive(iface, asDict):
     """Automatically update device metrics on received packets"""
     logging.debug(f"in _onTelemetryReceive() asDict:{asDict}")
-    deviceMetrics = asDict.get("decoded", {}).get("telemetry", {}).get("deviceMetrics")
-    if "from" in asDict and deviceMetrics is not None:
-        node = iface._getOrCreateByNum(asDict["from"])
-        newMetrics = node.get("deviceMetrics", {})
-        newMetrics.update(deviceMetrics)
-        logging.debug(f"updating metrics for {asDict['from']} to {newMetrics}")
-        node["deviceMetrics"] = newMetrics
+    if "from" not in asDict:
+        return
+
+    toUpdate = None
+
+    telemetry = asDict.get("decoded", {}).get("telemetry", {})
+    node = iface._getOrCreateByNum(asDict["from"])
+    if "deviceMetrics" in telemetry:
+        toUpdate = "deviceMetrics"
+    elif "environmentMetrics" in telemetry:
+        toUpdate = "environmentMetrics"
+    elif "airQualityMetrics" in telemetry:
+        toUpdate = "airQualityMetrics"
+    elif "powerMetrics" in telemetry:
+        toUpdate = "powerMetrics"
+    elif "localStats" in telemetry:
+        toUpdate = "localStats"
+    else:
+        return
+
+    updateObj = telemetry.get(toUpdate)
+    newMetrics = node.get(toUpdate, {})
+    newMetrics.update(updateObj)
+    logging.debug(f"updating {toUpdate} metrics for {asDict['from']} to {newMetrics}")
+    node[toUpdate] = newMetrics
 
 def _receiveInfoUpdate(iface, asDict):
     if "from" in asDict:
