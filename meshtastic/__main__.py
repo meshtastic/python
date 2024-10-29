@@ -87,6 +87,14 @@ def checkChannel(interface: MeshInterface, channelIndex: int) -> bool:
 
 def getPref(node, comp_name):
     """Get a channel or preferences value"""
+    def _printSetting(config_type, uni_name, pref_value, repeated):
+        """Pretty print the setting"""
+        if repeated:
+            pref_value = [meshtastic.util.toStr(v) for v in pref_value]
+        else:
+            pref_value = meshtastic.util.toStr(pref_value)
+        print(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
+        logging.debug(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
 
     name = splitCompoundName(comp_name)
     wholeField = name[0] == name[1]  # We want the whole field
@@ -94,6 +102,7 @@ def getPref(node, comp_name):
     camel_name = meshtastic.util.snake_to_camel(name[1])
     # Note: protobufs has the keys in snake_case, so snake internally
     snake_name = meshtastic.util.camel_to_snake(name[1])
+    uni_name = camel_name if mt_config.camel_case else snake_name
     logging.debug(f"snake_name:{snake_name} camel_name:{camel_name}")
     logging.debug(f"use camel:{mt_config.camel_case}")
 
@@ -112,14 +121,9 @@ def getPref(node, comp_name):
                 break
 
     if not found:
-        if mt_config.camel_case:
-            print(
-                f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have an attribute {snake_name}."
-            )
-        else:
-            print(
-                f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {snake_name}."
-            )
+        print(
+            f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {uni_name}."
+        )
         print("Choices are...")
         printConfig(localConfig)
         printConfig(moduleConfig)
@@ -131,19 +135,12 @@ def getPref(node, comp_name):
         config_values = getattr(config, config_type.name)
         if not wholeField:
             pref_value = getattr(config_values, pref.name)
-            if mt_config.camel_case:
-                print(f"{str(config_type.name)}.{camel_name}: {str(pref_value)}")
-                logging.debug(
-                    f"{str(config_type.name)}.{camel_name}: {str(pref_value)}"
-                )
-            else:
-                print(f"{str(config_type.name)}.{snake_name}: {str(pref_value)}")
-                logging.debug(
-                    f"{str(config_type.name)}.{snake_name}: {str(pref_value)}"
-                )
+            repeated = pref.label == pref.LABEL_REPEATED
+            _printSetting(config_type, uni_name, pref_value, repeated)
         else:
-            print(f"{str(config_type.name)}:\n{str(config_values)}")
-            logging.debug(f"{str(config_type.name)}: {str(config_values)}")
+            for field in config_values.ListFields():
+                repeated = field[0].label == field[0].LABEL_REPEATED
+                _printSetting(config_type, field[0].name, field[1], repeated)
     else:
         # Always show whole field for remote node
         node.requestConfig(config_type)
@@ -168,18 +165,19 @@ def traverseConfig(config_root, config, interface_config):
         if isinstance(config[pref], dict):
             traverseConfig(pref_name, config[pref], interface_config)
         else:
-            setPref(interface_config, pref_name, str(config[pref]))
+            setPref(interface_config, pref_name, config[pref])
 
     return True
 
 
-def setPref(config, comp_name, valStr) -> bool:
+def setPref(config, comp_name, raw_val) -> bool:
     """Set a channel or preferences value"""
 
     name = splitCompoundName(comp_name)
 
     snake_name = meshtastic.util.camel_to_snake(name[-1])
     camel_name = meshtastic.util.snake_to_camel(name[-1])
+    uni_name = camel_name if mt_config.camel_case else snake_name
     logging.debug(f"snake_name:{snake_name}")
     logging.debug(f"camel_name:{camel_name}")
 
@@ -201,10 +199,13 @@ def setPref(config, comp_name, valStr) -> bool:
     if (not pref) or (not config_type):
         return False
 
-    val = meshtastic.util.fromStr(valStr)
-    logging.debug(f"valStr:{valStr} val:{val}")
+    if isinstance(raw_val, str):
+        val = meshtastic.util.fromStr(raw_val)
+    else:
+        val = raw_val
+    logging.debug(f"valStr:{raw_val} val:{val}")
 
-    if snake_name == "wifi_psk" and len(valStr) < 8:
+    if snake_name == "wifi_psk" and len(str(raw_val)) < 8:
         print(f"Warning: network.wifi_psk must be 8 or more characters.")
         return False
 
@@ -216,14 +217,9 @@ def setPref(config, comp_name, valStr) -> bool:
         if e:
             val = e.number
         else:
-            if mt_config.camel_case:
-                print(
-                    f"{name[0]}.{camel_name} does not have an enum called {val}, so you can not set it."
-                )
-            else:
-                print(
-                    f"{name[0]}.{snake_name} does not have an enum called {val}, so you can not set it."
-                )
+            print(
+                f"{name[0]}.{uni_name} does not have an enum called {val}, so you can not set it."
+            )
             print(f"Choices in sorted order are:")
             names = []
             for f in enumType.values:
@@ -244,7 +240,11 @@ def setPref(config, comp_name, valStr) -> bool:
         except TypeError:
             # The setter didn't like our arg type guess try again as a string
             config_values = getattr(config_part, config_type.name)
-            setattr(config_values, pref.name, valStr)
+            setattr(config_values, pref.name, str(val))
+    elif type(val) == list:
+        new_vals = [meshtastic.util.fromStr(x) for x in val]
+        config_values = getattr(config, config_type.name)
+        getattr(config_values, pref.name)[:] = new_vals
     else:
         config_values = getattr(config, config_type.name)
         if val == 0:
@@ -252,16 +252,14 @@ def setPref(config, comp_name, valStr) -> bool:
             print(f"Clearing {pref.name} list")
             del getattr(config_values, pref.name)[:]
         else:
-            print(f"Adding '{val}' to the {pref.name} list")
+            print(f"Adding '{raw_val}' to the {pref.name} list")
             cur_vals = [x for x in getattr(config_values, pref.name) if x not in [0, "", b""]]
             cur_vals.append(val)
             getattr(config_values, pref.name)[:] = cur_vals
+        return True
 
     prefix = f"{'.'.join(name[0:-1])}." if config_type.message_type is not None else ""
-    if mt_config.camel_case:
-        print(f"Set {prefix}{camel_name} to {valStr}")
-    else:
-        print(f"Set {prefix}{snake_name} to {valStr}")
+    print(f"Set {prefix}{uni_name} to {raw_val}")
 
     return True
 
