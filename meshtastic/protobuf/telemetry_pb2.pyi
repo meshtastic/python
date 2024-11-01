@@ -143,6 +143,14 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     Custom I2C sensor implementation based on https://github.com/meshtastic/i2c-sensor
     """
+    MAX30102: _TelemetrySensorType.ValueType  # 30
+    """
+    MAX30102 Pulse Oximeter and Heart-Rate Sensor
+    """
+    MLX90614: _TelemetrySensorType.ValueType  # 31
+    """
+    MLX90614 non-contact IR temperature sensor.
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -268,6 +276,14 @@ MAX17048 1S lipo battery sensor (voltage, state of charge, time to go)
 CUSTOM_SENSOR: TelemetrySensorType.ValueType  # 29
 """
 Custom I2C sensor implementation based on https://github.com/meshtastic/i2c-sensor
+"""
+MAX30102: TelemetrySensorType.ValueType  # 30
+"""
+MAX30102 Pulse Oximeter and Heart-Rate Sensor
+"""
+MLX90614: TelemetrySensorType.ValueType  # 31
+"""
+MLX90614 non-contact IR temperature sensor.
 """
 global___TelemetrySensorType = TelemetrySensorType
 
@@ -677,6 +693,9 @@ class LocalStats(google.protobuf.message.Message):
     NUM_PACKETS_RX_BAD_FIELD_NUMBER: builtins.int
     NUM_ONLINE_NODES_FIELD_NUMBER: builtins.int
     NUM_TOTAL_NODES_FIELD_NUMBER: builtins.int
+    NUM_RX_DUPE_FIELD_NUMBER: builtins.int
+    NUM_TX_RELAY_FIELD_NUMBER: builtins.int
+    NUM_TX_RELAY_CANCELED_FIELD_NUMBER: builtins.int
     uptime_seconds: builtins.int
     """
     How long the device has been running since the last reboot (in seconds)
@@ -695,7 +714,7 @@ class LocalStats(google.protobuf.message.Message):
     """
     num_packets_rx: builtins.int
     """
-    Number of packets received good
+    Number of packets received (both good and bad)
     """
     num_packets_rx_bad: builtins.int
     """
@@ -709,6 +728,20 @@ class LocalStats(google.protobuf.message.Message):
     """
     Number of nodes total
     """
+    num_rx_dupe: builtins.int
+    """
+    Number of received packets that were duplicates (due to multiple nodes relaying).
+    If this number is high, there are nodes in the mesh relaying packets when it's unnecessary, for example due to the ROUTER/REPEATER role.
+    """
+    num_tx_relay: builtins.int
+    """
+    Number of packets we transmitted that were a relay for others (not originating from ourselves).
+    """
+    num_tx_relay_canceled: builtins.int
+    """
+    Number of times we canceled a packet to be relayed, because someone else did it before us.
+    This will always be zero for ROUTERs/REPEATERs. If this number is high, some other node(s) is/are relaying faster than you.
+    """
     def __init__(
         self,
         *,
@@ -720,10 +753,54 @@ class LocalStats(google.protobuf.message.Message):
         num_packets_rx_bad: builtins.int = ...,
         num_online_nodes: builtins.int = ...,
         num_total_nodes: builtins.int = ...,
+        num_rx_dupe: builtins.int = ...,
+        num_tx_relay: builtins.int = ...,
+        num_tx_relay_canceled: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["air_util_tx", b"air_util_tx", "channel_utilization", b"channel_utilization", "num_online_nodes", b"num_online_nodes", "num_packets_rx", b"num_packets_rx", "num_packets_rx_bad", b"num_packets_rx_bad", "num_packets_tx", b"num_packets_tx", "num_total_nodes", b"num_total_nodes", "uptime_seconds", b"uptime_seconds"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["air_util_tx", b"air_util_tx", "channel_utilization", b"channel_utilization", "num_online_nodes", b"num_online_nodes", "num_packets_rx", b"num_packets_rx", "num_packets_rx_bad", b"num_packets_rx_bad", "num_packets_tx", b"num_packets_tx", "num_rx_dupe", b"num_rx_dupe", "num_total_nodes", b"num_total_nodes", "num_tx_relay", b"num_tx_relay", "num_tx_relay_canceled", b"num_tx_relay_canceled", "uptime_seconds", b"uptime_seconds"]) -> None: ...
 
 global___LocalStats = LocalStats
+
+@typing.final
+class HealthMetrics(google.protobuf.message.Message):
+    """
+    Health telemetry metrics
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    HEART_BPM_FIELD_NUMBER: builtins.int
+    SPO2_FIELD_NUMBER: builtins.int
+    TEMPERATURE_FIELD_NUMBER: builtins.int
+    heart_bpm: builtins.int
+    """
+    Heart rate (beats per minute)
+    """
+    spO2: builtins.int
+    """
+    SpO2 (blood oxygen saturation) level
+    """
+    temperature: builtins.float
+    """
+    Body temperature in degrees Celsius
+    """
+    def __init__(
+        self,
+        *,
+        heart_bpm: builtins.int | None = ...,
+        spO2: builtins.int | None = ...,
+        temperature: builtins.float | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_heart_bpm", b"_heart_bpm", "_spO2", b"_spO2", "_temperature", b"_temperature", "heart_bpm", b"heart_bpm", "spO2", b"spO2", "temperature", b"temperature"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_heart_bpm", b"_heart_bpm", "_spO2", b"_spO2", "_temperature", b"_temperature", "heart_bpm", b"heart_bpm", "spO2", b"spO2", "temperature", b"temperature"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_heart_bpm", b"_heart_bpm"]) -> typing.Literal["heart_bpm"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_spO2", b"_spO2"]) -> typing.Literal["spO2"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_temperature", b"_temperature"]) -> typing.Literal["temperature"] | None: ...
+
+global___HealthMetrics = HealthMetrics
 
 @typing.final
 class Telemetry(google.protobuf.message.Message):
@@ -739,6 +816,7 @@ class Telemetry(google.protobuf.message.Message):
     AIR_QUALITY_METRICS_FIELD_NUMBER: builtins.int
     POWER_METRICS_FIELD_NUMBER: builtins.int
     LOCAL_STATS_FIELD_NUMBER: builtins.int
+    HEALTH_METRICS_FIELD_NUMBER: builtins.int
     time: builtins.int
     """
     Seconds since 1970 - or 0 for unknown/unset
@@ -773,6 +851,12 @@ class Telemetry(google.protobuf.message.Message):
         Local device mesh statistics
         """
 
+    @property
+    def health_metrics(self) -> global___HealthMetrics:
+        """
+        Health telemetry metrics
+        """
+
     def __init__(
         self,
         *,
@@ -782,10 +866,11 @@ class Telemetry(google.protobuf.message.Message):
         air_quality_metrics: global___AirQualityMetrics | None = ...,
         power_metrics: global___PowerMetrics | None = ...,
         local_stats: global___LocalStats | None = ...,
+        health_metrics: global___HealthMetrics | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "variant", b"variant"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "time", b"time", "variant", b"variant"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["variant", b"variant"]) -> typing.Literal["device_metrics", "environment_metrics", "air_quality_metrics", "power_metrics", "local_stats"] | None: ...
+    def HasField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "variant", b"variant"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "time", b"time", "variant", b"variant"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["variant", b"variant"]) -> typing.Literal["device_metrics", "environment_metrics", "air_quality_metrics", "power_metrics", "local_stats", "health_metrics"] | None: ...
 
 global___Telemetry = Telemetry
 

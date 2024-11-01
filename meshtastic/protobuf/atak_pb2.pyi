@@ -256,7 +256,7 @@ class TAKPacket(google.protobuf.message.Message):
     detail: builtins.bytes
     """
     Generic CoT detail XML
-    May be compressed / truncated by the sender
+    May be compressed / truncated by the sender (EUD)
     """
     @property
     def contact(self) -> global___Contact:
