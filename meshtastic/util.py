@@ -678,5 +678,5 @@ def message_to_json(message: Message, multiline: bool=False) -> str:
     try:
         json = MessageToJson(message, always_print_fields_with_no_presence=True)
     except TypeError:
-        json = MessageToJson(message, including_default_value_fields=True)
+        json = MessageToJson(message, including_default_value_fields=True) # pylint: disable=E1123
     return stripnl(json) if not multiline else json
