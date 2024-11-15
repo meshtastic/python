@@ -675,5 +675,8 @@ def check_if_newer_version() -> Optional[str]:
 
 def message_to_json(message: Message, multiline: bool=False) -> str:
     """Return protobuf message as JSON. Always print all fields, even when not present in data."""
-    json = MessageToJson(message, always_print_fields_with_no_presence=True)
+    try:
+        json = MessageToJson(message, always_print_fields_with_no_presence=True)
+    except TypeError:
+        json = MessageToJson(message, including_default_value_fields=True)
     return stripnl(json) if not multiline else json
