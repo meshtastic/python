@@ -479,6 +479,8 @@ def onConnected(interface):
                         "air_quality": "air_quality_metrics",
                         "airquality": "air_quality_metrics",
                         "power": "power_metrics",
+                        "localstats": "local_stats",
+                        "local_stats": "local_stats",
                     }
                     telemType = telemMap.get(args.request_telemetry, "device_metrics")
                     print(
