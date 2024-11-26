@@ -1202,6 +1202,18 @@ class Config(google.protobuf.message.Message):
             """
             Singapore 923mhz
             """
+            PH_433: Config.LoRaConfig._RegionCode.ValueType  # 19
+            """
+            Philippines 433mhz
+            """
+            PH_868: Config.LoRaConfig._RegionCode.ValueType  # 20
+            """
+            Philippines 868mhz
+            """
+            PH_915: Config.LoRaConfig._RegionCode.ValueType  # 21
+            """
+            Philippines 915mhz
+            """
 
         class RegionCode(_RegionCode, metaclass=_RegionCodeEnumTypeWrapper): ...
         UNSET: Config.LoRaConfig.RegionCode.ValueType  # 0
@@ -1279,6 +1291,18 @@ class Config(google.protobuf.message.Message):
         SG_923: Config.LoRaConfig.RegionCode.ValueType  # 18
         """
         Singapore 923mhz
+        """
+        PH_433: Config.LoRaConfig.RegionCode.ValueType  # 19
+        """
+        Philippines 433mhz
+        """
+        PH_868: Config.LoRaConfig.RegionCode.ValueType  # 20
+        """
+        Philippines 868mhz
+        """
+        PH_915: Config.LoRaConfig.RegionCode.ValueType  # 21
+        """
+        Philippines 915mhz
         """
 
         class _ModemPreset:
