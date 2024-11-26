@@ -2145,7 +2145,7 @@ files = [
 name = "mypy-protobuf"
 version = "3.6.0"
 description = "Generate mypy stub files from protobuf specs"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "mypy-protobuf-3.6.0.tar.gz", hash = "sha256:02f242eb3409f66889f2b1a3aa58356ec4d909cdd0f93115622e9e70366eca3c"},
@@ -4307,4 +4307,4 @@ tunnel = ["pytap2"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.14"
-content-hash = "baf2466db0ce7b0975a738b847d8b36e3c5c377a9a122a22c4bbd1ab1c06dc3a"
+content-hash = "63e8d0acc845a17e6d7de0796693967f5d37e0293598be966196e0b48976754b"
