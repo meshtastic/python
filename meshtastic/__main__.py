@@ -442,7 +442,7 @@ def onConnected(interface):
             channelIndex = mt_config.channel_index or 0
             if checkChannel(interface, channelIndex):
                 print(
-                    f"Sending text message {args.sendtext} to {args.dest} on channelIndex:{channelIndex}"
+                    f"Sending text message {args.sendtext} to {args.dest}:{args.textport} on channelIndex:{channelIndex}"
                 )
                 interface.sendText(
                     args.sendtext,
@@ -450,6 +450,7 @@ def onConnected(interface):
                     wantAck=True,
                     channelIndex=channelIndex,
                     onResponse=interface.getNode(args.dest, False, **getNode_kwargs).onAckNak,
+                    portNum=args.textport
                 )
             else:
                 meshtastic.util.our_exit(
@@ -1592,8 +1593,16 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
 
     group.add_argument(
         "--sendtext",
-        help="Send a text message. Can specify a destination '--dest' and/or channel index '--ch-index'.",
+        help="Send a text message. Can specify a destination '--dest', port '--textport', and/or channel index '--ch-index'.",
         metavar="TEXT",
+    )
+
+    group.add_argument( 
+        "--textport",
+        help="Optional argument for sending text messages to the non default port. Use in combination with --sendtext.",
+        type=int,
+        default=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
+        metavar="PORT"
     )
 
     group.add_argument(

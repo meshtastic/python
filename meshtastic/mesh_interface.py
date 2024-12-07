@@ -354,6 +354,7 @@ class MeshInterface:  # pylint: disable=R0902
         wantResponse: bool = False,
         onResponse: Optional[Callable[[dict], Any]] = None,
         channelIndex: int = 0,
+        portNum: int = portnums_pb2.PortNum.TEXT_MESSAGE_APP
     ):
         """Send a utf8 string to some other node, if the node has a display it
            will also be shown on the device.
@@ -364,12 +365,12 @@ class MeshInterface:  # pylint: disable=R0902
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this
                                                  message (default: {BROADCAST_ADDR})
-            portNum -- the application portnum (similar to IP port numbers)
-                       of the destination, see portnums.proto for a list
             wantAck -- True if you want the message sent in a reliable manner
                        (with retries and ack/nak provided for delivery)
             wantResponse -- True if you want the service on the other side to
                             send an application layer response
+            portNum -- the application portnum (similar to IP port numbers)
+                       of the destination, see portnums.proto for a list
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -378,7 +379,7 @@ class MeshInterface:  # pylint: disable=R0902
         return self.sendData(
             text.encode("utf-8"),
             destinationId,
-            portNum=portnums_pb2.PortNum.TEXT_MESSAGE_APP,
+            portNum=portNum,
             wantAck=wantAck,
             wantResponse=wantResponse,
             onResponse=onResponse,
