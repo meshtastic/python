@@ -4332,9 +4332,10 @@ type = ["pytest-mypy"]
 
 [extras]
 analysis = ["dash", "dash-bootstrap-components", "pandas", "pandas-stubs"]
+cli = ["dotmap", "print-color", "pyqrcode"]
 tunnel = ["pytap2"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.14"
-content-hash = "d3eefb76e586ad6625c1fce7b73244ba1d663aa5b4916c47bd1daa5f2bdcc913"
+content-hash = "fa490a41df9742f691c43a4915f7751b6adbded7605c3f0936f74681c1da5244"
