@@ -3094,7 +3094,7 @@ files = [
 name = "pyqrcode"
 version = "1.2.1"
 description = "A QR code generator written purely in Python with SVG, EPS, PNG and terminal output."
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "PyQRCode-1.2.1.tar.gz", hash = "sha256:fdbf7634733e56b72e27f9bce46e4550b75a3a2c420414035cae9d9d26b234d5"},
@@ -4337,4 +4337,4 @@ tunnel = ["pytap2"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.14"
-content-hash = "21b6a8041c1bbd7b970a7af37621690715db771488950c72087e60d922a2ff95"
+content-hash = "d3eefb76e586ad6625c1fce7b73244ba1d663aa5b4916c47bd1daa5f2bdcc913"

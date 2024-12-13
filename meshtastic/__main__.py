@@ -13,7 +13,11 @@ import sys
 import time
 from typing import List, Optional
 
-import pyqrcode  # type: ignore[import-untyped]
+try:
+    import pyqrcode  # type: ignore[import-untyped]
+except ImportError as e:
+    pyqrcode = None
+
 import yaml
 from google.protobuf.json_format import MessageToDict
 from pubsub import pub  # type: ignore[import-untyped]
@@ -896,8 +900,11 @@ def onConnected(interface):
             else:
                 urldesc = "Primary channel URL"
             print(f"{urldesc}: {url}")
-            qr = pyqrcode.create(url)
-            print(qr.terminal())
+            if pyqrcode is not None:
+                qr = pyqrcode.create(url)
+                print(qr.terminal())
+            else:
+                print("Install pyqrcode to view a QR code printed to terminal.")
 
         log_set: Optional = None  # type: ignore[annotation-unchecked]
         # we need to keep a reference to the logset so it doesn't get GCed early
