@@ -4337,4 +4337,4 @@ tunnel = ["pytap2"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.14"
-content-hash = "5f68c6e67ab32ac3d07a81af232a0e9275eb7dcb58a1f57d7289f273671712e4"
+content-hash = "cc2529666461aa69024abd86d14b2ac220a965a82dded2309b9e0980f5e1b328"
