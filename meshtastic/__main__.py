@@ -13,12 +13,21 @@ import sys
 import time
 from typing import List, Optional
 
-import pyqrcode  # type: ignore[import-untyped]
+try:
+    import pyqrcode  # type: ignore[import-untyped]
+except ImportError as e:
+    pyqrcode = None
+
 import yaml
 from google.protobuf.json_format import MessageToDict
 from pubsub import pub  # type: ignore[import-untyped]
 
-import meshtastic.test
+try:
+    import meshtastic.test
+    have_test = True
+except ImportError as e:
+    have_test = False
+
 import meshtastic.util
 from meshtastic import BROADCAST_ADDR, mt_config, remote_hardware
 from meshtastic.ble_interface import BLEInterface
@@ -891,8 +900,11 @@ def onConnected(interface):
             else:
                 urldesc = "Primary channel URL"
             print(f"{urldesc}: {url}")
-            qr = pyqrcode.create(url)
-            print(qr.terminal())
+            if pyqrcode is not None:
+                qr = pyqrcode.create(url)
+                print(qr.terminal())
+            else:
+                print("Install pyqrcode to view a QR code printed to terminal.")
 
         log_set: Optional = None  # type: ignore[annotation-unchecked]
         # we need to keep a reference to the logset so it doesn't get GCed early
@@ -1143,11 +1155,14 @@ def common():
             parser.print_help(sys.stderr)
             meshtastic.util.our_exit("", 1)
         elif args.test:
-            result = meshtastic.test.testAll()
-            if not result:
-                meshtastic.util.our_exit("Warning: Test was not successful.")
+            if not have_test:
+                meshtastic.util.our_exit("Test module could not be important. Ensure you have the 'dotmap' module installed.")
             else:
-                meshtastic.util.our_exit("Test was a success.", 0)
+                result = meshtastic.test.testAll()
+                if not result:
+                    meshtastic.util.our_exit("Warning: Test was not successful.")
+                else:
+                    meshtastic.util.our_exit("Test was a success.", 0)
         else:
             if args.seriallog == "stdout":
                 logfile = sys.stdout

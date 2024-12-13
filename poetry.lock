@@ -944,7 +944,7 @@ profile = ["gprof2dot (>=2022.7.29)"]
 name = "dotmap"
 version = "1.3.30"
 description = "ordered, dynamically-expandable dot-access dictionary"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "dotmap-1.3.30-py3-none-any.whl", hash = "sha256:bd9fa15286ea2ad899a4d1dc2445ed85a1ae884a42effb87c89a6ecce71243c6"},
@@ -2705,7 +2705,7 @@ pyserial = "*"
 name = "print-color"
 version = "0.4.6"
 description = "A simple package to print in color to the terminal"
-optional = false
+optional = true
 python-versions = ">=3.7,<4.0"
 files = [
     {file = "print_color-0.4.6-py3-none-any.whl", hash = "sha256:494bd1cdb84daf481f0e63bd22b3c32f7d52827d8f5d9138a96bb01ca8ba9299"},
@@ -3094,7 +3094,7 @@ files = [
 name = "pyqrcode"
 version = "1.2.1"
 description = "A QR code generator written purely in Python with SVG, EPS, PNG and terminal output."
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "PyQRCode-1.2.1.tar.gz", hash = "sha256:fdbf7634733e56b72e27f9bce46e4550b75a3a2c420414035cae9d9d26b234d5"},
@@ -4332,9 +4332,10 @@ type = ["pytest-mypy"]
 
 [extras]
 analysis = ["dash", "dash-bootstrap-components", "pandas", "pandas-stubs"]
+cli = ["dotmap", "print-color", "pyqrcode"]
 tunnel = ["pytap2"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.14"
-content-hash = "cc2529666461aa69024abd86d14b2ac220a965a82dded2309b9e0980f5e1b328"
+content-hash = "fa490a41df9742f691c43a4915f7751b6adbded7605c3f0936f74681c1da5244"
