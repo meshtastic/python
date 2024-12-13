@@ -944,7 +944,7 @@ profile = ["gprof2dot (>=2022.7.29)"]
 name = "dotmap"
 version = "1.3.30"
 description = "ordered, dynamically-expandable dot-access dictionary"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "dotmap-1.3.30-py3-none-any.whl", hash = "sha256:bd9fa15286ea2ad899a4d1dc2445ed85a1ae884a42effb87c89a6ecce71243c6"},
@@ -2705,7 +2705,7 @@ pyserial = "*"
 name = "print-color"
 version = "0.4.6"
 description = "A simple package to print in color to the terminal"
-optional = false
+optional = true
 python-versions = ">=3.7,<4.0"
 files = [
     {file = "print_color-0.4.6-py3-none-any.whl", hash = "sha256:494bd1cdb84daf481f0e63bd22b3c32f7d52827d8f5d9138a96bb01ca8ba9299"},
@@ -4337,4 +4337,4 @@ tunnel = ["pytap2"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.14"
-content-hash = "cc2529666461aa69024abd86d14b2ac220a965a82dded2309b9e0980f5e1b328"
+content-hash = "21b6a8041c1bbd7b970a7af37621690715db771488950c72087e60d922a2ff95"

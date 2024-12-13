@@ -15,7 +15,11 @@ from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import google.protobuf.json_format
-import print_color  # type: ignore[import-untyped]
+try:
+    import print_color  # type: ignore[import-untyped]
+except ImportError as e:
+    print_color = None
+
 from pubsub import pub  # type: ignore[import-untyped]
 from tabulate import tabulate
 
@@ -153,7 +157,7 @@ class MeshInterface:  # pylint: disable=R0902
     @staticmethod
     def _printLogLine(line, interface):
         """Print a line of log output."""
-        if interface.debugOut == sys.stdout:
+        if print_color is not None and interface.debugOut == sys.stdout:
             # this isn't quite correct (could cause false positives), but currently our formatting differs between different log representations
             if "DEBUG" in line:
                 print_color.print(line, color="cyan", end=None)

@@ -18,7 +18,12 @@ import yaml
 from google.protobuf.json_format import MessageToDict
 from pubsub import pub  # type: ignore[import-untyped]
 
-import meshtastic.test
+try:
+    import meshtastic.test
+    have_test = True
+except ImportError as e:
+    have_test = False
+
 import meshtastic.util
 from meshtastic import BROADCAST_ADDR, mt_config, remote_hardware
 from meshtastic.ble_interface import BLEInterface
@@ -1143,11 +1148,14 @@ def common():
             parser.print_help(sys.stderr)
             meshtastic.util.our_exit("", 1)
         elif args.test:
-            result = meshtastic.test.testAll()
-            if not result:
-                meshtastic.util.our_exit("Warning: Test was not successful.")
+            if not have_test:
+                meshtastic.util.our_exit("Test module could not be important. Ensure you have the 'dotmap' module installed.")
             else:
-                meshtastic.util.our_exit("Test was a success.", 0)
+                result = meshtastic.test.testAll()
+                if not result:
+                    meshtastic.util.our_exit("Warning: Test was not successful.")
+                else:
+                    meshtastic.util.our_exit("Test was a success.", 0)
         else:
             if args.seriallog == "stdout":
                 logfile = sys.stdout
