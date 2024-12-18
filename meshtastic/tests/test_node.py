@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ..protobuf import localonly_pb2, config_pb2
+from ..protobuf import admin_pb2, localonly_pb2, config_pb2
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 from ..node import Node
 from ..serial_interface import SerialInterface
@@ -1424,6 +1424,33 @@ def test_requestChannels_non_localNode_starting_index(caplog):
 #        out, err = capsys.readouterr()
 #        assert re.search(r'Error on response', out)
 #        assert err == ''
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("favorite", ["!1dec0ded", 502009325])
+def test_set_favorite(favorite):
+    """Test setFavorite"""
+    iface = MagicMock(autospec=SerialInterface)
+    node = Node(iface, 12345678)
+    amesg = admin_pb2.AdminMessage()
+    with patch("meshtastic.admin_pb2.AdminMessage", return_value=amesg):
+        node.setFavorite(favorite)
+    assert amesg.set_favorite_node == 502009325
+    iface.sendData.assert_called_once()
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("favorite", ["!1dec0ded", 502009325])
+def test_remove_favorite(favorite):
+    """Test setFavorite"""
+    iface = MagicMock(autospec=SerialInterface)
+    node = Node(iface, 12345678)
+    amesg = admin_pb2.AdminMessage()
+    with patch("meshtastic.admin_pb2.AdminMessage", return_value=amesg):
+        node.removeFavorite(favorite)
+
+    assert amesg.remove_favorite_node == 502009325
+    iface.sendData.assert_called_once()
 
 
 # TODO
