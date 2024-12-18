@@ -2652,3 +2652,34 @@ def test_tunnel_tunnel_arg(
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
         assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_set_favorite_node():
+    """Test --set-favorite-node node"""
+    sys.argv = ["", "--set-favorite-node", "!12345678"]
+    mt_config.args = sys.argv
+    mocked_node = MagicMock(autospec=Node)
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+
+    mocked_node.setFavorite.assert_called_once_with("!12345678")
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_remove_favorite_node():
+    """Test --remove-favorite-node node"""
+    sys.argv = ["", "--remove-favorite-node", "!12345678"]
+    mt_config.args = sys.argv
+    mocked_node = MagicMock(autospec=Node)
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+    mocked_node.iface = iface
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+
+    mocked_node.removeFavorite.assert_called_once_with("!12345678")
