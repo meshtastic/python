@@ -9,6 +9,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
+import meshtastic.protobuf.device_ui_pb2
 import sys
 import typing
 
@@ -210,6 +211,15 @@ class Config(google.protobuf.message.Message):
             Ignores observed messages from foreign meshes like LOCAL_ONLY,
             but takes it step further by also ignoring messages from nodenums not in the node's known list (NodeDB)
             """
+            NONE: Config.DeviceConfig._RebroadcastMode.ValueType  # 4
+            """
+            Only permitted for SENSOR, TRACKER and TAK_TRACKER roles, this will inhibit all rebroadcasts, not unlike CLIENT_MUTE role.
+            """
+            CORE_PORTNUMS_ONLY: Config.DeviceConfig._RebroadcastMode.ValueType  # 5
+            """
+            Ignores packets from non-standard portnums such as: TAK, RangeTest, PaxCounter, etc.
+            Only rebroadcasts packets with standard portnums: NodeInfo, Text, Position, Telemetry, and Routing.
+            """
 
         class RebroadcastMode(_RebroadcastMode, metaclass=_RebroadcastModeEnumTypeWrapper):
             """
@@ -235,6 +245,15 @@ class Config(google.protobuf.message.Message):
         """
         Ignores observed messages from foreign meshes like LOCAL_ONLY,
         but takes it step further by also ignoring messages from nodenums not in the node's known list (NodeDB)
+        """
+        NONE: Config.DeviceConfig.RebroadcastMode.ValueType  # 4
+        """
+        Only permitted for SENSOR, TRACKER and TAK_TRACKER roles, this will inhibit all rebroadcasts, not unlike CLIENT_MUTE role.
+        """
+        CORE_PORTNUMS_ONLY: Config.DeviceConfig.RebroadcastMode.ValueType  # 5
+        """
+        Ignores packets from non-standard portnums such as: TAK, RangeTest, PaxCounter, etc.
+        Only rebroadcasts packets with standard portnums: NodeInfo, Text, Position, Telemetry, and Routing.
         """
 
         ROLE_FIELD_NUMBER: builtins.int
@@ -1684,6 +1703,7 @@ class Config(google.protobuf.message.Message):
     BLUETOOTH_FIELD_NUMBER: builtins.int
     SECURITY_FIELD_NUMBER: builtins.int
     SESSIONKEY_FIELD_NUMBER: builtins.int
+    DEVICE_UI_FIELD_NUMBER: builtins.int
     @property
     def device(self) -> global___Config.DeviceConfig: ...
     @property
@@ -1702,6 +1722,8 @@ class Config(google.protobuf.message.Message):
     def security(self) -> global___Config.SecurityConfig: ...
     @property
     def sessionkey(self) -> global___Config.SessionkeyConfig: ...
+    @property
+    def device_ui(self) -> meshtastic.protobuf.device_ui_pb2.DeviceUIConfig: ...
     def __init__(
         self,
         *,
@@ -1714,9 +1736,10 @@ class Config(google.protobuf.message.Message):
         bluetooth: global___Config.BluetoothConfig | None = ...,
         security: global___Config.SecurityConfig | None = ...,
         sessionkey: global___Config.SessionkeyConfig | None = ...,
+        device_ui: meshtastic.protobuf.device_ui_pb2.DeviceUIConfig | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "payload_variant", b"payload_variant", "position", b"position", "power", b"power", "security", b"security", "sessionkey", b"sessionkey"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "payload_variant", b"payload_variant", "position", b"position", "power", b"power", "security", b"security", "sessionkey", b"sessionkey"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["device", "position", "power", "network", "display", "lora", "bluetooth", "security", "sessionkey"] | None: ...
+    def HasField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "device_ui", b"device_ui", "display", b"display", "lora", b"lora", "network", b"network", "payload_variant", b"payload_variant", "position", b"position", "power", b"power", "security", b"security", "sessionkey", b"sessionkey"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "device_ui", b"device_ui", "display", b"display", "lora", b"lora", "network", b"network", "payload_variant", b"payload_variant", "position", b"position", "power", b"power", "security", b"security", "sessionkey", b"sessionkey"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["device", "position", "power", "network", "display", "lora", "bluetooth", "security", "sessionkey", "device_ui"] | None: ...
 
 global___Config = Config

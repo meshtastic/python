@@ -93,6 +93,10 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     Same as Text Message but originating from Detection Sensor Module.
     NOTE: This portnum traffic is not sent to the public MQTT starting at firmware version 2.2.9
     """
+    ALERT_APP: _PortNum.ValueType  # 11
+    """
+    Same as Text Message but used for critical alerts.
+    """
     REPLY_APP: _PortNum.ValueType  # 32
     """
     Provides a 'ping' service that replies to any packet it receives.
@@ -277,6 +281,10 @@ DETECTION_SENSOR_APP: PortNum.ValueType  # 10
 """
 Same as Text Message but originating from Detection Sensor Module.
 NOTE: This portnum traffic is not sent to the public MQTT starting at firmware version 2.2.9
+"""
+ALERT_APP: PortNum.ValueType  # 11
+"""
+Same as Text Message but used for critical alerts.
 """
 REPLY_APP: PortNum.ValueType  # 32
 """

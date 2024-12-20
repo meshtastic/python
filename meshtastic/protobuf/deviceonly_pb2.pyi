@@ -7,60 +7,14 @@ import builtins
 import collections.abc
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
-import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import meshtastic.protobuf.channel_pb2
 import meshtastic.protobuf.config_pb2
-import meshtastic.protobuf.localonly_pb2
 import meshtastic.protobuf.mesh_pb2
 import meshtastic.protobuf.telemetry_pb2
-import sys
 import typing
 
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
-else:
-    import typing_extensions
-
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
-
-class _ScreenFonts:
-    ValueType = typing.NewType("ValueType", builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
-
-class _ScreenFontsEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ScreenFonts.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    FONT_SMALL: _ScreenFonts.ValueType  # 0
-    """
-    TODO: REPLACE
-    """
-    FONT_MEDIUM: _ScreenFonts.ValueType  # 1
-    """
-    TODO: REPLACE
-    """
-    FONT_LARGE: _ScreenFonts.ValueType  # 2
-    """
-    TODO: REPLACE
-    """
-
-class ScreenFonts(_ScreenFonts, metaclass=_ScreenFontsEnumTypeWrapper):
-    """
-    Font sizes for the device screen
-    """
-
-FONT_SMALL: ScreenFonts.ValueType  # 0
-"""
-TODO: REPLACE
-"""
-FONT_MEDIUM: ScreenFonts.ValueType  # 1
-"""
-TODO: REPLACE
-"""
-FONT_LARGE: ScreenFonts.ValueType  # 2
-"""
-TODO: REPLACE
-"""
-global___ScreenFonts = ScreenFonts
 
 @typing.final
 class PositionLite(google.protobuf.message.Message):
@@ -188,6 +142,8 @@ class NodeInfoLite(google.protobuf.message.Message):
     VIA_MQTT_FIELD_NUMBER: builtins.int
     HOPS_AWAY_FIELD_NUMBER: builtins.int
     IS_FAVORITE_FIELD_NUMBER: builtins.int
+    IS_IGNORED_FIELD_NUMBER: builtins.int
+    NEXT_HOP_FIELD_NUMBER: builtins.int
     num: builtins.int
     """
     The node number
@@ -211,12 +167,21 @@ class NodeInfoLite(google.protobuf.message.Message):
     """
     hops_away: builtins.int
     """
-    Number of hops away from us this node is (0 if adjacent)
+    Number of hops away from us this node is (0 if direct neighbor)
     """
     is_favorite: builtins.bool
     """
     True if node is in our favorites list
     Persists between NodeDB internal clean ups
+    """
+    is_ignored: builtins.bool
+    """
+    True if node is in our ignored list
+    Persists between NodeDB internal clean ups
+    """
+    next_hop: builtins.int
+    """
+    Last byte of the node number of the node that should be used as the next hop to reach this node.
     """
     @property
     def user(self) -> global___UserLite:
@@ -250,9 +215,11 @@ class NodeInfoLite(google.protobuf.message.Message):
         via_mqtt: builtins.bool = ...,
         hops_away: builtins.int | None = ...,
         is_favorite: builtins.bool = ...,
+        is_ignored: builtins.bool = ...,
+        next_hop: builtins.int = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "position", b"position", "user", b"user"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "last_heard", b"last_heard", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "is_ignored", b"is_ignored", "last_heard", b"last_heard", "next_hop", b"next_hop", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["_hops_away", b"_hops_away"]) -> typing.Literal["hops_away"] | None: ...
 
 global___NodeInfoLite = NodeInfoLite
@@ -391,73 +358,3 @@ class ChannelFile(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["channels", b"channels", "version", b"version"]) -> None: ...
 
 global___ChannelFile = ChannelFile
-
-@typing.final
-class OEMStore(google.protobuf.message.Message):
-    """
-    This can be used for customizing the firmware distribution. If populated,
-    show a secondary bootup screen with custom logo and text for 2.5 seconds.
-    """
-
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    OEM_ICON_WIDTH_FIELD_NUMBER: builtins.int
-    OEM_ICON_HEIGHT_FIELD_NUMBER: builtins.int
-    OEM_ICON_BITS_FIELD_NUMBER: builtins.int
-    OEM_FONT_FIELD_NUMBER: builtins.int
-    OEM_TEXT_FIELD_NUMBER: builtins.int
-    OEM_AES_KEY_FIELD_NUMBER: builtins.int
-    OEM_LOCAL_CONFIG_FIELD_NUMBER: builtins.int
-    OEM_LOCAL_MODULE_CONFIG_FIELD_NUMBER: builtins.int
-    oem_icon_width: builtins.int
-    """
-    The Logo width in Px
-    """
-    oem_icon_height: builtins.int
-    """
-    The Logo height in Px
-    """
-    oem_icon_bits: builtins.bytes
-    """
-    The Logo in XBM bytechar format
-    """
-    oem_font: global___ScreenFonts.ValueType
-    """
-    Use this font for the OEM text.
-    """
-    oem_text: builtins.str
-    """
-    Use this font for the OEM text.
-    """
-    oem_aes_key: builtins.bytes
-    """
-    The default device encryption key, 16 or 32 byte
-    """
-    @property
-    def oem_local_config(self) -> meshtastic.protobuf.localonly_pb2.LocalConfig:
-        """
-        A Preset LocalConfig to apply during factory reset
-        """
-
-    @property
-    def oem_local_module_config(self) -> meshtastic.protobuf.localonly_pb2.LocalModuleConfig:
-        """
-        A Preset LocalModuleConfig to apply during factory reset
-        """
-
-    def __init__(
-        self,
-        *,
-        oem_icon_width: builtins.int = ...,
-        oem_icon_height: builtins.int = ...,
-        oem_icon_bits: builtins.bytes = ...,
-        oem_font: global___ScreenFonts.ValueType = ...,
-        oem_text: builtins.str = ...,
-        oem_aes_key: builtins.bytes = ...,
-        oem_local_config: meshtastic.protobuf.localonly_pb2.LocalConfig | None = ...,
-        oem_local_module_config: meshtastic.protobuf.localonly_pb2.LocalModuleConfig | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["oem_local_config", b"oem_local_config", "oem_local_module_config", b"oem_local_module_config"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["oem_aes_key", b"oem_aes_key", "oem_font", b"oem_font", "oem_icon_bits", b"oem_icon_bits", "oem_icon_height", b"oem_icon_height", "oem_icon_width", b"oem_icon_width", "oem_local_config", b"oem_local_config", "oem_local_module_config", b"oem_local_module_config", "oem_text", b"oem_text"]) -> None: ...
-
-global___OEMStore = OEMStore

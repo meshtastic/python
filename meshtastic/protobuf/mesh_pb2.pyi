@@ -11,6 +11,7 @@ import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import meshtastic.protobuf.channel_pb2
 import meshtastic.protobuf.config_pb2
+import meshtastic.protobuf.device_ui_pb2
 import meshtastic.protobuf.module_config_pb2
 import meshtastic.protobuf.portnums_pb2
 import meshtastic.protobuf.telemetry_pb2
@@ -379,6 +380,23 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Lilygo TLora-C6 with the new ESP32-C6 MCU
     """
+    WISMESH_TAP: _HardwareModel.ValueType  # 84
+    """
+    WisMesh Tap
+    RAK-4631 w/ TFT in injection modled case
+    """
+    ROUTASTIC: _HardwareModel.ValueType  # 85
+    """
+    Similar to PORTDUINO but used by Routastic devices, this is not any
+    particular device and does not run Meshtastic's code but supports
+    the same frame format.
+    Runs on linux, see https://github.com/Jorropo/routastic
+    """
+    MESH_TAB: _HardwareModel.ValueType  # 86
+    """
+    Mesh-Tab, esp32 based
+    https://github.com/valzzu/Mesh-Tab
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -742,6 +760,23 @@ TLORA_C6: HardwareModel.ValueType  # 83
 """
 Lilygo TLora-C6 with the new ESP32-C6 MCU
 """
+WISMESH_TAP: HardwareModel.ValueType  # 84
+"""
+WisMesh Tap
+RAK-4631 w/ TFT in injection modled case
+"""
+ROUTASTIC: HardwareModel.ValueType  # 85
+"""
+Similar to PORTDUINO but used by Routastic devices, this is not any
+particular device and does not run Meshtastic's code but supports
+the same frame format.
+Runs on linux, see https://github.com/Jorropo/routastic
+"""
+MESH_TAB: HardwareModel.ValueType  # 86
+"""
+Mesh-Tab, esp32 based
+https://github.com/valzzu/Mesh-Tab
+"""
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
 ------------------------------------------------------------------------------------------------------------------------------------------
@@ -761,7 +796,7 @@ class _ConstantsEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enum
     First enum must be zero, and we are just using this enum to
     pass int constants between two very different environments
     """
-    DATA_PAYLOAD_LEN: _Constants.ValueType  # 237
+    DATA_PAYLOAD_LEN: _Constants.ValueType  # 233
     """
     From mesh.options
     note: this payload length is ONLY the bytes that are sent inside of the Data protobuf (excluding protobuf overhead). The 16 byte header is
@@ -778,7 +813,7 @@ ZERO: Constants.ValueType  # 0
 First enum must be zero, and we are just using this enum to
 pass int constants between two very different environments
 """
-DATA_PAYLOAD_LEN: Constants.ValueType  # 237
+DATA_PAYLOAD_LEN: Constants.ValueType  # 233
 """
 From mesh.options
 note: this payload length is ONLY the bytes that are sent inside of the Data protobuf (excluding protobuf overhead). The 16 byte header is
@@ -923,10 +958,138 @@ If you see this failure in the field please post in the forum because we are int
 """
 global___CriticalErrorCode = CriticalErrorCode
 
+class _ExcludedModules:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _ExcludedModulesEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ExcludedModules.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    EXCLUDED_NONE: _ExcludedModules.ValueType  # 0
+    """
+    Default value of 0 indicates no modules are excluded.
+    """
+    MQTT_CONFIG: _ExcludedModules.ValueType  # 1
+    """
+    MQTT module
+    """
+    SERIAL_CONFIG: _ExcludedModules.ValueType  # 2
+    """
+    Serial module
+    """
+    EXTNOTIF_CONFIG: _ExcludedModules.ValueType  # 4
+    """
+    External Notification module
+    """
+    STOREFORWARD_CONFIG: _ExcludedModules.ValueType  # 8
+    """
+    Store and Forward module
+    """
+    RANGETEST_CONFIG: _ExcludedModules.ValueType  # 16
+    """
+    Range Test module
+    """
+    TELEMETRY_CONFIG: _ExcludedModules.ValueType  # 32
+    """
+    Telemetry module
+    """
+    CANNEDMSG_CONFIG: _ExcludedModules.ValueType  # 64
+    """
+    Canned Message module
+    """
+    AUDIO_CONFIG: _ExcludedModules.ValueType  # 128
+    """
+    Audio module
+    """
+    REMOTEHARDWARE_CONFIG: _ExcludedModules.ValueType  # 256
+    """
+    Remote Hardware module
+    """
+    NEIGHBORINFO_CONFIG: _ExcludedModules.ValueType  # 512
+    """
+    Neighbor Info module
+    """
+    AMBIENTLIGHTING_CONFIG: _ExcludedModules.ValueType  # 1024
+    """
+    Ambient Lighting module
+    """
+    DETECTIONSENSOR_CONFIG: _ExcludedModules.ValueType  # 2048
+    """
+    Detection Sensor module
+    """
+    PAXCOUNTER_CONFIG: _ExcludedModules.ValueType  # 4096
+    """
+    Paxcounter module
+    """
+
+class ExcludedModules(_ExcludedModules, metaclass=_ExcludedModulesEnumTypeWrapper):
+    """
+    Enum for modules excluded from a device's configuration.
+    Each value represents a ModuleConfigType that can be toggled as excluded
+    by setting its corresponding bit in the `excluded_modules` bitmask field.
+    """
+
+EXCLUDED_NONE: ExcludedModules.ValueType  # 0
+"""
+Default value of 0 indicates no modules are excluded.
+"""
+MQTT_CONFIG: ExcludedModules.ValueType  # 1
+"""
+MQTT module
+"""
+SERIAL_CONFIG: ExcludedModules.ValueType  # 2
+"""
+Serial module
+"""
+EXTNOTIF_CONFIG: ExcludedModules.ValueType  # 4
+"""
+External Notification module
+"""
+STOREFORWARD_CONFIG: ExcludedModules.ValueType  # 8
+"""
+Store and Forward module
+"""
+RANGETEST_CONFIG: ExcludedModules.ValueType  # 16
+"""
+Range Test module
+"""
+TELEMETRY_CONFIG: ExcludedModules.ValueType  # 32
+"""
+Telemetry module
+"""
+CANNEDMSG_CONFIG: ExcludedModules.ValueType  # 64
+"""
+Canned Message module
+"""
+AUDIO_CONFIG: ExcludedModules.ValueType  # 128
+"""
+Audio module
+"""
+REMOTEHARDWARE_CONFIG: ExcludedModules.ValueType  # 256
+"""
+Remote Hardware module
+"""
+NEIGHBORINFO_CONFIG: ExcludedModules.ValueType  # 512
+"""
+Neighbor Info module
+"""
+AMBIENTLIGHTING_CONFIG: ExcludedModules.ValueType  # 1024
+"""
+Ambient Lighting module
+"""
+DETECTIONSENSOR_CONFIG: ExcludedModules.ValueType  # 2048
+"""
+Detection Sensor module
+"""
+PAXCOUNTER_CONFIG: ExcludedModules.ValueType  # 4096
+"""
+Paxcounter module
+"""
+global___ExcludedModules = ExcludedModules
+
 @typing.final
 class Position(google.protobuf.message.Message):
     """
-    a gps position
+    A GPS Position
     """
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -1783,6 +1946,10 @@ class MeshPacket(google.protobuf.message.Message):
         """
         Higher priority for specific message types (portnums) to distinguish between other reliable packets.
         """
+        ALERT: MeshPacket._Priority.ValueType  # 110
+        """
+        Higher priority alert message used for critical alerts which take priority over other reliable packets.
+        """
         ACK: MeshPacket._Priority.ValueType  # 120
         """
         Ack/naks are sent with very high priority to ensure that retransmission
@@ -1845,6 +2012,10 @@ class MeshPacket(google.protobuf.message.Message):
     HIGH: MeshPacket.Priority.ValueType  # 100
     """
     Higher priority for specific message types (portnums) to distinguish between other reliable packets.
+    """
+    ALERT: MeshPacket.Priority.ValueType  # 110
+    """
+    Higher priority alert message used for critical alerts which take priority over other reliable packets.
     """
     ACK: MeshPacket.Priority.ValueType  # 120
     """
@@ -1910,6 +2081,8 @@ class MeshPacket(google.protobuf.message.Message):
     HOP_START_FIELD_NUMBER: builtins.int
     PUBLIC_KEY_FIELD_NUMBER: builtins.int
     PKI_ENCRYPTED_FIELD_NUMBER: builtins.int
+    NEXT_HOP_FIELD_NUMBER: builtins.int
+    RELAY_NODE_FIELD_NUMBER: builtins.int
     to: builtins.int
     """
     The (immediate) destination for this packet
@@ -1954,7 +2127,7 @@ class MeshPacket(google.protobuf.message.Message):
     """
     hop_limit: builtins.int
     """
-    If unset treated as zero (no forwarding, send to adjacent nodes only)
+    If unset treated as zero (no forwarding, send to direct neighbor nodes only)
     if 1, allow hopping through one node, etc...
     For our usecase real world topologies probably have a max of about 3.
     This field is normally placed into a few of bits in the header.
@@ -2001,6 +2174,16 @@ class MeshPacket(google.protobuf.message.Message):
     """
     Indicates whether the packet was en/decrypted using PKI
     """
+    next_hop: builtins.int
+    """
+    Last byte of the node number of the node that should be used as the next hop in routing. 
+    Set by the firmware internally, clients are not supposed to set this.
+    """
+    relay_node: builtins.int
+    """
+    Last byte of the node number of the node that will relay/relayed this packet.
+    Set by the firmware internally, clients are not supposed to set this.
+    """
     @property
     def decoded(self) -> global___Data:
         """
@@ -2026,9 +2209,11 @@ class MeshPacket(google.protobuf.message.Message):
         hop_start: builtins.int = ...,
         public_key: builtins.bytes = ...,
         pki_encrypted: builtins.bool = ...,
+        next_hop: builtins.int = ...,
+        relay_node: builtins.int = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["decoded", b"decoded", "encrypted", b"encrypted", "payload_variant", b"payload_variant"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel", b"channel", "decoded", b"decoded", "delayed", b"delayed", "encrypted", b"encrypted", "from", b"from", "hop_limit", b"hop_limit", "hop_start", b"hop_start", "id", b"id", "payload_variant", b"payload_variant", "pki_encrypted", b"pki_encrypted", "priority", b"priority", "public_key", b"public_key", "rx_rssi", b"rx_rssi", "rx_snr", b"rx_snr", "rx_time", b"rx_time", "to", b"to", "via_mqtt", b"via_mqtt", "want_ack", b"want_ack"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["channel", b"channel", "decoded", b"decoded", "delayed", b"delayed", "encrypted", b"encrypted", "from", b"from", "hop_limit", b"hop_limit", "hop_start", b"hop_start", "id", b"id", "next_hop", b"next_hop", "payload_variant", b"payload_variant", "pki_encrypted", b"pki_encrypted", "priority", b"priority", "public_key", b"public_key", "relay_node", b"relay_node", "rx_rssi", b"rx_rssi", "rx_snr", b"rx_snr", "rx_time", b"rx_time", "to", b"to", "via_mqtt", b"via_mqtt", "want_ack", b"want_ack"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["decoded", "encrypted"] | None: ...
 
 global___MeshPacket = MeshPacket
@@ -2066,6 +2251,7 @@ class NodeInfo(google.protobuf.message.Message):
     VIA_MQTT_FIELD_NUMBER: builtins.int
     HOPS_AWAY_FIELD_NUMBER: builtins.int
     IS_FAVORITE_FIELD_NUMBER: builtins.int
+    IS_IGNORED_FIELD_NUMBER: builtins.int
     num: builtins.int
     """
     The node number
@@ -2079,7 +2265,7 @@ class NodeInfo(google.protobuf.message.Message):
     """
     TODO: REMOVE/INTEGRATE
     Not currently used (till full DSR deployment?) Our current preferred node node for routing - might be the same as num if
-    we are adjacent Or zero if we don't yet know a route to this node.
+    we are direct neighbor or zero if we don't yet know a route to this node.
     fixed32 next_hop = 5;
 
 
@@ -2095,11 +2281,16 @@ class NodeInfo(google.protobuf.message.Message):
     """
     hops_away: builtins.int
     """
-    Number of hops away from us this node is (0 if adjacent)
+    Number of hops away from us this node is (0 if direct neighbor)
     """
     is_favorite: builtins.bool
     """
     True if node is in our favorites list
+    Persists between NodeDB internal clean ups
+    """
+    is_ignored: builtins.bool
+    """
+    True if node is in our ignored list
     Persists between NodeDB internal clean ups
     """
     @property
@@ -2134,9 +2325,10 @@ class NodeInfo(google.protobuf.message.Message):
         via_mqtt: builtins.bool = ...,
         hops_away: builtins.int | None = ...,
         is_favorite: builtins.bool = ...,
+        is_ignored: builtins.bool = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "position", b"position", "user", b"user"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "last_heard", b"last_heard", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "is_ignored", b"is_ignored", "last_heard", b"last_heard", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["_hops_away", b"_hops_away"]) -> typing.Literal["hops_away"] | None: ...
 
 global___NodeInfo = NodeInfo
@@ -2154,6 +2346,8 @@ class MyNodeInfo(google.protobuf.message.Message):
     MY_NODE_NUM_FIELD_NUMBER: builtins.int
     REBOOT_COUNT_FIELD_NUMBER: builtins.int
     MIN_APP_VERSION_FIELD_NUMBER: builtins.int
+    DEVICE_ID_FIELD_NUMBER: builtins.int
+    PIO_ENV_FIELD_NUMBER: builtins.int
     my_node_num: builtins.int
     """
     Tells the phone what our node number is, default starting value is
@@ -2169,14 +2363,24 @@ class MyNodeInfo(google.protobuf.message.Message):
     The minimum app version that can talk to this device.
     Phone/PC apps should compare this to their build number and if too low tell the user they must update their app
     """
+    device_id: builtins.bytes
+    """
+    Unique hardware identifier for this device
+    """
+    pio_env: builtins.str
+    """
+    The PlatformIO environment used to build this firmware
+    """
     def __init__(
         self,
         *,
         my_node_num: builtins.int = ...,
         reboot_count: builtins.int = ...,
         min_app_version: builtins.int = ...,
+        device_id: builtins.bytes = ...,
+        pio_env: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["min_app_version", b"min_app_version", "my_node_num", b"my_node_num", "reboot_count", b"reboot_count"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["device_id", b"device_id", "min_app_version", b"min_app_version", "my_node_num", b"my_node_num", "pio_env", b"pio_env", "reboot_count", b"reboot_count"]) -> None: ...
 
 global___MyNodeInfo = MyNodeInfo
 
@@ -2348,6 +2552,7 @@ class FromRadio(google.protobuf.message.Message):
     MQTTCLIENTPROXYMESSAGE_FIELD_NUMBER: builtins.int
     FILEINFO_FIELD_NUMBER: builtins.int
     CLIENTNOTIFICATION_FIELD_NUMBER: builtins.int
+    DEVICEUICONFIG_FIELD_NUMBER: builtins.int
     id: builtins.int
     """
     The packet id, used to allow the phone to request missing read packets from the FIFO,
@@ -2447,6 +2652,12 @@ class FromRadio(google.protobuf.message.Message):
         Notification message to the client
         """
 
+    @property
+    def deviceuiConfig(self) -> meshtastic.protobuf.device_ui_pb2.DeviceUIConfig:
+        """
+        Persistent data for device-ui
+        """
+
     def __init__(
         self,
         *,
@@ -2466,10 +2677,11 @@ class FromRadio(google.protobuf.message.Message):
         mqttClientProxyMessage: global___MqttClientProxyMessage | None = ...,
         fileInfo: global___FileInfo | None = ...,
         clientNotification: global___ClientNotification | None = ...,
+        deviceuiConfig: meshtastic.protobuf.device_ui_pb2.DeviceUIConfig | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "fileInfo", b"fileInfo", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "fileInfo", b"fileInfo", "id", b"id", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["packet", "my_info", "node_info", "config", "log_record", "config_complete_id", "rebooted", "moduleConfig", "channel", "queueStatus", "xmodemPacket", "metadata", "mqttClientProxyMessage", "fileInfo", "clientNotification"] | None: ...
+    def HasField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "deviceuiConfig", b"deviceuiConfig", "fileInfo", b"fileInfo", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "deviceuiConfig", b"deviceuiConfig", "fileInfo", b"fileInfo", "id", b"id", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["packet", "my_info", "node_info", "config", "log_record", "config_complete_id", "rebooted", "moduleConfig", "channel", "queueStatus", "xmodemPacket", "metadata", "mqttClientProxyMessage", "fileInfo", "clientNotification", "deviceuiConfig"] | None: ...
 
 global___FromRadio = FromRadio
 
@@ -2749,6 +2961,7 @@ class DeviceMetadata(google.protobuf.message.Message):
     HW_MODEL_FIELD_NUMBER: builtins.int
     HASREMOTEHARDWARE_FIELD_NUMBER: builtins.int
     HASPKC_FIELD_NUMBER: builtins.int
+    EXCLUDED_MODULES_FIELD_NUMBER: builtins.int
     firmware_version: builtins.str
     """
     Device firmware version string
@@ -2793,6 +3006,11 @@ class DeviceMetadata(google.protobuf.message.Message):
     """
     Has PKC capabilities
     """
+    excluded_modules: builtins.int
+    """
+    Bit field of boolean for excluded modules
+    (bitwise OR of ExcludedModules)
+    """
     def __init__(
         self,
         *,
@@ -2807,8 +3025,9 @@ class DeviceMetadata(google.protobuf.message.Message):
         hw_model: global___HardwareModel.ValueType = ...,
         hasRemoteHardware: builtins.bool = ...,
         hasPKC: builtins.bool = ...,
+        excluded_modules: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["canShutdown", b"canShutdown", "device_state_version", b"device_state_version", "firmware_version", b"firmware_version", "hasBluetooth", b"hasBluetooth", "hasEthernet", b"hasEthernet", "hasPKC", b"hasPKC", "hasRemoteHardware", b"hasRemoteHardware", "hasWifi", b"hasWifi", "hw_model", b"hw_model", "position_flags", b"position_flags", "role", b"role"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["canShutdown", b"canShutdown", "device_state_version", b"device_state_version", "excluded_modules", b"excluded_modules", "firmware_version", b"firmware_version", "hasBluetooth", b"hasBluetooth", "hasEthernet", b"hasEthernet", "hasPKC", b"hasPKC", "hasRemoteHardware", b"hasRemoteHardware", "hasWifi", b"hasWifi", "hw_model", b"hw_model", "position_flags", b"position_flags", "role", b"role"]) -> None: ...
 
 global___DeviceMetadata = DeviceMetadata
 

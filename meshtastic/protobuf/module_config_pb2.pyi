@@ -225,6 +225,7 @@ class ModuleConfig(google.protobuf.message.Message):
 
         ENABLED_FIELD_NUMBER: builtins.int
         UPDATE_INTERVAL_FIELD_NUMBER: builtins.int
+        TRANSMIT_OVER_LORA_FIELD_NUMBER: builtins.int
         enabled: builtins.bool
         """
         Whether the Module is enabled
@@ -232,15 +233,21 @@ class ModuleConfig(google.protobuf.message.Message):
         update_interval: builtins.int
         """
         Interval in seconds of how often we should try to send our
-        Neighbor Info to the mesh
+        Neighbor Info (minimum is 14400, i.e., 4 hours)
+        """
+        transmit_over_lora: builtins.bool
+        """
+        Whether in addition to sending it to MQTT and the PhoneAPI, our NeighborInfo should be transmitted over LoRa.
+        Note that this is not available on a channel with default key and name.
         """
         def __init__(
             self,
             *,
             enabled: builtins.bool = ...,
             update_interval: builtins.int = ...,
+            transmit_over_lora: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["enabled", b"enabled", "update_interval", b"update_interval"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["enabled", b"enabled", "transmit_over_lora", b"transmit_over_lora", "update_interval", b"update_interval"]) -> None: ...
 
     @typing.final
     class DetectionSensorConfig(google.protobuf.message.Message):
