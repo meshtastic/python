@@ -29,6 +29,9 @@ except ImportError as e:
     have_test = False
 
 import meshtastic.util
+import meshtastic.serial_interface
+import meshtastic.tcp_interface
+
 from meshtastic import BROADCAST_ADDR, mt_config, remote_hardware
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
