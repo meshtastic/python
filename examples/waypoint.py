@@ -1,7 +1,7 @@
 """Program to create and delete waypoint
    To run:
    python3 examples/waypoint.py --port /dev/ttyUSB0 create 45 test the_desc_2 '2024-12-18T23:05:23' 48.74 7.35
-   python examples/waypoint.py delete 45
+   python3 examples/waypoint.py delete 45
 """
 
 import argparse

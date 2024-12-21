@@ -254,6 +254,16 @@ class Timeout:
             time.sleep(self.sleepInterval)
         return False
 
+    def waitForWaypoint(self, acknowledgment) -> bool:
+        """Block until waypoint response is received. Returns True if waypoint response has been received."""
+        self.reset()
+        while time.time() < self.expireTime:
+            if getattr(acknowledgment, "receivedWaypoint", None):
+                acknowledgment.reset()
+                return True
+            time.sleep(self.sleepInterval)
+        return False
+
 class Acknowledgment:
     "A class that records which type of acknowledgment was just received, if any."
 
@@ -265,6 +275,7 @@ class Acknowledgment:
         self.receivedTraceRoute = False
         self.receivedTelemetry = False
         self.receivedPosition = False
+        self.receivedWaypoint = False
 
     def reset(self) -> None:
         """reset"""
@@ -274,6 +285,7 @@ class Acknowledgment:
         self.receivedTraceRoute = False
         self.receivedTelemetry = False
         self.receivedPosition = False
+        self.receivedWaypoint = False
 
 
 class DeferredExecution:

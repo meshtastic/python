@@ -702,6 +702,19 @@ class MeshInterface:  # pylint: disable=R0902
                     "No response from node. At least firmware 2.1.22 is required on the destination node."
                 )
 
+    def onResponseWaypoint(self, p: dict):
+        """on response for waypoint"""
+        if p["decoded"]["portnum"] == "WAYPOINT_APP":
+            self._acknowledgment.receivedWaypoint = True
+            w = mesh_pb2.Waypoint()
+            w.ParseFromString(p["decoded"]["payload"])
+            print(f"Waypoint received: {w}")
+        elif p["decoded"]["portnum"] == "ROUTING_APP":
+            if p["decoded"]["routing"]["errorReason"] == "NO_RESPONSE":
+                our_exit(
+                    "No response from node. At least firmware 2.1.22 is required on the destination node."
+                )
+
     def sendWaypoint(
         self,
         name,
@@ -726,6 +739,8 @@ class MeshInterface:  # pylint: disable=R0902
         w.description = description
         w.expire = expire
         if id is None:
+            # Generate a waypoint's id, NOT a packet ID.
+            # same algorithm as https://github.com/meshtastic/js/blob/715e35d2374276a43ffa93c628e3710875d43907/src/meshDevice.ts#L791
             seed = secrets.randbits(32)
             w.id = math.floor(seed * math.pow(2, -32) * 1e9)
             logging.debug(f"w.id:{w.id}")
@@ -917,6 +932,12 @@ class MeshInterface:  # pylint: disable=R0902
         success = self._timeout.waitForPosition(self._acknowledgment)
         if not success:
             raise MeshInterface.MeshInterfaceError("Timed out waiting for position")
+
+    def waitForWaypoint(self):
+        """Wait for waypoint"""
+        success = self._timeout.waitForWaypoint(self._acknowledgment)
+        if not success:
+            raise MeshInterface.MeshInterfaceError("Timed out waiting for waypoint")
 
     def getMyNodeInfo(self) -> Optional[Dict]:
         """Get info about my node."""
