@@ -2683,3 +2683,33 @@ def test_remove_favorite_node():
         main()
 
     mocked_node.removeFavorite.assert_called_once_with("!12345678")
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_set_ignored_node():
+    """Test --set-ignored-node node"""
+    sys.argv = ["", "--set-ignored-node", "!12345678"]
+    mt_config.args = sys.argv
+    mocked_node = MagicMock(autospec=Node)
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+
+    mocked_node.setIgnored.assert_called_once_with("!12345678")
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_remove_ignored_node():
+    """Test --remove-ignored-node node"""
+    sys.argv = ["", "--remove-ignored-node", "!12345678"]
+    mt_config.args = sys.argv
+    mocked_node = MagicMock(autospec=Node)
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+    mocked_node.iface = iface
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+
+    mocked_node.removeIgnored.assert_called_once_with("!12345678")
