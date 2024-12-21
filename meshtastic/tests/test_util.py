@@ -442,6 +442,13 @@ def test_is_windows11_false_win8_1(patched_platform, patched_release):
     patched_platform.assert_called()
     patched_release.assert_called()
 
+@patch("platform.release", return_value="2022Server")
+@patch("platform.system", return_value="Windows")
+def test_is_windows11_false_winserver(patched_platform, patched_release):
+    """Test is_windows11()"""
+    assert is_windows11() is False
+    patched_platform.assert_called()
+    patched_release.assert_called()
 
 @pytest.mark.unit
 @patch("platform.system", return_value="Linux")
