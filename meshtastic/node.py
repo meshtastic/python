@@ -704,6 +704,42 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
+    def setIgnored(self, nodeId: Union[int, str]):
+        """Tell the node to set the specified node ID to be ignored on the NodeDB on the device"""
+        self.ensureSessionKey()
+        if isinstance(nodeId, str):
+            if nodeId.startswith("!"):
+                nodeId = int(nodeId[1:], 16)
+            else:
+                nodeId = int(nodeId)
+
+        p = admin_pb2.AdminMessage()
+        p.set_ignored_node = nodeId
+
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
+    def removeIgnored(self, nodeId: Union[int, str]):
+        """Tell the node to set the specified node ID to be un-ignored on the NodeDB on the device"""
+        self.ensureSessionKey()
+        if isinstance(nodeId, str):
+            if nodeId.startswith("!"):
+                nodeId = int(nodeId[1:], 16)
+            else:
+                nodeId = int(nodeId)
+
+        p = admin_pb2.AdminMessage()
+        p.remove_ignored_node = nodeId
+
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
     def resetNodeDb(self):
         """Tell the node to reset its list of nodes."""
         self.ensureSessionKey()

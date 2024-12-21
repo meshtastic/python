@@ -454,6 +454,16 @@ def onConnected(interface):
             waitForAckNak = True
             interface.getNode(args.dest, False, **getNode_kwargs).removeFavorite(args.remove_favorite_node)
 
+        if args.set_ignored_node:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False, **getNode_kwargs).setIgnored(args.set_ignored_node)
+
+        if args.remove_ignored_node:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False, **getNode_kwargs).removeIgnored(args.remove_ignored_node)
+
         if args.reset_nodedb:
             closeNow = True
             waitForAckNak = True
@@ -1720,6 +1730,16 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
     group.add_argument(
         "--remove-favorite-node",
         help="Tell the destination node to set the specified node to be un-favorited on the NodeDB on the device, by number or ID",
+        metavar="!xxxxxxxx"
+    )
+    group.add_argument(
+        "--set-ignored-node",
+        help="Tell the destination node to set the specified node to be ignored on the NodeDB on the devicein its DB, by number or ID",
+        metavar="!xxxxxxxx"
+    )
+    group.add_argument(
+        "--remove-ignored-node",
+        help="Tell the destination node to set the specified node to be un-ignored on the NodeDB on the device, by number or ID",
         metavar="!xxxxxxxx"
     )
     group.add_argument(
