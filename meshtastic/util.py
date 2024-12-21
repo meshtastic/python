@@ -521,15 +521,15 @@ def is_windows11() -> bool:
     """Detect if Windows 11"""
     is_win11: bool = False
     if platform.system() == "Windows":
-        if float(platform.release()) >= 10.0:
-            patch = platform.version().split(".")[2]
-            # in case they add some number suffix later, just get first 5 chars of patch
-            patch = patch[:5]
-            try:
+        try:
+            if float(platform.release()) >= 10.0:
+                patch = platform.version().split(".")[2]
+                # in case they add some number suffix later, just get first 5 chars of patch
+                patch = patch[:5]
                 if int(patch) >= 22000:
                     is_win11 = True
-            except Exception as e:
-                print(f"problem detecting win11 e:{e}")
+        except Exception as e:
+            print(f"problem detecting win11 e:{e}")
     return is_win11
 
 
