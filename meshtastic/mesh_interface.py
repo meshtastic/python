@@ -303,7 +303,7 @@ class MeshInterface:  # pylint: disable=R0902
                 row.update(
                     {
                         "SNR": formatFloat(node.get("snr"), 2, " dB"),
-                        "Hops Away": node.get("hopsAway", "0/unknown"),
+                        "Hops": node.get("hopsAway", "?"),
                         "Channel": node.get("channel", 0),
                         "LastHeard": getLH(node.get("lastHeard")),
                         "Since": getTimeAgo(node.get("lastHeard")),
