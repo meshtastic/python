@@ -702,6 +702,10 @@ def onConnected(interface):
 
         # handle changing channels
 
+        if args.ch_add_url:
+            closeNow = True
+            interface.getNode(args.dest, **getNode_kwargs).setURL(args.ch_add_url, addOnly=True)
+
         if args.ch_add:
             channelIndex = mt_config.channel_index
             if channelIndex is not None:
@@ -1471,7 +1475,7 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store"
     )
 
-    group.add_argument("--seturl", help="Set a channel URL", action="store")
+    group.add_argument("--seturl", help="Set all channels with a URL", action="store")
 
     return parser
 
@@ -1486,6 +1490,13 @@ def addChannelConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPa
     group.add_argument(
         "--ch-add",
         help="Add a secondary channel, you must specify a channel name",
+        default=None,
+    )
+
+    group.add_argument(
+        "--ch-add-url",
+        help="Add secondary channels from a supplied URL",
+        metavar="URL",
         default=None,
     )
 
