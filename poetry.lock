@@ -45,6 +45,20 @@ files = [
 ]
 
 [[package]]
+name = "argcomplete"
+version = "3.5.2"
+description = "Bash tab completion for argparse"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "argcomplete-3.5.2-py3-none-any.whl", hash = "sha256:036d020d79048a5d525bc63880d7a4b8d1668566b8a76daf1144c0bbe0f63472"},
+    {file = "argcomplete-3.5.2.tar.gz", hash = "sha256:23146ed7ac4403b70bd6026402468942ceba34a6732255b9edf5b7354f68a6bb"},
+]
+
+[package.extras]
+test = ["coverage", "mypy", "pexpect", "ruff", "wheel"]
+
+[[package]]
 name = "argon2-cffi"
 version = "23.1.0"
 description = "Argon2 for Python"
@@ -4332,10 +4346,10 @@ type = ["pytest-mypy"]
 
 [extras]
 analysis = ["dash", "dash-bootstrap-components", "pandas", "pandas-stubs"]
-cli = ["dotmap", "print-color", "pyqrcode"]
+cli = ["argcomplete", "dotmap", "print-color", "pyqrcode"]
 tunnel = ["pytap2"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.14"
-content-hash = "fa490a41df9742f691c43a4915f7751b6adbded7605c3f0936f74681c1da5244"
+content-hash = "4ab787ea28390a4e19c2dfbfdee920174146b144a63fa1e138e25b7120941490"
