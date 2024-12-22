@@ -5,18 +5,21 @@
 # later we can have a separate changelist to refactor main.py into smaller files
 # pylint: disable=too-many-lines
 
+from typing import List, Optional, Union
+from types import ModuleType
+
 import argparse
+argcomplete: Union[None, ModuleType] = None
 try:
     import argcomplete
 except ImportError as e:
-    argcomplete = None
+    pass # already set to None by default above
 
 import logging
 import os
 import platform
 import sys
 import time
-from typing import List, Optional
 
 try:
     import pyqrcode  # type: ignore[import-untyped]
