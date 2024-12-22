@@ -6,6 +6,11 @@
 # pylint: disable=too-many-lines
 
 import argparse
+try:
+    import argcomplete
+except ImportError as e:
+    argcomplete = None
+
 import logging
 import os
 import platform
@@ -1961,6 +1966,8 @@ def initParser():
 
     parser.set_defaults(deprecated=None)
 
+    if argcomplete is not None:
+        argcomplete.autocomplete(parser)
     args = parser.parse_args()
     mt_config.args = args
     mt_config.parser = parser

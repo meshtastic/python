@@ -16,6 +16,7 @@ pyyaml = "^6.0.1"
 pypubsub = "^4.0.3"
 bleak = "^0.22.3"
 packaging = "^24.0"
+argcomplete = { version = "^3.5.2", optional = true }
 pyqrcode = { version = "^1.2.1", optional = true }
 dotmap = { version = "^1.3.30", optional = true }
 print-color = { version = "^0.4.6", optional = true }
@@ -64,7 +65,7 @@ ipywidgets = "^8.1.3"
 jupyterlab-widgets = "^3.0.11"
 
 [tool.poetry.extras]
-cli = ["pyqrcode", "print-color", "dotmap"]
+cli = ["pyqrcode", "print-color", "dotmap", "argcomplete"]
 tunnel = ["pytap2"]
 analysis = ["dash", "dash-bootstrap-components", "pandas", "pandas-stubs"]
 
