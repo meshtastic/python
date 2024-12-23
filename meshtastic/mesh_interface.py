@@ -389,6 +389,40 @@ class MeshInterface:  # pylint: disable=R0902
             channelIndex=channelIndex,
         )
 
+
+    def sendAlert(
+        self,
+        text: str,
+        destinationId: Union[int, str] = BROADCAST_ADDR,
+        onResponse: Optional[Callable[[dict], Any]] = None,
+        channelIndex: int = 0,
+    ):
+        """Send an alert text to some other node. This is similar to a text message, 
+            but carries a higher priority and is capable of generating special notifications
+            on certain clients.
+
+        Arguments:
+            text {string} -- The text of the alert to send
+
+        Keyword Arguments:
+            destinationId {nodeId or nodeNum} -- where to send this
+                                                 message (default: {BROADCAST_ADDR})
+
+        Returns the sent packet. The id field will be populated in this packet
+        and can be used to track future message acks/naks.
+        """
+
+        return self.sendData(
+            text.encode("utf-8"),
+            destinationId,
+            portNum=portnums_pb2.PortNum.ALERT_APP,
+            wantAck=False,
+            wantResponse=False,
+            onResponse=onResponse,
+            channelIndex=channelIndex,
+            priority=mesh_pb2.MeshPacket.Priority.ALERT
+        )
+
     def sendData(
         self,
         data,
@@ -402,6 +436,7 @@ class MeshInterface:  # pylint: disable=R0902
         hopLimit: Optional[int]=None,
         pkiEncrypted: Optional[bool]=False,
         publicKey: Optional[bytes]=None,
+        priority: mesh_pb2.MeshPacket.Priority.ValueType=mesh_pb2.MeshPacket.Priority.RELIABLE,
     ): # pylint: disable=R0913
         """Send a data packet to some other node
 
@@ -453,6 +488,8 @@ class MeshInterface:  # pylint: disable=R0902
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
         meshPacket.id = self._generatePacketId()
+        if priority is not None:
+            meshPacket.priority = priority
 
         if onResponse is not None:
             logging.debug(f"Setting a response handler for requestId {meshPacket.id}")
