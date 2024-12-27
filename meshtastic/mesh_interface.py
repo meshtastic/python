@@ -5,7 +5,9 @@
 import collections
 import json
 import logging
+import math
 import random
+import secrets
 import sys
 import threading
 import time
@@ -737,6 +739,113 @@ class MeshInterface:  # pylint: disable=R0902
                     "No response from node. At least firmware 2.1.22 is required on the destination node."
                 )
 
+    def onResponseWaypoint(self, p: dict):
+        """on response for waypoint"""
+        if p["decoded"]["portnum"] == "WAYPOINT_APP":
+            self._acknowledgment.receivedWaypoint = True
+            w = mesh_pb2.Waypoint()
+            w.ParseFromString(p["decoded"]["payload"])
+            print(f"Waypoint received: {w}")
+        elif p["decoded"]["portnum"] == "ROUTING_APP":
+            if p["decoded"]["routing"]["errorReason"] == "NO_RESPONSE":
+                our_exit(
+                    "No response from node. At least firmware 2.1.22 is required on the destination node."
+                )
+
+    def sendWaypoint(
+        self,
+        name,
+        description,
+        expire: int,
+        waypoint_id: Optional[int] = None,
+        latitude: float = 0.0,
+        longitude: float = 0.0,
+        destinationId: Union[int, str] = BROADCAST_ADDR,
+        wantAck: bool = True,
+        wantResponse: bool = False,
+        channelIndex: int = 0,
+    ): # pylint: disable=R0913
+        """
+        Send a waypoint packet to some other node (normally a broadcast)
+
+        Returns the sent packet. The id field will be populated in this packet and
+        can be used to track future message acks/naks.
+        """
+        w = mesh_pb2.Waypoint()
+        w.name = name
+        w.description = description
+        w.expire = expire
+        if waypoint_id is None:
+            # Generate a waypoint's id, NOT a packet ID.
+            # same algorithm as https://github.com/meshtastic/js/blob/715e35d2374276a43ffa93c628e3710875d43907/src/meshDevice.ts#L791
+            seed = secrets.randbits(32)
+            w.id = math.floor(seed * math.pow(2, -32) * 1e9)
+            logging.debug(f"w.id:{w.id}")
+        else:
+            w.id = waypoint_id
+        if latitude != 0.0:
+            w.latitude_i = int(latitude * 1e7)
+            logging.debug(f"w.latitude_i:{w.latitude_i}")
+        if longitude != 0.0:
+            w.longitude_i = int(longitude * 1e7)
+            logging.debug(f"w.longitude_i:{w.longitude_i}")
+
+        if wantResponse:
+            onResponse = self.onResponseWaypoint
+        else:
+            onResponse = None
+
+        d = self.sendData(
+            w,
+            destinationId,
+            portNum=portnums_pb2.PortNum.WAYPOINT_APP,
+            wantAck=wantAck,
+            wantResponse=wantResponse,
+            onResponse=onResponse,
+            channelIndex=channelIndex,
+        )
+        if wantResponse:
+            self.waitForWaypoint()
+        return d
+
+    def deleteWaypoint(
+        self,
+        waypoint_id: int,
+        destinationId: Union[int, str] = BROADCAST_ADDR,
+        wantAck: bool = True,
+        wantResponse: bool = False,
+        channelIndex: int = 0,
+    ):
+        """
+        Send a waypoint deletion packet to some other node (normally a broadcast)
+
+        NB: The id must be the waypoint's id and not the id of the packet creation.
+        
+        Returns the sent packet. The id field will be populated in this packet and
+        can be used to track future message acks/naks.
+        """
+        p = mesh_pb2.Waypoint()
+        p.id = waypoint_id
+        p.expire = 0
+
+        if wantResponse:
+            onResponse = self.onResponseWaypoint
+        else:
+            onResponse = None
+
+        d = self.sendData(
+            p,
+            destinationId,
+            portNum=portnums_pb2.PortNum.WAYPOINT_APP,
+            wantAck=wantAck,
+            wantResponse=wantResponse,
+            onResponse=onResponse,
+            channelIndex=channelIndex,
+        )
+        if wantResponse:
+            self.waitForWaypoint()
+        return d
+
     def _addResponseHandler(
         self,
         requestId: int,
@@ -860,6 +969,12 @@ class MeshInterface:  # pylint: disable=R0902
         success = self._timeout.waitForPosition(self._acknowledgment)
         if not success:
             raise MeshInterface.MeshInterfaceError("Timed out waiting for position")
+
+    def waitForWaypoint(self):
+        """Wait for waypoint"""
+        success = self._timeout.waitForWaypoint(self._acknowledgment)
+        if not success:
+            raise MeshInterface.MeshInterfaceError("Timed out waiting for waypoint")
 
     def getMyNodeInfo(self) -> Optional[Dict]:
         """Get info about my node."""
