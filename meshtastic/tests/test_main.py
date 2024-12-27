@@ -1608,7 +1608,7 @@ def test_main_onReceive_empty(caplog, capsys):
     assert re.search(r"in onReceive", caplog.text, re.MULTILINE)
     out, err = capsys.readouterr()
     assert re.search(
-        r"Warning: There is no field 'to' in the packet.", out, re.MULTILINE
+        r"Warning: Error processing received packet: 'to'.", out, re.MULTILINE
     )
     assert err == ""
 

@@ -74,7 +74,7 @@ def onReceive(packet, interface) -> None:
             args
             and args.sendtext
             and packet["to"] == interface.myInfo.my_node_num
-            and d["portnum"] == portnums_pb2.PortNum.TEXT_MESSAGE_APP
+            and d.get("portnum", portnums_pb2.PortNum.UNKNOWN_APP) == portnums_pb2.PortNum.TEXT_MESSAGE_APP
         ):
             interface.close()  # after running command then exit
 
@@ -90,7 +90,7 @@ def onReceive(packet, interface) -> None:
                 interface.sendText(reply)
 
     except Exception as ex:
-        print(f"Warning: There is no field {ex} in the packet.")
+        print(f"Warning: Error processing received packet: {ex}.")
 
 
 def onConnection(interface, topic=pub.AUTO_TOPIC) -> None:  # pylint: disable=W0613
