@@ -720,14 +720,14 @@ class MeshInterface:  # pylint: disable=R0902
         name,
         description,
         expire: int,
-        id: Optional[int] = None,
+        waypoint_id: Optional[int] = None,
         latitude: float = 0.0,
         longitude: float = 0.0,
         destinationId: Union[int, str] = BROADCAST_ADDR,
         wantAck: bool = True,
         wantResponse: bool = False,
         channelIndex: int = 0,
-    ):
+    ): # pylint: disable=R0913
         """
         Send a waypoint packet to some other node (normally a broadcast)
 
@@ -738,14 +738,14 @@ class MeshInterface:  # pylint: disable=R0902
         w.name = name
         w.description = description
         w.expire = expire
-        if id is None:
+        if waypoint_id is None:
             # Generate a waypoint's id, NOT a packet ID.
             # same algorithm as https://github.com/meshtastic/js/blob/715e35d2374276a43ffa93c628e3710875d43907/src/meshDevice.ts#L791
             seed = secrets.randbits(32)
             w.id = math.floor(seed * math.pow(2, -32) * 1e9)
             logging.debug(f"w.id:{w.id}")
         else:
-            w.id = id
+            w.id = waypoint_id
         if latitude != 0.0:
             w.latitude_i = int(latitude * 1e7)
             logging.debug(f"w.latitude_i:{w.latitude_i}")
@@ -773,7 +773,7 @@ class MeshInterface:  # pylint: disable=R0902
 
     def deleteWaypoint(
         self,
-        id: int,
+        waypoint_id: int,
         destinationId: Union[int, str] = BROADCAST_ADDR,
         wantAck: bool = True,
         wantResponse: bool = False,
@@ -788,7 +788,7 @@ class MeshInterface:  # pylint: disable=R0902
         can be used to track future message acks/naks.
         """
         p = mesh_pb2.Waypoint()
-        p.id = id
+        p.id = waypoint_id
         p.expire = 0
 
         if wantResponse:

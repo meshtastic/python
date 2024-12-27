@@ -7,7 +7,6 @@
 import argparse
 import datetime
 import sys
-import time
 
 import meshtastic
 import meshtastic.serial_interface
@@ -42,7 +41,7 @@ else:
 with meshtastic.serial_interface.SerialInterface(args.port, debugOut=d) as iface:
     if args.cmd == 'create':
         p = iface.sendWaypoint(
-            id=int(args.id),
+            waypoint_id=int(args.id),
             name=args.name,
             description=args.description,
             expire=int(datetime.datetime.fromisoformat(args.expire).timestamp()),
