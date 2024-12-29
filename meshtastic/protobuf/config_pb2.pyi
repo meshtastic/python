@@ -108,6 +108,14 @@ class Config(google.protobuf.message.Message):
                and automatic TAK PLI (position location information) broadcasts.
                Uses position module configuration to determine TAK PLI broadcast interval.
             """
+            ROUTER_LATE: Config.DeviceConfig._Role.ValueType  # 11
+            """
+            Description: Will always rebroadcast packets, but will do so after all other modes.
+            Technical Details: Used for router nodes that are intended to provide additional coverage
+               in areas not already covered by other routers, or to bridge around problematic terrain,
+               but should not be given priority over other routers in order to avoid unnecessaraily
+               consuming hops.
+            """
 
         class Role(_Role, metaclass=_RoleEnumTypeWrapper):
             """
@@ -183,6 +191,14 @@ class Config(google.protobuf.message.Message):
         Technical Details: Turns off many of the routine broadcasts to favor ATAK CoT packet stream
            and automatic TAK PLI (position location information) broadcasts.
            Uses position module configuration to determine TAK PLI broadcast interval.
+        """
+        ROUTER_LATE: Config.DeviceConfig.Role.ValueType  # 11
+        """
+        Description: Will always rebroadcast packets, but will do so after all other modes.
+        Technical Details: Used for router nodes that are intended to provide additional coverage
+           in areas not already covered by other routers, or to bridge around problematic terrain,
+           but should not be given priority over other routers in order to avoid unnecessaraily
+           consuming hops.
         """
 
         class _RebroadcastMode:
