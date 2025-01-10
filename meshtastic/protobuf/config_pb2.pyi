@@ -709,6 +709,35 @@ class Config(google.protobuf.message.Message):
         use static ip address
         """
 
+        class _ProtocolFlags:
+            ValueType = typing.NewType("ValueType", builtins.int)
+            V: typing_extensions.TypeAlias = ValueType
+
+        class _ProtocolFlagsEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Config.NetworkConfig._ProtocolFlags.ValueType], builtins.type):
+            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+            NO_BROADCAST: Config.NetworkConfig._ProtocolFlags.ValueType  # 0
+            """
+            Do not broadcast packets over any network protocol
+            """
+            UDP_BROADCAST: Config.NetworkConfig._ProtocolFlags.ValueType  # 1
+            """
+            Enable broadcasting packets via UDP over the local network
+            """
+
+        class ProtocolFlags(_ProtocolFlags, metaclass=_ProtocolFlagsEnumTypeWrapper):
+            """
+            Available flags auxiliary network protocols
+            """
+
+        NO_BROADCAST: Config.NetworkConfig.ProtocolFlags.ValueType  # 0
+        """
+        Do not broadcast packets over any network protocol
+        """
+        UDP_BROADCAST: Config.NetworkConfig.ProtocolFlags.ValueType  # 1
+        """
+        Enable broadcasting packets via UDP over the local network
+        """
+
         @typing.final
         class IpV4Config(google.protobuf.message.Message):
             DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -751,6 +780,7 @@ class Config(google.protobuf.message.Message):
         ADDRESS_MODE_FIELD_NUMBER: builtins.int
         IPV4_CONFIG_FIELD_NUMBER: builtins.int
         RSYSLOG_SERVER_FIELD_NUMBER: builtins.int
+        ENABLED_PROTOCOLS_FIELD_NUMBER: builtins.int
         wifi_enabled: builtins.bool
         """
         Enable WiFi (disables Bluetooth)
@@ -780,6 +810,10 @@ class Config(google.protobuf.message.Message):
         """
         rsyslog Server and Port
         """
+        enabled_protocols: builtins.int
+        """
+        Flags for enabling/disabling network protocols
+        """
         @property
         def ipv4_config(self) -> global___Config.NetworkConfig.IpV4Config:
             """
@@ -797,9 +831,10 @@ class Config(google.protobuf.message.Message):
             address_mode: global___Config.NetworkConfig.AddressMode.ValueType = ...,
             ipv4_config: global___Config.NetworkConfig.IpV4Config | None = ...,
             rsyslog_server: builtins.str = ...,
+            enabled_protocols: builtins.int = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["ipv4_config", b"ipv4_config"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing.Literal["address_mode", b"address_mode", "eth_enabled", b"eth_enabled", "ipv4_config", b"ipv4_config", "ntp_server", b"ntp_server", "rsyslog_server", b"rsyslog_server", "wifi_enabled", b"wifi_enabled", "wifi_psk", b"wifi_psk", "wifi_ssid", b"wifi_ssid"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["address_mode", b"address_mode", "enabled_protocols", b"enabled_protocols", "eth_enabled", b"eth_enabled", "ipv4_config", b"ipv4_config", "ntp_server", b"ntp_server", "rsyslog_server", b"rsyslog_server", "wifi_enabled", b"wifi_enabled", "wifi_psk", b"wifi_psk", "wifi_ssid", b"wifi_ssid"]) -> None: ...
 
     @typing.final
     class DisplayConfig(google.protobuf.message.Message):

@@ -118,6 +118,10 @@ class _LanguageEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumT
     """
     Norwegian
     """
+    SLOVENIAN: _Language.ValueType  # 15
+    """
+    Slovenian
+    """
     SIMPLIFIED_CHINESE: _Language.ValueType  # 30
     """
     Simplified Chinese (experimental)
@@ -191,6 +195,10 @@ Greek
 NORWEGIAN: Language.ValueType  # 14
 """
 Norwegian
+"""
+SLOVENIAN: Language.ValueType  # 15
+"""
+Slovenian
 """
 SIMPLIFIED_CHINESE: Language.ValueType  # 30
 """
@@ -305,6 +313,7 @@ class NodeFilter(google.protobuf.message.Message):
     HOPS_AWAY_FIELD_NUMBER: builtins.int
     POSITION_SWITCH_FIELD_NUMBER: builtins.int
     NODE_NAME_FIELD_NUMBER: builtins.int
+    CHANNEL_FIELD_NUMBER: builtins.int
     unknown_switch: builtins.bool
     """
     Filter unknown nodes
@@ -329,6 +338,10 @@ class NodeFilter(google.protobuf.message.Message):
     """
     Filter nodes by matching name string
     """
+    channel: builtins.int
+    """
+    Filter based on channel
+    """
     def __init__(
         self,
         *,
@@ -338,8 +351,9 @@ class NodeFilter(google.protobuf.message.Message):
         hops_away: builtins.int = ...,
         position_switch: builtins.bool = ...,
         node_name: builtins.str = ...,
+        channel: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["hops_away", b"hops_away", "node_name", b"node_name", "offline_switch", b"offline_switch", "position_switch", b"position_switch", "public_key_switch", b"public_key_switch", "unknown_switch", b"unknown_switch"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["channel", b"channel", "hops_away", b"hops_away", "node_name", b"node_name", "offline_switch", b"offline_switch", "position_switch", b"position_switch", "public_key_switch", b"public_key_switch", "unknown_switch", b"unknown_switch"]) -> None: ...
 
 global___NodeFilter = NodeFilter
 
