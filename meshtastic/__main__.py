@@ -482,7 +482,7 @@ def onConnected(interface):
             channelIndex = mt_config.channel_index or 0
             if checkChannel(interface, channelIndex):
                 print(
-                    f"Sending text message {args.sendtext} to {args.dest} on channelIndex:{channelIndex}"
+                    f"Sending text message {args.sendtext} to {args.dest} on channelIndex:{channelIndex} {"using PRIVATE_APP port" if args.private else ""}"
                 )
                 interface.sendText(
                     args.sendtext,
@@ -490,6 +490,7 @@ def onConnected(interface):
                     wantAck=True,
                     channelIndex=channelIndex,
                     onResponse=interface.getNode(args.dest, False, **getNode_kwargs).onAckNak,
+                    portNum=portnums_pb2.PortNum.PRIVATE_APP if args.private else portnums_pb2.PortNum.TEXT_MESSAGE_APP
                 )
             else:
                 meshtastic.util.our_exit(
@@ -1638,8 +1639,14 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
 
     group.add_argument(
         "--sendtext",
-        help="Send a text message. Can specify a destination '--dest' and/or channel index '--ch-index'.",
+        help="Send a text message. Can specify a destination '--dest', use of PRIVATE_APP port '--private', and/or channel index '--ch-index'.",
         metavar="TEXT",
+    )
+
+    group.add_argument(
+        "--private",
+        help="Optional argument for sending text messages to the PRIVATE_APP port. Use in combination with --sendtext.",
+        action="store_true"
     )
 
     group.add_argument(
