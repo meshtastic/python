@@ -269,6 +269,7 @@ class MeshInterface:  # pylint: disable=R0902
                             "ID": user["id"],
                             "Hardware": user.get("hwModel", "UNSET"),
                             "Pubkey": user.get("publicKey", "UNSET"),
+                            "Role": user.get("role", "N/A"),
                         }
                     )
 
