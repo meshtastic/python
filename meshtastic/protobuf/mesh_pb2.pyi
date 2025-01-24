@@ -397,6 +397,11 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     Mesh-Tab, esp32 based
     https://github.com/valzzu/Mesh-Tab
     """
+    MESHLINK: _HardwareModel.ValueType  # 87
+    """
+    MeshLink board developed by LoraItalia. NRF52840, eByte E22900M22S (Will also come with other frequencies), 25w MPPT solar charger (5v,12v,18v selectable), support for gps, buzzer, oled or e-ink display, 10 gpios, hardware watchdog
+    https://www.loraitalia.it
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -776,6 +781,11 @@ MESH_TAB: HardwareModel.ValueType  # 86
 """
 Mesh-Tab, esp32 based
 https://github.com/valzzu/Mesh-Tab
+"""
+MESHLINK: HardwareModel.ValueType  # 87
+"""
+MeshLink board developed by LoraItalia. NRF52840, eByte E22900M22S (Will also come with other frequencies), 25w MPPT solar charger (5v,12v,18v selectable), support for gps, buzzer, oled or e-ink display, 10 gpios, hardware watchdog
+https://www.loraitalia.it
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
