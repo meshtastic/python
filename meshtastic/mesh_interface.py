@@ -476,7 +476,6 @@ class MeshInterface:  # pylint: disable=R0902
         except ValueError:
             # only take the last 8 characters of the destinationId and force a ! prefix
             destinationId = f'!{destinationId[-8:]}'
-        logging.info(f"Formatted destinationId: {destinationId}")
 
         if getattr(data, "SerializeToString", None):
             logging.debug(f"Serializing protobuf as data: {stripnl(data)}")
