@@ -472,6 +472,7 @@ class MeshInterface:  # pylint: disable=R0902
         # issue 464: allow for 0x prefix in destinationId for hex values
         # destination ids can either be integers or strings with a !prefix
         try:
+            # sometimes the destinationId is actually a int as a string, so doing a type() check won't work
             int(destinationId)
         except ValueError:
             # only take the last 8 characters of the destinationId and force a ! prefix
