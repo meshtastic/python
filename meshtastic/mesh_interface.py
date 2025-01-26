@@ -469,6 +469,11 @@ class MeshInterface:  # pylint: disable=R0902
         and can be used to track future message acks/naks.
         """
 
+        # issue 464: allow for 0x prefix in destinationId for hex values
+        if type(destinationId) == str:
+            destinationId = destinationId.replace('0x', '!')
+        logging.debug(f'destinationId: {destinationId}')
+
         if getattr(data, "SerializeToString", None):
             logging.debug(f"Serializing protobuf as data: {stripnl(data)}")
             data = data.SerializeToString()
