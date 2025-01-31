@@ -1539,5 +1539,5 @@ class MeshInterface:  # pylint: disable=R0902
 
         logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         publishingThread.queueWork(
-            lambda: pub.sendMessage(topic, packet=asDict, interface=self)
+            lambda: pub.sendMessage(topic, packet=asDict)
         )
