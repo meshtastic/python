@@ -1255,6 +1255,12 @@ def common():
                     message += "  After running that command, log out and re-login for it to take effect.\n"
                     message += f"Error was:{ex}"
                     meshtastic.util.our_exit(message)
+                except OSError as ex:
+                    message = f"OS Error:\n"
+                    message += "  The serial device couldn't be opened, it might be in use by another process.\n"
+                    message += "  Please close any applications or webpages that may be using the device and try again.\n"
+                    message += f"\nOriginal error: {ex}"
+                    meshtastic.util.our_exit(message)
                 if client.devPath is None:
                     try:
                         client = meshtastic.tcp_interface.TCPInterface(
