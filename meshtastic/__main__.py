@@ -1245,6 +1245,19 @@ def common():
                         noProto=args.noproto,
                         noNodes=args.no_nodes,
                     )
+                except FileNotFoundError:
+                    # Handle the case where the serial device is not found
+                    message = (
+                        f"File Not Found Error:\n"
+                    )
+                    message += f"  The serial device at '{args.port}' was not found.\n"
+                    message += "  Please check the following:\n"
+                    message += "    1. Is the device connected properly?\n"
+                    message += "    2. Is the correct serial port specified?\n"
+                    message += "    3. Are the necessary drivers installed?\n"
+                    message += "    4. Are you using a **power-only USB cable**? A power-only cable cannot transmit data.\n"
+                    message += "       Ensure you are using a **data-capable USB cable**.\n"
+                    meshtastic.util.our_exit(message, 1)
                 except PermissionError as ex:
                     username = os.getlogin()
                     message = "Permission Error:\n"
