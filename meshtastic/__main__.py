@@ -921,7 +921,11 @@ def onConnected(interface):
             if args.dest != BROADCAST_ADDR:
                 print("Showing node list of a remote node is not supported.")
                 return
-            interface.showNodes()
+            interface.showNodes(True, args.show_fields)
+
+        if args.show_fields and not args.nodes:
+            print("--show-fields can only be used with --nodes")
+            return
 
         if args.qr or args.qr_all:
             closeNow = True
@@ -1625,6 +1629,13 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         "--nodes",
         help="Print Node List in a pretty formatted table",
         action="store_true",
+    )
+    
+    group.add_argument(
+        "--show-fields",
+        help="Specify fields to show (comma-separated) when using --nodes",
+        type=lambda s: s.split(','),
+        default=None
     )
 
     return parser

@@ -222,7 +222,7 @@ class MeshInterface:  # pylint: disable=R0902
         return infos
 
     def showNodes(
-        self, includeSelf: bool = True
+        self, includeSelf: bool = True, showFields: Optional[List[str]] = None
     ) -> str:  # pylint: disable=W0613
         """Show table summary of nodes in mesh"""
 
@@ -245,6 +245,23 @@ class MeshInterface:  # pylint: disable=R0902
             if delta_secs < 0:
                 return None  # not handling a timestamp from the future
             return _timeago(delta_secs)
+
+        def getNestedValue(node_dict: Dict[str, Any], key_path: str) -> Any:
+            keys = key_path.split(".")
+            value = node_dict
+            for key in keys:
+                if isinstance(value, dict):
+                    value = value.get(key)
+                else:
+                    return None
+            return value
+
+        if showFields is None or showFields.count == 0:
+          # The default set of fields to show (e.g., the status quo)
+          showFields = ["N", "User", "ID", "AKA", "Hardware", "Pubkey", "Role", "Latitude", "Longitude", "Altitude", "Battery", "Channel util.", "Tx air util.", "SNR", "Hops", "Channel", "LastHeard", "Since"]
+        else:
+          # Always at least include the row number.
+          showFields.insert(0, "N")
 
         rows: List[Dict[str, Any]] = []
         if self.nodesByNum:
@@ -287,11 +304,12 @@ class MeshInterface:  # pylint: disable=R0902
                 if metrics:
                     batteryLevel = metrics.get("batteryLevel")
                     if batteryLevel is not None:
-                        if batteryLevel == 0:
+                        if batteryLevel in (0, 101): # Note: for boards without battery pin or PMU, 101% battery means 'the board is using external power'
                             batteryString = "Powered"
                         else:
                             batteryString = str(batteryLevel) + "%"
                         row.update({"Battery": batteryString})
+                        
                     row.update(
                         {
                             "Channel util.": formatFloat(
@@ -313,7 +331,21 @@ class MeshInterface:  # pylint: disable=R0902
                     }
                 )
 
-                rows.append(row)
+                # This allows the user to specify fields that wouldn't otherwise be included.
+                extraFields = {}
+                for field in showFields:
+                    if field in row:
+                      # We already have it, move along.
+                      continue
+                    elif "." in field:
+                        extraFields[field] = getNestedValue(node, field)
+                    else:
+                        extraFields[field] = node.get(field)
+                         
+                # Filter out any field in the data set that was not specified.
+                filteredData = {key: value for key, value in row.items() if key in showFields}
+                filteredData.update(extraFields)
+                rows.append(filteredData)
 
         rows.sort(key=lambda r: r.get("LastHeard") or "0000", reverse=True)
         for i, row in enumerate(rows):
