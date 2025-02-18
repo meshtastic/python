@@ -11,7 +11,7 @@ from types import ModuleType
 import argparse
 argcomplete: Union[None, ModuleType] = None
 try:
-    import argcomplete
+    import argcomplete # type: ignore
 except ImportError as e:
     pass # already set to None by default above
 
