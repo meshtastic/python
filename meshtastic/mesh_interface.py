@@ -892,7 +892,7 @@ class MeshInterface:  # pylint: disable=R0902
             else:
                 our_exit("Warning: No myInfo found.")
         # A simple hex style nodeid - we can parse this without needing the DB
-        elif isinstance(destinationId, str) and len(destinationId) > 8:
+        elif isinstance(destinationId, str) and len(destinationId) >= 8:
             # assuming some form of node id string such as !1234578 or 0x12345678
             # always grab the last 8 items of the hexadecimal id str and parse to integer
             nodeNum = int(destinationId[-8:], 16)
