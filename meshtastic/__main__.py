@@ -1648,7 +1648,7 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
         "You need pass the destination ID as argument, like "
         "this: '--traceroute !ba4bf9d0' "
         "Only nodes with a shared channel can be traced.",
-        metavar="!xxxxxxxx"
+        metavar="!xxxxxxxx",
     )
 
     group.add_argument(
