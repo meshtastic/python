@@ -927,7 +927,7 @@ class ModuleConfig(google.protobuf.message.Message):
     @typing.final
     class CannedMessageConfig(google.protobuf.message.Message):
         """
-        TODO: REPLACE
+        Canned Messages Module Config
         """
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
