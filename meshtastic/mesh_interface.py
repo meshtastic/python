@@ -1118,7 +1118,7 @@ class MeshInterface:  # pylint: disable=R0902
         """Send a ToRadio protobuf to the device"""
         if self.noProto:
             logging.warning(
-                f"Not sending packet because protocol use is disabled by noProto"
+                "Not sending packet because protocol use is disabled by noProto"
             )
         else:
             # logging.debug(f"Sending toRadio: {stripnl(toRadio)}")
