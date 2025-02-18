@@ -345,7 +345,7 @@ class MeshInterface:  # pylint: disable=R0902
                         if new_index != last_index:
                             retries_left = requestChannelAttempts - 1
                         if retries_left <= 0:
-                            our_exit(f"Error: Timed out waiting for channels, giving up")
+                            our_exit("Error: Timed out waiting for channels, giving up")
                         print("Timed out trying to retrieve channel info, retrying")
                         n.requestChannels(startingIndex=new_index)
                         last_index = new_index
@@ -929,7 +929,7 @@ class MeshInterface:  # pylint: disable=R0902
         toRadio.packet.CopyFrom(meshPacket)
         if self.noProto:
             logging.warning(
-                f"Not sending packet because protocol use is disabled by noProto"
+                "Not sending packet because protocol use is disabled by noProto"
             )
         else:
             logging.debug(f"Sending packet: {stripnl(meshPacket)}")
