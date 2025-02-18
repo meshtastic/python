@@ -1342,7 +1342,7 @@ def addSelectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser
 
     group.add_argument(
         "--dest",
-        help="The destination node id for any sent commands, if not set '^all' or '^local' is assumed as appropriate",
+        help="The destination node id for any sent commands. Use prefix of ! or 0x. If not set '^all' or '^local' is assumed as appropriate.",
         default=None,
         metavar="!xxxxxxxx",
     )
@@ -1646,7 +1646,7 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
         "--traceroute",
         help="Traceroute from connected node to a destination. "
         "You need pass the destination ID as argument, like "
-        "this: '--traceroute !ba4bf9d0' "
+        "this: '--traceroute !ba4bf9d0' | '--traceroute 0xba4bf9d0'"
         "Only nodes with a shared channel can be traced.",
         metavar="!xxxxxxxx",
     )
@@ -1732,22 +1732,22 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
     )
     group.add_argument(
         "--set-favorite-node",
-        help="Tell the destination node to set the specified node to be favorited on the NodeDB on the devicein its DB, by number or ID",
+        help="Tell the destination node to set the specified node to be favorited on the NodeDB on the devicein its DB, by number or ID using '!' or '0x' prefix.",
         metavar="!xxxxxxxx"
     )
     group.add_argument(
         "--remove-favorite-node",
-        help="Tell the destination node to set the specified node to be un-favorited on the NodeDB on the device, by number or ID",
+        help="Tell the destination node to set the specified node to be un-favorited on the NodeDB on the device, by number or ID using '!' or '0x' prefix.",
         metavar="!xxxxxxxx"
     )
     group.add_argument(
         "--set-ignored-node",
-        help="Tell the destination node to set the specified node to be ignored on the NodeDB on the devicein its DB, by number or ID",
+        help="Tell the destination node to set the specified node to be ignored on the NodeDB on the devicein its DB, by number or ID using '!' or '0x' prefix.",
         metavar="!xxxxxxxx"
     )
     group.add_argument(
         "--remove-ignored-node",
-        help="Tell the destination node to set the specified node to be un-ignored on the NodeDB on the device, by number or ID",
+        help="Tell the destination node to set the specified node to be un-ignored on the NodeDB on the device, by number or ID using '!' or '0x' prefix.",
         metavar="!xxxxxxxx"
     )
     group.add_argument(
