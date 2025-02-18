@@ -1344,7 +1344,6 @@ def addSelectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser
         "--dest",
         help="The destination node id for any sent commands, if not set '^all' or '^local' is assumed as appropriate",
         default=None,
-        nargs=1,
         metavar=("!XXXXXXXX", "0xXXXXXXXX"),
     )
 
