@@ -294,13 +294,13 @@ class MeshInterface:  # pylint: disable=R0902
 
         if showFields is None or len(showFields) == 0:
           # The default set of fields to show (e.g., the status quo)
-          showFields = ["N", "user.longName", "user.id", "user.shortName", "user.hwModel", "user.publicKey",
-                        "user.role", "position.latitude", "position.longitude", "position.altitude",
-                        "deviceMetrics.batteryLevel", "deviceMetrics.channelUtilization",
-                        "deviceMetrics.airUtilTx", "snr", "hopsAway", "channel", "lastHeard", "since"]
+            showFields = ["N", "user.longName", "user.id", "user.shortName", "user.hwModel", "user.publicKey",
+                          "user.role", "position.latitude", "position.longitude", "position.altitude",
+                          "deviceMetrics.batteryLevel", "deviceMetrics.channelUtilization",
+                          "deviceMetrics.airUtilTx", "snr", "hopsAway", "channel", "lastHeard", "since"]
         else:
-          # Always at least include the row number.
-          showFields.insert(0, "N")
+            # Always at least include the row number.
+            showFields.insert(0, "N")
 
         rows: List[Dict[str, Any]] = []
         if self.nodesByNum:
