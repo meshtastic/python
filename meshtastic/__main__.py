@@ -442,7 +442,8 @@ def onConnected(interface):
             channelIndex = mt_config.channel_index or 0
             if checkChannel(interface, channelIndex):
                 print(
-                    f"Sending text message {args.sendtext} to {args.dest} on channelIndex:{channelIndex} {"using PRIVATE_APP port" if args.private else ""}"
+                    f"Sending text message {args.sendtext} to {args.dest} on channelIndex:{channelIndex}"
+                    f" {'using PRIVATE_APP port' if args.private else ''}"
                 )
                 interface.sendText(
                     args.sendtext,

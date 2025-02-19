@@ -354,7 +354,7 @@ class MeshInterface:  # pylint: disable=R0902
         wantResponse: bool = False,
         onResponse: Optional[Callable[[dict], Any]] = None,
         channelIndex: int = 0,
-        portNum: int = portnums_pb2.PortNum.TEXT_MESSAGE_APP
+        portNum: portnums_pb2.PortNum.ValueType = portnums_pb2.PortNum.TEXT_MESSAGE_APP
     ):
         """Send a utf8 string to some other node, if the node has a display it
            will also be shown on the device.

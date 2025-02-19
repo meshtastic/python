@@ -593,10 +593,10 @@ def test_main_sendtext(capsys):
     iface = MagicMock(autospec=SerialInterface)
 
     def mock_sendText(
-        text, dest, wantAck=False, wantResponse=False, onResponse=None, channelIndex=0
+        text, dest, wantAck=False, wantResponse=False, onResponse=None, channelIndex=0, portNum=0
     ):
         print("inside mocked sendText")
-        print(f"{text} {dest} {wantAck} {wantResponse} {channelIndex}")
+        print(f"{text} {dest} {wantAck} {wantResponse} {channelIndex} {portNum}")
 
     iface.sendText.side_effect = mock_sendText
 
@@ -620,10 +620,10 @@ def test_main_sendtext_with_channel(capsys):
     iface = MagicMock(autospec=SerialInterface)
 
     def mock_sendText(
-        text, dest, wantAck=False, wantResponse=False, onResponse=None, channelIndex=0
+        text, dest, wantAck=False, wantResponse=False, onResponse=None, channelIndex=0, portNum=0
     ):
         print("inside mocked sendText")
-        print(f"{text} {dest} {wantAck} {wantResponse} {channelIndex}")
+        print(f"{text} {dest} {wantAck} {wantResponse} {channelIndex} {portNum}")
 
     iface.sendText.side_effect = mock_sendText
 
