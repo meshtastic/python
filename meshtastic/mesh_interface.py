@@ -324,7 +324,7 @@ class MeshInterface:  # pylint: disable=R0902
                         else:
                             raw_value = node.get(field)
 
-                    formatted_value = ""
+                    formatted_value: Optional[str] = ""
 
                     # Some of these need special formatting or processing.
                     if field == "channel":
@@ -348,7 +348,7 @@ class MeshInterface:  # pylint: disable=R0902
                     elif field == "position.altitude":
                         formatted_value = formatFloat(raw_value, 0, "m")
                     elif field == "since":
-                        formatted_value = getTimeAgo(raw_value)
+                        formatted_value = getTimeAgo(raw_value) or "N/A"
                     elif field == "snr":
                         formatted_value = formatFloat(raw_value, 0, " dB")
                     elif field == "user.shortName":
