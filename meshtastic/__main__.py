@@ -226,7 +226,7 @@ def setPref(config, comp_name, raw_val) -> bool:
     logging.debug(f"valStr:{raw_val} val:{val}")
 
     if snake_name == "wifi_psk" and len(str(raw_val)) < 8:
-        print(f"Warning: network.wifi_psk must be 8 or more characters.")
+        print("Warning: network.wifi_psk must be 8 or more characters.")
         return False
 
     enumType = pref.enum_type
@@ -1342,7 +1342,8 @@ def addSelectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser
 
     group.add_argument(
         "--dest",
-        help="The destination node id for any sent commands. Use prefix of ! or 0x. If not set '^all' or '^local' is assumed as appropriate.",
+        help="The destination node id for any sent commands. If not set '^all' or '^local' is assumed."
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
         default=None,
         metavar="!xxxxxxxx",
     )
@@ -1727,27 +1728,32 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
 
     group.add_argument(
         "--remove-node",
-        help="Tell the destination node to remove a specific node from its DB, by node number or ID",
+        help="Tell the destination node to remove a specific node from its NodeDB. "
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
         metavar="!xxxxxxxx"
     )
     group.add_argument(
         "--set-favorite-node",
-        help="Tell the destination node to set the specified node to be favorited on the NodeDB on the devicein its DB, by number or ID using '!' or '0x' prefix.",
+        help="Tell the destination node to set the specified node to be favorited on the NodeDB. "
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
         metavar="!xxxxxxxx"
     )
     group.add_argument(
         "--remove-favorite-node",
-        help="Tell the destination node to set the specified node to be un-favorited on the NodeDB on the device, by number or ID using '!' or '0x' prefix.",
+        help="Tell the destination node to set the specified node to be un-favorited on the NodeDB. "
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
         metavar="!xxxxxxxx"
     )
     group.add_argument(
         "--set-ignored-node",
-        help="Tell the destination node to set the specified node to be ignored on the NodeDB on the devicein its DB, by number or ID using '!' or '0x' prefix.",
+        help="Tell the destination node to set the specified node to be ignored on the NodeDB. "
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
         metavar="!xxxxxxxx"
     )
     group.add_argument(
         "--remove-ignored-node",
-        help="Tell the destination node to set the specified node to be un-ignored on the NodeDB on the device, by number or ID using '!' or '0x' prefix.",
+        help="Tell the destination node to set the specified node to be un-ignored on the NodeDB. "
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
         metavar="!xxxxxxxx"
     )
     group.add_argument(
