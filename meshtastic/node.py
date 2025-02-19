@@ -12,7 +12,6 @@ from meshtastic.util import (
     Timeout,
     camel_to_snake,
     fromPSK,
-    genPSK256,
     our_exit,
     pskToString,
     stripnl,
@@ -338,10 +337,10 @@ class Node:
         s = s.replace("=", "").replace("+", "-").replace("/", "_")
         return f"https://meshtastic.org/e/#{s}"
 
-    def setURL(self, url, addOnly: bool = False):
+    def setURL(self, url: str, addOnly: bool = False):
         """Set mesh network URL"""
-        if self.localConfig is None:
-            our_exit("Warning: No Config has been read")
+        if self.localConfig is None or self.channels is None:
+            our_exit("Warning: config or channels not loaded")
 
         # URLs are of the form https://meshtastic.org/d/#{base64_channel_set}
         # Split on '/#' to find the base64 encoded channel settings
@@ -370,22 +369,18 @@ class Node:
         if addOnly:
             # Add new channels with names not already present
             # Don't change existing channels
-            for ch in channelSet.settings:
-                channelExists = self.getChannelByName(ch.name)
-                if channelExists or ch.name == "":
-                    print("Ignoring existing channel from add URL")
-                    next
-                else:
-                    newChannel = self.getDisabledChannel()
-                    if not newChannel:
-                        our_exit("Warning: No free channels were found")
-                    chs = channel_pb2.ChannelSettings()
-                    chs.name = ch.name
-                    chs.psk = ch.psk
-                    newChannel.settings.CopyFrom(chs)
-                    newChannel.role = channel_pb2.Channel.Role.SECONDARY
-                    print(f"Adding new channel '{ch.name}' to device")
-                    self.writeChannel(newChannel.index)
+            for chs in channelSet.settings:
+                channelExists = self.getChannelByName(chs.name)
+                if channelExists or chs.name == "":
+                    print(f"Ignoring existing or empty channel \"{chs.name}\" from add URL")
+                    continue
+                ch = self.getDisabledChannel()
+                if not ch:
+                    our_exit("Warning: No free channels were found")
+                ch.settings.CopyFrom(chs)
+                ch.role = channel_pb2.Channel.Role.SECONDARY
+                print(f"Adding new channel '{chs.name}' to device")
+                self.writeChannel(ch.index)
         else:
             i = 0
             for chs in channelSet.settings:

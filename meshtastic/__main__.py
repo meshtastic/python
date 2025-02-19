@@ -674,9 +674,9 @@ def onConnected(interface):
             closeNow = True
             export_config(interface)
 
-        if args.seturl:
+        if args.ch_set_url:
             closeNow = True
-            interface.getNode(args.dest, **getNode_kwargs).setURL(args.seturl)
+            interface.getNode(args.dest, **getNode_kwargs).setURL(args.ch_set_url, addOnly=False)
 
         # handle changing channels
 
@@ -1447,7 +1447,20 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store"
     )
 
-    group.add_argument("--seturl", help="Set all channels with a URL", action="store")
+    group.add_argument(
+        "--ch-set-url", "--seturl",
+        help="Set all channels and set LoRa config from a supplied URL",
+        metavar="URL",
+        action="store"
+    )
+
+    group.add_argument(
+        "--ch-add-url",
+        help="Add secondary channels and set LoRa config from a supplied URL",
+        metavar="URL",
+        default=None,
+    )
+
 
     return parser
 
@@ -1462,13 +1475,6 @@ def addChannelConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPa
     group.add_argument(
         "--ch-add",
         help="Add a secondary channel, you must specify a channel name",
-        default=None,
-    )
-
-    group.add_argument(
-        "--ch-add-url",
-        help="Add secondary channels from a supplied URL",
-        metavar="URL",
         default=None,
     )
 
