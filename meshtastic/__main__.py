@@ -11,7 +11,7 @@ from types import ModuleType
 import argparse
 argcomplete: Union[None, ModuleType] = None
 try:
-    import argcomplete
+    import argcomplete # type: ignore
 except ImportError as e:
     pass # already set to None by default above
 
@@ -1249,6 +1249,19 @@ def common():
                         noProto=args.noproto,
                         noNodes=args.no_nodes,
                     )
+                except FileNotFoundError:
+                    # Handle the case where the serial device is not found
+                    message = (
+                        f"File Not Found Error:\n"
+                    )
+                    message += f"  The serial device at '{args.port}' was not found.\n"
+                    message += "  Please check the following:\n"
+                    message += "    1. Is the device connected properly?\n"
+                    message += "    2. Is the correct serial port specified?\n"
+                    message += "    3. Are the necessary drivers installed?\n"
+                    message += "    4. Are you using a **power-only USB cable**? A power-only cable cannot transmit data.\n"
+                    message += "       Ensure you are using a **data-capable USB cable**.\n"
+                    meshtastic.util.our_exit(message, 1)
                 except PermissionError as ex:
                     username = os.getlogin()
                     message = "Permission Error:\n"
@@ -1258,6 +1271,12 @@ def common():
                     message += f"     sudo usermod -a -G dialout {username}\n"
                     message += "  After running that command, log out and re-login for it to take effect.\n"
                     message += f"Error was:{ex}"
+                    meshtastic.util.our_exit(message)
+                except OSError as ex:
+                    message = f"OS Error:\n"
+                    message += "  The serial device couldn't be opened, it might be in use by another process.\n"
+                    message += "  Please close any applications or webpages that may be using the device and try again.\n"
+                    message += f"\nOriginal error: {ex}"
                     meshtastic.util.our_exit(message)
                 if client.devPath is None:
                     try:
