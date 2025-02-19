@@ -1649,7 +1649,7 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         help="Print Node List in a pretty formatted table",
         action="store_true",
     )
-    
+
     group.add_argument(
         "--show-fields",
         help="Specify fields to show (comma-separated) when using --nodes",
