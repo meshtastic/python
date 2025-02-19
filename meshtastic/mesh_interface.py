@@ -292,7 +292,7 @@ class MeshInterface:  # pylint: disable=R0902
                     return None
             return value
 
-        if showFields is None or showFields.count == 0:
+        if showFields is None or len(showFields) == 0:
           # The default set of fields to show (e.g., the status quo)
           showFields = ["N", "user.longName", "user.id", "user.shortName", "user.hwModel", "user.publicKey",
                         "user.role", "position.latitude", "position.longitude", "position.altitude",
