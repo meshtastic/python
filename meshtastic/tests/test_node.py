@@ -270,7 +270,7 @@ def test_setURL_empty_url(capsys):
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()
-    assert re.search(r"Warning: There were no settings.", out, re.MULTILINE)
+    assert re.search(r"Warning: config or channels not loaded", out, re.MULTILINE)
     assert err == ""
 
 
@@ -304,7 +304,7 @@ def test_setURL_valid_URL_but_no_settings(capsys):
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
     out, err = capsys.readouterr()
-    assert re.search(r"Warning: There were no settings", out, re.MULTILINE)
+    assert re.search(r"Warning: config or channels not loaded", out, re.MULTILINE)
     assert err == ""
 
 
