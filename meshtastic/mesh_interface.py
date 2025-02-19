@@ -222,9 +222,42 @@ class MeshInterface:  # pylint: disable=R0902
         return infos
 
     def showNodes(
-        self, includeSelf: bool = True
+        self, includeSelf: bool = True, showFields: Optional[List[str]] = None
     ) -> str:  # pylint: disable=W0613
-        """Show table summary of nodes in mesh"""
+        """Show table summary of nodes in mesh
+
+           Args:
+                includeSelf (bool): Include ourself in the output?
+                showFields (List[str]): List of fields to show in output
+        """
+
+        def get_human_readable(name):
+            name_map = {
+                "user.longName": "User",
+                "user.id": "ID",
+                "user.shortName": "AKA",
+                "user.hwModel": "Hardware",
+                "user.publicKey": "Pubkey",
+                "user.role": "Role",
+                "position.latitude": "Latitude",
+                "position.longitude": "Longitude",
+                "position.altitude": "Altitude",
+                "deviceMetrics.batteryLevel": "Battery",
+                "deviceMetrics.channelUtilization": "Channel util.",
+                "deviceMetrics.airUtilTx": "Tx air util.",
+                "snr": "SNR",
+                "hopsAway": "Hops",
+                "channel": "Channel",
+                "lastHeard": "LastHeard",
+                "since": "Since",
+
+            }
+
+            if name in name_map:
+                return name_map.get(name)  # Default to a formatted guess
+            else:
+                return name
+
 
         def formatFloat(value, precision=2, unit="") -> Optional[str]:
             """Format a float value with precision."""
@@ -246,6 +279,29 @@ class MeshInterface:  # pylint: disable=R0902
                 return None  # not handling a timestamp from the future
             return _timeago(delta_secs)
 
+        def getNestedValue(node_dict: Dict[str, Any], key_path: str) -> Any:
+            if key_path.index(".") < 0:
+                logging.debug("getNestedValue was called without a nested path.")
+                return None
+            keys = key_path.split(".")
+            value: Optional[Union[str, dict]] = node_dict
+            for key in keys:
+                if isinstance(value, dict):
+                    value = value.get(key)
+                else:
+                    return None
+            return value
+
+        if showFields is None or len(showFields) == 0:
+          # The default set of fields to show (e.g., the status quo)
+            showFields = ["N", "user.longName", "user.id", "user.shortName", "user.hwModel", "user.publicKey",
+                          "user.role", "position.latitude", "position.longitude", "position.altitude",
+                          "deviceMetrics.batteryLevel", "deviceMetrics.channelUtilization",
+                          "deviceMetrics.airUtilTx", "snr", "hopsAway", "channel", "lastHeard", "since"]
+        else:
+            # Always at least include the row number.
+            showFields.insert(0, "N")
+
         rows: List[Dict[str, Any]] = []
         if self.nodesByNum:
             logging.debug(f"self.nodes:{self.nodes}")
@@ -254,66 +310,60 @@ class MeshInterface:  # pylint: disable=R0902
                     continue
 
                 presumptive_id = f"!{node['num']:08x}"
-                row = {
-                    "N": 0,
-                    "User": f"Meshtastic {presumptive_id[-4:]}",
-                    "ID": presumptive_id,
-                }
 
-                user = node.get("user")
-                if user:
-                    row.update(
-                        {
-                            "User": user.get("longName", "N/A"),
-                            "AKA": user.get("shortName", "N/A"),
-                            "ID": user["id"],
-                            "Hardware": user.get("hwModel", "UNSET"),
-                            "Pubkey": user.get("publicKey", "UNSET"),
-                            "Role": user.get("role", "N/A"),
-                        }
-                    )
-
-                pos = node.get("position")
-                if pos:
-                    row.update(
-                        {
-                            "Latitude": formatFloat(pos.get("latitude"), 4, "°"),
-                            "Longitude": formatFloat(pos.get("longitude"), 4, "°"),
-                            "Altitude": formatFloat(pos.get("altitude"), 0, " m"),
-                        }
-                    )
-
-                metrics = node.get("deviceMetrics")
-                if metrics:
-                    batteryLevel = metrics.get("batteryLevel")
-                    if batteryLevel is not None:
-                        if batteryLevel == 0:
-                            batteryString = "Powered"
+                # This allows the user to specify fields that wouldn't otherwise be included.
+                fields = {}
+                for field in showFields:
+                    if "." in field:
+                        raw_value = getNestedValue(node, field)
+                    else:
+                        # The "since" column is synthesized, it's not retrieved from the device. Get the
+                        # lastHeard value here, and then we'll format it properly below.
+                        if field == "since":
+                            raw_value = node.get("lastHeard")
                         else:
-                            batteryString = str(batteryLevel) + "%"
-                        row.update({"Battery": batteryString})
-                    row.update(
-                        {
-                            "Channel util.": formatFloat(
-                                metrics.get("channelUtilization"), 2, "%"
-                            ),
-                            "Tx air util.": formatFloat(
-                                metrics.get("airUtilTx"), 2, "%"
-                            ),
-                        }
-                    )
+                            raw_value = node.get(field)
 
-                row.update(
-                    {
-                        "SNR": formatFloat(node.get("snr"), 2, " dB"),
-                        "Hops": node.get("hopsAway", "?"),
-                        "Channel": node.get("channel", 0),
-                        "LastHeard": getLH(node.get("lastHeard")),
-                        "Since": getTimeAgo(node.get("lastHeard")),
-                    }
-                )
+                    formatted_value: Optional[str] = ""
 
-                rows.append(row)
+                    # Some of these need special formatting or processing.
+                    if field == "channel":
+                        if raw_value is None:
+                            formatted_value = "0"
+                    elif field == "deviceMetrics.channelUtilization":
+                        formatted_value = formatFloat(raw_value, 2, "%")
+                    elif field == "deviceMetrics.airUtilTx":
+                        formatted_value = formatFloat(raw_value, 2, "%")
+                    elif field == "deviceMetrics.batteryLevel":
+                        if raw_value in (0, 101):
+                            formatted_value = "Powered"
+                        else:
+                            formatted_value = formatFloat(raw_value, 0, "%")
+                    elif field == "lastHeard":
+                        formatted_value = getLH(raw_value)
+                    elif field == "position.latitude":
+                        formatted_value = formatFloat(raw_value, 4, "°")
+                    elif field == "position.longitude":
+                        formatted_value = formatFloat(raw_value, 4, "°")
+                    elif field == "position.altitude":
+                        formatted_value = formatFloat(raw_value, 0, "m")
+                    elif field == "since":
+                        formatted_value = getTimeAgo(raw_value) or "N/A"
+                    elif field == "snr":
+                        formatted_value = formatFloat(raw_value, 0, " dB")
+                    elif field == "user.shortName":
+                        formatted_value = raw_value if raw_value is not None else f'Meshtastic {presumptive_id[-4:]}'
+                    elif field == "user.id":
+                        formatted_value = raw_value if raw_value is not None else presumptive_id
+                    else:
+                        formatted_value = raw_value  # No special formatting
+
+                    fields[field] = formatted_value
+
+                # Filter out any field in the data set that was not specified.
+                filteredData = {get_human_readable(k): v for k, v in fields.items() if k in showFields}
+                filteredData.update({get_human_readable(k): v for k, v in fields.items()})
+                rows.append(filteredData)
 
         rows.sort(key=lambda r: r.get("LastHeard") or "0000", reverse=True)
         for i, row in enumerate(rows):

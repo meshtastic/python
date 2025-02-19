@@ -245,6 +245,23 @@
       "module": "meshtastic",
       "justMyCode": true,
       "args": ["--debug", "--nodes"]
+    },
+    {
+      "name": "meshtastic nodes table",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--nodes"]
+    },
+        {
+      "name": "meshtastic nodes table with show-fields",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--nodes", "--show-fields", "AKA,Pubkey,Role,Role,Role,Latitude,Latitude,deviceMetrics.voltage"]
     }
+
   ]
 }

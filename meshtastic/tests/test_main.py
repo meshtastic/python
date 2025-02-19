@@ -408,8 +408,8 @@ def test_main_nodes(capsys):
 
     iface = MagicMock(autospec=SerialInterface)
 
-    def mock_showNodes():
-        print("inside mocked showNodes")
+    def mock_showNodes(includeSelf, showFields):
+        print(f"inside mocked showNodes: {includeSelf} {showFields}")
 
     iface.showNodes.side_effect = mock_showNodes
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
