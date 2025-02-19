@@ -395,7 +395,7 @@ class MeshInterface:  # pylint: disable=R0902
                         if new_index != last_index:
                             retries_left = requestChannelAttempts - 1
                         if retries_left <= 0:
-                            our_exit(f"Error: Timed out waiting for channels, giving up")
+                            our_exit("Error: Timed out waiting for channels, giving up")
                         print("Timed out trying to retrieve channel info, retrying")
                         n.requestChannels(startingIndex=new_index)
                         last_index = new_index
@@ -942,8 +942,10 @@ class MeshInterface:  # pylint: disable=R0902
             else:
                 our_exit("Warning: No myInfo found.")
         # A simple hex style nodeid - we can parse this without needing the DB
-        elif destinationId.startswith("!"):
-            nodeNum = int(destinationId[1:], 16)
+        elif isinstance(destinationId, str) and len(destinationId) >= 8:
+            # assuming some form of node id string such as !1234578 or 0x12345678
+            # always grab the last 8 items of the hexadecimal id str and parse to integer
+            nodeNum = int(destinationId[-8:], 16)
         else:
             if self.nodes:
                 node = self.nodes.get(destinationId)
@@ -977,7 +979,7 @@ class MeshInterface:  # pylint: disable=R0902
         toRadio.packet.CopyFrom(meshPacket)
         if self.noProto:
             logging.warning(
-                f"Not sending packet because protocol use is disabled by noProto"
+                "Not sending packet because protocol use is disabled by noProto"
             )
         else:
             logging.debug(f"Sending packet: {stripnl(meshPacket)}")
@@ -1166,7 +1168,7 @@ class MeshInterface:  # pylint: disable=R0902
         """Send a ToRadio protobuf to the device"""
         if self.noProto:
             logging.warning(
-                f"Not sending packet because protocol use is disabled by noProto"
+                "Not sending packet because protocol use is disabled by noProto"
             )
         else:
             # logging.debug(f"Sending toRadio: {stripnl(toRadio)}")
