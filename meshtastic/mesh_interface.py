@@ -284,7 +284,7 @@ class MeshInterface:  # pylint: disable=R0902
                 logging.debug("getNestedValue was called without a nested path.")
                 return None
             keys = key_path.split(".")
-            value: Union[str, dict, None] = node_dict
+            value: Optional[Union[str, dict]] = node_dict
             for key in keys:
                 if isinstance(value, dict):
                     value = value.get(key)
