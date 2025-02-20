@@ -597,6 +597,7 @@ def onConnected(interface):
 
             # Handle the int/float/bool arguments
             pref = None
+            fields = set()
             for pref in args.set:
                 found = False
                 field = splitCompoundName(pref[0].lower())[0]
@@ -609,11 +610,19 @@ def onConnected(interface):
                             )
                         found = setPref(config, pref[0], pref[1])
                         if found:
+                            fields.add(field)
                             break
 
             if found:
                 print("Writing modified preferences to device")
-                node.writeConfig(field)
+                if len(fields) > 1:
+                    print("Using a configuration transaction")
+                    node.beginSettingsTransaction()
+                for field in fields:
+                    print(f"Writing {field} configuration to device")
+                    node.writeConfig(field)
+                if len(fields) > 1:
+                    node.commitSettingsTransaction()
             else:
                 if mt_config.camel_case:
                     print(
@@ -1417,7 +1426,7 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         "--get",
         help=(
             "Get a preferences field. Use an invalid field such as '0' to get a list of all fields."
-            " Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')"
+            " Can use either snake_case or camelCase format. (ex: 'power.ls_secs' or 'power.lsSecs')"
         ),
         nargs=1,
         action="append",
@@ -1426,7 +1435,11 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
 
     group.add_argument(
         "--set",
-        help="Set a preferences field. Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')",
+        help=(
+            "Set a preferences field. Can use either snake_case or camelCase format."
+            " (ex: 'power.ls_secs' or 'power.lsSecs'). May be less reliable when"
+            " setting properties from more than one configuration section."
+        ),
         nargs=2,
         action="append",
         metavar=("FIELD", "VALUE"),
