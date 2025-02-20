@@ -1,9 +1,6 @@
 """ Main Meshtastic
 """
-
-# We just hit the 1600 line limit for main.py, but I currently have a huge set of powermon/structured logging changes
-# later we can have a separate changelist to refactor main.py into smaller files
-# pylint: disable=too-many-lines
+# pylint: disable=C0302
 
 from typing import List, Optional, Union
 from types import ModuleType
