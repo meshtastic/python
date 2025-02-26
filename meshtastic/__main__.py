@@ -491,7 +491,8 @@ def onConnected(interface):
                     wantAck=True,
                     channelIndex=channelIndex,
                     onResponse=interface.getNode(args.dest, False, **getNode_kwargs).onAckNak,
-                    portNum=portnums_pb2.PortNum.PRIVATE_APP if args.private else portnums_pb2.PortNum.TEXT_MESSAGE_APP
+                    portNum=portnums_pb2.PortNum.PRIVATE_APP if args.private else portnums_pb2.PortNum.TEXT_MESSAGE_APP,
+                    hopLimit=args.hoplimit
                 )
             else:
                 meshtastic.util.our_exit(
@@ -500,7 +501,7 @@ def onConnected(interface):
 
         if args.traceroute:
             loraConfig = getattr(interface.localNode.localConfig, "lora")
-            hopLimit = getattr(loraConfig, "hop_limit")
+            hopLimit = args.hoplimit or getattr(loraConfig, "hop_limit")
             dest = str(args.traceroute)
             channelIndex = mt_config.channel_index or 0
             if checkChannel(interface, channelIndex):
@@ -533,6 +534,7 @@ def onConnected(interface):
                         wantResponse=True,
                         channelIndex=channelIndex,
                         telemetryType=telemType,
+                        hopLimit=args.hoplimit
                     )
 
         if args.request_position:
@@ -548,6 +550,7 @@ def onConnected(interface):
                         destinationId=args.dest,
                         wantResponse=True,
                         channelIndex=channelIndex,
+                        hopLimit=args.hoplimit
                     )
 
         if args.gpio_wrb or args.gpio_rd or args.gpio_watch:
@@ -1742,6 +1745,13 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
 
     group.add_argument(
         "--reply", help="Reply to received messages", action="store_true"
+    )
+
+    group.add_argument(
+        "--hoplimit",
+        help="Specify the hop limit for the message. Overrides the default hop limit set in the config.",
+        type=int,
+        default=None,
     )
 
     return parser

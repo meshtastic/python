@@ -411,7 +411,8 @@ class MeshInterface:  # pylint: disable=R0902
         wantResponse: bool = False,
         onResponse: Optional[Callable[[dict], Any]] = None,
         channelIndex: int = 0,
-        portNum: portnums_pb2.PortNum.ValueType = portnums_pb2.PortNum.TEXT_MESSAGE_APP
+        portNum: portnums_pb2.PortNum.ValueType = portnums_pb2.PortNum.TEXT_MESSAGE_APP,
+        hopLimit: Optional[int] = None
     ):
         """Send a utf8 string to some other node, if the node has a display it
            will also be shown on the device.
@@ -441,6 +442,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
+            hopLimit=hopLimit
         )
 
 
@@ -560,6 +562,7 @@ class MeshInterface:  # pylint: disable=R0902
         wantAck: bool = False,
         wantResponse: bool = False,
         channelIndex: int = 0,
+        hopLimit: Optional[int] = None
     ):
         """
         Send a position packet to some other node (normally a broadcast)
@@ -596,6 +599,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
+            hopLimit=hopLimit
         )
         if wantResponse:
             self.waitForPosition()
@@ -701,7 +705,8 @@ class MeshInterface:  # pylint: disable=R0902
         destinationId: Union[int, str] = BROADCAST_ADDR,
         wantResponse: bool = False,
         channelIndex: int = 0,
-        telemetryType: str = "device_metrics"
+        telemetryType: str = "device_metrics",
+        hopLimit: Optional[int] = None
     ):
         """Send telemetry and optionally ask for a response"""
         r = telemetry_pb2.Telemetry()
@@ -748,6 +753,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
+            hopLimit=hopLimit
         )
         if wantResponse:
             self.waitForTelemetry()
