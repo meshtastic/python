@@ -10,6 +10,7 @@ import google.protobuf.internal.containers
 import google.protobuf.message
 import meshtastic.protobuf.channel_pb2
 import meshtastic.protobuf.config_pb2
+import meshtastic.protobuf.localonly_pb2
 import meshtastic.protobuf.mesh_pb2
 import meshtastic.protobuf.telemetry_pb2
 import typing
@@ -245,7 +246,6 @@ class DeviceState(google.protobuf.message.Message):
     DID_GPS_RESET_FIELD_NUMBER: builtins.int
     RX_WAYPOINT_FIELD_NUMBER: builtins.int
     NODE_REMOTE_HARDWARE_PINS_FIELD_NUMBER: builtins.int
-    NODE_DB_LITE_FIELD_NUMBER: builtins.int
     version: builtins.int
     """
     A version integer used to invalidate old save files when we make
@@ -260,7 +260,8 @@ class DeviceState(google.protobuf.message.Message):
     """
     did_gps_reset: builtins.bool
     """
-    Some GPS receivers seem to have bogus settings from the factory, so we always do one factory reset.
+    Previously used to manage GPS factory resets.
+    Deprecated in 2.5.23
     """
     @property
     def my_node(self) -> meshtastic.protobuf.mesh_pb2.MyNodeInfo:
@@ -302,12 +303,6 @@ class DeviceState(google.protobuf.message.Message):
         The mesh's nodes with their available gpio pins for RemoteHardware module
         """
 
-    @property
-    def node_db_lite(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___NodeInfoLite]:
-        """
-        New lite version of NodeDB to decrease memory footprint
-        """
-
     def __init__(
         self,
         *,
@@ -320,12 +315,39 @@ class DeviceState(google.protobuf.message.Message):
         did_gps_reset: builtins.bool = ...,
         rx_waypoint: meshtastic.protobuf.mesh_pb2.MeshPacket | None = ...,
         node_remote_hardware_pins: collections.abc.Iterable[meshtastic.protobuf.mesh_pb2.NodeRemoteHardwarePin] | None = ...,
-        node_db_lite: collections.abc.Iterable[global___NodeInfoLite] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["my_node", b"my_node", "owner", b"owner", "rx_text_message", b"rx_text_message", "rx_waypoint", b"rx_waypoint"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["did_gps_reset", b"did_gps_reset", "my_node", b"my_node", "no_save", b"no_save", "node_db_lite", b"node_db_lite", "node_remote_hardware_pins", b"node_remote_hardware_pins", "owner", b"owner", "receive_queue", b"receive_queue", "rx_text_message", b"rx_text_message", "rx_waypoint", b"rx_waypoint", "version", b"version"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["did_gps_reset", b"did_gps_reset", "my_node", b"my_node", "no_save", b"no_save", "node_remote_hardware_pins", b"node_remote_hardware_pins", "owner", b"owner", "receive_queue", b"receive_queue", "rx_text_message", b"rx_text_message", "rx_waypoint", b"rx_waypoint", "version", b"version"]) -> None: ...
 
 global___DeviceState = DeviceState
+
+@typing.final
+class NodeDatabase(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    VERSION_FIELD_NUMBER: builtins.int
+    NODES_FIELD_NUMBER: builtins.int
+    version: builtins.int
+    """
+    A version integer used to invalidate old save files when we make
+    incompatible changes This integer is set at build time and is private to
+    NodeDB.cpp in the device code.
+    """
+    @property
+    def nodes(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___NodeInfoLite]:
+        """
+        New lite version of NodeDB to decrease memory footprint
+        """
+
+    def __init__(
+        self,
+        *,
+        version: builtins.int = ...,
+        nodes: collections.abc.Iterable[global___NodeInfoLite] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["nodes", b"nodes", "version", b"version"]) -> None: ...
+
+global___NodeDatabase = NodeDatabase
 
 @typing.final
 class ChannelFile(google.protobuf.message.Message):
@@ -358,3 +380,64 @@ class ChannelFile(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["channels", b"channels", "version", b"version"]) -> None: ...
 
 global___ChannelFile = ChannelFile
+
+@typing.final
+class BackupPreferences(google.protobuf.message.Message):
+    """
+    The on-disk backup of the node's preferences
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    VERSION_FIELD_NUMBER: builtins.int
+    TIMESTAMP_FIELD_NUMBER: builtins.int
+    CONFIG_FIELD_NUMBER: builtins.int
+    MODULE_CONFIG_FIELD_NUMBER: builtins.int
+    CHANNELS_FIELD_NUMBER: builtins.int
+    OWNER_FIELD_NUMBER: builtins.int
+    version: builtins.int
+    """
+    The version of the backup
+    """
+    timestamp: builtins.int
+    """
+    The timestamp of the backup (if node has time)
+    """
+    @property
+    def config(self) -> meshtastic.protobuf.localonly_pb2.LocalConfig:
+        """
+        The node's configuration
+        """
+
+    @property
+    def module_config(self) -> meshtastic.protobuf.localonly_pb2.LocalModuleConfig:
+        """
+        The node's module configuration
+        """
+
+    @property
+    def channels(self) -> global___ChannelFile:
+        """
+        The node's channels
+        """
+
+    @property
+    def owner(self) -> meshtastic.protobuf.mesh_pb2.User:
+        """
+        The node's user (owner) information
+        """
+
+    def __init__(
+        self,
+        *,
+        version: builtins.int = ...,
+        timestamp: builtins.int = ...,
+        config: meshtastic.protobuf.localonly_pb2.LocalConfig | None = ...,
+        module_config: meshtastic.protobuf.localonly_pb2.LocalModuleConfig | None = ...,
+        channels: global___ChannelFile | None = ...,
+        owner: meshtastic.protobuf.mesh_pb2.User | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["channels", b"channels", "config", b"config", "module_config", b"module_config", "owner", b"owner"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["channels", b"channels", "config", b"config", "module_config", b"module_config", "owner", b"owner", "timestamp", b"timestamp", "version", b"version"]) -> None: ...
+
+global___BackupPreferences = BackupPreferences
