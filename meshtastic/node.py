@@ -707,8 +707,47 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
+    def backupPreferences(self, location: int = 0):
+        """Tell the node to backup preferences to flash."""
+        self.ensureSessionKey()
+
+        p = admin_pb2.AdminMessage()
+        p.backup_preferences = location
+
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
+    def restorePreferences(self, location: int = 0):
+        """Tell the node to restore preferences from backup."""
+        self.ensureSessionKey()
+
+        p = admin_pb2.AdminMessage()
+        p.restore_preferences = location
+
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
+    def removePreferencesBackups(self, location: int = 0):
+        """Tell the node to remove backup preferences from the filesystem."""
+        self.ensureSessionKey()
+
+        p = admin_pb2.AdminMessage()
+        p.remove_backup_preferences = location
+
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
     def removeFavorite(self, nodeId: Union[int, str]):
-        """Tell the node to set the specified node ID to be un-favorited on the NodeDB on the device"""
+        """Tell the node to set the specified node ID to be un-favorited on the NodeDB on the device."""
         self.ensureSessionKey()
         if isinstance(nodeId, str):
             if nodeId.startswith("!"):
