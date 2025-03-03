@@ -1,4 +1,10 @@
-# Meshtastic Python
+<div align="center" markdown="1">
+
+<img src=".github/meshtastic_logo.png" alt="Meshtastic Logo" width="80"/>
+
+  <h1 align="center"> Meshtastic Python
+</h1>
+  <p style="font-size:15px;" align="center">A Python library and client for use with Meshtastic devices. </p>
 
 [![codecov](https://codecov.io/gh/meshtastic/python/branch/master/graph/badge.svg?token=TIWPJL73KV)](https://codecov.io/gh/meshtastic/python)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/meshtastic)
@@ -7,16 +13,19 @@
 [![Fiscal Contributors](https://opencollective.com/meshtastic/tiers/badge.svg?label=Fiscal%20Contributors&color=deeppink)](https://opencollective.com/meshtastic/)
 ![GPL-3.0](https://img.shields.io/badge/License-GPL%20v3-blue.svg)
 
+</div>
+
+<div align="center">
+	<a href="https://meshtastic.org/docs/software/python/cli/installation">Getting Started Guide</a>
+	-
+	<a href="https://python.meshtastic.org">API Documentation</a>
+</div>
+
 ## Overview
 
-A Python client for use with Meshtastic devices.
 This small library (and example application) provides an easy API for sending and receiving messages over mesh radios.
 It also provides access to any of the operations/data available in the device user interface or the Android application.
 Events are delivered using a publish-subscribe model, and you can subscribe to only the message types you are interested in.
-
-**[Getting Started Guide](https://meshtastic.org/docs/software/python/cli/installation)**
-
-**[API Documentation](https://python.meshtastic.org)**
 
 ## Call for Contributors
 
