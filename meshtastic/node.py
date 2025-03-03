@@ -709,7 +709,6 @@ class Node:
 
     def backupPreferences(self, location: Optional[admin_pb2.AdminMessage.BackupLocation.ValueType] = 0):
         """Tell the node to backup preferences to flash."""
-        print(f"Backing up preferences to location {location}")
         self.ensureSessionKey()
 
         p = admin_pb2.AdminMessage()
