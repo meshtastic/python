@@ -1810,11 +1810,39 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
     )
 
     group.add_argument(
+        "--backup-prefs",
+        help="Tell the destination node to create a backup preferences file."
+        "Location: 0 for local flash, 1 for SD card.",
+        default=None,
+        nargs="?",
+        const=0,
+    )
+
+    group.add_argument(
+        "--restore-prefs",
+        help="Tell the destination node to remove backup preferences files."
+        "Location: 0 for local flash, 1 for SD card.",
+        default=None,
+        nargs="?",
+        const=0,
+    )
+
+    group.add_argument(
+        "--remove-backup-prefs",
+        help="Tell the destination node to remove backup preferences files."
+        "Location: 0 for local flash, 1 for SD card.",
+        default=None,
+        nargs="?",
+        const=0,
+    )
+
+    group.add_argument(
         "--remove-node",
         help="Tell the destination node to remove a specific node from its NodeDB. "
         "Use the node ID with a '!' or '0x' prefix or the node number.",
         metavar="!xxxxxxxx"
     )
+
     group.add_argument(
         "--set-favorite-node",
         help="Tell the destination node to set the specified node to be favorited on the NodeDB. "
