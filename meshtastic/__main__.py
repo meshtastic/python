@@ -465,17 +465,17 @@ def onConnected(interface):
         if args.backup_prefs:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False, **getNode_kwargs).backup_preferences(args.backup_preferences)
+            interface.getNode(args.dest, False, **getNode_kwargs).backupPreferences(args.backup_preferences)
 
         if args.restore_prefs:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False, **getNode_kwargs).restore_prefs(args.restore_prefs)
+            interface.getNode(args.dest, False, **getNode_kwargs).restorePreferences(args.restore_prefs)
 
         if args.remove_backup_prefs:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False, **getNode_kwargs).remove_backup_preferences(args.remove_backup_preferences)
+            interface.getNode(args.dest, False, **getNode_kwargs).removePreferencesBackups(args.remove_backup_preferences)
 
         if args.set_ignored_node:
             closeNow = True
