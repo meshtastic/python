@@ -707,7 +707,7 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
-    def backupPreferences(self, location: int = 0):
+    def backupPreferences(self, location: Optional[int] = 0):
         """Tell the node to backup preferences to flash."""
         self.ensureSessionKey()
 
@@ -720,7 +720,7 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
-    def restorePreferences(self, location: int = 0):
+    def restorePreferences(self, location: Optional[int] = 0):
         """Tell the node to restore preferences from backup."""
         self.ensureSessionKey()
 
@@ -733,7 +733,7 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
-    def removePreferencesBackups(self, location: int = 0):
+    def removePreferencesBackups(self, location: Optional[int] = 0):
         """Tell the node to remove backup preferences from the filesystem."""
         self.ensureSessionKey()
 
