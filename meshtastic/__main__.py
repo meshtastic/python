@@ -59,7 +59,7 @@ except ImportError as e:
     have_powermon = False
     powermon_exception = e
     meter = None
-from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
+from meshtastic.protobuf import admin_pb2, channel_pb2, config_pb2, portnums_pb2
 from meshtastic.version import get_active_version
 
 def onReceive(packet, interface) -> None:
@@ -461,6 +461,22 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
             interface.getNode(args.dest, False, **getNode_kwargs).removeFavorite(args.remove_favorite_node)
+
+        if args.backup_prefs:
+            closeNow = True
+            waitForAckNak = True
+            print(f"Backing up preferences to {args.backup_prefs}")
+            interface.getNode(args.dest, False, **getNode_kwargs).backupPreferences(args.backup_prefs)
+
+        if args.restore_prefs:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False, **getNode_kwargs).restorePreferences(args.restore_prefs)
+
+        if args.remove_backup_prefs:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False, **getNode_kwargs).removePreferencesBackups(args.remove_backup_prefs)
 
         if args.set_ignored_node:
             closeNow = True
@@ -1795,11 +1811,39 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
     )
 
     group.add_argument(
+        "--backup-prefs",
+        help="Tell the destination node to create a backup preferences file."
+        "Location: 0 for local flash, 1 for SD card.",
+        default=admin_pb2.AdminMessage.BackupLocation.FLASH,
+        nargs="?",
+        const=0,
+    )
+
+    group.add_argument(
+        "--restore-prefs",
+        help="Tell the destination node to remove backup preferences files."
+        "Location: 0 for local flash, 1 for SD card.",
+        default=admin_pb2.AdminMessage.BackupLocation.FLASH,
+        nargs="?",
+        const=0,
+    )
+
+    group.add_argument(
+        "--remove-backup-prefs",
+        help="Tell the destination node to remove backup preferences files."
+        "Location: 0 for local flash, 1 for SD card.",
+        default=admin_pb2.AdminMessage.BackupLocation.FLASH,
+        nargs="?",
+        const=0,
+    )
+
+    group.add_argument(
         "--remove-node",
         help="Tell the destination node to remove a specific node from its NodeDB. "
         "Use the node ID with a '!' or '0x' prefix or the node number.",
         metavar="!xxxxxxxx"
     )
+
     group.add_argument(
         "--set-favorite-node",
         help="Tell the destination node to set the specified node to be favorited on the NodeDB. "
