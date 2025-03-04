@@ -593,10 +593,10 @@ def test_main_sendtext(capsys):
     iface = MagicMock(autospec=SerialInterface)
 
     def mock_sendText(
-        text, dest, wantAck=False, wantResponse=False, onResponse=None, channelIndex=0, portNum=0
+        text, dest, wantAck=False, wantResponse=False, onResponse=None, channelIndex=0, portNum=0, hopLimit=None
     ):
         print("inside mocked sendText")
-        print(f"{text} {dest} {wantAck} {wantResponse} {channelIndex} {portNum}")
+        print(f"{text} {dest} {wantAck} {wantResponse} {channelIndex} {portNum} {hopLimit}")
 
     iface.sendText.side_effect = mock_sendText
 
@@ -620,10 +620,10 @@ def test_main_sendtext_with_channel(capsys):
     iface = MagicMock(autospec=SerialInterface)
 
     def mock_sendText(
-        text, dest, wantAck=False, wantResponse=False, onResponse=None, channelIndex=0, portNum=0
+        text, dest, wantAck=False, wantResponse=False, onResponse=None, channelIndex=0, portNum=0, hopLimit=None
     ):
         print("inside mocked sendText")
-        print(f"{text} {dest} {wantAck} {wantResponse} {channelIndex} {portNum}")
+        print(f"{text} {dest} {wantAck} {wantResponse} {channelIndex} {portNum} {hopLimit}")
 
     iface.sendText.side_effect = mock_sendText
 
@@ -1360,26 +1360,27 @@ def test_main_ch_enable_primary_channel(capsys):
 # TODO
 # @pytest.mark.unit
 # @pytest.mark.usefixtures("reset_mt_config")
-# def test_main_ch_range_options(capsys):
-#    """Test changing the various range options."""
-#    range_options = ['--ch-vlongslow', '--ch-longslow', '--ch-longfast', '--ch-midslow',
-#                     '--ch-midfast', '--ch-shortslow', '--ch-shortfast']
-#    for range_option in range_options:
-#        sys.argv = ['', f"{range_option}" ]
-#        mt_config.args = sys.argv
+# @pytest.mark.parametrize("range_option", [
+#     '--ch-vlongslow', '--ch-longslow', '--ch-longfast', '--ch-midslow',
+#     '--ch-midfast', '--ch-shortslow', '--ch-shortfast'
+# ])
+# def test_main_ch_range_options(range_option, capsys):
+#     """Test changing the various range options."""
+#     sys.argv = ['', f"{range_option}"]
+#     mt_config.args = sys.argv
 #
-#        mocked_node = MagicMock(autospec=Node)
+#     mocked_node = MagicMock(autospec=Node)
 #
-#        iface = MagicMock(autospec=SerialInterface)
-#        iface.getNode.return_value = mocked_node
+#     iface = MagicMock(autospec=SerialInterface)
+#     iface.getNode.return_value = mocked_node
 #
-#        with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-#            main()
-#            out, err = capsys.readouterr()
-#            assert re.search(r'Connected to radio', out, re.MULTILINE)
-#            assert re.search(r'Writing modified channels', out, re.MULTILINE)
-#            assert err == ''
-#            mo.assert_called()
+#     with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
+#         main()
+#         out, err = capsys.readouterr()
+#         assert re.search(r'Connected to radio', out, re.MULTILINE)
+#         assert re.search(r'Writing modified channels', out, re.MULTILINE)
+#         assert err == ''
+#         mo.assert_called()
 
 
 @pytest.mark.unit
@@ -1828,7 +1829,7 @@ position_flags: 35"""
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 def test_main_gpio_rd_no_gpio_channel(capsys):
-    """Test --gpio_rd with no named gpio channel"""
+    """Test --gpio-rd with no named gpio channel"""
     sys.argv = ["", "--gpio-rd", "0x10", "--dest", "!foo"]
     mt_config.args = sys.argv
 
@@ -2713,3 +2714,201 @@ def test_remove_ignored_node():
         main()
 
     mocked_node.removeIgnored.assert_called_once_with("!12345678")
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_traceroute_with_hoplimit(capsys):
+    """Test --traceroute with --hoplimit"""
+    sys.argv = ["", "--traceroute", "!12345678", "--hoplimit", "5"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    def mock_sendTraceRoute(dest, hopLimit, channelIndex=0):
+        print("inside mocked sendTraceRoute")
+        print(f"{dest} {hopLimit} {channelIndex}")
+
+    iface.sendTraceRoute.side_effect = mock_sendTraceRoute
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"inside mocked sendTraceRoute", out, re.MULTILINE)
+        assert re.search(r"!12345678 5 0", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_request_telemetry_with_hoplimit(capsys):
+    """Test --request-telemetry with --hoplimit"""
+    sys.argv = ["", "--request-telemetry", "--hoplimit", "5"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    def mock_sendTelemetry(destinationId, wantResponse=False, channelIndex=0, telemetryType="device_metrics", hopLimit=None):
+        print("inside mocked sendTelemetry")
+        print(f"{destinationId} {wantResponse} {channelIndex} {telemetryType} {hopLimit}")
+
+    iface.sendTelemetry.side_effect = mock_sendTelemetry
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"inside mocked sendTelemetry", out, re.MULTILINE)
+        assert re.search(r"4294967295 False 0 device_metrics 5", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_request_position_with_hoplimit(capsys):
+    """Test --request-position with --hoplimit"""
+    sys.argv = ["", "--request-position", "--hoplimit", "5"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    def mock_sendPosition(latitude=0.0, longitude=0.0, altitude=0, destinationId=4294967295, wantAck=False, wantResponse=False, channelIndex=0, hopLimit=None):
+        print("inside mocked sendPosition")
+        print(f"{latitude} {longitude} {altitude} {destinationId} {wantAck} {wantResponse} {channelIndex} {hopLimit}")
+
+    iface.sendPosition.side_effect = mock_sendPosition
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"inside mocked sendPosition", out, re.MULTILINE)
+        assert re.search(r"0.0 0.0 0 4294967295 False True 0 5", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_sendtext_with_hoplimit(capsys):
+    """Test --sendtext with --hoplimit"""
+    sys.argv = ["", "--sendtext", "hello", "--hoplimit", "5"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    def mock_sendText(
+        text, dest, wantAck=False, wantResponse=False, onResponse=None, channelIndex=0, portNum=0, hopLimit=None
+    ):
+        print("inside mocked sendText")
+        print(f"{text} {dest} {wantAck} {wantResponse} {channelIndex} {portNum} {hopLimit}")
+
+    iface.sendText.side_effect = mock_sendText
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"Sending text message", out, re.MULTILINE)
+        assert re.search(r"inside mocked sendText", out, re.MULTILINE)
+        assert re.search(r"hello 4294967295 False False 0 0 5", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_sendtext_without_hoplimit(capsys):
+    """Test --sendtext without --hoplimit"""
+    sys.argv = ["", "--sendtext", "hello"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    def mock_sendText(
+        text, dest, wantAck=False, wantResponse=False, onResponse=None, channelIndex=0, portNum=0, hopLimit=None
+    ):
+        print("inside mocked sendText")
+        print(f"{text} {dest} {wantAck} {wantResponse} {channelIndex} {portNum} {hopLimit}")
+
+    iface.sendText.side_effect = mock_sendText
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"Sending text message", out, re.MULTILINE)
+        assert re.search(r"inside mocked sendText", out, re.MULTILINE)
+        assert re.search(r"hello 4294967295 False False 0 0 None", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_traceroute_without_hoplimit(capsys):
+    """Test --traceroute without --hoplimit"""
+    sys.argv = ["", "--traceroute", "!12345678"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    def mock_sendTraceRoute(dest, hopLimit, channelIndex=0):
+        print("inside mocked sendTraceRoute")
+        print(f"{dest} {hopLimit} {channelIndex}")
+
+    iface.sendTraceRoute.side_effect = mock_sendTraceRoute
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"inside mocked sendTraceRoute", out, re.MULTILINE)
+        assert re.search(r"!12345678 None 0", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_request_telemetry_without_hoplimit(capsys):
+    """Test --request-telemetry without --hoplimit"""
+    sys.argv = ["", "--request-telemetry"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    def mock_sendTelemetry(destinationId, wantResponse=False, channelIndex=0, telemetryType="device_metrics", hopLimit=None):
+        print("inside mocked sendTelemetry")
+        print(f"{destinationId} {wantResponse} {channelIndex} {telemetryType} {hopLimit}")
+
+    iface.sendTelemetry.side_effect = mock_sendTelemetry
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"inside mocked sendTelemetry", out, re.MULTILINE)
+        assert re.search(r"4294967295 False 0 device_metrics None", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_request_position_without_hoplimit(capsys):
+    """Test --request-position without --hoplimit"""
+    sys.argv = ["", "--request-position"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    def mock_sendPosition(latitude=0.0, longitude=0.0, altitude=0, destinationId=4294967295, wantAck=False, wantResponse=False, channelIndex=0, hopLimit=None):
+        print("inside mocked sendPosition")
+        print(f"{latitude} {longitude} {altitude} {destinationId} {wantAck} {wantResponse} {channelIndex} {hopLimit}")
+
+    iface.sendPosition.side_effect = mock_sendPosition
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"inside mocked sendPosition", out, re.MULTILINE)
+        assert re.search(r"0.0 0.0 0 4294967295 False True 0 None", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
