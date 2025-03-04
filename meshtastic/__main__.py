@@ -59,7 +59,7 @@ except ImportError as e:
     have_powermon = False
     powermon_exception = e
     meter = None
-from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
+from meshtastic.protobuf import admin_pb2, channel_pb2, config_pb2, portnums_pb2
 from meshtastic.version import get_active_version
 
 def onReceive(packet, interface) -> None:
@@ -465,7 +465,8 @@ def onConnected(interface):
         if args.backup_prefs:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False, **getNode_kwargs).backupPreferences(args.backup_preferences)
+            print(f"Backing up preferences to {args.backup_prefs}")
+            interface.getNode(args.dest, False, **getNode_kwargs).backupPreferences(args.backup_prefs)
 
         if args.restore_prefs:
             closeNow = True
@@ -475,7 +476,7 @@ def onConnected(interface):
         if args.remove_backup_prefs:
             closeNow = True
             waitForAckNak = True
-            interface.getNode(args.dest, False, **getNode_kwargs).removePreferencesBackups(args.remove_backup_preferences)
+            interface.getNode(args.dest, False, **getNode_kwargs).removePreferencesBackups(args.remove_backup_prefs)
 
         if args.set_ignored_node:
             closeNow = True
@@ -1813,7 +1814,7 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         "--backup-prefs",
         help="Tell the destination node to create a backup preferences file."
         "Location: 0 for local flash, 1 for SD card.",
-        default=None,
+        default=admin_pb2.AdminMessage.BackupLocation.FLASH,
         nargs="?",
         const=0,
     )
@@ -1822,7 +1823,7 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         "--restore-prefs",
         help="Tell the destination node to remove backup preferences files."
         "Location: 0 for local flash, 1 for SD card.",
-        default=None,
+        default=admin_pb2.AdminMessage.BackupLocation.FLASH,
         nargs="?",
         const=0,
     )
@@ -1831,7 +1832,7 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         "--remove-backup-prefs",
         help="Tell the destination node to remove backup preferences files."
         "Location: 0 for local flash, 1 for SD card.",
-        default=None,
+        default=admin_pb2.AdminMessage.BackupLocation.FLASH,
         nargs="?",
         const=0,
     )
