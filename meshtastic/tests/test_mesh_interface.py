@@ -11,8 +11,12 @@ from ..protobuf import mesh_pb2, config_pb2
 from .. import BROADCAST_ADDR, LOCAL_ADDR
 from ..mesh_interface import MeshInterface, _timeago
 from ..node import Node
-from ..slog import LogSet
-from ..powermon import SimPowerSupply
+try:
+    # Depends upon the powermon group, not installed by default
+    from ..slog import LogSet
+    from ..powermon import SimPowerSupply
+except ImportError:
+    pytest.skip("Can't import LogSet or SimPowerSupply", allow_module_level=True)
 
 # TODO
 # from ..config import Config

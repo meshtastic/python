@@ -9,7 +9,11 @@ import pytest
 from meshtastic import mt_config
 
 from ..tcp_interface import TCPInterface
-from ..tunnel import Tunnel, onTunnelReceive
+try:
+    # Depends upon pytap2, not installed by default
+    from ..tunnel import Tunnel, onTunnelReceive
+except ImportError:
+    pytest.skip("Can't import Tunnel or onTunnelReceive", allow_module_level=True)
 
 
 @pytest.mark.unit
