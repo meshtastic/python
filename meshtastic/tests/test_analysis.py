@@ -6,7 +6,11 @@ import sys
 
 import pytest
 
-from meshtastic.analysis.__main__ import main
+try:
+    # Depends upon matplotlib & other packages in poetry's analysis group, not installed by default
+    from meshtastic.analysis.__main__ import main
+except ImportError:
+    pytest.skip("Can't import meshtastic.analysis", allow_module_level=True)
 
 
 @pytest.mark.unit
