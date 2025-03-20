@@ -46,7 +46,12 @@ class SerialInterface(StreamInterface):
 
         logging.debug(f"Connecting to {self.devPath}")
 
-        # first we need to set the HUPCL so the device will not reboot based on RTS and/or DTR
+        # set port to None to prevent automatically opening
+        self.stream = serial.Serial(
+            port=None, baudrate=115200, exclusive=True, timeout=0.5, write_timeout=0
+        )
+
+        # first we need to clear HUPCL (UNIX) or clear RTS/DTR (Windows) so the device will not reboot based on RTS and/or DTR
         # see https://github.com/pyserial/pyserial/issues/124
         if platform.system() != "Windows":
             with open(self.devPath, encoding="utf8") as f:
@@ -55,10 +60,14 @@ class SerialInterface(StreamInterface):
                 termios.tcsetattr(f, termios.TCSAFLUSH, attrs)
                 f.close()
             time.sleep(0.1)
+        else:
+            self.stream.rts = 0
+            self.stream.dtr = 0
 
-        self.stream = serial.Serial(
-            self.devPath, 115200, exclusive=True, timeout=0.5, write_timeout=0
-        )
+        # set proper port and open now that we've worked-around RTS/DTR issues
+        self.stream.port = self.devPath
+        self.stream.open()
+
         self.stream.flush()	# type: ignore[attr-defined]
         time.sleep(0.1)
 
