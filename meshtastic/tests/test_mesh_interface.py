@@ -730,3 +730,25 @@ def test_timeago_fuzz(seconds):
     """Fuzz _timeago to ensure it works with any integer"""
     val = _timeago(seconds)
     assert re.match(r"(now|\d+ (secs?|mins?|hours?|days?|months?|years?))", val)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_sendText_with_hopLimit(caplog):
+    """Test sendText with hopLimit"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        iface.sendText("hello", hopLimit=3)
+        assert re.search(r"Sending packet", caplog.text, re.MULTILINE)
+        assert re.search(r"hop_limit: 3", caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_sendTelemetry_with_hopLimit(caplog):
+    """Test sendTelemetry with hopLimit"""
+    iface = MeshInterface(noProto=True)
+    with caplog.at_level(logging.DEBUG):
+        iface.sendTelemetry(hopLimit=3)
+        assert re.search(r"Sending packet", caplog.text, re.MULTILINE)
+        assert re.search(r"hop_limit: 3", caplog.text, re.MULTILINE)
