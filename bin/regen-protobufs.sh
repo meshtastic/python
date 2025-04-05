@@ -22,6 +22,7 @@ OUTDIR=${TMPDIR}/out
 PYIDIR=${TMPDIR}/out
 mkdir -p "${OUTDIR}" "${INDIR}" "${PYIDIR}"
 cp ./protobufs/meshtastic/*.proto "${INDIR}"
+cp ./protobufs/nanopb.proto "${INDIR}"
 
 # OS-X sed is apparently a little different and expects an arg for -i
 if [[ $OSTYPE == 'darwin'* ]]; then
@@ -35,6 +36,8 @@ fi
 $SEDCMD 's/^package meshtastic;/package meshtastic.protobuf;/' "${INDIR}/"*.proto
 # fix the imports to match
 $SEDCMD 's/^import "meshtastic\//import "meshtastic\/protobuf\//' "${INDIR}/"*.proto
+
+$SEDCMD 's/^import "nanopb.proto"/import "meshtastic\/protobuf\/nanopb.proto"/' "${INDIR}/"*.proto
 
 # Generate the python files
 ./nanopb-0.4.8/generator-bin/protoc -I=$TMPDIR/in --python_out "${OUTDIR}" "--mypy_out=${PYIDIR}" $INDIR/*.proto
