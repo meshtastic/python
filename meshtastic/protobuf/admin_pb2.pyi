@@ -74,7 +74,9 @@ class AdminMessage(google.protobuf.message.Message):
         TODO: REPLACE
         """
         SESSIONKEY_CONFIG: AdminMessage._ConfigType.ValueType  # 8
-        """"""
+        """
+        Session key config
+        """
         DEVICEUI_CONFIG: AdminMessage._ConfigType.ValueType  # 9
         """
         device-ui config
@@ -118,7 +120,9 @@ class AdminMessage(google.protobuf.message.Message):
     TODO: REPLACE
     """
     SESSIONKEY_CONFIG: AdminMessage.ConfigType.ValueType  # 8
-    """"""
+    """
+    Session key config
+    """
     DEVICEUI_CONFIG: AdminMessage.ConfigType.ValueType  # 9
     """
     device-ui config

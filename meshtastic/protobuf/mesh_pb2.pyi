@@ -295,7 +295,7 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     TWC_MESH_V4: _HardwareModel.ValueType  # 62
     """
-    TWC_MESH_V4 
+    TWC_MESH_V4
     Adafruit NRF52840 feather express with SX1262, SSD1306 OLED and NEO6M GPS
     """
     NRF52_PROMICRO_DIY: _HardwareModel.ValueType  # 63
@@ -401,6 +401,25 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     MeshLink board developed by LoraItalia. NRF52840, eByte E22900M22S (Will also come with other frequencies), 25w MPPT solar charger (5v,12v,18v selectable), support for gps, buzzer, oled or e-ink display, 10 gpios, hardware watchdog
     https://www.loraitalia.it
+    """
+    XIAO_NRF52_KIT: _HardwareModel.ValueType  # 88
+    """
+    Seeed XIAO nRF52840 + Wio SX1262 kit
+    """
+    THINKNODE_M1: _HardwareModel.ValueType  # 89
+    """
+    Elecrow ThinkNode M1 & M2
+    https://www.elecrow.com/wiki/ThinkNode-M1_Transceiver_Device(Meshtastic)_Power_By_nRF52840.html
+    https://www.elecrow.com/wiki/ThinkNode-M2_Transceiver_Device(Meshtastic)_Power_By_NRF52840.html (this actually uses ESP32-S3)
+    """
+    THINKNODE_M2: _HardwareModel.ValueType  # 90
+    T_ETH_ELITE: _HardwareModel.ValueType  # 91
+    """
+    Lilygo T-ETH-Elite
+    """
+    HELTEC_SENSOR_HUB: _HardwareModel.ValueType  # 92
+    """
+    Heltec HRI-3621 industrial probe
     """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
@@ -680,7 +699,7 @@ CDEBYTE EoRa-S3 board using their own MM modules, clone of LILYGO T3S3
 """
 TWC_MESH_V4: HardwareModel.ValueType  # 62
 """
-TWC_MESH_V4 
+TWC_MESH_V4
 Adafruit NRF52840 feather express with SX1262, SSD1306 OLED and NEO6M GPS
 """
 NRF52_PROMICRO_DIY: HardwareModel.ValueType  # 63
@@ -786,6 +805,25 @@ MESHLINK: HardwareModel.ValueType  # 87
 """
 MeshLink board developed by LoraItalia. NRF52840, eByte E22900M22S (Will also come with other frequencies), 25w MPPT solar charger (5v,12v,18v selectable), support for gps, buzzer, oled or e-ink display, 10 gpios, hardware watchdog
 https://www.loraitalia.it
+"""
+XIAO_NRF52_KIT: HardwareModel.ValueType  # 88
+"""
+Seeed XIAO nRF52840 + Wio SX1262 kit
+"""
+THINKNODE_M1: HardwareModel.ValueType  # 89
+"""
+Elecrow ThinkNode M1 & M2
+https://www.elecrow.com/wiki/ThinkNode-M1_Transceiver_Device(Meshtastic)_Power_By_nRF52840.html
+https://www.elecrow.com/wiki/ThinkNode-M2_Transceiver_Device(Meshtastic)_Power_By_NRF52840.html (this actually uses ESP32-S3)
+"""
+THINKNODE_M2: HardwareModel.ValueType  # 90
+T_ETH_ELITE: HardwareModel.ValueType  # 91
+"""
+Lilygo T-ETH-Elite
+"""
+HELTEC_SENSOR_HUB: HardwareModel.ValueType  # 92
+"""
+Heltec HRI-3621 industrial probe
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
@@ -2187,7 +2225,7 @@ class MeshPacket(google.protobuf.message.Message):
     """
     next_hop: builtins.int
     """
-    Last byte of the node number of the node that should be used as the next hop in routing. 
+    Last byte of the node number of the node that should be used as the next hop in routing.
     Set by the firmware internally, clients are not supposed to set this.
     """
     relay_node: builtins.int

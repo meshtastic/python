@@ -122,6 +122,10 @@ class _LanguageEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumT
     """
     Slovenian
     """
+    UKRAINIAN: _Language.ValueType  # 16
+    """
+    Ukrainian
+    """
     SIMPLIFIED_CHINESE: _Language.ValueType  # 30
     """
     Simplified Chinese (experimental)
@@ -199,6 +203,10 @@ Norwegian
 SLOVENIAN: Language.ValueType  # 15
 """
 Slovenian
+"""
+UKRAINIAN: Language.ValueType  # 16
+"""
+Ukrainian
 """
 SIMPLIFIED_CHINESE: Language.ValueType  # 30
 """

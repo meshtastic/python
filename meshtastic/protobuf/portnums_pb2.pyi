@@ -179,6 +179,11 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     """
     PowerStress based monitoring support (for automated power consumption testing)
     """
+    RETICULUM_TUNNEL_APP: _PortNum.ValueType  # 76
+    """
+    Reticulum Network Stack Tunnel App
+    ENCODING: Fragmented RNS Packet. Handled by Meshtastic RNS interface
+    """
     PRIVATE_APP: _PortNum.ValueType  # 256
     """
     Private applications should use portnums >= 256.
@@ -367,6 +372,11 @@ Provides unencrypted information about a node for consumption by a map via MQTT
 POWERSTRESS_APP: PortNum.ValueType  # 74
 """
 PowerStress based monitoring support (for automated power consumption testing)
+"""
+RETICULUM_TUNNEL_APP: PortNum.ValueType  # 76
+"""
+Reticulum Network Stack Tunnel App
+ENCODING: Fragmented RNS Packet. Handled by Meshtastic RNS interface
 """
 PRIVATE_APP: PortNum.ValueType  # 256
 """

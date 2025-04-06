@@ -167,6 +167,14 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     DFRobot Gravity tipping bucket rain gauge
     """
+    DPS310: _TelemetrySensorType.ValueType  # 36
+    """
+    Infineon DPS310 High accuracy pressure and temperature
+    """
+    RAK12035: _TelemetrySensorType.ValueType  # 37
+    """
+    RAKWireless RAK12035 Soil Moisture Sensor Module
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -317,6 +325,14 @@ DFROBOT_RAIN: TelemetrySensorType.ValueType  # 35
 """
 DFRobot Gravity tipping bucket rain gauge
 """
+DPS310: TelemetrySensorType.ValueType  # 36
+"""
+Infineon DPS310 High accuracy pressure and temperature
+"""
+RAK12035: TelemetrySensorType.ValueType  # 37
+"""
+RAKWireless RAK12035 Soil Moisture Sensor Module
+"""
 global___TelemetrySensorType = TelemetrySensorType
 
 @typing.final
@@ -404,6 +420,8 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     RADIATION_FIELD_NUMBER: builtins.int
     RAINFALL_1H_FIELD_NUMBER: builtins.int
     RAINFALL_24H_FIELD_NUMBER: builtins.int
+    SOIL_MOISTURE_FIELD_NUMBER: builtins.int
+    SOIL_TEMPERATURE_FIELD_NUMBER: builtins.int
     temperature: builtins.float
     """
     Temperature measured
@@ -486,6 +504,14 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     """
     Rainfall in the last 24 hours in mm
     """
+    soil_moisture: builtins.int
+    """
+    Soil moisture measured (% 1-100)
+    """
+    soil_temperature: builtins.float
+    """
+    Soil temperature measured (*C)
+    """
     def __init__(
         self,
         *,
@@ -509,9 +535,11 @@ class EnvironmentMetrics(google.protobuf.message.Message):
         radiation: builtins.float | None = ...,
         rainfall_1h: builtins.float | None = ...,
         rainfall_24h: builtins.float | None = ...,
+        soil_moisture: builtins.int | None = ...,
+        soil_temperature: builtins.float | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_barometric_pressure", b"_barometric_pressure", "_current", b"_current", "_distance", b"_distance", "_gas_resistance", b"_gas_resistance", "_iaq", b"_iaq", "_ir_lux", b"_ir_lux", "_lux", b"_lux", "_radiation", b"_radiation", "_rainfall_1h", b"_rainfall_1h", "_rainfall_24h", b"_rainfall_24h", "_relative_humidity", b"_relative_humidity", "_temperature", b"_temperature", "_uv_lux", b"_uv_lux", "_voltage", b"_voltage", "_weight", b"_weight", "_white_lux", b"_white_lux", "_wind_direction", b"_wind_direction", "_wind_gust", b"_wind_gust", "_wind_lull", b"_wind_lull", "_wind_speed", b"_wind_speed", "barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "ir_lux", b"ir_lux", "lux", b"lux", "radiation", b"radiation", "rainfall_1h", b"rainfall_1h", "rainfall_24h", b"rainfall_24h", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "uv_lux", b"uv_lux", "voltage", b"voltage", "weight", b"weight", "white_lux", b"white_lux", "wind_direction", b"wind_direction", "wind_gust", b"wind_gust", "wind_lull", b"wind_lull", "wind_speed", b"wind_speed"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_barometric_pressure", b"_barometric_pressure", "_current", b"_current", "_distance", b"_distance", "_gas_resistance", b"_gas_resistance", "_iaq", b"_iaq", "_ir_lux", b"_ir_lux", "_lux", b"_lux", "_radiation", b"_radiation", "_rainfall_1h", b"_rainfall_1h", "_rainfall_24h", b"_rainfall_24h", "_relative_humidity", b"_relative_humidity", "_temperature", b"_temperature", "_uv_lux", b"_uv_lux", "_voltage", b"_voltage", "_weight", b"_weight", "_white_lux", b"_white_lux", "_wind_direction", b"_wind_direction", "_wind_gust", b"_wind_gust", "_wind_lull", b"_wind_lull", "_wind_speed", b"_wind_speed", "barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "ir_lux", b"ir_lux", "lux", b"lux", "radiation", b"radiation", "rainfall_1h", b"rainfall_1h", "rainfall_24h", b"rainfall_24h", "relative_humidity", b"relative_humidity", "temperature", b"temperature", "uv_lux", b"uv_lux", "voltage", b"voltage", "weight", b"weight", "white_lux", b"white_lux", "wind_direction", b"wind_direction", "wind_gust", b"wind_gust", "wind_lull", b"wind_lull", "wind_speed", b"wind_speed"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_barometric_pressure", b"_barometric_pressure", "_current", b"_current", "_distance", b"_distance", "_gas_resistance", b"_gas_resistance", "_iaq", b"_iaq", "_ir_lux", b"_ir_lux", "_lux", b"_lux", "_radiation", b"_radiation", "_rainfall_1h", b"_rainfall_1h", "_rainfall_24h", b"_rainfall_24h", "_relative_humidity", b"_relative_humidity", "_soil_moisture", b"_soil_moisture", "_soil_temperature", b"_soil_temperature", "_temperature", b"_temperature", "_uv_lux", b"_uv_lux", "_voltage", b"_voltage", "_weight", b"_weight", "_white_lux", b"_white_lux", "_wind_direction", b"_wind_direction", "_wind_gust", b"_wind_gust", "_wind_lull", b"_wind_lull", "_wind_speed", b"_wind_speed", "barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "ir_lux", b"ir_lux", "lux", b"lux", "radiation", b"radiation", "rainfall_1h", b"rainfall_1h", "rainfall_24h", b"rainfall_24h", "relative_humidity", b"relative_humidity", "soil_moisture", b"soil_moisture", "soil_temperature", b"soil_temperature", "temperature", b"temperature", "uv_lux", b"uv_lux", "voltage", b"voltage", "weight", b"weight", "white_lux", b"white_lux", "wind_direction", b"wind_direction", "wind_gust", b"wind_gust", "wind_lull", b"wind_lull", "wind_speed", b"wind_speed"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_barometric_pressure", b"_barometric_pressure", "_current", b"_current", "_distance", b"_distance", "_gas_resistance", b"_gas_resistance", "_iaq", b"_iaq", "_ir_lux", b"_ir_lux", "_lux", b"_lux", "_radiation", b"_radiation", "_rainfall_1h", b"_rainfall_1h", "_rainfall_24h", b"_rainfall_24h", "_relative_humidity", b"_relative_humidity", "_soil_moisture", b"_soil_moisture", "_soil_temperature", b"_soil_temperature", "_temperature", b"_temperature", "_uv_lux", b"_uv_lux", "_voltage", b"_voltage", "_weight", b"_weight", "_white_lux", b"_white_lux", "_wind_direction", b"_wind_direction", "_wind_gust", b"_wind_gust", "_wind_lull", b"_wind_lull", "_wind_speed", b"_wind_speed", "barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "ir_lux", b"ir_lux", "lux", b"lux", "radiation", b"radiation", "rainfall_1h", b"rainfall_1h", "rainfall_24h", b"rainfall_24h", "relative_humidity", b"relative_humidity", "soil_moisture", b"soil_moisture", "soil_temperature", b"soil_temperature", "temperature", b"temperature", "uv_lux", b"uv_lux", "voltage", b"voltage", "weight", b"weight", "white_lux", b"white_lux", "wind_direction", b"wind_direction", "wind_gust", b"wind_gust", "wind_lull", b"wind_lull", "wind_speed", b"wind_speed"]) -> None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_barometric_pressure", b"_barometric_pressure"]) -> typing.Literal["barometric_pressure"] | None: ...
     @typing.overload
@@ -534,6 +562,10 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     def WhichOneof(self, oneof_group: typing.Literal["_rainfall_24h", b"_rainfall_24h"]) -> typing.Literal["rainfall_24h"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_relative_humidity", b"_relative_humidity"]) -> typing.Literal["relative_humidity"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_soil_moisture", b"_soil_moisture"]) -> typing.Literal["soil_moisture"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_soil_temperature", b"_soil_temperature"]) -> typing.Literal["soil_temperature"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_temperature", b"_temperature"]) -> typing.Literal["temperature"] | None: ...
     @typing.overload

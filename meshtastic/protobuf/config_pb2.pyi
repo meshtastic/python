@@ -615,7 +615,7 @@ class Config(google.protobuf.message.Message):
         POWERMON_ENABLES_FIELD_NUMBER: builtins.int
         is_power_saving: builtins.bool
         """
-        Description: Will sleep everything as much as possible, for the tracker and sensor role this will also include the lora radio. 
+        Description: Will sleep everything as much as possible, for the tracker and sensor role this will also include the lora radio.
         Don't use this setting if you want to use your device with the phone apps or are using a device without a user button.
         Technical Details: Works for ESP32 devices and NRF52 devices in the Sensor or Tracker roles
         """
@@ -796,7 +796,7 @@ class Config(google.protobuf.message.Message):
         """
         ntp_server: builtins.str
         """
-        NTP server to use if WiFi is conneced, defaults to `0.pool.ntp.org`
+        NTP server to use if WiFi is conneced, defaults to `meshtastic.pool.ntp.org`
         """
         eth_enabled: builtins.bool
         """
