@@ -723,7 +723,7 @@ class AirQualityMetrics(google.protobuf.message.Message):
     """
     co2: builtins.int
     """
-    10.0um Particle Count
+    CO2 concentration in ppm
     """
     def __init__(
         self,

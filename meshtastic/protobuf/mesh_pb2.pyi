@@ -421,6 +421,26 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Heltec HRI-3621 industrial probe
     """
+    RESERVED_FRIED_CHICKEN: _HardwareModel.ValueType  # 93
+    """
+    Reserved Fried Chicken ID for future use
+    """
+    HELTEC_MESH_POCKET: _HardwareModel.ValueType  # 94
+    """
+    Heltec Magnetic Power Bank with Meshtastic compatible
+    """
+    SEEED_SOLAR_NODE: _HardwareModel.ValueType  # 95
+    """
+    Seeed Solar Node
+    """
+    NOMADSTAR_METEOR_PRO: _HardwareModel.ValueType  # 96
+    """
+    NomadStar Meteor Pro https://nomadstar.ch/
+    """
+    CROWPANEL: _HardwareModel.ValueType  # 97
+    """
+    Elecrow CrowPanel Advance models, ESP32-S3 and TFT with SX1262 radio plugin
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -825,6 +845,26 @@ HELTEC_SENSOR_HUB: HardwareModel.ValueType  # 92
 """
 Heltec HRI-3621 industrial probe
 """
+RESERVED_FRIED_CHICKEN: HardwareModel.ValueType  # 93
+"""
+Reserved Fried Chicken ID for future use
+"""
+HELTEC_MESH_POCKET: HardwareModel.ValueType  # 94
+"""
+Heltec Magnetic Power Bank with Meshtastic compatible
+"""
+SEEED_SOLAR_NODE: HardwareModel.ValueType  # 95
+"""
+Seeed Solar Node
+"""
+NOMADSTAR_METEOR_PRO: HardwareModel.ValueType  # 96
+"""
+NomadStar Meteor Pro https://nomadstar.ch/
+"""
+CROWPANEL: HardwareModel.ValueType  # 97
+"""
+Elecrow CrowPanel Advance models, ESP32-S3 and TFT with SX1262 radio plugin
+"""
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
 ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1068,6 +1108,14 @@ class _ExcludedModulesEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     """
     Paxcounter module
     """
+    BLUETOOTH_CONFIG: _ExcludedModules.ValueType  # 8192
+    """
+    Bluetooth config (not technically a module, but used to indicate bluetooth capabilities)
+    """
+    NETWORK_CONFIG: _ExcludedModules.ValueType  # 16384
+    """
+    Network config (not technically a module, but used to indicate network capabilities)
+    """
 
 class ExcludedModules(_ExcludedModules, metaclass=_ExcludedModulesEnumTypeWrapper):
     """
@@ -1131,6 +1179,14 @@ Detection Sensor module
 PAXCOUNTER_CONFIG: ExcludedModules.ValueType  # 4096
 """
 Paxcounter module
+"""
+BLUETOOTH_CONFIG: ExcludedModules.ValueType  # 8192
+"""
+Bluetooth config (not technically a module, but used to indicate bluetooth capabilities)
+"""
+NETWORK_CONFIG: ExcludedModules.ValueType  # 16384
+"""
+Network config (not technically a module, but used to indicate network capabilities)
 """
 global___ExcludedModules = ExcludedModules
 
