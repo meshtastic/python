@@ -983,7 +983,7 @@ class Node:
                 p,
                 self.nodeNum,
                 portNum=portnums_pb2.PortNum.ADMIN_APP,
-                wantAck=False,
+                wantAck=True,
                 wantResponse=wantResponse,
                 onResponse=onResponse,
                 channelIndex=adminIndex,
