@@ -554,6 +554,10 @@ class ModuleConfig(google.protobuf.message.Message):
             """NMEA messages specifically tailored for CalTopo"""
             WS85: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 6
             """Ecowitt WS85 weather station"""
+            VE_DIRECT: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 7
+            """VE.Direct is a serial protocol used by Victron Energy products
+            https://beta.ivc.no/wiki/index.php/Victron_VE_Direct_DIY_Cable
+            """
 
         class Serial_Mode(_Serial_Mode, metaclass=_Serial_ModeEnumTypeWrapper):
             """
@@ -569,6 +573,10 @@ class ModuleConfig(google.protobuf.message.Message):
         """NMEA messages specifically tailored for CalTopo"""
         WS85: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 6
         """Ecowitt WS85 weather station"""
+        VE_DIRECT: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 7
+        """VE.Direct is a serial protocol used by Victron Energy products
+        https://beta.ivc.no/wiki/index.php/Victron_VE_Direct_DIY_Cable
+        """
 
         ENABLED_FIELD_NUMBER: builtins.int
         ECHO_FIELD_NUMBER: builtins.int
