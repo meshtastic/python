@@ -66,6 +66,17 @@ class SerialInterface(StreamInterface):
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow, noNodes=noNodes
         )
 
+    def __repr__(self):
+        rep = f"SerialInterface(devPath={self.devPath!r}"
+        if hasattr(self, 'debugOut') and self.debugOut is not None:
+            rep += f", debugOut={self.debugOut!r}"
+        if self.noProto:
+            rep += ", noProto=True"
+        if hasattr(self, 'noNodes') and self.noNodes:
+            rep += ", noNodes=True"
+        rep += ")"
+        return rep
+
     def close(self) -> None:
         """Close a connection to the device"""
         if self.stream:  # Stream can be null if we were already closed

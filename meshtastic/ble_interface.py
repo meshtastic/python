@@ -83,6 +83,17 @@ class BLEInterface(MeshInterface):
         # Note: the on disconnected callback will call our self.close which will make us nicely wait for threads to exit
         self._exit_handler = atexit.register(self.client.disconnect)
 
+    def __repr__(self):
+        rep = f"BLEInterface(address={self.client.address if self.client else None!r}"
+        if self.debugOut is not None:
+            rep += f", debugOut={self.debugOut!r}"
+        if self.noProto:
+            rep += ", noProto=True"
+        if self.noNodes:
+            rep += ", noNodes=True"
+        rep += ")"
+        return rep
+
     def from_num_handler(self, _, b: bytes) -> None:  # pylint: disable=C0116
         """Handle callbacks for fromnum notify.
         Note: this method does not need to be async because it is just setting a bool.

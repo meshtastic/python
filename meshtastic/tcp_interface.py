@@ -43,6 +43,21 @@ class TCPInterface(StreamInterface):
 
         super().__init__(debugOut=debugOut, noProto=noProto, connectNow=connectNow, noNodes=noNodes)
 
+    def __repr__(self):
+        rep = f"TCPInterface({self.hostname!r}"
+        if self.debugOut is not None:
+            rep += f", debugOut={self.debugOut!r}"
+        if self.noProto:
+            rep += ", noProto=True"
+        if self.socket is None:
+            rep += ", connectNow=False"
+        if self.portNumber != DEFAULT_TCP_PORT:
+            rep += f", portNumber={self.portNumber!r}"
+        if self.noNodes:
+            rep += ", noNodes=True"
+        rep += ")"
+        return rep
+
     def _socket_shutdown(self) -> None:
         """Shutdown the socket.
         Note: Broke out this line so the exception could be unit tested.

@@ -42,6 +42,15 @@ class Node:
 
         self.gotResponse = None
 
+    def __repr__(self):
+        r = f"Node({self.iface!r}, 0x{self.nodeNum:08x}"
+        if self.noProto:
+            r += ", noProto=True"
+        if self._timeout.expireTimeout != 300:
+            r += ", timeout={self._timeout.expireTimeout!r}"
+        r += ")"
+        return r
+
     def showChannels(self):
         """Show human readable description of our channels."""
         print("Channels:")
