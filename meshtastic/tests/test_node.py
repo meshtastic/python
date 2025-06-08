@@ -1487,8 +1487,8 @@ def test_setOwner_whitespace_only_long_name(capsys):
 
     with pytest.raises(SystemExit) as excinfo:
         anode.setOwner(long_name="   ")
-    
-    out, err = capsys.readouterr()
+
+    out, _ = capsys.readouterr()
     assert "ERROR: Long Name cannot be empty or contain only whitespace characters" in out
     assert excinfo.value.code == 1
 
@@ -1501,8 +1501,8 @@ def test_setOwner_empty_long_name(capsys):
 
     with pytest.raises(SystemExit) as excinfo:
         anode.setOwner(long_name="")
-    
-    out, err = capsys.readouterr()
+
+    out, _ = capsys.readouterr()
     assert "ERROR: Long Name cannot be empty or contain only whitespace characters" in out
     assert excinfo.value.code == 1
 
@@ -1515,8 +1515,8 @@ def test_setOwner_whitespace_only_short_name(capsys):
 
     with pytest.raises(SystemExit) as excinfo:
         anode.setOwner(short_name="   ")
-    
-    out, err = capsys.readouterr()
+
+    out, _ = capsys.readouterr()
     assert "ERROR: Short Name cannot be empty or contain only whitespace characters" in out
     assert excinfo.value.code == 1
 
@@ -1529,8 +1529,8 @@ def test_setOwner_empty_short_name(capsys):
 
     with pytest.raises(SystemExit) as excinfo:
         anode.setOwner(short_name="")
-    
-    out, err = capsys.readouterr()
+
+    out, _ = capsys.readouterr()
     assert "ERROR: Short Name cannot be empty or contain only whitespace characters" in out
     assert excinfo.value.code == 1
 
@@ -1540,10 +1540,10 @@ def test_setOwner_valid_names(caplog):
     """Test setOwner with valid names"""
     iface = MagicMock(autospec=MeshInterface)
     anode = Node(iface, 123, noProto=True)
-    
+
     with caplog.at_level(logging.DEBUG):
         anode.setOwner(long_name="ValidName", short_name="VN")
-    
+
     # Should not raise any exceptions and should call _sendAdmin
     iface._sendAdmin.assert_called_once()
     assert re.search(r'p.set_owner.long_name:ValidName:', caplog.text, re.MULTILINE)

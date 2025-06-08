@@ -2713,24 +2713,6 @@ def test_remove_ignored_node():
         main()
 
     mocked_node.removeIgnored.assert_called_once_with("!12345678")
-
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_mt_config")
-def test_main_set_owner_short_to_bob(capsys):
-    """Test --set-owner-short bob"""
-    sys.argv = ["", "--set-owner-short", "bob"]
-    mt_config.args = sys.argv
-
-    iface = MagicMock(autospec=SerialInterface)
-    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
-        main()
-        out, err = capsys.readouterr()
-        assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"Setting device owner short to bob", out, re.MULTILINE)
-        assert err == ""
-        mo.assert_called()
-
-
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 def test_main_set_owner_whitespace_only(capsys):
@@ -2740,8 +2722,8 @@ def test_main_set_owner_whitespace_only(capsys):
 
     with pytest.raises(SystemExit) as excinfo:
         main()
-    
-    out, err = capsys.readouterr()
+
+    out, _ = capsys.readouterr()
     assert "ERROR: Long Name cannot be empty or contain only whitespace characters" in out
     assert excinfo.value.code == 1
 
@@ -2755,8 +2737,8 @@ def test_main_set_owner_empty_string(capsys):
 
     with pytest.raises(SystemExit) as excinfo:
         main()
-    
-    out, err = capsys.readouterr()
+
+    out, _ = capsys.readouterr()
     assert "ERROR: Long Name cannot be empty or contain only whitespace characters" in out
     assert excinfo.value.code == 1
 
@@ -2770,8 +2752,8 @@ def test_main_set_owner_short_whitespace_only(capsys):
 
     with pytest.raises(SystemExit) as excinfo:
         main()
-    
-    out, err = capsys.readouterr()
+
+    out, _ = capsys.readouterr()
     assert "ERROR: Short Name cannot be empty or contain only whitespace characters" in out
     assert excinfo.value.code == 1
 
@@ -2785,7 +2767,37 @@ def test_main_set_owner_short_empty_string(capsys):
 
     with pytest.raises(SystemExit) as excinfo:
         main()
-    
-    out, err = capsys.readouterr()
+
+    out, _ = capsys.readouterr()
     assert "ERROR: Short Name cannot be empty or contain only whitespace characters" in out
+    assert excinfo.value.code == 1
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_set_ham_whitespace_only(capsys):
+    """Test --set-ham with whitespace-only name"""
+    sys.argv = ["", "--set-ham", "   "]
+    mt_config.args = sys.argv
+
+    with pytest.raises(SystemExit) as excinfo:
+        main()
+
+    out, _ = capsys.readouterr()
+    assert "ERROR: Ham radio callsign cannot be empty or contain only whitespace characters" in out
+    assert excinfo.value.code == 1
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_set_ham_empty_string(capsys):
+    """Test --set-ham with empty string"""
+    sys.argv = ["", "--set-ham", ""]
+    mt_config.args = sys.argv
+
+    with pytest.raises(SystemExit) as excinfo:
+        main()
+
+    out, _ = capsys.readouterr()
+    assert "ERROR: Ham radio callsign cannot be empty or contain only whitespace characters" in out
     assert excinfo.value.code == 1
