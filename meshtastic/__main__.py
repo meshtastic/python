@@ -342,6 +342,18 @@ def onConnected(interface):
         if args.set_owner or args.set_owner_short:
             closeNow = True
             waitForAckNak = True
+
+            # Validate owner names before connecting to device
+            if args.set_owner is not None:
+                stripped_long_name = args.set_owner.strip()
+                if not stripped_long_name:
+                    meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
+
+            if args.set_owner_short is not None:
+                stripped_short_name = args.set_owner_short.strip()
+                if not stripped_short_name:
+                    meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
+
             if args.set_owner and args.set_owner_short:
                 print(f"Setting device owner to {args.set_owner} and short name to {args.set_owner_short}")
             elif args.set_owner:
@@ -644,11 +656,19 @@ def onConnected(interface):
                 interface.getNode(args.dest, False, **getNode_kwargs).beginSettingsTransaction()
 
                 if "owner" in configuration:
+                    # Validate owner name before setting
+                    owner_name = str(configuration["owner"]).strip()
+                    if not owner_name:
+                        meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
                     print(f"Setting device owner to {configuration['owner']}")
                     waitForAckNak = True
                     interface.getNode(args.dest, False, **getNode_kwargs).setOwner(configuration["owner"])
 
                 if "owner_short" in configuration:
+                    # Validate owner short name before setting
+                    owner_short_name = str(configuration["owner_short"]).strip()
+                    if not owner_short_name:
+                        meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
                     print(
                         f"Setting device owner short to {configuration['owner_short']}"
                     )
@@ -658,6 +678,10 @@ def onConnected(interface):
                     )
 
                 if "ownerShort" in configuration:
+                    # Validate owner short name before setting
+                    owner_short_name = str(configuration["ownerShort"]).strip()
+                    if not owner_short_name:
+                        meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
                     print(
                         f"Setting device owner short to {configuration['ownerShort']}"
                     )
@@ -1088,6 +1112,7 @@ def export_config(interface) -> str:
             configObj["location"]["alt"] = alt
 
     config = MessageToDict(interface.localNode.localConfig)	#checkme - Used as a dictionary here and a string below
+                                                                        #was used as a string here and a Dictionary above
     if config:
         # Convert inner keys to correct snake/camelCase
         prefs = {}
@@ -1181,6 +1206,22 @@ def common():
         if args.support:
             meshtastic.util.support_info()
             meshtastic.util.our_exit("", 0)
+
+        # Early validation for owner names before attempting device connection
+        if hasattr(args, 'set_owner') and args.set_owner is not None:
+            stripped_long_name = args.set_owner.strip()
+            if not stripped_long_name:
+                meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
+
+        if hasattr(args, 'set_owner_short') and args.set_owner_short is not None:
+            stripped_short_name = args.set_owner_short.strip()
+            if not stripped_short_name:
+                meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
+
+        if hasattr(args, 'set_ham') and args.set_ham is not None:
+            stripped_ham_name = args.set_ham.strip()
+            if not stripped_ham_name:
+                meshtastic.util.our_exit("ERROR: Ham ID cannot be empty or contain only whitespace characters")
 
         if have_powermon:
             create_power_meter()
