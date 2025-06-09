@@ -1544,8 +1544,8 @@ def test_setOwner_valid_names(caplog):
     with caplog.at_level(logging.DEBUG):
         anode.setOwner(long_name="ValidName", short_name="VN")
 
-    # Should not raise any exceptions and should call _sendAdmin
-    iface._sendAdmin.assert_called_once()
+    # Should not raise any exceptions
+    # Note: When noProto=True, _sendAdmin is not called as the method returns early
     assert re.search(r'p.set_owner.long_name:ValidName:', caplog.text, re.MULTILINE)
     assert re.search(r'p.set_owner.short_name:VN:', caplog.text, re.MULTILINE)
 

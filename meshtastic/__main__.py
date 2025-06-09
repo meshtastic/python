@@ -349,7 +349,7 @@ def onConnected(interface):
                 if not stripped_long_name:
                     meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
 
-            if args.set_owner_short is not None:
+            if hasattr(args, 'set_owner_short') and args.set_owner_short is not None:
                 stripped_short_name = args.set_owner_short.strip()
                 if not stripped_short_name:
                     meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
@@ -414,6 +414,8 @@ def onConnected(interface):
             print(" ".join(fieldNames))
 
         if args.set_ham:
+            if not args.set_ham.strip():
+                meshtastic.util.our_exit("ERROR: Ham radio callsign cannot be empty or contain only whitespace characters")
             closeNow = True
             print(f"Setting Ham ID to {args.set_ham} and turning off encryption")
             interface.getNode(args.dest, **getNode_kwargs).setOwner(args.set_ham, is_licensed=True)
@@ -1221,7 +1223,7 @@ def common():
         if hasattr(args, 'set_ham') and args.set_ham is not None:
             stripped_ham_name = args.set_ham.strip()
             if not stripped_ham_name:
-                meshtastic.util.our_exit("ERROR: Ham ID cannot be empty or contain only whitespace characters")
+                meshtastic.util.our_exit("ERROR: Ham radio callsign cannot be empty or contain only whitespace characters")
 
         if have_powermon:
             create_power_meter()
