@@ -647,6 +647,7 @@ def onConnected(interface):
                     print(f"Setting device owner to {configuration['owner']}")
                     waitForAckNak = True
                     interface.getNode(args.dest, False, **getNode_kwargs).setOwner(configuration["owner"])
+                    time.sleep(0.5)
 
                 if "owner_short" in configuration:
                     print(
@@ -656,6 +657,7 @@ def onConnected(interface):
                     interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
                         long_name=None, short_name=configuration["owner_short"]
                     )
+                    time.sleep(0.5)
 
                 if "ownerShort" in configuration:
                     print(
@@ -665,14 +667,17 @@ def onConnected(interface):
                     interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
                         long_name=None, short_name=configuration["ownerShort"]
                     )
+                    time.sleep(0.5)
 
                 if "channel_url" in configuration:
                     print("Setting channel url to", configuration["channel_url"])
                     interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channel_url"])
+                    time.sleep(0.5)
 
                 if "channelUrl" in configuration:
                     print("Setting channel url to", configuration["channelUrl"])
                     interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channelUrl"])
+                    time.sleep(0.5)
 
                 if "location" in configuration:
                     alt = 0
@@ -691,6 +696,7 @@ def onConnected(interface):
                         print(f"Fixing longitude at {lon} degrees")
                     print("Setting device position")
                     interface.localNode.setFixedPosition(lat, lon, alt)
+                    time.sleep(0.5)
 
                 if "config" in configuration:
                     localConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig
@@ -701,6 +707,7 @@ def onConnected(interface):
                         interface.getNode(args.dest, **getNode_kwargs).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
+                        time.sleep(0.5)
 
                 if "module_config" in configuration:
                     moduleConfig = interface.getNode(args.dest, **getNode_kwargs).moduleConfig
@@ -713,6 +720,7 @@ def onConnected(interface):
                         interface.getNode(args.dest, **getNode_kwargs).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
+                        time.sleep(0.5)
 
                 interface.getNode(args.dest, False, **getNode_kwargs).commitSettingsTransaction()
                 print("Writing modified configuration to device")
