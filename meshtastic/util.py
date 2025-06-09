@@ -225,7 +225,7 @@ class Timeout:
 
     def waitForTraceRoute(self, waitFactor, acknowledgment, attr="receivedTraceRoute") -> bool:
         """Block until traceroute response is received. Returns True if traceroute response has been received."""
-        self.reset(self.expireTimout * waitFactor)
+        self.reset(self.expireTimeout * waitFactor)
         while time.time() < self.expireTime:
             if getattr(acknowledgment, attr, None):
                 acknowledgment.reset()
