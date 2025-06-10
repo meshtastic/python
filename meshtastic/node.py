@@ -770,6 +770,49 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
+    def keyVerification(self, nodeId: Union[int, str]):
+        if isinstance(nodeId, str):
+            if nodeId.startswith("!"):
+                nodeId = int(nodeId[1:], 16)
+            else:
+                nodeId = int(nodeId)
+        p = admin_pb2.KeyVerificationAdmin()
+        p.message_type = p.MessageType.INITIATE_VERIFICATION
+        p.remote_nodenum = nodeId
+        p.nonce = 0
+        a = admin_pb2.AdminMessage()
+        a.key_verification_admin.CopyFrom(p)
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(a, onResponse=onResponse)
+    def keyVerificationNumber(self, number: int, nonce: int,):
+        print(int(number))
+        print(int(nonce))
+        p = admin_pb2.KeyVerificationAdmin()
+        p.message_type = p.MessageType.PROVIDE_SECURITY_NUMBER
+        p.nonce = int(nonce)
+        p.security_number = int(number)
+        a = admin_pb2.AdminMessage()
+        a.key_verification_admin.CopyFrom(p)
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(a, onResponse=onResponse)
+    def keyVerificationConfirm(self, nonce: int,):
+        print(int(nonce))
+        p = admin_pb2.KeyVerificationAdmin()
+        p.message_type = p.MessageType.DO_VERIFY
+        p.nonce = int(nonce)
+        a = admin_pb2.AdminMessage()
+        a.key_verification_admin.CopyFrom(p)
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(a, onResponse=onResponse)
     def resetNodeDb(self):
         """Tell the node to reset its list of nodes."""
         self.ensureSessionKey()

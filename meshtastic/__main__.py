@@ -472,6 +472,21 @@ def onConnected(interface):
             waitForAckNak = True
             interface.getNode(args.dest, False, **getNode_kwargs).removeIgnored(args.remove_ignored_node)
 
+        if args.key_verification:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False, **getNode_kwargs).keyVerification(args.key_verification)
+
+        if args.key_verification_number:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False, **getNode_kwargs).keyVerificationNumber(args.key_verification_number, args.key_verification_nonce)
+
+        if args.key_verification_confirm:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False, **getNode_kwargs).keyVerificationConfirm(args.key_verification_confirm)
+
         if args.reset_nodedb:
             closeNow = True
             waitForAckNak = True
@@ -1833,6 +1848,22 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         metavar="!xxxxxxxx"
     )
     group.add_argument(
+        "--key-verification",
+        help="start key verification. "
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
+        metavar="!xxxxxxxx"
+    )
+    group.add_argument(
+        "--key-verification-number",
+        help="start key verification. "
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
+    )
+    group.add_argument(
+        "--key-verification-confirm",
+        help="start key verification. "
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
+    )
+    group.add_argument(
         "--reset-nodedb",
         help="Tell the destination node to clear its list of nodes",
         action="store_true",
@@ -1959,6 +1990,12 @@ def initParser():
         "--no-time",
         help="Deprecated. Retained for backwards compatibility in scripts, but is a no-op.",
         action="store_true",
+    )
+
+    group.add_argument(
+        "--key-verification-nonce",
+        help="start key verification. "
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
     )
 
     power_group = parser.add_argument_group(
