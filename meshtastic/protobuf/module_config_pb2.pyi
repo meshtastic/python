@@ -165,6 +165,7 @@ class ModuleConfig(google.protobuf.message.Message):
 
         PUBLISH_INTERVAL_SECS_FIELD_NUMBER: builtins.int
         POSITION_PRECISION_FIELD_NUMBER: builtins.int
+        SHOULD_REPORT_LOCATION_FIELD_NUMBER: builtins.int
         publish_interval_secs: builtins.int
         """
         How often we should report our info to the map (in seconds)
@@ -173,13 +174,18 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         Bits of precision for the location sent (default of 32 is full precision).
         """
+        should_report_location: builtins.bool
+        """
+        Whether we have opted-in to report our location to the map
+        """
         def __init__(
             self,
             *,
             publish_interval_secs: builtins.int = ...,
             position_precision: builtins.int = ...,
+            should_report_location: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["position_precision", b"position_precision", "publish_interval_secs", b"publish_interval_secs"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["position_precision", b"position_precision", "publish_interval_secs", b"publish_interval_secs", "should_report_location", b"should_report_location"]) -> None: ...
 
     @typing.final
     class RemoteHardwareConfig(google.protobuf.message.Message):

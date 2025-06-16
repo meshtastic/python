@@ -97,6 +97,10 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     """
     Same as Text Message but used for critical alerts.
     """
+    KEY_VERIFICATION_APP: _PortNum.ValueType  # 12
+    """
+    Module/port for handling key verification requests.
+    """
     REPLY_APP: _PortNum.ValueType  # 32
     """
     Provides a 'ping' service that replies to any packet it receives.
@@ -290,6 +294,10 @@ NOTE: This portnum traffic is not sent to the public MQTT starting at firmware v
 ALERT_APP: PortNum.ValueType  # 11
 """
 Same as Text Message but used for critical alerts.
+"""
+KEY_VERIFICATION_APP: PortNum.ValueType  # 12
+"""
+Module/port for handling key verification requests.
 """
 REPLY_APP: PortNum.ValueType  # 32
 """

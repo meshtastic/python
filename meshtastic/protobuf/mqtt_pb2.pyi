@@ -72,6 +72,7 @@ class MapReport(google.protobuf.message.Message):
     ALTITUDE_FIELD_NUMBER: builtins.int
     POSITION_PRECISION_FIELD_NUMBER: builtins.int
     NUM_ONLINE_LOCAL_NODES_FIELD_NUMBER: builtins.int
+    HAS_OPTED_REPORT_LOCATION_FIELD_NUMBER: builtins.int
     long_name: builtins.str
     """
     A full name for this user, i.e. "Kevin Hester"
@@ -126,6 +127,11 @@ class MapReport(google.protobuf.message.Message):
     """
     Number of online nodes (heard in the last 2 hours) this node has in its list that were received locally (not via MQTT)
     """
+    has_opted_report_location: builtins.bool
+    """
+    User has opted in to share their location (map report) with the mqtt server
+    Controlled by map_report.should_report_location
+    """
     def __init__(
         self,
         *,
@@ -142,7 +148,8 @@ class MapReport(google.protobuf.message.Message):
         altitude: builtins.int = ...,
         position_precision: builtins.int = ...,
         num_online_local_nodes: builtins.int = ...,
+        has_opted_report_location: builtins.bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["altitude", b"altitude", "firmware_version", b"firmware_version", "has_default_channel", b"has_default_channel", "hw_model", b"hw_model", "latitude_i", b"latitude_i", "long_name", b"long_name", "longitude_i", b"longitude_i", "modem_preset", b"modem_preset", "num_online_local_nodes", b"num_online_local_nodes", "position_precision", b"position_precision", "region", b"region", "role", b"role", "short_name", b"short_name"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["altitude", b"altitude", "firmware_version", b"firmware_version", "has_default_channel", b"has_default_channel", "has_opted_report_location", b"has_opted_report_location", "hw_model", b"hw_model", "latitude_i", b"latitude_i", "long_name", b"long_name", "longitude_i", b"longitude_i", "modem_preset", b"modem_preset", "num_online_local_nodes", b"num_online_local_nodes", "position_precision", b"position_precision", "region", b"region", "role", b"role", "short_name", b"short_name"]) -> None: ...
 
 global___MapReport = MapReport

@@ -126,6 +126,10 @@ class _LanguageEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumT
     """
     Ukrainian
     """
+    BULGARIAN: _Language.ValueType  # 17
+    """
+    Bulgarian
+    """
     SIMPLIFIED_CHINESE: _Language.ValueType  # 30
     """
     Simplified Chinese (experimental)
@@ -207,6 +211,10 @@ Slovenian
 UKRAINIAN: Language.ValueType  # 16
 """
 Ukrainian
+"""
+BULGARIAN: Language.ValueType  # 17
+"""
+Bulgarian
 """
 SIMPLIFIED_CHINESE: Language.ValueType  # 30
 """

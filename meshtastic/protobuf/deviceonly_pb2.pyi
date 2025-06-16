@@ -79,6 +79,7 @@ class UserLite(google.protobuf.message.Message):
     IS_LICENSED_FIELD_NUMBER: builtins.int
     ROLE_FIELD_NUMBER: builtins.int
     PUBLIC_KEY_FIELD_NUMBER: builtins.int
+    IS_UNMESSAGABLE_FIELD_NUMBER: builtins.int
     macaddr: builtins.bytes
     """
     This is the addr of the radio.
@@ -114,6 +115,10 @@ class UserLite(google.protobuf.message.Message):
     The public key of the user's device.
     This is sent out to other nodes on the mesh to allow them to compute a shared secret key.
     """
+    is_unmessagable: builtins.bool
+    """
+    Whether or not the node can be messaged
+    """
     def __init__(
         self,
         *,
@@ -124,8 +129,11 @@ class UserLite(google.protobuf.message.Message):
         is_licensed: builtins.bool = ...,
         role: meshtastic.protobuf.config_pb2.Config.DeviceConfig.Role.ValueType = ...,
         public_key: builtins.bytes = ...,
+        is_unmessagable: builtins.bool | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["hw_model", b"hw_model", "is_licensed", b"is_licensed", "long_name", b"long_name", "macaddr", b"macaddr", "public_key", b"public_key", "role", b"role", "short_name", b"short_name"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_is_unmessagable", b"_is_unmessagable", "is_unmessagable", b"is_unmessagable"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_is_unmessagable", b"_is_unmessagable", "hw_model", b"hw_model", "is_licensed", b"is_licensed", "is_unmessagable", b"is_unmessagable", "long_name", b"long_name", "macaddr", b"macaddr", "public_key", b"public_key", "role", b"role", "short_name", b"short_name"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_is_unmessagable", b"_is_unmessagable"]) -> typing.Literal["is_unmessagable"] | None: ...
 
 global___UserLite = UserLite
 
@@ -145,6 +153,7 @@ class NodeInfoLite(google.protobuf.message.Message):
     IS_FAVORITE_FIELD_NUMBER: builtins.int
     IS_IGNORED_FIELD_NUMBER: builtins.int
     NEXT_HOP_FIELD_NUMBER: builtins.int
+    BITFIELD_FIELD_NUMBER: builtins.int
     num: builtins.int
     """
     The node number
@@ -184,6 +193,11 @@ class NodeInfoLite(google.protobuf.message.Message):
     """
     Last byte of the node number of the node that should be used as the next hop to reach this node.
     """
+    bitfield: builtins.int
+    """
+    Bitfield for storing booleans.
+    LSB 0 is_key_manually_verified
+    """
     @property
     def user(self) -> global___UserLite:
         """
@@ -218,9 +232,10 @@ class NodeInfoLite(google.protobuf.message.Message):
         is_favorite: builtins.bool = ...,
         is_ignored: builtins.bool = ...,
         next_hop: builtins.int = ...,
+        bitfield: builtins.int = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "position", b"position", "user", b"user"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "is_ignored", b"is_ignored", "last_heard", b"last_heard", "next_hop", b"next_hop", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "bitfield", b"bitfield", "channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "is_ignored", b"is_ignored", "last_heard", b"last_heard", "next_hop", b"next_hop", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["_hops_away", b"_hops_away"]) -> typing.Literal["hops_away"] | None: ...
 
 global___NodeInfoLite = NodeInfoLite
