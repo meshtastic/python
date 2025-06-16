@@ -1,6 +1,6 @@
 """Mesh Interface class
 """
-# pylint: disable=R0917
+# pylint: disable=R0917,C0302
 
 import collections
 import json
@@ -476,6 +476,18 @@ class MeshInterface:  # pylint: disable=R0902
             channelIndex=channelIndex,
             priority=mesh_pb2.MeshPacket.Priority.ALERT
         )
+
+    def sendMqttClientProxyMessage(self, topic: str, data: bytes):
+        """Send an MQTT Client Proxy message to the radio.
+
+        Topic and data should be the MQTT topic and the message
+        payload from an MQTT broker, respectively."""
+        prox = mesh_pb2.MqttClientProxyMessage()
+        prox.topic = topic
+        prox.data = data
+        toRadio = mesh_pb2.ToRadio()
+        toRadio.mqttClientProxyMessage.CopyFrom(prox)
+        self._sendToRadio(toRadio)
 
     def sendData(
         self,
