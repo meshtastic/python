@@ -336,7 +336,7 @@ class Node:
             p.set_owner.is_unmessagable = is_unmessagable
 
         # Note: These debug lines are used in unit tests
-        logging.debug(f"p.set_owner.is_unmessageable:{p.set_owner.is_unmessagable}:")
+        logging.debug(f"p.set_owner.is_unmessagable:{p.set_owner.is_unmessagable}:")
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
             onResponse = None
