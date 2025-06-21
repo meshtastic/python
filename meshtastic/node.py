@@ -326,7 +326,7 @@ class Node:
         else:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
-    
+
     def setIsUnmessageable(self, is_unmessagable: Optional[bool]=False):
         """Set if a device is messagable or not"""
         self.ensureSessionKey()
