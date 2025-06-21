@@ -363,11 +363,11 @@ def onConnected(interface):
         if args.set_is_unmessagable:
             closeNow = True
             waitForAckNak = True
-            print(f"Setting is_unmessagable to {args.set_is_unmessageable}")
-            if isinstance(args.set_is_unmessageable, str):
-                val = meshtastic.util.fromStr(args.set_is_unmessageable)
+            print(f"Setting is_unmessagable to {args.set_is_unmessagable}")
+            if isinstance(args.set_is_unmessagable, str):
+                val = meshtastic.util.fromStr(args.set_is_unmessagable)
             else:
-                val = args.set_is_unmessageable
+                val = args.set_is_unmessagable
             interface.getNode(args.dest, **getNode_kwargs).setIsUnmessageable(is_unmessagable=val)
 
         # TODO: add to export-config and configure
