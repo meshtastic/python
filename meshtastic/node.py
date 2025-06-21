@@ -326,6 +326,23 @@ class Node:
         else:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
+    
+    def setIsUnmessageable(self, is_unmessagable: Optional[bool]=False):
+        """Set if a device is messagable or not"""
+        self.ensureSessionKey()
+        p = admin_pb2.AdminMessage()
+
+        if is_unmessagable is not None:
+            p.set_owner.is_unmessagable = is_unmessagable
+
+        # Note: These debug lines are used in unit tests
+        logging.debug(f"p.set_owner.is_unmessageable:{p.set_owner.is_unmessagable}:")
+        # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
 
     def getURL(self, includeAll: bool = True):
         """The sharable URL that describes the current channel"""

@@ -350,6 +350,26 @@ def onConnected(interface):
                 print(f"Setting device owner short to {args.set_owner_short}")
             interface.getNode(args.dest, False, **getNode_kwargs).setOwner(long_name=args.set_owner, short_name=args.set_owner_short)
 
+        if args.set_is_unmessageable:
+            closeNow = True
+            waitForAckNak = True
+            print(f"Setting is_unmessagable to {args.set_is_unmessageable}")
+            if isinstance(args.set_is_unmessageable, str):
+                val = meshtastic.util.fromStr(args.set_is_unmessageable)
+            else:
+                val = args.set_is_unmessageable
+            interface.getNode(args.dest, **getNode_kwargs).setIsUnmessageable(is_unmessagable=val)
+
+        if args.set_is_unmessagable:
+            closeNow = True
+            waitForAckNak = True
+            print(f"Setting is_unmessagable to {args.set_is_unmessageable}")
+            if isinstance(args.set_is_unmessageable, str):
+                val = meshtastic.util.fromStr(args.set_is_unmessageable)
+            else:
+                val = args.set_is_unmessageable
+            interface.getNode(args.dest, **getNode_kwargs).setIsUnmessageable(is_unmessagable=val)
+
         # TODO: add to export-config and configure
         if args.set_canned_message:
             closeNow = True
@@ -1540,6 +1560,13 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store"
     )
 
+    group.add_argument(
+        "--set-is-unmessageable", help="Set if a node is messageable or not", action="store"
+    )
+
+    group.add_argument(
+        "--set-is-unmessagable", help="Set if a node is messageable or not", action="store"
+)
     group.add_argument(
         "--ch-set-url", "--seturl",
         help="Set all channels and set LoRa config from a supplied URL",
