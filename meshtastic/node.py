@@ -317,7 +317,7 @@ class Node:
             p.set_owner.short_name = short_name
         if is_unmessagable is not None:
             p.set_owner.is_unmessagable = is_unmessagable
-        
+
         # Note: These debug lines are used in unit tests
         logging.debug(f"p.set_owner.long_name:{p.set_owner.long_name}:")
         logging.debug(f"p.set_owner.short_name:{p.set_owner.short_name}:")
