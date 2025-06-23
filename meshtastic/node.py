@@ -298,7 +298,7 @@ class Node:
                 return c.index
         return 0
 
-    def setOwner(self, long_name: Optional[str]=None, short_name: Optional[str]=None, is_licensed: bool=False):
+    def setOwner(self, long_name: Optional[str]=None, short_name: Optional[str]=None, is_licensed: bool=False, is_unmessagable: Optional[bool]=None):
         """Set device owner name"""
         logging.debug(f"in setOwner nodeNum:{self.nodeNum}")
         self.ensureSessionKey()
@@ -315,27 +315,13 @@ class Node:
                 short_name = short_name[:nChars]
                 print(f"Maximum is 4 characters, truncated to {short_name}")
             p.set_owner.short_name = short_name
-
+        if is_unmessagable is not None:
+            p.set_owner.is_unmessagable = is_unmessagable
+        
         # Note: These debug lines are used in unit tests
         logging.debug(f"p.set_owner.long_name:{p.set_owner.long_name}:")
         logging.debug(f"p.set_owner.short_name:{p.set_owner.short_name}:")
         logging.debug(f"p.set_owner.is_licensed:{p.set_owner.is_licensed}")
-        # If sending to a remote node, wait for ACK/NAK
-        if self == self.iface.localNode:
-            onResponse = None
-        else:
-            onResponse = self.onAckNak
-        return self._sendAdmin(p, onResponse=onResponse)
-
-    def setIsUnmessageable(self, is_unmessagable: Optional[bool]=False):
-        """Set if a device is messagable or not"""
-        self.ensureSessionKey()
-        p = admin_pb2.AdminMessage()
-
-        if is_unmessagable is not None:
-            p.set_owner.is_unmessagable = is_unmessagable
-
-        # Note: These debug lines are used in unit tests
         logging.debug(f"p.set_owner.is_unmessagable:{p.set_owner.is_unmessagable}:")
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:

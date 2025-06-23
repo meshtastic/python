@@ -466,7 +466,7 @@ def test_main_set_is_unmessageable_to_true(capsys):
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"Setting is_unmessagable to true", out, re.MULTILINE)
+        assert re.search(r"Setting device owner is_unmessageable to True", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
@@ -482,7 +482,7 @@ def test_main_set_is_unmessagable_to_true(capsys):
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"Setting is_unmessagable to true", out, re.MULTILINE)
+        assert re.search(r"Setting device owner is_unmessageable to True", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
