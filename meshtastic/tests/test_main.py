@@ -1724,6 +1724,8 @@ def test_main_export_config(capsys):
         mo.getLongName.return_value = "foo"
         mo.getShortName.return_value = "oof"
         mo.localNode.getURL.return_value = "bar"
+        mo.getCannedMessage.return_value = "foo|bar"
+        mo.getRingtone.return_value = "24:d=32,o=5"
         mo.getMyNodeInfo().get.return_value = {
             "latitudeI": 1100000000,
             "longitudeI": 1200000000,
