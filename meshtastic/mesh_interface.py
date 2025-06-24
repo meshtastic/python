@@ -1076,6 +1076,13 @@ class MeshInterface:  # pylint: disable=R0902
         if user is not None:
             return user.get("publicKey", None)
         return None
+    
+    def getCannedMessage(self):
+        """Fetch and return the canned message from the local node."""
+        if hasattr(self, "localNode") and self.localNode:
+            return self.localNode.get_canned_message()
+        else:
+            raise RuntimeError("No local node available.")
 
     def _waitConnected(self, timeout=30.0):
         """Block until the initial node db download is complete, or timeout

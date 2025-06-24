@@ -1097,6 +1097,7 @@ def export_config(interface) -> str:
     owner_short = interface.getShortName()
     channel_url = interface.localNode.getURL()
     myinfo = interface.getMyNodeInfo()
+    canned_messages = interface.getCannedMessage()
     pos = myinfo.get("position")
     lat = None
     lon = None
@@ -1115,6 +1116,8 @@ def export_config(interface) -> str:
             configObj["channelUrl"] = channel_url
         else:
             configObj["channel_url"] = channel_url
+    # if canned_messages:
+    #     configObj["cannedMessages"] = canned_messages
     # lat and lon don't make much sense without the other (so fill with 0s), and alt isn't meaningful without both
     if lat or lon:
         configObj["location"] = {"lat": lat or float(0), "lon": lon or float(0)}
