@@ -454,7 +454,6 @@ class Node:
             if self.ringtonePart:
                 self.ringtone += self.ringtonePart
 
-        print(f"ringtone:{self.ringtone}")
         logging.debug(f"ringtone:{self.ringtone}")
         return self.ringtone
 
@@ -530,7 +529,6 @@ class Node:
             if self.cannedPluginMessageMessages:
                 self.cannedPluginMessage += self.cannedPluginMessageMessages
 
-        print(f"canned_plugin_message:{self.cannedPluginMessage}")
         logging.debug(f"canned_plugin_message:{self.cannedPluginMessage}")
         return self.cannedPluginMessage
 

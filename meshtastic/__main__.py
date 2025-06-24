@@ -928,12 +928,14 @@ def onConnected(interface):
         if args.get_canned_message:
             closeNow = True
             print("")
-            interface.getNode(args.dest, **getNode_kwargs).get_canned_message()
+            messages = interface.getNode(args.dest, **getNode_kwargs).get_canned_message()
+            print(f"canned_plugin_message:{messages}")
 
         if args.get_ringtone:
             closeNow = True
             print("")
-            interface.getNode(args.dest, **getNode_kwargs).get_ringtone()
+            ringtone = interface.getNode(args.dest, **getNode_kwargs).get_ringtone()
+            print(f"ringtone:{ringtone}")
 
         if args.info:
             print("")
@@ -1098,6 +1100,7 @@ def export_config(interface) -> str:
     channel_url = interface.localNode.getURL()
     myinfo = interface.getMyNodeInfo()
     canned_messages = interface.getCannedMessage()
+    ringtone = interface.getRingtone()
     pos = myinfo.get("position")
     lat = None
     lon = None
@@ -1116,8 +1119,10 @@ def export_config(interface) -> str:
             configObj["channelUrl"] = channel_url
         else:
             configObj["channel_url"] = channel_url
-    # if canned_messages:
-    #     configObj["cannedMessages"] = canned_messages
+    if canned_messages:
+        configObj["canned_messages"] = canned_messages
+    if ringtone:
+        configObj["ringtone"] = ringtone
     # lat and lon don't make much sense without the other (so fill with 0s), and alt isn't meaningful without both
     if lat or lon:
         configObj["location"] = {"lat": lat or float(0), "lon": lon or float(0)}
