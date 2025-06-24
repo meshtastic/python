@@ -1078,15 +1078,17 @@ class MeshInterface:  # pylint: disable=R0902
         return None
 
     def getCannedMessage(self):
-        """Fetch and return the canned message from the local node."""
-        if hasattr(self, "localNode") and self.localNode:
-            return self.localNode.get_canned_message()
+        """Get canned message"""
+        node = self.localNode
+        if node is not None:
+            return node.get_canned_message()
         return None
-    
+
     def getRingtone(self):
-        """Fetch and return the ringtone from the local node."""
-        if hasattr(self, "localNode") and self.localNode:
-            return self.localNode.get_ringtone()
+        """Get ringtone"""
+        node = self.localNode
+        if node is not None:
+            return node.get_ringtone()
         return None
 
     def _waitConnected(self, timeout=30.0):

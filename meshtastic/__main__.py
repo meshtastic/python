@@ -362,7 +362,6 @@ def onConnected(interface):
                 print(f"Setting device owner short to {args.set_owner_short}")
             interface.getNode(args.dest, False, **getNode_kwargs).setOwner(long_name=args.set_owner, short_name=args.set_owner_short)
 
-        # TODO: add to export-config and configure
         if args.set_canned_message:
             closeNow = True
             waitForAckNak = True
@@ -371,7 +370,6 @@ def onConnected(interface):
                 args.set_canned_message
             )
 
-        # TODO: add to export-config and configure
         if args.set_ringtone:
             closeNow = True
             waitForAckNak = True
@@ -703,6 +701,16 @@ def onConnected(interface):
                 if "channelUrl" in configuration:
                     print("Setting channel url to", configuration["channelUrl"])
                     interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channelUrl"])
+                    time.sleep(0.5)
+
+                if "canned_messages" in configuration:
+                    print("Setting canned message messages to", configuration["canned_messages"])
+                    interface.getNode(args.dest, **getNode_kwargs).set_canned_message(configuration["canned_messages"])
+                    time.sleep(0.5)
+
+                if "ringtone" in configuration:
+                    print("Setting ringtone to", configuration["ringtone"])
+                    interface.getNode(args.dest, **getNode_kwargs).set_ringtone(configuration["ringtone"])
                     time.sleep(0.5)
 
                 if "location" in configuration:
