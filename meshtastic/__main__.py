@@ -755,9 +755,20 @@ def onConnected(interface):
             if args.dest != BROADCAST_ADDR:
                 print("Exporting configuration of remote nodes is not supported.")
                 return
-            # export the configuration (the opposite of '--configure')
+
             closeNow = True
-            export_config(interface)
+            config_txt = export_config(interface)
+
+            if args.export_config == "-":
+                # Output to stdout (preserves legacy use of `> file.yaml`)
+                print(config_txt)
+            else:
+                try:
+                    with open(args.export_config, "w", encoding="utf-8") as f:
+                        f.write(config_txt)
+                    print(f"Exported configuration to {args.export_config}")
+                except Exception as e:
+                    meshtastic.util.our_exit(f"ERROR: Failed to write config file: {e}")
 
         if args.ch_set_url:
             closeNow = True
@@ -1160,7 +1171,6 @@ def export_config(interface) -> str:
     config_txt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out)
                                                                         #was used as a string here and a Dictionary above
     config_txt += yaml.dump(configObj)
-    print(config_txt)
     return config_txt
 
 
@@ -1460,8 +1470,10 @@ def addImportExportArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
     )
     group.add_argument(
         "--export-config",
-        help="Export the configuration in yaml(.yml) format.",
-        action="store_true",
+        nargs="?",
+        const="-",  # default to "-" if no value provided
+        metavar="FILE",
+        help="Export device config as YAML (to stdout if no file given)"
     )
     return parser
 
