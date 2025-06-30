@@ -1468,7 +1468,7 @@ def addImportExportArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
         help="Specify a path to a yaml(.yml) file containing the desired settings for the connected device.",
         action="append",
     )
-    parser.add_argument(
+    group.add_argument(
         "--export-config",
         nargs="?",
         const="-",  # default to "-" if no value provided
