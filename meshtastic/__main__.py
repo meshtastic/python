@@ -751,7 +751,7 @@ def onConnected(interface):
                 interface.getNode(args.dest, False, **getNode_kwargs).commitSettingsTransaction()
                 print("Writing modified configuration to device")
 
-        if args.export_config is not None:
+        if args.export_config:
             if args.dest != BROADCAST_ADDR:
                 print("Exporting configuration of remote nodes is not supported.")
                 return
