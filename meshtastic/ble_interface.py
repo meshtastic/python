@@ -324,7 +324,16 @@ class BLEClient:
         self._shutdown_flag = True
 
         try:
-            self.async_run(self._stop_event_loop())
+            # Cancel all pending futures first
+            for future in list(self._pending_tasks):
+                if not future.done():
+                    future.cancel()
+            self._pending_tasks.clear()
+
+            # Schedule the event loop shutdown
+            if self._eventLoop and not self._eventLoop.is_closed():
+                self._eventLoop.call_soon_threadsafe(self._eventLoop.stop)
+
             # Wait for event thread to finish with timeout
             self._eventThread.join(timeout=5.0)
             if self._eventThread.is_alive():
@@ -349,14 +358,13 @@ class BLEClient:
             return future.result(timeout)
         except Exception:
             # Cancel the future if it's still running
-            future.cancel()
+            if not future.done():
+                future.cancel()
             raise
         finally:
             self._pending_tasks.discard(future)
 
     def async_run(self, coro):  # pylint: disable=C0116
-        if self._shutdown_flag:
-            raise RuntimeError("BLE client is shutting down")
         return asyncio.run_coroutine_threadsafe(coro, self._eventLoop)
 
     def _run_event_loop(self):
@@ -381,20 +389,3 @@ class BLEClient:
                 logging.error(f"Error cancelling tasks: {e}")
             finally:
                 self._eventLoop.close()
-
-    async def _stop_event_loop(self):
-        """Stop the event loop and cancel all pending tasks"""
-        try:
-            # Cancel all pending tasks
-            tasks = [task for task in asyncio.all_tasks(self._eventLoop)
-                    if not task.done()]
-            for task in tasks:
-                task.cancel()
-
-            # Wait for cancellation to complete
-            if tasks:
-                await asyncio.gather(*tasks, return_exceptions=True)
-        except Exception as e:
-            logging.error(f"Error stopping event loop: {e}")
-        finally:
-            self._eventLoop.stop()
