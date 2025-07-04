@@ -43,6 +43,7 @@ class BLEInterface(MeshInterface):
         )
 
         self.should_read = False
+        self._shutdown_flag = False  # Prevent race conditions during shutdown
 
         logging.debug("Threads starting")
         self._want_receive = True
@@ -214,6 +215,11 @@ class BLEInterface(MeshInterface):
                 time.sleep(0.01)
 
     def _sendToRadioImpl(self, toRadio) -> None:
+        # Don't send data if we're shutting down
+        if self._shutdown_flag:
+            logging.debug("Ignoring TORADIO write during shutdown")
+            return
+
         b: bytes = toRadio.SerializeToString()
         if b and self.client:  # we silently ignore writes while we are shutting down
             logging.debug(f"TORADIO write: {b.hex()}")
@@ -223,14 +229,22 @@ class BLEInterface(MeshInterface):
                 )  # FIXME: or False?
                 # search Bleak src for org.bluez.Error.InProgress
             except Exception as e:
-                raise BLEInterface.BLEError(
-                    "Error writing BLE (are you in the 'bluetooth' user group? did you enter the pairing PIN on your computer?)"
-                ) from e
+                if not self._shutdown_flag:  # Only raise error if not shutting down
+                    raise BLEInterface.BLEError(
+                        "Error writing BLE (are you in the 'bluetooth' user group? did you enter the pairing PIN on your computer?)"
+                    ) from e
+                else:
+                    logging.debug(f"Ignoring BLE write error during shutdown: {e}")
             # Allow to propagate and then make sure we read
             time.sleep(0.01)
             self.should_read = True
 
     def close(self) -> None:
+        # Prevent multiple close attempts
+        if self._shutdown_flag:
+            return
+        self._shutdown_flag = True
+
         try:
             MeshInterface.close(self)
         except Exception as e:
@@ -245,10 +259,19 @@ class BLEInterface(MeshInterface):
                 self._receiveThread = None
 
         if self.client:
-            atexit.unregister(self._exit_handler)
-            self.client.disconnect()
-            self.client.close()
-            self.client = None
+            try:
+                atexit.unregister(self._exit_handler)
+            except ValueError:
+                # Handler was already unregistered, ignore
+                pass
+
+            try:
+                self.client.disconnect()
+                self.client.close()
+            except Exception as e:
+                logging.error(f"Error disconnecting BLE client: {e}")
+            finally:
+                self.client = None
         self._disconnected() # send the disconnected indicator up to clients
 
 
@@ -261,6 +284,8 @@ class BLEClient:
             target=self._run_event_loop, name="BLEClient", daemon=True
         )
         self._eventThread.start()
+        self._shutdown_flag = False
+        self._pending_tasks = set()  # Track pending tasks for cleanup
 
         if not address:
             logging.debug("No address provided - only discover method will work.")
@@ -294,8 +319,18 @@ class BLEClient:
         self.async_await(self.bleak_client.start_notify(*args, **kwargs))
 
     def close(self):  # pylint: disable=C0116
-        self.async_run(self._stop_event_loop())
-        self._eventThread.join()
+        if self._shutdown_flag:
+            return
+        self._shutdown_flag = True
+
+        try:
+            self.async_run(self._stop_event_loop())
+            # Wait for event thread to finish with timeout
+            self._eventThread.join(timeout=5.0)
+            if self._eventThread.is_alive():
+                logging.warning("BLE event thread did not shut down cleanly")
+        except Exception as e:
+            logging.error(f"Error during BLE client shutdown: {e}")
 
     def __enter__(self):
         return self
@@ -303,17 +338,63 @@ class BLEClient:
     def __exit__(self, _type, _value, _traceback):
         self.close()
 
-    def async_await(self, coro, timeout=None):  # pylint: disable=C0116
-        return self.async_run(coro).result(timeout)
+    def async_await(self, coro, timeout=30.0):  # pylint: disable=C0116
+        """Execute async coroutine with default 30 second timeout"""
+        if self._shutdown_flag:
+            raise RuntimeError("BLE client is shutting down")
+
+        future = self.async_run(coro)
+        self._pending_tasks.add(future)
+        try:
+            return future.result(timeout)
+        except Exception:
+            # Cancel the future if it's still running
+            future.cancel()
+            raise
+        finally:
+            self._pending_tasks.discard(future)
 
     def async_run(self, coro):  # pylint: disable=C0116
+        if self._shutdown_flag:
+            raise RuntimeError("BLE client is shutting down")
         return asyncio.run_coroutine_threadsafe(coro, self._eventLoop)
 
     def _run_event_loop(self):
         try:
+            asyncio.set_event_loop(self._eventLoop)
             self._eventLoop.run_forever()
+        except Exception as e:
+            logging.error(f"Error in BLE event loop: {e}")
         finally:
-            self._eventLoop.close()
+            try:
+                # Cancel all pending tasks
+                pending = asyncio.all_tasks(self._eventLoop)
+                for task in pending:
+                    task.cancel()
+
+                # Wait for tasks to complete cancellation
+                if pending:
+                    self._eventLoop.run_until_complete(
+                        asyncio.gather(*pending, return_exceptions=True)
+                    )
+            except Exception as e:
+                logging.error(f"Error cancelling tasks: {e}")
+            finally:
+                self._eventLoop.close()
 
     async def _stop_event_loop(self):
-        self._eventLoop.stop()
+        """Stop the event loop and cancel all pending tasks"""
+        try:
+            # Cancel all pending tasks
+            tasks = [task for task in asyncio.all_tasks(self._eventLoop)
+                    if not task.done()]
+            for task in tasks:
+                task.cancel()
+
+            # Wait for cancellation to complete
+            if tasks:
+                await asyncio.gather(*tasks, return_exceptions=True)
+        except Exception as e:
+            logging.error(f"Error stopping event loop: {e}")
+        finally:
+            self._eventLoop.stop()

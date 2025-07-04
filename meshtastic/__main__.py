@@ -18,6 +18,7 @@ except ImportError as e:
 import logging
 import os
 import platform
+import signal
 import sys
 import time
 
@@ -283,6 +284,11 @@ def setPref(config, comp_name, raw_val) -> bool:
 
     return True
 
+
+def signal_handler(sig, frame):
+    """Handle shutdown signals gracefully"""
+    logging.info("Received shutdown signal, exiting gracefully...")
+    # The signal will interrupt the main loop and trigger normal shutdown
 
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
@@ -1279,6 +1285,11 @@ def common():
                 mt_config.logfile = logfile
 
             subscribe()
+
+            # Set up signal handlers for graceful shutdown
+            signal.signal(signal.SIGINT, signal_handler)
+            signal.signal(signal.SIGTERM, signal_handler)
+
             if args.ble_scan:
                 logging.debug("BLE scan starting")
                 for x in BLEInterface.scan():
