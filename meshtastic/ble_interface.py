@@ -190,6 +190,8 @@ class BLEInterface(MeshInterface):
                     if self.client is None:
                         logging.debug(f"BLE client is None, shutting down")
                         self._want_receive = False
+                        if not self._shutdown_flag:
+                            self._disconnected()
                         continue
                     try:
                         b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
@@ -197,11 +199,15 @@ class BLEInterface(MeshInterface):
                         # Device disconnected probably, so end our read loop immediately
                         logging.debug(f"Device disconnected, shutting down {e}")
                         self._want_receive = False
+                        if not self._shutdown_flag:
+                            self._disconnected()
                     except BleakError as e:
                         # We were definitely disconnected
                         if "Not connected" in str(e):
                             logging.debug(f"Device disconnected, shutting down {e}")
                             self._want_receive = False
+                            if not self._shutdown_flag:
+                                self._disconnected()
                         else:
                             raise BLEInterface.BLEError("Error reading BLE") from e
                     if not b:

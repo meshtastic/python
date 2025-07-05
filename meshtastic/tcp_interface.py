@@ -69,7 +69,12 @@ class TCPInterface(StreamInterface):
         """Connect to socket"""
         logging.debug(f"Connecting to {self.hostname}") # type: ignore[str-bytes-safe]
         server_address = (self.hostname, self.portNumber)
-        self.socket = socket.create_connection(server_address)
+        try:
+            self.socket = socket.create_connection(server_address)
+        except (OSError, ConnectionError, socket.timeout) as ex:
+            logging.warning(f"TCP connection failed to {self.hostname}:{self.portNumber} - {ex}")
+            self.socket = None
+            raise
 
     def close(self) -> None:
         """Close a connection to the device"""
@@ -88,26 +93,45 @@ class TCPInterface(StreamInterface):
     def _writeBytes(self, b: bytes) -> None:
         """Write an array of bytes to our stream and flush"""
         if self.socket is not None:
-            self.socket.send(b)
+            try:
+                self.socket.send(b)
+            except (OSError, ConnectionError, BrokenPipeError) as ex:
+                if not self._wantExit:
+                    logging.warning(f"TCP connection lost during write, disconnecting... {ex}")
+                    self._disconnected()
+                self.socket = None
 
     def _readBytes(self, length) -> Optional[bytes]:
         """Read an array of bytes from our stream"""
         if self.socket is not None:
-            data = self.socket.recv(length)
-            # empty byte indicates a disconnected socket,
-            # we need to handle it to avoid an infinite loop reading from null socket
-            if data == b'':
-                logging.debug("dead socket, re-connecting")
-                # cleanup and reconnect socket without breaking reader thread
-                with contextlib.suppress(Exception):
-                    self._socket_shutdown()
-                self.socket.close()
+            try:
+                data = self.socket.recv(length)
+                # empty byte indicates a disconnected socket,
+                # we need to handle it to avoid an infinite loop reading from null socket
+                if data == b'':
+                    logging.debug("dead socket, re-connecting")
+                    # cleanup and reconnect socket without breaking reader thread
+                    with contextlib.suppress(Exception):
+                        self._socket_shutdown()
+                    self.socket.close()
+                    self.socket = None
+                    time.sleep(1)
+                    try:
+                        self.myConnect()
+                        self._startConfig()
+                    except Exception as ex:
+                        if not self._wantExit:
+                            logging.warning(f"TCP reconnection failed, disconnecting... {ex}")
+                            self._disconnected()
+                        return None
+                    return None
+                return data
+            except (OSError, ConnectionError, BrokenPipeError) as ex:
+                if not self._wantExit:
+                    logging.warning(f"TCP connection lost during read, disconnecting... {ex}")
+                    self._disconnected()
                 self.socket = None
-                time.sleep(1)
-                self.myConnect()
-                self._startConfig()
                 return None
-            return data
 
         # no socket, break reader thread
         self._wantExit = True

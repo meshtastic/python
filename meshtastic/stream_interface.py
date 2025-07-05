@@ -93,14 +93,20 @@ class StreamInterface(MeshInterface):
     def _writeBytes(self, b: bytes) -> None:
         """Write an array of bytes to our stream and flush"""
         if self.stream:  # ignore writes when stream is closed
-            self.stream.write(b)
-            self.stream.flush()
-            # win11 might need a bit more time, too
-            if self.is_windows11:
-                time.sleep(1.0)
-            else:
-                # we sleep here to give the TBeam a chance to work
-                time.sleep(0.1)
+            try:
+                self.stream.write(b)
+                self.stream.flush()
+                # win11 might need a bit more time, too
+                if self.is_windows11:
+                    time.sleep(1.0)
+                else:
+                    # we sleep here to give the TBeam a chance to work
+                    time.sleep(0.1)
+            except (OSError, serial.SerialException) as ex:
+                if not self._wantExit:
+                    logging.warning(f"Stream write failed, connection lost... {ex}")
+                    self._disconnected()
+                self.stream = None
 
     def _readBytes(self, length) -> Optional[bytes]:
         """Read an array of bytes from our stream"""
