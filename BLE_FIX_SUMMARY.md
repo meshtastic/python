@@ -85,11 +85,54 @@ except Exception:
 - ✅ All shutdown logic improvements implemented
 - ✅ All error handling improvements present
 
-## Expected Outcome
-This fix should resolve:
-- The "coroutine was never awaited" warning in mmrelay
-- BLE hanging issues during Ctrl+C interruption
-- Clean shutdown of BLE connections in services
-- Proper cleanup of async resources during shutdown
+## Additional Improvements (Latest Commit)
 
-The fix maintains all the original improvements (timeouts, task tracking, error handling) while resolving the async/sync execution issue that was causing the runtime warnings.
+### 4. Enhanced Thread Safety and Robustness
+**Signal Handler Fix:**
+```python
+def signal_handler(sig, frame):
+    logging.info("Received shutdown signal, exiting gracefully...")
+    # Raise a KeyboardInterrupt to allow the main loop to exit gracefully
+    raise KeyboardInterrupt()
+```
+
+**Thread-Safe Task Management:**
+```python
+self._pending_tasks_lock = threading.Lock()
+
+# In close():
+with self._pending_tasks_lock:
+    tasks_to_cancel = list(self._pending_tasks)
+    self._pending_tasks.clear()
+
+# In async_await():
+with self._pending_tasks_lock:
+    self._pending_tasks.add(future)
+# ... later ...
+with self._pending_tasks_lock:
+    self._pending_tasks.discard(future)
+```
+
+**Guaranteed Resource Cleanup:**
+```python
+try:
+    self.client.disconnect()
+except Exception as e:
+    logging.error(f"Error disconnecting BLE client: {e}")
+finally:
+    # Ensure the client is closed and resources are released
+    self.client.close()
+    self.client = None
+```
+
+## Expected Outcome
+This comprehensive fix should resolve:
+- ✅ The "coroutine was never awaited" warning in mmrelay
+- ✅ BLE hanging issues during Ctrl+C interruption
+- ✅ Clean shutdown of BLE connections in services
+- ✅ Proper cleanup of async resources during shutdown
+- ✅ Race conditions in task management
+- ✅ Inconsistent signal handling behavior
+- ✅ Resource leaks during error conditions
+
+The fix maintains all the original improvements (timeouts, task tracking, error handling) while resolving the async/sync execution issue and adding robust thread safety measures.

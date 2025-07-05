@@ -360,6 +360,13 @@ class BLEClient:
 
         future = self.async_run(coro)
         with self._pending_tasks_lock:
+            if self._shutdown_flag:
+                future.cancel()
+                # Don't add to pending tasks if shutting down
+                try:
+                    return future.result(timeout)
+                except Exception:
+                    raise
             self._pending_tasks.add(future)
         try:
             return future.result(timeout)
