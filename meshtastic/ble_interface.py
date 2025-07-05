@@ -4,6 +4,7 @@ import asyncio
 import atexit
 import logging
 import struct
+import threading
 import time
 import io
 from threading import Thread
@@ -267,10 +268,11 @@ class BLEInterface(MeshInterface):
 
             try:
                 self.client.disconnect()
-                self.client.close()
             except Exception as e:
                 logging.error(f"Error disconnecting BLE client: {e}")
             finally:
+                # Ensure the client is closed and resources are released
+                self.client.close()
                 self.client = None
         self._disconnected() # send the disconnected indicator up to clients
 
@@ -286,6 +288,7 @@ class BLEClient:
         self._eventThread.start()
         self._shutdown_flag = False
         self._pending_tasks = set()  # Track pending tasks for cleanup
+        self._pending_tasks_lock = threading.Lock()
 
         if not address:
             logging.debug("No address provided - only discover method will work.")
@@ -325,10 +328,13 @@ class BLEClient:
 
         try:
             # Cancel all pending futures first
-            for future in list(self._pending_tasks):
+            with self._pending_tasks_lock:
+                tasks_to_cancel = list(self._pending_tasks)
+                self._pending_tasks.clear()
+
+            for future in tasks_to_cancel:
                 if not future.done():
                     future.cancel()
-            self._pending_tasks.clear()
 
             # Schedule the event loop shutdown
             if self._eventLoop and not self._eventLoop.is_closed():
@@ -353,7 +359,8 @@ class BLEClient:
             raise RuntimeError("BLE client is shutting down")
 
         future = self.async_run(coro)
-        self._pending_tasks.add(future)
+        with self._pending_tasks_lock:
+            self._pending_tasks.add(future)
         try:
             return future.result(timeout)
         except Exception:
@@ -362,7 +369,8 @@ class BLEClient:
                 future.cancel()
             raise
         finally:
-            self._pending_tasks.discard(future)
+            with self._pending_tasks_lock:
+                self._pending_tasks.discard(future)
 
     def async_run(self, coro):  # pylint: disable=C0116
         return asyncio.run_coroutine_threadsafe(coro, self._eventLoop)
