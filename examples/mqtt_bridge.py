@@ -37,6 +37,25 @@ TOPICS = os.getenv("MQTT_TOPICS", "device/sck/mesh12/2/#").split(",")
 KEY = os.getenv("MQTT_KEY", "")
 KEY = "" if KEY == "AQ==" else KEY
 
+
+# Map of device IDs to friendly names
+# This is a dictionary that maps device IDs to their friendly names only for debuggin purposes during the hackathon.
+DEVICE_NAME_MAP = {
+    # Example: device_id: "Friendly Name"
+    2534365592: "mesh25-jm (jm25)",
+    3665041700: "Meshtastic 1924 (1924)",
+    2925623876: "mesh25-ze (zerg)"
+    # Add more mappings as needed
+}
+
+# Add these color codes near the top, after imports
+RESET = "\033[0m"
+BOLD = "\033[1m"
+CYAN = "\033[36m"
+YELLOW = "\033[33m"
+GREEN = "\033[32m"
+RED = "\033[31m"
+
 # Callback when the client connects to the broker
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -73,14 +92,49 @@ def on_message(client, userdata, msg):
         pb.ParseFromString(decoded_mp.decoded.payload)
 
     if pb:
-        # Pretty print the protobuf as a dictionary
+        # Pretty print the protobuf as a dictionary with extra identifying info
         pb_dict = MessageToDict(pb, preserving_proto_field_name=True)
         decoded_mp.decoded.payload = str(pb_dict).encode("utf-8")
-        print("Original Meshtastic protobuf:")
-        pprint.pprint(pb_dict)
-        print("Transformed SC payload:")
-        print(transform_meshtastic_json(pb_dict))
 
+        # Gather extra info if available
+        device_id = getattr(decoded_mp, "from", None)
+        packet_id = getattr(decoded_mp, "id", None)
+        timestamp = pb_dict.get("time") or pb_dict.get("timestamp")
+        iso_time = None
+        if timestamp:
+            try:
+                iso_time = datetime.datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            except Exception:
+                pass
+
+        print(f"{BOLD}{CYAN}=== Meshtastic Packet Info ==={RESET}")
+        print(f"{BOLD}🔑 Device ID:{RESET} {device_id}")
+        # Pretty print device name using the map
+        device_name = DEVICE_NAME_MAP.get(device_id, f"{RED}Unknown device{RESET}")
+        print(f"{BOLD}📟 Device Name:{RESET} {device_name}")
+        print(f"{BOLD}🗂️ Packet ID:{RESET} {packet_id}")
+        print(f"{BOLD}⏰ Timestamp:{RESET} {iso_time if iso_time else 'N/A'}")
+        print(f"{BOLD}📡 Port Number:{RESET} {portNumInt if portNumInt is not None else 'N/A'}")
+
+        # portnum_name = None
+        # if portNumInt is not None:
+        #     try:
+        #         portnum_name = mesh_pb2.PortNum.Name(portNumInt)
+        #     except Exception:
+        #         portnum_name = "UNKNOWN"
+        # print(f"{BOLD}📡 Port Number:{RESET} {portNumInt if portNumInt is not None else 'N/A'} ({portnum_name})")
+
+        print(f"{BOLD}📦 Full protobuf payload:{RESET}")
+        pprint.pprint(pb_dict, sort_dicts=False, indent=2)
+
+        
+
+        # Only print transformed SC payload if portNumInt == 67 (TELEMETRY_APP)
+        # Todo: Change for Protobuf definition.
+        if portNumInt == 67:
+            print(f"{BOLD}🔄 Transformed SC payload:{RESET}")
+            print(transform_meshtastic_json(pb_dict))
+       
 
 def decrypt_packet(mp, key):
     try:
