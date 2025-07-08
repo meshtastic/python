@@ -45,6 +45,7 @@ class BLEInterface(MeshInterface):
 
         self.should_read = False
         self._shutdown_flag = False  # Prevent race conditions during shutdown
+        self._disconnection_sent = False  # Track if disconnection event was already sent
 
         logging.debug("Threads starting")
         self._want_receive = True
@@ -190,7 +191,8 @@ class BLEInterface(MeshInterface):
                     if self.client is None:
                         logging.debug(f"BLE client is None, shutting down")
                         self._want_receive = False
-                        if not self._shutdown_flag:
+                        if not self._shutdown_flag and not self._disconnection_sent:
+                            self._disconnection_sent = True
                             self._disconnected()
                         continue
                     try:
@@ -199,14 +201,16 @@ class BLEInterface(MeshInterface):
                         # Device disconnected probably, so end our read loop immediately
                         logging.debug(f"Device disconnected, shutting down {e}")
                         self._want_receive = False
-                        if not self._shutdown_flag:
+                        if not self._shutdown_flag and not self._disconnection_sent:
+                            self._disconnection_sent = True
                             self._disconnected()
                     except BleakError as e:
                         # We were definitely disconnected
                         if "Not connected" in str(e):
                             logging.debug(f"Device disconnected, shutting down {e}")
                             self._want_receive = False
-                            if not self._shutdown_flag:
+                            if not self._shutdown_flag and not self._disconnection_sent:
+                                self._disconnection_sent = True
                                 self._disconnected()
                         else:
                             raise BLEInterface.BLEError("Error reading BLE") from e
@@ -280,7 +284,10 @@ class BLEInterface(MeshInterface):
                 # Ensure the client is closed and resources are released
                 self.client.close()
                 self.client = None
-        self._disconnected() # send the disconnected indicator up to clients
+        # Send disconnection event only if not already sent
+        if not self._disconnection_sent:
+            self._disconnection_sent = True
+            self._disconnected() # send the disconnected indicator up to clients
 
 
 class BLEClient:
