@@ -177,10 +177,19 @@ class BLEInterface(MeshInterface):
 
         # Bleak docs recommend always doing a scan before connecting (even if we know addr)
         device = self.find_device(address)
-        client = BLEClient(device.address, disconnected_callback=lambda _: self.close())
+        client = BLEClient(device.address, disconnected_callback=self._on_ble_disconnect)
         client.connect()
         client.discover()
         return client
+
+    def _on_ble_disconnect(self, client):
+        """Handle BLE disconnection callback with error protection"""
+        try:
+            if not self._shutdown_flag:
+                logging.debug("BLE disconnected callback triggered")
+                self.close()
+        except Exception as e:
+            logging.error(f"Error in BLE disconnect callback: {e}")
 
     def _receiveFromRadioImpl(self) -> None:
         while self._want_receive:
@@ -277,13 +286,26 @@ class BLEInterface(MeshInterface):
                 pass
 
             try:
+                # Ensure Bleak client is properly disconnected before closing
+                if hasattr(self.client, 'bleak_client') and self.client.bleak_client:
+                    try:
+                        # Use async_await with shorter timeout during shutdown
+                        self.client.async_await(self.client.bleak_client.disconnect(), timeout=5.0)
+                    except Exception as e:
+                        logging.debug(f"Error during Bleak client disconnect: {e}")
+
+                # Disconnect the wrapper client
                 self.client.disconnect()
             except Exception as e:
                 logging.error(f"Error disconnecting BLE client: {e}")
             finally:
                 # Ensure the client is closed and resources are released
-                self.client.close()
-                self.client = None
+                try:
+                    self.client.close()
+                except Exception as e:
+                    logging.debug(f"Error closing BLE client: {e}")
+                finally:
+                    self.client = None
         # Send disconnection event only if not already sent
         if not self._disconnection_sent:
             self._disconnection_sent = True
@@ -353,10 +375,16 @@ class BLEClient:
             if self._eventLoop and not self._eventLoop.is_closed():
                 self._eventLoop.call_soon_threadsafe(self._eventLoop.stop)
 
-            # Wait for event thread to finish with timeout
-            self._eventThread.join(timeout=5.0)
-            if self._eventThread.is_alive():
-                logging.warning("BLE event thread did not shut down cleanly")
+            # Check if we're in the event thread to avoid self-join
+            if threading.current_thread() != self._eventThread:
+                # Wait for event thread to finish with timeout
+                self._eventThread.join(timeout=5.0)
+                if self._eventThread.is_alive():
+                    logging.warning("BLE event thread did not shut down cleanly")
+            else:
+                # We're in the event thread, can't join ourselves
+                # The event loop stop was already scheduled above
+                logging.debug("BLE client close() called from event thread, skipping join")
         except Exception as e:
             logging.error(f"Error during BLE client shutdown: {e}")
 
@@ -372,21 +400,28 @@ class BLEClient:
             raise RuntimeError("BLE client is shutting down")
 
         future = self.async_run(coro)
+
+        # Check shutdown flag again after creating future
+        if self._shutdown_flag:
+            future.cancel()
+            raise RuntimeError("BLE client is shutting down")
+
         with self._pending_tasks_lock:
             if self._shutdown_flag:
                 future.cancel()
-                # Don't add to pending tasks if shutting down
-                try:
-                    return future.result(timeout)
-                except Exception:
-                    raise
+                raise RuntimeError("BLE client is shutting down")
             self._pending_tasks.add(future)
+
         try:
             return future.result(timeout)
-        except Exception:
+        except Exception as e:
             # Cancel the future if it's still running
             if not future.done():
                 future.cancel()
+            # Don't re-raise shutdown-related exceptions during shutdown
+            if self._shutdown_flag and "shutting down" in str(e):
+                logging.debug(f"Ignoring expected shutdown error: {e}")
+                return None
             raise
         finally:
             with self._pending_tasks_lock:
@@ -403,17 +438,30 @@ class BLEClient:
             logging.error(f"Error in BLE event loop: {e}")
         finally:
             try:
-                # Cancel all pending tasks
+                # Cancel all pending tasks with proper error handling
                 pending = asyncio.all_tasks(self._eventLoop)
-                for task in pending:
-                    task.cancel()
-
-                # Wait for tasks to complete cancellation
                 if pending:
-                    self._eventLoop.run_until_complete(
-                        asyncio.gather(*pending, return_exceptions=True)
-                    )
+                    for task in pending:
+                        if not task.done():
+                            task.cancel()
+
+                    # Wait for tasks to complete cancellation with timeout
+                    try:
+                        self._eventLoop.run_until_complete(
+                            asyncio.wait_for(
+                                asyncio.gather(*pending, return_exceptions=True),
+                                timeout=3.0
+                            )
+                        )
+                    except asyncio.TimeoutError:
+                        logging.warning("Timeout waiting for BLE tasks to cancel")
+                    except Exception as e:
+                        logging.debug(f"Expected error during task cancellation: {e}")
             except Exception as e:
                 logging.error(f"Error cancelling tasks: {e}")
             finally:
-                self._eventLoop.close()
+                try:
+                    if not self._eventLoop.is_closed():
+                        self._eventLoop.close()
+                except Exception as e:
+                    logging.debug(f"Error closing event loop: {e}")
