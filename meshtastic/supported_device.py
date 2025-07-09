@@ -207,6 +207,16 @@ nano_g1 = SupportedDevice(
     usb_product_id_in_hex="55d4",
 )
 
+seeed_xiao_s3 = SupportedDevice(
+    name = "Seeed Xiao ESP32-S3",
+    version = "",
+    for_firmware="seeed-xiao-esp32s3",
+    baseport_on_linux="ttyACM",
+    baseport_on_mac="cu.usbmodem",
+    usb_vendor_id_in_hex="2886",
+    usb_product_id_in_hex="0059",
+)
+
 supported_devices = [
     tbeam_v0_7,
     tbeam_v1_1,
@@ -226,4 +236,5 @@ supported_devices = [
     rak4631_19003,
     rak11200,
     nano_g1,
+    seeed_xiao_s3,
 ]
