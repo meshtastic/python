@@ -339,7 +339,7 @@ def onConnected(interface):
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.getNode(args.dest, False, **getNode_kwargs).setFixedPosition(lat, lon, alt)
 
-        if args.set_owner or args.set_owner_short:
+        if args.set_owner or args.set_owner_short or args.set_is_unmessageable or args.set_is_unmessagable:
             closeNow = True
             waitForAckNak = True
 
@@ -358,9 +358,24 @@ def onConnected(interface):
                 print(f"Setting device owner to {args.set_owner} and short name to {args.set_owner_short}")
             elif args.set_owner:
                 print(f"Setting device owner to {args.set_owner}")
-            else: # short name only
+            elif args.set_owner_short and not args.set_owner:
                 print(f"Setting device owner short to {args.set_owner_short}")
-            interface.getNode(args.dest, False, **getNode_kwargs).setOwner(long_name=args.set_owner, short_name=args.set_owner_short)
+            unmessageable = (
+                args.set_is_unmessageable
+                if args.set_is_unmessageable is not None
+                else args.set_is_unmessagable
+            )
+            set_is_unmessagable = (
+                meshtastic.util.fromStr(unmessageable)
+                if isinstance(unmessageable, str)
+                else unmessageable
+            )
+            if set_is_unmessagable is not None:
+                print(f"Setting device owner is_unmessageable to {set_is_unmessagable}")
+            interface.getNode(
+                args.dest, False, **getNode_kwargs).setOwner(long_name=args.set_owner,
+                short_name=args.set_owner_short, is_unmessagable=set_is_unmessagable
+            )
 
         # TODO: add to export-config and configure
         if args.set_canned_message:
@@ -1583,6 +1598,13 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store"
     )
 
+    group.add_argument(
+        "--set-is-unmessageable", help="Set if a node is messageable or not", action="store"
+    )
+
+    group.add_argument(
+        "--set-is-unmessagable", help="Set if a node is messageable or not", action="store"
+)
     group.add_argument(
         "--ch-set-url", "--seturl",
         help="Set all channels and set LoRa config from a supplied URL",
