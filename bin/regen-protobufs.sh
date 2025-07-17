@@ -6,6 +6,12 @@ set -e
 #gsed -i 's/import "\//import ".\//g' ./protobufs/meshtastic/*
 #gsed -i 's/package meshtastic;//g' ./protobufs/meshtastic/*
 
+POETRYDIR=$(poetry env info --path)
+
+if [[ -z "${POETRYDIR}" ]]; then
+	poetry install
+fi
+
 # protoc looks for mypy plugin in the python path
 source $(poetry env info --path)/bin/activate
 
