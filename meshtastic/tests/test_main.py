@@ -1738,7 +1738,8 @@ position_broadcast_smart: true
 fixed_position: true
 position_flags: 35"""
         export_config(mo)
-    out, err = capsys.readouterr()
+    out = export_config(mo)
+    err = ""
 
     # ensure we do not output this line
     assert not re.search(r"Connected to radio", out, re.MULTILINE)
