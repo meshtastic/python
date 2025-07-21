@@ -41,6 +41,7 @@ class RadioConnection(ABC):
         self.on_disconnect: asyncio.Event = asyncio.Event()
         self._send_lock: asyncio.Lock = asyncio.Lock()
         self._recv_lock: asyncio.Lock = asyncio.Lock()
+        self._listen_lock: asyncio.Lock = asyncio.Lock()
 
     @abstractmethod
     async def _initialize(self):
@@ -94,8 +95,9 @@ class RadioConnection(ABC):
     async def listen(self) -> AsyncGenerator[FromRadio]:
         """Yields new messages from the radio so long as the connection is active."""
         self._ensure_ready()
-        while not self.on_disconnect.is_set():
-            yield await self.recv()
+        async with self._listen_lock:
+            while not self.on_disconnect.is_set():
+                yield await self.recv()
 
     async def close(self):
         """Close the connection.
