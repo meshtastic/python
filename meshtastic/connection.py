@@ -190,7 +190,7 @@ class SerialConnection(StreamConnection):
         super().__init__(portaddr)
 
     async def _initialize(self):
-        self._reader, self._writer = await serial_asyncio.open_serial_connectio(
+        self._reader, self._writer = await serial_asyncio.open_serial_connection(
             port=self._port, baudrate=self._baudrate)
 
     @staticmethod
