@@ -174,11 +174,15 @@ class StreamConnection(RadioConnection):
             raise RadioConnectionError("Read buffer overrun while reading stream") from err
 
         except asyncio.IncompleteReadError:
+            self._reader.feed_eof()
             logging.error(f"Connection to {self.name} terminated: stream EOF reached")
             raise ConnectionTerminatedError from None
 
     async def close(self):
         await super().close()
+        if self._writer.can_write_eof():
+            self._writer.write_eof()
+
         self._writer.close()
         self.stream_debug_out.close()
         await self._writer.wait_closed()
