@@ -1,3 +1,6 @@
+"""
+low-level radio connection API
+"""
 import asyncio
 import io
 import logging
