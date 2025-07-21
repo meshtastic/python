@@ -15,6 +15,7 @@ from meshtastic.protobuf.mesh_pb2 import FromRadio, ToRadio
 
 STREAM_HEADER_MAGIC: bytes = b"\x94\xc3"  # magic number used in streaming client headers
 DEFAULT_BAUDRATE: int = 115200
+DEFAULT_TCP_PORT: int = 4403
 
 
 class RadioConnectionError(Exception):
@@ -207,3 +208,19 @@ class SerialConnection(StreamConnection):
             # FIXME: this may not be cross-platform or non-USB serial friendly
             if port.hwid != "n/a":
                 yield port.device
+
+
+class TCPConnection(StreamConnection):
+    """Connection to a mesh radio over TCP"""
+
+    def __init__(self, host: str, port: int=DEFAULT_TCP_PORT):
+        self.host: str = host
+        self.port: int = port
+        super().__init__(f"{host}:{port}")
+
+    async def _initialize(self):
+        self._reader, self._writer = await asyncio.open_connection(self.host, self.port)
+
+    @staticmethod
+    async def get_available() -> AsyncGenerator[None]:
+        yield None  # FIXME
