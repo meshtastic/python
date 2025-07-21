@@ -9,6 +9,7 @@ from typing import *
 
 import serial
 import serial_asyncio
+from bleak import BleakClient, BLEDevice, BleakScanner
 
 from meshtastic.protobuf.mesh_pb2 import FromRadio, ToRadio
 
@@ -16,6 +17,12 @@ from meshtastic.protobuf.mesh_pb2 import FromRadio, ToRadio
 STREAM_HEADER_MAGIC: bytes = b"\x94\xc3"  # magic number used in streaming client headers
 DEFAULT_BAUDRATE: int = 115200
 DEFAULT_TCP_PORT: int = 4403
+BLE_SERVICE_UUID: str = "6ba1b218-15a8-461f-9fa8-5dcae273eafd"
+BLE_TORADIO_UUID: str = "f75c76d2-129e-4dad-a1dd-7866124401e7"
+BLE_FROMRADIO_UUID: str = "2c55e69e-4993-11ed-b878-0242ac120002"
+BLE_FROMNUM_UUID: str = "ed9da18c-a800-4f66-a670-aa7547e34453"
+BLE_LEGACY_LOGRADIO_UUID: str = "6c6fd238-78fa-436b-aacf-15c5be1ef2e2"
+BLE_LOGRADIO_UUID: str = "5a3d6e49-06e6-4423-9944-e9de8cdf9547"
 
 
 class RadioConnectionError(Exception):
@@ -224,3 +231,55 @@ class TCPConnection(StreamConnection):
     @staticmethod
     async def get_available() -> AsyncGenerator[None]:
         yield None  # FIXME
+
+
+class BLEConnection(RadioConnection):
+    """Connection to a mesh radio over BLE"""
+
+    def __init__(self, device: Union[str, BLEDevice]):
+        self._recieved_messages: asyncio.Queue = asyncio.Queue()
+        self._ble_client = BleakClient(device, disconnected_callback=lambda _: self.close())
+        self._ble_client.mtu_size = 512
+
+        name: str = device
+        if isinstance(device, BLEDevice):
+            name = device.name
+        super().__init__(name)
+
+    async def _initialize(self):
+        await self._ble_client.connect()
+        await self._ble_client.start_notify(BLE_FROMNUM_UUID, self._on_recv)
+
+    async def _on_recv(self, _sender: Any, _data: bytearray):
+        """Callback for handling fromnum endpoint notifs"""
+        data: bytearray = await self._ble_client.read_gatt_char(BLE_FROMRADIO_UUID)
+        if len(data) > 512:
+            raise BadPayloadError(data, "Cannot recieve client API messages over 512 bytes")
+
+        await self._recieved_messages.put(data)
+
+    async def _read_bytes(self) -> bytes:
+        return bytes(await self._recieved_messages.get())
+
+    async def _send_bytes(self, msg: bytes):
+        if len(msg) > 512:
+            raise BadPayloadError(msg, "Cannot send client API messages over 512 bytes")
+
+        await self._ble_client.write_gatt_char(BLE_TORADIO_UUID, msg, response=True)
+
+    async def close(self):
+        await super().close()
+        self._recieved_messages.shutdown(True)
+        await self._ble_client.stop_notify(BLE_FROMNUM_UUID)
+        await self._ble_client.disconnect()
+
+    @staticmethod
+    async def get_available() -> AsyncGenerator[BLEDevice]:
+        async with BleakScanner(service_uuids=(BLE_SERVICE_UUID,)) as scanner:
+            try:
+                async with asyncio.timeout(10):
+                    async for dev, _ad in scanner.advertisement_data():
+                        yield dev
+
+            except TimeoutError:
+                pass
