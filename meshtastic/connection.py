@@ -17,22 +17,22 @@ STREAM_HEADER_MAGIC: bytes = b"\x94\xc3"  # magic number used in streaming clien
 DEFAULT_BAUDRATE: int = 115200
 
 
-class MeshConnectionError(Exception):
-    """Base class for MeshConnection-related errors."""
+class RadioConnectionError(Exception):
+    """Base class for RadioConnection-related errors."""
 
 
-class BadPayloadError(MeshConnectionError):
+class BadPayloadError(RadioConnectionError):
     """Error indicating invalid payload over connection"""
     def __init__(self, payload, reason: str):
         self.payload = payload
         super().__init__(reason)
 
 
-class ConnectionTerminatedError(MeshConnectionError):
+class ConnectionTerminatedError(RadioConnectionError):
     """Error indicating the connection was terminated."""
 
 
-class MeshConnection(ABC):
+class RadioConnection(ABC):
     """A client API connection to a meshtastic radio."""
 
     def __init__(self, name: str):
@@ -75,7 +75,7 @@ class MeshConnection(ABC):
     def _ensure_ready(self):
         """Raise an exception if the connection is not ready for tx/rx"""
         if not self.ready():
-            raise MeshConnectionError("Connection used before it was ready")
+            raise RadioConnectionError("Connection used before it was ready")
 
     async def send(self, message: ToRadio):
         """Send something to the connected device."""
@@ -119,7 +119,7 @@ class MeshConnection(ABC):
     #    self.close()
 
 
-class StreamConnection(MeshConnection):
+class StreamConnection(RadioConnection):
     """Base class for connections using the aio stream API"""
     def __init__(self, name: str):
         self._reader: Optional[asyncio.StreamReader] = None
@@ -169,7 +169,7 @@ class StreamConnection(MeshConnection):
                 self._handle_debug(size_bytes)
 
         except asyncio.LimitOverrunError as err:
-            raise MeshConnectionError("Read buffer overrun while reading stream") from err
+            raise RadioConnectionError("Read buffer overrun while reading stream") from err
 
         except asyncio.IncompleteReadError:
             logging.error(f"Connection to {self.name} terminated: stream EOF reached")
