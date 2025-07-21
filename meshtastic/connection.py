@@ -72,6 +72,7 @@ class RadioConnection(ABC):
         """Start the connection"""
         await self._initialize()
         self.on_ready.set()
+        logging.info(f"Connected to mesh radio {self.name}")
 
     def _ensure_ready(self):
         """Raise an exception if the connection is not ready for tx/rx"""
@@ -197,7 +198,7 @@ class SerialConnection(StreamConnection):
 
     async def _initialize(self):
         self._reader, self._writer = await serial_asyncio.open_serial_connection(
-            port=self._port, baudrate=self._baudrate)
+            url=self.port, baudrate=self.baudrate)
 
     @staticmethod
     async def get_available() -> AsyncGenerator[str]:
