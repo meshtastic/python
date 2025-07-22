@@ -411,7 +411,8 @@ class MeshInterface:  # pylint: disable=R0902
         wantResponse: bool = False,
         onResponse: Optional[Callable[[dict], Any]] = None,
         channelIndex: int = 0,
-        portNum: portnums_pb2.PortNum.ValueType = portnums_pb2.PortNum.TEXT_MESSAGE_APP
+        portNum: portnums_pb2.PortNum.ValueType = portnums_pb2.PortNum.TEXT_MESSAGE_APP,
+        replyId: Optional[int]=None,
     ):
         """Send a utf8 string to some other node, if the node has a display it
            will also be shown on the device.
@@ -428,6 +429,7 @@ class MeshInterface:  # pylint: disable=R0902
                             send an application layer response
             portNum -- the application portnum (similar to IP port numbers)
                        of the destination, see portnums.proto for a list
+            replyId -- the ID of the message that this packet is a response to
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -441,6 +443,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
+            replyId=replyId
         )
 
 
@@ -451,7 +454,7 @@ class MeshInterface:  # pylint: disable=R0902
         onResponse: Optional[Callable[[dict], Any]] = None,
         channelIndex: int = 0,
     ):
-        """Send an alert text to some other node. This is similar to a text message, 
+        """Send an alert text to some other node. This is similar to a text message,
             but carries a higher priority and is capable of generating special notifications
             on certain clients.
 
@@ -477,6 +480,18 @@ class MeshInterface:  # pylint: disable=R0902
             priority=mesh_pb2.MeshPacket.Priority.ALERT
         )
 
+    def sendMqttClientProxyMessage(self, topic: str, data: bytes):
+        """Send an MQTT Client Proxy message to the radio.
+
+        Topic and data should be the MQTT topic and the message
+        payload from an MQTT broker, respectively."""
+        prox = mesh_pb2.MqttClientProxyMessage()
+        prox.topic = topic
+        prox.data = data
+        toRadio = mesh_pb2.ToRadio()
+        toRadio.mqttClientProxyMessage.CopyFrom(prox)
+        self._sendToRadio(toRadio)
+
     def sendData(
         self,
         data,
@@ -491,6 +506,7 @@ class MeshInterface:  # pylint: disable=R0902
         pkiEncrypted: Optional[bool]=False,
         publicKey: Optional[bytes]=None,
         priority: mesh_pb2.MeshPacket.Priority.ValueType=mesh_pb2.MeshPacket.Priority.RELIABLE,
+        replyId: Optional[int]=None,
     ): # pylint: disable=R0913
         """Send a data packet to some other node
 
@@ -515,6 +531,7 @@ class MeshInterface:  # pylint: disable=R0902
                     will implicitly be true.
             channelIndex -- channel number to use
             hopLimit -- hop limit to use
+            replyId -- the ID of the message that this packet is a response to
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -542,6 +559,8 @@ class MeshInterface:  # pylint: disable=R0902
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
         meshPacket.id = self._generatePacketId()
+        if replyId is not None:
+            meshPacket.decoded.reply_id = replyId
         if priority is not None:
             meshPacket.priority = priority
 
@@ -872,7 +891,7 @@ class MeshInterface:  # pylint: disable=R0902
         Send a waypoint deletion packet to some other node (normally a broadcast)
 
         NB: The id must be the waypoint's id and not the id of the packet creation.
-        
+
         Returns the sent packet. The id field will be populated in this packet and
         can be used to track future message acks/naks.
         """

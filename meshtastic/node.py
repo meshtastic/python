@@ -42,6 +42,15 @@ class Node:
 
         self.gotResponse = None
 
+    def __repr__(self):
+        r = f"Node({self.iface!r}, 0x{self.nodeNum:08x}"
+        if self.noProto:
+            r += ", noProto=True"
+        if self._timeout.expireTimeout != 300:
+            r += ", timeout={self._timeout.expireTimeout!r}"
+        r += ")"
+        return r
+
     def showChannels(self):
         """Show human readable description of our channels."""
         print("Channels:")
@@ -298,10 +307,16 @@ class Node:
         nChars = 4
         if long_name is not None:
             long_name = long_name.strip()
+            # Validate that long_name is not empty or whitespace-only
+            if not long_name:
+                our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
             p.set_owner.long_name = long_name
             p.set_owner.is_licensed = is_licensed
         if short_name is not None:
             short_name = short_name.strip()
+            # Validate that short_name is not empty or whitespace-only
+            if not short_name:
+                our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
             if len(short_name) > nChars:
                 short_name = short_name[:nChars]
                 print(f"Maximum is 4 characters, truncated to {short_name}")
@@ -983,7 +998,7 @@ class Node:
                 p,
                 self.nodeNum,
                 portNum=portnums_pb2.PortNum.ADMIN_APP,
-                wantAck=False,
+                wantAck=True,
                 wantResponse=wantResponse,
                 onResponse=onResponse,
                 channelIndex=adminIndex,

@@ -1,6 +1,9 @@
 """ Main Meshtastic
 """
-# pylint: disable=C0302
+
+# We just hit the 1600 line limit for main.py, but I currently have a huge set of powermon/structured logging changes
+# later we can have a separate changelist to refactor main.py into smaller files
+# pylint: disable=R0917,C0302
 
 from typing import List, Optional, Union
 from types import ModuleType
@@ -339,6 +342,18 @@ def onConnected(interface):
         if args.set_owner or args.set_owner_short:
             closeNow = True
             waitForAckNak = True
+
+            # Validate owner names before connecting to device
+            if args.set_owner is not None:
+                stripped_long_name = args.set_owner.strip()
+                if not stripped_long_name:
+                    meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
+
+            if hasattr(args, 'set_owner_short') and args.set_owner_short is not None:
+                stripped_short_name = args.set_owner_short.strip()
+                if not stripped_short_name:
+                    meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
+
             if args.set_owner and args.set_owner_short:
                 print(f"Setting device owner to {args.set_owner} and short name to {args.set_owner_short}")
             elif args.set_owner:
@@ -399,6 +414,8 @@ def onConnected(interface):
             print(" ".join(fieldNames))
 
         if args.set_ham:
+            if not args.set_ham.strip():
+                meshtastic.util.our_exit("ERROR: Ham radio callsign cannot be empty or contain only whitespace characters")
             closeNow = True
             print(f"Setting Ham ID to {args.set_ham} and turning off encryption")
             interface.getNode(args.dest, **getNode_kwargs).setOwner(args.set_ham, is_licensed=True)
@@ -594,6 +611,7 @@ def onConnected(interface):
 
             # Handle the int/float/bool arguments
             pref = None
+            fields = set()
             for pref in args.set:
                 found = False
                 field = splitCompoundName(pref[0].lower())[0]
@@ -606,11 +624,19 @@ def onConnected(interface):
                             )
                         found = setPref(config, pref[0], pref[1])
                         if found:
+                            fields.add(field)
                             break
 
             if found:
                 print("Writing modified preferences to device")
-                node.writeConfig(field)
+                if len(fields) > 1:
+                    print("Using a configuration transaction")
+                    node.beginSettingsTransaction()
+                for field in fields:
+                    print(f"Writing {field} configuration to device")
+                    node.writeConfig(field)
+                if len(fields) > 1:
+                    node.commitSettingsTransaction()
             else:
                 if mt_config.camel_case:
                     print(
@@ -632,11 +658,20 @@ def onConnected(interface):
                 interface.getNode(args.dest, False, **getNode_kwargs).beginSettingsTransaction()
 
                 if "owner" in configuration:
+                    # Validate owner name before setting
+                    owner_name = str(configuration["owner"]).strip()
+                    if not owner_name:
+                        meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
                     print(f"Setting device owner to {configuration['owner']}")
                     waitForAckNak = True
                     interface.getNode(args.dest, False, **getNode_kwargs).setOwner(configuration["owner"])
+                    time.sleep(0.5)
 
                 if "owner_short" in configuration:
+                    # Validate owner short name before setting
+                    owner_short_name = str(configuration["owner_short"]).strip()
+                    if not owner_short_name:
+                        meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
                     print(
                         f"Setting device owner short to {configuration['owner_short']}"
                     )
@@ -644,8 +679,13 @@ def onConnected(interface):
                     interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
                         long_name=None, short_name=configuration["owner_short"]
                     )
+                    time.sleep(0.5)
 
                 if "ownerShort" in configuration:
+                    # Validate owner short name before setting
+                    owner_short_name = str(configuration["ownerShort"]).strip()
+                    if not owner_short_name:
+                        meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
                     print(
                         f"Setting device owner short to {configuration['ownerShort']}"
                     )
@@ -653,14 +693,17 @@ def onConnected(interface):
                     interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
                         long_name=None, short_name=configuration["ownerShort"]
                     )
+                    time.sleep(0.5)
 
                 if "channel_url" in configuration:
                     print("Setting channel url to", configuration["channel_url"])
                     interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channel_url"])
+                    time.sleep(0.5)
 
                 if "channelUrl" in configuration:
                     print("Setting channel url to", configuration["channelUrl"])
                     interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channelUrl"])
+                    time.sleep(0.5)
 
                 if "location" in configuration:
                     alt = 0
@@ -679,6 +722,7 @@ def onConnected(interface):
                         print(f"Fixing longitude at {lon} degrees")
                     print("Setting device position")
                     interface.localNode.setFixedPosition(lat, lon, alt)
+                    time.sleep(0.5)
 
                 if "config" in configuration:
                     localConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig
@@ -689,6 +733,7 @@ def onConnected(interface):
                         interface.getNode(args.dest, **getNode_kwargs).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
+                        time.sleep(0.5)
 
                 if "module_config" in configuration:
                     moduleConfig = interface.getNode(args.dest, **getNode_kwargs).moduleConfig
@@ -701,6 +746,7 @@ def onConnected(interface):
                         interface.getNode(args.dest, **getNode_kwargs).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
+                        time.sleep(0.5)
 
                 interface.getNode(args.dest, False, **getNode_kwargs).commitSettingsTransaction()
                 print("Writing modified configuration to device")
@@ -709,9 +755,20 @@ def onConnected(interface):
             if args.dest != BROADCAST_ADDR:
                 print("Exporting configuration of remote nodes is not supported.")
                 return
-            # export the configuration (the opposite of '--configure')
+
             closeNow = True
-            export_config(interface)
+            config_txt = export_config(interface)
+
+            if args.export_config == "-":
+                # Output to stdout (preserves legacy use of `> file.yaml`)
+                print(config_txt)
+            else:
+                try:
+                    with open(args.export_config, "w", encoding="utf-8") as f:
+                        f.write(config_txt)
+                    print(f"Exported configuration to {args.export_config}")
+                except Exception as e:
+                    meshtastic.util.our_exit(f"ERROR: Failed to write config file: {e}")
 
         if args.ch_set_url:
             closeNow = True
@@ -1076,6 +1133,7 @@ def export_config(interface) -> str:
             configObj["location"]["alt"] = alt
 
     config = MessageToDict(interface.localNode.localConfig)	#checkme - Used as a dictionary here and a string below
+                                                                        #was used as a string here and a Dictionary above
     if config:
         # Convert inner keys to correct snake/camelCase
         prefs = {}
@@ -1113,7 +1171,6 @@ def export_config(interface) -> str:
     config_txt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out)
                                                                         #was used as a string here and a Dictionary above
     config_txt += yaml.dump(configObj)
-    print(config_txt)
     return config_txt
 
 
@@ -1169,6 +1226,22 @@ def common():
         if args.support:
             meshtastic.util.support_info()
             meshtastic.util.our_exit("", 0)
+
+        # Early validation for owner names before attempting device connection
+        if hasattr(args, 'set_owner') and args.set_owner is not None:
+            stripped_long_name = args.set_owner.strip()
+            if not stripped_long_name:
+                meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
+
+        if hasattr(args, 'set_owner_short') and args.set_owner_short is not None:
+            stripped_short_name = args.set_owner_short.strip()
+            if not stripped_short_name:
+                meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
+
+        if hasattr(args, 'set_ham') and args.set_ham is not None:
+            stripped_ham_name = args.set_ham.strip()
+            if not stripped_ham_name:
+                meshtastic.util.our_exit("ERROR: Ham radio callsign cannot be empty or contain only whitespace characters")
 
         if have_powermon:
             create_power_meter()
@@ -1397,8 +1470,10 @@ def addImportExportArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
     )
     group.add_argument(
         "--export-config",
-        help="Export the configuration in yaml(.yml) format.",
-        action="store_true",
+        nargs="?",
+        const="-",  # default to "-" if no value provided
+        metavar="FILE",
+        help="Export device config as YAML (to stdout if no file given)"
     )
     return parser
 
@@ -1414,7 +1489,7 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         "--get",
         help=(
             "Get a preferences field. Use an invalid field such as '0' to get a list of all fields."
-            " Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')"
+            " Can use either snake_case or camelCase format. (ex: 'power.ls_secs' or 'power.lsSecs')"
         ),
         nargs=1,
         action="append",
@@ -1423,7 +1498,11 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
 
     group.add_argument(
         "--set",
-        help="Set a preferences field. Can use either snake_case or camelCase format. (ex: 'ls_secs' or 'lsSecs')",
+        help=(
+            "Set a preferences field. Can use either snake_case or camelCase format."
+            " (ex: 'power.ls_secs' or 'power.lsSecs'). May be less reliable when"
+            " setting properties from more than one configuration section."
+        ),
         nargs=2,
         action="append",
         metavar=("FIELD", "VALUE"),

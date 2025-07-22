@@ -272,6 +272,61 @@ class Config(google.protobuf.message.Message):
         Only rebroadcasts packets with standard portnums: NodeInfo, Text, Position, Telemetry, and Routing.
         """
 
+        class _BuzzerMode:
+            ValueType = typing.NewType("ValueType", builtins.int)
+            V: typing_extensions.TypeAlias = ValueType
+
+        class _BuzzerModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Config.DeviceConfig._BuzzerMode.ValueType], builtins.type):
+            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+            ALL_ENABLED: Config.DeviceConfig._BuzzerMode.ValueType  # 0
+            """
+            Default behavior.
+            Buzzer is enabled for all audio feedback including button presses and alerts.
+            """
+            DISABLED: Config.DeviceConfig._BuzzerMode.ValueType  # 1
+            """
+            Disabled.
+            All buzzer audio feedback is disabled.
+            """
+            NOTIFICATIONS_ONLY: Config.DeviceConfig._BuzzerMode.ValueType  # 2
+            """
+            Notifications Only.
+            Buzzer is enabled only for notifications and alerts, but not for button presses.
+            External notification config determines the specifics of the notification behavior.
+            """
+            SYSTEM_ONLY: Config.DeviceConfig._BuzzerMode.ValueType  # 3
+            """
+            Non-notification system buzzer tones only.
+            Buzzer is enabled only for non-notification tones such as button presses, startup, shutdown, but not for alerts.
+            """
+
+        class BuzzerMode(_BuzzerMode, metaclass=_BuzzerModeEnumTypeWrapper):
+            """
+            Defines buzzer behavior for audio feedback
+            """
+
+        ALL_ENABLED: Config.DeviceConfig.BuzzerMode.ValueType  # 0
+        """
+        Default behavior.
+        Buzzer is enabled for all audio feedback including button presses and alerts.
+        """
+        DISABLED: Config.DeviceConfig.BuzzerMode.ValueType  # 1
+        """
+        Disabled.
+        All buzzer audio feedback is disabled.
+        """
+        NOTIFICATIONS_ONLY: Config.DeviceConfig.BuzzerMode.ValueType  # 2
+        """
+        Notifications Only.
+        Buzzer is enabled only for notifications and alerts, but not for button presses.
+        External notification config determines the specifics of the notification behavior.
+        """
+        SYSTEM_ONLY: Config.DeviceConfig.BuzzerMode.ValueType  # 3
+        """
+        Non-notification system buzzer tones only.
+        Buzzer is enabled only for non-notification tones such as button presses, startup, shutdown, but not for alerts.
+        """
+
         ROLE_FIELD_NUMBER: builtins.int
         SERIAL_ENABLED_FIELD_NUMBER: builtins.int
         BUTTON_GPIO_FIELD_NUMBER: builtins.int
@@ -283,6 +338,7 @@ class Config(google.protobuf.message.Message):
         DISABLE_TRIPLE_CLICK_FIELD_NUMBER: builtins.int
         TZDEF_FIELD_NUMBER: builtins.int
         LED_HEARTBEAT_DISABLED_FIELD_NUMBER: builtins.int
+        BUZZER_MODE_FIELD_NUMBER: builtins.int
         role: global___Config.DeviceConfig.Role.ValueType
         """
         Sets the role of node
@@ -333,6 +389,11 @@ class Config(google.protobuf.message.Message):
         """
         If true, disable the default blinking LED (LED_PIN) behavior on the device
         """
+        buzzer_mode: global___Config.DeviceConfig.BuzzerMode.ValueType
+        """
+        Controls buzzer behavior for audio feedback
+        Defaults to ENABLED
+        """
         def __init__(
             self,
             *,
@@ -347,8 +408,9 @@ class Config(google.protobuf.message.Message):
             disable_triple_click: builtins.bool = ...,
             tzdef: builtins.str = ...,
             led_heartbeat_disabled: builtins.bool = ...,
+            buzzer_mode: global___Config.DeviceConfig.BuzzerMode.ValueType = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["button_gpio", b"button_gpio", "buzzer_gpio", b"buzzer_gpio", "disable_triple_click", b"disable_triple_click", "double_tap_as_button_press", b"double_tap_as_button_press", "is_managed", b"is_managed", "led_heartbeat_disabled", b"led_heartbeat_disabled", "node_info_broadcast_secs", b"node_info_broadcast_secs", "rebroadcast_mode", b"rebroadcast_mode", "role", b"role", "serial_enabled", b"serial_enabled", "tzdef", b"tzdef"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["button_gpio", b"button_gpio", "buzzer_gpio", b"buzzer_gpio", "buzzer_mode", b"buzzer_mode", "disable_triple_click", b"disable_triple_click", "double_tap_as_button_press", b"double_tap_as_button_press", "is_managed", b"is_managed", "led_heartbeat_disabled", b"led_heartbeat_disabled", "node_info_broadcast_secs", b"node_info_broadcast_secs", "rebroadcast_mode", b"rebroadcast_mode", "role", b"role", "serial_enabled", b"serial_enabled", "tzdef", b"tzdef"]) -> None: ...
 
     @typing.final
     class PositionConfig(google.protobuf.message.Message):
@@ -615,7 +677,7 @@ class Config(google.protobuf.message.Message):
         POWERMON_ENABLES_FIELD_NUMBER: builtins.int
         is_power_saving: builtins.bool
         """
-        Description: Will sleep everything as much as possible, for the tracker and sensor role this will also include the lora radio. 
+        Description: Will sleep everything as much as possible, for the tracker and sensor role this will also include the lora radio.
         Don't use this setting if you want to use your device with the phone apps or are using a device without a user button.
         Technical Details: Works for ESP32 devices and NRF52 devices in the Sensor or Tracker roles
         """
@@ -781,6 +843,7 @@ class Config(google.protobuf.message.Message):
         IPV4_CONFIG_FIELD_NUMBER: builtins.int
         RSYSLOG_SERVER_FIELD_NUMBER: builtins.int
         ENABLED_PROTOCOLS_FIELD_NUMBER: builtins.int
+        IPV6_ENABLED_FIELD_NUMBER: builtins.int
         wifi_enabled: builtins.bool
         """
         Enable WiFi (disables Bluetooth)
@@ -796,7 +859,7 @@ class Config(google.protobuf.message.Message):
         """
         ntp_server: builtins.str
         """
-        NTP server to use if WiFi is conneced, defaults to `0.pool.ntp.org`
+        NTP server to use if WiFi is conneced, defaults to `meshtastic.pool.ntp.org`
         """
         eth_enabled: builtins.bool
         """
@@ -813,6 +876,10 @@ class Config(google.protobuf.message.Message):
         enabled_protocols: builtins.int
         """
         Flags for enabling/disabling network protocols
+        """
+        ipv6_enabled: builtins.bool
+        """
+        Enable/Disable ipv6 support
         """
         @property
         def ipv4_config(self) -> global___Config.NetworkConfig.IpV4Config:
@@ -832,9 +899,10 @@ class Config(google.protobuf.message.Message):
             ipv4_config: global___Config.NetworkConfig.IpV4Config | None = ...,
             rsyslog_server: builtins.str = ...,
             enabled_protocols: builtins.int = ...,
+            ipv6_enabled: builtins.bool = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["ipv4_config", b"ipv4_config"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing.Literal["address_mode", b"address_mode", "enabled_protocols", b"enabled_protocols", "eth_enabled", b"eth_enabled", "ipv4_config", b"ipv4_config", "ntp_server", b"ntp_server", "rsyslog_server", b"rsyslog_server", "wifi_enabled", b"wifi_enabled", "wifi_psk", b"wifi_psk", "wifi_ssid", b"wifi_ssid"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["address_mode", b"address_mode", "enabled_protocols", b"enabled_protocols", "eth_enabled", b"eth_enabled", "ipv4_config", b"ipv4_config", "ipv6_enabled", b"ipv6_enabled", "ntp_server", b"ntp_server", "rsyslog_server", b"rsyslog_server", "wifi_enabled", b"wifi_enabled", "wifi_psk", b"wifi_psk", "wifi_ssid", b"wifi_ssid"]) -> None: ...
 
     @typing.final
     class DisplayConfig(google.protobuf.message.Message):
@@ -956,19 +1024,23 @@ class Config(google.protobuf.message.Message):
             DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
             OLED_AUTO: Config.DisplayConfig._OledType.ValueType  # 0
             """
-            Default / Auto
+            Default / Autodetect
             """
             OLED_SSD1306: Config.DisplayConfig._OledType.ValueType  # 1
             """
-            Default / Auto
+            Default / Autodetect
             """
             OLED_SH1106: Config.DisplayConfig._OledType.ValueType  # 2
             """
-            Default / Auto
+            Default / Autodetect
             """
             OLED_SH1107: Config.DisplayConfig._OledType.ValueType  # 3
             """
             Can not be auto detected but set by proto. Used for 128x128 screens
+            """
+            OLED_SH1107_128_64: Config.DisplayConfig._OledType.ValueType  # 4
+            """
+            Can not be auto detected but set by proto. Used for 128x64 screens
             """
 
         class OledType(_OledType, metaclass=_OledTypeEnumTypeWrapper):
@@ -978,19 +1050,23 @@ class Config(google.protobuf.message.Message):
 
         OLED_AUTO: Config.DisplayConfig.OledType.ValueType  # 0
         """
-        Default / Auto
+        Default / Autodetect
         """
         OLED_SSD1306: Config.DisplayConfig.OledType.ValueType  # 1
         """
-        Default / Auto
+        Default / Autodetect
         """
         OLED_SH1106: Config.DisplayConfig.OledType.ValueType  # 2
         """
-        Default / Auto
+        Default / Autodetect
         """
         OLED_SH1107: Config.DisplayConfig.OledType.ValueType  # 3
         """
         Can not be auto detected but set by proto. Used for 128x128 screens
+        """
+        OLED_SH1107_128_64: Config.DisplayConfig.OledType.ValueType  # 4
+        """
+        Can not be auto detected but set by proto. Used for 128x64 screens
         """
 
         class _DisplayMode:

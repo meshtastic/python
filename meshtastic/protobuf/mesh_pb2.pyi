@@ -295,7 +295,7 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     TWC_MESH_V4: _HardwareModel.ValueType  # 62
     """
-    TWC_MESH_V4 
+    TWC_MESH_V4
     Adafruit NRF52840 feather express with SX1262, SSD1306 OLED and NEO6M GPS
     """
     NRF52_PROMICRO_DIY: _HardwareModel.ValueType  # 63
@@ -401,6 +401,73 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     MeshLink board developed by LoraItalia. NRF52840, eByte E22900M22S (Will also come with other frequencies), 25w MPPT solar charger (5v,12v,18v selectable), support for gps, buzzer, oled or e-ink display, 10 gpios, hardware watchdog
     https://www.loraitalia.it
+    """
+    XIAO_NRF52_KIT: _HardwareModel.ValueType  # 88
+    """
+    Seeed XIAO nRF52840 + Wio SX1262 kit
+    """
+    THINKNODE_M1: _HardwareModel.ValueType  # 89
+    """
+    Elecrow ThinkNode M1 & M2
+    https://www.elecrow.com/wiki/ThinkNode-M1_Transceiver_Device(Meshtastic)_Power_By_nRF52840.html
+    https://www.elecrow.com/wiki/ThinkNode-M2_Transceiver_Device(Meshtastic)_Power_By_NRF52840.html (this actually uses ESP32-S3)
+    """
+    THINKNODE_M2: _HardwareModel.ValueType  # 90
+    T_ETH_ELITE: _HardwareModel.ValueType  # 91
+    """
+    Lilygo T-ETH-Elite
+    """
+    HELTEC_SENSOR_HUB: _HardwareModel.ValueType  # 92
+    """
+    Heltec HRI-3621 industrial probe
+    """
+    RESERVED_FRIED_CHICKEN: _HardwareModel.ValueType  # 93
+    """
+    Reserved Fried Chicken ID for future use
+    """
+    HELTEC_MESH_POCKET: _HardwareModel.ValueType  # 94
+    """
+    Heltec Magnetic Power Bank with Meshtastic compatible
+    """
+    SEEED_SOLAR_NODE: _HardwareModel.ValueType  # 95
+    """
+    Seeed Solar Node
+    """
+    NOMADSTAR_METEOR_PRO: _HardwareModel.ValueType  # 96
+    """
+    NomadStar Meteor Pro https://nomadstar.ch/
+    """
+    CROWPANEL: _HardwareModel.ValueType  # 97
+    """
+    Elecrow CrowPanel Advance models, ESP32-S3 and TFT with SX1262 radio plugin
+    """
+    LINK_32: _HardwareModel.ValueType  # 98
+    """*
+    Lilygo LINK32 board with sensors
+    """
+    SEEED_WIO_TRACKER_L1: _HardwareModel.ValueType  # 99
+    """*
+    Seeed Tracker L1
+    """
+    SEEED_WIO_TRACKER_L1_EINK: _HardwareModel.ValueType  # 100
+    """*
+    Seeed Tracker L1 EINK driver
+    """
+    QWANTZ_TINY_ARMS: _HardwareModel.ValueType  # 101
+    """
+    Reserved ID for future and past use
+    """
+    T_DECK_PRO: _HardwareModel.ValueType  # 102
+    """*
+    Lilygo T-Deck Pro
+    """
+    T_LORA_PAGER: _HardwareModel.ValueType  # 103
+    """*
+    Lilygo TLora Pager
+    """
+    GAT562_MESH_TRIAL_TRACKER: _HardwareModel.ValueType  # 104
+    """*
+    GAT562 Mesh Trial Tracker
     """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
@@ -680,7 +747,7 @@ CDEBYTE EoRa-S3 board using their own MM modules, clone of LILYGO T3S3
 """
 TWC_MESH_V4: HardwareModel.ValueType  # 62
 """
-TWC_MESH_V4 
+TWC_MESH_V4
 Adafruit NRF52840 feather express with SX1262, SSD1306 OLED and NEO6M GPS
 """
 NRF52_PROMICRO_DIY: HardwareModel.ValueType  # 63
@@ -786,6 +853,73 @@ MESHLINK: HardwareModel.ValueType  # 87
 """
 MeshLink board developed by LoraItalia. NRF52840, eByte E22900M22S (Will also come with other frequencies), 25w MPPT solar charger (5v,12v,18v selectable), support for gps, buzzer, oled or e-ink display, 10 gpios, hardware watchdog
 https://www.loraitalia.it
+"""
+XIAO_NRF52_KIT: HardwareModel.ValueType  # 88
+"""
+Seeed XIAO nRF52840 + Wio SX1262 kit
+"""
+THINKNODE_M1: HardwareModel.ValueType  # 89
+"""
+Elecrow ThinkNode M1 & M2
+https://www.elecrow.com/wiki/ThinkNode-M1_Transceiver_Device(Meshtastic)_Power_By_nRF52840.html
+https://www.elecrow.com/wiki/ThinkNode-M2_Transceiver_Device(Meshtastic)_Power_By_NRF52840.html (this actually uses ESP32-S3)
+"""
+THINKNODE_M2: HardwareModel.ValueType  # 90
+T_ETH_ELITE: HardwareModel.ValueType  # 91
+"""
+Lilygo T-ETH-Elite
+"""
+HELTEC_SENSOR_HUB: HardwareModel.ValueType  # 92
+"""
+Heltec HRI-3621 industrial probe
+"""
+RESERVED_FRIED_CHICKEN: HardwareModel.ValueType  # 93
+"""
+Reserved Fried Chicken ID for future use
+"""
+HELTEC_MESH_POCKET: HardwareModel.ValueType  # 94
+"""
+Heltec Magnetic Power Bank with Meshtastic compatible
+"""
+SEEED_SOLAR_NODE: HardwareModel.ValueType  # 95
+"""
+Seeed Solar Node
+"""
+NOMADSTAR_METEOR_PRO: HardwareModel.ValueType  # 96
+"""
+NomadStar Meteor Pro https://nomadstar.ch/
+"""
+CROWPANEL: HardwareModel.ValueType  # 97
+"""
+Elecrow CrowPanel Advance models, ESP32-S3 and TFT with SX1262 radio plugin
+"""
+LINK_32: HardwareModel.ValueType  # 98
+"""*
+Lilygo LINK32 board with sensors
+"""
+SEEED_WIO_TRACKER_L1: HardwareModel.ValueType  # 99
+"""*
+Seeed Tracker L1
+"""
+SEEED_WIO_TRACKER_L1_EINK: HardwareModel.ValueType  # 100
+"""*
+Seeed Tracker L1 EINK driver
+"""
+QWANTZ_TINY_ARMS: HardwareModel.ValueType  # 101
+"""
+Reserved ID for future and past use
+"""
+T_DECK_PRO: HardwareModel.ValueType  # 102
+"""*
+Lilygo T-Deck Pro
+"""
+T_LORA_PAGER: HardwareModel.ValueType  # 103
+"""*
+Lilygo TLora Pager
+"""
+GAT562_MESH_TRIAL_TRACKER: HardwareModel.ValueType  # 104
+"""*
+GAT562 Mesh Trial Tracker
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
@@ -1030,6 +1164,14 @@ class _ExcludedModulesEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     """
     Paxcounter module
     """
+    BLUETOOTH_CONFIG: _ExcludedModules.ValueType  # 8192
+    """
+    Bluetooth config (not technically a module, but used to indicate bluetooth capabilities)
+    """
+    NETWORK_CONFIG: _ExcludedModules.ValueType  # 16384
+    """
+    Network config (not technically a module, but used to indicate network capabilities)
+    """
 
 class ExcludedModules(_ExcludedModules, metaclass=_ExcludedModulesEnumTypeWrapper):
     """
@@ -1093,6 +1235,14 @@ Detection Sensor module
 PAXCOUNTER_CONFIG: ExcludedModules.ValueType  # 4096
 """
 Paxcounter module
+"""
+BLUETOOTH_CONFIG: ExcludedModules.ValueType  # 8192
+"""
+Bluetooth config (not technically a module, but used to indicate bluetooth capabilities)
+"""
+NETWORK_CONFIG: ExcludedModules.ValueType  # 16384
+"""
+Network config (not technically a module, but used to indicate network capabilities)
 """
 global___ExcludedModules = ExcludedModules
 
@@ -1418,6 +1568,7 @@ class User(google.protobuf.message.Message):
     IS_LICENSED_FIELD_NUMBER: builtins.int
     ROLE_FIELD_NUMBER: builtins.int
     PUBLIC_KEY_FIELD_NUMBER: builtins.int
+    IS_UNMESSAGABLE_FIELD_NUMBER: builtins.int
     id: builtins.str
     """
     A globally unique ID string for this user.
@@ -1462,6 +1613,10 @@ class User(google.protobuf.message.Message):
     The public key of the user's device.
     This is sent out to other nodes on the mesh to allow them to compute a shared secret key.
     """
+    is_unmessagable: builtins.bool
+    """
+    Whether or not the node can be messaged
+    """
     def __init__(
         self,
         *,
@@ -1473,8 +1628,11 @@ class User(google.protobuf.message.Message):
         is_licensed: builtins.bool = ...,
         role: meshtastic.protobuf.config_pb2.Config.DeviceConfig.Role.ValueType = ...,
         public_key: builtins.bytes = ...,
+        is_unmessagable: builtins.bool | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["hw_model", b"hw_model", "id", b"id", "is_licensed", b"is_licensed", "long_name", b"long_name", "macaddr", b"macaddr", "public_key", b"public_key", "role", b"role", "short_name", b"short_name"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_is_unmessagable", b"_is_unmessagable", "is_unmessagable", b"is_unmessagable"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_is_unmessagable", b"_is_unmessagable", "hw_model", b"hw_model", "id", b"id", "is_licensed", b"is_licensed", "is_unmessagable", b"is_unmessagable", "long_name", b"long_name", "macaddr", b"macaddr", "public_key", b"public_key", "role", b"role", "short_name", b"short_name"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_is_unmessagable", b"_is_unmessagable"]) -> typing.Literal["is_unmessagable"] | None: ...
 
 global___User = User
 
@@ -1796,6 +1954,41 @@ class Data(google.protobuf.message.Message):
     def WhichOneof(self, oneof_group: typing.Literal["_bitfield", b"_bitfield"]) -> typing.Literal["bitfield"] | None: ...
 
 global___Data = Data
+
+@typing.final
+class KeyVerification(google.protobuf.message.Message):
+    """
+    The actual over-the-mesh message doing KeyVerification
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NONCE_FIELD_NUMBER: builtins.int
+    HASH1_FIELD_NUMBER: builtins.int
+    HASH2_FIELD_NUMBER: builtins.int
+    nonce: builtins.int
+    """
+    random value Selected by the requesting node
+    """
+    hash1: builtins.bytes
+    """
+    The final authoritative hash, only to be sent by NodeA at the end of the handshake
+    """
+    hash2: builtins.bytes
+    """
+    The intermediary hash (actually derived from hash1),
+    sent from NodeB to NodeA in response to the initial message.
+    """
+    def __init__(
+        self,
+        *,
+        nonce: builtins.int = ...,
+        hash1: builtins.bytes = ...,
+        hash2: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["hash1", b"hash1", "hash2", b"hash2", "nonce", b"nonce"]) -> None: ...
+
+global___KeyVerification = KeyVerification
 
 @typing.final
 class Waypoint(google.protobuf.message.Message):
@@ -2187,7 +2380,7 @@ class MeshPacket(google.protobuf.message.Message):
     """
     next_hop: builtins.int
     """
-    Last byte of the node number of the node that should be used as the next hop in routing. 
+    Last byte of the node number of the node that should be used as the next hop in routing.
     Set by the firmware internally, clients are not supposed to set this.
     """
     relay_node: builtins.int
@@ -2270,6 +2463,7 @@ class NodeInfo(google.protobuf.message.Message):
     HOPS_AWAY_FIELD_NUMBER: builtins.int
     IS_FAVORITE_FIELD_NUMBER: builtins.int
     IS_IGNORED_FIELD_NUMBER: builtins.int
+    IS_KEY_MANUALLY_VERIFIED_FIELD_NUMBER: builtins.int
     num: builtins.int
     """
     The node number
@@ -2311,6 +2505,12 @@ class NodeInfo(google.protobuf.message.Message):
     True if node is in our ignored list
     Persists between NodeDB internal clean ups
     """
+    is_key_manually_verified: builtins.bool
+    """
+    True if node public key has been verified.
+    Persists between NodeDB internal clean ups
+    LSB 0 of the bitfield
+    """
     @property
     def user(self) -> global___User:
         """
@@ -2344,9 +2544,10 @@ class NodeInfo(google.protobuf.message.Message):
         hops_away: builtins.int | None = ...,
         is_favorite: builtins.bool = ...,
         is_ignored: builtins.bool = ...,
+        is_key_manually_verified: builtins.bool = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "position", b"position", "user", b"user"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "is_ignored", b"is_ignored", "last_heard", b"last_heard", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "channel", b"channel", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "is_ignored", b"is_ignored", "is_key_manually_verified", b"is_key_manually_verified", "last_heard", b"last_heard", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["_hops_away", b"_hops_away"]) -> typing.Literal["hops_away"] | None: ...
 
 global___NodeInfo = NodeInfo
@@ -2718,6 +2919,11 @@ class ClientNotification(google.protobuf.message.Message):
     TIME_FIELD_NUMBER: builtins.int
     LEVEL_FIELD_NUMBER: builtins.int
     MESSAGE_FIELD_NUMBER: builtins.int
+    KEY_VERIFICATION_NUMBER_INFORM_FIELD_NUMBER: builtins.int
+    KEY_VERIFICATION_NUMBER_REQUEST_FIELD_NUMBER: builtins.int
+    KEY_VERIFICATION_FINAL_FIELD_NUMBER: builtins.int
+    DUPLICATED_PUBLIC_KEY_FIELD_NUMBER: builtins.int
+    LOW_ENTROPY_KEY_FIELD_NUMBER: builtins.int
     reply_id: builtins.int
     """
     The id of the packet we're notifying in response to
@@ -2734,6 +2940,16 @@ class ClientNotification(google.protobuf.message.Message):
     """
     The message body of the notification
     """
+    @property
+    def key_verification_number_inform(self) -> global___KeyVerificationNumberInform: ...
+    @property
+    def key_verification_number_request(self) -> global___KeyVerificationNumberRequest: ...
+    @property
+    def key_verification_final(self) -> global___KeyVerificationFinal: ...
+    @property
+    def duplicated_public_key(self) -> global___DuplicatedPublicKey: ...
+    @property
+    def low_entropy_key(self) -> global___LowEntropyKey: ...
     def __init__(
         self,
         *,
@@ -2741,12 +2957,103 @@ class ClientNotification(google.protobuf.message.Message):
         time: builtins.int = ...,
         level: global___LogRecord.Level.ValueType = ...,
         message: builtins.str = ...,
+        key_verification_number_inform: global___KeyVerificationNumberInform | None = ...,
+        key_verification_number_request: global___KeyVerificationNumberRequest | None = ...,
+        key_verification_final: global___KeyVerificationFinal | None = ...,
+        duplicated_public_key: global___DuplicatedPublicKey | None = ...,
+        low_entropy_key: global___LowEntropyKey | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_reply_id", b"_reply_id", "reply_id", b"reply_id"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_reply_id", b"_reply_id", "level", b"level", "message", b"message", "reply_id", b"reply_id", "time", b"time"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_reply_id", b"_reply_id", "duplicated_public_key", b"duplicated_public_key", "key_verification_final", b"key_verification_final", "key_verification_number_inform", b"key_verification_number_inform", "key_verification_number_request", b"key_verification_number_request", "low_entropy_key", b"low_entropy_key", "payload_variant", b"payload_variant", "reply_id", b"reply_id"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_reply_id", b"_reply_id", "duplicated_public_key", b"duplicated_public_key", "key_verification_final", b"key_verification_final", "key_verification_number_inform", b"key_verification_number_inform", "key_verification_number_request", b"key_verification_number_request", "level", b"level", "low_entropy_key", b"low_entropy_key", "message", b"message", "payload_variant", b"payload_variant", "reply_id", b"reply_id", "time", b"time"]) -> None: ...
+    @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_reply_id", b"_reply_id"]) -> typing.Literal["reply_id"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["key_verification_number_inform", "key_verification_number_request", "key_verification_final", "duplicated_public_key", "low_entropy_key"] | None: ...
 
 global___ClientNotification = ClientNotification
+
+@typing.final
+class KeyVerificationNumberInform(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NONCE_FIELD_NUMBER: builtins.int
+    REMOTE_LONGNAME_FIELD_NUMBER: builtins.int
+    SECURITY_NUMBER_FIELD_NUMBER: builtins.int
+    nonce: builtins.int
+    remote_longname: builtins.str
+    security_number: builtins.int
+    def __init__(
+        self,
+        *,
+        nonce: builtins.int = ...,
+        remote_longname: builtins.str = ...,
+        security_number: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["nonce", b"nonce", "remote_longname", b"remote_longname", "security_number", b"security_number"]) -> None: ...
+
+global___KeyVerificationNumberInform = KeyVerificationNumberInform
+
+@typing.final
+class KeyVerificationNumberRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NONCE_FIELD_NUMBER: builtins.int
+    REMOTE_LONGNAME_FIELD_NUMBER: builtins.int
+    nonce: builtins.int
+    remote_longname: builtins.str
+    def __init__(
+        self,
+        *,
+        nonce: builtins.int = ...,
+        remote_longname: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["nonce", b"nonce", "remote_longname", b"remote_longname"]) -> None: ...
+
+global___KeyVerificationNumberRequest = KeyVerificationNumberRequest
+
+@typing.final
+class KeyVerificationFinal(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NONCE_FIELD_NUMBER: builtins.int
+    REMOTE_LONGNAME_FIELD_NUMBER: builtins.int
+    ISSENDER_FIELD_NUMBER: builtins.int
+    VERIFICATION_CHARACTERS_FIELD_NUMBER: builtins.int
+    nonce: builtins.int
+    remote_longname: builtins.str
+    isSender: builtins.bool
+    verification_characters: builtins.str
+    def __init__(
+        self,
+        *,
+        nonce: builtins.int = ...,
+        remote_longname: builtins.str = ...,
+        isSender: builtins.bool = ...,
+        verification_characters: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["isSender", b"isSender", "nonce", b"nonce", "remote_longname", b"remote_longname", "verification_characters", b"verification_characters"]) -> None: ...
+
+global___KeyVerificationFinal = KeyVerificationFinal
+
+@typing.final
+class DuplicatedPublicKey(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___DuplicatedPublicKey = DuplicatedPublicKey
+
+@typing.final
+class LowEntropyKey(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___LowEntropyKey = LowEntropyKey
 
 @typing.final
 class FileInfo(google.protobuf.message.Message):

@@ -198,9 +198,9 @@ class Timeout:
         self.sleepInterval: float = 0.1
         self.expireTimeout: int = maxSecs
 
-    def reset(self) -> None:
+    def reset(self, expireTimeout=None):
         """Restart the waitForSet timer"""
-        self.expireTime = time.time() + self.expireTimeout
+        self.expireTime = time.time() + (self.expireTimeout if expireTimeout is None else expireTimeout)
 
     def waitForSet(self, target, attrs=()) -> bool:
         """Block until the specified attributes are set. Returns True if config has been received."""
@@ -225,8 +225,7 @@ class Timeout:
 
     def waitForTraceRoute(self, waitFactor, acknowledgment, attr="receivedTraceRoute") -> bool:
         """Block until traceroute response is received. Returns True if traceroute response has been received."""
-        self.expireTimeout *= waitFactor
-        self.reset()
+        self.reset(self.expireTimeout * waitFactor)
         while time.time() < self.expireTime:
             if getattr(acknowledgment, attr, None):
                 acknowledgment.reset()
