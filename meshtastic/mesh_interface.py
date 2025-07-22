@@ -1330,6 +1330,14 @@ class MeshInterface:  # pylint: disable=R0902
             self._handleLogRecord(fromRadio.log_record)
         elif fromRadio.HasField("queueStatus"):
             self._handleQueueStatusFromRadio(fromRadio.queueStatus)
+        elif fromRadio.HasField("clientNotification"):
+            publishingThread.queueWork(
+                lambda: pub.sendMessage(
+                    "meshtastic.clientNotification",
+                    notification=fromRadio.clientNotification,
+                    interface=self,
+                )
+            )
 
         elif fromRadio.HasField("mqttClientProxyMessage"):
             publishingThread.queueWork(
