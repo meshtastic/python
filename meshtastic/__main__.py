@@ -1599,12 +1599,9 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     )
 
     group.add_argument(
-        "--set-is-unmessageable", help="Set if a node is messageable or not", action="store"
+        "--set-is-unmessageable", "--set-is-unmessagable", help="Set if a node is messageable or not", action="store"
     )
 
-    group.add_argument(
-        "--set-is-unmessagable", help="Set if a node is messageable or not", action="store"
-)
     group.add_argument(
         "--ch-set-url", "--seturl",
         help="Set all channels and set LoRa config from a supplied URL",
