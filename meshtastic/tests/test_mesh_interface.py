@@ -525,6 +525,28 @@ def test_getMyNodeInfo():
     myinfo = iface.getMyNodeInfo()
     assert myinfo == anode
 
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_getCannedMessage():
+    """Test MeshInterface.getCannedMessage()"""
+    iface = MeshInterface(noProto=True)
+    node = MagicMock()
+    node.get_canned_message.return_value = "Hi|Bye|Yes"
+    iface.localNode = node
+    result = iface.getCannedMessage()
+    assert result == "Hi|Bye|Yes"
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_getRingtone():
+    """Test MeshInterface.getRingtone()"""
+    iface = MeshInterface(noProto=True)
+    node = MagicMock()
+    node.get_ringtone.return_value = "foo,bar"
+    iface.localNode = node
+    result = iface.getRingtone()
+    assert result == "foo,bar"
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
@@ -542,7 +564,6 @@ def test_generatePacketId(capsys):
         )
         assert err == ""
     assert pytest_wrapped_e.type == MeshInterface.MeshInterfaceError
-
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")

@@ -525,6 +525,44 @@ def test_main_get_canned_messages(capsys, caplog, iface_with_nodes):
             assert err == ""
             mo.assert_called()
 
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_set_ringtone(capsys):
+    """Test --set-ringtone"""
+    sys.argv = ["", "--set-ringtone", "foo,bar"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"Setting ringtone to foo,bar", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_get_ringtone(capsys, caplog, iface_with_nodes):
+    """Test --get-ringtone"""
+    sys.argv = ["", "--get-ringtone"]
+    mt_config.args = sys.argv
+
+    iface = iface_with_nodes
+    iface.devPath = "bar"
+
+    mocked_node = MagicMock(autospec=Node)
+    mocked_node.get_ringtone.return_value = "foo,bar"
+    iface.localNode = mocked_node
+
+    with caplog.at_level(logging.DEBUG):
+        with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+            main()
+            out, err = capsys.readouterr()
+            assert re.search(r"Connected to radio", out, re.MULTILINE)
+            assert re.search(r"ringtone:foo,bar", out, re.MULTILINE)
+            assert err == ""
+            mo.assert_called()
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
@@ -1755,6 +1793,8 @@ def test_main_export_config(capsys):
         mo.getLongName.return_value = "foo"
         mo.getShortName.return_value = "oof"
         mo.localNode.getURL.return_value = "bar"
+        mo.getCannedMessage.return_value = "foo|bar"
+        mo.getRingtone.return_value = "24:d=32,o=5"
         mo.getMyNodeInfo().get.return_value = {
             "latitudeI": 1100000000,
             "longitudeI": 1200000000,

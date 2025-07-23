@@ -1084,6 +1084,20 @@ class MeshInterface:  # pylint: disable=R0902
             return user.get("publicKey", None)
         return None
 
+    def getCannedMessage(self):
+        """Get canned message"""
+        node = self.localNode
+        if node is not None:
+            return node.get_canned_message()
+        return None
+
+    def getRingtone(self):
+        """Get ringtone"""
+        node = self.localNode
+        if node is not None:
+            return node.get_ringtone()
+        return None
+
     def _waitConnected(self, timeout=30.0):
         """Block until the initial node db download is complete, or timeout
         and raise an exception"""

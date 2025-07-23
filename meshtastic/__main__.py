@@ -375,7 +375,6 @@ def onConnected(interface):
                         short_name=args.set_owner_short, is_unmessagable=unmessagable
                     )
 
-        # TODO: add to export-config and configure
         if args.set_canned_message:
             closeNow = True
             waitForAckNak = True
@@ -384,7 +383,6 @@ def onConnected(interface):
                 args.set_canned_message
             )
 
-        # TODO: add to export-config and configure
         if args.set_ringtone:
             closeNow = True
             waitForAckNak = True
@@ -718,6 +716,16 @@ def onConnected(interface):
                     interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channelUrl"])
                     time.sleep(0.5)
 
+                if "canned_messages" in configuration:
+                    print("Setting canned message messages to", configuration["canned_messages"])
+                    interface.getNode(args.dest, **getNode_kwargs).set_canned_message(configuration["canned_messages"])
+                    time.sleep(0.5)
+
+                if "ringtone" in configuration:
+                    print("Setting ringtone to", configuration["ringtone"])
+                    interface.getNode(args.dest, **getNode_kwargs).set_ringtone(configuration["ringtone"])
+                    time.sleep(0.5)
+
                 if "location" in configuration:
                     alt = 0
                     lat = 0.0
@@ -952,12 +960,14 @@ def onConnected(interface):
         if args.get_canned_message:
             closeNow = True
             print("")
-            interface.getNode(args.dest, **getNode_kwargs).get_canned_message()
+            messages = interface.getNode(args.dest, **getNode_kwargs).get_canned_message()
+            print(f"canned_plugin_message:{messages}")
 
         if args.get_ringtone:
             closeNow = True
             print("")
-            interface.getNode(args.dest, **getNode_kwargs).get_ringtone()
+            ringtone = interface.getNode(args.dest, **getNode_kwargs).get_ringtone()
+            print(f"ringtone:{ringtone}")
 
         if args.info:
             print("")
@@ -1121,6 +1131,8 @@ def export_config(interface) -> str:
     owner_short = interface.getShortName()
     channel_url = interface.localNode.getURL()
     myinfo = interface.getMyNodeInfo()
+    canned_messages = interface.getCannedMessage()
+    ringtone = interface.getRingtone()
     pos = myinfo.get("position")
     lat = None
     lon = None
@@ -1139,6 +1151,10 @@ def export_config(interface) -> str:
             configObj["channelUrl"] = channel_url
         else:
             configObj["channel_url"] = channel_url
+    if canned_messages:
+        configObj["canned_messages"] = canned_messages
+    if ringtone:
+        configObj["ringtone"] = ringtone
     # lat and lon don't make much sense without the other (so fill with 0s), and alt isn't meaningful without both
     if lat or lon:
         configObj["location"] = {"lat": lat or float(0), "lon": lon or float(0)}

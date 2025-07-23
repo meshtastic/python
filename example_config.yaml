@@ -4,6 +4,9 @@ owner_short: BOB
 
 channel_url: https://www.meshtastic.org/e/#CgMSAQESCDgBQANIAVAe
 
+canned_messages: Hi|Bye|Yes|No|Ok
+ringtone: 24:d=32,o=5,b=565:f6,p,f6,4p,p,f6,p,f6,2p,p,b6,p,b6,p,b6,p,b6,p,b,p,b,p,b,p,b,p,b,p,b,p,b,p,b,1p.,2p.,p
+
 location:
   lat: 35.88888
   lon: -93.88888
