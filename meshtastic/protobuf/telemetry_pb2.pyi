@@ -183,6 +183,10 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     PCT2075 Temperature Sensor
     """
+    ADS1X15: _TelemetrySensorType.ValueType  # 40
+    """
+    ADS1X15 ADC
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -348,6 +352,10 @@ MAX17261 lipo battery gauge
 PCT2075: TelemetrySensorType.ValueType  # 39
 """
 PCT2075 Temperature Sensor
+"""
+ADS1X15: TelemetrySensorType.ValueType  # 40
+"""
+ADS1X15 ADC
 """
 global___TelemetrySensorType = TelemetrySensorType
 
@@ -617,6 +625,16 @@ class PowerMetrics(google.protobuf.message.Message):
     CH2_CURRENT_FIELD_NUMBER: builtins.int
     CH3_VOLTAGE_FIELD_NUMBER: builtins.int
     CH3_CURRENT_FIELD_NUMBER: builtins.int
+    CH4_VOLTAGE_FIELD_NUMBER: builtins.int
+    CH4_CURRENT_FIELD_NUMBER: builtins.int
+    CH5_VOLTAGE_FIELD_NUMBER: builtins.int
+    CH5_CURRENT_FIELD_NUMBER: builtins.int
+    CH6_VOLTAGE_FIELD_NUMBER: builtins.int
+    CH6_CURRENT_FIELD_NUMBER: builtins.int
+    CH7_VOLTAGE_FIELD_NUMBER: builtins.int
+    CH7_CURRENT_FIELD_NUMBER: builtins.int
+    CH8_VOLTAGE_FIELD_NUMBER: builtins.int
+    CH8_CURRENT_FIELD_NUMBER: builtins.int
     ch1_voltage: builtins.float
     """
     Voltage (Ch1)
@@ -641,6 +659,46 @@ class PowerMetrics(google.protobuf.message.Message):
     """
     Current (Ch3)
     """
+    ch4_voltage: builtins.float
+    """
+    Voltage (Ch4)
+    """
+    ch4_current: builtins.float
+    """
+    Current (Ch4)
+    """
+    ch5_voltage: builtins.float
+    """
+    Voltage (Ch5)
+    """
+    ch5_current: builtins.float
+    """
+    Current (Ch5)
+    """
+    ch6_voltage: builtins.float
+    """
+    Voltage (Ch6)
+    """
+    ch6_current: builtins.float
+    """
+    Current (Ch6)
+    """
+    ch7_voltage: builtins.float
+    """
+    Voltage (Ch7)
+    """
+    ch7_current: builtins.float
+    """
+    Current (Ch7)
+    """
+    ch8_voltage: builtins.float
+    """
+    Voltage (Ch8)
+    """
+    ch8_current: builtins.float
+    """
+    Current (Ch8)
+    """
     def __init__(
         self,
         *,
@@ -650,9 +708,19 @@ class PowerMetrics(google.protobuf.message.Message):
         ch2_current: builtins.float | None = ...,
         ch3_voltage: builtins.float | None = ...,
         ch3_current: builtins.float | None = ...,
+        ch4_voltage: builtins.float | None = ...,
+        ch4_current: builtins.float | None = ...,
+        ch5_voltage: builtins.float | None = ...,
+        ch5_current: builtins.float | None = ...,
+        ch6_voltage: builtins.float | None = ...,
+        ch6_current: builtins.float | None = ...,
+        ch7_voltage: builtins.float | None = ...,
+        ch7_current: builtins.float | None = ...,
+        ch8_voltage: builtins.float | None = ...,
+        ch8_current: builtins.float | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_ch1_current", b"_ch1_current", "_ch1_voltage", b"_ch1_voltage", "_ch2_current", b"_ch2_current", "_ch2_voltage", b"_ch2_voltage", "_ch3_current", b"_ch3_current", "_ch3_voltage", b"_ch3_voltage", "ch1_current", b"ch1_current", "ch1_voltage", b"ch1_voltage", "ch2_current", b"ch2_current", "ch2_voltage", b"ch2_voltage", "ch3_current", b"ch3_current", "ch3_voltage", b"ch3_voltage"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_ch1_current", b"_ch1_current", "_ch1_voltage", b"_ch1_voltage", "_ch2_current", b"_ch2_current", "_ch2_voltage", b"_ch2_voltage", "_ch3_current", b"_ch3_current", "_ch3_voltage", b"_ch3_voltage", "ch1_current", b"ch1_current", "ch1_voltage", b"ch1_voltage", "ch2_current", b"ch2_current", "ch2_voltage", b"ch2_voltage", "ch3_current", b"ch3_current", "ch3_voltage", b"ch3_voltage"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_ch1_current", b"_ch1_current", "_ch1_voltage", b"_ch1_voltage", "_ch2_current", b"_ch2_current", "_ch2_voltage", b"_ch2_voltage", "_ch3_current", b"_ch3_current", "_ch3_voltage", b"_ch3_voltage", "_ch4_current", b"_ch4_current", "_ch4_voltage", b"_ch4_voltage", "_ch5_current", b"_ch5_current", "_ch5_voltage", b"_ch5_voltage", "_ch6_current", b"_ch6_current", "_ch6_voltage", b"_ch6_voltage", "_ch7_current", b"_ch7_current", "_ch7_voltage", b"_ch7_voltage", "_ch8_current", b"_ch8_current", "_ch8_voltage", b"_ch8_voltage", "ch1_current", b"ch1_current", "ch1_voltage", b"ch1_voltage", "ch2_current", b"ch2_current", "ch2_voltage", b"ch2_voltage", "ch3_current", b"ch3_current", "ch3_voltage", b"ch3_voltage", "ch4_current", b"ch4_current", "ch4_voltage", b"ch4_voltage", "ch5_current", b"ch5_current", "ch5_voltage", b"ch5_voltage", "ch6_current", b"ch6_current", "ch6_voltage", b"ch6_voltage", "ch7_current", b"ch7_current", "ch7_voltage", b"ch7_voltage", "ch8_current", b"ch8_current", "ch8_voltage", b"ch8_voltage"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_ch1_current", b"_ch1_current", "_ch1_voltage", b"_ch1_voltage", "_ch2_current", b"_ch2_current", "_ch2_voltage", b"_ch2_voltage", "_ch3_current", b"_ch3_current", "_ch3_voltage", b"_ch3_voltage", "_ch4_current", b"_ch4_current", "_ch4_voltage", b"_ch4_voltage", "_ch5_current", b"_ch5_current", "_ch5_voltage", b"_ch5_voltage", "_ch6_current", b"_ch6_current", "_ch6_voltage", b"_ch6_voltage", "_ch7_current", b"_ch7_current", "_ch7_voltage", b"_ch7_voltage", "_ch8_current", b"_ch8_current", "_ch8_voltage", b"_ch8_voltage", "ch1_current", b"ch1_current", "ch1_voltage", b"ch1_voltage", "ch2_current", b"ch2_current", "ch2_voltage", b"ch2_voltage", "ch3_current", b"ch3_current", "ch3_voltage", b"ch3_voltage", "ch4_current", b"ch4_current", "ch4_voltage", b"ch4_voltage", "ch5_current", b"ch5_current", "ch5_voltage", b"ch5_voltage", "ch6_current", b"ch6_current", "ch6_voltage", b"ch6_voltage", "ch7_current", b"ch7_current", "ch7_voltage", b"ch7_voltage", "ch8_current", b"ch8_current", "ch8_voltage", b"ch8_voltage"]) -> None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_ch1_current", b"_ch1_current"]) -> typing.Literal["ch1_current"] | None: ...
     @typing.overload
@@ -665,6 +733,26 @@ class PowerMetrics(google.protobuf.message.Message):
     def WhichOneof(self, oneof_group: typing.Literal["_ch3_current", b"_ch3_current"]) -> typing.Literal["ch3_current"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_ch3_voltage", b"_ch3_voltage"]) -> typing.Literal["ch3_voltage"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ch4_current", b"_ch4_current"]) -> typing.Literal["ch4_current"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ch4_voltage", b"_ch4_voltage"]) -> typing.Literal["ch4_voltage"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ch5_current", b"_ch5_current"]) -> typing.Literal["ch5_current"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ch5_voltage", b"_ch5_voltage"]) -> typing.Literal["ch5_voltage"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ch6_current", b"_ch6_current"]) -> typing.Literal["ch6_current"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ch6_voltage", b"_ch6_voltage"]) -> typing.Literal["ch6_voltage"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ch7_current", b"_ch7_current"]) -> typing.Literal["ch7_current"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ch7_voltage", b"_ch7_voltage"]) -> typing.Literal["ch7_voltage"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ch8_current", b"_ch8_current"]) -> typing.Literal["ch8_current"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ch8_voltage", b"_ch8_voltage"]) -> typing.Literal["ch8_voltage"] | None: ...
 
 global___PowerMetrics = PowerMetrics
 
@@ -689,6 +777,8 @@ class AirQualityMetrics(google.protobuf.message.Message):
     PARTICLES_50UM_FIELD_NUMBER: builtins.int
     PARTICLES_100UM_FIELD_NUMBER: builtins.int
     CO2_FIELD_NUMBER: builtins.int
+    CO2_TEMPERATURE_FIELD_NUMBER: builtins.int
+    CO2_HUMIDITY_FIELD_NUMBER: builtins.int
     pm10_standard: builtins.int
     """
     Concentration Units Standard PM1.0
@@ -741,6 +831,14 @@ class AirQualityMetrics(google.protobuf.message.Message):
     """
     CO2 concentration in ppm
     """
+    co2_temperature: builtins.float
+    """
+    CO2 sensor temperature in degC
+    """
+    co2_humidity: builtins.float
+    """
+    CO2 sensor relative humidity in %
+    """
     def __init__(
         self,
         *,
@@ -757,11 +855,17 @@ class AirQualityMetrics(google.protobuf.message.Message):
         particles_50um: builtins.int | None = ...,
         particles_100um: builtins.int | None = ...,
         co2: builtins.int | None = ...,
+        co2_temperature: builtins.float | None = ...,
+        co2_humidity: builtins.float | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_co2", b"_co2", "_particles_03um", b"_particles_03um", "_particles_05um", b"_particles_05um", "_particles_100um", b"_particles_100um", "_particles_10um", b"_particles_10um", "_particles_25um", b"_particles_25um", "_particles_50um", b"_particles_50um", "_pm100_environmental", b"_pm100_environmental", "_pm100_standard", b"_pm100_standard", "_pm10_environmental", b"_pm10_environmental", "_pm10_standard", b"_pm10_standard", "_pm25_environmental", b"_pm25_environmental", "_pm25_standard", b"_pm25_standard", "co2", b"co2", "particles_03um", b"particles_03um", "particles_05um", b"particles_05um", "particles_100um", b"particles_100um", "particles_10um", b"particles_10um", "particles_25um", b"particles_25um", "particles_50um", b"particles_50um", "pm100_environmental", b"pm100_environmental", "pm100_standard", b"pm100_standard", "pm10_environmental", b"pm10_environmental", "pm10_standard", b"pm10_standard", "pm25_environmental", b"pm25_environmental", "pm25_standard", b"pm25_standard"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_co2", b"_co2", "_particles_03um", b"_particles_03um", "_particles_05um", b"_particles_05um", "_particles_100um", b"_particles_100um", "_particles_10um", b"_particles_10um", "_particles_25um", b"_particles_25um", "_particles_50um", b"_particles_50um", "_pm100_environmental", b"_pm100_environmental", "_pm100_standard", b"_pm100_standard", "_pm10_environmental", b"_pm10_environmental", "_pm10_standard", b"_pm10_standard", "_pm25_environmental", b"_pm25_environmental", "_pm25_standard", b"_pm25_standard", "co2", b"co2", "particles_03um", b"particles_03um", "particles_05um", b"particles_05um", "particles_100um", b"particles_100um", "particles_10um", b"particles_10um", "particles_25um", b"particles_25um", "particles_50um", b"particles_50um", "pm100_environmental", b"pm100_environmental", "pm100_standard", b"pm100_standard", "pm10_environmental", b"pm10_environmental", "pm10_standard", b"pm10_standard", "pm25_environmental", b"pm25_environmental", "pm25_standard", b"pm25_standard"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_co2", b"_co2", "_co2_humidity", b"_co2_humidity", "_co2_temperature", b"_co2_temperature", "_particles_03um", b"_particles_03um", "_particles_05um", b"_particles_05um", "_particles_100um", b"_particles_100um", "_particles_10um", b"_particles_10um", "_particles_25um", b"_particles_25um", "_particles_50um", b"_particles_50um", "_pm100_environmental", b"_pm100_environmental", "_pm100_standard", b"_pm100_standard", "_pm10_environmental", b"_pm10_environmental", "_pm10_standard", b"_pm10_standard", "_pm25_environmental", b"_pm25_environmental", "_pm25_standard", b"_pm25_standard", "co2", b"co2", "co2_humidity", b"co2_humidity", "co2_temperature", b"co2_temperature", "particles_03um", b"particles_03um", "particles_05um", b"particles_05um", "particles_100um", b"particles_100um", "particles_10um", b"particles_10um", "particles_25um", b"particles_25um", "particles_50um", b"particles_50um", "pm100_environmental", b"pm100_environmental", "pm100_standard", b"pm100_standard", "pm10_environmental", b"pm10_environmental", "pm10_standard", b"pm10_standard", "pm25_environmental", b"pm25_environmental", "pm25_standard", b"pm25_standard"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_co2", b"_co2", "_co2_humidity", b"_co2_humidity", "_co2_temperature", b"_co2_temperature", "_particles_03um", b"_particles_03um", "_particles_05um", b"_particles_05um", "_particles_100um", b"_particles_100um", "_particles_10um", b"_particles_10um", "_particles_25um", b"_particles_25um", "_particles_50um", b"_particles_50um", "_pm100_environmental", b"_pm100_environmental", "_pm100_standard", b"_pm100_standard", "_pm10_environmental", b"_pm10_environmental", "_pm10_standard", b"_pm10_standard", "_pm25_environmental", b"_pm25_environmental", "_pm25_standard", b"_pm25_standard", "co2", b"co2", "co2_humidity", b"co2_humidity", "co2_temperature", b"co2_temperature", "particles_03um", b"particles_03um", "particles_05um", b"particles_05um", "particles_100um", b"particles_100um", "particles_10um", b"particles_10um", "particles_25um", b"particles_25um", "particles_50um", b"particles_50um", "pm100_environmental", b"pm100_environmental", "pm100_standard", b"pm100_standard", "pm10_environmental", b"pm10_environmental", "pm10_standard", b"pm10_standard", "pm25_environmental", b"pm25_environmental", "pm25_standard", b"pm25_standard"]) -> None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_co2", b"_co2"]) -> typing.Literal["co2"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_co2_humidity", b"_co2_humidity"]) -> typing.Literal["co2_humidity"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_co2_temperature", b"_co2_temperature"]) -> typing.Literal["co2_temperature"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_particles_03um", b"_particles_03um"]) -> typing.Literal["particles_03um"] | None: ...
     @typing.overload

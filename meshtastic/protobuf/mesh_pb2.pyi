@@ -442,15 +442,15 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     Elecrow CrowPanel Advance models, ESP32-S3 and TFT with SX1262 radio plugin
     """
     LINK_32: _HardwareModel.ValueType  # 98
-    """*
+    """
     Lilygo LINK32 board with sensors
     """
     SEEED_WIO_TRACKER_L1: _HardwareModel.ValueType  # 99
-    """*
+    """
     Seeed Tracker L1
     """
     SEEED_WIO_TRACKER_L1_EINK: _HardwareModel.ValueType  # 100
-    """*
+    """
     Seeed Tracker L1 EINK driver
     """
     QWANTZ_TINY_ARMS: _HardwareModel.ValueType  # 101
@@ -458,16 +458,28 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     Reserved ID for future and past use
     """
     T_DECK_PRO: _HardwareModel.ValueType  # 102
-    """*
+    """
     Lilygo T-Deck Pro
     """
     T_LORA_PAGER: _HardwareModel.ValueType  # 103
-    """*
+    """
     Lilygo TLora Pager
     """
     GAT562_MESH_TRIAL_TRACKER: _HardwareModel.ValueType  # 104
-    """*
+    """
     GAT562 Mesh Trial Tracker
+    """
+    WISMESH_TAG: _HardwareModel.ValueType  # 105
+    """
+    RAKwireless WisMesh Tag
+    """
+    RAK3312: _HardwareModel.ValueType  # 106
+    """
+    RAKwireless WisBlock Core RAK3312 https://docs.rakwireless.com/product-categories/wisduo/rak3112-module/overview/
+    """
+    THINKNODE_M5: _HardwareModel.ValueType  # 107
+    """
+    Elecrow ThinkNode M5 https://www.elecrow.com/wiki/ThinkNode_M5_Meshtastic_LoRa_Signal_Transceiver_ESP32-S3.html
     """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
@@ -894,15 +906,15 @@ CROWPANEL: HardwareModel.ValueType  # 97
 Elecrow CrowPanel Advance models, ESP32-S3 and TFT with SX1262 radio plugin
 """
 LINK_32: HardwareModel.ValueType  # 98
-"""*
+"""
 Lilygo LINK32 board with sensors
 """
 SEEED_WIO_TRACKER_L1: HardwareModel.ValueType  # 99
-"""*
+"""
 Seeed Tracker L1
 """
 SEEED_WIO_TRACKER_L1_EINK: HardwareModel.ValueType  # 100
-"""*
+"""
 Seeed Tracker L1 EINK driver
 """
 QWANTZ_TINY_ARMS: HardwareModel.ValueType  # 101
@@ -910,16 +922,28 @@ QWANTZ_TINY_ARMS: HardwareModel.ValueType  # 101
 Reserved ID for future and past use
 """
 T_DECK_PRO: HardwareModel.ValueType  # 102
-"""*
+"""
 Lilygo T-Deck Pro
 """
 T_LORA_PAGER: HardwareModel.ValueType  # 103
-"""*
+"""
 Lilygo TLora Pager
 """
 GAT562_MESH_TRIAL_TRACKER: HardwareModel.ValueType  # 104
-"""*
+"""
 GAT562 Mesh Trial Tracker
+"""
+WISMESH_TAG: HardwareModel.ValueType  # 105
+"""
+RAKwireless WisMesh Tag
+"""
+RAK3312: HardwareModel.ValueType  # 106
+"""
+RAKwireless WisBlock Core RAK3312 https://docs.rakwireless.com/product-categories/wisduo/rak3112-module/overview/
+"""
+THINKNODE_M5: HardwareModel.ValueType  # 107
+"""
+Elecrow ThinkNode M5 https://www.elecrow.com/wiki/ThinkNode_M5_Meshtastic_LoRa_Signal_Transceiver_ESP32-S3.html
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """

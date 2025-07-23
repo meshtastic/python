@@ -188,6 +188,12 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     Reticulum Network Stack Tunnel App
     ENCODING: Fragmented RNS Packet. Handled by Meshtastic RNS interface
     """
+    CAYENNE_APP: _PortNum.ValueType  # 77
+    """
+    App for transporting Cayenne Low Power Payload, popular for LoRaWAN sensor nodes. Offers ability to send
+    arbitrary telemetry over meshtastic that is not covered by telemetry.proto
+    ENCODING: CayenneLLP
+    """
     PRIVATE_APP: _PortNum.ValueType  # 256
     """
     Private applications should use portnums >= 256.
@@ -385,6 +391,12 @@ RETICULUM_TUNNEL_APP: PortNum.ValueType  # 76
 """
 Reticulum Network Stack Tunnel App
 ENCODING: Fragmented RNS Packet. Handled by Meshtastic RNS interface
+"""
+CAYENNE_APP: PortNum.ValueType  # 77
+"""
+App for transporting Cayenne Low Power Payload, popular for LoRaWAN sensor nodes. Offers ability to send
+arbitrary telemetry over meshtastic that is not covered by telemetry.proto
+ENCODING: CayenneLLP
 """
 PRIVATE_APP: PortNum.ValueType  # 256
 """

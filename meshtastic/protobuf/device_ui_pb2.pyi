@@ -17,6 +17,41 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+class _CompassMode:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _CompassModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_CompassMode.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    DYNAMIC: _CompassMode.ValueType  # 0
+    """
+    Compass with dynamic ring and heading
+    """
+    FIXED_RING: _CompassMode.ValueType  # 1
+    """
+    Compass with fixed ring and heading
+    """
+    FREEZE_HEADING: _CompassMode.ValueType  # 2
+    """
+    Compass with heading and freeze option
+    """
+
+class CompassMode(_CompassMode, metaclass=_CompassModeEnumTypeWrapper): ...
+
+DYNAMIC: CompassMode.ValueType  # 0
+"""
+Compass with dynamic ring and heading
+"""
+FIXED_RING: CompassMode.ValueType  # 1
+"""
+Compass with fixed ring and heading
+"""
+FREEZE_HEADING: CompassMode.ValueType  # 2
+"""
+Compass with heading and freeze option
+"""
+global___CompassMode = CompassMode
+
 class _Theme:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
@@ -249,6 +284,9 @@ class DeviceUIConfig(google.protobuf.message.Message):
     NODE_HIGHLIGHT_FIELD_NUMBER: builtins.int
     CALIBRATION_DATA_FIELD_NUMBER: builtins.int
     MAP_DATA_FIELD_NUMBER: builtins.int
+    COMPASS_MODE_FIELD_NUMBER: builtins.int
+    SCREEN_RGB_COLOR_FIELD_NUMBER: builtins.int
+    IS_CLOCKFACE_ANALOG_FIELD_NUMBER: builtins.int
     version: builtins.int
     """
     A version integer used to invalidate saved files when we make incompatible changes.
@@ -284,6 +322,20 @@ class DeviceUIConfig(google.protobuf.message.Message):
     calibration_data: builtins.bytes
     """
     8 integers for screen calibration data
+    """
+    compass_mode: global___CompassMode.ValueType
+    """
+    Compass mode
+    """
+    screen_rgb_color: builtins.int
+    """
+    RGB color for BaseUI
+    0xRRGGBB format, e.g. 0xFF0000 for red
+    """
+    is_clockface_analog: builtins.bool
+    """
+    Clockface analog style
+    true for analog clockface, false for digital clockface
     """
     @property
     def node_filter(self) -> global___NodeFilter:
@@ -321,9 +373,12 @@ class DeviceUIConfig(google.protobuf.message.Message):
         node_highlight: global___NodeHighlight | None = ...,
         calibration_data: builtins.bytes = ...,
         map_data: global___Map | None = ...,
+        compass_mode: global___CompassMode.ValueType = ...,
+        screen_rgb_color: builtins.int = ...,
+        is_clockface_analog: builtins.bool = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["map_data", b"map_data", "node_filter", b"node_filter", "node_highlight", b"node_highlight"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["alert_enabled", b"alert_enabled", "banner_enabled", b"banner_enabled", "calibration_data", b"calibration_data", "language", b"language", "map_data", b"map_data", "node_filter", b"node_filter", "node_highlight", b"node_highlight", "pin_code", b"pin_code", "ring_tone_id", b"ring_tone_id", "screen_brightness", b"screen_brightness", "screen_lock", b"screen_lock", "screen_timeout", b"screen_timeout", "settings_lock", b"settings_lock", "theme", b"theme", "version", b"version"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["alert_enabled", b"alert_enabled", "banner_enabled", b"banner_enabled", "calibration_data", b"calibration_data", "compass_mode", b"compass_mode", "is_clockface_analog", b"is_clockface_analog", "language", b"language", "map_data", b"map_data", "node_filter", b"node_filter", "node_highlight", b"node_highlight", "pin_code", b"pin_code", "ring_tone_id", b"ring_tone_id", "screen_brightness", b"screen_brightness", "screen_lock", b"screen_lock", "screen_rgb_color", b"screen_rgb_color", "screen_timeout", b"screen_timeout", "settings_lock", b"settings_lock", "theme", b"theme", "version", b"version"]) -> None: ...
 
 global___DeviceUIConfig = DeviceUIConfig
 
