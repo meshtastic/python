@@ -454,6 +454,37 @@ def test_main_set_owner_short_to_bob(capsys):
         assert err == ""
         mo.assert_called()
 
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_set_is_unmessageable_to_true(capsys):
+    """Test --set-is-unmessageable true"""
+    sys.argv = ["", "--set-is-unmessageable", "true"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"Setting device owner is_unmessageable to True", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_set_is_unmessagable_to_true(capsys):
+    """Test --set-is-unmessagable true"""
+    sys.argv = ["", "--set-is-unmessagable", "true"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"Setting device owner is_unmessageable to True", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")

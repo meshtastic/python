@@ -339,7 +339,7 @@ def onConnected(interface):
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.getNode(args.dest, False, **getNode_kwargs).setFixedPosition(lat, lon, alt)
 
-        if args.set_owner or args.set_owner_short:
+        if args.set_owner or args.set_owner_short or args.set_is_unmessageable:
             closeNow = True
             waitForAckNak = True
 
@@ -358,9 +358,22 @@ def onConnected(interface):
                 print(f"Setting device owner to {args.set_owner} and short name to {args.set_owner_short}")
             elif args.set_owner:
                 print(f"Setting device owner to {args.set_owner}")
-            else: # short name only
+            elif args.set_owner_short and not args.set_owner:
                 print(f"Setting device owner short to {args.set_owner_short}")
-            interface.getNode(args.dest, False, **getNode_kwargs).setOwner(long_name=args.set_owner, short_name=args.set_owner_short)
+
+            if args.set_is_unmessageable:
+                unmessagable = (
+                    meshtastic.util.fromStr(args.set_is_unmessageable)
+                    if isinstance(args.set_is_unmessageable, str)
+                    else args.set_is_unmessageable
+                )
+
+                if unmessagable is not None:
+                    print(f"Setting device owner is_unmessageable to {unmessagable}")
+                    interface.getNode(
+                        args.dest, False, **getNode_kwargs).setOwner(long_name=args.set_owner,
+                        short_name=args.set_owner_short, is_unmessagable=unmessagable
+                    )
 
         # TODO: add to export-config and configure
         if args.set_canned_message:
@@ -1593,6 +1606,11 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
 
     group.add_argument(
         "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store"
+    )
+
+    group.add_argument(
+        "--set-is-unmessageable", "--set-is-unmessagable",
+        help="Set if a node is messageable or not", action="store"
     )
 
     group.add_argument(
