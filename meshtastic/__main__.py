@@ -1122,10 +1122,30 @@ def subscribe() -> None:
 
     # pub.subscribe(onNode, "meshtastic.node")
 
+def ensure_true_defaults(config_dict: dict, true_defaults: set[tuple[str, ...]]) -> None:
+    """Ensure that default=True keys are present in the config_dict and set to True."""
+    for path in true_defaults:
+        d = config_dict
+        for key in path[:-1]:
+            if key not in d or not isinstance(d[key], dict):
+                d[key] = {}
+            d = d[key]
+        if path[-1] not in d:
+            d[path[-1]] = True
 
 def export_config(interface) -> str:
     """used in --export-config"""
     configObj = {}
+
+    true_defaults = {
+        ("bluetooth", "enabled"),
+        ("lora", "sx126xRxBoostedGain"),
+        ("lora", "txEnabled"),
+        ("lora", "usePreset"),
+        ("position", "positionBroadcastSmartEnabled"),
+        ("security", "serialEnabled"),
+        ("mqtt", "encryptionEnabled"),
+    }
 
     owner = interface.getLongName()
     owner_short = interface.getShortName()
@@ -1184,6 +1204,8 @@ def export_config(interface) -> str:
             configObj["config"] = config		#Identical command here and 2 lines below?
         else:
             configObj["config"] = config
+
+        ensure_true_defaults(configObj["config"], true_defaults)
 
     module_config = MessageToDict(interface.localNode.moduleConfig)
     if module_config:
