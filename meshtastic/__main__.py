@@ -1122,8 +1122,8 @@ def subscribe() -> None:
 
     # pub.subscribe(onNode, "meshtastic.node")
 
-def set_missing_flags_false(config_dict: dict, true_defaults: set[tuple[str, ...]]) -> None:
-    """Ensure that mission default=True keys are present in the config_dict and set to False."""
+def set_missing_flags_false(config_dict: dict, true_defaults: set[tuple[str, str]]) -> None:
+    """Ensure that missing default=True keys are present in the config_dict and set to False."""
     for path in true_defaults:
         d = config_dict
         for key in path[:-1]:
@@ -1137,6 +1137,7 @@ def export_config(interface) -> str:
     """used in --export-config"""
     configObj = {}
 
+    # A list of configuration keys that should be set to False if they are missing
     true_defaults = {
         ("bluetooth", "enabled"),
         ("lora", "sx126xRxBoostedGain"),
