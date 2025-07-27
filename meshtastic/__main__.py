@@ -1122,8 +1122,8 @@ def subscribe() -> None:
 
     # pub.subscribe(onNode, "meshtastic.node")
 
-def ensure_true_defaults(config_dict: dict, true_defaults: set[tuple[str, ...]]) -> None:
-    """Ensure that default=True keys are present in the config_dict and set to True."""
+def set_missing_flags_false(config_dict: dict, true_defaults: set[tuple[str, ...]]) -> None:
+    """Ensure that mission default=True keys are present in the config_dict and set to False."""
     for path in true_defaults:
         d = config_dict
         for key in path[:-1]:
@@ -1131,7 +1131,7 @@ def ensure_true_defaults(config_dict: dict, true_defaults: set[tuple[str, ...]])
                 d[key] = {}
             d = d[key]
         if path[-1] not in d:
-            d[path[-1]] = True
+            d[path[-1]] = False
 
 def export_config(interface) -> str:
     """used in --export-config"""
@@ -1205,7 +1205,7 @@ def export_config(interface) -> str:
         else:
             configObj["config"] = config
 
-        ensure_true_defaults(configObj["config"], true_defaults)
+        set_missing_flags_false(configObj["config"], true_defaults)
 
     module_config = MessageToDict(interface.localNode.moduleConfig)
     if module_config:
