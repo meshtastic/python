@@ -262,7 +262,7 @@
       "module": "meshtastic",
       "justMyCode": true,
       "args": ["--nodes", "--show-fields", "AKA,Pubkey,Role,Role,Role,Latitude,Latitude,deviceMetrics.voltage"]
-    }
+    },
     {
       "name": "meshtastic --export-config",
       "type": "debugpy",
@@ -271,6 +271,5 @@
       "justMyCode": true,
       "args": ["--export-config", "config.json"]
     },
-
   ]
 }
