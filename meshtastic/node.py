@@ -31,6 +31,7 @@ class Node:
         self.nodeNum = nodeNum
         self.localConfig = localonly_pb2.LocalConfig()
         self.moduleConfig = localonly_pb2.LocalModuleConfig()
+        self.sensorConfig = admin_pb2.SensorConfig()
         self.channels = None
         self._timeout = Timeout(maxSecs=timeout)
         self.partialChannels: Optional[List] = None
@@ -221,6 +222,9 @@ class Node:
             p.set_module_config.ambient_lighting.CopyFrom(self.moduleConfig.ambient_lighting)
         elif config_name == "paxcounter":
             p.set_module_config.paxcounter.CopyFrom(self.moduleConfig.paxcounter)
+        # TODO - Currently not working
+        elif config_name == "scdxx_config":
+            p.set_module_config.scdxx_config.CopyFrom(self.sensorConfig.scdxx_config)
         else:
             our_exit(f"Error: No valid config with name {config_name}")
 

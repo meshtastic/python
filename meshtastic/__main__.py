@@ -854,6 +854,53 @@ def onConnected(interface):
                     print(f"Deleting channel {channelIndex}")
                     ch = interface.getNode(args.dest, **getNode_kwargs).deleteChannel(channelIndex)
 
+        if args.sensor_admin:
+
+            closeNow = True
+            waitForAckNak = True
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
+
+            # Handle the int/float/bool arguments
+            pref = None
+            fields = set()
+            for pref in args.sensor_admin:
+                found = False
+                field = splitCompoundName(pref[0].lower())[0]
+
+                for config in [node.sensorConfig]:
+                    config_type = config.DESCRIPTOR.fields_by_name.get(field)
+                    if config_type:
+                        if len(config.ListFields()) == 0:
+                            node.requestConfig(
+                                config.DESCRIPTOR.fields_by_name.get(field)
+                            )
+                        found = setPref(config, pref[0], pref[1])
+                        if found:
+                            fields.add(field)
+                            break
+
+            if found:
+                print("Writing modified preferences to device")
+                if len(fields) > 1:
+                    print("Using a configuration transaction")
+                    node.beginSettingsTransaction()
+                for field in fields:
+                    print(f"Writing {field} configuration to device")
+                    node.writeConfig(field)
+                if len(fields) > 1:
+                    node.commitSettingsTransaction()
+            else:
+                if mt_config.camel_case:
+                    print(
+                        f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have an attribute {pref[0]}."
+                    )
+                else:
+                    print(
+                        f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have attribute {pref[0]}."
+                    )
+                print("Choices are...")
+                printConfig(node.sensorConfig)
+
         def setSimpleConfig(modem_preset):
             """Set one of the simple modem_config"""
             channelIndex = mt_config.channel_index
@@ -1940,6 +1987,27 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
 
     return parser
 
+def addSensorAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments concerning admin actions that interact with sensors"""
+
+    group = parser.add_argument_group(
+        "Sensor Admin Actions",
+        "Arguments that interact with local node or remote nodes via the mesh, for sensor configuration.",
+    )
+
+    group.add_argument(
+        "--sensor-admin",
+        help=(
+            "Set a preferences field. Can use either snake_case or camelCase format."
+            " (ex: 'scdxx.asc' or 'power.lsSecs')"
+        ),
+        nargs=2,
+        action="append",
+        metavar=("FIELD", "VALUE"),
+    )
+
+    return parser
+
 def initParser():
     """Initialize the command line argument parsing."""
     parser = mt_config.parser
@@ -1979,6 +2047,9 @@ def initParser():
     # Arguments for sending or requesting things from the mesh
     parser = addRemoteActionArgs(parser)
     parser = addRemoteAdminArgs(parser)
+
+    # Arguments for controlling sensors
+    parser = addSensorAdminArgs(parser)
 
     # All the rest of the arguments
     group = parser.add_argument_group("Miscellaneous arguments")
