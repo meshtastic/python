@@ -563,7 +563,7 @@ def test_active_ports_on_supported_devices_mac_duplicates_check(mock_platform, m
 def test_message_to_json_shows_all():
     """Test that message_to_json prints fields that aren't included in data passed in"""
     actual = json.loads(message_to_json(mesh_pb2.MyNodeInfo()))
-    expected = { "myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0, "deviceId": "", "pioEnv": "" }
+    expected = { "myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0, "deviceId": "", "pioEnv": "", 'firmwareEdition': 'VANILLA', 'nodedbCount': 0 }
     assert actual == expected
 
 @pytest.mark.unit
