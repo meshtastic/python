@@ -4,6 +4,7 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+
     {
       "name": "meshtastic BLE",
       "type": "debugpy",
@@ -261,7 +262,14 @@
       "module": "meshtastic",
       "justMyCode": true,
       "args": ["--nodes", "--show-fields", "AKA,Pubkey,Role,Role,Role,Latitude,Latitude,deviceMetrics.voltage"]
-    }
-
+    },
+    {
+      "name": "meshtastic --export-config",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--export-config", "config.json"]
+    },
   ]
 }

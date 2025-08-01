@@ -18,6 +18,7 @@ from meshtastic.__main__ import (
     onNode,
     onReceive,
     tunnelMain,
+    set_missing_flags_false,
 )
 from meshtastic import mt_config
 
@@ -1896,6 +1897,41 @@ position_flags: 35"""
 #        assert err == ""
 #        mo.assert_called()
 
+
+@pytest.mark.unit
+def test_set_missing_flags_false():
+    """Test set_missing_flags_false() function"""
+    config = {
+        "bluetooth": {
+            "enabled": True
+        },
+        "lora": {
+            "txEnabled": True
+        }
+    }
+
+    false_defaults = {
+        ("bluetooth", "enabled"),
+        ("lora", "sx126xRxBoostedGain"),
+        ("lora", "txEnabled"),
+        ("lora", "usePreset"),
+        ("position", "positionBroadcastSmartEnabled"),
+        ("security", "serialEnabled"),
+        ("mqtt", "encryptionEnabled"),
+    }
+
+    set_missing_flags_false(config, false_defaults)
+
+    # Preserved
+    assert config["bluetooth"]["enabled"] is True
+    assert config["lora"]["txEnabled"] is True
+
+    # Added
+    assert config["lora"]["usePreset"] is False
+    assert config["lora"]["sx126xRxBoostedGain"] is False
+    assert config["position"]["positionBroadcastSmartEnabled"] is False
+    assert config["security"]["serialEnabled"] is False
+    assert config["mqtt"]["encryptionEnabled"] is False
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
