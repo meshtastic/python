@@ -564,6 +564,10 @@ class ModuleConfig(google.protobuf.message.Message):
             """VE.Direct is a serial protocol used by Victron Energy products
             https://beta.ivc.no/wiki/index.php/Victron_VE_Direct_DIY_Cable
             """
+            MS_CONFIG: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 8
+            """Used to configure and view some parameters of MeshSolar.
+            https://heltec.org/project/meshsolar/
+            """
 
         class Serial_Mode(_Serial_Mode, metaclass=_Serial_ModeEnumTypeWrapper):
             """
@@ -582,6 +586,10 @@ class ModuleConfig(google.protobuf.message.Message):
         VE_DIRECT: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 7
         """VE.Direct is a serial protocol used by Victron Energy products
         https://beta.ivc.no/wiki/index.php/Victron_VE_Direct_DIY_Cable
+        """
+        MS_CONFIG: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 8
+        """Used to configure and view some parameters of MeshSolar.
+        https://heltec.org/project/meshsolar/
         """
 
         ENABLED_FIELD_NUMBER: builtins.int

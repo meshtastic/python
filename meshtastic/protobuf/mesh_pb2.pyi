@@ -481,6 +481,11 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Elecrow ThinkNode M5 https://www.elecrow.com/wiki/ThinkNode_M5_Meshtastic_LoRa_Signal_Transceiver_ESP32-S3.html
     """
+    HELTEC_MESH_SOLAR: _HardwareModel.ValueType  # 108
+    """
+    MeshSolar is an integrated power management and communication solution designed for outdoor low-power devices.
+    https://heltec.org/project/meshsolar/
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -945,6 +950,11 @@ THINKNODE_M5: HardwareModel.ValueType  # 107
 """
 Elecrow ThinkNode M5 https://www.elecrow.com/wiki/ThinkNode_M5_Meshtastic_LoRa_Signal_Transceiver_ESP32-S3.html
 """
+HELTEC_MESH_SOLAR: HardwareModel.ValueType  # 108
+"""
+MeshSolar is an integrated power management and communication solution designed for outdoor low-power devices.
+https://heltec.org/project/meshsolar/
+"""
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
 ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1125,6 +1135,77 @@ NOTE: Your node will probably need to be reconfigured the next time it reboots (
 If you see this failure in the field please post in the forum because we are interested in seeing if this is occurring in the field.
 """
 global___CriticalErrorCode = CriticalErrorCode
+
+class _FirmwareEdition:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _FirmwareEditionEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_FirmwareEdition.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    VANILLA: _FirmwareEdition.ValueType  # 0
+    """
+    Vanilla firmware
+    """
+    SMART_CITIZEN: _FirmwareEdition.ValueType  # 1
+    """
+    Firmware for use in the Smart Citizen environmental monitoring network
+    """
+    OPEN_SAUCE: _FirmwareEdition.ValueType  # 16
+    """
+    Open Sauce, the maker conference held yearly in CA
+    """
+    DEFCON: _FirmwareEdition.ValueType  # 17
+    """
+    DEFCON, the yearly hacker conference
+    """
+    BURNING_MAN: _FirmwareEdition.ValueType  # 18
+    """
+    Burning Man, the yearly hippie gathering in the desert
+    """
+    HAMVENTION: _FirmwareEdition.ValueType  # 19
+    """
+    Hamvention, the Dayton amateur radio convention
+    """
+    DIY_EDITION: _FirmwareEdition.ValueType  # 127
+    """
+    Placeholder for DIY and unofficial events
+    """
+
+class FirmwareEdition(_FirmwareEdition, metaclass=_FirmwareEditionEnumTypeWrapper):
+    """
+    Enum to indicate to clients whether this firmware is a special firmware build, like an event.
+    The first 16 values are reserved for non-event special firmwares, like the Smart Citizen use case.
+    """
+
+VANILLA: FirmwareEdition.ValueType  # 0
+"""
+Vanilla firmware
+"""
+SMART_CITIZEN: FirmwareEdition.ValueType  # 1
+"""
+Firmware for use in the Smart Citizen environmental monitoring network
+"""
+OPEN_SAUCE: FirmwareEdition.ValueType  # 16
+"""
+Open Sauce, the maker conference held yearly in CA
+"""
+DEFCON: FirmwareEdition.ValueType  # 17
+"""
+DEFCON, the yearly hacker conference
+"""
+BURNING_MAN: FirmwareEdition.ValueType  # 18
+"""
+Burning Man, the yearly hippie gathering in the desert
+"""
+HAMVENTION: FirmwareEdition.ValueType  # 19
+"""
+Hamvention, the Dayton amateur radio convention
+"""
+DIY_EDITION: FirmwareEdition.ValueType  # 127
+"""
+Placeholder for DIY and unofficial events
+"""
+global___FirmwareEdition = FirmwareEdition
 
 class _ExcludedModules:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -1788,6 +1869,11 @@ class Routing(google.protobuf.message.Message):
         """
         Admin packet sent using PKC, but not from a public key on the admin key list
         """
+        RATE_LIMIT_EXCEEDED: Routing._Error.ValueType  # 38
+        """
+        Airtime fairness rate limit exceeded for a packet
+        This typically enforced per portnum and is used to prevent a single node from monopolizing airtime
+        """
 
     class Error(_Error, metaclass=_ErrorEnumTypeWrapper):
         """
@@ -1860,6 +1946,11 @@ class Routing(google.protobuf.message.Message):
     ADMIN_PUBLIC_KEY_UNAUTHORIZED: Routing.Error.ValueType  # 37
     """
     Admin packet sent using PKC, but not from a public key on the admin key list
+    """
+    RATE_LIMIT_EXCEEDED: Routing.Error.ValueType  # 38
+    """
+    Airtime fairness rate limit exceeded for a packet
+    This typically enforced per portnum and is used to prevent a single node from monopolizing airtime
     """
 
     ROUTE_REQUEST_FIELD_NUMBER: builtins.int
@@ -2591,6 +2682,8 @@ class MyNodeInfo(google.protobuf.message.Message):
     MIN_APP_VERSION_FIELD_NUMBER: builtins.int
     DEVICE_ID_FIELD_NUMBER: builtins.int
     PIO_ENV_FIELD_NUMBER: builtins.int
+    FIRMWARE_EDITION_FIELD_NUMBER: builtins.int
+    NODEDB_COUNT_FIELD_NUMBER: builtins.int
     my_node_num: builtins.int
     """
     Tells the phone what our node number is, default starting value is
@@ -2614,6 +2707,15 @@ class MyNodeInfo(google.protobuf.message.Message):
     """
     The PlatformIO environment used to build this firmware
     """
+    firmware_edition: global___FirmwareEdition.ValueType
+    """
+    The indicator for whether this device is running event firmware and which
+    """
+    nodedb_count: builtins.int
+    """
+    The number of nodes in the nodedb.
+    This is used by the phone to know how many NodeInfo packets to expect on want_config
+    """
     def __init__(
         self,
         *,
@@ -2622,8 +2724,10 @@ class MyNodeInfo(google.protobuf.message.Message):
         min_app_version: builtins.int = ...,
         device_id: builtins.bytes = ...,
         pio_env: builtins.str = ...,
+        firmware_edition: global___FirmwareEdition.ValueType = ...,
+        nodedb_count: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["device_id", b"device_id", "min_app_version", b"min_app_version", "my_node_num", b"my_node_num", "pio_env", b"pio_env", "reboot_count", b"reboot_count"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["device_id", b"device_id", "firmware_edition", b"firmware_edition", "min_app_version", b"min_app_version", "my_node_num", b"my_node_num", "nodedb_count", b"nodedb_count", "pio_env", b"pio_env", "reboot_count", b"reboot_count"]) -> None: ...
 
 global___MyNodeInfo = MyNodeInfo
 

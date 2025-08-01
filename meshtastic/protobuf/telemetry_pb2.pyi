@@ -187,6 +187,18 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     ADS1X15 ADC
     """
+    ADS1X15_ALT: _TelemetrySensorType.ValueType  # 41
+    """
+    ADS1X15 ADC_ALT
+    """
+    SFA30: _TelemetrySensorType.ValueType  # 42
+    """
+    Sensirion SFA30 Formaldehyde sensor
+    """
+    SEN5X: _TelemetrySensorType.ValueType  # 43
+    """
+    SEN5X PM SENSORS
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -356,6 +368,18 @@ PCT2075 Temperature Sensor
 ADS1X15: TelemetrySensorType.ValueType  # 40
 """
 ADS1X15 ADC
+"""
+ADS1X15_ALT: TelemetrySensorType.ValueType  # 41
+"""
+ADS1X15 ADC_ALT
+"""
+SFA30: TelemetrySensorType.ValueType  # 42
+"""
+Sensirion SFA30 Formaldehyde sensor
+"""
+SEN5X: TelemetrySensorType.ValueType  # 43
+"""
+SEN5X PM SENSORS
 """
 global___TelemetrySensorType = TelemetrySensorType
 
@@ -779,53 +803,63 @@ class AirQualityMetrics(google.protobuf.message.Message):
     CO2_FIELD_NUMBER: builtins.int
     CO2_TEMPERATURE_FIELD_NUMBER: builtins.int
     CO2_HUMIDITY_FIELD_NUMBER: builtins.int
+    FORM_FORMALDEHYDE_FIELD_NUMBER: builtins.int
+    FORM_HUMIDITY_FIELD_NUMBER: builtins.int
+    FORM_TEMPERATURE_FIELD_NUMBER: builtins.int
+    PM40_STANDARD_FIELD_NUMBER: builtins.int
+    PARTICLES_40UM_FIELD_NUMBER: builtins.int
+    PM_TEMPERATURE_FIELD_NUMBER: builtins.int
+    PM_HUMIDITY_FIELD_NUMBER: builtins.int
+    PM_VOC_IDX_FIELD_NUMBER: builtins.int
+    PM_NOX_IDX_FIELD_NUMBER: builtins.int
+    PARTICLES_TPS_FIELD_NUMBER: builtins.int
     pm10_standard: builtins.int
     """
-    Concentration Units Standard PM1.0
+    Concentration Units Standard PM1.0 in ug/m3
     """
     pm25_standard: builtins.int
     """
-    Concentration Units Standard PM2.5
+    Concentration Units Standard PM2.5 in ug/m3
     """
     pm100_standard: builtins.int
     """
-    Concentration Units Standard PM10.0
+    Concentration Units Standard PM10.0 in ug/m3
     """
     pm10_environmental: builtins.int
     """
-    Concentration Units Environmental PM1.0
+    Concentration Units Environmental PM1.0 in ug/m3
     """
     pm25_environmental: builtins.int
     """
-    Concentration Units Environmental PM2.5
+    Concentration Units Environmental PM2.5 in ug/m3
     """
     pm100_environmental: builtins.int
     """
-    Concentration Units Environmental PM10.0
+    Concentration Units Environmental PM10.0 in ug/m3
     """
     particles_03um: builtins.int
     """
-    0.3um Particle Count
+    0.3um Particle Count in #/0.1l
     """
     particles_05um: builtins.int
     """
-    0.5um Particle Count
+    0.5um Particle Count in #/0.1l
     """
     particles_10um: builtins.int
     """
-    1.0um Particle Count
+    1.0um Particle Count in #/0.1l
     """
     particles_25um: builtins.int
     """
-    2.5um Particle Count
+    2.5um Particle Count in #/0.1l
     """
     particles_50um: builtins.int
     """
-    5.0um Particle Count
+    5.0um Particle Count in #/0.1l
     """
     particles_100um: builtins.int
     """
-    10.0um Particle Count
+    10.0um Particle Count in #/0.1l
     """
     co2: builtins.int
     """
@@ -838,6 +872,46 @@ class AirQualityMetrics(google.protobuf.message.Message):
     co2_humidity: builtins.float
     """
     CO2 sensor relative humidity in %
+    """
+    form_formaldehyde: builtins.float
+    """
+    Formaldehyde sensor formaldehyde concentration in ppb
+    """
+    form_humidity: builtins.float
+    """
+    Formaldehyde sensor relative humidity in %RH
+    """
+    form_temperature: builtins.float
+    """
+    Formaldehyde sensor temperature in degrees Celsius
+    """
+    pm40_standard: builtins.int
+    """
+    Concentration Units Standard PM4.0 in ug/m3
+    """
+    particles_40um: builtins.int
+    """
+    4.0um Particle Count in #/0.1l
+    """
+    pm_temperature: builtins.float
+    """
+    PM Sensor Temperature
+    """
+    pm_humidity: builtins.float
+    """
+    PM Sensor humidity
+    """
+    pm_voc_idx: builtins.float
+    """
+    PM Sensor VOC Index
+    """
+    pm_nox_idx: builtins.float
+    """
+    PM Sensor NOx Index
+    """
+    particles_tps: builtins.float
+    """
+    Typical Particle Size in um
     """
     def __init__(
         self,
@@ -857,15 +931,31 @@ class AirQualityMetrics(google.protobuf.message.Message):
         co2: builtins.int | None = ...,
         co2_temperature: builtins.float | None = ...,
         co2_humidity: builtins.float | None = ...,
+        form_formaldehyde: builtins.float | None = ...,
+        form_humidity: builtins.float | None = ...,
+        form_temperature: builtins.float | None = ...,
+        pm40_standard: builtins.int | None = ...,
+        particles_40um: builtins.int | None = ...,
+        pm_temperature: builtins.float | None = ...,
+        pm_humidity: builtins.float | None = ...,
+        pm_voc_idx: builtins.float | None = ...,
+        pm_nox_idx: builtins.float | None = ...,
+        particles_tps: builtins.float | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_co2", b"_co2", "_co2_humidity", b"_co2_humidity", "_co2_temperature", b"_co2_temperature", "_particles_03um", b"_particles_03um", "_particles_05um", b"_particles_05um", "_particles_100um", b"_particles_100um", "_particles_10um", b"_particles_10um", "_particles_25um", b"_particles_25um", "_particles_50um", b"_particles_50um", "_pm100_environmental", b"_pm100_environmental", "_pm100_standard", b"_pm100_standard", "_pm10_environmental", b"_pm10_environmental", "_pm10_standard", b"_pm10_standard", "_pm25_environmental", b"_pm25_environmental", "_pm25_standard", b"_pm25_standard", "co2", b"co2", "co2_humidity", b"co2_humidity", "co2_temperature", b"co2_temperature", "particles_03um", b"particles_03um", "particles_05um", b"particles_05um", "particles_100um", b"particles_100um", "particles_10um", b"particles_10um", "particles_25um", b"particles_25um", "particles_50um", b"particles_50um", "pm100_environmental", b"pm100_environmental", "pm100_standard", b"pm100_standard", "pm10_environmental", b"pm10_environmental", "pm10_standard", b"pm10_standard", "pm25_environmental", b"pm25_environmental", "pm25_standard", b"pm25_standard"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_co2", b"_co2", "_co2_humidity", b"_co2_humidity", "_co2_temperature", b"_co2_temperature", "_particles_03um", b"_particles_03um", "_particles_05um", b"_particles_05um", "_particles_100um", b"_particles_100um", "_particles_10um", b"_particles_10um", "_particles_25um", b"_particles_25um", "_particles_50um", b"_particles_50um", "_pm100_environmental", b"_pm100_environmental", "_pm100_standard", b"_pm100_standard", "_pm10_environmental", b"_pm10_environmental", "_pm10_standard", b"_pm10_standard", "_pm25_environmental", b"_pm25_environmental", "_pm25_standard", b"_pm25_standard", "co2", b"co2", "co2_humidity", b"co2_humidity", "co2_temperature", b"co2_temperature", "particles_03um", b"particles_03um", "particles_05um", b"particles_05um", "particles_100um", b"particles_100um", "particles_10um", b"particles_10um", "particles_25um", b"particles_25um", "particles_50um", b"particles_50um", "pm100_environmental", b"pm100_environmental", "pm100_standard", b"pm100_standard", "pm10_environmental", b"pm10_environmental", "pm10_standard", b"pm10_standard", "pm25_environmental", b"pm25_environmental", "pm25_standard", b"pm25_standard"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_co2", b"_co2", "_co2_humidity", b"_co2_humidity", "_co2_temperature", b"_co2_temperature", "_form_formaldehyde", b"_form_formaldehyde", "_form_humidity", b"_form_humidity", "_form_temperature", b"_form_temperature", "_particles_03um", b"_particles_03um", "_particles_05um", b"_particles_05um", "_particles_100um", b"_particles_100um", "_particles_10um", b"_particles_10um", "_particles_25um", b"_particles_25um", "_particles_40um", b"_particles_40um", "_particles_50um", b"_particles_50um", "_particles_tps", b"_particles_tps", "_pm100_environmental", b"_pm100_environmental", "_pm100_standard", b"_pm100_standard", "_pm10_environmental", b"_pm10_environmental", "_pm10_standard", b"_pm10_standard", "_pm25_environmental", b"_pm25_environmental", "_pm25_standard", b"_pm25_standard", "_pm40_standard", b"_pm40_standard", "_pm_humidity", b"_pm_humidity", "_pm_nox_idx", b"_pm_nox_idx", "_pm_temperature", b"_pm_temperature", "_pm_voc_idx", b"_pm_voc_idx", "co2", b"co2", "co2_humidity", b"co2_humidity", "co2_temperature", b"co2_temperature", "form_formaldehyde", b"form_formaldehyde", "form_humidity", b"form_humidity", "form_temperature", b"form_temperature", "particles_03um", b"particles_03um", "particles_05um", b"particles_05um", "particles_100um", b"particles_100um", "particles_10um", b"particles_10um", "particles_25um", b"particles_25um", "particles_40um", b"particles_40um", "particles_50um", b"particles_50um", "particles_tps", b"particles_tps", "pm100_environmental", b"pm100_environmental", "pm100_standard", b"pm100_standard", "pm10_environmental", b"pm10_environmental", "pm10_standard", b"pm10_standard", "pm25_environmental", b"pm25_environmental", "pm25_standard", b"pm25_standard", "pm40_standard", b"pm40_standard", "pm_humidity", b"pm_humidity", "pm_nox_idx", b"pm_nox_idx", "pm_temperature", b"pm_temperature", "pm_voc_idx", b"pm_voc_idx"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_co2", b"_co2", "_co2_humidity", b"_co2_humidity", "_co2_temperature", b"_co2_temperature", "_form_formaldehyde", b"_form_formaldehyde", "_form_humidity", b"_form_humidity", "_form_temperature", b"_form_temperature", "_particles_03um", b"_particles_03um", "_particles_05um", b"_particles_05um", "_particles_100um", b"_particles_100um", "_particles_10um", b"_particles_10um", "_particles_25um", b"_particles_25um", "_particles_40um", b"_particles_40um", "_particles_50um", b"_particles_50um", "_particles_tps", b"_particles_tps", "_pm100_environmental", b"_pm100_environmental", "_pm100_standard", b"_pm100_standard", "_pm10_environmental", b"_pm10_environmental", "_pm10_standard", b"_pm10_standard", "_pm25_environmental", b"_pm25_environmental", "_pm25_standard", b"_pm25_standard", "_pm40_standard", b"_pm40_standard", "_pm_humidity", b"_pm_humidity", "_pm_nox_idx", b"_pm_nox_idx", "_pm_temperature", b"_pm_temperature", "_pm_voc_idx", b"_pm_voc_idx", "co2", b"co2", "co2_humidity", b"co2_humidity", "co2_temperature", b"co2_temperature", "form_formaldehyde", b"form_formaldehyde", "form_humidity", b"form_humidity", "form_temperature", b"form_temperature", "particles_03um", b"particles_03um", "particles_05um", b"particles_05um", "particles_100um", b"particles_100um", "particles_10um", b"particles_10um", "particles_25um", b"particles_25um", "particles_40um", b"particles_40um", "particles_50um", b"particles_50um", "particles_tps", b"particles_tps", "pm100_environmental", b"pm100_environmental", "pm100_standard", b"pm100_standard", "pm10_environmental", b"pm10_environmental", "pm10_standard", b"pm10_standard", "pm25_environmental", b"pm25_environmental", "pm25_standard", b"pm25_standard", "pm40_standard", b"pm40_standard", "pm_humidity", b"pm_humidity", "pm_nox_idx", b"pm_nox_idx", "pm_temperature", b"pm_temperature", "pm_voc_idx", b"pm_voc_idx"]) -> None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_co2", b"_co2"]) -> typing.Literal["co2"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_co2_humidity", b"_co2_humidity"]) -> typing.Literal["co2_humidity"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_co2_temperature", b"_co2_temperature"]) -> typing.Literal["co2_temperature"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_form_formaldehyde", b"_form_formaldehyde"]) -> typing.Literal["form_formaldehyde"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_form_humidity", b"_form_humidity"]) -> typing.Literal["form_humidity"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_form_temperature", b"_form_temperature"]) -> typing.Literal["form_temperature"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_particles_03um", b"_particles_03um"]) -> typing.Literal["particles_03um"] | None: ...
     @typing.overload
@@ -877,7 +967,11 @@ class AirQualityMetrics(google.protobuf.message.Message):
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_particles_25um", b"_particles_25um"]) -> typing.Literal["particles_25um"] | None: ...
     @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_particles_40um", b"_particles_40um"]) -> typing.Literal["particles_40um"] | None: ...
+    @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_particles_50um", b"_particles_50um"]) -> typing.Literal["particles_50um"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_particles_tps", b"_particles_tps"]) -> typing.Literal["particles_tps"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_pm100_environmental", b"_pm100_environmental"]) -> typing.Literal["pm100_environmental"] | None: ...
     @typing.overload
@@ -890,6 +984,16 @@ class AirQualityMetrics(google.protobuf.message.Message):
     def WhichOneof(self, oneof_group: typing.Literal["_pm25_environmental", b"_pm25_environmental"]) -> typing.Literal["pm25_environmental"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_pm25_standard", b"_pm25_standard"]) -> typing.Literal["pm25_standard"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_pm40_standard", b"_pm40_standard"]) -> typing.Literal["pm40_standard"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_pm_humidity", b"_pm_humidity"]) -> typing.Literal["pm_humidity"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_pm_nox_idx", b"_pm_nox_idx"]) -> typing.Literal["pm_nox_idx"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_pm_temperature", b"_pm_temperature"]) -> typing.Literal["pm_temperature"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_pm_voc_idx", b"_pm_voc_idx"]) -> typing.Literal["pm_voc_idx"] | None: ...
 
 global___AirQualityMetrics = AirQualityMetrics
 

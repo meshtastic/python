@@ -1214,6 +1214,7 @@ class Config(google.protobuf.message.Message):
         """
         gps_format: global___Config.DisplayConfig.GpsCoordinateFormat.ValueType
         """
+        Deprecated in 2.7.4: Unused
         How the GPS coordinates are formatted on the OLED screen.
         """
         auto_screen_carousel_secs: builtins.int
@@ -1391,6 +1392,14 @@ class Config(google.protobuf.message.Message):
             """
             Kazakhstan 863MHz
             """
+            NP_865: Config.LoRaConfig._RegionCode.ValueType  # 25
+            """
+            Nepal 865MHz
+            """
+            BR_902: Config.LoRaConfig._RegionCode.ValueType  # 26
+            """
+            Brazil 902MHz
+            """
 
         class RegionCode(_RegionCode, metaclass=_RegionCodeEnumTypeWrapper): ...
         UNSET: Config.LoRaConfig.RegionCode.ValueType  # 0
@@ -1492,6 +1501,14 @@ class Config(google.protobuf.message.Message):
         KZ_863: Config.LoRaConfig.RegionCode.ValueType  # 24
         """
         Kazakhstan 863MHz
+        """
+        NP_865: Config.LoRaConfig.RegionCode.ValueType  # 25
+        """
+        Nepal 865MHz
+        """
+        BR_902: Config.LoRaConfig.RegionCode.ValueType  # 26
+        """
+        Brazil 902MHz
         """
 
         class _ModemPreset:
