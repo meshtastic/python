@@ -6,6 +6,7 @@ import os
 import platform
 import re
 import sys
+import types
 from unittest.mock import mock_open, MagicMock, patch
 
 import pytest
@@ -35,6 +36,12 @@ from ..tcp_interface import TCPInterface
 # from ..remote_hardware import onGPIOreceive
 # from ..config_pb2 import Config
 
+# create a fake termios for Wwindows, otherwise errors will occur
+if sys.platform == "win32":
+    fake_termios = types.ModuleType("termios")
+    fake_termios.tcgetattr = lambda fd: None
+    fake_termios.tcsetattr = lambda fd, when, settings: None
+    sys.modules["termios"] = fake_termios
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
@@ -2676,6 +2683,7 @@ def test_tunnel_no_args(capsys):
     assert re.search(r"usage: ", err, re.MULTILINE)
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Linux is forced in test and no termios")
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.util.findPorts", return_value=[])
@@ -2699,6 +2707,7 @@ def test_tunnel_tunnel_arg_with_no_devices(mock_platform_system, caplog, capsys)
         assert err == ""
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Linux is forced in test and no termios")
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.util.findPorts", return_value=[])
@@ -2722,6 +2731,7 @@ def test_tunnel_subnet_arg_with_no_devices(mock_platform_system, caplog, capsys)
         assert err == ""
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Linux is forced in test and no termios")
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("platform.system")
