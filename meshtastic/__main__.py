@@ -9,9 +9,6 @@ from typing import List, Optional, Union
 from types import ModuleType
 
 import argparse
-import logging
-
-logger = logging.getLogger(__name__)
 
 argcomplete: Union[None, ModuleType] = None
 try:
@@ -65,6 +62,8 @@ except ImportError as e:
     meter = None
 from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
 from meshtastic.version import get_active_version
+
+logger = logging.getLogger(__name__)
 
 def onReceive(packet, interface) -> None:
     """Callback invoked when a packet arrives"""
