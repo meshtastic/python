@@ -18,8 +18,6 @@ from typing import Any, Callable, Dict, List, Optional, Union
 
 import google.protobuf.json_format
 
-logger = logging.getLogger(__name__)
-
 try:
     import print_color  # type: ignore[import-untyped]
 except ImportError as e:
@@ -49,6 +47,7 @@ from meshtastic.util import (
     stripnl,
 )
 
+logger = logging.getLogger(__name__)
 
 def _timeago(delta_secs: int) -> str:
     """Convert a number of seconds in the past into a short, friendly string
