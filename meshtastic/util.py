@@ -38,6 +38,7 @@ blacklistVids: Dict = dict.fromkeys([0x1366, 0x0483, 0x1915, 0x0925, 0x04b4])
 0x303a Heltec tracker"""
 whitelistVids = dict.fromkeys([0x239a, 0x303a])
 
+logger = logging.getLogger(__name__)
 
 def quoteBooleans(a_string: str) -> str:
     """Quote booleans
@@ -141,7 +142,7 @@ def catchAndIgnore(reason: str, closure) -> None:
     try:
         closure()
     except BaseException as ex:
-        logging.error(f"Exception thrown in {reason}: {ex}")
+        logger.error(f"Exception thrown in {reason}: {ex}")
 
 
 def findPorts(eliminate_duplicates: bool=False) -> List[str]:
@@ -307,7 +308,7 @@ class DeferredExecution:
                 o = self.queue.get()
                 o()
             except:
-                logging.error(
+                logger.error(
                     f"Unexpected error in deferred execution {sys.exc_info()[0]}"
                 )
                 print(traceback.format_exc())

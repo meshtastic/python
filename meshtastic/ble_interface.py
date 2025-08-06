@@ -23,6 +23,7 @@ FROMRADIO_UUID = "2c55e69e-4993-11ed-b878-0242ac120002"
 FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
 LEGACY_LOGRADIO_UUID = "6c6fd238-78fa-436b-aacf-15c5be1ef2e2"
 LOGRADIO_UUID = "5a3d6e49-06e6-4423-9944-e9de8cdf9547"
+logger = logging.getLogger(__name__)
 
 
 class BLEInterface(MeshInterface):
@@ -44,19 +45,19 @@ class BLEInterface(MeshInterface):
 
         self.should_read = False
 
-        logging.debug("Threads starting")
+        logger.debug("Threads starting")
         self._want_receive = True
         self._receiveThread: Optional[Thread] = Thread(
             target=self._receiveFromRadioImpl, name="BLEReceive", daemon=True
         )
         self._receiveThread.start()
-        logging.debug("Threads running")
+        logger.debug("Threads running")
 
         self.client: Optional[BLEClient] = None
         try:
-            logging.debug(f"BLE connecting to: {address if address else 'any'}")
+            logger.debug(f"BLE connecting to: {address if address else 'any'}")
             self.client = self.connect(address)
-            logging.debug("BLE connected")
+            logger.debug("BLE connected")
         except BLEInterface.BLEError as e:
             self.close()
             raise e
@@ -69,13 +70,13 @@ class BLEInterface(MeshInterface):
         if self.client.has_characteristic(LOGRADIO_UUID):
             self.client.start_notify(LOGRADIO_UUID, self.log_radio_handler)
 
-        logging.debug("Mesh configure starting")
+        logger.debug("Mesh configure starting")
         self._startConfig()
         if not self.noProto:
             self._waitConnected(timeout=60.0)
             self.waitForConfig()
 
-        logging.debug("Register FROMNUM notify callback")
+        logger.debug("Register FROMNUM notify callback")
         self.client.start_notify(FROMNUM_UUID, self.from_num_handler)
 
         # We MUST run atexit (if we can) because otherwise (at least on linux) the BLE device is not disconnected
@@ -99,7 +100,7 @@ class BLEInterface(MeshInterface):
         Note: this method does not need to be async because it is just setting a bool.
         """
         from_num = struct.unpack("<I", bytes(b))[0]
-        logging.debug(f"FROMNUM notify: {from_num}")
+        logger.debug(f"FROMNUM notify: {from_num}")
         self.should_read = True
 
     async def log_radio_handler(self, _, b):  # pylint: disable=C0116
@@ -114,7 +115,7 @@ class BLEInterface(MeshInterface):
             )
             self._handleLogLine(message)
         except google.protobuf.message.DecodeError:
-            logging.warning("Malformed LogRecord received. Skipping.")
+            logger.warning("Malformed LogRecord received. Skipping.")
 
     async def legacy_log_radio_handler(self, _, b):  # pylint: disable=C0116
         log_radio = b.decode("utf-8").replace("\n", "")
@@ -124,7 +125,7 @@ class BLEInterface(MeshInterface):
     def scan() -> List[BLEDevice]:
         """Scan for available BLE devices."""
         with BLEClient() as client:
-            logging.info("Scanning for BLE devices (takes 10 seconds)...")
+            logger.info("Scanning for BLE devices (takes 10 seconds)...")
             response = client.discover(
                 timeout=10, return_adv=True, service_uuids=[SERVICE_UUID]
             )
@@ -186,19 +187,19 @@ class BLEInterface(MeshInterface):
                 retries: int = 0
                 while self._want_receive:
                     if self.client is None:
-                        logging.debug(f"BLE client is None, shutting down")
+                        logger.debug(f"BLE client is None, shutting down")
                         self._want_receive = False
                         continue
                     try:
                         b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
                     except BleakDBusError as e:
                         # Device disconnected probably, so end our read loop immediately
-                        logging.debug(f"Device disconnected, shutting down {e}")
+                        logger.debug(f"Device disconnected, shutting down {e}")
                         self._want_receive = False
                     except BleakError as e:
                         # We were definitely disconnected
                         if "Not connected" in str(e):
-                            logging.debug(f"Device disconnected, shutting down {e}")
+                            logger.debug(f"Device disconnected, shutting down {e}")
                             self._want_receive = False
                         else:
                             raise BLEInterface.BLEError("Error reading BLE") from e
@@ -208,7 +209,7 @@ class BLEInterface(MeshInterface):
                             retries += 1
                             continue
                         break
-                    logging.debug(f"FROMRADIO read: {b.hex()}")
+                    logger.debug(f"FROMRADIO read: {b.hex()}")
                     self._handleFromRadio(b)
             else:
                 time.sleep(0.01)
@@ -216,7 +217,7 @@ class BLEInterface(MeshInterface):
     def _sendToRadioImpl(self, toRadio) -> None:
         b: bytes = toRadio.SerializeToString()
         if b and self.client:  # we silently ignore writes while we are shutting down
-            logging.debug(f"TORADIO write: {b.hex()}")
+            logger.debug(f"TORADIO write: {b.hex()}")
             try:
                 self.client.write_gatt_char(
                     TORADIO_UUID, b, response=True
@@ -234,7 +235,7 @@ class BLEInterface(MeshInterface):
         try:
             MeshInterface.close(self)
         except Exception as e:
-            logging.error(f"Error closing mesh interface: {e}")
+            logger.error(f"Error closing mesh interface: {e}")
 
         if self._want_receive:
             self._want_receive = False  # Tell the thread we want it to stop
@@ -263,7 +264,7 @@ class BLEClient:
         self._eventThread.start()
 
         if not address:
-            logging.debug("No address provided - only discover method will work.")
+            logger.debug("No address provided - only discover method will work.")
             return
 
         self.bleak_client = BleakClient(address, **kwargs)
