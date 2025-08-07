@@ -343,37 +343,36 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
 
-            # Validate owner names before connecting to device
-            if args.set_owner is not None:
-                stripped_long_name = args.set_owner.strip()
-                if not stripped_long_name:
-                    meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
+            long_name = args.set_owner.strip() if args.set_owner else None
+            short_name = args.set_owner_short.strip() if args.set_owner_short else None
 
-            if hasattr(args, 'set_owner_short') and args.set_owner_short is not None:
-                stripped_short_name = args.set_owner_short.strip()
-                if not stripped_short_name:
-                    meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
+            if long_name is not None and not long_name:
+                meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
 
-            if args.set_owner and args.set_owner_short:
-                print(f"Setting device owner to {args.set_owner} and short name to {args.set_owner_short}")
-            elif args.set_owner:
-                print(f"Setting device owner to {args.set_owner}")
-            elif args.set_owner_short and not args.set_owner:
-                print(f"Setting device owner short to {args.set_owner_short}")
+            if short_name is not None and not short_name:
+                meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
 
-            if args.set_is_unmessageable:
+            if long_name and short_name:
+                print(f"Setting device owner to {long_name} and short name to {short_name}")
+            elif long_name:
+                print(f"Setting device owner to {long_name}")
+            elif short_name:
+                print(f"Setting device owner short to {short_name}")
+
+            unmessagable = None
+            if args.set_is_unmessageable is not None:
                 unmessagable = (
                     meshtastic.util.fromStr(args.set_is_unmessageable)
                     if isinstance(args.set_is_unmessageable, str)
                     else args.set_is_unmessageable
                 )
+                print(f"Setting device owner is_unmessageable to {unmessagable}")
 
-                if unmessagable is not None:
-                    print(f"Setting device owner is_unmessageable to {unmessagable}")
-                    interface.getNode(
-                        args.dest, False, **getNode_kwargs).setOwner(long_name=args.set_owner,
-                        short_name=args.set_owner_short, is_unmessagable=unmessagable
-                    )
+            interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
+                long_name=long_name,
+                short_name=short_name,
+                is_unmessagable=unmessagable
+            )
 
         if args.set_canned_message:
             closeNow = True
