@@ -267,7 +267,7 @@ class LogSet:
             # symlink might fail on some platforms, if it does fail silently
             try:
                 latest_dir.symlink_to(dir_name, target_is_directory=True)
-            except OSError as e:
+            except OSError:
                 pass
 
         self.dir_name = dir_name
