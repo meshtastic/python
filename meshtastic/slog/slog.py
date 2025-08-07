@@ -3,13 +3,13 @@
 import atexit
 import io
 import logging
-import os
 import re
 import threading
 import time
 from dataclasses import dataclass
 from datetime import datetime
 from functools import reduce
+from pathlib import Path
 from typing import Optional, List, Tuple
 
 import parse  # type: ignore[import-untyped]
@@ -22,6 +22,7 @@ from meshtastic.powermon import PowerMeter
 
 from .arrow import FeatherWriter
 
+logger = logging.getLogger(__name__)
 
 def root_dir() -> str:
     """Return the root directory for slog files."""
@@ -29,9 +30,9 @@ def root_dir() -> str:
     app_name = "meshtastic"
     app_author = "meshtastic"
     app_dir = platformdirs.user_data_dir(app_name, app_author)
-    dir_name = f"{app_dir}/slogs"
-    os.makedirs(dir_name, exist_ok=True)
-    return dir_name
+    dir_name = Path(app_dir, "slogs")
+    dir_name.mkdir(exist_ok=True)
+    return str(dir_name)
 
 
 @dataclass(init=False)
@@ -197,7 +198,7 @@ class StructuredLogger:
         if m:
             src = m.group(1)
             args = m.group(2)
-            logging.debug(f"SLog {src}, args: {args}")
+            logger.debug(f"SLog {src}, args: {args}")
 
             d = log_defs.get(src)
             if d:
@@ -219,9 +220,9 @@ class StructuredLogger:
                             # If the last field is an empty string, remove it
                             del di[last_field[0]]
                 else:
-                    logging.warning(f"Failed to parse slog {line} with {d.format}")
+                    logger.warning(f"Failed to parse slog {line} with {d.format}")
             else:
-                logging.warning(f"Unknown Structured Log: {line}")
+                logger.warning(f"Unknown Structured Log: {line}")
 
         # Store our structured log record
         if di or self.include_raw:
@@ -256,18 +257,22 @@ class LogSet:
 
         if not dir_name:
             app_dir = root_dir()
-            dir_name = f"{app_dir}/{datetime.now().strftime('%Y%m%d-%H%M%S')}"
-            os.makedirs(dir_name, exist_ok=True)
+            dir_name = Path(app_dir, datetime.now().strftime('%Y%m%d-%H%M%S'))
+            dir_name.mkdir(exist_ok=True)
 
             # Also make a 'latest' directory that always points to the most recent logs
+            latest_dir = Path(app_dir, "latest")
+            latest_dir.unlink(missing_ok=True)
+
             # symlink might fail on some platforms, if it does fail silently
-            if os.path.exists(f"{app_dir}/latest"):
-                os.unlink(f"{app_dir}/latest")
-            os.symlink(dir_name, f"{app_dir}/latest", target_is_directory=True)
+            try:
+                latest_dir.symlink_to(dir_name, target_is_directory=True)
+            except OSError as e:
+                pass
 
         self.dir_name = dir_name
 
-        logging.info(f"Writing slogs to {dir_name}")
+        logger.info(f"Writing slogs to {dir_name}")
 
         self.power_logger: Optional[PowerLogger] = (
             None
@@ -286,7 +291,7 @@ class LogSet:
         """Close the log set."""
 
         if self.slog_logger:
-            logging.info(f"Closing slogs in {self.dir_name}")
+            logger.info(f"Closing slogs in {self.dir_name}")
             atexit.unregister(
                 self.atexit_handler
             )  # docs say it will silently ignore if not found

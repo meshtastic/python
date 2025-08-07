@@ -2683,7 +2683,6 @@ def test_tunnel_no_args(capsys):
     assert re.search(r"usage: ", err, re.MULTILINE)
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="Linux is forced in test and no termios")
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.util.findPorts", return_value=[])
@@ -2707,7 +2706,6 @@ def test_tunnel_tunnel_arg_with_no_devices(mock_platform_system, caplog, capsys)
         assert err == ""
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="Linux is forced in test and no termios")
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.util.findPorts", return_value=[])

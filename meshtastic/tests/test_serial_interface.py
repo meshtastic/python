@@ -1,4 +1,5 @@
 """Meshtastic unit tests for serial_interface.py"""
+import platform
 # pylint: disable=R0917
 
 import re
@@ -28,9 +29,13 @@ def test_SerialInterface_single_port(
     iface.close()
     mocked_findPorts.assert_called()
     mocked_serial.assert_called()
-    mocked_open.assert_called()
-    mock_get.assert_called()
-    mock_set.assert_called()
+
+    # doesn't get called in SerialInterface.__init__ on windows
+    if platform.system() != "Windows":
+        mocked_open.assert_called()
+        mock_get.assert_called()
+        mock_set.assert_called()
+
     mock_sleep.assert_called()
     out, err = capsys.readouterr()
     assert re.search(r"Nodes in mesh", out, re.MULTILINE)
