@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+from pathlib import Path
 from typing import cast, List
 
 import dash_bootstrap_components as dbc  # type: ignore[import-untyped]
@@ -190,7 +191,7 @@ def main():
     parser = create_argparser()
     args = parser.parse_args()
     if not args.slog:
-        args.slog = f"{root_dir()}/latest"
+        args.slog = str(Path(root_dir(), "latest"))
 
     app = create_dash(slog_path=args.slog)
     port = 8051

@@ -129,6 +129,7 @@ NODELESS_WANT_CONFIG_ID = 69420
 
 publishingThread = DeferredExecution("publishing")
 
+logger = logging.getLogger(__name__)
 
 class ResponseHandler(NamedTuple):
     """A pending response callback, waiting for a response to one of our messages"""
@@ -160,31 +161,31 @@ def _onTextReceive(iface, asDict):
     #
     # Usually btw this problem is caused by apps sending binary data but setting the payload type to
     # text.
-    logging.debug(f"in _onTextReceive() asDict:{asDict}")
+    logger.debug(f"in _onTextReceive() asDict:{asDict}")
     try:
         asBytes = asDict["decoded"]["payload"]
         asDict["decoded"]["text"] = asBytes.decode("utf-8")
     except Exception as ex:
-        logging.error(f"Malformatted utf8 in text message: {ex}")
+        logger.error(f"Malformatted utf8 in text message: {ex}")
     _receiveInfoUpdate(iface, asDict)
 
 
 def _onPositionReceive(iface, asDict):
     """Special auto parsing for received messages"""
-    logging.debug(f"in _onPositionReceive() asDict:{asDict}")
+    logger.debug(f"in _onPositionReceive() asDict:{asDict}")
     if "decoded" in asDict:
         if "position" in asDict["decoded"] and "from" in asDict:
             p = asDict["decoded"]["position"]
-            logging.debug(f"p:{p}")
+            logger.debug(f"p:{p}")
             p = iface._fixupPosition(p)
-            logging.debug(f"after fixup p:{p}")
+            logger.debug(f"after fixup p:{p}")
             # update node DB as needed
             iface._getOrCreateByNum(asDict["from"])["position"] = p
 
 
 def _onNodeInfoReceive(iface, asDict):
     """Special auto parsing for received messages"""
-    logging.debug(f"in _onNodeInfoReceive() asDict:{asDict}")
+    logger.debug(f"in _onNodeInfoReceive() asDict:{asDict}")
     if "decoded" in asDict:
         if "user" in asDict["decoded"] and "from" in asDict:
             p = asDict["decoded"]["user"]
@@ -198,7 +199,7 @@ def _onNodeInfoReceive(iface, asDict):
 
 def _onTelemetryReceive(iface, asDict):
     """Automatically update device metrics on received packets"""
-    logging.debug(f"in _onTelemetryReceive() asDict:{asDict}")
+    logger.debug(f"in _onTelemetryReceive() asDict:{asDict}")
     if "from" not in asDict:
         return
 
@@ -222,7 +223,7 @@ def _onTelemetryReceive(iface, asDict):
     updateObj = telemetry.get(toUpdate)
     newMetrics = node.get(toUpdate, {})
     newMetrics.update(updateObj)
-    logging.debug(f"updating {toUpdate} metrics for {asDict['from']} to {newMetrics}")
+    logger.debug(f"updating {toUpdate} metrics for {asDict['from']} to {newMetrics}")
     node[toUpdate] = newMetrics
 
 def _receiveInfoUpdate(iface, asDict):
@@ -234,7 +235,7 @@ def _receiveInfoUpdate(iface, asDict):
 
 def _onAdminReceive(iface, asDict):
     """Special auto parsing for received messages"""
-    logging.debug(f"in _onAdminReceive() asDict:{asDict}")
+    logger.debug(f"in _onAdminReceive() asDict:{asDict}")
     if "decoded" in asDict and "from" in asDict and "admin" in asDict["decoded"]:
         adminMessage = asDict["decoded"]["admin"]["raw"]
         iface._getOrCreateByNum(asDict["from"])["adminSessionPassKey"] = adminMessage.session_passkey
