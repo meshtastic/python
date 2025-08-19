@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import os
 from pathlib import Path
 from typing import cast, List
 
@@ -191,7 +192,7 @@ def main():
     parser = create_argparser()
     args = parser.parse_args()
     if not args.slog:
-        args.slog = str(Path(root_dir(), "latest"))
+        args.slog = os.path.join(root_dir(), "latest")
 
     app = create_dash(slog_path=args.slog)
     port = 8051
