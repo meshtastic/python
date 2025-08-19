@@ -3,6 +3,7 @@
 import atexit
 import io
 import logging
+import os
 import re
 import threading
 import time
@@ -145,7 +146,7 @@ class StructuredLogger:
         self.power_logger = power_logger
 
         # Setup the arrow writer (and its schema)
-        self.writer = FeatherWriter(f"{dir_path}/slog")
+        self.writer = FeatherWriter(os.path.join(dir_path, "slog"))
         all_fields = reduce(
             (lambda x, y: x + y), map(lambda x: x.fields, log_defs.values())
         )
@@ -165,7 +166,7 @@ class StructuredLogger:
         self.raw_file: Optional[
             io.TextIOWrapper
         ] = open(  # pylint: disable=consider-using-with
-            f"{dir_path}/raw.txt", "w", encoding="utf8"
+            os.path.join(dir_path, "raw.txt"), "w", encoding="utf8"
         )
 
         # We need a closure here because the subscription API is very strict about exact arg matching
@@ -278,7 +279,7 @@ class LogSet:
         self.power_logger: Optional[PowerLogger] = (
             None
             if not power_meter
-            else PowerLogger(power_meter, f"{self.dir_name}/power")
+            else PowerLogger(power_meter, os.path.join(self.dir_name, "power"))
         )
 
         self.slog_logger: Optional[StructuredLogger] = StructuredLogger(

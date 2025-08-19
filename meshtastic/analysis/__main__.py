@@ -145,8 +145,8 @@ def create_dash(slog_path: str) -> Dash:
     """
     app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-    dpwr = read_pandas(f"{slog_path}/power.feather")
-    dslog = read_pandas(f"{slog_path}/slog.feather")
+    dpwr = read_pandas(os.path.join(slog_path, "power.feather"))
+    dslog = read_pandas(os.path.join(slog_path, "slog.feather"))
 
     pmon_raises = get_pmon_raises(dslog)
 
