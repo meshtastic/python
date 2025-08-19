@@ -3,7 +3,6 @@
 import argparse
 import logging
 import os
-from pathlib import Path
 from typing import cast, List
 
 import dash_bootstrap_components as dbc  # type: ignore[import-untyped]
