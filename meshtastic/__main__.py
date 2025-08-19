@@ -1274,6 +1274,10 @@ def common():
         format="%(levelname)s file:%(filename)s %(funcName)s line:%(lineno)s %(message)s",
     )
 
+    # set all meshtastic loggers to DEBUG
+    if not (args.debug or args.listen) and args.debuglib:
+        logging.getLogger('meshtastic').setLevel(logging.DEBUG)
+
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         meshtastic.util.our_exit("", 1)
@@ -2041,6 +2045,10 @@ def initParser():
 
     group.add_argument(
         "--debug", help="Show API library debug log messages", action="store_true"
+    )
+
+    group.add_argument(
+        "--debuglib", help="Show only API library debug log messages", action="store_true"
     )
 
     group.add_argument(

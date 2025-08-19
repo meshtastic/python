@@ -6,7 +6,6 @@ import os
 import platform
 import re
 import sys
-import types
 from unittest.mock import mock_open, MagicMock, patch
 
 import pytest
@@ -35,13 +34,6 @@ from ..tcp_interface import TCPInterface
 
 # from ..remote_hardware import onGPIOreceive
 # from ..config_pb2 import Config
-
-# create a fake termios for Wwindows, otherwise errors will occur
-if sys.platform == "win32":
-    fake_termios = types.ModuleType("termios")
-    fake_termios.tcgetattr = lambda fd: None
-    fake_termios.tcsetattr = lambda fd, when, settings: None
-    sys.modules["termios"] = fake_termios
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
@@ -765,12 +757,11 @@ def test_main_sendtext_with_invalid_channel_nine(caplog, capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-@patch("termios.tcsetattr")
-@patch("termios.tcgetattr")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
-def test_main_sendtext_with_dest(mock_findPorts, mock_serial, mocked_open, mock_get, mock_set, capsys, caplog, iface_with_nodes):
+def test_main_sendtext_with_dest(mock_findPorts, mock_serial, mocked_open, mock_hupcl, capsys, caplog, iface_with_nodes):
     """Test --sendtext with --dest"""
     sys.argv = ["", "--sendtext", "hello", "--dest", "foo"]
     mt_config.args = sys.argv
@@ -964,12 +955,11 @@ def test_main_seturl(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-@patch("termios.tcsetattr")
-@patch("termios.tcgetattr")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
-def test_main_set_valid(mocked_findports, mocked_serial, mocked_open, mocked_get, mocked_set, capsys):
+def test_main_set_valid(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
     """Test --set with valid field"""
     sys.argv = ["", "--set", "network.wifi_ssid", "foo"]
     mt_config.args = sys.argv
@@ -989,12 +979,10 @@ def test_main_set_valid(mocked_findports, mocked_serial, mocked_open, mocked_get
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-@patch("termios.tcsetattr")
-@patch("termios.tcgetattr")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
-def test_main_set_valid_wifi_psk(mocked_findports, mocked_serial, mocked_open, mocked_get, mocked_set, capsys):
+def test_main_set_valid_wifi_psk(mocked_findports, mocked_serial, mocked_open, capsys):
     """Test --set with valid field"""
     sys.argv = ["", "--set", "network.wifi_psk", "123456789"]
     mt_config.args = sys.argv
@@ -1014,12 +1002,11 @@ def test_main_set_valid_wifi_psk(mocked_findports, mocked_serial, mocked_open, m
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-@patch("termios.tcsetattr")
-@patch("termios.tcgetattr")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
-def test_main_set_invalid_wifi_psk(mocked_findports, mocked_serial, mocked_open, mocked_get, mocked_set, capsys):
+def test_main_set_invalid_wifi_psk(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
     """Test --set with an invalid value (psk must be 8 or more characters)"""
     sys.argv = ["", "--set", "network.wifi_psk", "1234567"]
     mt_config.args = sys.argv
@@ -1042,12 +1029,11 @@ def test_main_set_invalid_wifi_psk(mocked_findports, mocked_serial, mocked_open,
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-@patch("termios.tcsetattr")
-@patch("termios.tcgetattr")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
-def test_main_set_valid_camel_case(mocked_findports, mocked_serial, mocked_open, mocked_get, mocked_set, capsys):
+def test_main_set_valid_camel_case(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
     """Test --set with valid field"""
     sys.argv = ["", "--set", "network.wifi_ssid", "foo"]
     mt_config.args = sys.argv
@@ -1068,12 +1054,11 @@ def test_main_set_valid_camel_case(mocked_findports, mocked_serial, mocked_open,
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-@patch("termios.tcsetattr")
-@patch("termios.tcgetattr")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
-def test_main_set_with_invalid(mocked_findports, mocked_serial, mocked_open, mocked_get, mocked_set, capsys):
+def test_main_set_with_invalid(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
     """Test --set with invalid field"""
     sys.argv = ["", "--set", "foo", "foo"]
     mt_config.args = sys.argv
@@ -1094,12 +1079,11 @@ def test_main_set_with_invalid(mocked_findports, mocked_serial, mocked_open, moc
 # TODO: write some negative --configure tests
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-@patch("termios.tcsetattr")
-@patch("termios.tcgetattr")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
-def test_main_configure_with_snake_case(mocked_findports, mocked_serial, mocked_open, mocked_get, mocked_set, capsys):
+def test_main_configure_with_snake_case(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
     """Test --configure with valid file"""
     sys.argv = ["", "--configure", "example_config.yaml"]
     mt_config.args = sys.argv
@@ -1127,12 +1111,11 @@ def test_main_configure_with_snake_case(mocked_findports, mocked_serial, mocked_
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-@patch("termios.tcsetattr")
-@patch("termios.tcgetattr")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
-def test_main_configure_with_camel_case_keys(mocked_findports, mocked_serial, mocked_open, mocked_get, mocked_set, capsys):
+def test_main_configure_with_camel_case_keys(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
     """Test --configure with valid file"""
     sys.argv = ["", "--configure", "exampleConfig.yaml"]
     mt_config.args = sys.argv
@@ -2729,17 +2712,16 @@ def test_tunnel_subnet_arg_with_no_devices(mock_platform_system, caplog, capsys)
         assert err == ""
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="Linux is forced in test and no termios")
+@pytest.mark.skipif(sys.platform == "win32", reason="on windows is no fcntl module")
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("platform.system")
-@patch("termios.tcsetattr")
-@patch("termios.tcgetattr")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_tunnel_tunnel_arg(
-    mocked_findPorts, mocked_serial, mocked_open, mock_get, mock_set, mock_platform_system, caplog, iface_with_nodes, capsys
+    mocked_findPorts, mocked_serial, mocked_open, mock_hupcl, mock_platform_system, caplog, iface_with_nodes, capsys
 ):
     """Test tunnel with tunnel arg (act like we are on a linux system)"""
 

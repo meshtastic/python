@@ -13,13 +13,12 @@ from ..protobuf import config_pb2
 
 @pytest.mark.unit
 @patch("time.sleep")
-@patch("termios.tcsetattr")
-@patch("termios.tcgetattr")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_SerialInterface_single_port(
-    mocked_findPorts, mocked_serial, mocked_open, mock_get, mock_set, mock_sleep, capsys
+    mocked_findPorts, mocked_serial, mocked_open, mock_hupcl, mock_sleep, capsys
 ):
     """Test that we can instantiate a SerialInterface with a single port"""
     iface = SerialInterface(noProto=True)
@@ -29,12 +28,11 @@ def test_SerialInterface_single_port(
     iface.close()
     mocked_findPorts.assert_called()
     mocked_serial.assert_called()
+    mock_hupcl.assert_called()
 
-    # doesn't get called in SerialInterface.__init__ on windows
+    # doesn't get called in SerialInterface._set_hupcl_with_termios on windows
     if platform.system() != "Windows":
         mocked_open.assert_called()
-        mock_get.assert_called()
-        mock_set.assert_called()
 
     mock_sleep.assert_called()
     out, err = capsys.readouterr()

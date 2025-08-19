@@ -257,8 +257,9 @@ class LogSet:
 
         if not dir_name:
             app_dir = root_dir()
-            dir_name = Path(app_dir, datetime.now().strftime('%Y%m%d-%H%M%S'))
-            dir_name.mkdir(exist_ok=True)
+            app_time_dir = Path(app_dir, datetime.now().strftime('%Y%m%d-%H%M%S'))
+            app_time_dir.mkdir(exist_ok=True)
+            dir_name = str(app_time_dir)
 
             # Also make a 'latest' directory that always points to the most recent logs
             latest_dir = Path(app_dir, "latest")
