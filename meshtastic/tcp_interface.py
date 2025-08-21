@@ -10,6 +10,7 @@ from typing import Optional
 from meshtastic.stream_interface import StreamInterface
 
 DEFAULT_TCP_PORT = 4403
+logger = logging.getLogger(__name__)
 
 class TCPInterface(StreamInterface):
     """Interface class for meshtastic devices over a TCP link"""
@@ -67,13 +68,13 @@ class TCPInterface(StreamInterface):
 
     def myConnect(self) -> None:
         """Connect to socket"""
-        logging.debug(f"Connecting to {self.hostname}") # type: ignore[str-bytes-safe]
+        logger.debug(f"Connecting to {self.hostname}") # type: ignore[str-bytes-safe]
         server_address = (self.hostname, self.portNumber)
         self.socket = socket.create_connection(server_address)
 
     def close(self) -> None:
         """Close a connection to the device"""
-        logging.debug("Closing TCP stream")
+        logger.debug("Closing TCP stream")
         super().close()
         # Sometimes the socket read might be blocked in the reader thread.
         # Therefore we force the shutdown by closing the socket here
@@ -97,7 +98,7 @@ class TCPInterface(StreamInterface):
             # empty byte indicates a disconnected socket,
             # we need to handle it to avoid an infinite loop reading from null socket
             if data == b'':
-                logging.debug("dead socket, re-connecting")
+                logger.debug("dead socket, re-connecting")
                 # cleanup and reconnect socket without breaking reader thread
                 with contextlib.suppress(Exception):
                     self._socket_shutdown()

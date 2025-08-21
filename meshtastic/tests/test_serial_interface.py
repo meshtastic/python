@@ -2,6 +2,7 @@
 # pylint: disable=R0917
 
 import re
+import sys
 from unittest.mock import mock_open, patch
 
 import pytest
@@ -9,16 +10,14 @@ import pytest
 from ..serial_interface import SerialInterface
 from ..protobuf import config_pb2
 
-
 @pytest.mark.unit
 @patch("time.sleep")
-@patch("termios.tcsetattr")
-@patch("termios.tcgetattr")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_SerialInterface_single_port(
-    mocked_findPorts, mocked_serial, mocked_open, mock_get, mock_set, mock_sleep, capsys
+    mocked_findPorts, mocked_serial, mocked_open, mock_hupcl, mock_sleep, capsys
 ):
     """Test that we can instantiate a SerialInterface with a single port"""
     iface = SerialInterface(noProto=True)
@@ -28,9 +27,12 @@ def test_SerialInterface_single_port(
     iface.close()
     mocked_findPorts.assert_called()
     mocked_serial.assert_called()
-    mocked_open.assert_called()
-    mock_get.assert_called()
-    mock_set.assert_called()
+
+    # doesn't get called in SerialInterface on windows
+    if sys.platform != "win32":
+        mocked_open.assert_called()
+        mock_hupcl.assert_called()
+
     mock_sleep.assert_called()
     out, err = capsys.readouterr()
     assert re.search(r"Nodes in mesh", out, re.MULTILINE)

@@ -18,6 +18,7 @@ from meshtastic.util import (
     message_to_json,
 )
 
+logger = logging.getLogger(__name__)
 
 class Node:
     """A model of a (local or remote) node in the mesh
@@ -55,7 +56,7 @@ class Node:
         """Show human readable description of our channels."""
         print("Channels:")
         if self.channels:
-            logging.debug(f"self.channels:{self.channels}")
+            logger.debug(f"self.channels:{self.channels}")
             for c in self.channels:
                 cStr = message_to_json(c.settings)
                 # don't show disabled channels
@@ -88,7 +89,7 @@ class Node:
 
     def requestChannels(self, startingIndex: int = 0):
         """Send regular MeshPackets to ask channels."""
-        logging.debug(f"requestChannels for nodeNum:{self.nodeNum}")
+        logger.debug(f"requestChannels for nodeNum:{self.nodeNum}")
         # only initialize if we're starting out fresh
         if startingIndex == 0:
             self.channels = None
@@ -97,7 +98,7 @@ class Node:
 
     def onResponseRequestSettings(self, p):
         """Handle the response packets for requesting settings _requestSettings()"""
-        logging.debug(f"onResponseRequestSetting() p:{p}")
+        logger.debug(f"onResponseRequestSetting() p:{p}")
         config_values = None
         if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
@@ -224,7 +225,7 @@ class Node:
         else:
             our_exit(f"Error: No valid config with name {config_name}")
 
-        logging.debug(f"Wrote: {config_name}")
+        logger.debug(f"Wrote: {config_name}")
         if self == self.iface.localNode:
             onResponse = None
         else:
@@ -237,7 +238,7 @@ class Node:
         p = admin_pb2.AdminMessage()
         p.set_channel.CopyFrom(self.channels[channelIndex])
         self._sendAdmin(p, adminIndex=adminIndex)
-        logging.debug(f"Wrote channel {channelIndex}")
+        logger.debug(f"Wrote channel {channelIndex}")
 
     def getChannelByChannelIndex(self, channelIndex):
         """Get channel by channelIndex
@@ -300,7 +301,7 @@ class Node:
 
     def setOwner(self, long_name: Optional[str]=None, short_name: Optional[str]=None, is_licensed: bool=False, is_unmessagable: Optional[bool]=None):
         """Set device owner name"""
-        logging.debug(f"in setOwner nodeNum:{self.nodeNum}")
+        logger.debug(f"in setOwner nodeNum:{self.nodeNum}")
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
 
@@ -325,10 +326,10 @@ class Node:
             p.set_owner.is_unmessagable = is_unmessagable
 
         # Note: These debug lines are used in unit tests
-        logging.debug(f"p.set_owner.long_name:{p.set_owner.long_name}:")
-        logging.debug(f"p.set_owner.short_name:{p.set_owner.short_name}:")
-        logging.debug(f"p.set_owner.is_licensed:{p.set_owner.is_licensed}")
-        logging.debug(f"p.set_owner.is_unmessagable:{p.set_owner.is_unmessagable}:")
+        logger.debug(f"p.set_owner.long_name:{p.set_owner.long_name}:")
+        logger.debug(f"p.set_owner.short_name:{p.set_owner.short_name}:")
+        logger.debug(f"p.set_owner.is_licensed:{p.set_owner.is_licensed}")
+        logger.debug(f"p.set_owner.is_unmessagable:{p.set_owner.is_unmessagable}:")
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
             onResponse = None
@@ -411,7 +412,7 @@ class Node:
                 ch.index = i
                 ch.settings.CopyFrom(chs)
                 self.channels[ch.index] = ch
-                logging.debug(f"Channel i:{i} ch:{ch}")
+                logger.debug(f"Channel i:{i} ch:{ch}")
                 self.writeChannel(ch.index)
                 i = i + 1
 
@@ -422,7 +423,7 @@ class Node:
 
     def onResponseRequestRingtone(self, p):
         """Handle the response packet for requesting ringtone part 1"""
-        logging.debug(f"onResponseRequestRingtone() p:{p}")
+        logger.debug(f"onResponseRequestRingtone() p:{p}")
         errorFound = False
         if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
@@ -435,12 +436,12 @@ class Node:
                         self.ringtonePart = p["decoded"]["admin"][
                             "raw"
                         ].get_ringtone_response
-                        logging.debug(f"self.ringtonePart:{self.ringtonePart}")
+                        logger.debug(f"self.ringtonePart:{self.ringtonePart}")
                         self.gotResponse = True
 
     def get_ringtone(self):
         """Get the ringtone. Concatenate all pieces together and return a single string."""
-        logging.debug(f"in get_ringtone()")
+        logger.debug(f"in get_ringtone()")
         if not self.ringtone:
             p1 = admin_pb2.AdminMessage()
             p1.get_ringtone_request = True
@@ -451,13 +452,13 @@ class Node:
             while self.gotResponse is False:
                 time.sleep(0.1)
 
-            logging.debug(f"self.ringtone:{self.ringtone}")
+            logger.debug(f"self.ringtone:{self.ringtone}")
 
             self.ringtone = ""
             if self.ringtonePart:
                 self.ringtone += self.ringtonePart
 
-        logging.debug(f"ringtone:{self.ringtone}")
+        logger.debug(f"ringtone:{self.ringtone}")
         return self.ringtone
 
     def set_ringtone(self, ringtone):
@@ -481,7 +482,7 @@ class Node:
             if i == 0:
                 p.set_ringtone_message = chunk
 
-            logging.debug(f"Setting ringtone '{chunk}' part {i+1}")
+            logger.debug(f"Setting ringtone '{chunk}' part {i+1}")
             # If sending to a remote node, wait for ACK/NAK
             if self == self.iface.localNode:
                 onResponse = None
@@ -491,7 +492,7 @@ class Node:
 
     def onResponseRequestCannedMessagePluginMessageMessages(self, p):
         """Handle the response packet for requesting canned message plugin message part 1"""
-        logging.debug(f"onResponseRequestCannedMessagePluginMessageMessages() p:{p}")
+        logger.debug(f"onResponseRequestCannedMessagePluginMessageMessages() p:{p}")
         errorFound = False
         if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
@@ -504,14 +505,14 @@ class Node:
                         self.cannedPluginMessageMessages = p["decoded"]["admin"][
                             "raw"
                         ].get_canned_message_module_messages_response
-                        logging.debug(
+                        logger.debug(
                             f"self.cannedPluginMessageMessages:{self.cannedPluginMessageMessages}"
                         )
                         self.gotResponse = True
 
     def get_canned_message(self):
         """Get the canned message string. Concatenate all pieces together and return a single string."""
-        logging.debug(f"in get_canned_message()")
+        logger.debug(f"in get_canned_message()")
         if not self.cannedPluginMessage:
             p1 = admin_pb2.AdminMessage()
             p1.get_canned_message_module_messages_request = True
@@ -524,7 +525,7 @@ class Node:
             while self.gotResponse is False:
                 time.sleep(0.1)
 
-            logging.debug(
+            logger.debug(
                 f"self.cannedPluginMessageMessages:{self.cannedPluginMessageMessages}"
             )
 
@@ -532,7 +533,7 @@ class Node:
             if self.cannedPluginMessageMessages:
                 self.cannedPluginMessage += self.cannedPluginMessageMessages
 
-        logging.debug(f"canned_plugin_message:{self.cannedPluginMessage}")
+        logger.debug(f"canned_plugin_message:{self.cannedPluginMessage}")
         return self.cannedPluginMessage
 
     def set_canned_message(self, message):
@@ -556,7 +557,7 @@ class Node:
             if i == 0:
                 p.set_canned_message_module_messages = chunk
 
-            logging.debug(f"Setting canned message '{chunk}' part {i+1}")
+            logger.debug(f"Setting canned message '{chunk}' part {i+1}")
             # If sending to a remote node, wait for ACK/NAK
             if self == self.iface.localNode:
                 onResponse = None
@@ -570,7 +571,7 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.exit_simulator = True
-        logging.debug("in exitSimulator()")
+        logger.debug("in exitSimulator()")
 
         return self._sendAdmin(p)
 
@@ -579,7 +580,7 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.reboot_seconds = secs
-        logging.info(f"Telling node to reboot in {secs} seconds")
+        logger.info(f"Telling node to reboot in {secs} seconds")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -593,7 +594,7 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.begin_edit_settings = True
-        logging.info(f"Telling open a transaction to edit settings")
+        logger.info(f"Telling open a transaction to edit settings")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -607,7 +608,7 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.commit_edit_settings = True
-        logging.info(f"Telling node to commit open transaction for editing settings")
+        logger.info(f"Telling node to commit open transaction for editing settings")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -621,7 +622,7 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.reboot_ota_seconds = secs
-        logging.info(f"Telling node to reboot to OTA in {secs} seconds")
+        logger.info(f"Telling node to reboot to OTA in {secs} seconds")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -635,7 +636,7 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.enter_dfu_mode_request = True
-        logging.info(f"Telling node to enable DFU mode")
+        logger.info(f"Telling node to enable DFU mode")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -649,7 +650,7 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.shutdown_seconds = secs
-        logging.info(f"Telling node to shutdown in {secs} seconds")
+        logger.info(f"Telling node to shutdown in {secs} seconds")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -662,7 +663,7 @@ class Node:
         """Get the node's metadata."""
         p = admin_pb2.AdminMessage()
         p.get_device_metadata_request = True
-        logging.info(f"Requesting device metadata")
+        logger.info(f"Requesting device metadata")
 
         self._sendAdmin(
             p, wantResponse=True, onResponse=self.onRequestGetMetadata
@@ -675,10 +676,10 @@ class Node:
         p = admin_pb2.AdminMessage()
         if full:
             p.factory_reset_device = True
-            logging.info(f"Telling node to factory reset (full device reset)")
+            logger.info(f"Telling node to factory reset (full device reset)")
         else:
             p.factory_reset_config = True
-            logging.info(f"Telling node to factory reset (config reset)")
+            logger.info(f"Telling node to factory reset (config reset)")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -782,7 +783,7 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.nodedb_reset = True
-        logging.info(f"Telling node to reset the NodeDB")
+        logger.info(f"Telling node to reset the NodeDB")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -823,7 +824,7 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.remove_fixed_position = True
-        logging.info(f"Telling node to remove fixed position")
+        logger.info(f"Telling node to remove fixed position")
 
         if self == self.iface.localNode:
             onResponse = None
@@ -838,7 +839,7 @@ class Node:
             timeSec = int(time.time())
         p = admin_pb2.AdminMessage()
         p.set_time_only = timeSec
-        logging.info(f"Setting node time to {timeSec}")
+        logger.info(f"Setting node time to {timeSec}")
 
         if self == self.iface.localNode:
             onResponse = None
@@ -870,7 +871,7 @@ class Node:
 
     def onRequestGetMetadata(self, p):
         """Handle the response packet for requesting device metadata getMetadata()"""
-        logging.debug(f"onRequestGetMetadata() p:{p}")
+        logger.debug(f"onRequestGetMetadata() p:{p}")
 
         if "routing" in p["decoded"]:
             if p["decoded"]["routing"]["errorReason"] != "NONE":
@@ -882,30 +883,30 @@ class Node:
                 portnums_pb2.PortNum.ROUTING_APP
             ):
                 if p["decoded"]["routing"]["errorReason"] != "NONE":
-                    logging.warning(
+                    logger.warning(
                         f'Metadata request failed, error reason: {p["decoded"]["routing"]["errorReason"]}'
                     )
                     self._timeout.expireTime = time.time()  # Do not wait any longer
                     return  # Don't try to parse this routing message
-                logging.debug(f"Retrying metadata request.")
+                logger.debug(f"Retrying metadata request.")
                 self.getMetadata()
                 return
 
             c = p["decoded"]["admin"]["raw"].get_device_metadata_response
             self._timeout.reset()  # We made forward progress
-            logging.debug(f"Received metadata {stripnl(c)}")
+            logger.debug(f"Received metadata {stripnl(c)}")
             print(f"\nfirmware_version: {c.firmware_version}")
             print(f"device_state_version: {c.device_state_version}")
 
     def onResponseRequestChannel(self, p):
         """Handle the response packet for requesting a channel _requestChannel()"""
-        logging.debug(f"onResponseRequestChannel() p:{p}")
+        logger.debug(f"onResponseRequestChannel() p:{p}")
 
         if p["decoded"]["portnum"] == portnums_pb2.PortNum.Name(
             portnums_pb2.PortNum.ROUTING_APP
         ):
             if p["decoded"]["routing"]["errorReason"] != "NONE":
-                logging.warning(
+                logger.warning(
                     f'Channel request failed, error reason: {p["decoded"]["routing"]["errorReason"]}'
                 )
                 self._timeout.expireTime = time.time()  # Do not wait any longer
@@ -913,18 +914,18 @@ class Node:
             lastTried = 0
             if len(self.partialChannels) > 0:
                 lastTried = self.partialChannels[-1].index
-            logging.debug(f"Retrying previous channel request.")
+            logger.debug(f"Retrying previous channel request.")
             self._requestChannel(lastTried)
             return
 
         c = p["decoded"]["admin"]["raw"].get_channel_response
         self.partialChannels.append(c)
         self._timeout.reset()  # We made forward progress
-        logging.debug(f"Received channel {stripnl(c)}")
+        logger.debug(f"Received channel {stripnl(c)}")
         index = c.index
 
         if index >= 8 - 1:
-            logging.debug("Finished downloading channels")
+            logger.debug("Finished downloading channels")
 
             self.channels = self.partialChannels
             self._fixupChannels()
@@ -959,11 +960,11 @@ class Node:
             print(
                 f"Requesting channel {channelNum} info from remote node (this could take a while)"
             )
-            logging.debug(
+            logger.debug(
                 f"Requesting channel {channelNum} info from remote node (this could take a while)"
             )
         else:
-            logging.debug(f"Requesting channel {channelNum}")
+            logger.debug(f"Requesting channel {channelNum}")
 
         return self._sendAdmin(
             p, wantResponse=True, onResponse=self.onResponseRequestChannel
@@ -980,7 +981,7 @@ class Node:
         """Send an admin message to the specified node (or the local node if destNodeNum is zero)"""
 
         if self.noProto:
-            logging.warning(
+            logger.warning(
                 f"Not sending packet because protocol use is disabled by noProto"
             )
         else:
@@ -988,7 +989,7 @@ class Node:
                 adminIndex == 0
             ):  # unless a special channel index was used, we want to use the admin index
                 adminIndex = self.iface.localNode._getAdminChannelIndex()
-            logging.debug(f"adminIndex:{adminIndex}")
+            logger.debug(f"adminIndex:{adminIndex}")
             if isinstance(self.nodeNum, int):
                 nodeid = self.nodeNum
             else: # assume string starting with !
@@ -1009,7 +1010,7 @@ class Node:
     def ensureSessionKey(self):
         """If our entry in iface.nodesByNum doesn't already have an adminSessionPassKey, make a request to get one"""
         if self.noProto:
-            logging.warning(
+            logger.warning(
                 f"Not ensuring session key, because protocol use is disabled by noProto"
             )
         else:
