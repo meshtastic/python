@@ -32,7 +32,7 @@ def root_dir() -> str:
     app_author = "meshtastic"
     app_dir = platformdirs.user_data_dir(app_name, app_author)
     dir_name = Path(app_dir, "slogs")
-    dir_name.mkdir(exist_ok=True)
+    dir_name.mkdir(exist_ok=True, parents=True)
     return str(dir_name)
 
 

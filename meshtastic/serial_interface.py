@@ -4,6 +4,7 @@
 import logging
 import sys
 import time
+from io import TextIOWrapper
 
 from typing import List, Optional
 
@@ -44,7 +45,10 @@ class SerialInterface(StreamInterface):
 
         logger.debug(f"Connecting to {self.devPath}")
 
-        self._set_hupcl_with_termios()
+        if sys.platform != "win32":
+            with open(self.devPath, encoding="utf8") as f:
+                self._set_hupcl_with_termios(f)
+            time.sleep(0.1)
 
         self.stream = serial.Serial(
             self.devPath, 115200, exclusive=True, timeout=0.5, write_timeout=0
@@ -56,21 +60,17 @@ class SerialInterface(StreamInterface):
             self, debugOut=debugOut, noProto=noProto, connectNow=connectNow, noNodes=noNodes
         )
 
-    def _set_hupcl_with_termios(self):
+    def _set_hupcl_with_termios(self, f: TextIOWrapper):
         """first we need to set the HUPCL so the device will not reboot based on RTS and/or DTR
         see https://github.com/pyserial/pyserial/issues/124
         """
         if sys.platform == "win32":
             return
 
-        with open(self.devPath, encoding="utf8") as f:
-            import termios  # pylint: disable=C0415,E0401
-            attrs = termios.tcgetattr(f)
-            attrs[2] = attrs[2] & ~termios.HUPCL
-            termios.tcsetattr(f, termios.TCSAFLUSH, attrs)
-            f.close()
-
-        time.sleep(0.1)
+        import termios  # pylint: disable=C0415,E0401
+        attrs = termios.tcgetattr(f)
+        attrs[2] = attrs[2] & ~termios.HUPCL
+        termios.tcsetattr(f, termios.TCSAFLUSH, attrs)
 
     def __repr__(self):
         rep = f"SerialInterface(devPath={self.devPath!r}"

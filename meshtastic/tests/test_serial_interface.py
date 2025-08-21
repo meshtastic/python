@@ -1,15 +1,14 @@
 """Meshtastic unit tests for serial_interface.py"""
-import platform
 # pylint: disable=R0917
 
 import re
+import sys
 from unittest.mock import mock_open, patch
 
 import pytest
 
 from ..serial_interface import SerialInterface
 from ..protobuf import config_pb2
-
 
 @pytest.mark.unit
 @patch("time.sleep")
@@ -28,11 +27,11 @@ def test_SerialInterface_single_port(
     iface.close()
     mocked_findPorts.assert_called()
     mocked_serial.assert_called()
-    mock_hupcl.assert_called()
 
-    # doesn't get called in SerialInterface._set_hupcl_with_termios on windows
-    if platform.system() != "Windows":
+    # doesn't get called in SerialInterface on windows
+    if sys.platform != "win32":
         mocked_open.assert_called()
+        mock_hupcl.assert_called()
 
     mock_sleep.assert_called()
     out, err = capsys.readouterr()

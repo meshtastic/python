@@ -979,10 +979,11 @@ def test_main_set_valid(mocked_findports, mocked_serial, mocked_open, mocked_hup
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
 @patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
-def test_main_set_valid_wifi_psk(mocked_findports, mocked_serial, mocked_open, capsys):
+def test_main_set_valid_wifi_psk(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
     """Test --set with valid field"""
     sys.argv = ["", "--set", "network.wifi_psk", "123456789"]
     mt_config.args = sys.argv
