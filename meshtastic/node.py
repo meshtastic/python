@@ -448,7 +448,12 @@ class Node:
             self._sendAdmin(
                 p1, wantResponse=True, onResponse=self.onResponseRequestRingtone
             )
-            while self.gotResponse is False:
+            start_time = time.time()
+            timeout = 2
+            while not self.gotResponse:
+                if time.time() - start_time > timeout:
+                    logging.warning("Timeout waiting for ringtone plugin response")
+                    return None
                 time.sleep(0.1)
 
             logging.debug(f"self.ringtone:{self.ringtone}")
@@ -521,7 +526,13 @@ class Node:
                 wantResponse=True,
                 onResponse=self.onResponseRequestCannedMessagePluginMessageMessages,
             )
-            while self.gotResponse is False:
+
+            start_time = time.time()
+            timeout = 2
+            while not self.gotResponse:
+                if time.time() - start_time > timeout:
+                    logging.warning("Timeout waiting for canned message plugin response")
+                    return None
                 time.sleep(0.1)
 
             logging.debug(
