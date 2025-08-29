@@ -2382,6 +2382,83 @@ class MeshPacket(google.protobuf.message.Message):
     The message is delayed and was originally a direct message
     """
 
+    class _TransportMechanism:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _TransportMechanismEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[MeshPacket._TransportMechanism.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        TRANSPORT_INTERNAL: MeshPacket._TransportMechanism.ValueType  # 0
+        """
+        The default case is that the node generated a packet itself
+        """
+        TRANSPORT_LORA: MeshPacket._TransportMechanism.ValueType  # 1
+        """
+        Arrived via the primary LoRa radio
+        """
+        TRANSPORT_LORA_ALT1: MeshPacket._TransportMechanism.ValueType  # 2
+        """
+        Arrived via a secondary LoRa radio
+        """
+        TRANSPORT_LORA_ALT2: MeshPacket._TransportMechanism.ValueType  # 3
+        """
+        Arrived via a tertiary LoRa radio
+        """
+        TRANSPORT_LORA_ALT3: MeshPacket._TransportMechanism.ValueType  # 4
+        """
+        Arrived via a quaternary LoRa radio
+        """
+        TRANSPORT_MQTT: MeshPacket._TransportMechanism.ValueType  # 5
+        """
+        Arrived via an MQTT connection
+        """
+        TRANSPORT_MULTICAST_UDP: MeshPacket._TransportMechanism.ValueType  # 6
+        """
+        Arrived via Multicast UDP
+        """
+        TRANSPORT_API: MeshPacket._TransportMechanism.ValueType  # 7
+        """
+        Arrived via API connection
+        """
+
+    class TransportMechanism(_TransportMechanism, metaclass=_TransportMechanismEnumTypeWrapper):
+        """
+        Enum to identify which transport mechanism this packet arrived over
+        """
+
+    TRANSPORT_INTERNAL: MeshPacket.TransportMechanism.ValueType  # 0
+    """
+    The default case is that the node generated a packet itself
+    """
+    TRANSPORT_LORA: MeshPacket.TransportMechanism.ValueType  # 1
+    """
+    Arrived via the primary LoRa radio
+    """
+    TRANSPORT_LORA_ALT1: MeshPacket.TransportMechanism.ValueType  # 2
+    """
+    Arrived via a secondary LoRa radio
+    """
+    TRANSPORT_LORA_ALT2: MeshPacket.TransportMechanism.ValueType  # 3
+    """
+    Arrived via a tertiary LoRa radio
+    """
+    TRANSPORT_LORA_ALT3: MeshPacket.TransportMechanism.ValueType  # 4
+    """
+    Arrived via a quaternary LoRa radio
+    """
+    TRANSPORT_MQTT: MeshPacket.TransportMechanism.ValueType  # 5
+    """
+    Arrived via an MQTT connection
+    """
+    TRANSPORT_MULTICAST_UDP: MeshPacket.TransportMechanism.ValueType  # 6
+    """
+    Arrived via Multicast UDP
+    """
+    TRANSPORT_API: MeshPacket.TransportMechanism.ValueType  # 7
+    """
+    Arrived via API connection
+    """
+
     FROM_FIELD_NUMBER: builtins.int
     TO_FIELD_NUMBER: builtins.int
     CHANNEL_FIELD_NUMBER: builtins.int
@@ -2402,6 +2479,7 @@ class MeshPacket(google.protobuf.message.Message):
     NEXT_HOP_FIELD_NUMBER: builtins.int
     RELAY_NODE_FIELD_NUMBER: builtins.int
     TX_AFTER_FIELD_NUMBER: builtins.int
+    TRANSPORT_MECHANISM_FIELD_NUMBER: builtins.int
     to: builtins.int
     """
     The (immediate) destination for this packet
@@ -2509,6 +2587,10 @@ class MeshPacket(google.protobuf.message.Message):
     Timestamp after which this packet may be sent.
     Set by the firmware internally, clients are not supposed to set this.
     """
+    transport_mechanism: global___MeshPacket.TransportMechanism.ValueType
+    """
+    Indicates which transport mechanism this packet arrived over
+    """
     @property
     def decoded(self) -> global___Data:
         """
@@ -2537,9 +2619,10 @@ class MeshPacket(google.protobuf.message.Message):
         next_hop: builtins.int = ...,
         relay_node: builtins.int = ...,
         tx_after: builtins.int = ...,
+        transport_mechanism: global___MeshPacket.TransportMechanism.ValueType = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["decoded", b"decoded", "encrypted", b"encrypted", "payload_variant", b"payload_variant"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel", b"channel", "decoded", b"decoded", "delayed", b"delayed", "encrypted", b"encrypted", "from", b"from", "hop_limit", b"hop_limit", "hop_start", b"hop_start", "id", b"id", "next_hop", b"next_hop", "payload_variant", b"payload_variant", "pki_encrypted", b"pki_encrypted", "priority", b"priority", "public_key", b"public_key", "relay_node", b"relay_node", "rx_rssi", b"rx_rssi", "rx_snr", b"rx_snr", "rx_time", b"rx_time", "to", b"to", "tx_after", b"tx_after", "via_mqtt", b"via_mqtt", "want_ack", b"want_ack"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["channel", b"channel", "decoded", b"decoded", "delayed", b"delayed", "encrypted", b"encrypted", "from", b"from", "hop_limit", b"hop_limit", "hop_start", b"hop_start", "id", b"id", "next_hop", b"next_hop", "payload_variant", b"payload_variant", "pki_encrypted", b"pki_encrypted", "priority", b"priority", "public_key", b"public_key", "relay_node", b"relay_node", "rx_rssi", b"rx_rssi", "rx_snr", b"rx_snr", "rx_time", b"rx_time", "to", b"to", "transport_mechanism", b"transport_mechanism", "tx_after", b"tx_after", "via_mqtt", b"via_mqtt", "want_ack", b"want_ack"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["decoded", "encrypted"] | None: ...
 
 global___MeshPacket = MeshPacket
@@ -3493,9 +3576,17 @@ class Heartbeat(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    NONCE_FIELD_NUMBER: builtins.int
+    nonce: builtins.int
+    """
+    The nonce of the heartbeat message
+    """
     def __init__(
         self,
+        *,
+        nonce: builtins.int = ...,
     ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["nonce", b"nonce"]) -> None: ...
 
 global___Heartbeat = Heartbeat
 

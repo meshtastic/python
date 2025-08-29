@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "meshtastic"
-version = "2.7.0"
+version = "2.7.1"
 description = "Python API & client shell for talking to Meshtastic devices"
 authors = ["Meshtastic Developers <contact@meshtastic.org>"]
 license = "GPL-3.0-only"
