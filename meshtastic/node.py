@@ -454,7 +454,7 @@ class Node:
         if not self.module_available(mesh_pb2.EXTNOTIF_CONFIG):
             logging.warning("External Notification module not present (excluded by firmware)")
             return None
-        
+
         if not self.ringtone:
             p1 = admin_pb2.AdminMessage()
             p1.get_ringtone_request = True
@@ -479,7 +479,7 @@ class Node:
         if not self.module_available(mesh_pb2.EXTNOTIF_CONFIG):
             logging.warning("External Notification module not present (excluded by firmware)")
             return None
-        
+
         if len(ringtone) > 230:
             our_exit("Warning: The ringtone must be less than 230 characters.")
         self.ensureSessionKey()
@@ -560,7 +560,7 @@ class Node:
         if not self.module_available(mesh_pb2.CANNEDMSG_CONFIG):
             logging.warning("Canned Message module not present (excluded by firmware)")
             return None
-        
+
         if len(message) > 200:
             our_exit("Warning: The canned message must be less than 200 characters.")
         self.ensureSessionKey()
