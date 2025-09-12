@@ -51,6 +51,16 @@ class Node:
         r += ")"
         return r
 
+    def module_available(self, excluded_bit: int) -> bool:
+        """Check DeviceMetadata.excluded_modules to see if a module is available."""
+        meta = getattr(self.iface, "metadata", None)
+        if meta is None:
+            return True
+        try:
+            return (meta.excluded_modules & excluded_bit) == 0
+        except Exception:
+            return True
+
     def showChannels(self):
         """Show human readable description of our channels."""
         print("Channels:")
@@ -441,6 +451,10 @@ class Node:
     def get_ringtone(self):
         """Get the ringtone. Concatenate all pieces together and return a single string."""
         logging.debug(f"in get_ringtone()")
+        if not self.module_available(mesh_pb2.EXTNOTIF_CONFIG):
+            logging.warning("External Notification module not present (excluded by firmware)")
+            return None
+
         if not self.ringtone:
             p1 = admin_pb2.AdminMessage()
             p1.get_ringtone_request = True
@@ -462,6 +476,9 @@ class Node:
 
     def set_ringtone(self, ringtone):
         """Set the ringtone. The ringtone length must be less than 230 character."""
+        if not self.module_available(mesh_pb2.EXTNOTIF_CONFIG):
+            logging.warning("External Notification module not present (excluded by firmware)")
+            return None
 
         if len(ringtone) > 230:
             our_exit("Warning: The ringtone must be less than 230 characters.")
@@ -512,6 +529,9 @@ class Node:
     def get_canned_message(self):
         """Get the canned message string. Concatenate all pieces together and return a single string."""
         logging.debug(f"in get_canned_message()")
+        if not self.module_available(mesh_pb2.CANNEDMSG_CONFIG):
+            logging.warning("Canned Message module not present (excluded by firmware)")
+            return None
         if not self.cannedPluginMessage:
             p1 = admin_pb2.AdminMessage()
             p1.get_canned_message_module_messages_request = True
@@ -537,6 +557,9 @@ class Node:
 
     def set_canned_message(self, message):
         """Set the canned message. The canned messages length must be less than 200 character."""
+        if not self.module_available(mesh_pb2.CANNEDMSG_CONFIG):
+            logging.warning("Canned Message module not present (excluded by firmware)")
+            return None
 
         if len(message) > 200:
             our_exit("Warning: The canned message must be less than 200 characters.")
