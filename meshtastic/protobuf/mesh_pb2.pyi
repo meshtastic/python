@@ -486,6 +486,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     MeshSolar is an integrated power management and communication solution designed for outdoor low-power devices.
     https://heltec.org/project/meshsolar/
     """
+    T_ECHO_LITE: _HardwareModel.ValueType  # 109
+    """
+    Lilygo T-Echo Lite
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -954,6 +958,10 @@ HELTEC_MESH_SOLAR: HardwareModel.ValueType  # 108
 """
 MeshSolar is an integrated power management and communication solution designed for outdoor low-power devices.
 https://heltec.org/project/meshsolar/
+"""
+T_ECHO_LITE: HardwareModel.ValueType  # 109
+"""
+Lilygo T-Echo Lite
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """

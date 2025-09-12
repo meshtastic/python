@@ -1048,11 +1048,11 @@ class Config(google.protobuf.message.Message):
             """
             OLED_SH1107: Config.DisplayConfig._OledType.ValueType  # 3
             """
-            Can not be auto detected but set by proto. Used for 128x128 screens
-            """
-            OLED_SH1107_128_64: Config.DisplayConfig._OledType.ValueType  # 4
-            """
             Can not be auto detected but set by proto. Used for 128x64 screens
+            """
+            OLED_SH1107_128_128: Config.DisplayConfig._OledType.ValueType  # 4
+            """
+            Can not be auto detected but set by proto. Used for 128x128 screens
             """
 
         class OledType(_OledType, metaclass=_OledTypeEnumTypeWrapper):
@@ -1074,11 +1074,11 @@ class Config(google.protobuf.message.Message):
         """
         OLED_SH1107: Config.DisplayConfig.OledType.ValueType  # 3
         """
-        Can not be auto detected but set by proto. Used for 128x128 screens
-        """
-        OLED_SH1107_128_64: Config.DisplayConfig.OledType.ValueType  # 4
-        """
         Can not be auto detected but set by proto. Used for 128x64 screens
+        """
+        OLED_SH1107_128_128: Config.DisplayConfig.OledType.ValueType  # 4
+        """
+        Can not be auto detected but set by proto. Used for 128x128 screens
         """
 
         class _DisplayMode:

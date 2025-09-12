@@ -824,6 +824,7 @@ class ModuleConfig(google.protobuf.message.Message):
         ENABLED_FIELD_NUMBER: builtins.int
         SENDER_FIELD_NUMBER: builtins.int
         SAVE_FIELD_NUMBER: builtins.int
+        CLEAR_ON_REBOOT_FIELD_NUMBER: builtins.int
         enabled: builtins.bool
         """
         Enable the Range Test Module
@@ -837,14 +838,20 @@ class ModuleConfig(google.protobuf.message.Message):
         Bool value indicating that this node should save a RangeTest.csv file.
         ESP32 Only
         """
+        clear_on_reboot: builtins.bool
+        """
+        Bool indicating that the node should cleanup / destroy it's RangeTest.csv file.
+        ESP32 Only
+        """
         def __init__(
             self,
             *,
             enabled: builtins.bool = ...,
             sender: builtins.int = ...,
             save: builtins.bool = ...,
+            clear_on_reboot: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["enabled", b"enabled", "save", b"save", "sender", b"sender"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["clear_on_reboot", b"clear_on_reboot", "enabled", b"enabled", "save", b"save", "sender", b"sender"]) -> None: ...
 
     @typing.final
     class TelemetryConfig(google.protobuf.message.Message):
