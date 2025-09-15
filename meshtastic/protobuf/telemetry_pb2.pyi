@@ -199,6 +199,10 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     SEN5X PM SENSORS
     """
+    TSL2561: _TelemetrySensorType.ValueType  # 44
+    """
+    TSL2561 light sensor
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -380,6 +384,10 @@ Sensirion SFA30 Formaldehyde sensor
 SEN5X: TelemetrySensorType.ValueType  # 43
 """
 SEN5X PM SENSORS
+"""
+TSL2561: TelemetrySensorType.ValueType  # 44
+"""
+TSL2561 light sensor
 """
 global___TelemetrySensorType = TelemetrySensorType
 

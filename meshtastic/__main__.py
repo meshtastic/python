@@ -496,6 +496,16 @@ def onConnected(interface):
             waitForAckNak = True
             interface.getNode(args.dest, False, **getNode_kwargs).removeIgnored(args.remove_ignored_node)
 
+        if args.set_muted_node:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False, **getNode_kwargs).setMuted(args.set_muted_node)
+
+        if args.remove_muted_node:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False, **getNode_kwargs).removeMuted(args.remove_muted_node)
+
         if args.reset_nodedb:
             closeNow = True
             waitForAckNak = True
@@ -1940,6 +1950,18 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
     group.add_argument(
         "--remove-ignored-node",
         help="Tell the destination node to set the specified node to be un-ignored on the NodeDB. "
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
+        metavar="!xxxxxxxx"
+    )
+    group.add_argument(
+        "--set-muted-node",
+        help="Tell the destination node to set the specified node to be muted on the NodeDB. "
+        "Use the node ID with a '!' or '0x' prefix or the node number.",
+        metavar="!xxxxxxxx"
+    )
+    group.add_argument(
+        "--remove-muted-node",
+        help="Tell the destination node to set the specified node to be un-muted on the NodeDB. "
         "Use the node ID with a '!' or '0x' prefix or the node number.",
         metavar="!xxxxxxxx"
     )
