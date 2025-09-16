@@ -465,9 +465,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Lilygo TLora Pager
     """
-    GAT562_MESH_TRIAL_TRACKER: _HardwareModel.ValueType  # 104
+    M5STACK_RESERVED: _HardwareModel.ValueType  # 104
     """
-    GAT562 Mesh Trial Tracker
+    M5Stack Reserved
+    0x68
     """
     WISMESH_TAG: _HardwareModel.ValueType  # 105
     """
@@ -489,6 +490,14 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     T_ECHO_LITE: _HardwareModel.ValueType  # 109
     """
     Lilygo T-Echo Lite
+    """
+    HELTEC_V4: _HardwareModel.ValueType  # 110
+    """
+    New Heltec LoRA32 with ESP32-S3 CPU
+    """
+    M5STACK_C6L: _HardwareModel.ValueType  # 111
+    """
+    M5Stack C6L
     """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
@@ -938,9 +947,10 @@ T_LORA_PAGER: HardwareModel.ValueType  # 103
 """
 Lilygo TLora Pager
 """
-GAT562_MESH_TRIAL_TRACKER: HardwareModel.ValueType  # 104
+M5STACK_RESERVED: HardwareModel.ValueType  # 104
 """
-GAT562 Mesh Trial Tracker
+M5Stack Reserved
+0x68
 """
 WISMESH_TAG: HardwareModel.ValueType  # 105
 """
@@ -962,6 +972,14 @@ https://heltec.org/project/meshsolar/
 T_ECHO_LITE: HardwareModel.ValueType  # 109
 """
 Lilygo T-Echo Lite
+"""
+HELTEC_V4: HardwareModel.ValueType  # 110
+"""
+New Heltec LoRA32 with ESP32-S3 CPU
+"""
+M5STACK_C6L: HardwareModel.ValueType  # 111
+"""
+M5Stack C6L
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """

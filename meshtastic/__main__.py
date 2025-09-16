@@ -59,7 +59,7 @@ except ImportError as e:
     have_powermon = False
     powermon_exception = e
     meter = None
-from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
+from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2, mesh_pb2
 from meshtastic.version import get_active_version
 
 def onReceive(packet, interface) -> None:
@@ -377,16 +377,22 @@ def onConnected(interface):
         if args.set_canned_message:
             closeNow = True
             waitForAckNak = True
-            print(f"Setting canned plugin message to {args.set_canned_message}")
-            interface.getNode(args.dest, False, **getNode_kwargs).set_canned_message(
-                args.set_canned_message
-            )
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
+            if node.module_available(mesh_pb2.CANNEDMSG_CONFIG):
+                print(f"Setting canned plugin message to {args.set_canned_message}")
+                node.set_canned_message(args.set_canned_message)
+            else:
+                print("Canned Message module is excluded by firmware; skipping set.")
 
         if args.set_ringtone:
             closeNow = True
             waitForAckNak = True
-            print(f"Setting ringtone to {args.set_ringtone}")
-            interface.getNode(args.dest, False, **getNode_kwargs).set_ringtone(args.set_ringtone)
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
+            if node.module_available(mesh_pb2.EXTNOTIF_CONFIG):
+                print(f"Setting ringtone to {args.set_ringtone}")
+                node.set_ringtone(args.set_ringtone)
+            else:
+                print("External Notification is excluded by firmware; skipping ringtone set.")
 
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
