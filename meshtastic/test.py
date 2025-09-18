@@ -29,6 +29,7 @@ testNumber: int = 0
 
 sendingInterface = None
 
+logger = logging.getLogger(__name__)
 
 def onReceive(packet, interface) -> None:
     """Callback invoked when a packet arrives"""
@@ -79,7 +80,7 @@ def testSend(
     else:
         toNode = toInterface.myInfo.my_node_num
 
-    logging.debug(f"Sending test wantAck={wantAck} packet from {fromNode} to {toNode}")
+    logger.debug(f"Sending test wantAck={wantAck} packet from {fromNode} to {toNode}")
     # pylint: disable=W0603
     global sendingInterface
     sendingInterface = fromInterface
@@ -98,7 +99,7 @@ def testSend(
 
 def runTests(numTests: int=50, wantAck: bool=False, maxFailures: int=0) -> bool:
     """Run the tests."""
-    logging.info(f"Running {numTests} tests with wantAck={wantAck}")
+    logger.info(f"Running {numTests} tests with wantAck={wantAck}")
     numFail: int = 0
     numSuccess: int = 0
     for _ in range(numTests):
@@ -112,26 +113,26 @@ def runTests(numTests: int=50, wantAck: bool=False, maxFailures: int=0) -> bool:
         )
         if not success:
             numFail = numFail + 1
-            logging.error(
+            logger.error(
                 f"Test {testNumber} failed, expected packet not received ({numFail} failures so far)"
             )
         else:
             numSuccess = numSuccess + 1
-            logging.info(
+            logger.info(
                 f"Test {testNumber} succeeded {numSuccess} successes {numFail} failures so far"
             )
 
         time.sleep(1)
 
     if numFail > maxFailures:
-        logging.error("Too many failures! Test failed!")
+        logger.error("Too many failures! Test failed!")
         return False
     return True
 
 
 def testThread(numTests=50) -> bool:
     """Test thread"""
-    logging.info("Found devices, starting tests...")
+    logger.info("Found devices, starting tests...")
     result: bool = runTests(numTests, wantAck=True)
     if result:
         # Run another test
@@ -148,7 +149,7 @@ def onConnection(topic=pub.AUTO_TOPIC) -> None:
 def openDebugLog(portName) -> io.TextIOWrapper:
     """Open the debug log file"""
     debugname = "log" + portName.replace("/", "_")
-    logging.info(f"Writing serial debugging to {debugname}")
+    logger.info(f"Writing serial debugging to {debugname}")
     return open(debugname, "w+", buffering=1, encoding="utf8")
 
 
@@ -177,7 +178,7 @@ def testAll(numTests: int=5) -> bool:
         )
     )
 
-    logging.info("Ports opened, starting test")
+    logger.info("Ports opened, starting test")
     result: bool = testThread(numTests)
 
     for i in interfaces:
@@ -196,14 +197,14 @@ def testSimulator() -> None:
     python3 -c 'from meshtastic.test import testSimulator; testSimulator()'
     """
     logging.basicConfig(level=logging.DEBUG)
-    logging.info("Connecting to simulator on localhost!")
+    logger.info("Connecting to simulator on localhost!")
     try:
         iface: meshtastic.tcp_interface.TCPInterface = TCPInterface("localhost")
         iface.showInfo()
         iface.localNode.showInfo()
         iface.localNode.exitSimulator()
         iface.close()
-        logging.info("Integration test successful!")
+        logger.info("Integration test successful!")
     except:
         print("Error while testing simulator:", sys.exc_info()[0])
         traceback.print_exc()

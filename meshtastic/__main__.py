@@ -9,6 +9,7 @@ from typing import List, Optional, Union
 from types import ModuleType
 
 import argparse
+
 argcomplete: Union[None, ModuleType] = None
 try:
     import argcomplete # type: ignore
@@ -62,12 +63,14 @@ except ImportError as e:
 from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2, mesh_pb2
 from meshtastic.version import get_active_version
 
+logger = logging.getLogger(__name__)
+
 def onReceive(packet, interface) -> None:
     """Callback invoked when a packet arrives"""
     args = mt_config.args
     try:
         d = packet.get("decoded")
-        logging.debug(f"in onReceive() d:{d}")
+        logger.debug(f"in onReceive() d:{d}")
 
         # Exit once we receive a reply
         if (
@@ -101,7 +104,7 @@ def onConnection(interface, topic=pub.AUTO_TOPIC) -> None:  # pylint: disable=W0
 def checkChannel(interface: MeshInterface, channelIndex: int) -> bool:
     """Given an interface and channel index, return True if that channel is non-disabled on the local node"""
     ch = interface.localNode.getChannelByChannelIndex(channelIndex)
-    logging.debug(f"ch:{ch}")
+    logger.debug(f"ch:{ch}")
     return ch and ch.role != channel_pb2.Channel.Role.DISABLED
 
 
@@ -114,7 +117,7 @@ def getPref(node, comp_name) -> bool:
         else:
             pref_value = meshtastic.util.toStr(pref_value)
         print(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
-        logging.debug(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
+        logger.debug(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
 
     name = splitCompoundName(comp_name)
     wholeField = name[0] == name[1]  # We want the whole field
@@ -123,8 +126,8 @@ def getPref(node, comp_name) -> bool:
     # Note: protobufs has the keys in snake_case, so snake internally
     snake_name = meshtastic.util.camel_to_snake(name[1])
     uni_name = camel_name if mt_config.camel_case else snake_name
-    logging.debug(f"snake_name:{snake_name} camel_name:{camel_name}")
-    logging.debug(f"use camel:{mt_config.camel_case}")
+    logger.debug(f"snake_name:{snake_name} camel_name:{camel_name}")
+    logger.debug(f"use camel:{mt_config.camel_case}")
 
     # First validate the input
     localConfig = node.localConfig
@@ -198,8 +201,8 @@ def setPref(config, comp_name, raw_val) -> bool:
     snake_name = meshtastic.util.camel_to_snake(name[-1])
     camel_name = meshtastic.util.snake_to_camel(name[-1])
     uni_name = camel_name if mt_config.camel_case else snake_name
-    logging.debug(f"snake_name:{snake_name}")
-    logging.debug(f"camel_name:{camel_name}")
+    logger.debug(f"snake_name:{snake_name}")
+    logger.debug(f"camel_name:{camel_name}")
 
     objDesc = config.DESCRIPTOR
     config_part = config
@@ -223,7 +226,7 @@ def setPref(config, comp_name, raw_val) -> bool:
         val = meshtastic.util.fromStr(raw_val)
     else:
         val = raw_val
-    logging.debug(f"valStr:{raw_val} val:{val}")
+    logger.debug(f"valStr:{raw_val} val:{val}")
 
     if snake_name == "wifi_psk" and len(str(raw_val)) < 8:
         print("Warning: network.wifi_psk must be 8 or more characters.")
@@ -608,7 +611,7 @@ def onConnected(interface):
                         time.sleep(1)
                         if interface.gotResponse:
                             break
-                    logging.debug(f"end of gpio_rd")
+                    logger.debug(f"end of gpio_rd")
 
                 if args.gpio_watch:
                     bitmask = int(args.gpio_watch, 16)
@@ -1064,7 +1067,7 @@ def onConnected(interface):
             # Even if others said we could close, stay open if the user asked for a tunnel
             closeNow = False
             if interface.noProto:
-                logging.warning(f"Not starting Tunnel - disabled by noProto")
+                logger.warning(f"Not starting Tunnel - disabled by noProto")
             else:
                 if args.tunnel_net:
                     tunnel.Tunnel(interface, subnet=args.tunnel_net)
@@ -1255,14 +1258,14 @@ def create_power_meter():
         meter = SimPowerSupply()
 
     if meter and v:
-        logging.info(f"Setting power supply to {v} volts")
+        logger.info(f"Setting power supply to {v} volts")
         meter.v = v
         meter.powerOn()
 
         if args.power_wait:
             input("Powered on, press enter to continue...")
         else:
-            logging.info("Powered-on, waiting for device to boot")
+            logger.info("Powered-on, waiting for device to boot")
             time.sleep(5)
 
 
@@ -1275,6 +1278,10 @@ def common():
         level=logging.DEBUG if (args.debug or args.listen) else logging.INFO,
         format="%(levelname)s file:%(filename)s %(funcName)s line:%(lineno)s %(message)s",
     )
+
+    # set all meshtastic loggers to DEBUG
+    if not (args.debug or args.listen) and args.debuglib:
+        logging.getLogger('meshtastic').setLevel(logging.DEBUG)
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -1317,7 +1324,7 @@ def common():
                 args.seriallog = "none"  # assume no debug output in this case
 
         if args.deprecated is not None:
-            logging.error(
+            logger.error(
                 "This option has been deprecated, see help below for the correct replacement..."
             )
             parser.print_help(sys.stderr)
@@ -1336,10 +1343,10 @@ def common():
                 logfile = sys.stdout
             elif args.seriallog == "none":
                 args.seriallog = None
-                logging.debug("Not logging serial output")
+                logger.debug("Not logging serial output")
                 logfile = None
             else:
-                logging.info(f"Logging serial output to {args.seriallog}")
+                logger.info(f"Logging serial output to {args.seriallog}")
                 # Note: using "line buffering"
                 # pylint: disable=R1732
                 logfile = open(args.seriallog, "w+", buffering=1, encoding="utf8")
@@ -1347,7 +1354,7 @@ def common():
 
             subscribe()
             if args.ble_scan:
-                logging.debug("BLE scan starting")
+                logger.debug("BLE scan starting")
                 for x in BLEInterface.scan():
                     print(f"Found: name='{x.name}' address='{x.address}'")
                 meshtastic.util.our_exit("BLE scan finished", 0)
@@ -1438,7 +1445,7 @@ def common():
                     while True:
                         time.sleep(1000)
                 except KeyboardInterrupt:
-                    logging.info("Exiting due to keyboard interrupt")
+                    logger.info("Exiting due to keyboard interrupt")
 
         # don't call exit, background threads might be running still
         # sys.exit(0)
@@ -2043,6 +2050,10 @@ def initParser():
 
     group.add_argument(
         "--debug", help="Show API library debug log messages", action="store_true"
+    )
+
+    group.add_argument(
+        "--debuglib", help="Show only API library debug log messages", action="store_true"
     )
 
     group.add_argument(
