@@ -18,3 +18,4 @@ meshtastic.spec
 .hypothesis/
 coverage.xml
 .ipynb_checkpoints
+.cursor/
