@@ -165,6 +165,10 @@ class _LanguageEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumT
     """
     Bulgarian
     """
+    CZECH: _Language.ValueType  # 18
+    """
+    Czech
+    """
     SIMPLIFIED_CHINESE: _Language.ValueType  # 30
     """
     Simplified Chinese (experimental)
@@ -250,6 +254,10 @@ Ukrainian
 BULGARIAN: Language.ValueType  # 17
 """
 Bulgarian
+"""
+CZECH: Language.ValueType  # 18
+"""
+Czech
 """
 SIMPLIFIED_CHINESE: Language.ValueType  # 30
 """

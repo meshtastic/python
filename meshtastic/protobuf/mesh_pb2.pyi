@@ -490,6 +490,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Lilygo T-Echo Lite
     """
+    HELTEC_V4: _HardwareModel.ValueType  # 110
+    """
+    New Heltec LoRA32 with ESP32-S3 CPU
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -962,6 +966,10 @@ https://heltec.org/project/meshsolar/
 T_ECHO_LITE: HardwareModel.ValueType  # 109
 """
 Lilygo T-Echo Lite
+"""
+HELTEC_V4: HardwareModel.ValueType  # 110
+"""
+New Heltec LoRA32 with ESP32-S3 CPU
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
