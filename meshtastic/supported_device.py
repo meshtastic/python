@@ -217,6 +217,18 @@ seeed_xiao_s3 = SupportedDevice(
     usb_product_id_in_hex="0059",
 )
 
+tdeck = SupportedDevice(
+    name="T-Deck",
+    version="",
+    for_firmware="t-deck",  # Confirmed firmware identifier
+    device_class="esp32",
+    baseport_on_linux="ttyACM",
+    baseport_on_mac="cu.usbmodem", 
+    baseport_on_windows="COM",
+    usb_vendor_id_in_hex="303a",  # Espressif Systems (VERIFIED)
+    usb_product_id_in_hex="1001", # VERIFIED from actual device
+)
+
 
 
 supported_devices = [
@@ -239,4 +251,5 @@ supported_devices = [
     rak11200,
     nano_g1,
     seeed_xiao_s3,
+    tdeck,  # T-Deck support added
 ]
