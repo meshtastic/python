@@ -730,7 +730,8 @@ class MeshInterface:  # pylint: disable=R0902
         destinationId: Union[int, str] = BROADCAST_ADDR,
         wantResponse: bool = False,
         channelIndex: int = 0,
-        telemetryType: str = "device_metrics"
+        telemetryType: str = "device_metrics",
+        hopLimit: Optional[int]=None
     ):
         """Send telemetry and optionally ask for a response"""
         r = telemetry_pb2.Telemetry()
@@ -777,6 +778,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
+            hopLimit=hopLimit,
         )
         if wantResponse:
             self.waitForTelemetry()
