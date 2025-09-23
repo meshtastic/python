@@ -900,6 +900,7 @@ class MeshInterface:  # pylint: disable=R0902
         wantAck: bool = True,
         wantResponse: bool = False,
         channelIndex: int = 0,
+        hopLimit: Optional[int]=None,
     ):
         """
         Send a waypoint deletion packet to some other node (normally a broadcast)
@@ -926,6 +927,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
+            hopLimit=hopLimit,
         )
         if wantResponse:
             self.waitForWaypoint()
