@@ -415,6 +415,7 @@ class MeshInterface:  # pylint: disable=R0902
         channelIndex: int = 0,
         portNum: portnums_pb2.PortNum.ValueType = portnums_pb2.PortNum.TEXT_MESSAGE_APP,
         replyId: Optional[int]=None,
+        hopLimit: Optional[int]=None,
     ):
         """Send a utf8 string to some other node, if the node has a display it
            will also be shown on the device.
@@ -432,6 +433,7 @@ class MeshInterface:  # pylint: disable=R0902
             portNum -- the application portnum (similar to IP port numbers)
                        of the destination, see portnums.proto for a list
             replyId -- the ID of the message that this packet is a response to
+            hopLimit -- hop limit to use
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -445,7 +447,8 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
-            replyId=replyId
+            replyId=replyId,
+            hopLimit=hopLimit
         )
 
 
