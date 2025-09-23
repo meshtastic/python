@@ -458,6 +458,7 @@ class MeshInterface:  # pylint: disable=R0902
         destinationId: Union[int, str] = BROADCAST_ADDR,
         onResponse: Optional[Callable[[dict], Any]] = None,
         channelIndex: int = 0,
+        hopLimit: Optional[int]=None,
     ):
         """Send an alert text to some other node. This is similar to a text message,
             but carries a higher priority and is capable of generating special notifications
@@ -465,6 +466,7 @@ class MeshInterface:  # pylint: disable=R0902
 
         Arguments:
             text {string} -- The text of the alert to send
+            hopLimit -- hop limit to use
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this
@@ -482,7 +484,8 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=False,
             onResponse=onResponse,
             channelIndex=channelIndex,
-            priority=mesh_pb2.MeshPacket.Priority.ALERT
+            priority=mesh_pb2.MeshPacket.Priority.ALERT,
+            hopLimit=hopLimit
         )
 
     def sendMqttClientProxyMessage(self, topic: str, data: bytes):
