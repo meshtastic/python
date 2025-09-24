@@ -96,12 +96,15 @@ class StreamInterface(MeshInterface):
         if self.stream:  # ignore writes when stream is closed
             self.stream.write(b)
             self.stream.flush()
-            # win11 might need a bit more time, too
-            if self.is_windows11:
-                time.sleep(1.0)
-            else:
-                # we sleep here to give the TBeam a chance to work
-                time.sleep(0.1)
+            # Wait for the node to handle the packet and avoid filling
+            # its buffer and dropping packets oldest-first (#575).
+            # Windows 11 might need this to be at least 1 second (#265).
+            # 2 seconds is reported to work on Windows and Linux, with
+            # a couple of node types.
+            # When config restore can handle and recover from dropped
+            # packets, or rate-limit based on acknowledgements, we can
+            # remove this.
+            time.sleep(2.0)
 
     def _readBytes(self, length) -> Optional[bytes]:
         """Read an array of bytes from our stream"""
