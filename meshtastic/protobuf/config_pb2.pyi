@@ -938,80 +938,20 @@ class Config(google.protobuf.message.Message):
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-        class _GpsCoordinateFormat:
+        class _DeprecatedGpsCoordinateFormat:
             ValueType = typing.NewType("ValueType", builtins.int)
             V: typing_extensions.TypeAlias = ValueType
 
-        class _GpsCoordinateFormatEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Config.DisplayConfig._GpsCoordinateFormat.ValueType], builtins.type):
+        class _DeprecatedGpsCoordinateFormatEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Config.DisplayConfig._DeprecatedGpsCoordinateFormat.ValueType], builtins.type):
             DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-            DEC: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 0
+            UNUSED: Config.DisplayConfig._DeprecatedGpsCoordinateFormat.ValueType  # 0
+
+        class DeprecatedGpsCoordinateFormat(_DeprecatedGpsCoordinateFormat, metaclass=_DeprecatedGpsCoordinateFormatEnumTypeWrapper):
             """
-            GPS coordinates are displayed in the normal decimal degrees format:
-            DD.DDDDDD DDD.DDDDDD
-            """
-            DMS: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 1
-            """
-            GPS coordinates are displayed in the degrees minutes seconds format:
-            DD°MM'SS"C DDD°MM'SS"C, where C is the compass point representing the locations quadrant
-            """
-            UTM: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 2
-            """
-            Universal Transverse Mercator format:
-            ZZB EEEEEE NNNNNNN, where Z is zone, B is band, E is easting, N is northing
-            """
-            MGRS: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 3
-            """
-            Military Grid Reference System format:
-            ZZB CD EEEEE NNNNN, where Z is zone, B is band, C is the east 100k square, D is the north 100k square,
-            E is easting, N is northing
-            """
-            OLC: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 4
-            """
-            Open Location Code (aka Plus Codes).
-            """
-            OSGR: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 5
-            """
-            Ordnance Survey Grid Reference (the National Grid System of the UK).
-            Format: AB EEEEE NNNNN, where A is the east 100k square, B is the north 100k square,
-            E is the easting, N is the northing
+            Deprecated in 2.7.4: Unused
             """
 
-        class GpsCoordinateFormat(_GpsCoordinateFormat, metaclass=_GpsCoordinateFormatEnumTypeWrapper):
-            """
-            How the GPS coordinates are displayed on the OLED screen.
-            """
-
-        DEC: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 0
-        """
-        GPS coordinates are displayed in the normal decimal degrees format:
-        DD.DDDDDD DDD.DDDDDD
-        """
-        DMS: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 1
-        """
-        GPS coordinates are displayed in the degrees minutes seconds format:
-        DD°MM'SS"C DDD°MM'SS"C, where C is the compass point representing the locations quadrant
-        """
-        UTM: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 2
-        """
-        Universal Transverse Mercator format:
-        ZZB EEEEEE NNNNNNN, where Z is zone, B is band, E is easting, N is northing
-        """
-        MGRS: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 3
-        """
-        Military Grid Reference System format:
-        ZZB CD EEEEE NNNNN, where Z is zone, B is band, C is the east 100k square, D is the north 100k square,
-        E is easting, N is northing
-        """
-        OLC: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 4
-        """
-        Open Location Code (aka Plus Codes).
-        """
-        OSGR: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 5
-        """
-        Ordnance Survey Grid Reference (the National Grid System of the UK).
-        Format: AB EEEEE NNNNN, where A is the east 100k square, B is the north 100k square,
-        E is the easting, N is the northing
-        """
+        UNUSED: Config.DisplayConfig.DeprecatedGpsCoordinateFormat.ValueType  # 0
 
         class _DisplayUnits:
             ValueType = typing.NewType("ValueType", builtins.int)
@@ -1221,12 +1161,13 @@ class Config(google.protobuf.message.Message):
         WAKE_ON_TAP_OR_MOTION_FIELD_NUMBER: builtins.int
         COMPASS_ORIENTATION_FIELD_NUMBER: builtins.int
         USE_12H_CLOCK_FIELD_NUMBER: builtins.int
+        USE_LONG_NODE_NAME_FIELD_NUMBER: builtins.int
         screen_on_secs: builtins.int
         """
         Number of seconds the screen stays on after pressing the user button or receiving a message
         0 for default of one minute MAXUINT for always on
         """
-        gps_format: global___Config.DisplayConfig.GpsCoordinateFormat.ValueType
+        gps_format: global___Config.DisplayConfig.DeprecatedGpsCoordinateFormat.ValueType
         """
         Deprecated in 2.7.4: Unused
         How the GPS coordinates are formatted on the OLED screen.
@@ -1274,11 +1215,16 @@ class Config(google.protobuf.message.Message):
         If false (default), the device will display the time in 24-hour format on screen.
         If true, the device will display the time in 12-hour format on screen.
         """
+        use_long_node_name: builtins.bool
+        """
+        If false (default), the device will use short names for various display screens.
+        If true, node names will show in long format
+        """
         def __init__(
             self,
             *,
             screen_on_secs: builtins.int = ...,
-            gps_format: global___Config.DisplayConfig.GpsCoordinateFormat.ValueType = ...,
+            gps_format: global___Config.DisplayConfig.DeprecatedGpsCoordinateFormat.ValueType = ...,
             auto_screen_carousel_secs: builtins.int = ...,
             compass_north_top: builtins.bool = ...,
             flip_screen: builtins.bool = ...,
@@ -1289,8 +1235,9 @@ class Config(google.protobuf.message.Message):
             wake_on_tap_or_motion: builtins.bool = ...,
             compass_orientation: global___Config.DisplayConfig.CompassOrientation.ValueType = ...,
             use_12h_clock: builtins.bool = ...,
+            use_long_node_name: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["auto_screen_carousel_secs", b"auto_screen_carousel_secs", "compass_north_top", b"compass_north_top", "compass_orientation", b"compass_orientation", "displaymode", b"displaymode", "flip_screen", b"flip_screen", "gps_format", b"gps_format", "heading_bold", b"heading_bold", "oled", b"oled", "screen_on_secs", b"screen_on_secs", "units", b"units", "use_12h_clock", b"use_12h_clock", "wake_on_tap_or_motion", b"wake_on_tap_or_motion"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["auto_screen_carousel_secs", b"auto_screen_carousel_secs", "compass_north_top", b"compass_north_top", "compass_orientation", b"compass_orientation", "displaymode", b"displaymode", "flip_screen", b"flip_screen", "gps_format", b"gps_format", "heading_bold", b"heading_bold", "oled", b"oled", "screen_on_secs", b"screen_on_secs", "units", b"units", "use_12h_clock", b"use_12h_clock", "use_long_node_name", b"use_long_node_name", "wake_on_tap_or_motion", b"wake_on_tap_or_motion"]) -> None: ...
 
     @typing.final
     class LoRaConfig(google.protobuf.message.Message):
