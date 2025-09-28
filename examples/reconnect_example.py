@@ -74,7 +74,8 @@ def main():
             print(f"An unexpected error occurred: {e}")
             if iface:
                 iface.close()
-            raise
+            print("Retrying in 5 seconds...")
+            time.sleep(5)
 
 if __name__ == "__main__":
     main()

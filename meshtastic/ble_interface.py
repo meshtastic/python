@@ -106,13 +106,17 @@ class BLEInterface(MeshInterface):
         rep += ")"
         return rep
 
-    def _on_ble_disconnect(self, client: "BLEClient") -> None:
+    def _on_ble_disconnect(self, client) -> None:
         """Disconnected callback from Bleak."""
-        logger.debug(f"BLE client {client.bleak_client.address} disconnected.")
+        address = getattr(client, "address", repr(client))
+        logger.debug(f"BLE client {address} disconnected.")
         if self.auto_reconnect:
-            # We only cleanup the client, but do not call close()
-            # This allows the application to handle reconnection.
+            previous_client = self.client
             self.client = None
+            if previous_client:
+                Thread(
+                    target=previous_client.close, name="BLEClientClose", daemon=True
+                ).start()
             self._disconnected()
         else:
             Thread(target=self.close, name="BLEClose", daemon=True).start()

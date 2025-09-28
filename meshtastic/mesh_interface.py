@@ -1132,6 +1132,9 @@ class MeshInterface:  # pylint: disable=R0902
         publishingThread.queueWork(
             lambda: pub.sendMessage("meshtastic.connection.lost", interface=self)
         )
+        publishingThread.queueWork(
+            lambda: pub.sendMessage("meshtastic.connection.status", interface=self, connected=False)
+        )
 
     def sendHeartbeat(self):
         """Sends a heartbeat to the radio. Can be used to verify the connection is healthy."""
@@ -1164,6 +1167,9 @@ class MeshInterface:  # pylint: disable=R0902
                 lambda: pub.sendMessage(
                     "meshtastic.connection.established", interface=self
                 )
+            )
+            publishingThread.queueWork(
+                lambda: pub.sendMessage("meshtastic.connection.status", interface=self, connected=True)
             )
 
     def _startConfig(self):
