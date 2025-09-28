@@ -168,10 +168,17 @@ def stub_atexit(monkeypatch):
 
 def _build_interface(monkeypatch, client):
     from meshtastic.ble_interface import BLEInterface
+
+    def _stub_connect(_self, address=None):
+        return client
+    def _stub_recv(_self):
+        return None
+    def _stub_start_config(_self):
+        return None
     
-    monkeypatch.setattr(BLEInterface, "connect", lambda self, address=None: client)
-    monkeypatch.setattr(BLEInterface, "_receiveFromRadioImpl", lambda self: None)
-    monkeypatch.setattr(BLEInterface, "_startConfig", lambda self: None)
+    monkeypatch.setattr(BLEInterface, "connect", _stub_connect)
+    monkeypatch.setattr(BLEInterface, "_receiveFromRadioImpl", _stub_recv)
+    monkeypatch.setattr(BLEInterface, "_startConfig", _stub_start_config)
     iface = BLEInterface(address="dummy", noProto=True)
     return iface
 

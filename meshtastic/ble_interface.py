@@ -200,7 +200,8 @@ class BLEInterface(MeshInterface):
             )
         return addressed_devices[0]
 
-    def _sanitize_address(self, address: Optional[str]) -> Optional[str]:  # pylint: disable=E0213
+    @staticmethod
+    def _sanitize_address(address: Optional[str]) -> Optional[str]:
         "Standardize BLE address by removing extraneous characters and lowercasing."
         if address is None:
             return None
@@ -230,7 +231,7 @@ class BLEInterface(MeshInterface):
                             time.sleep(1)  # Wait before checking again
                             continue
                         else:
-                            logger.debug(f"BLE client is None, shutting down")
+                            logger.debug("BLE client is None, shutting down")
                             self._want_receive = False
                             continue
                     try:
@@ -239,13 +240,14 @@ class BLEInterface(MeshInterface):
                         # Device disconnected probably, so end our read loop immediately
                         logger.debug(f"Device disconnected, shutting down {e}")
                         self._want_receive = False
+                        break
                     except BleakError as e:
                         # We were definitely disconnected
                         if "Not connected" in str(e):
                             logger.debug(f"Device disconnected, shutting down {e}")
                             self._want_receive = False
-                        else:
-                            raise BLEInterface.BLEError("Error reading BLE") from e
+                            break
+                        raise BLEInterface.BLEError("Error reading BLE") from e
                     if not b:
                         if retries < 5:
                             time.sleep(0.1)
@@ -378,7 +380,7 @@ class BLEClient:
             return future.result(timeout)
         except FutureTimeoutError as e:
             future.cancel()
-            raise TimeoutError(f"Timed out awaiting BLE operation: {e}") from e
+            raise TimeoutError from e
 
     def async_run(self, coro):  # pylint: disable=C0116
         return asyncio.run_coroutine_threadsafe(coro, self._eventLoop)
