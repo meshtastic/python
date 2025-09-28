@@ -10,7 +10,6 @@ listeners via the `onConnection` event with a `connected=False` payload.
 The application can then listen for this event and attempt to create a new
 BLEInterface instance to re-establish the connection, as shown in this example.
 """
-import sys
 import threading
 import time
 
@@ -55,9 +54,6 @@ def main():
             print("Connection successful. Waiting for disconnection event...")
             # Wait until the on_connection_change callback signals a disconnect
             disconnected_event.wait()
-
-            # We must explicitly close the old interface before creating a new one
-            iface.close()
             print("Disconnected normally.")
 
         except KeyboardInterrupt:
@@ -68,18 +64,12 @@ def main():
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
         finally:
-            # Close the interface on any exception to prevent resource leaks
-            # (except KeyboardInterrupt which breaks the loop)
-            current_exception = sys.exc_info()[1]
-            if iface and current_exception and not isinstance(current_exception, KeyboardInterrupt):
+            if iface:
                 iface.close()
                 print("Interface closed.")
         
-        # If we get here and didn't break due to KeyboardInterrupt, retry
-        current_exception = sys.exc_info()[1]
-        if not current_exception or isinstance(current_exception, (meshtastic.ble_interface.BLEInterface.BLEError, Exception)):
-            print("Retrying in 5 seconds...")
-            time.sleep(5)
+        print("Retrying in 5 seconds...")
+        time.sleep(5)
 
 if __name__ == "__main__":
     main()
