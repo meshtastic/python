@@ -108,6 +108,10 @@ class BLEInterface(MeshInterface):
 
     def _on_ble_disconnect(self, client) -> None:
         """Disconnected callback from Bleak."""
+        if self._closing:
+            logger.debug("Ignoring disconnect callback because a shutdown is already in progress.")
+            return
+
         address = getattr(client, "address", repr(client))
         logger.debug(f"BLE client {address} disconnected.")
         if self.auto_reconnect:
