@@ -10,18 +10,21 @@ listeners via the `onConnection` event with a `connected=False` payload.
 The application can then listen for this event and attempt to create a new
 BLEInterface instance to re-establish the connection, as shown in this example.
 """
+import threading
 import time
+
+from pubsub import pub
+
 import meshtastic
 import meshtastic.ble_interface
-from pubsub import pub
-import threading
 
 # A thread-safe flag to signal disconnection
 disconnected_event = threading.Event()
 
 def on_connection_change(interface, connected):
     """Callback for connection changes."""
-    print(f"Connection changed: {'Connected' if connected else 'Disconnected'}")
+    iface_label = getattr(interface, "address", repr(interface))
+    print(f"Connection changed for {iface_label}: {'Connected' if connected else 'Disconnected'}")
     if not connected:
         # Signal the main loop that we've been disconnected
         disconnected_event.set()
@@ -71,7 +74,7 @@ def main():
             print(f"An unexpected error occurred: {e}")
             if iface:
                 iface.close()
-            break
+            raise
 
 if __name__ == "__main__":
     main()

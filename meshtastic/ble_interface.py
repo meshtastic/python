@@ -108,14 +108,14 @@ class BLEInterface(MeshInterface):
 
     def _on_ble_disconnect(self, client: "BLEClient") -> None:
         """Disconnected callback from Bleak."""
-        logger.debug(f"BLE client {client.address} disconnected.")
+        logger.debug(f"BLE client {client.bleak_client.address} disconnected.")
         if self.auto_reconnect:
             # We only cleanup the client, but do not call close()
             # This allows the application to handle reconnection.
             self.client = None
             self._disconnected()
         else:
-            self.close()
+            Thread(target=self.close, name="BLEClose", daemon=True).start()
 
     def from_num_handler(self, _, b: bytes) -> None:  # pylint: disable=C0116
         """Handle callbacks for fromnum notify.
@@ -208,12 +208,13 @@ class BLEInterface(MeshInterface):
                 self.should_read = False
                 retries: int = 0
                 while self._want_receive:
-                    if self.client is None:
+                    client = self.client
+                    if client is None:
                         logger.debug(f"BLE client is None, shutting down")
                         self._want_receive = False
                         continue
                     try:
-                        b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
+                        b = bytes(client.read_gatt_char(FROMRADIO_UUID))
                     except BleakDBusError as e:
                         # Device disconnected probably, so end our read loop immediately
                         logger.debug(f"Device disconnected, shutting down {e}")
@@ -238,10 +239,11 @@ class BLEInterface(MeshInterface):
 
     def _sendToRadioImpl(self, toRadio) -> None:
         b: bytes = toRadio.SerializeToString()
-        if b and self.client:  # we silently ignore writes while we are shutting down
+        client = self.client
+        if b and client:  # we silently ignore writes while we are shutting down
             logger.debug(f"TORADIO write: {b.hex()}")
             try:
-                self.client.write_gatt_char(
+                client.write_gatt_char(
                     TORADIO_UUID, b, response=True
                 )  # FIXME: or False?
                 # search Bleak src for org.bluez.Error.InProgress
