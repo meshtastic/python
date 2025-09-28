@@ -28,6 +28,7 @@ LOGRADIO_UUID = "5a3d6e49-06e6-4423-9944-e9de8cdf9547"
 logger = logging.getLogger(__name__)
 
 DISCONNECT_TIMEOUT_SECONDS = 5.0
+RECEIVE_THREAD_JOIN_TIMEOUT = 2.0
 
 
 class BLEInterface(MeshInterface):
@@ -278,7 +279,7 @@ class BLEInterface(MeshInterface):
         if self._want_receive:
             self._want_receive = False  # Tell the thread we want it to stop
             if self._receiveThread:
-                self._receiveThread.join(timeout=2)
+                self._receiveThread.join(timeout=RECEIVE_THREAD_JOIN_TIMEOUT)
                 self._receiveThread = None
 
         client = self.client
