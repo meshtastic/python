@@ -90,7 +90,7 @@ class BLEInterface(MeshInterface):
         # We MUST run atexit (if we can) because otherwise (at least on linux) the BLE device is not disconnected
         # and future connection attempts will fail.  (BlueZ kinda sucks)
         # Note: the on disconnected callback will call our self.close which will make us nicely wait for threads to exit
-        self._exit_handler = atexit.register(self._atexit_disconnect)
+        self._exit_handler = atexit.register(self.close)
 
     def __repr__(self):
         rep = f"BLEInterface(address={self.client.address if self.client else None!r}"
@@ -247,50 +247,40 @@ class BLEInterface(MeshInterface):
             self._closing = True
 
         try:
+            MeshInterface.close(self)
+        except Exception as e:
+            logger.error(f"Error closing mesh interface: {e}")
+
+        if self._want_receive:
+            self._want_receive = False  # Tell the thread we want it to stop
+            if self._receiveThread:
+                self._receiveThread.join(timeout=2)
+                self._receiveThread = None
+
+        client = self.client
+        if client:
+            if self._exit_handler:
+                with contextlib.suppress(ValueError):
+                    atexit.unregister(self._exit_handler)
+                self._exit_handler = None
+
             try:
-                MeshInterface.close(self)
-            except Exception as e:
-                logger.error(f"Error closing mesh interface: {e}")
-
-            if self._want_receive:
-                self._want_receive = False  # Tell the thread we want it to stop
-                if self._receiveThread:
-                    self._receiveThread.join(timeout=2)
-                    self._receiveThread = None
-
-            client = self.client
-            if client:
-                if self._exit_handler:
-                    with contextlib.suppress(ValueError):
-                        atexit.unregister(self._exit_handler)
-                    self._exit_handler = None
-
+                client.disconnect(timeout=DISCONNECT_TIMEOUT_SECONDS)
+            except TimeoutError:
+                logger.warning("Timed out waiting for BLE disconnect; forcing shutdown")
+            except BleakError as e:
+                logger.debug(f"BLE disconnect raised an error: {e}")
+            except Exception as e:  # pragma: no cover - defensive logging
+                logger.error(f"Unexpected error during BLE disconnect: {e}")
+            finally:
                 try:
-                    client.disconnect(_wait_timeout=DISCONNECT_TIMEOUT_SECONDS)
-                except TimeoutError:
-                    logger.warning("Timed out waiting for BLE disconnect; forcing shutdown")
-                except BleakError as e:
-                    logger.debug(f"BLE disconnect raised an error: {e}")
+                    client.close()
                 except Exception as e:  # pragma: no cover - defensive logging
-                    logger.error(f"Unexpected error during BLE disconnect: {e}")
-                finally:
-                    try:
-                        client.close()
-                    except Exception as e:  # pragma: no cover - defensive logging
-                        logger.debug(f"Error closing BLE client: {e}")
-                    self.client = None
+                    logger.debug(f"Error closing BLE client: {e}")
+                self.client = None
 
-            self._disconnected()  # send the disconnected indicator up to clients
-        finally:
-            with self._closing_lock:
-                self._closing = False
+        self._disconnected()  # send the disconnected indicator up to clients
 
-    def _atexit_disconnect(self) -> None:
-        """Best-effort disconnect when interpreter exits."""
-        try:
-            self.close()
-        except Exception:  # pragma: no cover - defensive logging
-            logger.debug("Exception during BLEInterface atexit shutdown", exc_info=True)
 
 
 class BLEClient:
@@ -318,9 +308,8 @@ class BLEClient:
     def connect(self, **kwargs):  # pylint: disable=C0116
         return self.async_await(self.bleak_client.connect(**kwargs))
 
-    def disconnect(self, **kwargs):  # pylint: disable=C0116
-        wait_timeout = kwargs.pop("_wait_timeout", None)
-        self.async_await(self.bleak_client.disconnect(**kwargs), timeout=wait_timeout)
+    def disconnect(self, timeout: Optional[float] = None, **kwargs):  # pylint: disable=C0116
+        self.async_await(self.bleak_client.disconnect(**kwargs), timeout=timeout)
 
     def read_gatt_char(self, *args, **kwargs):  # pylint: disable=C0116
         return self.async_await(self.bleak_client.read_gatt_char(*args, **kwargs))
