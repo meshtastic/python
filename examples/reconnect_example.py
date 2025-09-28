@@ -10,6 +10,7 @@ listeners via the `onConnection` event with a `connected=False` payload.
 The application can then listen for this event and attempt to create a new
 BLEInterface instance to re-establish the connection, as shown in this example.
 """
+import logging
 import threading
 import time
 
@@ -17,6 +18,13 @@ from pubsub import pub
 
 import meshtastic
 import meshtastic.ble_interface
+
+# Retry delay in seconds when connection fails
+RETRY_DELAY_SECONDS = 5
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # A thread-safe flag to signal disconnection
 disconnected_event = threading.Event()
@@ -59,17 +67,17 @@ def main():
         except KeyboardInterrupt:
             print("Exiting...")
             break
-        except meshtastic.ble_interface.BLEInterface.BLEError as e:
-            print(f"Connection failed: {e}")
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
+        except meshtastic.ble_interface.BLEInterface.BLEError:
+            logger.exception("Connection failed")
+        except Exception:
+            logger.exception("An unexpected error occurred")
         finally:
             if iface:
                 iface.close()
                 print("Interface closed.")
-        
-        print("Retrying in 5 seconds...")
-        time.sleep(5)
+
+        print(f"Retrying in {RETRY_DELAY_SECONDS} seconds...")
+        time.sleep(RETRY_DELAY_SECONDS)
 
 if __name__ == "__main__":
     main()

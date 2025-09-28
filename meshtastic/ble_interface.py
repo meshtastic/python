@@ -97,7 +97,7 @@ class BLEInterface(MeshInterface):
         self._exit_handler = atexit.register(self.close)
 
     def __repr__(self):
-        rep = f"BLEInterface(address={self.client.address if self.client else None!r}"
+        rep = f"BLEInterface(address={self.address!r}"
         if self.debugOut is not None:
             rep += f", debugOut={self.debugOut!r}"
         if self.noProto:
@@ -181,9 +181,11 @@ class BLEInterface(MeshInterface):
         addressed_devices = BLEInterface.scan()
 
         if address:
+            sanitized_address = self._sanitize_address(address)
             addressed_devices = list(
                 filter(
-                    lambda x: address in (x.name, x.address),
+                    lambda x: address in (x.name, x.address) or
+                              (sanitized_address and self._sanitize_address(x.address) == sanitized_address),
                     addressed_devices,
                 )
             )
@@ -224,7 +226,7 @@ class BLEInterface(MeshInterface):
                     client = self.client
                     if client is None:
                         if self.auto_reconnect:
-                            logger.debug(f"BLE client is None, waiting for reconnection...")
+                            logger.debug("BLE client is None, waiting for reconnection...")
                             time.sleep(1)  # Wait before checking again
                             continue
                         else:
@@ -282,8 +284,8 @@ class BLEInterface(MeshInterface):
 
         try:
             MeshInterface.close(self)
-        except Exception as e:
-            logger.error(f"Error closing mesh interface: {e}")
+        except Exception:
+            logger.exception("Error closing mesh interface")
 
         if self._want_receive:
             self._want_receive = False  # Tell the thread we want it to stop
@@ -302,18 +304,20 @@ class BLEInterface(MeshInterface):
                 client.disconnect(timeout=DISCONNECT_TIMEOUT_SECONDS)
             except TimeoutError:
                 logger.warning("Timed out waiting for BLE disconnect; forcing shutdown")
-            except BleakError as e:
-                logger.debug(f"BLE disconnect raised an error: {e}")
-            except Exception as e:  # pragma: no cover - defensive logging
-                logger.error(f"Unexpected error during BLE disconnect: {e}")
+            except BleakError:
+                logger.debug("BLE disconnect raised a BleakError", exc_info=True)
+            except Exception:  # pragma: no cover - defensive logging
+                logger.exception("Unexpected error during BLE disconnect")
             finally:
                 try:
                     client.close()
-                except Exception as e:  # pragma: no cover - defensive logging
-                    logger.debug(f"Error closing BLE client: {e}")
+                except Exception:  # pragma: no cover - defensive logging
+                    logger.debug("Error closing BLE client", exc_info=True)
                 self.client = None
 
-        self._disconnected()  # send the disconnected indicator up to clients
+        # Avoid duplicate notification if the Bleak callback already published it.
+        if not self.auto_reconnect:
+            self._disconnected()  # send the disconnected indicator up to clients
 
 
 
@@ -374,7 +378,7 @@ class BLEClient:
             return future.result(timeout)
         except FutureTimeoutError as e:
             future.cancel()
-            raise TimeoutError("Timed out awaiting BLE operation") from e
+            raise TimeoutError(f"Timed out awaiting BLE operation: {e}") from e
 
     def async_run(self, coro):  # pylint: disable=C0116
         return asyncio.run_coroutine_threadsafe(coro, self._eventLoop)
