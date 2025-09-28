@@ -14,7 +14,7 @@ tabulate = "^0.9.0"
 requests = "^2.31.0"
 pyyaml = "^6.0.1"
 pypubsub = "^4.0.3"
-bleak = "^0.22.3"
+bleak = "^1.1.1"
 packaging = "^24.0"
 argcomplete = { version = "^3.5.2", optional = true }
 pyqrcode = { version = "^1.2.1", optional = true }
