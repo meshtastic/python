@@ -30,7 +30,6 @@ wcwidth = {version = "^0.2.13", optional = true}
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.103.2"
 pytest = "^8.2.2"
-pytest-asyncio = "^0.23.7"
 pytest-cov = "^5.0.0"
 pdoc3 = "^0.10.0"
 autopep8 = "^2.1.0"

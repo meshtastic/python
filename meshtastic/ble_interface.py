@@ -1,4 +1,5 @@
-"""Bluetooth interface for Meshtastic."""
+"""Bluetooth interface
+"""
 import asyncio
 import atexit
 import contextlib
@@ -6,7 +7,7 @@ import logging
 import struct
 import time
 import io
-from concurrent.futures import Future, TimeoutError as FutureTimeoutError
+from concurrent.futures import TimeoutError as FutureTimeoutError
 from threading import Lock, Thread
 from typing import List, Optional
 
@@ -15,6 +16,7 @@ from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
 
 from meshtastic.mesh_interface import MeshInterface
+
 from .protobuf import mesh_pb2
 
 SERVICE_UUID = "6ba1b218-15a8-461f-9fa8-5dcae273eafd"
@@ -27,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 DISCONNECT_TIMEOUT_SECONDS = 5.0
 
+
 class BLEInterface(MeshInterface):
     """MeshInterface using BLE to connect to devices."""
 
@@ -37,183 +40,330 @@ class BLEInterface(MeshInterface):
         self,
         address: Optional[str],
         noProto: bool = False,
-        debugOut: Optional[io.TextIOWrapper] = None,
+        debugOut: Optional[io.TextIOWrapper]=None,
         noNodes: bool = False,
         auto_reconnect: bool = True,
     ) -> None:
-        self._closing_lock = Lock()
-        self._closing = False
+        self._closing_lock: Lock = Lock()
+        self._closing: bool = False
+        self._exit_handler = None
         self.address = address
         self.auto_reconnect = auto_reconnect
-        self._exit_handler = None
 
-        self.client: Optional[BleakClient] = None
-        self._connection_monitor_task: Optional[asyncio.Task] = None
-
-        self._event_loop = asyncio.new_event_loop()
-        self._disconnect_event = asyncio.Event()
-        self._initial_connect_event = asyncio.Event()
-
-        self._event_thread = Thread(target=self._run_event_loop, name="BLEEventLoop", daemon=True)
-        self._event_thread.start()
-
-        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto, noNodes=noNodes)
+        MeshInterface.__init__(
+            self, debugOut=debugOut, noProto=noProto, noNodes=noNodes
+        )
 
         self.should_read = False
+
+        logger.debug("Threads starting")
         self._want_receive = True
-        self._receiveThread = Thread(target=self._receiveFromRadioImpl, name="BLEReceive", daemon=True)
+        self._receiveThread: Optional[Thread] = Thread(
+            target=self._receiveFromRadioImpl, name="BLEReceive", daemon=True
+        )
         self._receiveThread.start()
+        logger.debug("Threads running")
 
-        self._connection_monitor_task = self.async_run(self._connection_monitor())
-
-        logger.debug("Waiting for initial BLE connection...")
+        self.client: Optional[BLEClient] = None
         try:
-            self.async_await(self._initial_connect_event.wait(), timeout=30)
-        except TimeoutError as e:
+            logger.debug(f"BLE connecting to: {address if address else 'any'}")
+            self.client = self.connect(address)
+            logger.debug("BLE connected")
+        except BLEInterface.BLEError as e:
             self.close()
-            raise BLEInterface.BLEError("Failed to connect to BLE device in time.") from e
+            raise e
 
-        if not self.client or not self.client.is_connected:
-            self.close()
-            raise BLEInterface.BLEError("Failed to connect to BLE device.")
+        if self.client.has_characteristic(LEGACY_LOGRADIO_UUID):
+            self.client.start_notify(
+                LEGACY_LOGRADIO_UUID, self.legacy_log_radio_handler
+            )
 
-        logger.debug("Initial BLE connection established.")
+        if self.client.has_characteristic(LOGRADIO_UUID):
+            self.client.start_notify(LOGRADIO_UUID, self.log_radio_handler)
+
+        logger.debug("Mesh configure starting")
+        self._startConfig()
+        if not self.noProto:
+            self._waitConnected(timeout=60.0)
+            self.waitForConfig()
+
+        logger.debug("Register FROMNUM notify callback")
+        self.client.start_notify(FROMNUM_UUID, self.from_num_handler)
+
+        # We MUST run atexit (if we can) because otherwise (at least on linux) the BLE device is not disconnected
+        # and future connection attempts will fail.  (BlueZ kinda sucks)
+        # Note: the on disconnected callback will call our self.close which will make us nicely wait for threads to exit
         self._exit_handler = atexit.register(self.close)
 
-    def _on_ble_disconnect(self, client: BleakClient) -> None:
+    def __repr__(self):
+        rep = f"BLEInterface(address={self.client.address if self.client else None!r}"
+        if self.debugOut is not None:
+            rep += f", debugOut={self.debugOut!r}"
+        if self.noProto:
+            rep += ", noProto=True"
+        if self.noNodes:
+            rep += ", noNodes=True"
+        rep += ")"
+        return rep
+
+    def _on_ble_disconnect(self, client: "BLEClient") -> None:
         """Disconnected callback from Bleak."""
         logger.debug(f"BLE client {client.address} disconnected.")
-        if not self._closing:
-            self._disconnect_event.set()
+        if self.auto_reconnect:
+            # We only cleanup the client, but do not call close()
+            # This allows the application to handle reconnection.
+            self.client = None
+            self._disconnected()
+        else:
+            self.close()
 
-    async def _connection_monitor(self):
-        """A background task that manages the BLE connection and reconnection."""
-        retry_delay = 1
-        while not self._closing:
-            try:
-                logger.debug(f"Scanning for {self.address}...")
-                device = await BleakScanner.find_device_by_address(self.address, timeout=20.0)
-                if not device:
-                    raise BLEInterface.BLEError(f"Device with address {self.address} not found.")
+    def from_num_handler(self, _, b: bytes) -> None:  # pylint: disable=C0116
+        """Handle callbacks for fromnum notify.
+        Note: this method does not need to be async because it is just setting a bool.
+        """
+        from_num = struct.unpack("<I", bytes(b))[0]
+        logger.debug(f"FROMNUM notify: {from_num}")
+        self.should_read = True
 
-                self._disconnect_event.clear()
-                async with BleakClient(device, disconnected_callback=self._on_ble_disconnect) as client:
-                    logger.info(f"Successfully connected to device {client.address}.")
-                    self.client = client
+    async def log_radio_handler(self, _, b):  # pylint: disable=C0116
+        log_record = mesh_pb2.LogRecord()
+        try:
+            log_record.ParseFromString(bytes(b))
 
-                    await client.start_notify(FROMNUM_UUID, self.from_num_handler)
-                    if self.client.is_connected:
-                         if not self.noProto:
-                             self._startConfig()
-                             self.waitForConfig()
+            message = (
+                f"[{log_record.source}] {log_record.message}"
+                if log_record.source
+                else log_record.message
+            )
+            self._handleLogLine(message)
+        except google.protobuf.message.DecodeError:
+            logger.warning("Malformed LogRecord received. Skipping.")
 
-                    if not self._initial_connect_event.is_set():
-                        self._initial_connect_event.set()
+    async def legacy_log_radio_handler(self, _, b):  # pylint: disable=C0116
+        log_radio = b.decode("utf-8").replace("\n", "")
+        self._handleLogLine(log_radio)
 
-                    retry_delay = 1
-                    await self._disconnect_event.wait()
+    @staticmethod
+    def scan() -> List[BLEDevice]:
+        """Scan for available BLE devices."""
+        with BLEClient() as client:
+            logger.info("Scanning for BLE devices (takes 10 seconds)...")
+            response = client.discover(
+                timeout=10, return_adv=True, service_uuids=[SERVICE_UUID]
+            )
 
-                self.client = None
-                logger.info("Device disconnected.")
+            devices = response.values()
 
-            except Exception as e:
-                if not self._initial_connect_event.is_set():
-                     self._initial_connect_event.set()
-                if isinstance(e, asyncio.CancelledError):
-                    logger.debug("Connection monitor cancelled.")
-                    break
-                logger.warning(f"Connection failed: {e}")
+            # bleak sometimes returns devices we didn't ask for, so filter the response
+            # to only return true meshtastic devices
+            # d[0] is the device. d[1] is the advertisement data
+            devices = list(
+                filter(lambda d: SERVICE_UUID in d[1].service_uuids, devices)
+            )
+            return list(map(lambda d: d[0], devices))
 
-            if self._closing or not self.auto_reconnect:
-                break
+    def find_device(self, address: Optional[str]) -> BLEDevice:
+        """Find a device by address."""
 
-            logger.info(f"Will try to reconnect in {retry_delay} seconds...")
-            await asyncio.sleep(retry_delay)
-            retry_delay = min(retry_delay * 2, 60)
+        addressed_devices = BLEInterface.scan()
 
-    def close(self) -> None:
-        with self._closing_lock:
-            if self._closing:
-                return
-            logger.debug("Closing BLE interface.")
-            self._closing = True
+        if address:
+            addressed_devices = list(
+                filter(
+                    lambda x: address in (x.name, x.address),
+                    addressed_devices,
+                )
+            )
 
-        if self._disconnect_event:
-            self._disconnect_event.set()
+        if len(addressed_devices) == 0:
+            raise BLEInterface.BLEError(
+                f"No Meshtastic BLE peripheral with identifier or address '{address}' found. Try --ble-scan to find it."
+            )
+        if len(addressed_devices) > 1:
+            raise BLEInterface.BLEError(
+                f"More than one Meshtastic BLE peripheral with identifier or address '{address}' found."
+            )
+        return addressed_devices[0]
 
-        if self._connection_monitor_task:
-            self._connection_monitor_task.cancel()
+    def _sanitize_address(self, address: Optional[str]) -> Optional[str]:  # pylint: disable=E0213
+        "Standardize BLE address by removing extraneous characters and lowercasing."
+        if address is None:
+            return None
+        else:
+            return address.replace("-", "").replace("_", "").replace(":", "").lower()
 
-        if self._exit_handler:
-            with contextlib.suppress(ValueError):
-                atexit.unregister(self._exit_handler)
-            self._exit_handler = None
+    def connect(self, address: Optional[str] = None) -> "BLEClient":
+        "Connect to a device by address."
 
-        if self._want_receive:
-            self._want_receive = False
-            if self._receiveThread and self._receiveThread.is_alive():
-                self._receiveThread.join(timeout=2)
-
-        if self._event_loop.is_running():
-            self._event_loop.call_soon_threadsafe(self._event_loop.stop)
-        if self._event_thread and self._event_thread.is_alive():
-            self._event_thread.join()
-
-        MeshInterface.close(self)
-        self._disconnected()
+        # Bleak docs recommend always doing a scan before connecting (even if we know addr)
+        device = self.find_device(address)
+        client = BLEClient(device.address, disconnected_callback=self._on_ble_disconnect)
+        client.connect()
+        client.discover()
+        return client
 
     def _receiveFromRadioImpl(self) -> None:
         while self._want_receive:
-            if self.should_read and self.client and self.client.is_connected:
+            if self.should_read:
                 self.should_read = False
-                try:
-                    read_future = self.async_run(self.client.read_gatt_char(FROMRADIO_UUID))
-                    b = read_future.result(timeout=2.0)
-                    if b:
-                        logger.debug(f"FROMRADIO read: {b.hex()}")
-                        self._handleFromRadio(b)
-                except Exception as e:
-                    logger.debug(f"Could not read from radio: {e}")
+                retries: int = 0
+                while self._want_receive:
+                    if self.client is None:
+                        logger.debug(f"BLE client is None, shutting down")
+                        self._want_receive = False
+                        continue
+                    try:
+                        b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
+                    except BleakDBusError as e:
+                        # Device disconnected probably, so end our read loop immediately
+                        logger.debug(f"Device disconnected, shutting down {e}")
+                        self._want_receive = False
+                    except BleakError as e:
+                        # We were definitely disconnected
+                        if "Not connected" in str(e):
+                            logger.debug(f"Device disconnected, shutting down {e}")
+                            self._want_receive = False
+                        else:
+                            raise BLEInterface.BLEError("Error reading BLE") from e
+                    if not b:
+                        if retries < 5:
+                            time.sleep(0.1)
+                            retries += 1
+                            continue
+                        break
+                    logger.debug(f"FROMRADIO read: {b.hex()}")
+                    self._handleFromRadio(b)
             else:
                 time.sleep(0.01)
 
     def _sendToRadioImpl(self, toRadio) -> None:
         b: bytes = toRadio.SerializeToString()
-        if b and self.client and self.client.is_connected:
+        if b and self.client:  # we silently ignore writes while we are shutting down
             logger.debug(f"TORADIO write: {b.hex()}")
             try:
-                write_future = self.async_run(
-                    self.client.write_gatt_char(TORADIO_UUID, b, response=True)
-                )
-                write_future.result(timeout=5.0)
-                time.sleep(0.01)
-                self.should_read = True
+                self.client.write_gatt_char(
+                    TORADIO_UUID, b, response=True
+                )  # FIXME: or False?
+                # search Bleak src for org.bluez.Error.InProgress
             except Exception as e:
-                raise BLEInterface.BLEError("Error writing to BLE") from e
+                raise BLEInterface.BLEError(
+                    "Error writing BLE (are you in the 'bluetooth' user group? did you enter the pairing PIN on your computer?)"
+                ) from e
+            # Allow to propagate and then make sure we read
+            time.sleep(0.01)
+            self.should_read = True
 
-    def async_await(self, coro, timeout=None):
-        future = asyncio.run_coroutine_threadsafe(coro, self._event_loop)
+    def close(self) -> None:
+        with self._closing_lock:
+            if self._closing:
+                logger.debug("BLEInterface.close called while another shutdown is in progress; ignoring")
+                return
+            self._closing = True
+
+        try:
+            MeshInterface.close(self)
+        except Exception as e:
+            logger.error(f"Error closing mesh interface: {e}")
+
+        if self._want_receive:
+            self._want_receive = False  # Tell the thread we want it to stop
+            if self._receiveThread:
+                self._receiveThread.join(timeout=2)
+                self._receiveThread = None
+
+        client = self.client
+        if client:
+            if self._exit_handler:
+                with contextlib.suppress(ValueError):
+                    atexit.unregister(self._exit_handler)
+                self._exit_handler = None
+
+            try:
+                client.disconnect(timeout=DISCONNECT_TIMEOUT_SECONDS)
+            except TimeoutError:
+                logger.warning("Timed out waiting for BLE disconnect; forcing shutdown")
+            except BleakError as e:
+                logger.debug(f"BLE disconnect raised an error: {e}")
+            except Exception as e:  # pragma: no cover - defensive logging
+                logger.error(f"Unexpected error during BLE disconnect: {e}")
+            finally:
+                try:
+                    client.close()
+                except Exception as e:  # pragma: no cover - defensive logging
+                    logger.debug(f"Error closing BLE client: {e}")
+                self.client = None
+
+        self._disconnected()  # send the disconnected indicator up to clients
+
+
+
+class BLEClient:
+    """Client for managing connection to a BLE device"""
+
+    def __init__(self, address=None, **kwargs) -> None:
+        self._eventLoop = asyncio.new_event_loop()
+        self._eventThread = Thread(
+            target=self._run_event_loop, name="BLEClient", daemon=True
+        )
+        self._eventThread.start()
+
+        if not address:
+            logger.debug("No address provided - only discover method will work.")
+            return
+
+        self.bleak_client = BleakClient(address, **kwargs)
+
+    def discover(self, **kwargs):  # pylint: disable=C0116
+        return self.async_await(BleakScanner.discover(**kwargs))
+
+    def pair(self, **kwargs):  # pylint: disable=C0116
+        return self.async_await(self.bleak_client.pair(**kwargs))
+
+    def connect(self, **kwargs):  # pylint: disable=C0116
+        return self.async_await(self.bleak_client.connect(**kwargs))
+
+    def disconnect(self, timeout: Optional[float] = None, **kwargs):  # pylint: disable=C0116
+        self.async_await(self.bleak_client.disconnect(**kwargs), timeout=timeout)
+
+    def read_gatt_char(self, *args, **kwargs):  # pylint: disable=C0116
+        return self.async_await(self.bleak_client.read_gatt_char(*args, **kwargs))
+
+    def write_gatt_char(self, *args, **kwargs):  # pylint: disable=C0116
+        self.async_await(self.bleak_client.write_gatt_char(*args, **kwargs))
+
+    def has_characteristic(self, specifier):
+        """Check if the connected node supports a specified characteristic."""
+        return bool(self.bleak_client.services.get_characteristic(specifier))
+
+    def start_notify(self, *args, **kwargs):  # pylint: disable=C0116
+        self.async_await(self.bleak_client.start_notify(*args, **kwargs))
+
+    def close(self):  # pylint: disable=C0116
+        self.async_run(self._stop_event_loop())
+        self._eventThread.join()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, _type, _value, _traceback):
+        self.close()
+
+    def async_await(self, coro, timeout=None):  # pylint: disable=C0116
+        future = self.async_run(coro)
         try:
             return future.result(timeout)
         except FutureTimeoutError as e:
             future.cancel()
             raise TimeoutError("Timed out awaiting BLE operation") from e
 
-    def async_run(self, coro) -> Future:
-        return asyncio.run_coroutine_threadsafe(coro, self._event_loop)
+    def async_run(self, coro):  # pylint: disable=C0116
+        return asyncio.run_coroutine_threadsafe(coro, self._eventLoop)
 
     def _run_event_loop(self):
         try:
-            self._event_loop.run_forever()
+            self._eventLoop.run_forever()
         finally:
-            self._event_loop.close()
+            self._eventLoop.close()
 
-    @staticmethod
-    def scan() -> List[BLEDevice]:
-        """Scan for available BLE devices."""
-        return asyncio.run(BleakScanner.discover(timeout=10, service_uuids=[SERVICE_UUID]))
-
-    def from_num_handler(self, _, b: bytes) -> None:
-        from_num = struct.unpack("<I", bytes(b))[0]
-        logger.debug(f"FROMNUM notify: {from_num}")
-        self.should_read = True
+    async def _stop_event_loop(self):
+        self._eventLoop.stop()

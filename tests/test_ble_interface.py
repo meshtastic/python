@@ -1,128 +1,170 @@
-"""Tests for the BLEInterface class."""
 import asyncio
+import sys
+import types
+from pathlib import Path
+from types import SimpleNamespace
+from typing import Optional
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
-from threading import Thread, Lock
 
-# Import the class to be tested
-from meshtastic.ble_interface import BLEInterface, MeshInterface
-# Import the original classes for spec'ing, and the exception
-from bleak import BleakClient, BleakScanner
-from bleak.exc import BleakError
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-@pytest.fixture
-def mock_bleak_scanner(monkeypatch):
-    """Fixture to mock BleakScanner."""
-    scanner_class_mock = MagicMock(spec=BleakScanner)
-    mock_device = MagicMock()
-    mock_device.address = "some-mock-address"
-    scanner_class_mock.find_device_by_address = AsyncMock(return_value=mock_device)
-    monkeypatch.setattr('meshtastic.ble_interface.BleakScanner', scanner_class_mock)
-    return scanner_class_mock
+if "serial" not in sys.modules:
+    sys.modules["serial"] = types.ModuleType("serial")
 
-@pytest.fixture
-def mock_bleak_client(monkeypatch):
-    """Fixture to mock BleakClient."""
-    client_instance_mock = AsyncMock(spec=BleakClient)
-    client_instance_mock.is_connected = True
-    client_instance_mock.address = "some-mock-address"
-    client_instance_mock.start_notify = AsyncMock()
+serial_module = sys.modules["serial"]
+if not hasattr(serial_module, "tools"):
+    tools_module = types.ModuleType("serial.tools")
+    list_ports_module = types.ModuleType("serial.tools.list_ports")
+    list_ports_module.comports = lambda *_args, **_kwargs: []
+    tools_module.list_ports = list_ports_module
+    serial_module.tools = tools_module
+    sys.modules["serial.tools"] = tools_module
+    sys.modules["serial.tools.list_ports"] = list_ports_module
 
-    async_context_manager_mock = AsyncMock()
-    async_context_manager_mock.__aenter__.return_value = client_instance_mock
+if not hasattr(serial_module, "SerialException"):
+    serial_module.SerialException = Exception
+if not hasattr(serial_module, "SerialTimeoutException"):
+    serial_module.SerialTimeoutException = Exception
 
-    def client_constructor(device, disconnected_callback, **kwargs):
-        # Capture the callback so the test can invoke it
-        client_instance_mock.captured_disconnected_callback = disconnected_callback
-        return async_context_manager_mock
+if "pubsub" not in sys.modules:
+    pubsub_module = types.ModuleType("pubsub")
+    pubsub_module.pub = SimpleNamespace(
+        subscribe=lambda *_args, **_kwargs: None,
+        sendMessage=lambda *_args, **_kwargs: None,
+        AUTO_TOPIC=None,
+    )
+    sys.modules["pubsub"] = pubsub_module
 
-    client_class_mock = MagicMock(side_effect=client_constructor)
-    monkeypatch.setattr('meshtastic.ble_interface.BleakClient', client_class_mock)
-    return client_instance_mock
+if "tabulate" not in sys.modules:
+    tabulate_module = types.ModuleType("tabulate")
+    tabulate_module.tabulate = lambda *_args, **_kwargs: ""
+    sys.modules["tabulate"] = tabulate_module
 
-@pytest.fixture
-def iface(monkeypatch):
-    """
-    A fixture that creates a BLEInterface instance but replaces its __init__
-    with a mock version that only sets up the necessary attributes without
-    any blocking or async logic.
-    """
-    # This mock __init__ does the bare minimum to create the object.
-    # It avoids threading and the real asyncio event loop setup.
-    def mock_init(self, address, noProto=True, **kwargs):
-        self._closing_lock = Lock()
-        self._closing = False
-        self.address = address
-        self.noProto = noProto
-        self.auto_reconnect = True
-        self.client = None
-        self._connection_monitor_task = None
-        self._event_loop = None # This will be set by the test
-        self._disconnect_event = asyncio.Event()
-        self._initial_connect_event = asyncio.Event()
-        monkeypatch.setattr(MeshInterface, "__init__", MagicMock())
+if "bleak" not in sys.modules:
+    bleak_module = types.ModuleType("bleak")
 
-    monkeypatch.setattr(BLEInterface, "__init__", mock_init)
-    iface_instance = BLEInterface(address="some-address")
+    class _StubBleakClient:
+        def __init__(self, address=None, **_kwargs):
+            self.address = address
+            self.services = SimpleNamespace(get_characteristic=lambda _specifier: None)
 
-    yield iface_instance
+        async def connect(self, **_kwargs):
+            return None
 
-    # Cleanup after the test
-    iface_instance._closing = True
-    if iface_instance._connection_monitor_task:
-        iface_instance._connection_monitor_task.cancel()
+        async def disconnect(self, **_kwargs):
+            return None
 
-@pytest.mark.asyncio
-async def test_connection_and_reconnect(iface, mock_bleak_scanner, monkeypatch):
-    """Test the full connection, disconnect, and reconnect cycle."""
-    # Manually set the event loop to the one provided by pytest-asyncio
-    iface._event_loop = asyncio.get_running_loop()
+        async def discover(self, **_kwargs):
+            return None
 
-    mock_sleep = AsyncMock()
-    monkeypatch.setattr('meshtastic.ble_interface.asyncio.sleep', mock_sleep)
+        async def start_notify(self, **_kwargs):
+            return None
 
-    # Manually start the monitor task in the test's event loop
-    iface._connection_monitor_task = asyncio.create_task(iface._connection_monitor())
+        async def read_gatt_char(self, *_args, **_kwargs):
+            return b""
 
-    # Yield control to allow the monitor to run the first connection
-    await asyncio.sleep(0)
+        async def write_gatt_char(self, *_args, **_kwargs):
+            return None
 
-    # It should have connected
-    mock_bleak_scanner.find_device_by_address.assert_called_once()
-    assert iface._initial_connect_event.is_set()
-    assert iface.client is not None
+    async def _stub_discover(**_kwargs):
+        return {}
 
-    # Trigger a disconnect
-    iface._disconnect_event.set()
-    await asyncio.sleep(0) # Yield to let the monitor process the disconnect
+    class _StubBLEDevice:
+        def __init__(self, address=None, name=None):
+            self.address = address
+            self.name = name
 
-    # The monitor should call sleep(1) for backoff, then try to reconnect
-    mock_sleep.assert_called_once_with(1)
-    await asyncio.sleep(0) # Yield again to let the second connection attempt happen
-    assert mock_bleak_scanner.find_device_by_address.call_count == 2
+    bleak_module.BleakClient = _StubBleakClient
+    bleak_module.BleakScanner = SimpleNamespace(discover=_stub_discover)
+    bleak_module.BLEDevice = _StubBLEDevice
+    sys.modules["bleak"] = bleak_module
 
-@pytest.mark.asyncio
-async def test_no_reconnect_when_disabled(iface, mock_bleak_scanner, monkeypatch):
-    """Test that reconnection does not happen when auto_reconnect is False."""
-    # Manually set the event loop and disable reconnect
-    iface._event_loop = asyncio.get_running_loop()
-    iface.auto_reconnect = False
+if "bleak.exc" not in sys.modules:
+    bleak_exc_module = types.ModuleType("bleak.exc")
 
-    mock_sleep = AsyncMock()
-    monkeypatch.setattr('meshtastic.ble_interface.asyncio.sleep', mock_sleep)
+    class _StubBleakError(Exception):
+        pass
 
-    # Manually start the monitor task
-    iface._connection_monitor_task = asyncio.create_task(iface._connection_monitor())
+    class _StubBleakDBusError(_StubBleakError):
+        pass
 
-    # Yield control to allow the monitor to run the first connection
-    await asyncio.sleep(0)
-    mock_bleak_scanner.find_device_by_address.assert_called_once()
-    assert iface._initial_connect_event.is_set()
+    bleak_exc_module.BleakError = _StubBleakError
+    bleak_exc_module.BleakDBusError = _StubBleakDBusError
+    sys.modules["bleak.exc"] = bleak_exc_module
+    # also attach to parent module if we just created it
+    if "bleak" in sys.modules:
+        setattr(sys.modules["bleak"], "exc", bleak_exc_module)
 
-    # Trigger a disconnect
-    iface._disconnect_event.set()
-    await asyncio.sleep(0)
+from meshtastic.ble_interface import BLEClient, BLEInterface, BleakError
 
-    # Assert that sleep was never called and no reconnection attempt was made
-    mock_sleep.assert_not_called()
-    mock_bleak_scanner.find_device_by_address.assert_called_once()
+
+class DummyClient:
+    def __init__(self, disconnect_exception: Optional[Exception] = None) -> None:
+        self.disconnect_calls = 0
+        self.close_calls = 0
+        self.address = "dummy"
+        self.disconnect_exception = disconnect_exception
+        self.services = SimpleNamespace(get_characteristic=lambda _specifier: None)
+
+    def has_characteristic(self, _specifier):
+        return False
+
+    def start_notify(self, *_args, **_kwargs):
+        return None
+
+    def disconnect(self, *_args, **_kwargs):
+        self.disconnect_calls += 1
+        if self.disconnect_exception:
+            raise self.disconnect_exception
+
+    def close(self):
+        self.close_calls += 1
+
+
+@pytest.fixture(autouse=True)
+def stub_atexit(monkeypatch):
+    registered = []
+
+    def fake_register(func):
+        registered.append(func)
+        return func
+
+    def fake_unregister(func):
+        registered[:] = [f for f in registered if f is not func]
+
+    monkeypatch.setattr("meshtastic.ble_interface.atexit.register", fake_register)
+    monkeypatch.setattr("meshtastic.ble_interface.atexit.unregister", fake_unregister)
+    yield
+    # run any registered functions manually to avoid surprising global state
+    for func in registered:
+        func()
+
+
+def _build_interface(monkeypatch, client):
+    monkeypatch.setattr(BLEInterface, "connect", lambda self, address=None: client)
+    monkeypatch.setattr(BLEInterface, "_receiveFromRadioImpl", lambda self: None)
+    monkeypatch.setattr(BLEInterface, "_startConfig", lambda self: None)
+    iface = BLEInterface(address="dummy", noProto=True)
+    return iface
+
+
+def test_close_idempotent(monkeypatch):
+    client = DummyClient()
+    iface = _build_interface(monkeypatch, client)
+
+    iface.close()
+    iface.close()
+
+    assert client.disconnect_calls == 1
+    assert client.close_calls == 1
+
+
+def test_close_handles_bleak_error(monkeypatch):
+    client = DummyClient(disconnect_exception=BleakError("Not connected"))
+    iface = _build_interface(monkeypatch, client)
+
+    iface.close()
+
+    assert client.disconnect_calls == 1
+    assert client.close_calls == 1
