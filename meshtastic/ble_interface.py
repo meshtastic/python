@@ -116,7 +116,11 @@ class BLEInterface(MeshInterface):
         address = getattr(client, "address", repr(client))
         logger.debug(f"BLE client {address} disconnected.")
         if self.auto_reconnect:
-            previous_client = self.client
+            current_client = self.client
+            if current_client and getattr(current_client, "bleak_client", None) is not client:
+                logger.debug("Ignoring disconnect from a stale BLE client instance.")
+                return
+            previous_client = current_client
             self.client = None
             if previous_client:
                 Thread(
