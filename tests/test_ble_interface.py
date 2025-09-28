@@ -9,39 +9,57 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-if "serial" not in sys.modules:
-    sys.modules["serial"] = types.ModuleType("serial")
-
-serial_module = sys.modules["serial"]
-if not hasattr(serial_module, "tools"):
+@pytest.fixture(autouse=True)
+def mock_serial(monkeypatch):
+    """Mock the serial module and its submodules."""
+    serial_module = types.ModuleType("serial")
+    
+    # Create tools submodule
     tools_module = types.ModuleType("serial.tools")
     list_ports_module = types.ModuleType("serial.tools.list_ports")
     list_ports_module.comports = lambda *_args, **_kwargs: []
     tools_module.list_ports = list_ports_module
     serial_module.tools = tools_module
-    sys.modules["serial.tools"] = tools_module
-    sys.modules["serial.tools.list_ports"] = list_ports_module
-
-if not hasattr(serial_module, "SerialException"):
+    
+    # Add exception classes
     serial_module.SerialException = Exception
-if not hasattr(serial_module, "SerialTimeoutException"):
     serial_module.SerialTimeoutException = Exception
+    
+    # Mock the modules
+    monkeypatch.setitem(sys.modules, "serial", serial_module)
+    monkeypatch.setitem(sys.modules, "serial.tools", tools_module)
+    monkeypatch.setitem(sys.modules, "serial.tools.list_ports", list_ports_module)
+    
+    return serial_module
 
-if "pubsub" not in sys.modules:
+
+@pytest.fixture(autouse=True)
+def mock_pubsub(monkeypatch):
+    """Mock the pubsub module."""
     pubsub_module = types.ModuleType("pubsub")
     pubsub_module.pub = SimpleNamespace(
         subscribe=lambda *_args, **_kwargs: None,
         sendMessage=lambda *_args, **_kwargs: None,
         AUTO_TOPIC=None,
     )
-    sys.modules["pubsub"] = pubsub_module
+    
+    monkeypatch.setitem(sys.modules, "pubsub", pubsub_module)
+    return pubsub_module
 
-if "tabulate" not in sys.modules:
+
+@pytest.fixture(autouse=True)
+def mock_tabulate(monkeypatch):
+    """Mock the tabulate module."""
     tabulate_module = types.ModuleType("tabulate")
     tabulate_module.tabulate = lambda *_args, **_kwargs: ""
-    sys.modules["tabulate"] = tabulate_module
+    
+    monkeypatch.setitem(sys.modules, "tabulate", tabulate_module)
+    return tabulate_module
 
-if "bleak" not in sys.modules:
+
+@pytest.fixture(autouse=True)
+def mock_bleak(monkeypatch):
+    """Mock the bleak module."""
     bleak_module = types.ModuleType("bleak")
 
     class _StubBleakClient:
@@ -78,9 +96,14 @@ if "bleak" not in sys.modules:
     bleak_module.BleakClient = _StubBleakClient
     bleak_module.BleakScanner = SimpleNamespace(discover=_stub_discover)
     bleak_module.BLEDevice = _StubBLEDevice
-    sys.modules["bleak"] = bleak_module
+    
+    monkeypatch.setitem(sys.modules, "bleak", bleak_module)
+    return bleak_module
 
-if "bleak.exc" not in sys.modules:
+
+@pytest.fixture(autouse=True)
+def mock_bleak_exc(monkeypatch, mock_bleak):
+    """Mock the bleak.exc module."""
     bleak_exc_module = types.ModuleType("bleak.exc")
 
     class _StubBleakError(Exception):
@@ -91,12 +114,14 @@ if "bleak.exc" not in sys.modules:
 
     bleak_exc_module.BleakError = _StubBleakError
     bleak_exc_module.BleakDBusError = _StubBleakDBusError
-    sys.modules["bleak.exc"] = bleak_exc_module
-    # also attach to parent module if we just created it
-    if "bleak" in sys.modules:
-        setattr(sys.modules["bleak"], "exc", bleak_exc_module)
+    
+    # Attach to parent module
+    mock_bleak.exc = bleak_exc_module
+    
+    monkeypatch.setitem(sys.modules, "bleak.exc", bleak_exc_module)
+    return bleak_exc_module
 
-from meshtastic.ble_interface import BLEClient, BLEInterface, BleakError
+# Import will be done locally in test functions to avoid import-time dependencies
 
 
 class DummyClient:
@@ -142,6 +167,8 @@ def stub_atexit(monkeypatch):
 
 
 def _build_interface(monkeypatch, client):
+    from meshtastic.ble_interface import BLEInterface
+    
     monkeypatch.setattr(BLEInterface, "connect", lambda self, address=None: client)
     monkeypatch.setattr(BLEInterface, "_receiveFromRadioImpl", lambda self: None)
     monkeypatch.setattr(BLEInterface, "_startConfig", lambda self: None)
@@ -161,6 +188,8 @@ def test_close_idempotent(monkeypatch):
 
 
 def test_close_handles_bleak_error(monkeypatch):
+    from meshtastic.ble_interface import BleakError
+    
     client = DummyClient(disconnect_exception=BleakError("Not connected"))
     iface = _build_interface(monkeypatch, client)
 

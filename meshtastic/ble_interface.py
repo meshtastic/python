@@ -223,9 +223,14 @@ class BLEInterface(MeshInterface):
                 while self._want_receive:
                     client = self.client
                     if client is None:
-                        logger.debug(f"BLE client is None, shutting down")
-                        self._want_receive = False
-                        continue
+                        if self.auto_reconnect:
+                            logger.debug(f"BLE client is None, waiting for reconnection...")
+                            time.sleep(1)  # Wait before checking again
+                            continue
+                        else:
+                            logger.debug(f"BLE client is None, shutting down")
+                            self._want_receive = False
+                            continue
                     try:
                         b = bytes(client.read_gatt_char(FROMRADIO_UUID))
                     except BleakDBusError as e:
