@@ -43,6 +43,7 @@ class BLEInterface(MeshInterface):
         noProto: bool = False,
         debugOut: Optional[io.TextIOWrapper]=None,
         noNodes: bool = False,
+        *,
         auto_reconnect: bool = True,
     ) -> None:
         self._closing_lock: Lock = Lock()
