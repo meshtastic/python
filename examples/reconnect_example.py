@@ -53,8 +53,8 @@ def main():
     # Subscribe to the connection change event
     pub.subscribe(on_connection_change, "meshtastic.connection.status")
 
-    iface = None
     while True:
+        iface = None
         try:
             disconnected_event.clear()
             logger.info("Attempting to connect to %s...", address)
