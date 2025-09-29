@@ -307,13 +307,12 @@ def test_receive_thread_specific_exceptions(monkeypatch, caplog):
     """Test that receive thread handles specific exceptions correctly."""
     import google.protobuf.message
     import logging
+    import threading
+    import time
     from meshtastic.ble_interface import BLEInterface
     
     # Set logging level to DEBUG to capture debug messages
     caplog.set_level(logging.DEBUG)
-    
-    # Test that the exception handling code correctly catches only the expected exceptions
-    # We'll test this by checking the exception handling logic directly
     
     # The exceptions that should be caught and handled
     handled_exceptions = [
@@ -322,34 +321,56 @@ def test_receive_thread_specific_exceptions(monkeypatch, caplog):
         google.protobuf.message.DecodeError,
     ]
     
-    # The exceptions that should NOT be caught (programming errors)
-    unhandled_exceptions = [
-        AttributeError,
-        TypeError,
-        ValueError,
-    ]
-    
-    # Verify that handled exceptions would be caught by the except block
     for exc_type in handled_exceptions:
-        # This simulates the exception handling logic in the receive thread
+        # Clear caplog for each test
+        caplog.clear()
+        
+        # Create a mock client that raises the specific exception
+        class ExceptionClient(DummyClient):
+            def __init__(self, exception_type):
+                super().__init__()
+                self.exception_type = exception_type
+                
+            def read_gatt_char(self, *_args, **_kwargs):
+                raise self.exception_type("Test exception")
+        
+        client = ExceptionClient(exc_type)
+        iface = _build_interface(monkeypatch, client)
+        
+        # Mock the close method to track if it's called
+        original_close = iface.close
+        close_called = threading.Event()
+        
+        def mock_close():
+            close_called.set()
+            return original_close()
+        
+        monkeypatch.setattr(iface, "close", mock_close)
+        
+        # Start the receive thread
+        iface._want_receive = True
+        
+        # Set up the client
+        with iface._client_lock:
+            iface.client = client
+        
+        # Trigger the receive loop
+        iface._read_trigger.set()
+        
+        # Wait for the exception to be handled and close to be called
+        # Use a reasonable timeout to avoid hanging the test
+        close_called.wait(timeout=5.0)
+        
+        # Check that appropriate logging occurred
+        assert "Fatal error in BLE receive thread" in caplog.text
+        assert close_called.is_set(), f"Expected close() to be called for {exc_type.__name__}"
+        
+        # Clean up
+        iface._want_receive = False
         try:
-            raise exc_type("Test exception")
-        except (RuntimeError, OSError, google.protobuf.message.DecodeError):
-            # This should catch the exception
-            pass
-        else:
-            pytest.fail(f"Exception {exc_type.__name__} should have been caught")
-    
-    # Verify that unhandled exceptions would NOT be caught by the except block
-    for exc_type in unhandled_exceptions:
-        # This simulates the exception handling logic in the receive thread
-        try:
-            raise exc_type("Test exception")
-        except (RuntimeError, OSError, google.protobuf.message.DecodeError):
-            pytest.fail(f"Exception {exc_type.__name__} should NOT have been caught")
-        except exc_type:
-            # This is expected - the exception should not be caught by the except block
-            pass
+            iface.close()
+        except Exception:
+            pass  # Interface might already be closed
 
 
 def test_send_to_radio_specific_exceptions(monkeypatch, caplog):

@@ -662,7 +662,7 @@ class BLEClient:
             try:
                 self.get_services()
                 services = getattr(self.bleak_client, "services", None)
-            except Exception:  # pragma: no cover - defensive
+            except (TimeoutError, BleakError):  # pragma: no cover - defensive
                 logger.debug("Unable to populate services before has_characteristic", exc_info=True)
         return bool(services and services.get_characteristic(specifier))
 
