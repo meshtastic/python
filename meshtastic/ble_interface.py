@@ -32,6 +32,14 @@ logger = logging.getLogger(__name__)
 DISCONNECT_TIMEOUT_SECONDS = 5.0
 RECEIVE_THREAD_JOIN_TIMEOUT = 2.0
 
+# BLE timeout and retry constants
+BLE_SCAN_TIMEOUT = 10.0
+RECEIVE_WAIT_TIMEOUT = 0.5
+EMPTY_READ_RETRY_DELAY = 0.1
+EMPTY_READ_MAX_RETRIES = 5
+SEND_PROPAGATION_DELAY = 0.01
+CONNECTION_TIMEOUT = 60.0
+
 
 class BLEInterface(MeshInterface):
     """MeshInterface using BLE to connect to devices."""
@@ -102,7 +110,7 @@ class BLEInterface(MeshInterface):
         logger.debug("Mesh configure starting")
         self._startConfig()
         if not self.noProto:
-            self._waitConnected(timeout=60.0)
+            self._waitConnected(timeout=CONNECTION_TIMEOUT)
             self.waitForConfig()
 
         # FROMNUM notification is set in _register_notifications
@@ -213,7 +221,7 @@ class BLEInterface(MeshInterface):
         with BLEClient() as client:
             logger.info("Scanning for BLE devices (takes 10 seconds)...")
             response = client.discover(
-                timeout=10, return_adv=True, service_uuids=[SERVICE_UUID]
+                timeout=BLE_SCAN_TIMEOUT, return_adv=True, service_uuids=[SERVICE_UUID]
             )
 
             items = response.items()
@@ -334,7 +342,7 @@ class BLEInterface(MeshInterface):
     def _receiveFromRadioImpl(self) -> None:
         try:
             while self._want_receive:
-                if not self._read_trigger.wait(timeout=0.5):
+                if not self._read_trigger.wait(timeout=RECEIVE_WAIT_TIMEOUT):
                     continue
                 self._read_trigger.clear()
                 retries: int = 0
@@ -352,6 +360,16 @@ class BLEInterface(MeshInterface):
                         break
                     try:
                         b = bytes(client.read_gatt_char(FROMRADIO_UUID))
+                        if not b:
+                            if retries < EMPTY_READ_MAX_RETRIES:
+                                time.sleep(EMPTY_READ_RETRY_DELAY)
+                                retries += 1
+                                continue
+                            else:
+                                break
+                        logger.debug(f"FROMRADIO read: {b.hex()}")
+                        self._handleFromRadio(b)
+                        retries = 0
                     except BleakDBusError as e:
                         if self._handle_read_loop_disconnect(str(e), client):
                             break
@@ -363,15 +381,6 @@ class BLEInterface(MeshInterface):
                             return
                         logger.debug("Error reading BLE", exc_info=True)
                         raise BLEInterface.BLEError("Error reading BLE") from e
-                    if not b:
-                        if retries < 5:
-                            time.sleep(0.1)
-                            retries += 1
-                            continue
-                        break
-                    logger.debug(f"FROMRADIO read: {b.hex()}")
-                    self._handleFromRadio(b)
-                    retries = 0
         except Exception:
             logger.exception("Fatal error in BLE receive thread, closing interface.")
             if not self._closing:
@@ -394,7 +403,7 @@ class BLEInterface(MeshInterface):
                     "permissions (e.g. not being in the 'bluetooth' group) or pairing issues."
                 ) from e
             # Allow to propagate and then prompt the reader
-            time.sleep(0.01)
+            time.sleep(SEND_PROPAGATION_DELAY)
             self._read_trigger.set()
 
     def close(self) -> None:
