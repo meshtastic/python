@@ -271,7 +271,7 @@ class BLEInterface(MeshInterface):
         self._reconnected_event.set()
         return client
 
-    def _handle_read_loop_disconnect(self, error_message: str) -> bool:
+    def _handle_read_loop_disconnect(self, error_message: str, previous_client: Optional["BLEClient"]) -> bool:
         """Handle disconnection in the read loop.
 
         Returns
@@ -283,13 +283,27 @@ class BLEInterface(MeshInterface):
             if not self._disconnect_notified:
                 self._disconnected()
                 self._disconnect_notified = True
-            # Clear client to trigger reconnection logic
-            self.client = None
-            self._reconnected_event.clear()
+            # If the exception came from the currently active client, clear and close it.
+            current = self.client
+            if previous_client and current is previous_client:
+                self.client = None
+                self._reconnected_event.clear()
+                Thread(target=self._safe_close_client, args=(previous_client,), name="BLEClientClose", daemon=True).start()
+            else:
+                logger.debug("Read-loop disconnect from a stale BLE client; ignoring.")
             return True
         # End our read loop immediately
         self._want_receive = False
         return False
+
+    def _safe_close_client(self, c: "BLEClient") -> None:
+        """Safely close a BLEClient wrapper with exception handling."""
+        try:
+            c.close()
+        except BleakError:
+            logger.debug("Error in BLEClientClose", exc_info=True)
+        except (RuntimeError, OSError):
+            logger.debug("Error in BLEClientClose", exc_info=True)
 
     def _receiveFromRadioImpl(self) -> None:
         while self._want_receive:
@@ -313,14 +327,14 @@ class BLEInterface(MeshInterface):
                         b = bytes(client.read_gatt_char(FROMRADIO_UUID))
                     except BleakDBusError as e:
                         # Device disconnected probably
-                        if self._handle_read_loop_disconnect(str(e)):
+                        if self._handle_read_loop_disconnect(str(e), client):
                             continue
                         break
                     except BleakError as e:
                         # Treat disconnected clients as a normal disconnect path without
                         # relying on error message contents from bleak.
                         if client and not client.is_connected():
-                            if self._handle_read_loop_disconnect(str(e)):
+                            if self._handle_read_loop_disconnect(str(e), client):
                                 continue
                             break
                         raise BLEInterface.BLEError("Error reading BLE") from e
