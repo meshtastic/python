@@ -1,5 +1,5 @@
 """
-This example shows how to implement a robust client-side reconnection loop for a
+Example demonstrating a robust client-side reconnection loop for a
 long-running application that uses the BLE interface.
 
 The key is to instantiate the BLEInterface with `auto_reconnect=True` (the default).
@@ -30,17 +30,23 @@ logger = logging.getLogger(__name__)
 # A thread-safe flag to signal disconnection
 disconnected_event = threading.Event()
 
+
 def on_connection_change(interface, connected):
     """Callback for connection changes."""
     iface_label = getattr(interface, "address", repr(interface))
-    print(f"Connection changed for {iface_label}: {'Connected' if connected else 'Disconnected'}")
+    print(
+        f"Connection changed for {iface_label}: {'Connected' if connected else 'Disconnected'}"
+    )
     if not connected:
         # Signal the main loop that we've been disconnected
         disconnected_event.set()
 
+
 def main():
-    """Main function"""
-    parser = argparse.ArgumentParser(description="Meshtastic BLE automatic reconnection example.")
+    """Main function."""
+    parser = argparse.ArgumentParser(
+        description="Meshtastic BLE interface automatic reconnection example."
+    )
     parser.add_argument("address", help="The BLE address of your Meshtastic device.")
     args = parser.parse_args()
     address = args.address
@@ -57,8 +63,8 @@ def main():
             # This allows us to handle the reconnection here.
             iface = meshtastic.ble_interface.BLEInterface(
                 address,
-                noProto=True, # Set to False in a real application
-                auto_reconnect=True
+                noProto=True,  # Set to False in a real application
+                auto_reconnect=True,
             )
 
             print("Connection successful. Waiting for disconnection event...")
@@ -80,6 +86,7 @@ def main():
 
         print(f"Retrying in {RETRY_DELAY_SECONDS} seconds...")
         time.sleep(RETRY_DELAY_SECONDS)
+
 
 if __name__ == "__main__":
     main()

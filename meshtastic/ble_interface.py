@@ -3,12 +3,12 @@
 import asyncio
 import atexit
 import contextlib
+import io
 import logging
 import struct
 import time
-import io
 from concurrent.futures import TimeoutError as FutureTimeoutError
-from threading import Lock, Thread, Event
+from threading import Event, Lock, Thread
 from typing import List, Optional
 
 import google.protobuf
@@ -41,7 +41,7 @@ class BLEInterface(MeshInterface):
         self,
         address: Optional[str],
         noProto: bool = False,
-        debugOut: Optional[io.TextIOWrapper]=None,
+        debugOut: Optional[io.TextIOWrapper] = None,
         noNodes: bool = False,
         *,
         auto_reconnect: bool = True,
@@ -113,14 +113,19 @@ class BLEInterface(MeshInterface):
     def _on_ble_disconnect(self, client) -> None:
         """Disconnected callback from Bleak."""
         if self._closing:
-            logger.debug("Ignoring disconnect callback because a shutdown is already in progress.")
+            logger.debug(
+                "Ignoring disconnect callback because a shutdown is already in progress."
+            )
             return
 
         address = getattr(client, "address", repr(client))
         logger.debug(f"BLE client {address} disconnected.")
         if self.auto_reconnect:
             current_client = self.client
-            if current_client and getattr(current_client, "bleak_client", None) is not client:
+            if (
+                current_client
+                and getattr(current_client, "bleak_client", None) is not client
+            ):
                 logger.debug("Ignoring disconnect from a stale BLE client instance.")
                 return
             previous_client = current_client
@@ -189,8 +194,11 @@ class BLEInterface(MeshInterface):
             sanitized_address = self._sanitize_address(address)
             addressed_devices = list(
                 filter(
-                    lambda x: address in (x.name, x.address) or
-                              (sanitized_address and self._sanitize_address(x.address) == sanitized_address),
+                    lambda x: address in (x.name, x.address)
+                    or (
+                        sanitized_address
+                        and self._sanitize_address(x.address) == sanitized_address
+                    ),
                     addressed_devices,
                 )
             )
@@ -218,7 +226,9 @@ class BLEInterface(MeshInterface):
 
         # Bleak docs recommend always doing a scan before connecting (even if we know addr)
         device = self.find_device(address)
-        client = BLEClient(device.address, disconnected_callback=self._on_ble_disconnect)
+        client = BLEClient(
+            device.address, disconnected_callback=self._on_ble_disconnect
+        )
         client.connect()
         client.discover()
         # Reset disconnect notification flag on new connection
@@ -229,8 +239,9 @@ class BLEInterface(MeshInterface):
 
     def _handle_read_loop_disconnect(self, error_message: str) -> bool:
         """Handle disconnection in the read loop.
-        
-        Returns:
+
+        Returns
+        -------
             bool: True if the loop should continue (for auto-reconnect), False if it should break
         """
         logger.debug(f"Device disconnected: {error_message}")
@@ -252,7 +263,9 @@ class BLEInterface(MeshInterface):
                     client = self.client
                     if client is None:
                         if self.auto_reconnect:
-                            logger.debug("BLE client is None, waiting for reconnection...")
+                            logger.debug(
+                                "BLE client is None, waiting for reconnection..."
+                            )
                             # Wait for reconnection, but with a timeout to allow clean shutdown
                             self._reconnected_event.wait(timeout=1.0)
                             continue
@@ -305,7 +318,9 @@ class BLEInterface(MeshInterface):
     def close(self) -> None:
         with self._closing_lock:
             if self._closing:
-                logger.debug("BLEInterface.close called while another shutdown is in progress; ignoring")
+                logger.debug(
+                    "BLEInterface.close called while another shutdown is in progress; ignoring"
+                )
                 return
             self._closing = True
 
@@ -348,7 +363,6 @@ class BLEInterface(MeshInterface):
             self._disconnect_notified = True
 
 
-
 class BLEClient:
     """Client for managing connection to a BLE device"""
 
@@ -374,7 +388,9 @@ class BLEClient:
     def connect(self, **kwargs):  # pylint: disable=C0116
         return self.async_await(self.bleak_client.connect(**kwargs))
 
-    def disconnect(self, timeout: Optional[float] = None, **kwargs):  # pylint: disable=C0116
+    def disconnect(
+        self, timeout: Optional[float] = None, **kwargs
+    ):  # pylint: disable=C0116
         self.async_await(self.bleak_client.disconnect(**kwargs), timeout=timeout)
 
     def read_gatt_char(self, *args, **kwargs):  # pylint: disable=C0116

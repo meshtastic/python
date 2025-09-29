@@ -1,4 +1,3 @@
-import asyncio
 import sys
 import types
 from pathlib import Path
@@ -9,27 +8,28 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+
 @pytest.fixture(autouse=True)
 def mock_serial(monkeypatch):
     """Mock the serial module and its submodules."""
     serial_module = types.ModuleType("serial")
-    
+
     # Create tools submodule
     tools_module = types.ModuleType("serial.tools")
     list_ports_module = types.ModuleType("serial.tools.list_ports")
     list_ports_module.comports = lambda *_args, **_kwargs: []
     tools_module.list_ports = list_ports_module
     serial_module.tools = tools_module
-    
+
     # Add exception classes
     serial_module.SerialException = Exception
     serial_module.SerialTimeoutException = Exception
-    
+
     # Mock the modules
     monkeypatch.setitem(sys.modules, "serial", serial_module)
     monkeypatch.setitem(sys.modules, "serial.tools", tools_module)
     monkeypatch.setitem(sys.modules, "serial.tools.list_ports", list_ports_module)
-    
+
     return serial_module
 
 
@@ -42,7 +42,7 @@ def mock_pubsub(monkeypatch):
         sendMessage=lambda *_args, **_kwargs: None,
         AUTO_TOPIC=None,
     )
-    
+
     monkeypatch.setitem(sys.modules, "pubsub", pubsub_module)
     return pubsub_module
 
@@ -52,7 +52,7 @@ def mock_tabulate(monkeypatch):
     """Mock the tabulate module."""
     tabulate_module = types.ModuleType("tabulate")
     tabulate_module.tabulate = lambda *_args, **_kwargs: ""
-    
+
     monkeypatch.setitem(sys.modules, "tabulate", tabulate_module)
     return tabulate_module
 
@@ -96,7 +96,7 @@ def mock_bleak(monkeypatch):
     bleak_module.BleakClient = _StubBleakClient
     bleak_module.BleakScanner = SimpleNamespace(discover=_stub_discover)
     bleak_module.BLEDevice = _StubBLEDevice
-    
+
     monkeypatch.setitem(sys.modules, "bleak", bleak_module)
     return bleak_module
 
@@ -114,12 +114,13 @@ def mock_bleak_exc(monkeypatch, mock_bleak):
 
     bleak_exc_module.BleakError = _StubBleakError
     bleak_exc_module.BleakDBusError = _StubBleakDBusError
-    
+
     # Attach to parent module
     mock_bleak.exc = bleak_exc_module
-    
+
     monkeypatch.setitem(sys.modules, "bleak.exc", bleak_exc_module)
     return bleak_exc_module
+
 
 # Import will be done locally in test functions to avoid import-time dependencies
 
@@ -171,11 +172,13 @@ def _build_interface(monkeypatch, client):
 
     def _stub_connect(_self, address=None):
         return client
+
     def _stub_recv(_self):
         return None
+
     def _stub_start_config(_self):
         return None
-    
+
     monkeypatch.setattr(BLEInterface, "connect", _stub_connect)
     monkeypatch.setattr(BLEInterface, "_receiveFromRadioImpl", _stub_recv)
     monkeypatch.setattr(BLEInterface, "_startConfig", _stub_start_config)
@@ -196,7 +199,7 @@ def test_close_idempotent(monkeypatch):
 
 def test_close_handles_bleak_error(monkeypatch):
     from meshtastic.ble_interface import BleakError
-    
+
     client = DummyClient(disconnect_exception=BleakError("Not connected"))
     iface = _build_interface(monkeypatch, client)
 
