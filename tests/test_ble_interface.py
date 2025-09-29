@@ -158,6 +158,8 @@ def stub_atexit(
     mock_bleak_exc,
 ):
     registered = []
+    # Consume fixture arguments to document ordering intent and silence Ruff (ARG001).
+    _ = (mock_serial, mock_pubsub, mock_tabulate, mock_bleak, mock_bleak_exc)
 
     def fake_register(func):
         registered.append(func)

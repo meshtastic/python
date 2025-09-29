@@ -207,15 +207,12 @@ class BLEInterface(MeshInterface):
                 timeout=10, return_adv=True, service_uuids=[SERVICE_UUID]
             )
 
-            devices = response.values()
+            items = response.items()
 
             # bleak sometimes returns devices we didn't ask for, so filter the response
             # to only return true meshtastic devices
-            # d[0] is the device. d[1] is the advertisement data
-            devices = list(
-                filter(lambda d: SERVICE_UUID in d[1].service_uuids, devices)
-            )
-            return list(map(lambda d: d[0], devices))
+            items = [item for item in items if SERVICE_UUID in item[1].service_uuids]
+            return [dev for dev, _adv in items]
 
     def find_device(self, address: Optional[str]) -> BLEDevice:
         """Find a device by address."""
@@ -528,7 +525,8 @@ class BLEClient:
 
     def has_characteristic(self, specifier):
         """Check if the connected node supports a specified characteristic."""
-        return bool(self.bleak_client.services.get_characteristic(specifier))
+        services = getattr(self.bleak_client, "services", None)
+        return bool(services and services.get_characteristic(specifier))
 
     def start_notify(self, *args, **kwargs):  # pylint: disable=C0116
         self.async_await(self.bleak_client.start_notify(*args, **kwargs))
