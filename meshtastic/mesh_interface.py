@@ -47,10 +47,9 @@ from meshtastic.util import (
     stripnl,
 )
 
-logger = logging.getLogger(__name__)
-
-
 from pubsub import pub
+
+logger = logging.getLogger(__name__)
 
 def _timeago(delta_secs: int) -> str:
     """Convert a number of seconds in the past into a short, friendly string
