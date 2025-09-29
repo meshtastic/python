@@ -139,9 +139,6 @@ class DummyClient:
     def start_notify(self, *_args, **_kwargs):
         return None
 
-    def get_services(self, *_args, **_kwargs):
-        return None
-
     def disconnect(self, *_args, **_kwargs):
         self.disconnect_calls += 1
         if self.disconnect_exception:
@@ -152,7 +149,14 @@ class DummyClient:
 
 
 @pytest.fixture(autouse=True)
-def stub_atexit(monkeypatch):
+def stub_atexit(
+    monkeypatch,
+    mock_serial,
+    mock_pubsub,
+    mock_tabulate,
+    mock_bleak,
+    mock_bleak_exc,
+):
     registered = []
 
     def fake_register(func):
@@ -162,8 +166,10 @@ def stub_atexit(monkeypatch):
     def fake_unregister(func):
         registered[:] = [f for f in registered if f is not func]
 
-    monkeypatch.setattr("meshtastic.ble_interface.atexit.register", fake_register)
-    monkeypatch.setattr("meshtastic.ble_interface.atexit.unregister", fake_unregister)
+    import meshtastic.ble_interface as ble_mod
+
+    monkeypatch.setattr(ble_mod.atexit, "register", fake_register, raising=True)
+    monkeypatch.setattr(ble_mod.atexit, "unregister", fake_unregister, raising=True)
     yield
     # run any registered functions manually to avoid surprising global state
     for func in registered:
@@ -216,4 +222,11 @@ def test_close_handles_bleak_error(monkeypatch):
     assert client.disconnect_calls == 1
     assert client.close_calls == 1
     # exactly one disconnect status
-    assert [c for c in calls if c[0] == "meshtastic.connection.status" and c[1].get("connected") is False].__len__() == 1
+    assert (
+        sum(
+            1
+            for topic, kw in calls
+            if topic == "meshtastic.connection.status" and kw.get("connected") is False
+        )
+        == 1
+    )

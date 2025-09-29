@@ -97,7 +97,7 @@ class BLEInterface(MeshInterface):
             logger.debug("BLE connected")
         except BLEInterface.BLEError as e:
             self.close()
-            raise e
+            raise
 
         logger.debug("Mesh configure starting")
         self._startConfig()
@@ -268,8 +268,12 @@ class BLEInterface(MeshInterface):
             device.address, disconnected_callback=self._on_ble_disconnect
         )
         client.connect()
-        # Populate services for characteristic checks/notifications
-        client.get_services()
+        services = getattr(client.bleak_client, "services", None)
+        if not services or not getattr(services, "get_characteristic", None):
+            logger.debug(
+                "BLE services not available immediately after connect; performing discover()"
+            )
+            client.discover()
         # Ensure notifications are always active for this client (reconnect-safe)
         self._register_notifications(client)
         # Reset disconnect notification flag on new connection
@@ -483,9 +487,6 @@ class BLEClient:
 
     def discover(self, **kwargs):  # pylint: disable=C0116
         return self.async_await(BleakScanner.discover(**kwargs))
-
-    def get_services(self, **kwargs):  # pylint: disable=C0116
-        return self.async_await(self.bleak_client.get_services(**kwargs))
 
     def pair(self, **kwargs):  # pylint: disable=C0116
         return self.async_await(self.bleak_client.pair(**kwargs))
