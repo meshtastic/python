@@ -46,6 +46,24 @@ class BLEInterface(MeshInterface):
         *,
         auto_reconnect: bool = True,
     ) -> None:
+        """Constructor, opens a connection to a specified BLE device.
+
+        Keyword Arguments:
+            address {str} -- The BLE address of the device to connect to. If None, 
+                           will connect to any available Meshtastic BLE device.
+            noProto {bool} -- If True, don't try to initialize the protobuf protocol 
+                             (default: {False})
+            debugOut {stream} -- If a stream is provided, any debug output will be 
+                                emitted to that stream (default: {None})
+            noNodes {bool} -- If True, don't try to read the node list from the device 
+                              (default: {False})
+            auto_reconnect {bool} -- If True, the interface will attempt to reconnect 
+                                   automatically when disconnected. If False, the 
+                                   interface will close completely on disconnect. 
+                                   When True, disconnection events are sent via the 
+                                   connection status callback, allowing applications 
+                                   to handle reconnection logic (default: {True})
+        """
         self._closing_lock: Lock = Lock()
         self._closing: bool = False
         self._exit_handler = None
