@@ -194,9 +194,17 @@ class BLEInterface(MeshInterface):
         """Handle callbacks for fromnum notify.
         Note: this method does not need to be async because it is just setting a bool.
         """
-        from_num = struct.unpack("<I", bytes(b))[0]
-        logger.debug(f"FROMNUM notify: {from_num}")
-        self._read_trigger.set()
+        try:
+            if len(b) < 4:
+                logger.debug("FROMNUM notify too short; ignoring")
+                return
+            from_num = struct.unpack("<I", bytes(b))[0]
+            logger.debug(f"FROMNUM notify: {from_num}")
+        except (struct.error, ValueError):
+            logger.debug("Malformed FROMNUM notify; ignoring", exc_info=True)
+            return
+        finally:
+            self._read_trigger.set()
 
     def _register_notifications(self, client: "BLEClient") -> None:
         """Register characteristic notifications for BLE client."""
@@ -231,23 +239,28 @@ class BLEInterface(MeshInterface):
     def scan() -> List[BLEDevice]:
         """Scan for available BLE devices."""
         with BLEClient() as client:
-            logger.info("Scanning for BLE devices (takes 10 seconds)...")
+            logger.info("Scanning for BLE devices (takes %.0f seconds)...", BLE_SCAN_TIMEOUT)
             response = client.discover(
                 timeout=BLE_SCAN_TIMEOUT, return_adv=True, service_uuids=[SERVICE_UUID]
             )
 
-            items = response.values()
-
-            # bleak sometimes returns devices we didn't ask for, so filter the response
-            # to only return true meshtastic devices
-            # items contains (BLEDevice, AdvertisementData) tuples
-            filtered_items = [
-                device
-                for device, adv_data in items
-                if getattr(adv_data, "service_uuids", None)
-                and SERVICE_UUID in adv_data.service_uuids
-            ]
-            return filtered_items
+            devices: List[BLEDevice] = []
+            if isinstance(response, dict):
+                for key, value in response.items():
+                    if isinstance(value, tuple):
+                        device, adv = value
+                    else:
+                        device, adv = key, value
+                    suuids = getattr(adv, "service_uuids", None)
+                    if suuids and SERVICE_UUID in suuids:
+                        devices.append(device)
+            else:  # list of BLEDevice
+                for device in response:
+                    adv = getattr(device, "advertisement_data", None)
+                    suuids = getattr(adv, "service_uuids", None)
+                    if suuids and SERVICE_UUID in suuids:
+                        devices.append(device)
+            return devices
 
     def find_device(self, address: Optional[str]) -> BLEDevice:
         """Find a device by address."""
@@ -641,9 +654,19 @@ class BLEClient:
     def write_gatt_char(self, *args, **kwargs):  # pylint: disable=C0116
         self.async_await(self.bleak_client.write_gatt_char(*args, **kwargs))
 
+    def get_services(self):
+        """Get services from the BLE client."""
+        return self.async_await(self.bleak_client.get_services())
+
     def has_characteristic(self, specifier):
         """Check if the connected node supports a specified characteristic."""
         services = getattr(self.bleak_client, "services", None)
+        if not services or not getattr(services, "get_characteristic", None):
+            try:
+                self.get_services()
+                services = getattr(self.bleak_client, "services", None)
+            except Exception:  # pragma: no cover - defensive
+                logger.debug("Unable to populate services before has_characteristic", exc_info=True)
         return bool(services and services.get_characteristic(specifier))
 
     def start_notify(self, *args, **kwargs):  # pylint: disable=C0116
