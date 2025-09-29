@@ -426,6 +426,7 @@ class BLEInterface(MeshInterface):
                         logger.debug("Error reading BLE", exc_info=True)
                         raise BLEInterface.BLEError(ERROR_READING_BLE) from e
         except (
+            BLEInterface.BLEError,
             RuntimeError,
             OSError,
             google.protobuf.message.DecodeError,
