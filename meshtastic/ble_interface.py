@@ -50,6 +50,7 @@ class BLEInterface(MeshInterface):
         self._exit_handler = None
         self.address = address
         self.auto_reconnect = auto_reconnect
+        self._disconnect_notified = False
 
         MeshInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, noNodes=noNodes
@@ -127,6 +128,7 @@ class BLEInterface(MeshInterface):
                     target=previous_client.close, name="BLEClientClose", daemon=True
                 ).start()
             self._disconnected()
+            self._disconnect_notified = True
         else:
             Thread(target=self.close, name="BLEClose", daemon=True).start()
 
@@ -216,6 +218,8 @@ class BLEInterface(MeshInterface):
         client = BLEClient(device.address, disconnected_callback=self._on_ble_disconnect)
         client.connect()
         client.discover()
+        # Reset disconnect notification flag on new connection
+        self._disconnect_notified = False
         return client
 
     def _receiveFromRadioImpl(self) -> None:
@@ -230,21 +234,32 @@ class BLEInterface(MeshInterface):
                             logger.debug("BLE client is None, waiting for reconnection...")
                             time.sleep(1)  # Wait before checking again
                             continue
-                        else:
-                            logger.debug("BLE client is None, shutting down")
-                            self._want_receive = False
-                            continue
+                        logger.debug("BLE client is None, shutting down")
+                        self._want_receive = False
+                        continue
                     try:
                         b = bytes(client.read_gatt_char(FROMRADIO_UUID))
                     except BleakDBusError as e:
-                        # Device disconnected probably, so end our read loop immediately
-                        logger.debug(f"Device disconnected, shutting down {e}")
+                        # Device disconnected probably
+                        logger.debug(f"Device disconnected: {e}")
+                        if self.auto_reconnect:
+                            # Clear client to trigger reconnection logic
+                            self.client = None
+                            time.sleep(1)
+                            continue
+                        # End our read loop immediately
                         self._want_receive = False
                         break
                     except BleakError as e:
                         # We were definitely disconnected
                         if "Not connected" in str(e):
-                            logger.debug(f"Device disconnected, shutting down {e}")
+                            logger.debug(f"Device disconnected: {e}")
+                            if self.auto_reconnect:
+                                # Clear client to trigger reconnection logic
+                                self.client = None
+                                time.sleep(1)
+                                continue
+                            # End our read loop immediately
                             self._want_receive = False
                             break
                         raise BLEInterface.BLEError("Error reading BLE") from e
@@ -317,9 +332,10 @@ class BLEInterface(MeshInterface):
                     logger.debug("Error closing BLE client", exc_info=True)
                 self.client = None
 
-        # Avoid duplicate notification if the Bleak callback already published it.
-        if not self.auto_reconnect:
+        # Send disconnected indicator if not already notified
+        if not self._disconnect_notified:
             self._disconnected()  # send the disconnected indicator up to clients
+            self._disconnect_notified = True
 
 
 
