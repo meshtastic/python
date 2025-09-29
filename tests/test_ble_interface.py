@@ -341,7 +341,7 @@ def test_receive_thread_specific_exceptions(monkeypatch, caplog):
         original_close = iface.close
         close_called = threading.Event()
         
-        def mock_close():
+        def mock_close(close_called=close_called, original_close=original_close):
             close_called.set()
             return original_close()
         
@@ -369,8 +369,8 @@ def test_receive_thread_specific_exceptions(monkeypatch, caplog):
         iface._want_receive = False
         try:
             iface.close()
-        except Exception:
-            pass  # Interface might already be closed
+        except Exception as e:
+            logging.debug(f"Exception during interface cleanup: {e}")  # Interface might already be closed
 
 
 def test_send_to_radio_specific_exceptions(monkeypatch, caplog):

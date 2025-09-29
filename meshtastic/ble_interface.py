@@ -95,6 +95,7 @@ class BLEInterface(MeshInterface):
         self.auto_reconnect = auto_reconnect
         self._disconnect_notified = False
         self._read_trigger: Event = Event()
+        self._malformed_notification_count = 0
 
         MeshInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, noNodes=noNodes
@@ -201,7 +202,14 @@ class BLEInterface(MeshInterface):
             from_num = struct.unpack("<I", bytes(b))[0]
             logger.debug(f"FROMNUM notify: {from_num}")
         except (struct.error, ValueError):
+            self._malformed_notification_count += 1
             logger.debug("Malformed FROMNUM notify; ignoring", exc_info=True)
+            if self._malformed_notification_count >= 10:
+                logger.warning(
+                    f"Received {self._malformed_notification_count} malformed FROMNUM notifications. "
+                    "Check BLE connection stability."
+                )
+                self._malformed_notification_count = 0  # Reset counter after warning
             return
         finally:
             self._read_trigger.set()
