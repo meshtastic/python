@@ -136,7 +136,13 @@ class BLEInterface(MeshInterface):
         address = getattr(client, "address", repr(client))
         logger.debug(f"BLE client {address} disconnected.")
         if self.auto_reconnect:
+            previous_client = None
+            notify = False
             with self._client_lock:
+                if self._disconnect_notified:
+                    logger.debug("Ignoring duplicate disconnect callback.")
+                    return
+
                 current_client = self.client
                 if (
                     current_client
@@ -148,6 +154,9 @@ class BLEInterface(MeshInterface):
                     return
                 previous_client = current_client
                 self.client = None
+                self._disconnect_notified = True
+                notify = True
+
             if previous_client:
                 Thread(
                     target=self._safe_close_client,
@@ -155,8 +164,8 @@ class BLEInterface(MeshInterface):
                     name="BLEClientClose",
                     daemon=True,
                 ).start()
-            self._disconnected()
-            self._disconnect_notified = True
+            if notify:
+                self._disconnected()
             self._read_trigger.set()  # ensure receive loop wakes
         else:
             Thread(target=self.close, name="BLEClose", daemon=True).start()

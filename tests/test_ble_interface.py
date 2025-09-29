@@ -1,3 +1,4 @@
+"""Tests for the BLE interface module."""
 import sys
 import types
 from pathlib import Path
@@ -68,21 +69,27 @@ def mock_bleak(monkeypatch):
             self.services = SimpleNamespace(get_characteristic=lambda _specifier: None)
 
         async def connect(self, **_kwargs):
+            """Mock connect method."""
             return None
 
         async def disconnect(self, **_kwargs):
+            """Mock disconnect method."""
             return None
 
         async def discover(self, **_kwargs):
+            """Mock discover method."""
             return None
 
         async def start_notify(self, **_kwargs):
+            """Mock start_notify method."""
             return None
 
         async def read_gatt_char(self, *_args, **_kwargs):
+            """Mock read_gatt_char method."""
             return b""
 
         async def write_gatt_char(self, *_args, **_kwargs):
+            """Mock write_gatt_char method."""
             return None
 
     async def _stub_discover(**_kwargs):
@@ -126,7 +133,10 @@ def mock_bleak_exc(monkeypatch, mock_bleak):
 
 
 class DummyClient:
+    """Dummy client for testing BLE interface functionality."""
+
     def __init__(self, disconnect_exception: Optional[Exception] = None) -> None:
+        """Initialize dummy client with optional disconnect exception."""
         self.disconnect_calls = 0
         self.close_calls = 0
         self.address = "dummy"
@@ -134,17 +144,21 @@ class DummyClient:
         self.services = SimpleNamespace(get_characteristic=lambda _specifier: None)
 
     def has_characteristic(self, _specifier):
+        """Mock has_characteristic method."""
         return False
 
     def start_notify(self, *_args, **_kwargs):
+        """Mock start_notify method."""
         return None
 
     def disconnect(self, *_args, **_kwargs):
+        """Mock disconnect method that tracks calls and can raise exceptions."""
         self.disconnect_calls += 1
         if self.disconnect_exception:
             raise self.disconnect_exception
 
     def close(self):
+        """Mock close method that tracks calls."""
         self.close_calls += 1
 
 
@@ -157,6 +171,7 @@ def stub_atexit(
     mock_bleak,
     mock_bleak_exc,
 ):
+    """Stub atexit to prevent actual registration during tests."""
     registered = []
     # Consume fixture arguments to document ordering intent and silence Ruff (ARG001).
     _ = (mock_serial, mock_pubsub, mock_tabulate, mock_bleak, mock_bleak_exc)
@@ -198,6 +213,7 @@ def _build_interface(monkeypatch, client):
 
 
 def test_close_idempotent(monkeypatch):
+    """Test that close() is idempotent and only calls disconnect once."""
     client = DummyClient()
     iface = _build_interface(monkeypatch, client)
 
@@ -209,6 +225,7 @@ def test_close_idempotent(monkeypatch):
 
 
 def test_close_handles_bleak_error(monkeypatch):
+    """Test that close() handles BleakError gracefully."""
     from meshtastic.ble_interface import BleakError
     from pubsub import pub as _pub
     calls = []
