@@ -92,6 +92,10 @@ def mock_bleak(monkeypatch):
             """Mock write_gatt_char method."""
             return None
 
+        def is_connected(self):
+            """Mock is_connected method."""
+            return False
+
     async def _stub_discover(**_kwargs):
         return {}
 

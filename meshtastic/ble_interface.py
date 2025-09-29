@@ -40,6 +40,13 @@ EMPTY_READ_MAX_RETRIES = 5
 SEND_PROPAGATION_DELAY = 0.01
 CONNECTION_TIMEOUT = 60.0
 
+# Error message constants
+ERROR_READING_BLE = "Error reading BLE"
+ERROR_NO_PERIPHERAL_FOUND = "No Meshtastic BLE peripheral with identifier or address '{0}' found. Try --ble-scan to find it."
+ERROR_MULTIPLE_PERIPHERALS_FOUND = "More than one Meshtastic BLE peripheral with identifier or address '{0}' found."
+ERROR_WRITING_BLE = ("Error writing BLE. This is often caused by missing Bluetooth "
+                     "permissions (e.g. not being in the 'bluetooth' group) or pairing issues.")
+
 
 class BLEInterface(MeshInterface):
     """MeshInterface using BLE to connect to devices."""
@@ -225,11 +232,16 @@ class BLEInterface(MeshInterface):
             )
 
             items = response.values()
-            
+
             # bleak sometimes returns devices we didn't ask for, so filter the response
             # to only return true meshtastic devices
             # items contains (BLEDevice, AdvertisementData) tuples
-            filtered_items = [device for device, adv_data in items if adv_data and SERVICE_UUID in adv_data.service_uuids]
+            filtered_items = [
+                device
+                for device, adv_data in items
+                if getattr(adv_data, "service_uuids", None)
+                and SERVICE_UUID in adv_data.service_uuids
+            ]
             return filtered_items
 
     def find_device(self, address: Optional[str]) -> BLEDevice:
@@ -251,13 +263,9 @@ class BLEInterface(MeshInterface):
             )
 
         if len(addressed_devices) == 0:
-            raise BLEInterface.BLEError(
-                f"No Meshtastic BLE peripheral with identifier or address '{address}' found. Try --ble-scan to find it."
-            )
+            raise BLEInterface.BLEError(ERROR_NO_PERIPHERAL_FOUND.format(address))
         if len(addressed_devices) > 1:
-            raise BLEInterface.BLEError(
-                f"More than one Meshtastic BLE peripheral with identifier or address '{address}' found."
-            )
+            raise BLEInterface.BLEError(ERROR_MULTIPLE_PERIPHERALS_FOUND.format(address))
         return addressed_devices[0]
 
     @staticmethod
@@ -366,8 +374,7 @@ class BLEInterface(MeshInterface):
                                 time.sleep(EMPTY_READ_RETRY_DELAY)
                                 retries += 1
                                 continue
-                            else:
-                                break
+                            break
                         logger.debug(f"FROMRADIO read: {b.hex()}")
                         self._handleFromRadio(b)
                         retries = 0
@@ -381,7 +388,7 @@ class BLEInterface(MeshInterface):
                                 break
                             return
                         logger.debug("Error reading BLE", exc_info=True)
-                        raise BLEInterface.BLEError("Error reading BLE") from e
+                        raise BLEInterface.BLEError(ERROR_READING_BLE) from e
         except Exception:
             logger.exception("Fatal error in BLE receive thread, closing interface.")
             if not self._closing:
@@ -399,10 +406,7 @@ class BLEInterface(MeshInterface):
                 client.write_gatt_char(TORADIO_UUID, b, response=True)
             except (BleakError, RuntimeError, OSError) as e:
                 logger.debug("Error writing BLE", exc_info=True)
-                raise BLEInterface.BLEError(
-                    "Error writing BLE. This is often caused by missing Bluetooth "
-                    "permissions (e.g. not being in the 'bluetooth' group) or pairing issues."
-                ) from e
+                raise BLEInterface.BLEError(ERROR_WRITING_BLE) from e
             # Allow to propagate and then prompt the reader
             time.sleep(SEND_PROPAGATION_DELAY)
             self._read_trigger.set()
@@ -458,9 +462,14 @@ class BLEInterface(MeshInterface):
                     logger.debug("Error closing BLE client", exc_info=True)
 
         # Send disconnected indicator if not already notified
-        if not self._disconnect_notified:
+        notify = False
+        with self._client_lock:
+            if not self._disconnect_notified:
+                self._disconnect_notified = True
+                notify = True
+
+        if notify:
             self._disconnected()  # send the disconnected indicator up to clients
-            self._disconnect_notified = True
             self._wait_for_disconnect_notifications()
 
     def _wait_for_disconnect_notifications(self, timeout: float = DISCONNECT_TIMEOUT_SECONDS) -> None:
@@ -478,6 +487,12 @@ class BLEInterface(MeshInterface):
             logger.debug("Unable to flush disconnect notifications", exc_info=True)
 
     def _drain_publish_queue(self, flush_event: Event) -> None:
+        """Drain queued publish runnables during close.
+        
+        Note: This executes queued runnables inline on the caller's thread,
+        which may run user callbacks in an unexpected context during close.
+        All runnables are wrapped in try/except for error handling.
+        """
         queue = getattr(publishingThread, "queue", None)
         if queue is None:
             return
