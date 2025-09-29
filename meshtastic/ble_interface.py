@@ -512,14 +512,9 @@ class BLEInterface(MeshInterface):
                 logger.debug(
                     "BLE-specific error during disconnect operation", exc_info=True
                 )
-            except RuntimeError:  # pragma: no cover - defensive logging
+            except (RuntimeError, OSError):  # pragma: no cover - defensive logging
                 logger.debug(
-                    "Runtime error during disconnect (possible threading issue)",
-                    exc_info=True,
-                )
-            except OSError:  # pragma: no cover - defensive logging
-                logger.debug(
-                    "OS error during disconnect (possible resource or permission issue)",
+                    "OS/Runtime error during disconnect (possible resource or threading issue)",
                     exc_info=True,
                 )
             finally:
@@ -529,14 +524,9 @@ class BLEInterface(MeshInterface):
                     logger.debug(
                         "BLE-specific error during client close", exc_info=True
                     )
-                except RuntimeError:  # pragma: no cover - defensive logging
+                except (RuntimeError, OSError):  # pragma: no cover - defensive logging
                     logger.debug(
-                        "Runtime error during client close (possible threading issue)",
-                        exc_info=True,
-                    )
-                except OSError:  # pragma: no cover - defensive logging
-                    logger.debug(
-                        "OS error during client close (possible resource or permission issue)",
+                        "OS/Runtime error during client close (possible resource or threading issue)",
                         exc_info=True,
                     )
 
