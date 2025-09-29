@@ -170,7 +170,7 @@ def stub_atexit(monkeypatch):
 def _build_interface(monkeypatch, client):
     from meshtastic.ble_interface import BLEInterface
 
-    def _stub_connect(_self, address=None):
+    def _stub_connect(_self, _address=None):
         return client
 
     def _stub_recv(_self):
@@ -199,6 +199,11 @@ def test_close_idempotent(monkeypatch):
 
 def test_close_handles_bleak_error(monkeypatch):
     from meshtastic.ble_interface import BleakError
+    from pubsub import pub as _pub
+    calls = []
+    def _capture(topic, **kwargs):
+        calls.append((topic, kwargs))
+    monkeypatch.setattr(_pub, "sendMessage", _capture)
 
     client = DummyClient(disconnect_exception=BleakError("Not connected"))
     iface = _build_interface(monkeypatch, client)
@@ -207,3 +212,5 @@ def test_close_handles_bleak_error(monkeypatch):
 
     assert client.disconnect_calls == 1
     assert client.close_calls == 1
+    # exactly one disconnect status
+    assert [c for c in calls if c[0] == "meshtastic.connection.status" and c[1].get("connected") is False].__len__() == 1

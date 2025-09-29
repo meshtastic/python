@@ -23,8 +23,6 @@ import meshtastic.ble_interface
 # Retry delay in seconds when connection fails
 RETRY_DELAY_SECONDS = 5
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # A thread-safe flag to signal disconnection
@@ -34,8 +32,8 @@ disconnected_event = threading.Event()
 def on_connection_change(interface, connected):
     """Callback for connection changes."""
     iface_label = getattr(interface, "address", repr(interface))
-    print(
-        f"Connection changed for {iface_label}: {'Connected' if connected else 'Disconnected'}"
+    logger.info(
+        "Connection changed for %s: %s", iface_label, "Connected" if connected else "Disconnected"
     )
     if not connected:
         # Signal the main loop that we've been disconnected
@@ -44,6 +42,7 @@ def on_connection_change(interface, connected):
 
 def main():
     """Main function."""
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(
         description="Meshtastic BLE interface automatic reconnection example."
     )
@@ -58,7 +57,7 @@ def main():
     while True:
         try:
             disconnected_event.clear()
-            print(f"Attempting to connect to {address}...")
+            logger.info("Attempting to connect to %s...", address)
             # Set auto_reconnect=True to prevent the interface from closing on disconnect.
             # This allows us to handle the reconnection here.
             iface = meshtastic.ble_interface.BLEInterface(
@@ -67,13 +66,13 @@ def main():
                 auto_reconnect=True,
             )
 
-            print("Connection successful. Waiting for disconnection event...")
+            logger.info("Connection successful. Waiting for disconnection event...")
             # Wait until the on_connection_change callback signals a disconnect
             disconnected_event.wait()
-            print("Disconnected normally.")
+            logger.info("Disconnected normally.")
 
         except KeyboardInterrupt:
-            print("Exiting...")
+            logger.info("Exiting...")
             break
         except meshtastic.ble_interface.BLEInterface.BLEError:
             logger.exception("Connection failed")
@@ -82,9 +81,9 @@ def main():
         finally:
             if iface:
                 iface.close()
-                print("Interface closed.")
+                logger.info("Interface closed.")
 
-        print(f"Retrying in {RETRY_DELAY_SECONDS} seconds...")
+        logger.info("Retrying in %d seconds...", RETRY_DELAY_SECONDS)
         time.sleep(RETRY_DELAY_SECONDS)
 
 

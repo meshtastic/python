@@ -149,8 +149,13 @@ class BLEInterface(MeshInterface):
             previous_client = current_client
             self.client = None
             if previous_client:
+                def _safe_close(c):
+                    try:
+                        c.close()
+                    except Exception:  # pragma: no cover - defensive log
+                        logger.debug("Error in BLEClientClose", exc_info=True)
                 Thread(
-                    target=previous_client.close, name="BLEClientClose", daemon=True
+                    target=_safe_close, args=(previous_client,), name="BLEClientClose", daemon=True
                 ).start()
             self._disconnected()
             self._disconnect_notified = True
@@ -325,10 +330,8 @@ class BLEInterface(MeshInterface):
                     TORADIO_UUID, b, response=True
                 )  # FIXME: or False?
                 # search Bleak src for org.bluez.Error.InProgress
-            except Exception as e:
-                raise BLEInterface.BLEError(
-                    "Error writing BLE (are you in the 'bluetooth' user group? did you enter the pairing PIN on your computer?)"
-                ) from e
+            except (BleakError, RuntimeError, OSError) as e:
+                raise BLEInterface.BLEError("Error writing BLE") from e
             # Allow to propagate and then make sure we read
             time.sleep(0.01)
             self.should_read = True
