@@ -95,7 +95,7 @@ class BLEInterface(MeshInterface):
             with self._client_lock:
                 self.client = client
             logger.debug("BLE connected")
-        except BLEInterface.BLEError as e:
+        except BLEInterface.BLEError:
             self.close()
             raise
 
@@ -326,45 +326,51 @@ class BLEInterface(MeshInterface):
             logger.debug("Error in BLEClientClose", exc_info=True)
 
     def _receiveFromRadioImpl(self) -> None:
-        while self._want_receive:
-            if not self._read_trigger.wait(timeout=0.5):
-                continue
-            self._read_trigger.clear()
-            retries: int = 0
+        try:
             while self._want_receive:
-                with self._client_lock:
-                    client = self.client
-                if client is None:
-                    if self.auto_reconnect:
-                        logger.debug(
-                            "BLE client is None; waiting for application-managed reconnect"
-                        )
+                if not self._read_trigger.wait(timeout=0.5):
+                    continue
+                self._read_trigger.clear()
+                retries: int = 0
+                while self._want_receive:
+                    with self._client_lock:
+                        client = self.client
+                    if client is None:
+                        if self.auto_reconnect:
+                            logger.debug(
+                                "BLE client is None; waiting for application-managed reconnect"
+                            )
+                            break
+                        logger.debug("BLE client is None, shutting down")
+                        self._want_receive = False
                         break
-                    logger.debug("BLE client is None, shutting down")
-                    self._want_receive = False
-                    break
-                try:
-                    b = bytes(client.read_gatt_char(FROMRADIO_UUID))
-                except BleakDBusError as e:
-                    if self._handle_read_loop_disconnect(str(e), client):
-                        break
-                    return
-                except BleakError as e:
-                    if client and not client.is_connected():
+                    try:
+                        b = bytes(client.read_gatt_char(FROMRADIO_UUID))
+                    except BleakDBusError as e:
                         if self._handle_read_loop_disconnect(str(e), client):
                             break
                         return
-                    logger.debug("Error reading BLE", exc_info=True)
-                    raise BLEInterface.BLEError("Error reading BLE") from e
-                if not b:
-                    if retries < 5:
-                        time.sleep(0.1)
-                        retries += 1
-                        continue
-                    break
-                logger.debug(f"FROMRADIO read: {b.hex()}")
-                self._handleFromRadio(b)
-                retries = 0
+                    except BleakError as e:
+                        if client and not client.is_connected():
+                            if self._handle_read_loop_disconnect(str(e), client):
+                                break
+                            return
+                        logger.debug("Error reading BLE", exc_info=True)
+                        raise BLEInterface.BLEError("Error reading BLE") from e
+                    if not b:
+                        if retries < 5:
+                            time.sleep(0.1)
+                            retries += 1
+                            continue
+                        break
+                    logger.debug(f"FROMRADIO read: {b.hex()}")
+                    self._handleFromRadio(b)
+                    retries = 0
+        except Exception:
+            logger.exception("Fatal error in BLE receive thread, closing interface.")
+            if not self._closing:
+                # Use a thread to avoid deadlocks if close() waits for this thread
+                Thread(target=self.close, name="BLECloseOnError", daemon=True).start()
 
     def _sendToRadioImpl(self, toRadio) -> None:
         b: bytes = toRadio.SerializeToString()
@@ -378,7 +384,8 @@ class BLEInterface(MeshInterface):
             except (BleakError, RuntimeError, OSError) as e:
                 logger.debug("Error writing BLE", exc_info=True)
                 raise BLEInterface.BLEError(
-                    "Error writing BLE. This is often caused by missing Bluetooth permissions (e.g. not being in the 'bluetooth' group) or pairing issues."
+                    "Error writing BLE. This is often caused by missing Bluetooth "
+                    "permissions (e.g. not being in the 'bluetooth' group) or pairing issues."
                 ) from e
             # Allow to propagate and then prompt the reader
             time.sleep(0.01)
