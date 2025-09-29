@@ -333,6 +333,11 @@ class BLEInterface(MeshInterface):
             except (BleakError, RuntimeError, OSError) as e:
                 raise BLEInterface.BLEError("Error writing BLE") from e
             # Allow to propagate and then make sure we read
+            # Note: This manual polling with sleep(0.01) and should_read = True is a workaround
+            # for device firmware that may not consistently send FROMNUM_UUID notifications
+            # in response to writes. Ideally, the communication should rely solely on the
+            # notification mechanism via from_num_handler, but this polling ensures
+            # robustness with current device firmware behavior.
             time.sleep(0.01)
             self.should_read = True
 
