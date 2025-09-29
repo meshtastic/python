@@ -6,7 +6,6 @@ import contextlib
 import io
 import logging
 import struct
-import sys
 import time
 from concurrent.futures import TimeoutError as FutureTimeoutError
 from queue import Empty
@@ -99,9 +98,6 @@ class BLEInterface(MeshInterface):
             self.close()
             raise e
 
-        # Register characteristic notifications for the initial connection
-        self._register_notifications(self.client)
-
         logger.debug("Mesh configure starting")
         self._startConfig()
         if not self.noProto:
@@ -123,6 +119,8 @@ class BLEInterface(MeshInterface):
             rep += ", noProto=True"
         if self.noNodes:
             rep += ", noNodes=True"
+        if not self.auto_reconnect:
+            rep += ", auto_reconnect=False"
         rep += ")"
         return rep
 
@@ -150,12 +148,13 @@ class BLEInterface(MeshInterface):
                 def _safe_close(c):
                     try:
                         c.close()
-                    except Exception:  # pragma: no cover - defensive log
+                    except BleakError:  # pragma: no cover - defensive log
+                        logger.debug("Error in BLEClientClose", exc_info=True)
+                    except (RuntimeError, OSError):  # pragma: no cover - defensive log
                         logger.debug("Error in BLEClientClose", exc_info=True)
                 Thread(
                     target=_safe_close, args=(previous_client,), name="BLEClientClose", daemon=True
                 ).start()
-            self._ensure_pubsub_binding()
             self._disconnected()
             self._disconnect_notified = True
             self._reconnected_event.clear()
@@ -282,7 +281,6 @@ class BLEInterface(MeshInterface):
         logger.debug(f"Device disconnected: {error_message}")
         if self.auto_reconnect:
             if not self._disconnect_notified:
-                self._ensure_pubsub_binding()
                 self._disconnected()
                 self._disconnect_notified = True
             # Clear client to trigger reconnection logic
@@ -325,7 +323,7 @@ class BLEInterface(MeshInterface):
                             if self._handle_read_loop_disconnect(str(e)):
                                 continue
                             break
-                        raise BLEInterface.BLEError(f"Error reading BLE: {e}") from e
+                        raise BLEInterface.BLEError("Error reading BLE") from e
                     if not b:
                         if retries < 5:
                             time.sleep(0.1)
@@ -348,9 +346,7 @@ class BLEInterface(MeshInterface):
                 )  # FIXME: or False?
                 # search Bleak src for org.bluez.Error.InProgress
             except (BleakError, RuntimeError, OSError) as e:
-                raise BLEInterface.BLEError(
-                    "Error writing BLE. This can be caused by permission issues (e.g. not in 'bluetooth' group) or pairing problems."
-                ) from e
+                raise BLEInterface.BLEError("Error writing BLE") from e
             # Allow to propagate and then make sure we read
             time.sleep(0.01)
             self.should_read = True
@@ -366,7 +362,7 @@ class BLEInterface(MeshInterface):
 
         try:
             MeshInterface.close(self)
-        except Exception:
+        except (MeshInterface.MeshInterfaceError, RuntimeError, BLEInterface.BLEError, OSError):
             logger.exception("Error closing mesh interface")
 
         if self._want_receive:
@@ -376,12 +372,13 @@ class BLEInterface(MeshInterface):
                 self._receiveThread.join(timeout=RECEIVE_THREAD_JOIN_TIMEOUT)
                 self._receiveThread = None
 
+        if self._exit_handler:
+            with contextlib.suppress(ValueError):
+                atexit.unregister(self._exit_handler)
+            self._exit_handler = None
+
         client = self.client
         if client:
-            if self._exit_handler:
-                with contextlib.suppress(ValueError):
-                    atexit.unregister(self._exit_handler)
-                self._exit_handler = None
 
             try:
                 client.disconnect(timeout=DISCONNECT_TIMEOUT_SECONDS)
@@ -389,23 +386,22 @@ class BLEInterface(MeshInterface):
                 logger.warning("Timed out waiting for BLE disconnect; forcing shutdown")
             except BleakError:
                 logger.debug("BLE disconnect raised a BleakError", exc_info=True)
-            except Exception:  # pragma: no cover - defensive logging
+            except (RuntimeError, OSError):  # pragma: no cover - defensive logging
                 logger.exception("Unexpected error during BLE disconnect")
             finally:
                 try:
                     client.close()
-                except Exception:  # pragma: no cover - defensive logging
+                except (BleakError, RuntimeError, OSError):  # pragma: no cover - defensive logging
                     logger.debug("Error closing BLE client", exc_info=True)
                 self.client = None
 
         # Send disconnected indicator if not already notified
         if not self._disconnect_notified:
-            self._ensure_pubsub_binding()
             self._disconnected()  # send the disconnected indicator up to clients
             self._disconnect_notified = True
             self._wait_for_disconnect_notifications()
 
-    def _wait_for_disconnect_notifications(self, timeout: float = 0.5) -> None:
+    def _wait_for_disconnect_notifications(self, timeout: float = DISCONNECT_TIMEOUT_SECONDS) -> None:
         """Wait briefly for queued pubsub notifications to flush before returning."""
         flush_event = Event()
         try:
@@ -416,7 +412,7 @@ class BLEInterface(MeshInterface):
                     logger.debug("Timed out waiting for publish queue flush")
                 else:
                     self._drain_publish_queue(flush_event)
-        except Exception:  # pragma: no cover - defensive logging
+        except (RuntimeError, ValueError):  # pragma: no cover - defensive logging
             logger.debug("Unable to flush disconnect notifications", exc_info=True)
 
     def _drain_publish_queue(self, flush_event: Event) -> None:
@@ -430,22 +426,8 @@ class BLEInterface(MeshInterface):
                 break
             try:
                 runnable()
-            except Exception:  # pragma: no cover - defensive logging
-                logger.debug("Error running deferred publish", exc_info=True)
-
-    def _ensure_pubsub_binding(self) -> None:
-        try:
-            pubsub_module = sys.modules.get("pubsub")
-            if pubsub_module is None:
-                return
-            pub_instance = getattr(pubsub_module, "pub", None)
-            if pub_instance is None:
-                return
-            import meshtastic.mesh_interface as mesh_module
-
-            mesh_module.pub = pub_instance
-        except Exception:  # pragma: no cover - defensive logging
-            logger.debug("Unable to refresh pubsub binding", exc_info=True)
+            except (RuntimeError, ValueError) as exc:  # pragma: no cover - defensive logging
+                logger.debug("Error running deferred publish: %s", exc, exc_info=True)
 
 
 class BLEClient:
@@ -483,7 +465,7 @@ class BLEClient:
             if callable(connected):
                 connected = connected()
             return bool(connected)
-        except Exception:  # pragma: no cover - defensive logging
+        except (AttributeError, TypeError, RuntimeError):  # pragma: no cover - defensive logging
             logger.debug("Unable to read bleak connection state", exc_info=True)
             return False
 

@@ -3,6 +3,7 @@
 # pylint: disable=R0917,C0302
 
 import collections
+import importlib
 import json
 import logging
 import math
@@ -23,7 +24,6 @@ try:
 except ImportError as e:
     print_color = None
 
-from pubsub import pub  # type: ignore[import-untyped]
 from tabulate import tabulate
 
 import meshtastic.node
@@ -48,6 +48,14 @@ from meshtastic.util import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _pub():
+    """Return the current pubsub publisher."""
+    module = sys.modules.get("pubsub")
+    if module is None:
+        module = importlib.import_module("pubsub")
+    return module.pub
 
 def _timeago(delta_secs: int) -> str:
     """Convert a number of seconds in the past into a short, friendly string
@@ -137,7 +145,7 @@ class MeshInterface:  # pylint: disable=R0902
         # the meshtastic.log.line publish instead.  Alas though changing that now would be a breaking API change
         # for any external consumers of the library.
         if debugOut:
-            pub.subscribe(MeshInterface._printLogLine, "meshtastic.log.line")
+            _pub().subscribe(MeshInterface._printLogLine, "meshtastic.log.line")
 
     def close(self):
         """Shutdown this interface"""
@@ -184,7 +192,7 @@ class MeshInterface:  # pylint: disable=R0902
         if line.endswith("\n"):
             line = line[:-1]
 
-        pub.sendMessage("meshtastic.log.line", line=line, interface=self)
+        _pub().sendMessage("meshtastic.log.line", line=line, interface=self)
 
     def _handleLogRecord(self, record: mesh_pb2.LogRecord) -> None:
         """Handle a log record which was received encapsulated in a protobuf."""
@@ -1130,10 +1138,10 @@ class MeshInterface:  # pylint: disable=R0902
         """Called by subclasses to tell clients this interface has disconnected"""
         self.isConnected.clear()
         publishingThread.queueWork(
-            lambda: pub.sendMessage("meshtastic.connection.lost", interface=self)
+            lambda: _pub().sendMessage("meshtastic.connection.lost", interface=self)
         )
         publishingThread.queueWork(
-            lambda: pub.sendMessage("meshtastic.connection.status", interface=self, connected=False)
+            lambda: _pub().sendMessage("meshtastic.connection.status", interface=self, connected=False)
         )
 
     def sendHeartbeat(self):
@@ -1164,12 +1172,14 @@ class MeshInterface:  # pylint: disable=R0902
             self.isConnected.set()
             self._startHeartbeat()
             publishingThread.queueWork(
-                lambda: pub.sendMessage(
+                lambda: _pub().sendMessage(
                     "meshtastic.connection.established", interface=self
                 )
             )
             publishingThread.queueWork(
-                lambda: pub.sendMessage("meshtastic.connection.status", interface=self, connected=True)
+                lambda: _pub().sendMessage(
+                    "meshtastic.connection.status", interface=self, connected=True
+                )
             )
 
     def _startConfig(self):
@@ -1335,7 +1345,7 @@ class MeshInterface:  # pylint: disable=R0902
                 if "id" in node["user"]:
                     self.nodes[node["user"]["id"]] = node
             publishingThread.queueWork(
-                lambda: pub.sendMessage(
+                lambda: _pub().sendMessage(
                     "meshtastic.node.updated", node=node, interface=self
                 )
             )
@@ -1354,7 +1364,7 @@ class MeshInterface:  # pylint: disable=R0902
             self._handleQueueStatusFromRadio(fromRadio.queueStatus)
         elif fromRadio.HasField("clientNotification"):
             publishingThread.queueWork(
-                lambda: pub.sendMessage(
+                lambda: _pub().sendMessage(
                     "meshtastic.clientNotification",
                     notification=fromRadio.clientNotification,
                     interface=self,
@@ -1363,7 +1373,7 @@ class MeshInterface:  # pylint: disable=R0902
 
         elif fromRadio.HasField("mqttClientProxyMessage"):
             publishingThread.queueWork(
-                lambda: pub.sendMessage(
+                lambda: _pub().sendMessage(
                     "meshtastic.mqttclientproxymessage",
                     proxymessage=fromRadio.mqttClientProxyMessage,
                     interface=self,
@@ -1372,7 +1382,7 @@ class MeshInterface:  # pylint: disable=R0902
 
         elif fromRadio.HasField("xmodemPacket"):
             publishingThread.queueWork(
-                lambda: pub.sendMessage(
+                lambda: _pub().sendMessage(
                     "meshtastic.xmodempacket",
                     packet=fromRadio.xmodemPacket,
                     interface=self,
@@ -1641,5 +1651,5 @@ class MeshInterface:  # pylint: disable=R0902
 
         logger.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         publishingThread.queueWork(
-            lambda: pub.sendMessage(topic, packet=asDict, interface=self)
+            lambda: _pub().sendMessage(topic, packet=asDict, interface=self)
         )
