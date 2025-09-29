@@ -192,7 +192,7 @@ class BLEInterface(MeshInterface):
 
     def from_num_handler(self, _, b: bytes) -> None:  # pylint: disable=C0116
         """Handle callbacks for fromnum notify.
-        Note: this method does not need to be async because it is just setting a bool.
+        Note: this method does not need to be async because it is just setting an event.
         """
         try:
             if len(b) < 4:
