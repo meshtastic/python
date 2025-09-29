@@ -447,20 +447,19 @@ class BLEInterface(MeshInterface):
             try:
                 # Use write-with-response to ensure delivery is acknowledged by the peripheral.
                 client.write_gatt_char(TORADIO_UUID, b, response=True)
-            except BleakError as e:
-                logger.debug("BLE-specific error during write operation", exc_info=True)
-                raise BLEInterface.BLEError(ERROR_WRITING_BLE) from e
-            except RuntimeError as e:
-                logger.debug(
-                    "Runtime error during write operation (possible threading issue)",
-                    exc_info=True,
-                )
-                raise BLEInterface.BLEError(ERROR_WRITING_BLE) from e
-            except OSError as e:
-                logger.debug(
-                    "OS error during write operation (possible resource or permission issue)",
-                    exc_info=True,
-                )
+            except (BleakError, RuntimeError, OSError) as e:
+                if isinstance(e, BleakError):
+                    logger.debug("BLE-specific error during write operation", exc_info=True)
+                elif isinstance(e, RuntimeError):
+                    logger.debug(
+                        "Runtime error during write operation (possible threading issue)",
+                        exc_info=True,
+                    )
+                else:  # OSError
+                    logger.debug(
+                        "OS error during write operation (possible resource or permission issue)",
+                        exc_info=True,
+                    )
                 raise BLEInterface.BLEError(ERROR_WRITING_BLE) from e
             # Allow to propagate and then prompt the reader
             time.sleep(SEND_PROPAGATION_DELAY)
@@ -663,7 +662,7 @@ class BLEClient:
             try:
                 self.get_services()
                 services = getattr(self.bleak_client, "services", None)
-            except (TimeoutError, BleakError):  # pragma: no cover - defensive
+            except (BLEInterface.BLEError, BleakError):  # pragma: no cover - defensive
                 logger.debug("Unable to populate services before has_characteristic", exc_info=True)
         return bool(services and services.get_characteristic(specifier))
 
