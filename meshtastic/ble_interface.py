@@ -145,15 +145,8 @@ class BLEInterface(MeshInterface):
             previous_client = current_client
             self.client = None
             if previous_client:
-                def _safe_close(c):
-                    try:
-                        c.close()
-                    except BleakError:  # pragma: no cover - defensive log
-                        logger.debug("Error in BLEClientClose", exc_info=True)
-                    except (RuntimeError, OSError):  # pragma: no cover - defensive log
-                        logger.debug("Error in BLEClientClose", exc_info=True)
                 Thread(
-                    target=_safe_close, args=(previous_client,), name="BLEClientClose", daemon=True
+                    target=self._safe_close_client, args=(previous_client,), name="BLEClientClose", daemon=True
                 ).start()
             self._disconnected()
             self._disconnect_notified = True
@@ -251,7 +244,13 @@ class BLEInterface(MeshInterface):
         if address is None:
             return None
         else:
-            return address.replace("-", "").replace("_", "").replace(":", "").lower()
+            return (
+                address.strip()
+                .replace("-", "")
+                .replace("_", "")
+                .replace(":", "")
+                .lower()
+            )
 
     def connect(self, address: Optional[str] = None) -> "BLEClient":
         "Connect to a device by address."
@@ -337,6 +336,7 @@ class BLEInterface(MeshInterface):
                             if self._handle_read_loop_disconnect(str(e), client):
                                 continue
                             break
+                        logger.debug("Error reading BLE", exc_info=True)
                         raise BLEInterface.BLEError("Error reading BLE") from e
                     if not b:
                         if retries < 5:
@@ -360,6 +360,7 @@ class BLEInterface(MeshInterface):
                 )  # FIXME: or False?
                 # search Bleak src for org.bluez.Error.InProgress
             except (BleakError, RuntimeError, OSError) as e:
+                logger.debug("Error writing BLE", exc_info=True)
                 raise BLEInterface.BLEError("Error writing BLE") from e
             # Allow to propagate and then make sure we read
             time.sleep(0.01)
@@ -384,6 +385,11 @@ class BLEInterface(MeshInterface):
             self._reconnected_event.set()  # Wake up the receive thread if it's waiting
             if self._receiveThread:
                 self._receiveThread.join(timeout=RECEIVE_THREAD_JOIN_TIMEOUT)
+                if self._receiveThread.is_alive():
+                    logger.warning(
+                        "BLE receive thread did not exit within %.1fs",
+                        RECEIVE_THREAD_JOIN_TIMEOUT,
+                    )
                 self._receiveThread = None
 
         if self._exit_handler:
