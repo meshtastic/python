@@ -60,12 +60,13 @@ class BLEInterface(MeshInterface):
                                 emitted to that stream (default: {None})
             noNodes {bool} -- If True, don't try to read the node list from the device 
                               (default: {False})
-            auto_reconnect {bool} -- If True, the interface will attempt to reconnect 
-                                   automatically when disconnected. If False, the 
-                                   interface will close completely on disconnect. 
-                                   When True, disconnection events are sent via the 
-                                   connection status callback, allowing applications 
-                                   to handle reconnection logic (default: {True})
+            auto_reconnect {bool} -- If True, the interface will not close itself upon 
+                                   disconnection. Instead, it will notify listeners 
+                                   via a connection status event, allowing the 
+                                   application to implement its own reconnection logic 
+                                   (e.g., by creating a new interface instance). 
+                                   If False, the interface will close completely 
+                                   on disconnect (default: {True})
         """
         self._closing_lock: Lock = Lock()
         self._closing: bool = False
@@ -98,13 +99,8 @@ class BLEInterface(MeshInterface):
             self.close()
             raise e
 
-        if self.client.has_characteristic(LEGACY_LOGRADIO_UUID):
-            self.client.start_notify(
-                LEGACY_LOGRADIO_UUID, self.legacy_log_radio_handler
-            )
-
-        if self.client.has_characteristic(LOGRADIO_UUID):
-            self.client.start_notify(LOGRADIO_UUID, self.log_radio_handler)
+        # Register characteristic notifications for the initial connection
+        self._register_notifications(self.client)
 
         logger.debug("Mesh configure starting")
         self._startConfig()
@@ -112,8 +108,7 @@ class BLEInterface(MeshInterface):
             self._waitConnected(timeout=60.0)
             self.waitForConfig()
 
-        logger.debug("Register FROMNUM notify callback")
-        self.client.start_notify(FROMNUM_UUID, self.from_num_handler)
+        # FROMNUM notification is set in _register_notifications
 
         # We MUST run atexit (if we can) because otherwise (at least on linux) the BLE device is not disconnected
         # and future connection attempts will fail.  (BlueZ kinda sucks)
@@ -160,6 +155,7 @@ class BLEInterface(MeshInterface):
                 Thread(
                     target=_safe_close, args=(previous_client,), name="BLEClientClose", daemon=True
                 ).start()
+            self._ensure_pubsub_binding()
             self._disconnected()
             self._disconnect_notified = True
             self._reconnected_event.clear()
@@ -173,6 +169,17 @@ class BLEInterface(MeshInterface):
         from_num = struct.unpack("<I", bytes(b))[0]
         logger.debug(f"FROMNUM notify: {from_num}")
         self.should_read = True
+
+    def _register_notifications(self, client: "BLEClient") -> None:
+        """Register characteristic notifications for BLE client."""
+        try:
+            if client.has_characteristic(LEGACY_LOGRADIO_UUID):
+                client.start_notify(LEGACY_LOGRADIO_UUID, self.legacy_log_radio_handler)
+            if client.has_characteristic(LOGRADIO_UUID):
+                client.start_notify(LOGRADIO_UUID, self.log_radio_handler)
+            client.start_notify(FROMNUM_UUID, self.from_num_handler)
+        except BleakError:
+            logger.debug("Failed to start one or more notifications", exc_info=True)
 
     async def log_radio_handler(self, _, b):  # pylint: disable=C0116
         log_record = mesh_pb2.LogRecord()
@@ -257,6 +264,8 @@ class BLEInterface(MeshInterface):
         )
         client.connect()
         client.discover()
+        # Ensure notifications are always active for this client (reconnect-safe)
+        self._register_notifications(client)
         # Reset disconnect notification flag on new connection
         self._disconnect_notified = False
         # Signal that reconnection has occurred
@@ -272,6 +281,10 @@ class BLEInterface(MeshInterface):
         """
         logger.debug(f"Device disconnected: {error_message}")
         if self.auto_reconnect:
+            if not self._disconnect_notified:
+                self._ensure_pubsub_binding()
+                self._disconnected()
+                self._disconnect_notified = True
             # Clear client to trigger reconnection logic
             self.client = None
             self._reconnected_event.clear()
@@ -312,7 +325,7 @@ class BLEInterface(MeshInterface):
                             if self._handle_read_loop_disconnect(str(e)):
                                 continue
                             break
-                        raise BLEInterface.BLEError("Error reading BLE") from e
+                        raise BLEInterface.BLEError(f"Error reading BLE: {e}") from e
                     if not b:
                         if retries < 5:
                             time.sleep(0.1)
@@ -335,7 +348,9 @@ class BLEInterface(MeshInterface):
                 )  # FIXME: or False?
                 # search Bleak src for org.bluez.Error.InProgress
             except (BleakError, RuntimeError, OSError) as e:
-                raise BLEInterface.BLEError("Error writing BLE") from e
+                raise BLEInterface.BLEError(
+                    "Error writing BLE. This can be caused by permission issues (e.g. not in 'bluetooth' group) or pairing problems."
+                ) from e
             # Allow to propagate and then make sure we read
             time.sleep(0.01)
             self.should_read = True
