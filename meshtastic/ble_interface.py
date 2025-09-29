@@ -50,6 +50,8 @@ ERROR_WRITING_BLE = (
     "Error writing BLE. This is often caused by missing Bluetooth "
     "permissions (e.g. not being in the 'bluetooth' group) or pairing issues."
 )
+ERROR_CONNECTION_FAILED = "Connection failed: {0}"
+ERROR_ASYNC_TIMEOUT = "Async operation timed out"
 
 
 class BLEInterface(MeshInterface):
@@ -118,7 +120,7 @@ class BLEInterface(MeshInterface):
             logger.debug("BLE connected")
         except BLEInterface.BLEError as e:
             self.close()
-            raise BLEInterface.BLEError(f"Connection failed: {e}") from e
+            raise BLEInterface.BLEError(ERROR_CONNECTION_FAILED.format(e)) from e
 
         logger.debug("Mesh configure starting")
         self._startConfig()
@@ -324,7 +326,7 @@ class BLEInterface(MeshInterface):
             logger.debug(
                 "BLE services not available immediately after connect; performing discover()"
             )
-            client.discover()
+            client.get_services()
         # Ensure notifications are always active for this client (reconnect-safe)
         self._register_notifications(client)
         # Reset disconnect notification flag on new connection
@@ -684,7 +686,7 @@ class BLEClient:
             return future.result(timeout)
         except FutureTimeoutError as e:
             future.cancel()
-            raise BLEInterface.BLEError("Async operation timed out") from e
+            raise BLEInterface.BLEError(ERROR_ASYNC_TIMEOUT) from e
 
     def async_run(self, coro):  # pylint: disable=C0116
         return asyncio.run_coroutine_threadsafe(coro, self._eventLoop)
