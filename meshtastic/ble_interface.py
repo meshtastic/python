@@ -506,7 +506,7 @@ class BLEInterface(MeshInterface):
         if client:
             try:
                 client.disconnect(timeout=DISCONNECT_TIMEOUT_SECONDS)
-            except TimeoutError:
+            except BLEInterface.BLEError:
                 logger.warning("Timed out waiting for BLE disconnect; forcing shutdown")
             except BleakError:
                 logger.debug(
