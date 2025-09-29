@@ -6,8 +6,10 @@ import contextlib
 import io
 import logging
 import struct
+import sys
 import time
 from concurrent.futures import TimeoutError as FutureTimeoutError
+from queue import Empty
 from threading import Event, Lock, Thread
 from typing import List, Optional
 
@@ -15,6 +17,7 @@ import google.protobuf
 from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
 
+from meshtastic import publishingThread
 from meshtastic.mesh_interface import MeshInterface
 
 from .protobuf import mesh_pb2
@@ -303,8 +306,9 @@ class BLEInterface(MeshInterface):
                             continue
                         break
                     except BleakError as e:
-                        # We were definitely disconnected
-                        if "Not connected" in str(e):
+                        # Treat disconnected clients as a normal disconnect path without
+                        # relying on error message contents from bleak.
+                        if client and not client.is_connected():
                             if self._handle_read_loop_disconnect(str(e)):
                                 continue
                             break
@@ -380,8 +384,52 @@ class BLEInterface(MeshInterface):
 
         # Send disconnected indicator if not already notified
         if not self._disconnect_notified:
+            self._ensure_pubsub_binding()
             self._disconnected()  # send the disconnected indicator up to clients
             self._disconnect_notified = True
+            self._wait_for_disconnect_notifications()
+
+    def _wait_for_disconnect_notifications(self, timeout: float = 0.5) -> None:
+        """Wait briefly for queued pubsub notifications to flush before returning."""
+        flush_event = Event()
+        try:
+            publishingThread.queueWork(flush_event.set)
+            if not flush_event.wait(timeout=timeout):
+                thread = getattr(publishingThread, "thread", None)
+                if thread is not None and thread.is_alive():
+                    logger.debug("Timed out waiting for publish queue flush")
+                else:
+                    self._drain_publish_queue(flush_event)
+        except Exception:  # pragma: no cover - defensive logging
+            logger.debug("Unable to flush disconnect notifications", exc_info=True)
+
+    def _drain_publish_queue(self, flush_event: Event) -> None:
+        queue = getattr(publishingThread, "queue", None)
+        if queue is None:
+            return
+        while not flush_event.is_set():
+            try:
+                runnable = queue.get_nowait()
+            except Empty:
+                break
+            try:
+                runnable()
+            except Exception:  # pragma: no cover - defensive logging
+                logger.debug("Error running deferred publish", exc_info=True)
+
+    def _ensure_pubsub_binding(self) -> None:
+        try:
+            pubsub_module = sys.modules.get("pubsub")
+            if pubsub_module is None:
+                return
+            pub_instance = getattr(pubsub_module, "pub", None)
+            if pub_instance is None:
+                return
+            import meshtastic.mesh_interface as mesh_module
+
+            mesh_module.pub = pub_instance
+        except Exception:  # pragma: no cover - defensive logging
+            logger.debug("Unable to refresh pubsub binding", exc_info=True)
 
 
 class BLEClient:
@@ -408,6 +456,20 @@ class BLEClient:
 
     def connect(self, **kwargs):  # pylint: disable=C0116
         return self.async_await(self.bleak_client.connect(**kwargs))
+
+    def is_connected(self) -> bool:
+        """Return the bleak client's connection state when available."""
+        bleak_client = getattr(self, "bleak_client", None)
+        if bleak_client is None:
+            return False
+        try:
+            connected = getattr(bleak_client, "is_connected", False)
+            if callable(connected):
+                connected = connected()
+            return bool(connected)
+        except Exception:  # pragma: no cover - defensive logging
+            logger.debug("Unable to read bleak connection state", exc_info=True)
+            return False
 
     def disconnect(
         self, timeout: Optional[float] = None, **kwargs
