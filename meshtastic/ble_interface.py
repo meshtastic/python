@@ -43,9 +43,13 @@ CONNECTION_TIMEOUT = 60.0
 # Error message constants
 ERROR_READING_BLE = "Error reading BLE"
 ERROR_NO_PERIPHERAL_FOUND = "No Meshtastic BLE peripheral with identifier or address '{0}' found. Try --ble-scan to find it."
-ERROR_MULTIPLE_PERIPHERALS_FOUND = "More than one Meshtastic BLE peripheral with identifier or address '{0}' found."
-ERROR_WRITING_BLE = ("Error writing BLE. This is often caused by missing Bluetooth "
-                     "permissions (e.g. not being in the 'bluetooth' group) or pairing issues.")
+ERROR_MULTIPLE_PERIPHERALS_FOUND = (
+    "More than one Meshtastic BLE peripheral with identifier or address '{0}' found."
+)
+ERROR_WRITING_BLE = (
+    "Error writing BLE. This is often caused by missing Bluetooth "
+    "permissions (e.g. not being in the 'bluetooth' group) or pairing issues."
+)
 
 
 class BLEInterface(MeshInterface):
@@ -66,20 +70,21 @@ class BLEInterface(MeshInterface):
         """Constructor, opens a connection to a specified BLE device.
 
         Keyword Arguments:
-            address {str} -- The BLE address of the device to connect to. If None, 
+        -----------------
+            address {str} -- The BLE address of the device to connect to. If None,
                            will connect to any available Meshtastic BLE device.
-            noProto {bool} -- If True, don't try to initialize the protobuf protocol 
+            noProto {bool} -- If True, don't try to initialize the protobuf protocol
                              (default: {False})
-            debugOut {stream} -- If a stream is provided, any debug output will be 
+            debugOut {stream} -- If a stream is provided, any debug output will be
                                 emitted to that stream (default: {None})
-            noNodes {bool} -- If True, don't try to read the node list from the device 
+            noNodes {bool} -- If True, don't try to read the node list from the device
                               (default: {False})
-            auto_reconnect {bool} -- If True, the interface will not close itself upon 
-                                   disconnection. Instead, it will notify listeners 
-                                   via a connection status event, allowing the 
-                                   application to implement its own reconnection logic 
-                                   (e.g., by creating a new interface instance). 
-                                   If False, the interface will close completely 
+            auto_reconnect {bool} -- If True, the interface will not close itself upon
+                                   disconnection. Instead, it will notify listeners
+                                   via a connection status event, allowing the
+                                   application to implement its own reconnection logic
+                                   (e.g., by creating a new interface instance).
+                                   If False, the interface will close completely
                                    on disconnect (default: {True})
         """
         self._closing_lock: Lock = Lock()
@@ -265,7 +270,9 @@ class BLEInterface(MeshInterface):
         if len(addressed_devices) == 0:
             raise BLEInterface.BLEError(ERROR_NO_PERIPHERAL_FOUND.format(address))
         if len(addressed_devices) > 1:
-            raise BLEInterface.BLEError(ERROR_MULTIPLE_PERIPHERALS_FOUND.format(address))
+            raise BLEInterface.BLEError(
+                ERROR_MULTIPLE_PERIPHERALS_FOUND.format(address)
+            )
         return addressed_devices[0]
 
     @staticmethod
@@ -344,9 +351,17 @@ class BLEInterface(MeshInterface):
         try:
             c.close()
         except BleakError:
-            logger.debug("Error in BLEClientClose", exc_info=True)
-        except (RuntimeError, OSError):
-            logger.debug("Error in BLEClientClose", exc_info=True)
+            logger.debug("BLE-specific error during client close", exc_info=True)
+        except RuntimeError:
+            logger.debug(
+                "Runtime error during client close (possible threading issue)",
+                exc_info=True,
+            )
+        except OSError:
+            logger.debug(
+                "OS error during client close (possible resource or permission issue)",
+                exc_info=True,
+            )
 
     def _receiveFromRadioImpl(self) -> None:
         try:
@@ -389,7 +404,14 @@ class BLEInterface(MeshInterface):
                             return
                         logger.debug("Error reading BLE", exc_info=True)
                         raise BLEInterface.BLEError(ERROR_READING_BLE) from e
-        except Exception:
+        except (
+            AttributeError,
+            TypeError,
+            ValueError,
+            RuntimeError,
+            OSError,
+            google.protobuf.message.DecodeError,
+        ):
             logger.exception("Fatal error in BLE receive thread, closing interface.")
             if not self._closing:
                 # Use a thread to avoid deadlocks if close() waits for this thread
@@ -404,8 +426,20 @@ class BLEInterface(MeshInterface):
             try:
                 # Use write-with-response to ensure delivery is acknowledged by the peripheral.
                 client.write_gatt_char(TORADIO_UUID, b, response=True)
-            except (BleakError, RuntimeError, OSError) as e:
-                logger.debug("Error writing BLE", exc_info=True)
+            except BleakError as e:
+                logger.debug("BLE-specific error during write operation", exc_info=True)
+                raise BLEInterface.BLEError(ERROR_WRITING_BLE) from e
+            except RuntimeError as e:
+                logger.debug(
+                    "Runtime error during write operation (possible threading issue)",
+                    exc_info=True,
+                )
+                raise BLEInterface.BLEError(ERROR_WRITING_BLE) from e
+            except OSError as e:
+                logger.debug(
+                    "OS error during write operation (possible resource or permission issue)",
+                    exc_info=True,
+                )
                 raise BLEInterface.BLEError(ERROR_WRITING_BLE) from e
             # Allow to propagate and then prompt the reader
             time.sleep(SEND_PROPAGATION_DELAY)
@@ -422,7 +456,12 @@ class BLEInterface(MeshInterface):
 
         try:
             MeshInterface.close(self)
-        except (MeshInterface.MeshInterfaceError, RuntimeError, BLEInterface.BLEError, OSError):
+        except (
+            MeshInterface.MeshInterfaceError,
+            RuntimeError,
+            BLEInterface.BLEError,
+            OSError,
+        ):
             logger.exception("Error closing mesh interface")
 
         if self._want_receive:
@@ -446,20 +485,41 @@ class BLEInterface(MeshInterface):
             client = self.client
             self.client = None
         if client:
-
             try:
                 client.disconnect(timeout=DISCONNECT_TIMEOUT_SECONDS)
             except TimeoutError:
                 logger.warning("Timed out waiting for BLE disconnect; forcing shutdown")
             except BleakError:
-                logger.debug("BLE disconnect raised a BleakError", exc_info=True)
-            except (RuntimeError, OSError):  # pragma: no cover - defensive logging
-                logger.exception("Unexpected error during BLE disconnect")
+                logger.debug(
+                    "BLE-specific error during disconnect operation", exc_info=True
+                )
+            except RuntimeError:  # pragma: no cover - defensive logging
+                logger.debug(
+                    "Runtime error during disconnect (possible threading issue)",
+                    exc_info=True,
+                )
+            except OSError:  # pragma: no cover - defensive logging
+                logger.debug(
+                    "OS error during disconnect (possible resource or permission issue)",
+                    exc_info=True,
+                )
             finally:
                 try:
                     client.close()
-                except (BleakError, RuntimeError, OSError):  # pragma: no cover - defensive logging
-                    logger.debug("Error closing BLE client", exc_info=True)
+                except BleakError:  # pragma: no cover - defensive logging
+                    logger.debug(
+                        "BLE-specific error during client close", exc_info=True
+                    )
+                except RuntimeError:  # pragma: no cover - defensive logging
+                    logger.debug(
+                        "Runtime error during client close (possible threading issue)",
+                        exc_info=True,
+                    )
+                except OSError:  # pragma: no cover - defensive logging
+                    logger.debug(
+                        "OS error during client close (possible resource or permission issue)",
+                        exc_info=True,
+                    )
 
         # Send disconnected indicator if not already notified
         notify = False
@@ -472,7 +532,9 @@ class BLEInterface(MeshInterface):
             self._disconnected()  # send the disconnected indicator up to clients
             self._wait_for_disconnect_notifications()
 
-    def _wait_for_disconnect_notifications(self, timeout: float = DISCONNECT_TIMEOUT_SECONDS) -> None:
+    def _wait_for_disconnect_notifications(
+        self, timeout: float = DISCONNECT_TIMEOUT_SECONDS
+    ) -> None:
         """Wait briefly for queued pubsub notifications to flush before returning."""
         flush_event = Event()
         try:
@@ -483,12 +545,20 @@ class BLEInterface(MeshInterface):
                     logger.debug("Timed out waiting for publish queue flush")
                 else:
                     self._drain_publish_queue(flush_event)
-        except (RuntimeError, ValueError):  # pragma: no cover - defensive logging
-            logger.debug("Unable to flush disconnect notifications", exc_info=True)
+        except RuntimeError:  # pragma: no cover - defensive logging
+            logger.debug(
+                "Runtime error during disconnect notification flush (possible threading issue)",
+                exc_info=True,
+            )
+        except ValueError:  # pragma: no cover - defensive logging
+            logger.debug(
+                "Value error during disconnect notification flush (possible invalid event state)",
+                exc_info=True,
+            )
 
     def _drain_publish_queue(self, flush_event: Event) -> None:
         """Drain queued publish runnables during close.
-        
+
         Note: This executes queued runnables inline on the caller's thread,
         which may run user callbacks in an unexpected context during close.
         All runnables are wrapped in try/except for error handling.
@@ -503,8 +573,18 @@ class BLEInterface(MeshInterface):
                 break
             try:
                 runnable()
-            except (RuntimeError, ValueError) as exc:  # pragma: no cover - defensive logging
-                logger.debug("Error running deferred publish: %s", exc, exc_info=True)
+            except RuntimeError as exc:  # pragma: no cover - defensive logging
+                logger.debug(
+                    "Runtime error in deferred publish callback (possible threading issue): %s",
+                    exc,
+                    exc_info=True,
+                )
+            except ValueError as exc:  # pragma: no cover - defensive logging
+                logger.debug(
+                    "Value error in deferred publish callback (possible invalid callback state): %s",
+                    exc,
+                    exc_info=True,
+                )
 
 
 class BLEClient:
@@ -542,7 +622,11 @@ class BLEClient:
             if callable(connected):
                 connected = connected()
             return bool(connected)
-        except (AttributeError, TypeError, RuntimeError):  # pragma: no cover - defensive logging
+        except (
+            AttributeError,
+            TypeError,
+            RuntimeError,
+        ):  # pragma: no cover - defensive logging
             logger.debug("Unable to read bleak connection state", exc_info=True)
             return False
 
