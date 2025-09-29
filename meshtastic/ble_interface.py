@@ -305,8 +305,8 @@ class BLEInterface(MeshInterface):
                             logger.debug(
                                 "BLE client is None, waiting for reconnection..."
                             )
-                            # Wait for reconnection, but with a timeout to allow clean shutdown
-                            self._reconnected_event.wait(timeout=1.0)
+                            # Wait for reconnection or shutdown
+                            self._reconnected_event.wait()
                             continue
                         logger.debug("BLE client is None, shutting down")
                         self._want_receive = False
@@ -371,6 +371,7 @@ class BLEInterface(MeshInterface):
 
         if self._want_receive:
             self._want_receive = False  # Tell the thread we want it to stop
+            self._reconnected_event.set()  # Wake up the receive thread if it's waiting
             if self._receiveThread:
                 self._receiveThread.join(timeout=RECEIVE_THREAD_JOIN_TIMEOUT)
                 self._receiveThread = None
