@@ -116,9 +116,9 @@ class BLEInterface(MeshInterface):
             with self._client_lock:
                 self.client = client
             logger.debug("BLE connected")
-        except BLEInterface.BLEError:
+        except BLEInterface.BLEError as e:
             self.close()
-            raise
+            raise BLEInterface.BLEError(f"Connection failed: {e}") from e
 
         logger.debug("Mesh configure starting")
         self._startConfig()
@@ -684,7 +684,7 @@ class BLEClient:
             return future.result(timeout)
         except FutureTimeoutError as e:
             future.cancel()
-            raise TimeoutError from e
+            raise BLEInterface.BLEError("Async operation timed out") from e
 
     def async_run(self, coro):  # pylint: disable=C0116
         return asyncio.run_coroutine_threadsafe(coro, self._eventLoop)
