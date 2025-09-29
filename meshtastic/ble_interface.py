@@ -256,21 +256,15 @@ class BLEInterface(MeshInterface):
             )
 
             devices: List[BLEDevice] = []
-            if isinstance(response, dict):
-                for key, value in response.items():
-                    if isinstance(value, tuple):
-                        device, adv = value
-                    else:
-                        device, adv = key, value
-                    suuids = getattr(adv, "service_uuids", None)
-                    if suuids and SERVICE_UUID in suuids:
-                        devices.append(device)
-            else:  # list of BLEDevice
-                for device in response:
-                    adv = getattr(device, "advertisement_data", None)
-                    suuids = getattr(adv, "service_uuids", None)
-                    if suuids and SERVICE_UUID in suuids:
-                        devices.append(device)
+            # With return_adv=True, BleakScanner.discover() returns a dict in bleak 1.1.1
+            for key, value in response.items():
+                if isinstance(value, tuple):
+                    device, adv = value
+                else:
+                    device, adv = key, value
+                suuids = getattr(adv, "service_uuids", None)
+                if suuids and SERVICE_UUID in suuids:
+                    devices.append(device)
             return devices
 
     def find_device(self, address: Optional[str]) -> BLEDevice:
@@ -301,17 +295,16 @@ class BLEInterface(MeshInterface):
 
     @staticmethod
     def _sanitize_address(address: Optional[str]) -> Optional[str]:
-        "Standardize BLE address by removing extraneous characters and lowercasing."
+        "Standardize BLE address by removing extraneous characters, leading/trailing whitespace, and lowercasing."
         if address is None:
             return None
-        else:
-            return (
-                address.strip()
-                .replace("-", "")
-                .replace("_", "")
-                .replace(":", "")
-                .lower()
-            )
+        return (
+            address.strip()
+            .replace("-", "")
+            .replace("_", "")
+            .replace(":", "")
+            .lower()
+        )
 
     def connect(self, address: Optional[str] = None) -> "BLEClient":
         "Connect to a device by address."
@@ -543,6 +536,34 @@ class BLEInterface(MeshInterface):
                 exc_info=True,
             )
 
+    def _disconnect_and_close_client(self, client):
+        """Disconnect and close the BLE client with comprehensive error handling."""
+        try:
+            client.disconnect(timeout=DISCONNECT_TIMEOUT_SECONDS)
+        except BLEInterface.BLEError:
+            logger.warning("Timed out waiting for BLE disconnect; forcing shutdown")
+        except BleakError:
+            logger.debug(
+                "BLE-specific error during disconnect operation", exc_info=True
+            )
+        except (RuntimeError, OSError):  # pragma: no cover - defensive logging
+            logger.debug(
+                "OS/Runtime error during disconnect (possible resource or threading issue)",
+                exc_info=True,
+            )
+        finally:
+            try:
+                client.close()
+            except BleakError:  # pragma: no cover - defensive logging
+                logger.debug(
+                    "BLE-specific error during client close", exc_info=True
+                )
+            except (RuntimeError, OSError):  # pragma: no cover - defensive logging
+                logger.debug(
+                    "OS/Runtime error during client close (possible resource or threading issue)",
+                    exc_info=True,
+                )
+
     def _drain_publish_queue(self, flush_event: Event) -> None:
         """Drain queued publish runnables during close.
 
@@ -670,30 +691,4 @@ class BLEClient:
     async def _stop_event_loop(self):
         self._eventLoop.stop()
 
-    def _disconnect_and_close_client(self, client):
-        """Disconnect and close the BLE client with comprehensive error handling."""
-        try:
-            client.disconnect(timeout=DISCONNECT_TIMEOUT_SECONDS)
-        except BLEInterface.BLEError:
-            logger.warning("Timed out waiting for BLE disconnect; forcing shutdown")
-        except BleakError:
-            logger.debug(
-                "BLE-specific error during disconnect operation", exc_info=True
-            )
-        except (RuntimeError, OSError):  # pragma: no cover - defensive logging
-            logger.debug(
-                "OS/Runtime error during disconnect (possible resource or threading issue)",
-                exc_info=True,
-            )
-        finally:
-            try:
-                client.close()
-            except BleakError:  # pragma: no cover - defensive logging
-                logger.debug(
-                    "BLE-specific error during client close", exc_info=True
-                )
-            except (RuntimeError, OSError):  # pragma: no cover - defensive logging
-                logger.debug(
-                    "OS/Runtime error during client close (possible resource or threading issue)",
-                    exc_info=True,
-                )
+    
