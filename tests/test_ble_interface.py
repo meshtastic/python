@@ -139,6 +139,9 @@ class DummyClient:
     def start_notify(self, *_args, **_kwargs):
         return None
 
+    def get_services(self, *_args, **_kwargs):
+        return None
+
     def disconnect(self, *_args, **_kwargs):
         self.disconnect_calls += 1
         if self.disconnect_exception:

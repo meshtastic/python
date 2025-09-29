@@ -68,18 +68,17 @@ class BLEInterface(MeshInterface):
                                    on disconnect (default: {True})
         """
         self._closing_lock: Lock = Lock()
+        self._client_lock: Lock = Lock()
         self._closing: bool = False
         self._exit_handler = None
         self.address = address
         self.auto_reconnect = auto_reconnect
         self._disconnect_notified = False
-        self._reconnected_event = Event()
+        self._read_trigger: Event = Event()
 
         MeshInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, noNodes=noNodes
         )
-
-        self.should_read = False
 
         logger.debug("Threads starting")
         self._want_receive = True
@@ -92,7 +91,9 @@ class BLEInterface(MeshInterface):
         self.client: Optional[BLEClient] = None
         try:
             logger.debug(f"BLE connecting to: {address if address else 'any'}")
-            self.client = self.connect(address)
+            client = self.connect(address)
+            with self._client_lock:
+                self.client = client
             logger.debug("BLE connected")
         except BLEInterface.BLEError as e:
             self.close()
@@ -135,22 +136,28 @@ class BLEInterface(MeshInterface):
         address = getattr(client, "address", repr(client))
         logger.debug(f"BLE client {address} disconnected.")
         if self.auto_reconnect:
-            current_client = self.client
-            if (
-                current_client
-                and getattr(current_client, "bleak_client", None) is not client
-            ):
-                logger.debug("Ignoring disconnect from a stale BLE client instance.")
-                return
-            previous_client = current_client
-            self.client = None
+            with self._client_lock:
+                current_client = self.client
+                if (
+                    current_client
+                    and getattr(current_client, "bleak_client", None) is not client
+                ):
+                    logger.debug(
+                        "Ignoring disconnect from a stale BLE client instance."
+                    )
+                    return
+                previous_client = current_client
+                self.client = None
             if previous_client:
                 Thread(
-                    target=self._safe_close_client, args=(previous_client,), name="BLEClientClose", daemon=True
+                    target=self._safe_close_client,
+                    args=(previous_client,),
+                    name="BLEClientClose",
+                    daemon=True,
                 ).start()
             self._disconnected()
             self._disconnect_notified = True
-            self._reconnected_event.clear()
+            self._read_trigger.set()  # ensure receive loop wakes
         else:
             Thread(target=self.close, name="BLEClose", daemon=True).start()
 
@@ -160,7 +167,7 @@ class BLEInterface(MeshInterface):
         """
         from_num = struct.unpack("<I", bytes(b))[0]
         logger.debug(f"FROMNUM notify: {from_num}")
-        self.should_read = True
+        self._read_trigger.set()
 
     def _register_notifications(self, client: "BLEClient") -> None:
         """Register characteristic notifications for BLE client."""
@@ -261,16 +268,17 @@ class BLEInterface(MeshInterface):
             device.address, disconnected_callback=self._on_ble_disconnect
         )
         client.connect()
-        client.discover()
+        # Populate services for characteristic checks/notifications
+        client.get_services()
         # Ensure notifications are always active for this client (reconnect-safe)
         self._register_notifications(client)
         # Reset disconnect notification flag on new connection
         self._disconnect_notified = False
-        # Signal that reconnection has occurred
-        self._reconnected_event.set()
         return client
 
-    def _handle_read_loop_disconnect(self, error_message: str, previous_client: Optional["BLEClient"]) -> bool:
+    def _handle_read_loop_disconnect(
+        self, error_message: str, previous_client: Optional["BLEClient"]
+    ) -> bool:
         """Handle disconnection in the read loop.
 
         Returns
@@ -279,17 +287,26 @@ class BLEInterface(MeshInterface):
         """
         logger.debug(f"Device disconnected: {error_message}")
         if self.auto_reconnect:
-            if not self._disconnect_notified:
+            notify_disconnect = False
+            should_close = False
+            with self._client_lock:
+                current = self.client
+                if previous_client and current is previous_client:
+                    self.client = None
+                    should_close = True
+                if not self._disconnect_notified:
+                    self._disconnect_notified = True
+                    notify_disconnect = True
+            if notify_disconnect:
                 self._disconnected()
-                self._disconnect_notified = True
-            # If the exception came from the currently active client, clear and close it.
-            current = self.client
-            if previous_client and current is previous_client:
-                self.client = None
-                self._reconnected_event.clear()
-                Thread(target=self._safe_close_client, args=(previous_client,), name="BLEClientClose", daemon=True).start()
-            else:
-                logger.debug("Read-loop disconnect from a stale BLE client; ignoring.")
+            if should_close and previous_client:
+                Thread(
+                    target=self._safe_close_client,
+                    args=(previous_client,),
+                    name="BLEClientClose",
+                    daemon=True,
+                ).start()
+            self._read_trigger.clear()
             return True
         # End our read loop immediately
         self._want_receive = False
@@ -306,65 +323,62 @@ class BLEInterface(MeshInterface):
 
     def _receiveFromRadioImpl(self) -> None:
         while self._want_receive:
-            if self.should_read:
-                self.should_read = False
-                retries: int = 0
-                while self._want_receive:
+            if not self._read_trigger.wait(timeout=0.5):
+                continue
+            self._read_trigger.clear()
+            retries: int = 0
+            while self._want_receive:
+                with self._client_lock:
                     client = self.client
-                    if client is None:
-                        if self.auto_reconnect:
-                            logger.debug(
-                                "BLE client is None, waiting for reconnection..."
-                            )
-                            # Wait for reconnection or shutdown
-                            self._reconnected_event.wait()
-                            continue
-                        logger.debug("BLE client is None, shutting down")
-                        self._want_receive = False
-                        continue
-                    try:
-                        b = bytes(client.read_gatt_char(FROMRADIO_UUID))
-                    except BleakDBusError as e:
-                        # Device disconnected probably
+                if client is None:
+                    if self.auto_reconnect:
+                        logger.debug(
+                            "BLE client is None; waiting for application-managed reconnect"
+                        )
+                        break
+                    logger.debug("BLE client is None, shutting down")
+                    self._want_receive = False
+                    break
+                try:
+                    b = bytes(client.read_gatt_char(FROMRADIO_UUID))
+                except BleakDBusError as e:
+                    if self._handle_read_loop_disconnect(str(e), client):
+                        break
+                    return
+                except BleakError as e:
+                    if client and not client.is_connected():
                         if self._handle_read_loop_disconnect(str(e), client):
-                            continue
-                        break
-                    except BleakError as e:
-                        # Treat disconnected clients as a normal disconnect path without
-                        # relying on error message contents from bleak.
-                        if client and not client.is_connected():
-                            if self._handle_read_loop_disconnect(str(e), client):
-                                continue
                             break
-                        logger.debug("Error reading BLE", exc_info=True)
-                        raise BLEInterface.BLEError("Error reading BLE") from e
-                    if not b:
-                        if retries < 5:
-                            time.sleep(0.1)
-                            retries += 1
-                            continue
-                        break
-                    logger.debug(f"FROMRADIO read: {b.hex()}")
-                    self._handleFromRadio(b)
-            else:
-                time.sleep(0.01)
+                        return
+                    logger.debug("Error reading BLE", exc_info=True)
+                    raise BLEInterface.BLEError("Error reading BLE") from e
+                if not b:
+                    if retries < 5:
+                        time.sleep(0.1)
+                        retries += 1
+                        continue
+                    break
+                logger.debug(f"FROMRADIO read: {b.hex()}")
+                self._handleFromRadio(b)
+                retries = 0
 
     def _sendToRadioImpl(self, toRadio) -> None:
         b: bytes = toRadio.SerializeToString()
-        client = self.client
+        with self._client_lock:
+            client = self.client
         if b and client:  # we silently ignore writes while we are shutting down
             logger.debug(f"TORADIO write: {b.hex()}")
             try:
-                client.write_gatt_char(
-                    TORADIO_UUID, b, response=True
-                )  # FIXME: or False?
-                # search Bleak src for org.bluez.Error.InProgress
+                # Use write-with-response to ensure delivery is acknowledged by the peripheral.
+                client.write_gatt_char(TORADIO_UUID, b, response=True)
             except (BleakError, RuntimeError, OSError) as e:
                 logger.debug("Error writing BLE", exc_info=True)
-                raise BLEInterface.BLEError("Error writing BLE") from e
-            # Allow to propagate and then make sure we read
+                raise BLEInterface.BLEError(
+                    "Error writing BLE. This is often caused by missing Bluetooth permissions (e.g. not being in the 'bluetooth' group) or pairing issues."
+                ) from e
+            # Allow to propagate and then prompt the reader
             time.sleep(0.01)
-            self.should_read = True
+            self._read_trigger.set()
 
     def close(self) -> None:
         with self._closing_lock:
@@ -382,7 +396,7 @@ class BLEInterface(MeshInterface):
 
         if self._want_receive:
             self._want_receive = False  # Tell the thread we want it to stop
-            self._reconnected_event.set()  # Wake up the receive thread if it's waiting
+            self._read_trigger.set()  # Wake up the receive thread if it's waiting
             if self._receiveThread:
                 self._receiveThread.join(timeout=RECEIVE_THREAD_JOIN_TIMEOUT)
                 if self._receiveThread.is_alive():
@@ -397,7 +411,9 @@ class BLEInterface(MeshInterface):
                 atexit.unregister(self._exit_handler)
             self._exit_handler = None
 
-        client = self.client
+        with self._client_lock:
+            client = self.client
+            self.client = None
         if client:
 
             try:
@@ -413,7 +429,6 @@ class BLEInterface(MeshInterface):
                     client.close()
                 except (BleakError, RuntimeError, OSError):  # pragma: no cover - defensive logging
                     logger.debug("Error closing BLE client", exc_info=True)
-                self.client = None
 
         # Send disconnected indicator if not already notified
         if not self._disconnect_notified:
@@ -468,6 +483,9 @@ class BLEClient:
 
     def discover(self, **kwargs):  # pylint: disable=C0116
         return self.async_await(BleakScanner.discover(**kwargs))
+
+    def get_services(self, **kwargs):  # pylint: disable=C0116
+        return self.async_await(self.bleak_client.get_services(**kwargs))
 
     def pair(self, **kwargs):  # pylint: disable=C0116
         return self.async_await(self.bleak_client.pair(**kwargs))
