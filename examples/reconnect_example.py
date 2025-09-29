@@ -10,6 +10,7 @@ listeners via the `onConnection` event with a `connected=False` payload.
 The application can then listen for this event and attempt to create a new
 BLEInterface instance to re-establish the connection, as shown in this example.
 """
+import argparse
 import logging
 import threading
 import time
@@ -39,12 +40,13 @@ def on_connection_change(interface, connected):
 
 def main():
     """Main function"""
+    parser = argparse.ArgumentParser(description="Meshtastic BLE automatic reconnection example.")
+    parser.add_argument("address", help="The BLE address of your Meshtastic device.")
+    args = parser.parse_args()
+    address = args.address
+
     # Subscribe to the connection change event
     pub.subscribe(on_connection_change, "meshtastic.connection.status")
-
-    # The address of the device to connect to.
-    # Replace with your device's address.
-    address = "DD:DD:13:27:74:29" # TODO: Replace with your device's address
 
     iface = None
     while True:

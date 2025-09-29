@@ -8,7 +8,7 @@ import struct
 import time
 import io
 from concurrent.futures import TimeoutError as FutureTimeoutError
-from threading import Lock, Thread
+from threading import Lock, Thread, Event
 from typing import List, Optional
 
 import google.protobuf
@@ -51,6 +51,7 @@ class BLEInterface(MeshInterface):
         self.address = address
         self.auto_reconnect = auto_reconnect
         self._disconnect_notified = False
+        self._reconnected_event = Event()
 
         MeshInterface.__init__(
             self, debugOut=debugOut, noProto=noProto, noNodes=noNodes
@@ -129,6 +130,7 @@ class BLEInterface(MeshInterface):
                 ).start()
             self._disconnected()
             self._disconnect_notified = True
+            self._reconnected_event.clear()
         else:
             Thread(target=self.close, name="BLEClose", daemon=True).start()
 
@@ -220,6 +222,8 @@ class BLEInterface(MeshInterface):
         client.discover()
         # Reset disconnect notification flag on new connection
         self._disconnect_notified = False
+        # Signal that reconnection has occurred
+        self._reconnected_event.set()
         return client
 
     def _receiveFromRadioImpl(self) -> None:
@@ -232,7 +236,7 @@ class BLEInterface(MeshInterface):
                     if client is None:
                         if self.auto_reconnect:
                             logger.debug("BLE client is None, waiting for reconnection...")
-                            time.sleep(1)  # Wait before checking again
+                            self._reconnected_event.wait()
                             continue
                         logger.debug("BLE client is None, shutting down")
                         self._want_receive = False
@@ -245,7 +249,8 @@ class BLEInterface(MeshInterface):
                         if self.auto_reconnect:
                             # Clear client to trigger reconnection logic
                             self.client = None
-                            time.sleep(1)
+                            self._reconnected_event.clear()
+                            self._reconnected_event.wait()
                             continue
                         # End our read loop immediately
                         self._want_receive = False
@@ -257,7 +262,8 @@ class BLEInterface(MeshInterface):
                             if self.auto_reconnect:
                                 # Clear client to trigger reconnection logic
                                 self.client = None
-                                time.sleep(1)
+                                self._reconnected_event.clear()
+                                self._reconnected_event.wait()
                                 continue
                             # End our read loop immediately
                             self._want_receive = False
