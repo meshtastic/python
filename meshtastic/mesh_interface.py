@@ -25,6 +25,7 @@ except ImportError as e:
     print_color = None
 
 from tabulate import tabulate
+from pubsub import pub
 
 import meshtastic.node
 from meshtastic import (
@@ -46,8 +47,6 @@ from meshtastic.util import (
     remove_keys_from_dict,
     stripnl,
 )
-
-from pubsub import pub
 
 logger = logging.getLogger(__name__)
 
