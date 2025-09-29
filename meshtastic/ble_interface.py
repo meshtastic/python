@@ -27,6 +27,7 @@ FROMRADIO_UUID = "2c55e69e-4993-11ed-b878-0242ac120002"
 FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
 LEGACY_LOGRADIO_UUID = "6c6fd238-78fa-436b-aacf-15c5be1ef2e2"
 LOGRADIO_UUID = "5a3d6e49-06e6-4423-9944-e9de8cdf9547"
+MALFORMED_NOTIFICATION_THRESHOLD = 10
 logger = logging.getLogger(__name__)
 
 DISCONNECT_TIMEOUT_SECONDS = 5.0
@@ -206,7 +207,7 @@ class BLEInterface(MeshInterface):
         except (struct.error, ValueError):
             self._malformed_notification_count += 1
             logger.debug("Malformed FROMNUM notify; ignoring", exc_info=True)
-            if self._malformed_notification_count >= 10:
+            if self._malformed_notification_count >= MALFORMED_NOTIFICATION_THRESHOLD:
                 logger.warning(
                     f"Received {self._malformed_notification_count} malformed FROMNUM notifications. "
                     "Check BLE connection stability."
@@ -505,31 +506,7 @@ class BLEInterface(MeshInterface):
             client = self.client
             self.client = None
         if client:
-            try:
-                client.disconnect(timeout=DISCONNECT_TIMEOUT_SECONDS)
-            except BLEInterface.BLEError:
-                logger.warning("Timed out waiting for BLE disconnect; forcing shutdown")
-            except BleakError:
-                logger.debug(
-                    "BLE-specific error during disconnect operation", exc_info=True
-                )
-            except (RuntimeError, OSError):  # pragma: no cover - defensive logging
-                logger.debug(
-                    "OS/Runtime error during disconnect (possible resource or threading issue)",
-                    exc_info=True,
-                )
-            finally:
-                try:
-                    client.close()
-                except BleakError:  # pragma: no cover - defensive logging
-                    logger.debug(
-                        "BLE-specific error during client close", exc_info=True
-                    )
-                except (RuntimeError, OSError):  # pragma: no cover - defensive logging
-                    logger.debug(
-                        "OS/Runtime error during client close (possible resource or threading issue)",
-                        exc_info=True,
-                    )
+            self._disconnect_and_close_client(client)
 
         # Send disconnected indicator if not already notified
         notify = False
@@ -583,15 +560,9 @@ class BLEInterface(MeshInterface):
                 break
             try:
                 runnable()
-            except RuntimeError as exc:  # pragma: no cover - defensive logging
+            except Exception as exc:  # pragma: no cover - defensive logging
                 logger.debug(
-                    "Runtime error in deferred publish callback (possible threading issue): %s",
-                    exc,
-                    exc_info=True,
-                )
-            except ValueError as exc:  # pragma: no cover - defensive logging
-                logger.debug(
-                    "Value error in deferred publish callback (possible invalid callback state): %s",
+                    "Error in deferred publish callback: %s",
                     exc,
                     exc_info=True,
                 )
@@ -698,3 +669,31 @@ class BLEClient:
 
     async def _stop_event_loop(self):
         self._eventLoop.stop()
+
+    def _disconnect_and_close_client(self, client):
+        """Disconnect and close the BLE client with comprehensive error handling."""
+        try:
+            client.disconnect(timeout=DISCONNECT_TIMEOUT_SECONDS)
+        except BLEInterface.BLEError:
+            logger.warning("Timed out waiting for BLE disconnect; forcing shutdown")
+        except BleakError:
+            logger.debug(
+                "BLE-specific error during disconnect operation", exc_info=True
+            )
+        except (RuntimeError, OSError):  # pragma: no cover - defensive logging
+            logger.debug(
+                "OS/Runtime error during disconnect (possible resource or threading issue)",
+                exc_info=True,
+            )
+        finally:
+            try:
+                client.close()
+            except BleakError:  # pragma: no cover - defensive logging
+                logger.debug(
+                    "BLE-specific error during client close", exc_info=True
+                )
+            except (RuntimeError, OSError):  # pragma: no cover - defensive logging
+                logger.debug(
+                    "OS/Runtime error during client close (possible resource or threading issue)",
+                    exc_info=True,
+                )
