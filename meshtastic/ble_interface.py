@@ -224,12 +224,13 @@ class BLEInterface(MeshInterface):
                 timeout=BLE_SCAN_TIMEOUT, return_adv=True, service_uuids=[SERVICE_UUID]
             )
 
-            items = response.items()
-
+            items = response.values()
+            
             # bleak sometimes returns devices we didn't ask for, so filter the response
             # to only return true meshtastic devices
-            items = [item for item in items if SERVICE_UUID in item[1].service_uuids]
-            return [dev for dev, _adv in items]
+            # items contains (BLEDevice, AdvertisementData) tuples
+            filtered_items = [device for device, adv_data in items if adv_data and SERVICE_UUID in adv_data.service_uuids]
+            return filtered_items
 
     def find_device(self, address: Optional[str]) -> BLEDevice:
         """Find a device by address."""
