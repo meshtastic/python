@@ -280,7 +280,8 @@ class BLEInterface(MeshInterface):
                     lambda x: address in (x.name, x.address)
                     or (
                         sanitized_address
-                        and BLEInterface._sanitize_address(x.address) == sanitized_address
+                        and BLEInterface._sanitize_address(x.address)
+                        == sanitized_address
                     ),
                     addressed_devices,
                 )

@@ -49,6 +49,26 @@ def mock_pubsub(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def mock_publishing_thread(monkeypatch):
+    """Mock the publishingThread module."""
+    publishing_thread_module = types.ModuleType("publishingThread")
+
+    def mock_queue_work(callback):
+        """Mock queueWork that executes callbacks immediately for testing."""
+        if callback:
+            callback()
+
+    publishing_thread_module.queueWork = mock_queue_work
+
+    # Remove any existing module to ensure fresh state
+    if "publishingThread" in sys.modules:
+        del sys.modules["publishingThread"]
+
+    monkeypatch.setitem(sys.modules, "publishingThread", publishing_thread_module)
+    return publishing_thread_module
+
+
+@pytest.fixture(autouse=True)
 def mock_tabulate(monkeypatch):
     """Mock the tabulate module."""
     tabulate_module = types.ModuleType("tabulate")
@@ -146,6 +166,9 @@ class DummyClient:
         self.address = "dummy"
         self.disconnect_exception = disconnect_exception
         self.services = SimpleNamespace(get_characteristic=lambda _specifier: None)
+        self.bleak_client = (
+            self  # For testing purposes, make bleak_client point to self
+        )
 
     def has_characteristic(self, _specifier):
         """Mock has_characteristic method."""
@@ -174,11 +197,19 @@ def stub_atexit(
     mock_tabulate,
     mock_bleak,
     mock_bleak_exc,
+    mock_publishing_thread,
 ):
     """Stub atexit to prevent actual registration during tests."""
     registered = []
     # Consume fixture arguments to document ordering intent and silence Ruff (ARG001).
-    _ = (mock_serial, mock_pubsub, mock_tabulate, mock_bleak, mock_bleak_exc)
+    _ = (
+        mock_serial,
+        mock_pubsub,
+        mock_tabulate,
+        mock_bleak,
+        mock_bleak_exc,
+        mock_publishing_thread,
+    )
 
     def fake_register(func):
         registered.append(func)
@@ -228,9 +259,12 @@ def test_close_handles_bleak_error(monkeypatch):
     """Test that close() handles BleakError gracefully."""
     from meshtastic.ble_interface import BleakError
     from meshtastic.mesh_interface import pub
+
     calls = []
+
     def _capture(topic, **kwargs):
         calls.append((topic, kwargs))
+
     monkeypatch.setattr(pub, "sendMessage", _capture)
 
     client = DummyClient(disconnect_exception=BleakError("Not connected"))
@@ -254,9 +288,12 @@ def test_close_handles_bleak_error(monkeypatch):
 def test_close_handles_runtime_error(monkeypatch):
     """Test that close() handles RuntimeError gracefully."""
     from meshtastic.mesh_interface import pub
+
     calls = []
+
     def _capture(topic, **kwargs):
         calls.append((topic, kwargs))
+
     monkeypatch.setattr(pub, "sendMessage", _capture)
 
     client = DummyClient(disconnect_exception=RuntimeError("Threading issue"))
@@ -280,9 +317,12 @@ def test_close_handles_runtime_error(monkeypatch):
 def test_close_handles_os_error(monkeypatch):
     """Test that close() handles OSError gracefully."""
     from meshtastic.mesh_interface import pub
+
     calls = []
+
     def _capture(topic, **kwargs):
         calls.append((topic, kwargs))
+
     monkeypatch.setattr(pub, "sendMessage", _capture)
 
     client = DummyClient(disconnect_exception=OSError("Permission denied"))
@@ -305,173 +345,263 @@ def test_close_handles_os_error(monkeypatch):
 
 def test_receive_thread_specific_exceptions(monkeypatch, caplog):
     """Test that receive thread handles specific exceptions correctly."""
-    import google.protobuf.message
     import logging
     import threading
-    import time
-    from meshtastic.ble_interface import BLEInterface
-    
+
+    import google.protobuf.message
+
     # Set logging level to DEBUG to capture debug messages
     caplog.set_level(logging.DEBUG)
-    
+
     # The exceptions that should be caught and handled
     handled_exceptions = [
         RuntimeError,
         OSError,
         google.protobuf.message.DecodeError,
     ]
-    
+
     for exc_type in handled_exceptions:
         # Clear caplog for each test
         caplog.clear()
-        
+
         # Create a mock client that raises the specific exception
         class ExceptionClient(DummyClient):
             def __init__(self, exception_type):
                 super().__init__()
                 self.exception_type = exception_type
-                
+
             def read_gatt_char(self, *_args, **_kwargs):
                 raise self.exception_type("Test exception")
-        
+
         client = ExceptionClient(exc_type)
         iface = _build_interface(monkeypatch, client)
-        
+
         # Mock the close method to track if it's called
         original_close = iface.close
         close_called = threading.Event()
-        
+
         def mock_close(close_called=close_called, original_close=original_close):
             close_called.set()
             return original_close()
-        
+
         monkeypatch.setattr(iface, "close", mock_close)
-        
+
         # Start the receive thread
         iface._want_receive = True
-        
+
         # Set up the client
         with iface._client_lock:
             iface.client = client
-        
+
         # Trigger the receive loop
         iface._read_trigger.set()
-        
+
         # Wait for the exception to be handled and close to be called
         # Use a reasonable timeout to avoid hanging the test
         close_called.wait(timeout=5.0)
-        
+
         # Check that appropriate logging occurred
         assert "Fatal error in BLE receive thread" in caplog.text
-        assert close_called.is_set(), f"Expected close() to be called for {exc_type.__name__}"
-        
+        assert (
+            close_called.is_set()
+        ), f"Expected close() to be called for {exc_type.__name__}"
+
         # Clean up
         iface._want_receive = False
         try:
             iface.close()
-        except Exception as e:
-            logging.debug(f"Exception during interface cleanup: {e}")  # Interface might already be closed
+        except Exception:
+            pass  # Interface might already be closed
+
+
+def test_auto_reconnect_behavior(monkeypatch, caplog):
+    """Test auto_reconnect functionality when disconnection occurs."""
+    import time
+
+    import meshtastic.mesh_interface as mesh_iface_module
+
+    # Track published events
+    published_events = []
+
+    def _capture_events(topic, **kwargs):
+        published_events.append((topic, kwargs))
+
+    # Create a fresh pub mock for this test
+    fresh_pub = types.SimpleNamespace(
+        subscribe=lambda *_args, **_kwargs: None,
+        sendMessage=_capture_events,
+        AUTO_TOPIC=None,
+    )
+    monkeypatch.setattr(mesh_iface_module, "pub", fresh_pub)
+
+    # Create a client that can simulate disconnection
+    client = DummyClient()
+
+    # Build interface with auto_reconnect=True
+    iface = _build_interface(monkeypatch, client)
+    iface.auto_reconnect = True
+
+    # Track if close() was called
+    close_called = []
+    original_close = iface.close
+
+    def _track_close():
+        close_called.append(True)
+        return original_close()
+
+    monkeypatch.setattr(iface, "close", _track_close)
+
+    # Simulate disconnection by calling _on_ble_disconnect directly
+    # This simulates what happens when bleak calls the disconnected callback
+    disconnect_client = iface.client
+    iface._on_ble_disconnect(disconnect_client)
+
+    # Small delay to ensure events are published and captured
+    import time
+
+    time.sleep(0.01)
+
+    # Assertions
+    # 1. BLEInterface.close() should NOT be called when auto_reconnect=True
+    assert (
+        len(close_called) == 0
+    ), "close() should not be called when auto_reconnect=True"
+
+    # 2. Connection status event should be published with connected=False
+    disconnect_events = [
+        (topic, kw)
+        for topic, kw in published_events
+        if topic == "meshtastic.connection.status" and kw.get("connected") is False
+    ]
+    assert (
+        len(disconnect_events) == 1
+    ), f"Expected exactly one disconnect event, got {len(disconnect_events)}"
+
+    # 3. Internal client should be cleaned up (self.client becomes None)
+    assert (
+        iface.client is None
+    ), "client should be None after disconnection with auto_reconnect=True"
+
+    # 4. Receive thread should remain alive, waiting for new connection
+    # Check that _want_receive is still True and receive thread is alive
+    assert (
+        iface._want_receive is True
+    ), "_want_receive should remain True for auto_reconnect"
+    assert iface._receiveThread is not None, "receive thread should still exist"
+    assert iface._receiveThread.is_alive(), "receive thread should remain alive"
+
+    # 5. Verify disconnect notification flag is set
+    assert (
+        iface._disconnect_notified is True
+    ), "_disconnect_notified should be True after disconnection"
+
+    # Clean up
+    iface.auto_reconnect = False  # Disable auto_reconnect for proper cleanup
+    iface.close()
 
 
 def test_send_to_radio_specific_exceptions(monkeypatch, caplog):
     """Test that sendToRadio handles specific exceptions correctly."""
     import logging
-    from meshtastic.ble_interface import BLEInterface, BleakError
-    
+
+    from meshtastic.ble_interface import BleakError, BLEInterface
+
     # Set logging level to DEBUG to capture debug messages
     caplog.set_level(logging.DEBUG)
-    
+
     class ExceptionClient(DummyClient):
         def __init__(self, exception_type):
             super().__init__()
             self.exception_type = exception_type
-            
+
         def write_gatt_char(self, *_args, **_kwargs):
             raise self.exception_type("Test write exception")
-    
+
     # Test BleakError specifically
     client = ExceptionClient(BleakError)
     iface = _build_interface(monkeypatch, client)
-    
+
     # Create a mock ToRadio message with actual data to ensure it's not empty
     from meshtastic.protobuf import mesh_pb2
+
     to_radio = mesh_pb2.ToRadio()
     to_radio.packet.decoded.payload = b"test_data"
-    
+
     # This should raise BLEInterface.BLEError
     with pytest.raises(BLEInterface.BLEError) as exc_info:
         iface._sendToRadioImpl(to_radio)
-    
+
     assert "Error writing BLE" in str(exc_info.value)
     assert "BLE-specific error during write operation" in caplog.text
-    
+
     # Clear caplog for next test
     caplog.clear()
     iface.close()
-    
+
     # Test RuntimeError
     client2 = ExceptionClient(RuntimeError)
     iface2 = _build_interface(monkeypatch, client2)
-    
+
     with pytest.raises(BLEInterface.BLEError) as exc_info:
         iface2._sendToRadioImpl(to_radio)
-    
+
     assert "Error writing BLE" in str(exc_info.value)
     assert "Runtime error during write operation" in caplog.text
-    
+
     # Clear caplog for next test
     caplog.clear()
     iface2.close()
-    
+
     # Test OSError
     client3 = ExceptionClient(OSError)
     iface3 = _build_interface(monkeypatch, client3)
-    
+
     with pytest.raises(BLEInterface.BLEError) as exc_info:
         iface3._sendToRadioImpl(to_radio)
-    
+
     assert "Error writing BLE" in str(exc_info.value)
     assert "OS error during write operation" in caplog.text
-    
+
     iface3.close()
 
 
 def test_ble_client_is_connected_exception_handling(monkeypatch, caplog):
     """Test that BLEClient.is_connected handles exceptions gracefully."""
     import logging
+
     from meshtastic.ble_interface import BLEClient
-    
+
     # Set logging level to DEBUG to capture debug messages
     caplog.set_level(logging.DEBUG)
-    
+
     class ExceptionBleakClient:
         def __init__(self, exception_type):
             self.exception_type = exception_type
-            
+
         def is_connected(self):
             raise self.exception_type("Connection check failed")
-    
+
     # Create BLEClient with a mock bleak client that raises exceptions
     ble_client = BLEClient.__new__(BLEClient)
     ble_client.bleak_client = ExceptionBleakClient(AttributeError)
-    
+
     # Should return False and log debug message when AttributeError occurs
     result = ble_client.is_connected()
     assert result is False
     assert "Unable to read bleak connection state" in caplog.text
-    
+
     # Clear caplog
     caplog.clear()
-    
+
     # Test TypeError
     ble_client.bleak_client = ExceptionBleakClient(TypeError)
     result = ble_client.is_connected()
     assert result is False
     assert "Unable to read bleak connection state" in caplog.text
-    
+
     # Clear caplog
     caplog.clear()
-    
+
     # Test RuntimeError
     ble_client.bleak_client = ExceptionBleakClient(RuntimeError)
     result = ble_client.is_connected()
@@ -482,81 +612,82 @@ def test_ble_client_is_connected_exception_handling(monkeypatch, caplog):
 def test_wait_for_disconnect_notifications_exceptions(monkeypatch, caplog):
     """Test that _wait_for_disconnect_notifications handles exceptions gracefully."""
     import logging
-    from meshtastic.ble_interface import BLEInterface
-    
+
     # Set logging level to DEBUG to capture debug messages
     caplog.set_level(logging.DEBUG)
-    
+
     # Also ensure the logger is configured to capture the actual module logger
-    logger = logging.getLogger('meshtastic.ble_interface')
+    logger = logging.getLogger("meshtastic.ble_interface")
     logger.setLevel(logging.DEBUG)
-    
+
     client = DummyClient()
     iface = _build_interface(monkeypatch, client)
-    
+
     # Mock publishingThread to raise RuntimeError
     import meshtastic.ble_interface as ble_mod
+
     class MockPublishingThread:
         def queueWork(self, callback):
             raise RuntimeError("Threading error in queueWork")
-    
+
     monkeypatch.setattr(ble_mod, "publishingThread", MockPublishingThread())
-    
+
     # Should handle RuntimeError gracefully
     iface._wait_for_disconnect_notifications()
     assert "Runtime error during disconnect notification flush" in caplog.text
-    
+
     # Clear caplog
     caplog.clear()
-    
+
     # Mock publishingThread to raise ValueError
     class MockPublishingThread2:
         def queueWork(self, callback):
             raise ValueError("Invalid event state")
-    
+
     monkeypatch.setattr(ble_mod, "publishingThread", MockPublishingThread2())
-    
+
     # Should handle ValueError gracefully
     iface._wait_for_disconnect_notifications()
     assert "Value error during disconnect notification flush" in caplog.text
-    
+
     iface.close()
 
 
 def test_drain_publish_queue_exceptions(monkeypatch, caplog):
     """Test that _drain_publish_queue handles exceptions gracefully."""
     import logging
-    from meshtastic.ble_interface import BLEInterface
-    from queue import Queue, Empty
     import threading
-    
+    from queue import Queue
+
     # Set logging level to DEBUG to capture debug messages
     caplog.set_level(logging.DEBUG)
-    
+
     client = DummyClient()
     iface = _build_interface(monkeypatch, client)
-    
+
     # Create a mock queue with a runnable that raises exceptions
     class ExceptionRunnable:
         def __call__(self):
             raise ValueError("Callback execution failed")
-    
+
     mock_queue = Queue()
     mock_queue.put(ExceptionRunnable())
-    
+
     # Mock publishingThread with the queue
     import meshtastic.ble_interface as ble_mod
+
     class MockPublishingThread:
         def __init__(self):
             self.queue = mock_queue
+
         def queueWork(self, callback):
             pass  # Not used in this test but needed for teardown
-    
+
     monkeypatch.setattr(ble_mod, "publishingThread", MockPublishingThread())
-    
+
     # Should handle ValueError gracefully
     flush_event = threading.Event()
     iface._drain_publish_queue(flush_event)
     assert "Error in deferred publish callback" in caplog.text
-    
+
     iface.close()
