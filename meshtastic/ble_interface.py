@@ -309,19 +309,24 @@ class BLEInterface(MeshInterface):
         client = BLEClient(
             device.address, disconnected_callback=self._on_ble_disconnect
         )
-        client.connect()
-        services = getattr(client.bleak_client, "services", None)
-        if not services or not getattr(services, "get_characteristic", None):
-            logger.debug(
-                "BLE services not available immediately after connect; performing discover()"
-            )
-            client.get_services()
-        # Ensure notifications are always active for this client (reconnect-safe)
-        self._register_notifications(client)
-        # Reset disconnect notification flag on new connection
-        with self._client_lock:
-            self._disconnect_notified = False
-        return client
+        try:
+            client.connect()
+            services = getattr(client.bleak_client, "services", None)
+            if not services or not getattr(services, "get_characteristic", None):
+                logger.debug(
+                    "BLE services not available immediately after connect; performing discover()"
+                )
+                client.get_services()
+            # Ensure notifications are always active for this client (reconnect-safe)
+            self._register_notifications(client)
+            # Reset disconnect notification flag on new connection
+            with self._client_lock:
+                self._disconnect_notified = False
+            return client
+        except Exception:
+            logger.debug("Failed to connect, closing BLEClient thread.", exc_info=True)
+            client.close()
+            raise
 
     def _handle_read_loop_disconnect(
         self, error_message: str, previous_client: Optional["BLEClient"]
