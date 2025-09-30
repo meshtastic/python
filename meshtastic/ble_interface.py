@@ -146,7 +146,7 @@ class BLEInterface(MeshInterface):
         rep += ")"
         return rep
 
-    def _on_ble_disconnect(self, client) -> None:
+    def _on_ble_disconnect(self, client: "BleakClient") -> None:
         """Disconnected callback from Bleak."""
         if self._closing:
             logger.debug(
@@ -294,7 +294,7 @@ class BLEInterface(MeshInterface):
 
     @staticmethod
     def _sanitize_address(address: Optional[str]) -> Optional[str]:
-        "Standardize BLE address by removing extraneous characters, leading/trailing whitespace, and lowercasing."
+        """Standardize BLE address by removing extraneous characters, leading/trailing whitespace, and lowercasing."""
         if address is None:
             return None
         return (
