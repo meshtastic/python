@@ -199,7 +199,7 @@ class BLEInterface(MeshInterface):
             if len(b) < 4:
                 logger.debug("FROMNUM notify too short; ignoring")
                 return
-            from_num = struct.unpack("<I", bytes(b))[0]
+            from_num = struct.unpack("<I", b)[0]
             logger.debug(f"FROMNUM notify: {from_num}")
         except (struct.error, ValueError):
             self._malformed_notification_count += 1
@@ -272,13 +272,13 @@ class BLEInterface(MeshInterface):
         addressed_devices = BLEInterface.scan()
 
         if address:
-            sanitized_address = self._sanitize_address(address)
+            sanitized_address = BLEInterface._sanitize_address(address)
             addressed_devices = list(
                 filter(
                     lambda x: address in (x.name, x.address)
                     or (
                         sanitized_address
-                        and self._sanitize_address(x.address) == sanitized_address
+                        and BLEInterface._sanitize_address(x.address) == sanitized_address
                     ),
                     addressed_devices,
                 )
@@ -401,7 +401,7 @@ class BLEInterface(MeshInterface):
                         self._want_receive = False
                         break
                     try:
-                        b = bytes(client.read_gatt_char(FROMRADIO_UUID))
+                        b = client.read_gatt_char(FROMRADIO_UUID)
                         if not b:
                             if retries < EMPTY_READ_MAX_RETRIES:
                                 time.sleep(EMPTY_READ_RETRY_DELAY)
