@@ -425,12 +425,7 @@ class BLEInterface(MeshInterface):
                             return
                         logger.debug("Error reading BLE", exc_info=True)
                         raise BLEInterface.BLEError(ERROR_READING_BLE) from e
-        except (
-            BLEInterface.BLEError,
-            RuntimeError,
-            OSError,
-            google.protobuf.message.DecodeError,
-        ):
+        except Exception:
             logger.exception("Fatal error in BLE receive thread, closing interface.")
             if not self._closing:
                 # Use a thread to avoid deadlocks if close() waits for this thread
@@ -476,12 +471,7 @@ class BLEInterface(MeshInterface):
 
         try:
             MeshInterface.close(self)
-        except (
-            MeshInterface.MeshInterfaceError,
-            RuntimeError,
-            BLEInterface.BLEError,
-            OSError,
-        ):
+        except Exception:
             logger.exception("Error closing mesh interface")
 
         if self._want_receive:
