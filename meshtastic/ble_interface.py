@@ -70,25 +70,22 @@ class BLEInterface(MeshInterface):
         *,
         auto_reconnect: bool = True,
     ) -> None:
-        """Constructor, opens a connection to a specified BLE device.
+        """Initialize a BLE interface.
 
-        Keyword Arguments:
-        -----------------
-            address {str} -- The BLE address of the device to connect to. If None,
-                           will connect to any available Meshtastic BLE device.
-            noProto {bool} -- If True, don't try to initialize the protobuf protocol
-                             (default: {False})
-            debugOut {stream} -- If a stream is provided, any debug output will be
-                                emitted to that stream (default: {None})
-            noNodes {bool} -- If True, don't try to read the node list from the device
-                              (default: {False})
-            auto_reconnect {bool} -- If True, the interface will not close itself upon
-                                   disconnection. Instead, it will notify listeners
-                                   via a connection status event, allowing the
-                                   application to implement its own reconnection logic
-                                   (e.g., by creating a new interface instance).
-                                   If False, the interface will close completely
-                                   on disconnect (default: {True})
+        Args:
+            address: The BLE address of the device to connect to. If None,
+                    will connect to any available Meshtastic BLE device.
+            noProto: If True, don't try to initialize the protobuf protocol.
+            debugOut: If a stream is provided, any debug output will be
+                     emitted to that stream.
+            noNodes: If True, don't try to read the node list from the device.
+            auto_reconnect: If True, the interface will not close itself upon
+                           disconnection. Instead, it will notify listeners
+                           via a connection status event, allowing the
+                           application to implement its own reconnection logic
+                           (e.g., by creating a new interface instance).
+                           If False, the interface will close completely
+                           on disconnect.
         """
         self._closing_lock: Lock = Lock()
         self._client_lock: Lock = Lock()
@@ -250,7 +247,9 @@ class BLEInterface(MeshInterface):
     def scan() -> List[BLEDevice]:
         """Scan for available BLE devices."""
         with BLEClient() as client:
-            logger.info("Scanning for BLE devices (takes %.0f seconds)...", BLE_SCAN_TIMEOUT)
+            logger.info(
+                "Scanning for BLE devices (takes %.0f seconds)...", BLE_SCAN_TIMEOUT
+            )
             response = client.discover(
                 timeout=BLE_SCAN_TIMEOUT, return_adv=True, service_uuids=[SERVICE_UUID]
             )
@@ -299,15 +298,11 @@ class BLEInterface(MeshInterface):
         if address is None:
             return None
         return (
-            address.strip()
-            .replace("-", "")
-            .replace("_", "")
-            .replace(":", "")
-            .lower()
+            address.strip().replace("-", "").replace("_", "").replace(":", "").lower()
         )
 
     def connect(self, address: Optional[str] = None) -> "BLEClient":
-        "Connect to a device by address."
+        """Connect to a device by address."""
 
         # Bleak docs recommend always doing a scan before connecting (even if we know addr)
         device = self.find_device(address)
@@ -324,7 +319,8 @@ class BLEInterface(MeshInterface):
         # Ensure notifications are always active for this client (reconnect-safe)
         self._register_notifications(client)
         # Reset disconnect notification flag on new connection
-        self._disconnect_notified = False
+        with self._client_lock:
+            self._disconnect_notified = False
         return client
 
     def _handle_read_loop_disconnect(
@@ -443,7 +439,9 @@ class BLEInterface(MeshInterface):
                 client.write_gatt_char(TORADIO_UUID, b, response=True)
             except (BleakError, RuntimeError, OSError) as e:
                 if isinstance(e, BleakError):
-                    logger.debug("BLE-specific error during write operation", exc_info=True)
+                    logger.debug(
+                        "BLE-specific error during write operation", exc_info=True
+                    )
                 elif isinstance(e, RuntimeError):
                     logger.debug(
                         "Runtime error during write operation (possible threading issue)",
@@ -555,9 +553,7 @@ class BLEInterface(MeshInterface):
             try:
                 client.close()
             except BleakError:  # pragma: no cover - defensive logging
-                logger.debug(
-                    "BLE-specific error during client close", exc_info=True
-                )
+                logger.debug("BLE-specific error during client close", exc_info=True)
             except (RuntimeError, OSError):  # pragma: no cover - defensive logging
                 logger.debug(
                     "OS/Runtime error during client close (possible resource or threading issue)",
@@ -590,7 +586,7 @@ class BLEInterface(MeshInterface):
 
 
 class BLEClient:
-    """Client for managing connection to a BLE device"""
+    """Client for managing connection to a BLE device."""
 
     def __init__(self, address=None, **kwargs) -> None:
         self._eventLoop = asyncio.new_event_loop()
@@ -655,7 +651,10 @@ class BLEClient:
                 self.get_services()
                 services = getattr(self.bleak_client, "services", None)
             except (BLEInterface.BLEError, BleakError):  # pragma: no cover - defensive
-                logger.debug("Unable to populate services before has_characteristic", exc_info=True)
+                logger.debug(
+                    "Unable to populate services before has_characteristic",
+                    exc_info=True,
+                )
         return bool(services and services.get_characteristic(specifier))
 
     def start_notify(self, *args, **kwargs):  # pylint: disable=C0116
@@ -690,5 +689,3 @@ class BLEClient:
 
     async def _stop_event_loop(self):
         self._eventLoop.stop()
-
-    
