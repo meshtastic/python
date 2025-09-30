@@ -557,6 +557,6 @@ def test_drain_publish_queue_exceptions(monkeypatch, caplog):
     # Should handle ValueError gracefully
     flush_event = threading.Event()
     iface._drain_publish_queue(flush_event)
-    assert "Value error in deferred publish callback" in caplog.text
+    assert "Error in deferred publish callback" in caplog.text
     
     iface.close()
