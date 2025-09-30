@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 DISCONNECT_TIMEOUT_SECONDS = 5.0
 RECEIVE_THREAD_JOIN_TIMEOUT = 2.0
+EVENT_THREAD_JOIN_TIMEOUT = 2.0
 
 # BLE timeout and retry constants
 BLE_SCAN_TIMEOUT = 10.0
@@ -73,6 +74,7 @@ class BLEInterface(MeshInterface):
         """Initialize a BLE interface.
 
         Args:
+        ----
             address: The BLE address of the device to connect to. If None,
                     will connect to any available Meshtastic BLE device.
             noProto: If True, don't try to initialize the protobuf protocol.
@@ -668,7 +670,12 @@ class BLEClient:
 
     def close(self):  # pylint: disable=C0116
         self.async_run(self._stop_event_loop())
-        self._eventThread.join()
+        self._eventThread.join(timeout=EVENT_THREAD_JOIN_TIMEOUT)
+        if self._eventThread.is_alive():
+            logger.warning(
+                "BLE event thread did not exit within %.1fs",
+                EVENT_THREAD_JOIN_TIMEOUT,
+            )
 
     def __enter__(self):
         return self
