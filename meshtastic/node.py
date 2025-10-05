@@ -52,6 +52,20 @@ class Node:
         r += ")"
         return r
 
+    def _to_node_num(self, nodeId: Union[int, str]) -> int:
+        """Normalize node id from int | '!hex' | '0xhex' | 'decimal' to int."""
+        if isinstance(nodeId, int):
+            return nodeId
+        s = str(nodeId).strip()
+        if s.startswith("!"):
+            s = s[1:]
+        if s.lower().startswith("0x"):
+            return int(s, 16)
+        try:
+            return int(s, 10)
+        except ValueError:
+            return int(s, 16)
+
     def module_available(self, excluded_bit: int) -> bool:
         """Check DeviceMetadata.excluded_modules to see if a module is available."""
         meta = getattr(self.iface, "metadata", None)
@@ -714,11 +728,7 @@ class Node:
     def removeNode(self, nodeId: Union[int, str]):
         """Tell the node to remove a specific node by ID"""
         self.ensureSessionKey()
-        if isinstance(nodeId, str):
-            if nodeId.startswith("!"):
-                nodeId = int(nodeId[1:], 16)
-            else:
-                nodeId = int(nodeId)
+        nodeId = self._to_node_num(nodeId)
 
         p = admin_pb2.AdminMessage()
         p.remove_by_nodenum = nodeId
@@ -732,11 +742,7 @@ class Node:
     def setFavorite(self, nodeId: Union[int, str]):
         """Tell the node to set the specified node ID to be favorited on the NodeDB on the device"""
         self.ensureSessionKey()
-        if isinstance(nodeId, str):
-            if nodeId.startswith("!"):
-                nodeId = int(nodeId[1:], 16)
-            else:
-                nodeId = int(nodeId)
+        nodeId = self._to_node_num(nodeId)
 
         p = admin_pb2.AdminMessage()
         p.set_favorite_node = nodeId
@@ -750,11 +756,7 @@ class Node:
     def removeFavorite(self, nodeId: Union[int, str]):
         """Tell the node to set the specified node ID to be un-favorited on the NodeDB on the device"""
         self.ensureSessionKey()
-        if isinstance(nodeId, str):
-            if nodeId.startswith("!"):
-                nodeId = int(nodeId[1:], 16)
-            else:
-                nodeId = int(nodeId)
+        nodeId = self._to_node_num(nodeId)
 
         p = admin_pb2.AdminMessage()
         p.remove_favorite_node = nodeId
@@ -768,11 +770,7 @@ class Node:
     def setIgnored(self, nodeId: Union[int, str]):
         """Tell the node to set the specified node ID to be ignored on the NodeDB on the device"""
         self.ensureSessionKey()
-        if isinstance(nodeId, str):
-            if nodeId.startswith("!"):
-                nodeId = int(nodeId[1:], 16)
-            else:
-                nodeId = int(nodeId)
+        nodeId = self._to_node_num(nodeId)
 
         p = admin_pb2.AdminMessage()
         p.set_ignored_node = nodeId
@@ -786,11 +784,7 @@ class Node:
     def removeIgnored(self, nodeId: Union[int, str]):
         """Tell the node to set the specified node ID to be un-ignored on the NodeDB on the device"""
         self.ensureSessionKey()
-        if isinstance(nodeId, str):
-            if nodeId.startswith("!"):
-                nodeId = int(nodeId[1:], 16)
-            else:
-                nodeId = int(nodeId)
+        nodeId = self._to_node_num(nodeId)
 
         p = admin_pb2.AdminMessage()
         p.remove_ignored_node = nodeId
@@ -1013,10 +1007,7 @@ class Node:
             ):  # unless a special channel index was used, we want to use the admin index
                 adminIndex = self.iface.localNode._getAdminChannelIndex()
             logger.debug(f"adminIndex:{adminIndex}")
-            if isinstance(self.nodeNum, int):
-                nodeid = self.nodeNum
-            else: # assume string starting with !
-                nodeid = int(self.nodeNum[1:],16)
+            nodeid = self._to_node_num(self.nodeNum)
             if "adminSessionPassKey" in self.iface._getOrCreateByNum(nodeid):
                 p.session_passkey = self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey")
             return self.iface.sendData(
@@ -1037,9 +1028,6 @@ class Node:
                 f"Not ensuring session key, because protocol use is disabled by noProto"
             )
         else:
-            if isinstance(self.nodeNum, int):
-                nodeid = self.nodeNum
-            else: # assume string starting with !
-                nodeid = int(self.nodeNum[1:],16)
+            nodeid = self._to_node_num(self.nodeNum)
             if self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey") is None:
                 self.requestConfig(admin_pb2.AdminMessage.SESSIONKEY_CONFIG)

@@ -277,7 +277,8 @@ def setPref(config, comp_name, raw_val) -> bool:
         else:
             print(f"Adding '{raw_val}' to the {pref.name} list")
             cur_vals = [x for x in getattr(config_values, pref.name) if x not in [0, "", b""]]
-            cur_vals.append(val)
+            if val not in cur_vals:
+                cur_vals.append(val)
             getattr(config_values, pref.name)[:] = cur_vals
         return True
 
