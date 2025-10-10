@@ -1018,6 +1018,16 @@ def onConnected(interface):
             print("--show-fields can only be used with --nodes")
             return
 
+        if args.export_nodes:
+            closeNow = True
+            if args.dest != BROADCAST_ADDR:
+                print("Exporting nodes of a remote node is not supported.")
+                return
+            # Determine format from file extension
+            filename = args.export_nodes
+            format_type = "csv" if filename.lower().endswith('.csv') else "json"
+            interface.exportNodeDb(filename, format=format_type)
+
         if args.qr or args.qr_all:
             closeNow = True
             url = interface.getNode(args.dest, True, **getNode_kwargs).getURL(includeAll=args.qr_all)
@@ -1820,6 +1830,12 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         help="Specify fields to show (comma-separated) when using --nodes",
         type=lambda s: s.split(','),
         default=None
+    )
+
+    group.add_argument(
+        "--export-nodes",
+        help="Export node database to a file. Specify filename with .json or .csv extension to determine format (default: nodes.json)",
+        metavar="FILENAME",
     )
 
     return parser
