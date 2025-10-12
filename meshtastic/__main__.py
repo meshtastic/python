@@ -1364,6 +1364,7 @@ def common():
                     debugOut=logfile,
                     noProto=args.noproto,
                     noNodes=args.no_nodes,
+                    timeout=args.timeout,
                 )
             elif args.host:
                 try:
@@ -1378,6 +1379,7 @@ def common():
                         debugOut=logfile,
                         noProto=args.noproto,
                         noNodes=args.no_nodes,
+                        timeout=args.timeout,
                     )
                 except Exception as ex:
                     meshtastic.util.our_exit(f"Error connecting to {args.host}:{ex}", 1)
@@ -1388,6 +1390,7 @@ def common():
                         debugOut=logfile,
                         noProto=args.noproto,
                         noNodes=args.no_nodes,
+                        timeout=args.timeout,
                     )
                 except FileNotFoundError:
                     # Handle the case where the serial device is not found
@@ -1425,6 +1428,7 @@ def common():
                             debugOut=logfile,
                             noProto=args.noproto,
                             noNodes=args.no_nodes,
+                            timeout=args.timeout,
                         )
                     except Exception as ex:
                         meshtastic.util.our_exit(

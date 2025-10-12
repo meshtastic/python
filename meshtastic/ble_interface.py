@@ -32,15 +32,16 @@ class BLEInterface(MeshInterface):
     class BLEError(Exception):
         """An exception class for BLE errors."""
 
-    def __init__(
+    def __init__( # pylint: disable=R0917
         self,
         address: Optional[str],
         noProto: bool = False,
         debugOut: Optional[io.TextIOWrapper]=None,
         noNodes: bool = False,
+        timeout: int = 300,
     ) -> None:
         MeshInterface.__init__(
-            self, debugOut=debugOut, noProto=noProto, noNodes=noNodes
+            self, debugOut=debugOut, noProto=noProto, noNodes=noNodes, timeout=timeout
         )
 
         self.should_read = False

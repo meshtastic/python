@@ -18,13 +18,22 @@ logger = logging.getLogger(__name__)
 class SerialInterface(StreamInterface):
     """Interface class for meshtastic devices over a serial link"""
 
-    def __init__(self, devPath: Optional[str]=None, debugOut=None, noProto: bool=False, connectNow: bool=True, noNodes: bool=False) -> None:
+    def __init__(
+        self,
+        devPath: Optional[str] = None,
+        debugOut=None,
+        noProto: bool = False,
+        connectNow: bool = True,
+        noNodes: bool = False,
+        timeout: int = 300
+    ) -> None:
         """Constructor, opens a connection to a specified serial port, or if unspecified try to
         find one Meshtastic device by probing
 
         Keyword Arguments:
             devPath {string} -- A filepath to a device, i.e. /dev/ttyUSB0 (default: {None})
             debugOut {stream} -- If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})
+            timeout -- How long to wait for replies (default: 300 seconds)
         """
         self.noProto = noProto
 
@@ -57,7 +66,7 @@ class SerialInterface(StreamInterface):
         time.sleep(0.1)
 
         StreamInterface.__init__(
-            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow, noNodes=noNodes
+            self, debugOut=debugOut, noProto=noProto, connectNow=connectNow, noNodes=noNodes, timeout=timeout
         )
 
     def _set_hupcl_with_termios(self, f: TextIOWrapper):
