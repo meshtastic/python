@@ -89,10 +89,12 @@ class SerialInterface(StreamInterface):
             try:
                 self.stream.flush()
                 time.sleep(0.1)
-                # FIXME: why are there these  two flushes with 100ms sleeps?  This shouldn't be necessary
-                self.stream.flush()
-                time.sleep(0.1)
             except Exception as e:
                 logger.debug(f"Exception during flush: {e}")
+            try:
+                self.stream.close()
+            except Exception as e:
+                logger.debug(f"Exception during close: {e}")
+            self.stream = None
         logger.debug("Closing Serial stream")
         StreamInterface.close(self)
