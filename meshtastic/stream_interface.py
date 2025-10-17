@@ -23,12 +23,20 @@ logger = logging.getLogger(__name__)
 class StreamInterface(MeshInterface):
     """Interface class for meshtastic devices over a stream link (serial, TCP, etc)"""
 
-    def __init__(self, debugOut: Optional[io.TextIOWrapper]=None, noProto: bool=False, connectNow: bool=True, noNodes: bool=False) -> None:
+    def __init__( # pylint: disable=R0917
+        self,
+        debugOut: Optional[io.TextIOWrapper] = None,
+        noProto: bool = False,
+        connectNow: bool = True,
+        noNodes: bool = False,
+        timeout: int = 300
+    ) -> None:
         """Constructor, opens a connection to self.stream
 
         Keyword Arguments:
             debugOut {stream} -- If a stream is provided, any debug serial output from the
                                  device will be emitted to that stream. (default: {None})
+            timeout -- How long to wait for replies (default: 300 seconds)
 
         Raises:
             Exception: [description]
@@ -49,7 +57,7 @@ class StreamInterface(MeshInterface):
         # FIXME, figure out why daemon=True causes reader thread to exit too early
         self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True, name="stream reader")
 
-        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto, noNodes=noNodes)
+        MeshInterface.__init__(self, debugOut=debugOut, noProto=noProto, noNodes=noNodes, timeout=timeout)
 
         # Start the reader thread after superclass constructor completes init
         if connectNow:
