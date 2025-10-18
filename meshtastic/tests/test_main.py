@@ -423,6 +423,86 @@ def test_main_nodes(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
+def test_main_discover_mdns_requires_zeroconf(capsys):
+    """Test --discover-mdns without zeroconf"""
+    sys.argv = ["", "--discover-mdns"]
+    mt_config.args = sys.argv
+
+    with patch("meshtastic.__main__.get_active_version", return_value="test-version"), \
+        patch("meshtastic.__main__.have_zeroconf", False):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+    assert pytest_wrapped_e.value.code == 1
+    out, err = capsys.readouterr()
+    assert "zeroconf" in out.lower()
+    assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_discover_mdns_outputs_services(capsys):
+    """Test --discover-mdns output"""
+    sys.argv = ["", "--discover-mdns", "--mdns-timeout", "0"]
+    mt_config.args = sys.argv
+
+    class FakeInfo:
+        def __init__(self):
+            self.name = "Test._meshtastic._tcp.local."
+            self.server = "test.local."
+            self.port = 4403
+            self.properties = {
+                b"shortname": b"TEST",
+                b"id": b"!abcd",
+                b"hw_model": b"TBEAM",
+                b"firmware": b"2.3.0",
+                b"platform": b"esp32",
+                b"last_heard": b"2025-10-17T15:30:00Z",
+                b"extra": b"foo",
+            }
+
+        def parsed_addresses(self):
+            return ["192.168.1.10"]
+
+    class FakeZeroconf:
+        def __init__(self):
+            self.closed = False
+
+        def get_service_info(self, service_type, name, timeout=None):
+            return FakeInfo()
+
+        def close(self):
+            self.closed = True
+
+    class FakeBrowser:
+        def __init__(self, zeroconf_obj, service_type, listener, *args, **kwargs):
+            listener.add_service(zeroconf_obj, service_type, "Test._meshtastic._tcp.local.")
+
+        def cancel(self):
+            return None
+
+    with patch("meshtastic.__main__.get_active_version", return_value="test-version"), \
+        patch("meshtastic.__main__.have_zeroconf", True), \
+         patch("meshtastic.__main__.Zeroconf", FakeZeroconf), \
+         patch("meshtastic.__main__.ServiceBrowser", FakeBrowser), \
+         patch("meshtastic.__main__.time.sleep", return_value=None):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+
+    assert pytest_wrapped_e.value.code == 0
+    out, err = capsys.readouterr()
+    assert "Discovered 1 Meshtastic service" in out
+    assert "shortname: TEST" in out
+    assert "id: !abcd" in out
+    assert "hw: TBEAM" in out
+    assert "firmware: 2.3.0" in out
+    assert "platform: esp32" in out
+    assert "last_heard: 2025-10-17T15:30:00Z" in out
+    assert "extra: foo" in out
+    assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
 def test_main_set_owner_to_bob(capsys):
     """Test --set-owner bob"""
     sys.argv = ["", "--set-owner", "bob"]
