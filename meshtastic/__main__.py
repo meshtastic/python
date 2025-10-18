@@ -5,7 +5,7 @@
 # later we can have a separate changelist to refactor main.py into smaller files
 # pylint: disable=R0917,C0302
 
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 from types import ModuleType
 
 import argparse
@@ -60,6 +60,12 @@ except ImportError as e:
     have_powermon = False
     powermon_exception = e
     meter = None
+
+try:
+    from zeroconf import ServiceBrowser, Zeroconf  # type: ignore[import-untyped]
+    have_zeroconf = True
+except ImportError:
+    have_zeroconf = False
 from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2, mesh_pb2
 from meshtastic.version import get_active_version
 
@@ -1269,6 +1275,162 @@ def create_power_meter():
             time.sleep(5)
 
 
+def _decode_txt_properties(raw_properties: Optional[Dict]) -> Dict[str, str]:
+    """Return a stringified copy of TXT record properties."""
+    decoded: Dict[str, str] = {}
+    if not raw_properties:
+        return decoded
+
+    for raw_key, raw_value in raw_properties.items():
+        if isinstance(raw_key, bytes):
+            try:
+                key = raw_key.decode("utf-8")
+            except UnicodeDecodeError:
+                key = raw_key.hex()
+        else:
+            key = str(raw_key)
+
+        if isinstance(raw_value, bytes):
+            try:
+                value = raw_value.decode("utf-8")
+            except UnicodeDecodeError:
+                value = raw_value.hex()
+        else:
+            value = str(raw_value)
+
+        decoded[key] = value
+
+    return decoded
+
+
+def discover_mdns(timeout: float) -> None:
+    """Discover Meshtastic nodes advertised via mDNS and print details."""
+    if not have_zeroconf:
+        message = (
+            "The zeroconf package is required for --discover-mdns. "
+            "Install it with 'pip install zeroconf'."
+        )
+        meshtastic.util.our_exit(message, 1)
+
+    service_type = "_meshtastic._tcp.local."
+    services: Dict[str, object] = {}
+
+    class _Listener:
+        def add_service(self, zeroconf_obj, discovered_type, name):
+            if discovered_type != service_type:
+                return
+            info = zeroconf_obj.get_service_info(discovered_type, name)
+            if info is not None:
+                services[name] = info
+
+        def update_service(self, zeroconf_obj, discovered_type, name):
+            self.add_service(zeroconf_obj, discovered_type, name)
+
+        def remove_service(self, zeroconf_obj, discovered_type, name):
+            services.pop(name, None)
+
+    zeroconf = Zeroconf()
+    listener = _Listener()
+    browser = None
+
+    try:
+        browser = ServiceBrowser(zeroconf, service_type, listener)
+        if timeout > 0:
+            time.sleep(timeout)
+        else:
+            time.sleep(0.1)
+    finally:
+        if browser is not None:
+            try:
+                browser.cancel()  # type: ignore[attr-defined]
+            except AttributeError:
+                pass
+        zeroconf.close()
+
+    if not services:
+        print("No Meshtastic mDNS services found.")
+        return
+
+    count = len(services)
+    plural = "s" if count != 1 else ""
+    print(f"Discovered {count} Meshtastic service{plural}:")
+
+    for name in sorted(services):
+        info = services[name]
+        server = getattr(info, "server", "").rstrip(".")
+        port = getattr(info, "port", "?")
+        try:
+            addresses = info.parsed_addresses()  # type: ignore[union-attr]
+        except AttributeError:
+            addresses = []
+
+        properties = _decode_txt_properties(getattr(info, "properties", {}))
+        shortname = (
+            properties.get("shortname")
+            or properties.get("short_name")
+            or properties.get("sn")
+        )
+        node_id = properties.get("id") or properties.get("node_id")
+        hw_model = (
+            properties.get("hw_model")
+            or properties.get("hwModel")
+            or properties.get("model")
+        )
+        firmware = (
+            properties.get("firmware")
+            or properties.get("fw")
+            or properties.get("firmware_version")
+        )
+        os_build = properties.get("os") or properties.get("platform")
+        last_heard = properties.get("last_heard") or properties.get("lastHeard")
+
+        display_name = name.replace(f".{service_type}", "")
+        if display_name.endswith(service_type):
+            display_name = display_name[: -len(service_type)]
+
+        display_name = display_name.rstrip(".")
+
+        if not display_name:
+            display_name = name
+
+        print(f"- {display_name} ({server}:{port})")
+        if addresses:
+            print(f"  addresses: {', '.join(addresses)}")
+        print(f"  shortname: {shortname if shortname else 'n/a'}")
+        print(f"  id: {node_id if node_id else 'n/a'}")
+        if hw_model:
+            print(f"  hw: {hw_model}")
+        if firmware:
+            print(f"  firmware: {firmware}")
+        if os_build:
+            print(f"  platform: {os_build}")
+        if last_heard:
+            print(f"  last_heard: {last_heard}")
+
+        skip_keys = {
+            "shortname",
+            "short_name",
+            "sn",
+            "id",
+            "node_id",
+            "hw_model",
+            "hwModel",
+            "model",
+            "firmware",
+            "fw",
+            "firmware_version",
+            "os",
+            "platform",
+            "last_heard",
+            "lastHeard",
+        }
+
+        for key in sorted(properties):
+            if key in skip_keys:
+                continue
+            print(f"  {key}: {properties[key]}")
+
+
 def common():
     """Shared code for all of our command line wrappers."""
     logfile = None
@@ -1289,6 +1451,16 @@ def common():
     else:
         if args.support:
             meshtastic.util.support_info()
+            meshtastic.util.our_exit("", 0)
+
+        if args.mdns_timeout is not None and not args.discover_mdns:
+            meshtastic.util.our_exit("--mdns-timeout can only be used with --discover-mdns", 1)
+
+        if args.discover_mdns:
+            if args.mdns_timeout is not None and args.mdns_timeout < 0:
+                meshtastic.util.our_exit("--mdns-timeout must be non-negative", 1)
+            timeout = args.mdns_timeout if args.mdns_timeout is not None else 3.0
+            discover_mdns(timeout)
             meshtastic.util.our_exit("", 0)
 
         # Early validation for owner names before attempting device connection
@@ -1824,6 +1996,20 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         help="Specify fields to show (comma-separated) when using --nodes",
         type=lambda s: s.split(','),
         default=None
+    )
+
+    group.add_argument(
+        "--discover-mdns",
+        help="List Meshtastic nodes advertising _meshtastic._tcp via mDNS",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--mdns-timeout",
+        help="Seconds to wait for mDNS responses when using --discover-mdns",
+        type=float,
+        default=None,
+        metavar="SECONDS",
     )
 
     return parser
