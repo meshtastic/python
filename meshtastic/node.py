@@ -27,14 +27,16 @@ def xor_hash(data: bytes) -> int:
         result ^= char
     return result
 
-def generate_hash(name: str, key_bytes: bytes) -> int:
-    """Generate the channel number by hashing the channel name and psk bytes."""
-    # If key_bytes is the default "AQ==", use the fallback key
-    if base64.b64encode(key_bytes).decode("utf-8") == "AQ==":
-        key_bytes = base64.b64decode("1PG7OiApB1nwvP+rz05pAQ==")
-    h_name = xor_hash(name.encode("utf-8"))
+def generate_hash(name: str, key: str) -> int:
+    """generate the channel number by hashing the channel name and psk"""
+    if key == "AQ==":
+        key = "1PG7OiApB1nwvP+rz05pAQ=="
+    replaced_key = key.replace("-", "+").replace("_", "/")
+    key_bytes = base64.b64decode(replaced_key.encode("utf-8"))
+    h_name = xor_hash(bytes(name, "utf-8"))
     h_key = xor_hash(key_bytes)
-    return h_name ^ h_key
+    result: int = h_name ^ h_key
+    return result
 
 class Node:
     """A model of a (local or remote) node in the mesh
