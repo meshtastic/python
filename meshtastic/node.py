@@ -20,6 +20,22 @@ from meshtastic.util import (
 
 logger = logging.getLogger(__name__)
 
+def xor_hash(data: bytes) -> int:
+    """Simple XOR hash for demonstration (replace with your actual implementation)."""
+    h = 0
+    for b in data:
+        h ^= b
+    return h
+
+def generate_hash(name: str, key_bytes: bytes) -> int:
+    """Generate the channel number by hashing the channel name and psk bytes."""
+    # If key_bytes is the default "AQ==", use the fallback key
+    if base64.b64encode(key_bytes).decode("utf-8") == "AQ==":
+        key_bytes = base64.b64decode("1PG7OiApB1nwvP+rz05pAQ==")
+    h_name = xor_hash(name.encode("utf-8"))
+    h_key = xor_hash(key_bytes)
+    return h_name ^ h_key
+
 class Node:
     """A model of a (local or remote) node in the mesh
 
@@ -1043,3 +1059,20 @@ class Node:
                 nodeid = int(self.nodeNum[1:],16)
             if self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey") is None:
                 self.requestConfig(admin_pb2.AdminMessage.SESSIONKEY_CONFIG)
+
+    def get_channels_with_hash(self):
+        """Return a list of dicts with channel info and hash."""
+        result = []
+        if self.channels:
+            for c in self.channels:
+                if c.settings and hasattr(c.settings, "name") and hasattr(c.settings, "psk"):
+                    hash_val = generate_hash(c.settings.name, c.settings.psk)
+                else:
+                    hash_val = None
+                result.append({
+                    "index": c.index,
+                    "role": channel_pb2.Channel.Role.Name(c.role),
+                    "name": c.settings.name if c.settings and hasattr(c.settings, "name") else "",
+                    "hash": hash_val,
+                })
+        return result
