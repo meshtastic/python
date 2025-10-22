@@ -21,11 +21,11 @@ from meshtastic.util import (
 logger = logging.getLogger(__name__)
 
 def xor_hash(data: bytes) -> int:
-    """Simple XOR hash for demonstration (replace with your actual implementation)."""
-    h = 0
-    for b in data:
-        h ^= b
-    return h
+    """Compute an XOR hash from bytes."""
+    result = 0
+    for char in data:
+        result ^= char
+    return result
 
 def generate_hash(name: str, key_bytes: bytes) -> int:
     """Generate the channel number by hashing the channel name and psk bytes."""
