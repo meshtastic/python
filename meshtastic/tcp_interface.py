@@ -23,11 +23,13 @@ class TCPInterface(StreamInterface):
         connectNow: bool=True,
         portNumber: int=DEFAULT_TCP_PORT,
         noNodes:bool=False,
+        timeout: int = 300,
     ):
         """Constructor, opens a connection to a specified IP address/hostname
 
         Keyword Arguments:
             hostname {string} -- Hostname/IP address of the device to connect to
+            timeout -- How long to wait for replies (default: 300 seconds)
         """
 
         self.stream = None
@@ -42,7 +44,7 @@ class TCPInterface(StreamInterface):
         else:
             self.socket = None
 
-        super().__init__(debugOut=debugOut, noProto=noProto, connectNow=connectNow, noNodes=noNodes)
+        super().__init__(debugOut=debugOut, noProto=noProto, connectNow=connectNow, noNodes=noNodes, timeout=timeout)
 
     def __repr__(self):
         rep = f"TCPInterface({self.hostname!r}"

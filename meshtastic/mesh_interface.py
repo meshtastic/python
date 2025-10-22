@@ -90,7 +90,7 @@ class MeshInterface:  # pylint: disable=R0902
             super().__init__(self.message)
 
     def __init__(
-        self, debugOut=None, noProto: bool = False, noNodes: bool = False
+        self, debugOut=None, noProto: bool = False, noNodes: bool = False, timeout: int = 300
     ) -> None:
         """Constructor
 
@@ -99,13 +99,14 @@ class MeshInterface:  # pylint: disable=R0902
                        link - just be a dumb serial client.
             noNodes -- If True, instruct the node to not send its nodedb
                        on startup, just other configuration information.
+            timeout -- How long to wait for replies (default: 300 seconds)
         """
         self.debugOut = debugOut
         self.nodes: Optional[Dict[str, Dict]] = None  # FIXME
         self.isConnected: threading.Event = threading.Event()
         self.noProto: bool = noProto
         self.localNode: meshtastic.node.Node = meshtastic.node.Node(
-            self, -1
+            self, -1, timeout=timeout
         )  # We fixup nodenum later
         self.myInfo: Optional[
             mesh_pb2.MyNodeInfo
@@ -119,7 +120,7 @@ class MeshInterface:  # pylint: disable=R0902
         self.failure = (
             None  # If we've encountered a fatal exception it will be kept here
         )
-        self._timeout: Timeout = Timeout()
+        self._timeout: Timeout = Timeout(maxSecs=timeout)
         self._acknowledgment: Acknowledgment = Acknowledgment()
         self.heartbeatTimer: Optional[threading.Timer] = None
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
