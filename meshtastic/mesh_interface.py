@@ -36,7 +36,7 @@ from meshtastic import (
     protocols,
     publishingThread,
 )
-from meshtastic.protobuf import mesh_pb2, portnums_pb2, telemetry_pb2
+from meshtastic.protobuf import mesh_pb2, portnums_pb2, telemetry_pb2, admin_pb2
 from meshtastic.util import (
     Acknowledgment,
     Timeout,
@@ -481,6 +481,60 @@ class MeshInterface:  # pylint: disable=R0902
             onResponse=onResponse,
             channelIndex=channelIndex,
             priority=mesh_pb2.MeshPacket.Priority.ALERT
+        )
+
+    def request_user_info(
+        self,
+        destinationId: Union[int, str],
+        wantResponse: bool = True,
+        channelIndex: int = 0,
+    ) -> mesh_pb2.MeshPacket:
+        """Request user information from another node by sending our own user info.
+        The remote node will respond with their user info when they receive this request.
+
+        Arguments:
+            destinationId {nodeId or nodeNum} -- The node to request info from
+
+        Keyword Arguments:
+            wantResponse {bool} -- Whether to request a response with the target's user info (default: True)
+            channelIndex {int} -- The channel to use for this request (default: 0)
+
+        Returns:
+            The sent packet. The id field will be populated and can be used to track responses.
+        """
+        # Get our node's user info to send in the request
+        my_node_info = self.getMyNodeInfo()
+        logger.debug(f"Local node info: {my_node_info}")
+        
+        if my_node_info is None or "user" not in my_node_info:
+            raise MeshInterface.MeshInterfaceError("Could not get local node user info")
+
+        # Create a User message with our info
+        user = mesh_pb2.User()
+        node_user = my_node_info["user"]
+        logger.debug(f"Local user info to send: {node_user}")
+        
+        # Copy fields from our node's user info, matching firmware behavior
+        user.id = node_user.get("id", "")  # Set to nodeDB->getNodeId() in firmware
+        user.long_name = node_user.get("longName", "")
+        user.short_name = node_user.get("shortName", "")        
+        user.hw_model = node_user.get("hwModel", 0)
+        user.is_licensed = node_user.get("is_licensed", False)
+        user.role = node_user.get("role", 0)
+        
+        # Handle public key - firmware strips it if node is licensed
+        if "public_key" in node_user and not user.is_licensed:
+            user.public_key = node_user["public_key"]
+
+        # Send our user info to request the remote user's info
+        # Using BACKGROUND priority as per firmware default
+        return self.sendData(
+            user.SerializeToString(),
+            destinationId,
+            portNum=portnums_pb2.PortNum.NODEINFO_APP,
+            wantResponse=wantResponse,
+            channelIndex=channelIndex,
+            priority=mesh_pb2.MeshPacket.Priority.BACKGROUND
         )
 
     def sendMqttClientProxyMessage(self, topic: str, data: bytes):
@@ -1315,8 +1369,14 @@ class MeshInterface:  # pylint: disable=R0902
 
         elif fromRadio.HasField("node_info"):
             logger.debug(f"Received nodeinfo: {asDict['nodeInfo']}")
+            
+            # Track if this is a response to our user info request
+            node_num = asDict["nodeInfo"]["num"]
+            if "user" in asDict["nodeInfo"]:
+                node_id = asDict["nodeInfo"]["user"].get("id", "")
+                logger.debug(f"Received node info from node {node_id} (num: {node_num})")
 
-            node = self._getOrCreateByNum(asDict["nodeInfo"]["num"])
+            node = self._getOrCreateByNum(node_num)
             node.update(asDict["nodeInfo"])
             try:
                 newpos = self._fixupPosition(node["position"])
