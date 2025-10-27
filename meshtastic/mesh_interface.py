@@ -36,7 +36,7 @@ from meshtastic import (
     protocols,
     publishingThread,
 )
-from meshtastic.protobuf import mesh_pb2, portnums_pb2, telemetry_pb2, admin_pb2
+from meshtastic.protobuf import mesh_pb2, portnums_pb2, telemetry_pb2
 from meshtastic.util import (
     Acknowledgment,
     Timeout,
