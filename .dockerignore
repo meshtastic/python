@@ -1,0 +1,11 @@
+*
+!Containerfile*
+!Dockerfile
+!README.md
+!bin/container-entrypoint.sh
+!examples/
+!extra/
+!meshtastic/
+!poetry.lock
+!protobufs/
+!pyproject.toml
