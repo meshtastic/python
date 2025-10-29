@@ -1130,10 +1130,10 @@ def subscribe() -> None:
 
     # pub.subscribe(onNode, "meshtastic.node")
 
-def set_missing_flags_false(config_dict: dict, true_defaults: set[tuple[str, str]]) -> None:
+def setMissingFlagsFalse(configDict: dict, trueDefaults: set[tuple[str, str]]) -> None:
     """Ensure that missing default=True keys are present in the config_dict and set to False."""
-    for path in true_defaults:
-        d = config_dict
+    for path in trueDefaults:
+        d = configDict
         for key in path[:-1]:
             if key not in d or not isinstance(d[key], dict):
                 d[key] = {}
@@ -1157,8 +1157,9 @@ def export_config(interface) -> str:
     }
 
     owner = interface.getLongName()
-    owner_short = interface.getShortName()
-    channel_url = interface.localNode.getURL()
+    ownerShort = interface.getShortName()
+    isUnmessagable = interface.getIsUnmessagable()
+    channelUrl = interface.localNode.getURL()
     myinfo = interface.getMyNodeInfo()
     canned_messages = interface.getCannedMessage()
     ringtone = interface.getRingtone()
@@ -1173,13 +1174,15 @@ def export_config(interface) -> str:
 
     if owner:
         configObj["owner"] = owner
-    if owner_short:
-        configObj["owner_short"] = owner_short
-    if channel_url:
+    if ownerShort:
+        configObj["owner_short"] = ownerShort
+    if isUnmessagable:
+        configObj["is_unmessagable"] = isUnmessagable
+    if channelUrl:
         if mt_config.camel_case:
-            configObj["channelUrl"] = channel_url
+            configObj["channelUrl"] = channelUrl
         else:
-            configObj["channel_url"] = channel_url
+            configObj["channel_url"] = channelUrl
     if canned_messages:
         configObj["canned_messages"] = canned_messages
     if ringtone:
@@ -1214,27 +1217,27 @@ def export_config(interface) -> str:
         else:
             configObj["config"] = config
 
-        set_missing_flags_false(configObj["config"], true_defaults)
+        setMissingFlagsFalse(configObj["config"], true_defaults)
 
-    module_config = MessageToDict(interface.localNode.moduleConfig)
-    if module_config:
+    moduleConfig = MessageToDict(interface.localNode.moduleConfig)
+    if moduleConfig:
         # Convert inner keys to correct snake/camelCase
         prefs = {}
-        for pref in module_config:
-            if len(module_config[pref]) > 0:
-                prefs[pref] = module_config[pref]
+        for pref in moduleConfig:
+            if len(moduleConfig[pref]) > 0:
+                prefs[pref] = moduleConfig[pref]
         if mt_config.camel_case:
             configObj["module_config"] = prefs
         else:
             configObj["module_config"] = prefs
 
-    config_txt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out)
+    configTxt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out)
                                                                         #was used as a string here and a Dictionary above
-    config_txt += yaml.dump(configObj)
-    return config_txt
+    configTxt += yaml.dump(configObj)
+    return configTxt
 
 
-def create_power_meter():
+def createPowerMeter():
     """Setup the power meter."""
 
     global meter  # pylint: disable=global-statement
@@ -1308,7 +1311,7 @@ def common():
                 meshtastic.util.our_exit("ERROR: Ham radio callsign cannot be empty or contain only whitespace characters")
 
         if have_powermon:
-            create_power_meter()
+            createPowerMeter()
 
         if args.ch_index is not None:
             channelIndex = int(args.ch_index)

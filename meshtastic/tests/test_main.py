@@ -18,7 +18,7 @@ from meshtastic.__main__ import (
     onNode,
     onReceive,
     tunnelMain,
-    set_missing_flags_false,
+    setMissingFlagsFalse,
 )
 from meshtastic import mt_config
 
@@ -1911,7 +1911,7 @@ def test_set_missing_flags_false():
         ("mqtt", "encryptionEnabled"),
     }
 
-    set_missing_flags_false(config, false_defaults)
+    setMissingFlagsFalse(config, false_defaults)
 
     # Preserved
     assert config["bluetooth"]["enabled"] is True

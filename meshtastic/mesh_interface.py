@@ -261,7 +261,6 @@ class MeshInterface:  # pylint: disable=R0902
             else:
                 return name
 
-
         def formatFloat(value, precision=2, unit="") -> Optional[str]:
             """Format a float value with precision."""
             return f"{value:.{precision}f}{unit}" if value else None
@@ -296,7 +295,7 @@ class MeshInterface:  # pylint: disable=R0902
             return value
 
         if showFields is None or len(showFields) == 0:
-          # The default set of fields to show (e.g., the status quo)
+            # The default set of fields to show (e.g., the status quo)
             showFields = ["N", "user.longName", "user.id", "user.shortName", "user.hwModel", "user.publicKey",
                           "user.role", "position.latitude", "position.longitude", "position.altitude",
                           "deviceMetrics.batteryLevel", "deviceMetrics.channelUtilization",
@@ -1078,6 +1077,13 @@ class MeshInterface:  # pylint: disable=R0902
         user = self.getMyUser()
         if user is not None:
             return user.get("shortName", None)
+        return None
+
+    def getIsUnmessagable(self):
+        """Get getIsUnmessagable property"""
+        user = self.getMyUser()
+        if user is not None:
+            return user.get("isUnmessagable", None)
         return None
 
     def getPublicKey(self):
