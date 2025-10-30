@@ -309,8 +309,8 @@ class Node:
                 return c.index
         return 0
 
-    def setOwner(self, long_name: Optional[str]=None, short_name: Optional[str]=None, is_licensed: bool=False, is_unmessagable: Optional[bool]=None):
-        """Set device owner name"""
+    def setOwner(self, long_name: Optional[str] = None, short_name: Optional[str] = None, is_licensed: bool = False, is_unmessagable: Optional[bool] = None):
+        """Set device owner properties"""
         logger.debug(f"in setOwner nodeNum:{self.nodeNum}")
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()

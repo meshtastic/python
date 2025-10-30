@@ -670,115 +670,96 @@ def onConnected(interface):
                 printConfig(node.moduleConfig)
 
         if args.configure:
+            def fixEntry(cfg: dict, oldKey: str, newKey: str):
+                """fix configuration entries so only one structure must be handled.
+                This will be done by copying the previous used key to the now used one.
+                Abort if both old and new key are present upon entry."""
+                if oldKey in cfg:
+                    if newKey in cfg:
+                        meshtastic.util.our_exit(
+                            f"ERROR: Inconsistent settings in configuration: {oldKey} and {newKey} are both present.")
+                    else:
+                        cfg[newKey] = cfg[oldKey]
+
+            def entryToStr(entry) -> Union[str | None]:
+                """Ensures conversion of an entry to string if it is not None
+                Failure of conversion will be trapped upstream"""
+                if entry is not None:
+                    return str(entry).strip()
+                return None
+
             with open(args.configure[0], encoding="utf8") as file:
                 configuration = yaml.safe_load(file)
                 closeNow = True
 
-                interface.getNode(args.dest, False, **getNode_kwargs).beginSettingsTransaction()
+            # fix configuration structure: older version had entries "ownerShort" and "channelUrl"?
+            fixEntry(configuration, "ownerShort", "owner_short")
+            fixEntry(configuration, "channelUrl", "channel_url")
 
-                if "owner" in configuration:
-                    # Validate owner name before setting
-                    owner_name = str(configuration["owner"]).strip()
-                    if not owner_name:
-                        meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
-                    print(f"Setting device owner to {configuration['owner']}")
-                    waitForAckNak = True
-                    interface.getNode(args.dest, False, **getNode_kwargs).setOwner(configuration["owner"])
-                    time.sleep(0.5)
+            # keep always the same node when applying settings
+            actualNode = interface.getNode(args.dest, True, **getNode_kwargs)
+            actualNode.beginSettingsTransaction()
+            waitForAckNak = True
 
-                if "owner_short" in configuration:
-                    # Validate owner short name before setting
-                    owner_short_name = str(configuration["owner_short"]).strip()
-                    if not owner_short_name:
-                        meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
-                    print(
-                        f"Setting device owner short to {configuration['owner_short']}"
-                    )
-                    waitForAckNak = True
-                    interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
-                        long_name=None, short_name=configuration["owner_short"]
-                    )
-                    time.sleep(0.5)
+            ownerName = entryToStr(configuration.get("owner", None))
+            ownerShortName = entryToStr(configuration.get("owner_short", None))
+            isUnmessagable = configuration.get("is_unmessagable", None)
+            actualNode.setOwner(long_name=ownerName, short_name=ownerShortName, is_unmessagable=isUnmessagable)
+            time.sleep(0.5)
 
-                if "ownerShort" in configuration:
-                    # Validate owner short name before setting
-                    owner_short_name = str(configuration["ownerShort"]).strip()
-                    if not owner_short_name:
-                        meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
-                    print(
-                        f"Setting device owner short to {configuration['ownerShort']}"
-                    )
-                    waitForAckNak = True
-                    interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
-                        long_name=None, short_name=configuration["ownerShort"]
-                    )
-                    time.sleep(0.5)
+            if "channel_url" in configuration:
+                print("Setting channel url to", configuration["channel_url"])
+                actualNode.setURL(configuration["channel_url"])
+                time.sleep(0.5)
 
-                if "channel_url" in configuration:
-                    print("Setting channel url to", configuration["channel_url"])
-                    interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channel_url"])
-                    time.sleep(0.5)
+            if "canned_messages" in configuration:
+                print("Setting canned message messages to", configuration["canned_messages"])
+                actualNode.set_canned_message(configuration["canned_messages"])
+                time.sleep(0.5)
 
-                if "channelUrl" in configuration:
-                    print("Setting channel url to", configuration["channelUrl"])
-                    interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channelUrl"])
-                    time.sleep(0.5)
+            if "ringtone" in configuration:
+                print("Setting ringtone to", configuration["ringtone"])
+                actualNode.set_ringtone(configuration["ringtone"])
+                time.sleep(0.5)
 
-                if "canned_messages" in configuration:
-                    print("Setting canned message messages to", configuration["canned_messages"])
-                    interface.getNode(args.dest, **getNode_kwargs).set_canned_message(configuration["canned_messages"])
-                    time.sleep(0.5)
-
-                if "ringtone" in configuration:
-                    print("Setting ringtone to", configuration["ringtone"])
-                    interface.getNode(args.dest, **getNode_kwargs).set_ringtone(configuration["ringtone"])
-                    time.sleep(0.5)
-
-                if "location" in configuration:
-                    alt = 0
-                    lat = 0.0
-                    lon = 0.0
-                    localConfig = interface.localNode.localConfig
-
-                    if "alt" in configuration["location"]:
-                        alt = int(configuration["location"]["alt"] or 0)
-                        print(f"Fixing altitude at {alt} meters")
-                    if "lat" in configuration["location"]:
-                        lat = float(configuration["location"]["lat"] or 0)
-                        print(f"Fixing latitude at {lat} degrees")
-                    if "lon" in configuration["location"]:
-                        lon = float(configuration["location"]["lon"] or 0)
-                        print(f"Fixing longitude at {lon} degrees")
-                    print("Setting device position")
+            if "location" in configuration:
+                if configuration["location"] is None:
+                    print("No position elements found, skipping")
+                else:
+                    alt = int(configuration["location"].get("alt", 0))
+                    lat = float(configuration["location"].get("lat", 0.0))
+                    lon = float(configuration["location"].get("lon", 0.0))
+                    print(f"Setting fixed device position to lat {lat} lon {lon} alt {alt}")
                     interface.localNode.setFixedPosition(lat, lon, alt)
                     time.sleep(0.5)
 
-                if "config" in configuration:
-                    localConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig
-                    for section in configuration["config"]:
-                        traverseConfig(
-                            section, configuration["config"][section], localConfig
-                        )
-                        interface.getNode(args.dest, **getNode_kwargs).writeConfig(
-                            meshtastic.util.camel_to_snake(section)
-                        )
-                        time.sleep(0.5)
+            if "config" in configuration:
+                localConfig = actualNode.localConfig
+                for section in configuration["config"]:
+                    traverseConfig(
+                        section, configuration["config"][section], localConfig
+                    )
+                    actualNode.writeConfig(
+                        meshtastic.util.camel_to_snake(section)
+                    )
+                    time.sleep(0.5)
 
-                if "module_config" in configuration:
-                    moduleConfig = interface.getNode(args.dest, **getNode_kwargs).moduleConfig
-                    for section in configuration["module_config"]:
-                        traverseConfig(
-                            section,
-                            configuration["module_config"][section],
-                            moduleConfig,
-                        )
-                        interface.getNode(args.dest, **getNode_kwargs).writeConfig(
-                            meshtastic.util.camel_to_snake(section)
-                        )
-                        time.sleep(0.5)
+            if "module_config" in configuration:
+                moduleConfig = actualNode.moduleConfig
+                for section in configuration["module_config"]:
+                    traverseConfig(
+                        section,
+                        configuration["module_config"][section],
+                        moduleConfig,
+                    )
+                    actualNode.writeConfig(
+                        meshtastic.util.camel_to_snake(section)
+                    )
+                    time.sleep(0.5)
 
-                interface.getNode(args.dest, False, **getNode_kwargs).commitSettingsTransaction()
-                print("Writing modified configuration to device")
+            print("Committing modified configuration to device")
+            actualNode.commitSettingsTransaction()
+            print("Configuration finished")
 
         if args.export_config:
             if args.dest != BROADCAST_ADDR:
