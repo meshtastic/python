@@ -688,6 +688,13 @@ def onConnected(interface):
                     return str(entry).strip()
                 return None
 
+            def writeSectionConfig(newConfig: dict, actConfig: dict, actNode: meshtastic.node.Node):
+                """Traverses a configuration dict and writes each part to the node"""
+                for sectionName, sectionElements in newConfig.items():
+                    traverseConfig(sectionName, sectionElements, actConfig)
+                    actNode.writeConfig(meshtastic.util.camel_to_snake(sectionName))
+                    time.sleep(0.5)
+
             with open(args.configure[0], encoding="utf8") as file:
                 configuration = yaml.safe_load(file)
                 closeNow = True
@@ -697,7 +704,7 @@ def onConnected(interface):
             fixEntry(configuration, "channelUrl", "channel_url")
 
             # keep always the same node when applying settings
-            actualNode = interface.getNode(args.dest, True, **getNode_kwargs)
+            actualNode: meshtastic.node.Node = interface.getNode(args.dest, True, **getNode_kwargs)
             actualNode.beginSettingsTransaction()
             waitForAckNak = True
 
@@ -734,28 +741,10 @@ def onConnected(interface):
                     time.sleep(0.5)
 
             if "config" in configuration:
-                localConfig = actualNode.localConfig
-                for section in configuration["config"]:
-                    traverseConfig(
-                        section, configuration["config"][section], localConfig
-                    )
-                    actualNode.writeConfig(
-                        meshtastic.util.camel_to_snake(section)
-                    )
-                    time.sleep(0.5)
+                writeSectionConfig(configuration["config"], actualNode.localConfig, actualNode)
 
             if "module_config" in configuration:
-                moduleConfig = actualNode.moduleConfig
-                for section in configuration["module_config"]:
-                    traverseConfig(
-                        section,
-                        configuration["module_config"][section],
-                        moduleConfig,
-                    )
-                    actualNode.writeConfig(
-                        meshtastic.util.camel_to_snake(section)
-                    )
-                    time.sleep(0.5)
+                writeSectionConfig(configuration["module_config"], actualNode.moduleConfig, actualNode)
 
             print("Committing modified configuration to device")
             actualNode.commitSettingsTransaction()
@@ -1111,10 +1100,10 @@ def subscribe() -> None:
 
     # pub.subscribe(onNode, "meshtastic.node")
 
-def setMissingFlagsFalse(configDict: dict, trueDefaults: set[tuple[str, str]]) -> None:
+def set_missing_flags_false(config_dict: dict, true_defaults: set[tuple[str, str]]) -> None:
     """Ensure that missing default=True keys are present in the config_dict and set to False."""
-    for path in trueDefaults:
-        d = configDict
+    for path in true_defaults:
+        d = config_dict
         for key in path[:-1]:
             if key not in d or not isinstance(d[key], dict):
                 d[key] = {}
@@ -1138,9 +1127,8 @@ def export_config(interface) -> str:
     }
 
     owner = interface.getLongName()
-    ownerShort = interface.getShortName()
-    isUnmessagable = interface.getIsUnmessagable()
-    channelUrl = interface.localNode.getURL()
+    owner_short = interface.getShortName()
+    channel_url = interface.localNode.getURL()
     myinfo = interface.getMyNodeInfo()
     canned_messages = interface.getCannedMessage()
     ringtone = interface.getRingtone()
@@ -1155,15 +1143,13 @@ def export_config(interface) -> str:
 
     if owner:
         configObj["owner"] = owner
-    if ownerShort:
-        configObj["owner_short"] = ownerShort
-    if isUnmessagable:
-        configObj["is_unmessagable"] = isUnmessagable
-    if channelUrl:
+    if owner_short:
+        configObj["owner_short"] = owner_short
+    if channel_url:
         if mt_config.camel_case:
-            configObj["channelUrl"] = channelUrl
+            configObj["channelUrl"] = channel_url
         else:
-            configObj["channel_url"] = channelUrl
+            configObj["channel_url"] = channel_url
     if canned_messages:
         configObj["canned_messages"] = canned_messages
     if ringtone:
@@ -1198,27 +1184,27 @@ def export_config(interface) -> str:
         else:
             configObj["config"] = config
 
-        setMissingFlagsFalse(configObj["config"], true_defaults)
+        set_missing_flags_false(configObj["config"], true_defaults)
 
-    moduleConfig = MessageToDict(interface.localNode.moduleConfig)
-    if moduleConfig:
+    module_config = MessageToDict(interface.localNode.moduleConfig)
+    if module_config:
         # Convert inner keys to correct snake/camelCase
         prefs = {}
-        for pref in moduleConfig:
-            if len(moduleConfig[pref]) > 0:
-                prefs[pref] = moduleConfig[pref]
+        for pref in module_config:
+            if len(module_config[pref]) > 0:
+                prefs[pref] = module_config[pref]
         if mt_config.camel_case:
             configObj["module_config"] = prefs
         else:
             configObj["module_config"] = prefs
 
-    configTxt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out)
+    config_txt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out)
                                                                         #was used as a string here and a Dictionary above
-    configTxt += yaml.dump(configObj)
-    return configTxt
+    config_txt += yaml.dump(configObj)
+    return config_txt
 
 
-def createPowerMeter():
+def create_power_meter():
     """Setup the power meter."""
 
     global meter  # pylint: disable=global-statement
@@ -1292,7 +1278,7 @@ def common():
                 meshtastic.util.our_exit("ERROR: Ham radio callsign cannot be empty or contain only whitespace characters")
 
         if have_powermon:
-            createPowerMeter()
+            create_power_meter()
 
         if args.ch_index is not None:
             channelIndex = int(args.ch_index)
