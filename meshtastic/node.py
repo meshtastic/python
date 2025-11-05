@@ -260,6 +260,37 @@ class Node:
             ch = self.channels[channelIndex]
         return ch
 
+    def rewriteChannelList(self, idxStart: int, admIndex: int) -> None:
+        """write back current channels list to device starting from index idxStart
+        channels before this index have not changed, so we don't need to rewrite."""
+        index = idxStart
+        while index < 8:
+            self.writeChannel(index, adminIndex=admIndex)
+            index += 1
+
+            # if we are updating the local node, we might end up
+            # *moving* the admin channel index as we are writing
+            if (self.iface.localNode == self) and index >= admIndex:
+                # We've now passed the old location for admin index
+                # (and written it), so we can start finding it by name again
+                admIndex = 0
+
+    def deleteAllSecondaryChannels(self) -> None:
+        """Remove all secondary or disbled channels in order to be able to rewrite channel config during
+        configuration, only keep primary channel"""
+        if self.channels:
+            adminIndex = self.iface.localNode._getAdminChannelIndex()
+
+            idx2Delete = [c.index for c in self.channels
+                          if c.role == channel_pb2.Channel.Role.SECONDARY and not c.index == adminIndex
+                          ]
+            if len(idx2Delete) > 0:
+                idx2Delete.reverse()
+                for idx in idx2Delete:
+                    self.channels.pop(idx)
+                self._fixupChannels()
+                self.rewriteChannelList(idx2Delete[-1], adminIndex)
+
     def deleteChannel(self, channelIndex):
         """Delete the specified channelIndex and shift other channels up"""
         ch = self.channels[channelIndex]
@@ -276,17 +307,7 @@ class Node:
         self.channels.pop(channelIndex)
         self._fixupChannels()  # expand back to 8 channels
 
-        index = channelIndex
-        while index < 8:
-            self.writeChannel(index, adminIndex=adminIndex)
-            index += 1
-
-            # if we are updating the local node, we might end up
-            # *moving* the admin channel index as we are writing
-            if (self.iface.localNode == self) and index >= adminIndex:
-                # We've now passed the old location for admin index
-                # (and written it), so we can start finding it by name again
-                adminIndex = 0
+        self.rewriteChannelList(channelIndex, adminIndex)
 
     def getChannelByName(self, name):
         """Try to find the named channel or return None"""

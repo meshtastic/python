@@ -711,11 +711,13 @@ def onConnected(interface):
             ownerName = entryToStr(configuration.get("owner", None))
             ownerShortName = entryToStr(configuration.get("owner_short", None))
             isUnmessagable = configuration.get("is_unmessagable", None)
+            print(f"Setting owner properties: {ownerName} - {ownerShortName} - {isUnmessagable}")
             actualNode.setOwner(long_name=ownerName, short_name=ownerShortName, is_unmessagable=isUnmessagable)
             time.sleep(0.5)
 
             if "channel_url" in configuration:
                 print("Setting channel url to", configuration["channel_url"])
+                actualNode.deleteAllSecondaryChannels()
                 actualNode.setURL(configuration["channel_url"])
                 time.sleep(0.5)
 
@@ -830,7 +832,7 @@ def onConnected(interface):
                     )
                 else:
                     print(f"Deleting channel {channelIndex}")
-                    ch = interface.getNode(args.dest, **getNode_kwargs).deleteChannel(channelIndex)
+                    interface.getNode(args.dest, **getNode_kwargs).deleteChannel(channelIndex)
 
         def setSimpleConfig(modem_preset):
             """Set one of the simple modem_config"""
@@ -982,10 +984,14 @@ def onConnected(interface):
             if args.dest != BROADCAST_ADDR:
                 print("Showing node list of a remote node is not supported.")
                 return
-            interface.showNodes(True, args.show_fields)
+            interface.showNodes(True, showFields=args.show_fields, printFmt=args.fmt)
 
         if args.show_fields and not args.nodes:
             print("--show-fields can only be used with --nodes")
+            return
+
+        if args.fmt and not args.nodes:
+            print("--fmt can only be used with --nodes")
             return
 
         if args.qr or args.qr_all:
@@ -1100,10 +1106,11 @@ def subscribe() -> None:
 
     # pub.subscribe(onNode, "meshtastic.node")
 
-def set_missing_flags_false(config_dict: dict, true_defaults: set[tuple[str, str]]) -> None:
+
+def setMissingFlagsFalse(configDict: dict, trueDefaults: set[tuple[str, str]]) -> None:
     """Ensure that missing default=True keys are present in the config_dict and set to False."""
-    for path in true_defaults:
-        d = config_dict
+    for path in trueDefaults:
+        d = configDict
         for key in path[:-1]:
             if key not in d or not isinstance(d[key], dict):
                 d[key] = {}
@@ -1111,9 +1118,10 @@ def set_missing_flags_false(config_dict: dict, true_defaults: set[tuple[str, str
         if path[-1] not in d:
             d[path[-1]] = False
 
+
 def export_config(interface) -> str:
-    """used in --export-config"""
-    configObj = {}
+    """implements --export-config option"""
+    configObj = {}          # main object collecting all settings to be exported
 
     # A list of configuration keys that should be set to False if they are missing
     true_defaults = {
@@ -1127,10 +1135,12 @@ def export_config(interface) -> str:
     }
 
     owner = interface.getLongName()
-    owner_short = interface.getShortName()
-    channel_url = interface.localNode.getURL()
+    ownerShort = interface.getShortName()
+    channelUrl = interface.localNode.getURL()
+    isUnmessagable = interface.getIsUnmessagable()
+
     myinfo = interface.getMyNodeInfo()
-    canned_messages = interface.getCannedMessage()
+    cannedMessages = interface.getCannedMessage()
     ringtone = interface.getRingtone()
     pos = myinfo.get("position")
     lat = None
@@ -1143,15 +1153,17 @@ def export_config(interface) -> str:
 
     if owner:
         configObj["owner"] = owner
-    if owner_short:
-        configObj["owner_short"] = owner_short
-    if channel_url:
+    if ownerShort:
+        configObj["owner_short"] = ownerShort
+    if isUnmessagable:
+        configObj["is_unmessagable"] = isUnmessagable
+    if channelUrl:
         if mt_config.camel_case:
-            configObj["channelUrl"] = channel_url
+            configObj["channelUrl"] = channelUrl
         else:
-            configObj["channel_url"] = channel_url
-    if canned_messages:
-        configObj["canned_messages"] = canned_messages
+            configObj["channel_url"] = channelUrl
+    if cannedMessages:
+        configObj["canned_messages"] = cannedMessages
     if ringtone:
         configObj["ringtone"] = ringtone
     # lat and lon don't make much sense without the other (so fill with 0s), and alt isn't meaningful without both
@@ -1160,8 +1172,7 @@ def export_config(interface) -> str:
         if alt:
             configObj["location"]["alt"] = alt
 
-    config = MessageToDict(interface.localNode.localConfig)	#checkme - Used as a dictionary here and a string below
-                                                                        #was used as a string here and a Dictionary above
+    config: dict = MessageToDict(interface.localNode.localConfig)
     if config:
         # Convert inner keys to correct snake/camelCase
         prefs = {}
@@ -1184,24 +1195,23 @@ def export_config(interface) -> str:
         else:
             configObj["config"] = config
 
-        set_missing_flags_false(configObj["config"], true_defaults)
+        setMissingFlagsFalse(configObj["config"], true_defaults)
 
-    module_config = MessageToDict(interface.localNode.moduleConfig)
-    if module_config:
+    moduleConfig: dict = MessageToDict(interface.localNode.moduleConfig)
+    if moduleConfig:
         # Convert inner keys to correct snake/camelCase
         prefs = {}
-        for pref in module_config:
-            if len(module_config[pref]) > 0:
-                prefs[pref] = module_config[pref]
+        for pref in moduleConfig:
+            if len(moduleConfig[pref]) > 0:
+                prefs[pref] = moduleConfig[pref]
         if mt_config.camel_case:
             configObj["module_config"] = prefs
         else:
             configObj["module_config"] = prefs
 
-    config_txt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out)
-                                                                        #was used as a string here and a Dictionary above
-    config_txt += yaml.dump(configObj)
-    return config_txt
+    configTxt: str = "# start of Meshtastic configure yaml\n"
+    configTxt += yaml.dump(configObj)
+    return configTxt
 
 
 def create_power_meter():
@@ -1793,6 +1803,13 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         "--show-fields",
         help="Specify fields to show (comma-separated) when using --nodes",
         type=lambda s: s.split(','),
+        default=None
+    )
+
+    group.add_argument(
+        "--fmt",
+        help="Specify format to show when using --nodes",
+        type=str,
         default=None
     )
 

@@ -225,13 +225,14 @@ class MeshInterface:  # pylint: disable=R0902
         return infos
 
     def showNodes(
-        self, includeSelf: bool = True, showFields: Optional[List[str]] = None
+        self, includeSelf: bool = True, showFields: Optional[List[str]] = None, printFmt: Optional[str] = None
     ) -> str:  # pylint: disable=W0613
         """Show table summary of nodes in mesh
 
            Args:
                 includeSelf (bool): Include ourself in the output?
                 showFields (List[str]): List of fields to show in output
+                printFmt (str): name of format to use
         """
 
         def get_human_readable(name):
@@ -371,7 +372,16 @@ class MeshInterface:  # pylint: disable=R0902
         for i, row in enumerate(rows):
             row["N"] = i + 1
 
-        table = tabulate(rows, headers="keys", missingval="N/A", tablefmt="fancy_grid")
+        if not printFmt or len(printFmt) == 0:
+            printFmt = "fancy_grid"
+        if printFmt.lower() == 'json':
+            headers = []
+            if len(rows) > 0:
+                headers = list(rows[0].keys())
+            outDict = {'headers': headers, 'nodes': rows}
+            table = json.dumps(outDict)
+        else:
+            table = tabulate(rows, headers="keys", missingval="N/A", tablefmt=printFmt)
         print(table)
         return table
 
