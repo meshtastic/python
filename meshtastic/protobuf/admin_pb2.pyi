@@ -770,6 +770,7 @@ class SharedContact(google.protobuf.message.Message):
     NODE_NUM_FIELD_NUMBER: builtins.int
     USER_FIELD_NUMBER: builtins.int
     SHOULD_IGNORE_FIELD_NUMBER: builtins.int
+    MANUALLY_VERIFIED_FIELD_NUMBER: builtins.int
     node_num: builtins.int
     """
     The node number of the contact
@@ -777,6 +778,10 @@ class SharedContact(google.protobuf.message.Message):
     should_ignore: builtins.bool
     """
     Add this contact to the blocked / ignored list
+    """
+    manually_verified: builtins.bool
+    """
+    Set the IS_KEY_MANUALLY_VERIFIED bit
     """
     @property
     def user(self) -> meshtastic.protobuf.mesh_pb2.User:
@@ -790,9 +795,10 @@ class SharedContact(google.protobuf.message.Message):
         node_num: builtins.int = ...,
         user: meshtastic.protobuf.mesh_pb2.User | None = ...,
         should_ignore: builtins.bool = ...,
+        manually_verified: builtins.bool = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["user", b"user"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["node_num", b"node_num", "should_ignore", b"should_ignore", "user", b"user"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["manually_verified", b"manually_verified", "node_num", b"node_num", "should_ignore", b"should_ignore", "user", b"user"]) -> None: ...
 
 global___SharedContact = SharedContact
 

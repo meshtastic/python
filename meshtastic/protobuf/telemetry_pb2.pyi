@@ -203,6 +203,10 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     TSL2561 light sensor
     """
+    BH1750: _TelemetrySensorType.ValueType  # 45
+    """
+    BH1750 light sensor
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -388,6 +392,10 @@ SEN5X PM SENSORS
 TSL2561: TelemetrySensorType.ValueType  # 44
 """
 TSL2561 light sensor
+"""
+BH1750: TelemetrySensorType.ValueType  # 45
+"""
+BH1750 light sensor
 """
 global___TelemetrySensorType = TelemetrySensorType
 
@@ -1026,6 +1034,7 @@ class LocalStats(google.protobuf.message.Message):
     NUM_TX_RELAY_CANCELED_FIELD_NUMBER: builtins.int
     HEAP_TOTAL_BYTES_FIELD_NUMBER: builtins.int
     HEAP_FREE_BYTES_FIELD_NUMBER: builtins.int
+    NUM_TX_DROPPED_FIELD_NUMBER: builtins.int
     uptime_seconds: builtins.int
     """
     How long the device has been running since the last reboot (in seconds)
@@ -1080,6 +1089,10 @@ class LocalStats(google.protobuf.message.Message):
     """
     Number of bytes free in the heap
     """
+    num_tx_dropped: builtins.int
+    """
+    Number of packets that were dropped because the transmit queue was full.
+    """
     def __init__(
         self,
         *,
@@ -1096,8 +1109,9 @@ class LocalStats(google.protobuf.message.Message):
         num_tx_relay_canceled: builtins.int = ...,
         heap_total_bytes: builtins.int = ...,
         heap_free_bytes: builtins.int = ...,
+        num_tx_dropped: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["air_util_tx", b"air_util_tx", "channel_utilization", b"channel_utilization", "heap_free_bytes", b"heap_free_bytes", "heap_total_bytes", b"heap_total_bytes", "num_online_nodes", b"num_online_nodes", "num_packets_rx", b"num_packets_rx", "num_packets_rx_bad", b"num_packets_rx_bad", "num_packets_tx", b"num_packets_tx", "num_rx_dupe", b"num_rx_dupe", "num_total_nodes", b"num_total_nodes", "num_tx_relay", b"num_tx_relay", "num_tx_relay_canceled", b"num_tx_relay_canceled", "uptime_seconds", b"uptime_seconds"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["air_util_tx", b"air_util_tx", "channel_utilization", b"channel_utilization", "heap_free_bytes", b"heap_free_bytes", "heap_total_bytes", b"heap_total_bytes", "num_online_nodes", b"num_online_nodes", "num_packets_rx", b"num_packets_rx", "num_packets_rx_bad", b"num_packets_rx_bad", "num_packets_tx", b"num_packets_tx", "num_rx_dupe", b"num_rx_dupe", "num_total_nodes", b"num_total_nodes", "num_tx_dropped", b"num_tx_dropped", "num_tx_relay", b"num_tx_relay", "num_tx_relay_canceled", b"num_tx_relay_canceled", "uptime_seconds", b"uptime_seconds"]) -> None: ...
 
 global___LocalStats = LocalStats
 

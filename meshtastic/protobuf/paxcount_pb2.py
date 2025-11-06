@@ -13,14 +13,14 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"meshtastic/protobuf/paxcount.proto\x12\x13meshtastic.protobuf\"5\n\x08Paxcount\x12\x0c\n\x04wifi\x18\x01 \x01(\r\x12\x0b\n\x03\x62le\x18\x02 \x01(\r\x12\x0e\n\x06uptime\x18\x03 \x01(\rBc\n\x13\x63om.geeksville.meshB\x0ePaxcountProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"meshtastic/protobuf/paxcount.proto\x12\x13meshtastic.protobuf\"5\n\x08Paxcount\x12\x0c\n\x04wifi\x18\x01 \x01(\r\x12\x0b\n\x03\x62le\x18\x02 \x01(\r\x12\x0e\n\x06uptime\x18\x03 \x01(\rBd\n\x14org.meshtastic.protoB\x0ePaxcountProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'meshtastic.protobuf.paxcount_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  DESCRIPTOR._serialized_options = b'\n\023com.geeksville.meshB\016PaxcountProtosZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
+  DESCRIPTOR._serialized_options = b'\n\024org.meshtastic.protoB\016PaxcountProtosZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
   _globals['_PAXCOUNT']._serialized_start=59
   _globals['_PAXCOUNT']._serialized_end=112
 # @@protoc_insertion_point(module_scope)

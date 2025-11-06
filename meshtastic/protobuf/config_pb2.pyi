@@ -64,6 +64,7 @@ class Config(google.protobuf.message.Message):
             Description: Infrastructure node for extending network coverage by relaying messages with minimal overhead. Not visible in Nodes list.
             Technical Details: Mesh packets will simply be rebroadcasted over this node. Nodes configured with this role will not originate NodeInfo, Position, Telemetry
               or any other packet type. They will simply rebroadcast any mesh packets on the same frequency, channel num, spread factor, and coding rate.
+            Deprecated in v2.7.11 because it creates "holes" in the mesh rebroadcast chain.
             """
             TRACKER: Config.DeviceConfig._Role.ValueType  # 5
             """
@@ -155,6 +156,7 @@ class Config(google.protobuf.message.Message):
         Description: Infrastructure node for extending network coverage by relaying messages with minimal overhead. Not visible in Nodes list.
         Technical Details: Mesh packets will simply be rebroadcasted over this node. Nodes configured with this role will not originate NodeInfo, Position, Telemetry
           or any other packet type. They will simply rebroadcast any mesh packets on the same frequency, channel num, spread factor, and coding rate.
+        Deprecated in v2.7.11 because it creates "holes" in the mesh rebroadcast chain.
         """
         TRACKER: Config.DeviceConfig.Role.ValueType  # 5
         """

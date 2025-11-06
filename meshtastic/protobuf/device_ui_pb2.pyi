@@ -169,6 +169,10 @@ class _LanguageEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumT
     """
     Czech
     """
+    DANISH: _Language.ValueType  # 19
+    """
+    Danish
+    """
     SIMPLIFIED_CHINESE: _Language.ValueType  # 30
     """
     Simplified Chinese (experimental)
@@ -259,6 +263,10 @@ CZECH: Language.ValueType  # 18
 """
 Czech
 """
+DANISH: Language.ValueType  # 19
+"""
+Danish
+"""
 SIMPLIFIED_CHINESE: Language.ValueType  # 30
 """
 Simplified Chinese (experimental)
@@ -321,7 +329,7 @@ class DeviceUIConfig(google.protobuf.message.Message):
         """
 
     class GpsCoordinateFormat(_GpsCoordinateFormat, metaclass=_GpsCoordinateFormatEnumTypeWrapper):
-        """  
+        """
         How the GPS coordinates are displayed on the OLED screen.
         """
 
