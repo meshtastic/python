@@ -372,6 +372,27 @@ def channel_hash(data: bytes) -> int:
         result ^= char
     return
 
+def generate_hash(name, key) -> int:
+    """generate the channel number by hashing the channel name and psk (accepts str or bytes for both)"""
+    # Handle key as str or bytes
+    if isinstance(key, bytes):
+        key = key.decode("utf-8")
+    if key == "AQ==":
+        key = "1PG7OiApB1nwvP+rz05pAQ=="
+    replaced_key = key.replace("-", "+").replace("_", "/")
+    key_bytes = base64.b64decode(replaced_key.encode("utf-8"))
+
+    # Handle name as str or bytes
+    if isinstance(name, bytes):
+        name_bytes = name
+    else:
+        name_bytes = name.encode("utf-8")
+
+    h_name = channel_hash(name_bytes)
+    h_key = channel_hash(key_bytes)
+    result: int = h_name ^ h_key
+    return result
+
 def hexstr(barray: bytes) -> str:
     """Print a string of hex digits"""
     return ":".join(f"{x:02x}" for x in barray)
