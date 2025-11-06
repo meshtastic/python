@@ -16,7 +16,7 @@ from meshtastic.util import (
     pskToString,
     stripnl,
     message_to_json,
-    generate_hash,
+    generate_channel_hash,
 )
 
 logger = logging.getLogger(__name__)
@@ -1051,7 +1051,7 @@ class Node:
         if self.channels:
             for c in self.channels:
                 if c.settings and hasattr(c.settings, "name") and hasattr(c.settings, "psk"):
-                    hash_val = generate_hash(c.settings.name, c.settings.psk)
+                    hash_val = generate_channel_hash(c.settings.name, c.settings.psk)
                 else:
                     hash_val = None
                 result.append({

@@ -372,7 +372,7 @@ def channel_hash(data: bytes) -> int:
         result ^= char
     return
 
-def generate_hash(name, key) -> int:
+def generate_channel_hash(name, key) -> int:
     """generate the channel number by hashing the channel name and psk (accepts str or bytes for both)"""
     # Handle key as str or bytes
     if isinstance(key, bytes):
