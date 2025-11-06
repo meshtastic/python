@@ -370,7 +370,7 @@ def channel_hash(data: bytes) -> int:
     result = 0
     for char in data:
         result ^= char
-    return
+    return result
 
 def generate_channel_hash(name, key) -> int:
     """generate the channel number by hashing the channel name and psk (accepts str or bytes for both)"""
