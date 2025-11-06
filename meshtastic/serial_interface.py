@@ -94,10 +94,16 @@ class SerialInterface(StreamInterface):
 
     def close(self) -> None:
         """Close a connection to the device"""
-        if self.stream:  # Stream can be null if we were already closed
-            self.stream.flush()  # FIXME: why are there these  two flushes with 100ms sleeps?  This shouldn't be necessary
-            time.sleep(0.1)
-            self.stream.flush()
-            time.sleep(0.1)
+        if hasattr(self, "stream") and self.stream and getattr(self.stream, "is_open", False):
+            try:
+                self.stream.flush()
+                time.sleep(0.1)
+            except Exception as e:
+                logger.debug(f"Exception during flush: {e}")
+            try:
+                self.stream.close()
+            except Exception as e:
+                logger.debug(f"Exception during close: {e}")
+            self.stream = None
         logger.debug("Closing Serial stream")
         StreamInterface.close(self)

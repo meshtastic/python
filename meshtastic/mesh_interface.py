@@ -830,6 +830,7 @@ class MeshInterface:  # pylint: disable=R0902
         self,
         name,
         description,
+        icon,
         expire: int,
         waypoint_id: Optional[int] = None,
         latitude: float = 0.0,
@@ -848,6 +849,7 @@ class MeshInterface:  # pylint: disable=R0902
         w = mesh_pb2.Waypoint()
         w.name = name
         w.description = description
+        w.icon = icon
         w.expire = expire
         if waypoint_id is None:
             # Generate a waypoint's id, NOT a packet ID.
