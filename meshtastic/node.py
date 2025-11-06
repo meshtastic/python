@@ -16,6 +16,7 @@ from meshtastic.util import (
     pskToString,
     stripnl,
     message_to_json,
+    generate_channel_hash,
     to_node_num,
 )
 
@@ -1018,3 +1019,20 @@ class Node:
             nodeid = to_node_num(self.nodeNum)
             if self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey") is None:
                 self.requestConfig(admin_pb2.AdminMessage.SESSIONKEY_CONFIG)
+
+    def get_channels_with_hash(self):
+        """Return a list of dicts with channel info and hash."""
+        result = []
+        if self.channels:
+            for c in self.channels:
+                if c.settings and hasattr(c.settings, "name") and hasattr(c.settings, "psk"):
+                    hash_val = generate_channel_hash(c.settings.name, c.settings.psk)
+                else:
+                    hash_val = None
+                result.append({
+                    "index": c.index,
+                    "role": channel_pb2.Channel.Role.Name(c.role),
+                    "name": c.settings.name if c.settings and hasattr(c.settings, "name") else "",
+                    "hash": hash_val,
+                })
+        return result
