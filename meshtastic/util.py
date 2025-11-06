@@ -692,3 +692,20 @@ def message_to_json(message: Message, multiline: bool=False) -> str:
     except TypeError:
         json = MessageToJson(message, including_default_value_fields=True) # type: ignore[call-arg] # pylint: disable=E1123
     return stripnl(json) if not multiline else json
+
+
+def to_node_num(node_id: Union[int, str]) -> int:
+    """
+    Normalize a node id from int | '!hex' | '0xhex' | 'decimal' to int.
+    """
+    if isinstance(node_id, int):
+        return node_id
+    s = str(node_id).strip()
+    if s.startswith("!"):
+        s = s[1:]
+    if s.lower().startswith("0x"):
+        return int(s, 16)
+    try:
+        return int(s, 10)
+    except ValueError:
+        return int(s, 16)
