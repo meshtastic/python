@@ -365,6 +365,12 @@ def remove_keys_from_dict(keys: Union[Tuple, List, Set], adict: Dict) -> Dict:
             remove_keys_from_dict(keys, val)
     return adict
 
+def channel_hash(data: bytes) -> int:
+    """Compute an XOR hash from bytes for channel evaluation."""
+    result = 0
+    for char in data:
+        result ^= char
+    return
 
 def hexstr(barray: bytes) -> str:
     """Print a string of hex digits"""
