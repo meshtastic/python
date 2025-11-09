@@ -30,7 +30,7 @@ def waitFor(EventOrTime: int) -> None:
                 break
         
 
-@pytest.mark.smoke1T
+@pytest.mark.smoke1
 def test_smoke1_reboot():
     """Test reboot"""
     return_value, _ = subprocess.getstatusoutput("meshtastic --reboot")
@@ -39,7 +39,7 @@ def test_smoke1_reboot():
     waitFor(WAIT_FOR_REBOOT)
 
 
-@pytest.mark.smoke1T
+@pytest.mark.smoke1
 def test_smoke1_info():
     """Test --info"""
     return_value, out = subprocess.getstatusoutput("meshtastic --info")
@@ -55,7 +55,7 @@ def test_smoke1_info():
     waitFor(PAUSE_AFTER_COMMAND)
 
 
-@pytest.mark.smoke1T
+@pytest.mark.smoke1
 def test_smoke1_nodes():
     """Test --nodes"""
     return_value, out = subprocess.getstatusoutput('meshtastic --nodes --fmt json')
@@ -149,16 +149,6 @@ def test_smoke1_seriallog_to_file():
 
 
 @pytest.mark.smoke1
-def test_smoke1_send_hello():
-    """Test --sendtext hello"""
-    return_value, out = subprocess.getstatusoutput("meshtastic --sendtext hello")
-    assert re.match(r"Connected to radio", out)
-    assert re.search(r"^Sending text message hello to \^all", out, re.MULTILINE)
-    assert return_value == 0
-    waitFor(PAUSE_AFTER_COMMAND)
-
-
-@pytest.mark.smoke1
 def test_smoke1_port():
     """Test --port"""
     # first, get the ports
@@ -220,7 +210,7 @@ def test_smoke1_set_owner():
     assert return_value == 0
     waitFor(PAUSE_AFTER_COMMAND)
 
-@pytest.mark.smoke1T
+@pytest.mark.smoke1
 def test_smoke1_ch_modem_presets():
     """Test --ch-vlongslow --ch-longslow, --ch-longfast, --ch-mediumslow, --ch-mediumsfast,
     --ch-shortslow, and --ch-shortfast arguments
@@ -632,8 +622,18 @@ def test_smoke1_seturl_2chan():
 
 
 @pytest.mark.smoke1
+def test_smoke1_send_hello():
+    """Test --sendtext hello, use channel 1 to not bother other participants with testing messages"""
+    return_value, out = subprocess.getstatusoutput('meshtastic --sendtext "hello from smoke test" --ch-index 1')
+    assert re.match(r"Connected to radio", out)
+    assert re.search(r"^Sending text message hello from smoke test to \^all on channelIndex:1", out, re.MULTILINE)
+    assert return_value == 0
+    waitFor(PAUSE_AFTER_COMMAND)
+
+
+@pytest.mark.smoke1
 def test_smoke1_seturl_3_to_2_chan():
-    """Test --seturl with 3 channels, then go back to 1 channel"""
+    """Test --seturl with 3 channels, then reconfigure back to 1 channel"""
     pat = "CgcSAQE6AggNCjASIOKjX3f5UXnz8zkcXi6MxfIsnNof5sUAW4FQQi_IXsLdGgRUZXN0KAEwAToCCBESDwgBOANAA0gBUBtoAcAGAQ"
     setAndTestUrl(pat)
     # check qr output
