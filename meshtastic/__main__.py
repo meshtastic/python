@@ -1019,6 +1019,13 @@ def onConnected(interface):
             print("--show-fields can only be used with --nodes")
             return
 
+        if args.fs_ls:
+            if args.dest != BROADCAST_ADDR:
+                print("Listing filesystem of a remote node is not supported.")
+                return
+            closeNow = True
+            interface.showFileSystem()
+
         if args.qr or args.qr_all:
             closeNow = True
             url = interface.getNode(args.dest, True, **getNode_kwargs).getURL(includeAll=args.qr_all)
@@ -1825,6 +1832,12 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         help="Specify fields to show (comma-separated) when using --nodes",
         type=lambda s: s.split(','),
         default=None
+    )
+
+    group.add_argument(
+        "--fs-ls",
+        help="List filesystem entries reported by the local node",
+        action="store_true",
     )
 
     return parser

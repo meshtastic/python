@@ -133,6 +133,7 @@ class MeshInterface:  # pylint: disable=R0902
         self.queueStatus: Optional[mesh_pb2.QueueStatus] = None
         self.queue: collections.OrderedDict = collections.OrderedDict()
         self._localChannels = None
+        self.filesystem_entries = collections.OrderedDict()
 
         # We could have just not passed in debugOut to MeshInterface, and instead told consumers to subscribe to
         # the meshtastic.log.line publish instead.  Alas though changing that now would be a breaking API change
@@ -373,6 +374,22 @@ class MeshInterface:  # pylint: disable=R0902
             row["N"] = i + 1
 
         table = tabulate(rows, headers="keys", missingval="N/A", tablefmt="fancy_grid")
+        print(table)
+        return table
+
+    def showFileSystem(self) -> str:
+        """Display filesystem entries reported by the radio."""
+        if not self.filesystem_entries:
+            message = "No filesystem entries received."
+            print(message)
+            return message
+
+        rows = []
+        for path, size in self.filesystem_entries.items():
+            size_str = str(size) if size or size == 0 else "-"
+            rows.append((path, size_str))
+
+        table = tabulate(rows, headers=("Path", "Size (bytes)"), tablefmt="plain")
         print(table)
         return table
 
@@ -1349,6 +1366,10 @@ class MeshInterface:  # pylint: disable=R0902
             self._handleLogRecord(fromRadio.log_record)
         elif fromRadio.HasField("queueStatus"):
             self._handleQueueStatusFromRadio(fromRadio.queueStatus)
+        elif fromRadio.HasField("fileInfo"):
+            file_info = fromRadio.fileInfo
+            logger.debug(f"Received file info: {file_info}")
+            self.filesystem_entries[file_info.file_name] = file_info.size_bytes
         elif fromRadio.HasField("clientNotification"):
             publishingThread.queueWork(
                 lambda: pub.sendMessage(
