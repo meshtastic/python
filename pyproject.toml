@@ -7,14 +7,14 @@ license = "GPL-3.0-only"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9,<3.14"                                               # 3.9 is needed for pandas, bleak requires <3.14
+python = "^3.9,<3.15"                                               # 3.9 is needed for pandas
 pyserial = "^3.5"
 protobuf = ">=4.21.12"
 tabulate = "^0.9.0"
 requests = "^2.31.0"
 pyyaml = "^6.0.1"
 pypubsub = "^4.0.3"
-bleak = "^0.22.3"
+bleak = ">=0.22.3"
 packaging = "^24.0"
 argcomplete = { version = "^3.5.2", optional = true }
 pyqrcode = { version = "^1.2.1", optional = true }
@@ -34,7 +34,7 @@ pytest-cov = "^5.0.0"
 pdoc3 = "^0.10.0"
 autopep8 = "^2.1.0"
 pylint = "^3.2.3"
-pyinstaller = "^6.8.0"
+pyinstaller = "^6.10.0"
 mypy = "^1.10.0"
 mypy-protobuf = "^3.3.0"
 types-protobuf = "^5.26.0.20240422"
