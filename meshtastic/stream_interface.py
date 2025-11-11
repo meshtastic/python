@@ -39,12 +39,11 @@ class StreamInterface(MeshInterface):
             timeout -- How long to wait for replies (default: 300 seconds)
 
         Raises:
-            Exception: [description]
-            Exception: [description]
+            RuntimeError: Raised if StreamInterface is instantiated when noProto is false.
         """
 
-        if not hasattr(self, "stream") and not noProto:
-            raise Exception( # pylint: disable=W0719
+        if not noProto and type(self) == StreamInterface:
+            raise RuntimeError(
                 "StreamInterface is now abstract (to update existing code create SerialInterface instead)"
             )
         self.stream: Optional[serial.Serial] # only serial uses this, TCPInterface overrides the relevant methods instead
