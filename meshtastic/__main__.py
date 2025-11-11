@@ -1147,13 +1147,16 @@ def export_config(interface) -> str:
     configObj = {}
 
     # A list of configuration keys that should be set to False if they are missing
-    true_defaults = {
+    config_true_defaults = {
         ("bluetooth", "enabled"),
         ("lora", "sx126xRxBoostedGain"),
         ("lora", "txEnabled"),
         ("lora", "usePreset"),
         ("position", "positionBroadcastSmartEnabled"),
         ("security", "serialEnabled"),
+    }
+
+    module_true_defaults = {
         ("mqtt", "encryptionEnabled"),
     }
 
@@ -1215,7 +1218,7 @@ def export_config(interface) -> str:
         else:
             configObj["config"] = config
 
-        set_missing_flags_false(configObj["config"], true_defaults)
+        set_missing_flags_false(configObj["config"], config_true_defaults)
 
     module_config = MessageToDict(interface.localNode.moduleConfig)
     if module_config:
@@ -1228,6 +1231,8 @@ def export_config(interface) -> str:
             configObj["module_config"] = prefs
         else:
             configObj["module_config"] = prefs
+
+        set_missing_flags_false(configObj["module_config"], module_true_defaults)
 
     config_txt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out)
                                                                         #was used as a string here and a Dictionary above
