@@ -794,6 +794,13 @@ class MeshInterface:  # pylint: disable=R0902
         overwrite: bool = False,
         timeout: int = 120,
     ) -> str:
+        logger.debug(
+            "upload_file host_src=%s device_dst=%s overwrite=%s timeout=%s",
+            host_src,
+            device_dst,
+            overwrite,
+            timeout,
+        )
         host_path = Path(host_src).expanduser()
         if not host_path.is_file():
             raise MeshInterface.MeshInterfaceError(
@@ -803,6 +810,7 @@ class MeshInterface:  # pylint: disable=R0902
         dest_str = device_dst if device_dst is not None else "/"
         if dest_str in ("", "."):
             dest_str = "/"
+        logger.debug("upload_file normalized dest_str='%s'", dest_str)
 
         if dest_str.endswith("/"):
             remote_path = PurePosixPath(dest_str) / host_path.name
@@ -815,6 +823,7 @@ class MeshInterface:  # pylint: disable=R0902
             remote_path = PurePosixPath("/") / remote_path
 
         remote_path_str = str(remote_path)
+        logger.debug("upload_file computed remote_path='%s'", remote_path_str)
 
         if not overwrite and remote_path_str in self.filesystem_entries:
             raise MeshInterface.MeshInterfaceError(
@@ -822,10 +831,12 @@ class MeshInterface:  # pylint: disable=R0902
             )
 
         if overwrite:
+            logger.debug("upload_file overwrite=True; deleting existing '%s'", remote_path_str)
             self._delete_remote_file(remote_path_str)
 
         transfer_event = threading.Event()
         file_handle = open(host_path, "rb")
+        logger.debug("upload_file opened host file '%s'", host_path)
 
         with self._xmodem_lock:
             if self._xmodem_state and not self._xmodem_state.get("done"):
@@ -833,6 +844,7 @@ class MeshInterface:  # pylint: disable=R0902
                 raise MeshInterface.MeshInterfaceError(
                     "Another XMODEM transfer is already in progress."
                 )
+            logger.debug("upload_file acquired xmodem slot for '%s'", remote_path_str)
             self._xmodem_state = {
                 "mode": "upload",
                 "file": file_handle,
@@ -857,6 +869,7 @@ class MeshInterface:  # pylint: disable=R0902
         start_payload = remote_path_str.encode("utf-8")
         if not start_payload.endswith(b"\x00"):
             start_payload += b"\x00"
+        logger.debug("upload_file sending start control packet")
 
         try:
             self._sendXmodemControl(
@@ -866,6 +879,7 @@ class MeshInterface:  # pylint: disable=R0902
                 self._crc16_ccitt(start_payload),
             )
         except Exception as ex:
+            logger.debug("upload_file start failed: %s", ex)
             with self._xmodem_lock:
                 self._complete_xmodem_locked(False, f"Failed to start XMODEM transfer: {ex}")
                 cleanup_target = self._cleanup_xmodem_state_locked(remove_partial=True)
@@ -874,6 +888,7 @@ class MeshInterface:  # pylint: disable=R0902
             raise
 
         if not transfer_event.wait(timeout):
+            logger.debug("upload_file timed out after %s seconds; cancelling", timeout)
             with self._xmodem_lock:
                 try:
                     self._sendXmodemControl(xmodem_pb2.XModem.Control.CAN)
@@ -905,11 +920,18 @@ class MeshInterface:  # pylint: disable=R0902
             self._delete_remote_file(cleanup_target)
 
         if not success:
+            logger.debug("upload_file failed for '%s': %s", remote_path_str, error_message)
             raise MeshInterface.MeshInterfaceError(
                 error_message or "XMODEM transfer failed."
             )
 
         self.filesystem_entries[remote_path_str] = host_path.stat().st_size
+        logger.debug(
+            "upload_file completed %s -> %s (%s bytes)",
+            host_path,
+            remote_path_str,
+            self.filesystem_entries[remote_path_str],
+        )
         return remote_path_str
 
     def getNode(
