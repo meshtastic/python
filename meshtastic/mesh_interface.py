@@ -14,6 +14,7 @@ import time
 import traceback
 from datetime import datetime
 from decimal import Decimal
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import google.protobuf.json_format
@@ -36,7 +37,7 @@ from meshtastic import (
     protocols,
     publishingThread,
 )
-from meshtastic.protobuf import mesh_pb2, portnums_pb2, telemetry_pb2
+from meshtastic.protobuf import mesh_pb2, portnums_pb2, telemetry_pb2, xmodem_pb2
 from meshtastic.util import (
     Acknowledgment,
     Timeout,
@@ -134,6 +135,8 @@ class MeshInterface:  # pylint: disable=R0902
         self.queue: collections.OrderedDict = collections.OrderedDict()
         self._localChannels = None
         self.filesystem_entries = collections.OrderedDict()
+        self._xmodem_lock: threading.Lock = threading.Lock()
+        self._xmodem_state: Optional[Dict[str, Any]] = None
 
         # We could have just not passed in debugOut to MeshInterface, and instead told consumers to subscribe to
         # the meshtastic.log.line publish instead.  Alas though changing that now would be a breaking API change
@@ -392,6 +395,258 @@ class MeshInterface:  # pylint: disable=R0902
         table = tabulate(rows, headers=("Path", "Size (bytes)"), tablefmt="plain")
         print(table)
         return table
+
+    @staticmethod
+    def _crc16_ccitt(data: bytes) -> int:
+        crc16 = 0
+        for byte in data:
+            crc16 = ((crc16 >> 8) & 0xFF) | ((crc16 << 8) & 0xFFFF)
+            crc16 ^= byte
+            crc16 ^= (crc16 & 0xFF) >> 4
+            crc16 ^= (crc16 << 8) << 4
+            crc16 ^= ((crc16 & 0xFF) << 4) << 1
+            crc16 &= 0xFFFF
+        return crc16
+
+    def _sendXmodemControl(
+        self,
+        control: xmodem_pb2.XModem.Control.ValueType,
+        seq: int = 0,
+        payload: bytes = b"",
+        crc16: Optional[int] = None,
+    ) -> None:
+        message = mesh_pb2.ToRadio()
+        packet = message.xmodemPacket
+        packet.control = control
+        packet.seq = seq
+        if payload:
+            packet.buffer = payload
+        if crc16 is not None:
+            packet.crc16 = crc16
+        self._sendToRadio(message)
+
+    def _sendXmodemRequest(self, node_src: str) -> None:
+        request = mesh_pb2.ToRadio()
+        packet = request.xmodemPacket
+        packet.control = xmodem_pb2.XModem.Control.STX
+        packet.seq = 0
+        packet.buffer = node_src.encode("utf-8")
+        self._sendToRadio(request)
+
+    def _complete_xmodem_locked(self, success: bool, error: Optional[str] = None) -> None:
+        state = self._xmodem_state
+        if not state or state.get("done"):
+            return
+        file_handle = state.get("file")
+        if file_handle and not state.get("closed"):
+            try:
+                file_handle.flush()
+            except Exception:
+                pass
+            try:
+                file_handle.close()
+            except Exception:
+                pass
+            state["closed"] = True
+        state["success"] = success
+        state["error"] = error
+        state["done"] = True
+        state["should_remove"] = not success
+        state["event"].set()
+
+    def _cleanup_xmodem_state_locked(self, remove_partial: bool = False) -> None:
+        state = self._xmodem_state
+        if not state:
+            return
+        file_handle = state.get("file")
+        if file_handle and not state.get("closed"):
+            try:
+                file_handle.close()
+            except Exception:
+                pass
+            state["closed"] = True
+        path = state.get("path")
+        self._xmodem_state = None
+        if remove_partial and path:
+            try:
+                Path(path).unlink(missing_ok=True)
+            except Exception as ex:
+                logger.debug(f"Failed to remove partial download {path}: {ex}")
+
+    def _handleXmodemPacket(self, packet: xmodem_pb2.XModem) -> None:
+        control_to_send: Optional[xmodem_pb2.XModem.Control.ValueType] = None
+        seq_to_send = packet.seq
+
+        with self._xmodem_lock:
+            state = self._xmodem_state
+            if not state or state.get("mode") != "download" or state.get("done"):
+                return
+
+            control = packet.control
+            if control in (
+                xmodem_pb2.XModem.Control.SOH,
+                xmodem_pb2.XModem.Control.STX,
+            ):
+                expected_seq = state.get("expected_seq", 1)
+                seq = packet.seq
+                if seq != expected_seq:
+                    logger.warning(
+                        "Unexpected XMODEM sequence. expected=%s got=%s",
+                        expected_seq,
+                        seq,
+                    )
+                    control_to_send = xmodem_pb2.XModem.Control.NAK
+                    state["last_activity"] = time.time()
+                else:
+                    data = packet.buffer
+                    crc_local = self._crc16_ccitt(data)
+                    if packet.crc16 != crc_local:
+                        logger.warning(
+                            "XMODEM CRC mismatch for %s. expected=%s got=%s",
+                            state.get("path"),
+                            packet.crc16,
+                            crc_local,
+                        )
+                        control_to_send = xmodem_pb2.XModem.Control.NAK
+                        state["last_activity"] = time.time()
+                    else:
+                        try:
+                            file_handle = state["file"]
+                            file_handle.write(data)
+                        except Exception as ex:
+                            logger.error(
+                                "Error writing XMODEM data to %s: %s",
+                                state.get("path"),
+                                ex,
+                            )
+                            self._complete_xmodem_locked(
+                                False,
+                                f"Failed writing to {state.get('path')}: {ex}",
+                            )
+                            control_to_send = xmodem_pb2.XModem.Control.CAN
+                        else:
+                            state["expected_seq"] = expected_seq + 1
+                            state["last_activity"] = time.time()
+                            control_to_send = xmodem_pb2.XModem.Control.ACK
+            elif control == xmodem_pb2.XModem.Control.EOT:
+                control_to_send = xmodem_pb2.XModem.Control.ACK
+                self._complete_xmodem_locked(True)
+            elif control == xmodem_pb2.XModem.Control.NAK:
+                logger.error("Device reported NAK while sending %s", state.get("path"))
+                self._complete_xmodem_locked(
+                    False, "Device reported NAK during XMODEM transfer."
+                )
+            elif control == xmodem_pb2.XModem.Control.CAN:
+                logger.error("Device cancelled XMODEM transfer for %s", state.get("path"))
+                self._complete_xmodem_locked(
+                    False, "Device cancelled the XMODEM transfer."
+                )
+            elif control == xmodem_pb2.XModem.Control.ACK:
+                # Ignore ACKs from device during download.
+                pass
+            else:
+                logger.error("Unsupported XMODEM control %s", control)
+                control_to_send = xmodem_pb2.XModem.Control.CAN
+                self._complete_xmodem_locked(
+                    False, f"Unsupported XMODEM control {control}."
+                )
+
+        if control_to_send is not None:
+            try:
+                self._sendXmodemControl(control_to_send, seq_to_send)
+            except Exception as ex:
+                logger.error(f"Failed to send XMODEM control {control_to_send}: {ex}")
+
+    def download_file(
+        self,
+        node_src: str,
+        host_dst: Optional[str] = None,
+        *,
+        overwrite: bool = False,
+        timeout: int = 120,
+    ) -> str:
+        if not node_src:
+            raise MeshInterface.MeshInterfaceError("Remote path must be provided.")
+
+        node_src_clean = node_src.strip()
+        if not node_src_clean:
+            raise MeshInterface.MeshInterfaceError("Remote path must not be empty.")
+
+        destination = Path(host_dst or ".")
+        if destination.is_dir():
+            destination = destination / Path(node_src_clean).name
+
+        if destination.exists() and not overwrite:
+            raise MeshInterface.MeshInterfaceError(
+                f"Destination file '{destination}' already exists."
+            )
+
+        destination.parent.mkdir(parents=True, exist_ok=True)
+
+        transfer_event = threading.Event()
+        file_handle = open(destination, "wb")
+
+        with self._xmodem_lock:
+            if self._xmodem_state and not self._xmodem_state.get("done"):
+                file_handle.close()
+                raise MeshInterface.MeshInterfaceError(
+                    "Another XMODEM transfer is already in progress."
+                )
+            self._xmodem_state = {
+                "mode": "download",
+                "expected_seq": 1,
+                "file": file_handle,
+                "event": transfer_event,
+                "path": str(destination),
+                "success": None,
+                "error": None,
+                "done": False,
+                "closed": False,
+                "should_remove": False,
+                "last_activity": time.time(),
+            }
+
+        try:
+            self._sendXmodemRequest(node_src_clean)
+        except Exception as ex:
+            with self._xmodem_lock:
+                self._complete_xmodem_locked(False, f"Failed to start XMODEM transfer: {ex}")
+                self._cleanup_xmodem_state_locked(remove_partial=True)
+            raise
+
+        if not transfer_event.wait(timeout):
+            with self._xmodem_lock:
+                # Attempt to cancel on timeout
+                try:
+                    self._sendXmodemControl(xmodem_pb2.XModem.Control.CAN)
+                except Exception as ex:
+                    logger.debug(f"Failed to send XMODEM cancel: {ex}")
+                self._complete_xmodem_locked(
+                    False, "Timed out waiting for XMODEM transfer."
+                )
+                state = self._xmodem_state
+                error_message = "Timed out waiting for XMODEM transfer."
+                if state and state.get("error"):
+                    error_message = state["error"]
+                self._cleanup_xmodem_state_locked(remove_partial=True)
+            raise MeshInterface.MeshInterfaceError(error_message)
+
+        with self._xmodem_lock:
+            state = self._xmodem_state
+            if not state:
+                raise MeshInterface.MeshInterfaceError("XMODEM transfer state missing.")
+            success = bool(state.get("success"))
+            error_message = state.get("error")
+            destination_path = state.get("path")
+            remove_partial = state.get("should_remove", False)
+            self._cleanup_xmodem_state_locked(remove_partial=remove_partial)
+
+        if not success:
+            raise MeshInterface.MeshInterfaceError(
+                error_message or "XMODEM transfer failed."
+            )
+
+        return destination_path or str(destination)
 
     def getNode(
         self, nodeId: str, requestChannels: bool = True, requestChannelAttempts: int = 3, timeout: int = 300
@@ -1389,6 +1644,7 @@ class MeshInterface:  # pylint: disable=R0902
             )
 
         elif fromRadio.HasField("xmodemPacket"):
+            self._handleXmodemPacket(fromRadio.xmodemPacket)
             publishingThread.queueWork(
                 lambda: pub.sendMessage(
                     "meshtastic.xmodempacket",

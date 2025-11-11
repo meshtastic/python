@@ -1026,6 +1026,24 @@ def onConnected(interface):
             closeNow = True
             interface.showFileSystem()
 
+        if args.fs_download:
+            if len(args.fs_download) > 2:
+                print("--fs-download expects at most two arguments: <node_src> [host_dst]")
+                return
+            if args.dest != BROADCAST_ADDR:
+                print("Downloading from a remote node is not supported.")
+                return
+            node_src = args.fs_download[0]
+            host_dst = args.fs_download[1] if len(args.fs_download) == 2 else "."
+            try:
+                destination_path = interface.download_file(node_src, host_dst)
+            except MeshInterface.MeshInterfaceError as ex:
+                closeNow = True
+                print(f"ERROR: {ex}")
+                return
+            closeNow = True
+            print(f"Downloaded '{node_src}' to '{destination_path}'.")
+
         if args.qr or args.qr_all:
             closeNow = True
             url = interface.getNode(args.dest, True, **getNode_kwargs).getURL(includeAll=args.qr_all)
@@ -1838,6 +1856,13 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         "--fs-ls",
         help="List filesystem entries reported by the local node",
         action="store_true",
+    )
+
+    group.add_argument(
+        "--fs-download",
+        nargs="+",
+        metavar=("NODE_SRC", "HOST_DST"),
+        help="Download a file from the node filesystem. Provide NODE_SRC and optionally a HOST_DST path.",
     )
 
     return parser
