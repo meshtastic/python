@@ -1044,6 +1044,24 @@ def onConnected(interface):
             closeNow = True
             print(f"Downloaded '{node_src}' to '{destination_path}'.")
 
+        if args.fs_upload:
+            if len(args.fs_upload) > 2:
+                print("--fs-upload expects at most two arguments: <host_src> [device_dst]")
+                return
+            if args.dest != BROADCAST_ADDR:
+                print("Uploading to a remote node is not supported.")
+                return
+            host_src = args.fs_upload[0]
+            device_dst = args.fs_upload[1] if len(args.fs_upload) == 2 else "/"
+            try:
+                remote_path = interface.upload_file(host_src, device_dst)
+            except MeshInterface.MeshInterfaceError as ex:
+                closeNow = True
+                print(f"ERROR: {ex}")
+                return
+            closeNow = True
+            print(f"Uploaded '{host_src}' to '{remote_path}'.")
+
         if args.qr or args.qr_all:
             closeNow = True
             url = interface.getNode(args.dest, True, **getNode_kwargs).getURL(includeAll=args.qr_all)
@@ -1863,6 +1881,13 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         nargs="+",
         metavar=("NODE_SRC", "HOST_DST"),
         help="Download a file from the node filesystem. Provide NODE_SRC and optionally a HOST_DST path.",
+    )
+
+    group.add_argument(
+        "--fs-upload",
+        nargs="+",
+        metavar=("HOST_SRC", "DEVICE_DST"),
+        help="Upload a file to the node filesystem. Provide HOST_SRC and optionally a DEVICE_DST path (defaults to '/').",
     )
 
     return parser
