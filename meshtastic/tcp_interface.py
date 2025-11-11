@@ -36,11 +36,6 @@ class TCPInterface(StreamInterface):
 
         self.socket: Optional[socket.socket] = None
 
-        if connectNow:
-            self.myConnect()
-        else:
-            self.socket = None
-
         super().__init__(debugOut=debugOut, noProto=noProto, connectNow=connectNow, noNodes=noNodes, timeout=timeout)
 
     def __repr__(self):
@@ -65,8 +60,13 @@ class TCPInterface(StreamInterface):
         if self.socket is not None:
             self.socket.shutdown(socket.SHUT_RDWR)
 
+    def connect(self) -> None:
+        """Connect the interface"""
+        self.myConnect()
+        super().connect()
+
     def myConnect(self) -> None:
-        """Connect to socket"""
+        """Connect to socket (without attempting to start the interface's receive thread"""
         logger.debug(f"Connecting to {self.hostname}") # type: ignore[str-bytes-safe]
         server_address = (self.hostname, self.portNumber)
         self.socket = socket.create_connection(server_address)
