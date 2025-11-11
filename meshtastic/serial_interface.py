@@ -35,8 +35,6 @@ class SerialInterface(StreamInterface):
             debugOut {stream} -- If a stream is provided, any debug serial output from the device will be emitted to that stream. (default: {None})
             timeout -- How long to wait for replies (default: 300 seconds)
         """
-        self.noProto = noProto
-
         self.devPath: Optional[str] = devPath
 
         if self.devPath is None:
