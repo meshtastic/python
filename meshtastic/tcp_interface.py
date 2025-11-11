@@ -31,9 +31,6 @@ class TCPInterface(StreamInterface):
             hostname {string} -- Hostname/IP address of the device to connect to
             timeout -- How long to wait for replies (default: 300 seconds)
         """
-
-        self.stream = None
-
         self.hostname: str = hostname
         self.portNumber: int = portNumber
 
