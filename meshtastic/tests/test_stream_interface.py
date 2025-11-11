@@ -15,7 +15,7 @@ def test_StreamInterface():
     """Test that we cannot instantiate a StreamInterface based on noProto"""
     with pytest.raises(Exception) as pytest_wrapped_e:
         StreamInterface()
-    assert pytest_wrapped_e.type == Exception
+    assert pytest_wrapped_e.type == RuntimeError
 
 
 # Note: This takes a bit, so moving from unit to slow
