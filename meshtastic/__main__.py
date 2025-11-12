@@ -2274,7 +2274,13 @@ def main():
     )
     mt_config.parser = parser
     initParser()
-    common()
+    args = getattr(mt_config, "args", None)
+    try:
+        common()
+    except Exception as ex:  # pylint: disable=broad-except
+        if args and getattr(args, "debug", False):
+            raise
+        meshtastic.util.our_exit(str(ex), 1)
     logfile = mt_config.logfile
     if logfile:
         logfile.close()
@@ -2288,7 +2294,12 @@ def tunnelMain():
     args = mt_config.args
     args.tunnel = True
     mt_config.args = args
-    common()
+    try:
+        common()
+    except Exception as ex:  # pylint: disable=broad-except
+        if args and getattr(args, "debug", False):
+            raise
+        meshtastic.util.our_exit(str(ex), 1)
 
 
 if __name__ == "__main__":
