@@ -1039,7 +1039,7 @@ class Node:
                         hash_val = generate_channel_hash(c.settings.name, c.settings.psk)
                     name = getattr(c.settings, "name", "")
                 # If PRIMARY and name is empty, use formatted preset name from localConfig.lora.modem_preset
-                if c.role == channel_pb2.Channel.Role.PRIMARY and not name:
+                if not name:
                     modem_preset_enum = getattr(getattr(self.localConfig, "lora", None), "modem_preset", None)
                     if modem_preset_enum is not None:
                         modem_preset_string = self.localConfig.lora.DESCRIPTOR.fields_by_name["modem_preset"].enum_type.values_by_number[modem_preset_enum].name
