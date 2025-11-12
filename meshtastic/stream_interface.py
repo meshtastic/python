@@ -42,7 +42,7 @@ class StreamInterface(MeshInterface):
             RuntimeError: Raised if StreamInterface is instantiated when noProto is false.
         """
 
-        if not noProto and type(self) == StreamInterface:
+        if not noProto and type(self) == StreamInterface: # pylint: disable=C0123
             raise RuntimeError(
                 "StreamInterface is now abstract (to update existing code create SerialInterface instead)"
             )
