@@ -1036,7 +1036,9 @@ def onConnected(interface):
             node_src = args.fs_download[0]
             host_dst = args.fs_download[1] if len(args.fs_download) == 2 else "."
             try:
-                destination_path = interface.download_file(node_src, host_dst)
+                destination_path = interface.download_file(
+                    node_src, host_dst, overwrite=args.force
+                )
             except MeshInterface.MeshInterfaceError as ex:
                 closeNow = True
                 print(f"ERROR: {ex}")
@@ -1054,10 +1056,13 @@ def onConnected(interface):
             host_src = args.fs_upload[0]
             device_dst = args.fs_upload[1] if len(args.fs_upload) == 2 else "/"
             try:
-                remote_path = interface.upload_file(host_src, device_dst)
+                remote_path = interface.upload_file(
+                    host_src, device_dst, overwrite=args.force
+                )
             except MeshInterface.MeshInterfaceError as ex:
                 closeNow = True
                 print(f"ERROR: {ex}")
+                interface.close()
                 return
             closeNow = True
             print(f"Uploaded '{host_src}' to '{remote_path}'.")
@@ -1888,6 +1893,12 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         nargs="+",
         metavar=("HOST_SRC", "DEVICE_DST"),
         help="Upload a file to the node filesystem. Provide HOST_SRC and optionally a DEVICE_DST path (defaults to '/').",
+    )
+
+    group.add_argument(
+        "--force",
+        action="store_true",
+        help="Allow overwriting existing files when uploading or downloading.",
     )
 
     return parser
