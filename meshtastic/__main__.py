@@ -42,6 +42,8 @@ import meshtastic.serial_interface
 import meshtastic.tcp_interface
 
 from meshtastic import BROADCAST_ADDR, mt_config, remote_hardware
+from meshtastic.cli import CommandContext, get_registry
+from meshtastic.cli.filesystem_commands import register_filesystem_provider
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
 try:
@@ -64,6 +66,20 @@ from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2, mesh_pb2
 from meshtastic.version import get_active_version
 
 logger = logging.getLogger(__name__)
+
+
+_command_registry = None
+
+
+def get_command_registry():
+    """Return the lazily instantiated command registry with built-in providers registered."""
+
+    global _command_registry
+    if _command_registry is None:
+        registry = get_registry()
+        register_filesystem_provider(registry)
+        _command_registry = registry
+    return _command_registry
 
 def onReceive(packet, interface) -> None:
     """Callback invoked when a packet arrives"""
@@ -1019,53 +1035,21 @@ def onConnected(interface):
             print("--show-fields can only be used with --nodes")
             return
 
-        if args.fs_ls:
-            if args.dest != BROADCAST_ADDR:
-                print("Listing filesystem of a remote node is not supported.")
-                return
-            closeNow = True
-            interface.showFileSystem()
-
-        if args.fs_download:
-            if len(args.fs_download) > 2:
-                print("--fs-download expects at most two arguments: <node_src> [host_dst]")
-                return
-            if args.dest != BROADCAST_ADDR:
-                print("Downloading from a remote node is not supported.")
-                return
-            node_src = args.fs_download[0]
-            host_dst = args.fs_download[1] if len(args.fs_download) == 2 else "."
-            try:
-                destination_path = interface.download_file(
-                    node_src, host_dst, overwrite=args.force
-                )
-            except MeshInterface.MeshInterfaceError as ex:
-                closeNow = True
-                print(f"ERROR: {ex}")
-                return
-            closeNow = True
-            print(f"Downloaded '{node_src}' to '{destination_path}'.")
-
-        if args.fs_upload:
-            if len(args.fs_upload) > 2:
-                print("--fs-upload expects at most two arguments: <host_src> [device_dst]")
-                return
-            if args.dest != BROADCAST_ADDR:
-                print("Uploading to a remote node is not supported.")
-                return
-            host_src = args.fs_upload[0]
-            device_dst = args.fs_upload[1] if len(args.fs_upload) == 2 else "/"
-            try:
-                remote_path = interface.upload_file(
-                    host_src, device_dst, overwrite=args.force
-                )
-            except MeshInterface.MeshInterfaceError as ex:
-                closeNow = True
-                print(f"ERROR: {ex}")
-                interface.close()
-                return
-            closeNow = True
-            print(f"Uploaded '{host_src}' to '{remote_path}'.")
+        registry = get_command_registry()
+        context = CommandContext(
+            args=args,
+            interface=interface,
+            command=getattr(args, "command", None),
+            close_now=closeNow,
+            wait_for_ack=waitForAckNak,
+        )
+        handler = getattr(args, "command_handler", None)
+        if handler:
+            handler(context)
+        else:
+            registry.handle(context)
+        closeNow = context.close_now
+        waitForAckNak = context.wait_for_ack
 
         if args.qr or args.qr_all:
             closeNow = True
@@ -1875,32 +1859,6 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         default=None
     )
 
-    group.add_argument(
-        "--fs-ls",
-        help="List filesystem entries reported by the local node",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--fs-download",
-        nargs="+",
-        metavar=("NODE_SRC", "HOST_DST"),
-        help="Download a file from the node filesystem. Provide NODE_SRC and optionally a HOST_DST path.",
-    )
-
-    group.add_argument(
-        "--fs-upload",
-        nargs="+",
-        metavar=("HOST_SRC", "DEVICE_DST"),
-        help="Upload a file to the node filesystem. Provide HOST_SRC and optionally a DEVICE_DST path (defaults to '/').",
-    )
-
-    group.add_argument(
-        "--force",
-        action="store_true",
-        help="Allow overwriting existing files when uploading or downloading.",
-    )
-
     return parser
 
 def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
@@ -2057,7 +2015,7 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
 def initParser():
     """Initialize the command line argument parsing."""
     parser = mt_config.parser
-    args = mt_config.args
+    registry = get_command_registry()
 
     # The "Help" group includes the help option and other informational stuff about the CLI itself
     outerHelpGroup = parser.add_argument_group("Help")
@@ -2255,6 +2213,15 @@ def initParser():
             help="Sets the local-end subnet address for the TUN IP bridge. (ex: 10.115' which is the default)",
             default=None,
         )
+
+    registry.register_arguments(parser)
+
+    subparsers = parser.add_subparsers(
+        title="Commands",
+        dest="command",
+        metavar="COMMAND",
+    )
+    registry.register_subcommands(subparsers)
 
     parser.set_defaults(deprecated=None)
 
