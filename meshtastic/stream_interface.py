@@ -93,9 +93,12 @@ class StreamInterface(MeshInterface):
 
         logger.debug("Closing our port")
         # pylint: disable=E0203
-        if not self.stream is None:
+        if hasattr(self, "stream") and self.stream is not None and getattr(self.stream, "is_open", False):
             # pylint: disable=E0203
-            self.stream.close()
+            try:
+                self.stream.close()
+            except Exception as e:
+                logger.debug(f"Exception during close: {e}")
             # pylint: disable=W0201
             self.stream = None
 
