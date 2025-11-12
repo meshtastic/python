@@ -1023,7 +1023,7 @@ class Node:
     def get_channels_with_hash(self):
         """Return a list of dicts with channel info and hash."""
         result = []
-        def format_preset_name(name):
+        def format_preset_name(name='Custom'):
             # Convert name like MODEM_PRESET to ModemPreset
             return ''.join(word.capitalize() for word in name.split('_'))
 
