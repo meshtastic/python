@@ -1333,7 +1333,7 @@ def common():
             handler.setFormatter(formatter)
 
     # set all meshtastic loggers to DEBUG
-    if not (args.debug or args.listen) and args.debuglib:
+    if not debug_logging_enabled and args.debuglib:
         logging.getLogger('meshtastic').setLevel(logging.DEBUG)
 
     if len(sys.argv) == 1:
