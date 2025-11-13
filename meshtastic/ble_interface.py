@@ -15,8 +15,12 @@ import google.protobuf
 from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
 
-from meshtastic import mt_config
 from meshtastic.mesh_interface import MeshInterface
+from meshtastic.verbosity import (
+    cli_verbosity_debug_enabled,
+    cli_verbosity_full_enabled,
+    cli_verbosity_progress_enabled,
+)
 
 from .protobuf import mesh_pb2
 
@@ -27,16 +31,6 @@ FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
 LEGACY_LOGRADIO_UUID = "6c6fd238-78fa-436b-aacf-15c5be1ef2e2"
 LOGRADIO_UUID = "5a3d6e49-06e6-4423-9944-e9de8cdf9547"
 logger = logging.getLogger(__name__)
-
-
-def _cli_verbose_enabled() -> bool:
-    args = getattr(mt_config, "args", None)
-    return bool(args and getattr(args, "verbose", False))
-
-
-def _cli_debug_enabled() -> bool:
-    args = getattr(mt_config, "args", None)
-    return bool(args and getattr(args, "debug", False))
 
 
 class BLEInterface(MeshInterface):
@@ -140,8 +134,8 @@ class BLEInterface(MeshInterface):
         """Scan for available BLE devices."""
         with BLEClient() as client:
             scan_duration = 10
-            verbose = _cli_verbose_enabled()
-            debug = _cli_debug_enabled()
+            verbose = cli_verbosity_full_enabled()
+            debug = cli_verbosity_debug_enabled()
             normal_mode = not (debug or verbose)
             scan_message = "Scanning for BLE..."
             logger.debug(
@@ -240,8 +234,18 @@ class BLEInterface(MeshInterface):
 
         # Bleak docs recommend always doing a scan before connecting (even if we know addr)
         device = self.find_device(address)
+        display_name = device.name or device.address or repr(device)
+        if cli_verbosity_full_enabled():
+            print(f'Connecting to BLE device "{display_name}"...', flush=True)
+        elif cli_verbosity_progress_enabled():
+            print("Connecting to BLE device...", flush=True)
+
         client = BLEClient(device.address, disconnected_callback=lambda _: self.close())
         client.connect()
+        if cli_verbosity_full_enabled():
+            print("Discovering BLE services...", flush=True)
+        elif cli_verbosity_progress_enabled():
+            print("Negotiating services...", flush=True)
         client.discover()
         return client
 
@@ -310,9 +314,18 @@ class BLEInterface(MeshInterface):
                 )  # If bleak is hung, don't wait for the thread to exit (it is critical we disconnect)
                 self._receiveThread = None
 
+        disconnect_future = None
         if self.client:
             atexit.unregister(self._exit_handler)
-            self.client.disconnect()
+            disconnect_future = self.client.disconnect(timeout=0)
+            if disconnect_future is not None:
+                # allow brief time for disconnect to complete without blocking
+                try:
+                    disconnect_future.result(timeout=0.1)
+                except FuturesTimeoutError:
+                    disconnect_future.cancel()
+                except Exception as exc:  # pylint: disable=broad-except
+                    logger.debug("Error completing BLE disconnect: %s", exc)
             self.client.close()
             self.client = None
         self._disconnected() # send the disconnected indicator up to clients
@@ -343,8 +356,26 @@ class BLEClient:
     def connect(self, **kwargs):  # pylint: disable=C0116
         return self.async_await(self.bleak_client.connect(**kwargs))
 
-    def disconnect(self, **kwargs):  # pylint: disable=C0116
-        self.async_await(self.bleak_client.disconnect(**kwargs))
+    def disconnect(self, *, timeout: Optional[float] = 5, **kwargs):  # pylint: disable=C0116
+        if not self.bleak_client:
+            return None
+        future = self.async_run(self.bleak_client.disconnect(**kwargs))
+        if timeout is None:
+            try:
+                future.result()
+            except Exception as exc:  # pylint: disable=broad-except
+                logger.debug("Error during BLE disconnect: %s", exc)
+            return future
+        if timeout <= 0:
+            return future
+        try:
+            future.result(timeout=timeout)
+        except FuturesTimeoutError:
+            logger.warning("Timeout while disconnecting BLE client; proceeding with close.")
+            future.cancel()
+        except Exception as exc:  # pylint: disable=broad-except
+            logger.debug("Error during BLE disconnect: %s", exc)
+        return future
 
     def read_gatt_char(self, *args, **kwargs):  # pylint: disable=C0116
         return self.async_await(self.bleak_client.read_gatt_char(*args, **kwargs))

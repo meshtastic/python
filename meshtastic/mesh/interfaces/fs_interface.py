@@ -18,6 +18,10 @@ class FsOperationError(Exception):
     """Raised when a filesystem-related operation fails."""
 
 
+class FsFileExistsError(FsOperationError):
+    """Raised when attempting to create or upload a file that already exists."""
+
+
 class FsInterface:
     """Encapsulates filesystem and XMODEM logic for `MeshInterface`."""
 
@@ -191,9 +195,8 @@ class FsInterface:
         logger.debug("upload computed remote_path='%s'", remote_path_str)
 
         if not overwrite and remote_path_str in self.entries:
-            raise FsOperationError(
-                f"Remote file '{remote_path_str}' already exists (use overwrite=True to replace it)."
-            )
+            message = f"Remote file '{remote_path_str}' already exists."
+            raise FsFileExistsError(message)
 
         if overwrite:
             logger.debug("upload overwrite=True; deleting existing '%s'", remote_path_str)

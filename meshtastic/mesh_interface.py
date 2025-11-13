@@ -48,13 +48,9 @@ from meshtastic.util import (
     remove_keys_from_dict,
     stripnl,
 )
+from meshtastic.verbosity import VerbosityType, get_cli_verbosity
 
 logger = logging.getLogger(__name__)
-
-
-def _cli_verbose_enabled() -> bool:
-    args = getattr(mt_config, "args", None)
-    return bool(args and getattr(args, "verbose", False))
 
 
 def _progress_wait_for_attrs(
@@ -176,15 +172,13 @@ class MeshInterface:  # pylint: disable=R0902
         self.queue: collections.OrderedDict = collections.OrderedDict()
         self._localChannels = None
         self.fs = FsInterface(self)
+        self.verbosity: VerbosityType = get_cli_verbosity()
 
         # We could have just not passed in debugOut to MeshInterface, and instead told consumers to subscribe to
         # the meshtastic.log.line publish instead.  Alas though changing that now would be a breaking API change
         # for any external consumers of the library.
         if debugOut:
             pub.subscribe(MeshInterface._printLogLine, "meshtastic.log.line")
-
-    def _progress_enabled(self) -> bool:
-        return _cli_verbose_enabled()
 
     def close(self):
         """Shutdown this interface"""
@@ -1059,10 +1053,52 @@ class MeshInterface:  # pylint: disable=R0902
 
     def waitForConfig(self):
         """Block until radio config is received. Returns True if config has been received."""
-        success = (
-            self._timeout.waitForSet(self, attrs=("myInfo", "nodes"))
-            and self.localNode.waitForConfig()
+        progress_enabled = self.verbosity == VerbosityType.FULL
+        default_progress = self.verbosity == VerbosityType.PROGRESS_ONLY
+        show_progress = progress_enabled or default_progress
+
+        label_myinfo = (
+            "Waiting for device info"
+            if progress_enabled
+            else "Initializing radio..."
         )
+
+        have_myinfo = _progress_wait_for_attrs(
+            self._timeout,
+            self,
+            ("myInfo",),
+            label_myinfo,
+            enabled=show_progress,
+        )
+        if not have_myinfo:
+            raise MeshInterface.MeshInterfaceError(
+                "Timed out waiting for interface config"
+            )
+
+        if not self.noNodes:
+            label_nodes = (
+                "Loading node database"
+                if progress_enabled
+                else "Loading nodes..."
+            )
+
+            have_nodes = _progress_wait_for_attrs(
+                self._timeout,
+                self,
+                ("nodes",),
+                label_nodes,
+                enabled=show_progress,
+            )
+            if not have_nodes:
+                raise MeshInterface.MeshInterfaceError(
+                    "Timed out waiting for interface config"
+                )
+        else:
+            # Ensure downstream code sees an initialized (but empty) node map.
+            if self.nodes is None:
+                self.nodes = {}
+
+        success = self.localNode.waitForConfig()
         if not success:
             raise MeshInterface.MeshInterfaceError(
                 "Timed out waiting for interface config"
@@ -1151,12 +1187,42 @@ class MeshInterface:  # pylint: disable=R0902
 
     def _waitConnected(self, timeout=30.0):
         """Block until the initial node db download is complete, or timeout
-        and raise an exception"""
+        and raise an exception."""
+
         if not self.noProto:
-            if not self.isConnected.wait(timeout):  # timeout after x seconds
-                raise MeshInterface.MeshInterfaceError(
-                    "Timed out waiting for connection completion"
+            progress_enabled = self.verbosity == VerbosityType.FULL
+            default_progress = self.verbosity == VerbosityType.PROGRESS_ONLY
+            show_progress = progress_enabled or default_progress
+
+            if show_progress:
+                label = (
+                    "Establishing radio link"
+                    if progress_enabled
+                    else "Connecting to radio"
                 )
+                sys.stdout.write(f"{label}")
+                sys.stdout.flush()
+
+                deadline = time.time() + timeout
+                interval = 0.5
+                while time.time() < deadline:
+                    if self.isConnected.wait(timeout=interval):
+                        sys.stdout.write("\n")
+                        sys.stdout.flush()
+                        break
+                    sys.stdout.write(".")
+                    sys.stdout.flush()
+                else:
+                    sys.stdout.write(" (timeout)\n")
+                    sys.stdout.flush()
+                    raise MeshInterface.MeshInterfaceError(
+                        "Timed out waiting for connection completion"
+                    )
+            else:
+                if not self.isConnected.wait(timeout):  # timeout after x seconds
+                    raise MeshInterface.MeshInterfaceError(
+                        "Timed out waiting for connection completion"
+                    )
 
         # If we failed while connecting, raise the connection to the client
         if self.failure:
@@ -1366,6 +1432,11 @@ class MeshInterface:  # pylint: disable=R0902
 
             node = self._getOrCreateByNum(asDict["nodeInfo"]["num"])
             node.update(asDict["nodeInfo"])
+            if self.nodes is None:
+                self.nodes = {}
+            user_info = node.get("user", {})
+            user_identifier = user_info.get("id")
+            is_new_node = bool(user_identifier and user_identifier not in self.nodes)
             try:
                 newpos = self._fixupPosition(node["position"])
                 node["position"] = newpos
@@ -1376,6 +1447,24 @@ class MeshInterface:  # pylint: disable=R0902
             # self.nodesByNum[node["num"]] = node
             if "user" in node:  # Some nodes might not have user/ids assigned yet
                 if "id" in node["user"]:
+                    if (
+                        self == getattr(self, "localNode", None)
+                        and self.verbosity == VerbosityType.FULL
+                        and is_new_node
+                    ):
+                        identifier = node["user"].get("id")
+                        short_name = node["user"].get("shortName")
+                        long_name = node["user"].get("longName")
+                        label = short_name or long_name or identifier or f"!{node['num']:08x}"
+                        details: list[str] = []
+                        if identifier and identifier != label:
+                            details.append(identifier)
+                        if long_name and long_name not in (label, identifier):
+                            details.append(long_name)
+                        message = f"Loaded node {label}"
+                        if details:
+                            message += f" ({', '.join(details)})"
+                        print(message)
                     self.nodes[node["user"]["id"]] = node
             publishingThread.queueWork(
                 lambda: pub.sendMessage(

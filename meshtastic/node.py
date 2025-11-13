@@ -3,6 +3,7 @@
 
 import base64
 import logging
+import sys
 import time
 
 from typing import Optional, Union, List
@@ -18,6 +19,10 @@ from meshtastic.util import (
     message_to_json,
     generate_channel_hash,
     to_node_num,
+)
+from meshtastic.verbosity import (
+    cli_verbosity_full_enabled,
+    cli_verbosity_progress_enabled,
 )
 
 logger = logging.getLogger(__name__)
@@ -177,7 +182,43 @@ class Node:
 
     def waitForConfig(self, attribute="channels"):
         """Block until radio config is received. Returns True if config has been received."""
-        return self._timeout.waitForSet(self, attrs=("localConfig", attribute))
+        is_local_node = self == getattr(self.iface, "localNode", None)
+        progress_enabled = is_local_node and cli_verbosity_full_enabled()
+        default_progress = is_local_node and cli_verbosity_progress_enabled()
+        show_progress = progress_enabled or default_progress
+
+        if not show_progress:
+            return self._timeout.waitForSet(self, attrs=("localConfig", attribute))
+
+        label = "Loading device configuration"
+        if attribute != "channels":
+            label = f"Waiting for {attribute}"
+
+        return self._wait_for_config_with_progress(attribute, label)
+
+    def _wait_for_config_with_progress(self, attribute: str, label: str) -> bool:
+        attrs = ("localConfig", attribute)
+        self._timeout.reset()
+        sys.stdout.write(label)
+        sys.stdout.flush()
+        next_dot_at = time.time() + 1.0
+
+        while time.time() < self._timeout.expireTime:
+            if all(getattr(self, attr, None) for attr in attrs):
+                sys.stdout.write("\n")
+                sys.stdout.flush()
+                return True
+
+            time.sleep(self._timeout.sleepInterval)
+            now = time.time()
+            if now >= next_dot_at:
+                sys.stdout.write(".")
+                sys.stdout.flush()
+                next_dot_at = now + 1.0
+
+        sys.stdout.write(" (timeout)\n")
+        sys.stdout.flush()
+        return False
 
     def writeConfig(self, config_name):
         """Write the current (edited) localConfig to the device"""

@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import logging
+
 from meshtastic import BROADCAST_ADDR
 from meshtastic.cli import CommandContext, CommandProvider
-from meshtastic.mesh.interfaces import FsOperationError
+from meshtastic.mesh.interfaces import FsFileExistsError, FsOperationError
 from meshtastic.mesh_interface import MeshInterface
 
 
 class FilesystemCommandProvider(CommandProvider):
     """Handles filesystem-related CLI commands."""
+
+    logger = logging.getLogger(__name__)
 
     def register_arguments(self, container) -> None:
         """No global arguments to register."""
@@ -90,7 +94,7 @@ class FilesystemCommandProvider(CommandProvider):
         if context.command == "ls":
             if args.dest != BROADCAST_ADDR:
                 message = "Listing filesystem of a remote node is not supported."
-                print(message)
+                self.logger.error(message)
                 context.add_error(message)
             else:
                 context.request_close()
@@ -99,7 +103,7 @@ class FilesystemCommandProvider(CommandProvider):
         if context.command == "download":
             if args.dest != BROADCAST_ADDR:
                 message = "Downloading from a remote node is not supported."
-                print(message)
+                self.logger.error(message)
                 context.add_error(message)
                 return
 
@@ -110,20 +114,26 @@ class FilesystemCommandProvider(CommandProvider):
                 destination_path = interface.fs.download(
                     node_src, host_dst, overwrite=getattr(args, "force", False)
                 )
+            except FsFileExistsError as ex:
+                context.request_close()
+                message = f"{ex} Use '--force' to overwrite the existing file."
+                self.logger.error(message)
+                context.add_error(message)
+                return
             except FsOperationError as ex:
                 context.request_close()
                 error_message = f"ERROR: {ex}"
-                print(error_message)
+                self.logger.error(error_message)
                 context.add_error(error_message)
                 return
 
             context.request_close()
-            print(f"Downloaded '{node_src}' to '{destination_path}'.")
+            self.logger.info(f"Downloaded '{node_src}' to '{destination_path}'.")
 
         if context.command == "upload":
             if args.dest != BROADCAST_ADDR:
                 message = "Uploading to a remote node is not supported."
-                print(message)
+                self.logger.error(message)
                 context.add_error(message)
                 return
 
@@ -134,21 +144,26 @@ class FilesystemCommandProvider(CommandProvider):
                 remote_path = interface.fs.upload(
                     host_src, device_dst, overwrite=getattr(args, "force", False)
                 )
+            except FsFileExistsError as ex:
+                context.request_close()
+                message = f"{ex} Use '--force' to overwrite the existing file."
+                self.logger.error(message)
+                context.add_error(message)
+                return
             except FsOperationError as ex:
                 context.request_close()
                 error_message = f"ERROR: {ex}"
-                print(error_message)
+                self.logger.error(error_message)
                 context.add_error(error_message)
-                interface.close()
                 return
 
             context.request_close()
-            print(f"Uploaded '{host_src}' to '{remote_path}'.")
+            self.logger.info(f"Uploaded '{host_src}' to '{remote_path}'.")
 
         if context.command == "rm":
             if args.dest != BROADCAST_ADDR:
                 message = "Deleting files on a remote node is not supported."
-                print(message)
+                self.logger.error(message)
                 context.add_error(message)
                 return
 
@@ -158,12 +173,12 @@ class FilesystemCommandProvider(CommandProvider):
             except FsOperationError as ex:
                 context.request_close()
                 error_message = f"ERROR: {ex}"
-                print(error_message)
+                self.logger.error(error_message)
                 context.add_error(error_message)
                 return
 
             context.request_close()
-            print(f"Deleted '{remote_path}' from node filesystem.")
+            self.logger.info(f"Deleted '{remote_path}' from node filesystem.")
 
 
 def register_filesystem_provider(registry) -> None:
