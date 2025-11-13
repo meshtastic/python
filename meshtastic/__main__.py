@@ -1307,10 +1307,30 @@ def common():
     logfile = None
     args = mt_config.args
     parser = mt_config.parser
-    logging.basicConfig(
-        level=logging.DEBUG if (args.debug or args.listen) else logging.INFO,
-        format="%(levelname)s file:%(filename)s %(funcName)s line:%(lineno)s %(message)s",
-    )
+    debug_logging_enabled = bool(args.debug or args.listen)
+    if debug_logging_enabled:
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format="%(levelname)s %(filename)s:%(lineno)d %(funcName)s %(message)s",
+        )
+    else:
+        logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+        class _InfoFormatter(logging.Formatter):
+            """Formatter that hides INFO level name while preserving others."""
+
+            def __init__(self) -> None:
+                super().__init__("%(message)s")
+                self._non_info = logging.Formatter("%(levelname)s %(message)s")
+
+            def format(self, record: logging.LogRecord) -> str:
+                if record.levelno == logging.INFO:
+                    return super().format(record)
+                return self._non_info.format(record)
+
+        formatter = _InfoFormatter()
+        for handler in logging.getLogger().handlers:
+            handler.setFormatter(formatter)
 
     # set all meshtastic loggers to DEBUG
     if not (args.debug or args.listen) and args.debuglib:
