@@ -2234,6 +2234,8 @@ def initParser():
 
 def main():
     """Perform command line meshtastic operations"""
+    version = get_active_version()
+    print(f"//\\/\\eshtastic CLI v{version}")
     parser = argparse.ArgumentParser(
         add_help=False,
         epilog="If no connection arguments are specified, we search for a compatible serial device, "
