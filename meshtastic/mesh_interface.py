@@ -35,6 +35,7 @@ from meshtastic import (
     ResponseHandler,
     protocols,
     publishingThread,
+    mt_config,
 )
 from meshtastic.mesh.interfaces import FsInterface
 from meshtastic.protobuf import mesh_pb2, portnums_pb2, telemetry_pb2
@@ -49,6 +50,46 @@ from meshtastic.util import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _cli_verbose_enabled() -> bool:
+    args = getattr(mt_config, "args", None)
+    return bool(args and getattr(args, "verbose", False))
+
+
+def _progress_wait_for_attrs(
+    timeout_obj,
+    target,
+    attrs: tuple[str, ...],
+    label: str,
+    *,
+    enabled: bool,
+) -> bool:
+    if not enabled:
+        return timeout_obj.waitForSet(target, attrs=attrs)
+
+    timeout_obj.reset()
+    sys.stdout.write(label)
+    sys.stdout.flush()
+    next_dot_at = time.time() + 1.0
+
+    while time.time() < timeout_obj.expireTime:
+        if all(getattr(target, attr, None) for attr in attrs):
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+            return True
+
+        time.sleep(timeout_obj.sleepInterval)
+        now = time.time()
+        if now >= next_dot_at:
+            sys.stdout.write(".")
+            sys.stdout.flush()
+            next_dot_at = now + 1.0
+
+    sys.stdout.write(" (timeout)\n")
+    sys.stdout.flush()
+    return False
+
 
 def _timeago(delta_secs: int) -> str:
     """Convert a number of seconds in the past into a short, friendly string
@@ -141,6 +182,9 @@ class MeshInterface:  # pylint: disable=R0902
         # for any external consumers of the library.
         if debugOut:
             pub.subscribe(MeshInterface._printLogLine, "meshtastic.log.line")
+
+    def _progress_enabled(self) -> bool:
+        return _cli_verbose_enabled()
 
     def close(self):
         """Shutdown this interface"""

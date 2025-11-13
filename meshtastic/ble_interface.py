@@ -4,15 +4,18 @@ import asyncio
 import atexit
 import logging
 import struct
+import sys
 import time
 import io
+from concurrent.futures import TimeoutError as FuturesTimeoutError
 from threading import Thread
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import google.protobuf
 from bleak import BleakClient, BleakScanner, BLEDevice
 from bleak.exc import BleakDBusError, BleakError
 
+from meshtastic import mt_config
 from meshtastic.mesh_interface import MeshInterface
 
 from .protobuf import mesh_pb2
@@ -24,6 +27,16 @@ FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
 LEGACY_LOGRADIO_UUID = "6c6fd238-78fa-436b-aacf-15c5be1ef2e2"
 LOGRADIO_UUID = "5a3d6e49-06e6-4423-9944-e9de8cdf9547"
 logger = logging.getLogger(__name__)
+
+
+def _cli_verbose_enabled() -> bool:
+    args = getattr(mt_config, "args", None)
+    return bool(args and getattr(args, "verbose", False))
+
+
+def _cli_debug_enabled() -> bool:
+    args = getattr(mt_config, "args", None)
+    return bool(args and getattr(args, "debug", False))
 
 
 class BLEInterface(MeshInterface):
@@ -126,20 +139,71 @@ class BLEInterface(MeshInterface):
     def scan() -> List[BLEDevice]:
         """Scan for available BLE devices."""
         with BLEClient() as client:
-            logger.info("Scanning for BLE devices (takes 10 seconds)...")
-            response = client.discover(
-                timeout=10, return_adv=True, service_uuids=[SERVICE_UUID]
+            scan_duration = 10
+            verbose = _cli_verbose_enabled()
+            debug = _cli_debug_enabled()
+            normal_mode = not (debug or verbose)
+            scan_message = "Scanning for BLE..."
+            logger.debug(
+                "Scanning for BLE devices (takes %s seconds)...", scan_duration
             )
+            if normal_mode:
+                sys.stdout.write(scan_message)
+                sys.stdout.flush()
+            else:
+                logger.info(
+                    "Scanning for BLE devices (takes %s seconds)...", scan_duration
+                )
 
-            devices = response.values()
+            devices: dict[str, tuple[BLEDevice, Any]] = {}
+            elapsed = 0
+            step = 1
+            newline_emitted = False
+            while elapsed < scan_duration:
+                chunk = min(step, scan_duration - elapsed)
+                response = client.discover(
+                    timeout=chunk, return_adv=True, service_uuids=[SERVICE_UUID]
+                )
 
-            # bleak sometimes returns devices we didn't ask for, so filter the response
-            # to only return true meshtastic devices
-            # d[0] is the device. d[1] is the advertisement data
-            devices = list(
-                filter(lambda d: SERVICE_UUID in d[1].service_uuids, devices)
-            )
-            return list(map(lambda d: d[0], devices))
+                for entry in response.values():
+                    device, adv = entry
+                    if SERVICE_UUID not in adv.service_uuids:
+                        continue
+                    device_key = device.address or device.name or repr(device)
+                    if device_key not in devices:
+                        if verbose:
+                            if not newline_emitted:
+                                sys.stdout.write("\n")
+                                sys.stdout.flush()
+                                newline_emitted = True
+                            display_name = device.name or device.address or device_key
+                            address_suffix = (
+                                f" ({device.address})" if device.address else ""
+                            )
+                            rssi = getattr(adv, "rssi", None)
+                            rssi_suffix = f" rssi={rssi}" if rssi is not None else ""
+                            print(
+                                f'Found BLE device "{display_name}"{address_suffix}{rssi_suffix}'
+                            )
+                        logger.debug(
+                            "Discovered BLE device name='%s' address='%s' rssi=%s",
+                            device.name,
+                            device.address,
+                            getattr(adv, "rssi", "unknown"),
+                        )
+                    devices[device_key] = entry
+
+                if normal_mode:
+                    sys.stdout.write(".")
+                    sys.stdout.flush()
+                elapsed += chunk
+
+            if normal_mode:
+                sys.stdout.write("\n")
+                sys.stdout.flush()
+
+            logger.info("Scan complete. %s device(s) found.", len(devices))
+            return [entry[0] for entry in devices.values()]
 
     def find_device(self, address: Optional[str]) -> BLEDevice:
         """Find a device by address."""
