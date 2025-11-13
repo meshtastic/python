@@ -2106,6 +2106,12 @@ def initParser():
     )
 
     group.add_argument(
+        "--verbose",
+        help="Show additional connection progress details.",
+        action="store_true",
+    )
+
+    group.add_argument(
         "--debug", help="Show API library debug log messages", action="store_true"
     )
 
