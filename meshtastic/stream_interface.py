@@ -93,18 +93,15 @@ class StreamInterface(MeshInterface):
 
         logger.debug("Closing our port")
         # pylint: disable=E0203
-        if hasattr(self, "stream") and self.stream is not None and getattr(self.stream, "is_open", False):
+        if not self.stream is None:
             # pylint: disable=E0203
-            try:
-                self.stream.close()
-            except Exception as e:
-                logger.debug(f"Exception during close: {e}")
+            self.stream.close()
             # pylint: disable=W0201
             self.stream = None
 
     def _writeBytes(self, b: bytes) -> None:
         """Write an array of bytes to our stream and flush"""
-        if self.stream and self.stream is not None and getattr(self.stream, "is_open", False): # ignore writes when stream is closed
+        if self.stream:  # ignore writes when stream is closed
             self.stream.write(b)
             self.stream.flush()
             # win11 might need a bit more time, too
@@ -116,7 +113,7 @@ class StreamInterface(MeshInterface):
 
     def _readBytes(self, length) -> Optional[bytes]:
         """Read an array of bytes from our stream"""
-        if self.stream and self.stream is not None and getattr(self.stream, "is_open", False):
+        if self.stream:
             return self.stream.read(length)
         else:
             return None
@@ -226,12 +223,10 @@ class StreamInterface(MeshInterface):
                 logger.error(
                     f"Unexpected OSError, terminating meshtastic reader... {ex}"
                 )
-                traceback.print_exc()
         except Exception as ex:
             logger.error(
                 f"Unexpected exception, terminating meshtastic reader... {ex}"
             )
-            traceback.print_exc()
         finally:
             logger.debug("reader is exiting")
             self._disconnected()
