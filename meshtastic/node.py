@@ -62,17 +62,17 @@ class Node:
         except Exception:
             return True
 
-    def showChannels(self):
-        """Show human readable description of our channels."""
+    def showChannels(self, fullDisplay=False):
+        """Show human readable description of our channels, which can also easily parsed by machines"""
         print("Channels:")
         if self.channels:
             logger.debug(f"self.channels:{self.channels}")
             for c in self.channels:
                 cStr = message_to_json(c.settings)
                 # don't show disabled channels
-                if channel_pb2.Channel.Role.Name(c.role) != "DISABLED":
+                if fullDisplay or channel_pb2.Channel.Role.Name(c.role) != "DISABLED":
                     print(
-                        f"  Index {c.index}: {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}"
+                        f"  Index {c.index}: {channel_pb2.Channel.Role.Name(c.role)}, psk: {pskToString(c.settings.psk)}, settings: {cStr}"
                     )
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
@@ -262,21 +262,25 @@ class Node:
 
     def rewriteChannelList(self, idxStart: int, admIndex: int) -> None:
         """write back current channels list to device starting from index idxStart
-        channels before this index have not changed, so we don't need to rewrite."""
-        index = idxStart
-        while index < 8:
-            self.writeChannel(index, adminIndex=admIndex)
-            index += 1
+        channels (before idxStart channels have not changed, so we don't need to rewrite those)."""
 
-            # if we are updating the local node, we might end up
-            # *moving* the admin channel index as we are writing
-            if (self.iface.localNode == self) and index >= admIndex:
-                # We've now passed the old location for admin index
-                # (and written it), so we can start finding it by name again
-                admIndex = 0
+        for idx in range(len(self.channels)-1, idxStart-1, -1):
+            self.writeChannel(idx)
+
+        # index = idxStart
+        # while index < 8:
+        #     self.writeChannel(index, adminIndex=admIndex)
+        #     index += 1
+        #
+        #     # if we are updating the local node, we might end up
+        #     # *moving* the admin channel index as we are writing
+        #     if (self.iface.localNode == self) and index >= admIndex:
+        #         # We've now passed the old location for admin index
+        #         # (and written it), so we can start finding it by name again
+        #         admIndex = 0
 
     def deleteAllSecondaryChannels(self) -> None:
-        """Remove all secondary or disbled channels in order to be able to rewrite channel config during
+        """Remove all secondary or disabled channels in order to be able to rewrite channel config during
         configuration, only keep primary channel"""
         if self.channels:
             adminIndex = self.iface.localNode._getAdminChannelIndex()
@@ -284,6 +288,7 @@ class Node:
             idx2Delete = [c.index for c in self.channels
                           if c.role == channel_pb2.Channel.Role.SECONDARY and not c.index == adminIndex
                           ]
+            logger.debug(f"Deleting secondary channels. Idx found: {idx2Delete}")
             if len(idx2Delete) > 0:
                 idx2Delete.reverse()
                 for idx in idx2Delete:
@@ -432,8 +437,8 @@ class Node:
                 print(f"Adding new channel '{chs.name}' to device")
                 self.writeChannel(ch.index)
         else:
-            i = 0
-            for chs in channelSet.settings:
+            self.deleteAllSecondaryChannels()       # first clean up all channels before setting the new ones.
+            for i, chs in enumerate(channelSet.settings):
                 ch = channel_pb2.Channel()
                 ch.role = (
                     channel_pb2.Channel.Role.PRIMARY
@@ -445,7 +450,6 @@ class Node:
                 self.channels[ch.index] = ch
                 logger.debug(f"Channel i:{i} ch:{ch}")
                 self.writeChannel(ch.index)
-                i = i + 1
 
         p = admin_pb2.AdminMessage()
         p.set_config.lora.CopyFrom(channelSet.lora_config)
@@ -624,7 +628,8 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.reboot_seconds = secs
-        logger.info(f"Telling node to reboot in {secs} seconds")
+        print(f"Telling node to reboot in {secs} seconds")
+        logger.debug(f"Telling node to reboot in {secs} seconds")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -638,7 +643,8 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.begin_edit_settings = True
-        logger.info(f"Telling open a transaction to edit settings")
+        print("Telling open a transaction to edit settings")
+        logger.debug("Telling open a transaction to edit settings")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -652,7 +658,8 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.commit_edit_settings = True
-        logger.info(f"Telling node to commit open transaction for editing settings")
+        print("Telling node to commit open transaction for editing settings")
+        logger.debug("Telling node to commit open transaction for editing settings")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -666,7 +673,8 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.reboot_ota_seconds = secs
-        logger.info(f"Telling node to reboot to OTA in {secs} seconds")
+        print(f"Telling node to reboot to OTA in {secs} seconds")
+        logger.debug(f"Telling node to reboot to OTA in {secs} seconds")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -680,7 +688,8 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.enter_dfu_mode_request = True
-        logger.info(f"Telling node to enable DFU mode")
+        print("Telling node to enable DFU mode")
+        logger.debug("Telling node to enable DFU mode")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -694,7 +703,8 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.shutdown_seconds = secs
-        logger.info(f"Telling node to shutdown in {secs} seconds")
+        print(f"Telling node to shutdown in {secs} seconds")
+        logger.debug(f"Telling node to shutdown in {secs} seconds")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -720,10 +730,12 @@ class Node:
         p = admin_pb2.AdminMessage()
         if full:
             p.factory_reset_device = True
-            logger.info(f"Telling node to factory reset (full device reset)")
+            print("Telling node to factory reset (full device reset)")
+            logger.debug("Telling node to factory reset (full device reset)")
         else:
             p.factory_reset_config = True
-            logger.info(f"Telling node to factory reset (config reset)")
+            print("Telling node to factory reset (config reset)")
+            logger.debug("Telling node to factory reset (config reset)")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
