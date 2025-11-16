@@ -21,6 +21,7 @@ import os
 import platform
 import sys
 import time
+import datetime as dt
 
 try:
     import pyqrcode  # type: ignore[import-untyped]
@@ -289,6 +290,7 @@ def setPref(config, comp_name, raw_val) -> bool:
 
 def onConnected(interface):
     """Callback invoked when we connect to a radio"""
+    logger.debug("--- onConnected Entry")
     closeNow = False  # Should we drop the connection after we finish?
     waitForAckNak = (
         False  # Should we wait for an acknowledgment if we send to a remote node?
@@ -691,6 +693,7 @@ def onConnected(interface):
             def writeSectionConfig(newConfig: dict, actConfig: dict, actNode: meshtastic.node.Node):
                 """Traverses a configuration dict and writes each part to the node"""
                 for sectionName, sectionElements in newConfig.items():
+                    logger.debug(f"writeSectionConfig for {sectionName} on node {actNode}")
                     traverseConfig(sectionName, sectionElements, actConfig)
                     actNode.writeConfig(meshtastic.util.camel_to_snake(sectionName))
                     time.sleep(0.5)
@@ -712,22 +715,26 @@ def onConnected(interface):
             ownerShortName = entryToStr(configuration.get("owner_short", None))
             isUnmessagable = configuration.get("is_unmessagable", None)
             print(f"Setting owner properties: {ownerName} - {ownerShortName} - {isUnmessagable}")
+            logger.debug(f"Setting owner properties: {ownerName} - {ownerShortName} - {isUnmessagable}")
             actualNode.setOwner(long_name=ownerName, short_name=ownerShortName, is_unmessagable=isUnmessagable)
             time.sleep(0.5)
 
             if "channel_url" in configuration:
-                print("Setting channel url to", configuration["channel_url"])
+                print(f"Setting channel url to {configuration.get("channel_url","---")}")
+                logger.debug(f"Setting channel url to {configuration.get("channel_url","---")}")
                 actualNode.deleteAllSecondaryChannels()
                 actualNode.setURL(configuration["channel_url"])
                 time.sleep(0.5)
 
             if "canned_messages" in configuration:
-                print("Setting canned message messages to", configuration["canned_messages"])
+                print(f"Setting canned message messages to {configuration.get("canned_messages", "---")}")
+                logger.debug(f"Setting canned message messages to {configuration.get("canned_messages", "---")}")
                 actualNode.set_canned_message(configuration["canned_messages"])
                 time.sleep(0.5)
 
             if "ringtone" in configuration:
-                print("Setting ringtone to", configuration["ringtone"])
+                print(f"Setting ringtone to {configuration.get("ringtone", "---")}")
+                logger.debug(f"Setting ringtone to {configuration.get("ringtone", "---")}")
                 actualNode.set_ringtone(configuration["ringtone"])
                 time.sleep(0.5)
 
@@ -739,6 +746,7 @@ def onConnected(interface):
                     lat = float(configuration["location"].get("lat", 0.0))
                     lon = float(configuration["location"].get("lon", 0.0))
                     print(f"Setting fixed device position to lat {lat} lon {lon} alt {alt}")
+                    logger.debug(f"Setting fixed device position to lat {lat} lon {lon} alt {alt}")
                     interface.localNode.setFixedPosition(lat, lon, alt)
                     time.sleep(0.5)
 
@@ -749,8 +757,10 @@ def onConnected(interface):
                 writeSectionConfig(configuration["module_config"], actualNode.moduleConfig, actualNode)
 
             print("Committing modified configuration to device")
+            logger.debug("Committing modified configuration to device")
             actualNode.commitSettingsTransaction()
-            print("Configuration finished")
+            print(f"Configuration finished [{args.configure[0]}]")
+            logger.debug(f"Configuration finished [{args.configure[0]}]")
 
         if args.export_config:
             if args.dest != BROADCAST_ADDR:
@@ -813,7 +823,7 @@ def onConnected(interface):
                 n.writeChannel(ch.index)
                 if channelIndex is None:
                     print(
-                        f"Setting newly-added channel's {ch.index} as '--ch-index' for further modifications"
+                        f"Setting newly-added channel {ch.index} as '--ch-index' for further modifications"
                     )
                     mt_config.channel_index = ch.index
 
@@ -869,6 +879,10 @@ def onConnected(interface):
 
         if args.ch_shortfast:
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.SHORT_FAST)
+
+        if args.ch_info:
+            node = interface.getNode(args.dest, **getNode_kwargs)
+            node.showChannels(True)
 
         if args.ch_set or args.ch_enable or args.ch_disable:
             closeNow = True
@@ -1060,6 +1074,7 @@ def onConnected(interface):
             print(f"Waiting {args.wait_to_disconnect} seconds before disconnecting")
             time.sleep(int(args.wait_to_disconnect))
 
+        logger.debug("--- onConnected: Leaving")
         # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
         if (not args.seriallog) and closeNow:
             interface.close()  # after running command then exit
@@ -1069,6 +1084,7 @@ def onConnected(interface):
             log_set.close()
 
     except Exception as ex:
+        logger.debug(f"Aborting due to: {ex}")
         print(f"Aborting due to: {ex}")
         interface.close()  # close the connection now, so that our app exits
         sys.exit(1)
@@ -1254,10 +1270,15 @@ def common():
     logfile = None
     args = mt_config.args
     parser = mt_config.parser
-    logging.basicConfig(
-        level=logging.DEBUG if (args.debug or args.listen) else logging.INFO,
-        format="%(levelname)s file:%(filename)s %(funcName)s line:%(lineno)s %(message)s",
-    )
+    logConfig = {
+        "level": logging.DEBUG if (args.debug or args.listen) else logging.INFO,
+        "format": "%(levelname)s file:%(filename)s %(funcName)s line:%(lineno)s %(message)s"
+    }
+    if args.logTo != "stdout":
+        logConfig["filename"] = args.logTo  # define a file handle to log to
+        logConfig["encoding"] = "utf-8"
+
+    logging.basicConfig(**logConfig)
 
     # set all meshtastic loggers to DEBUG
     if not (args.debug or args.listen) and args.debuglib:
@@ -1271,6 +1292,8 @@ def common():
             meshtastic.util.support_info()
             meshtastic.util.our_exit("", 0)
 
+        ts = dt.datetime.now().isoformat()
+        logger.debug(f"=== CMD: [{ts}] meshtastic {' '.join(sys.argv[1:])}")
         # Early validation for owner names before attempting device connection
         if hasattr(args, 'set_owner') and args.set_owner is not None:
             stripped_long_name = args.set_owner.strip()
@@ -1431,6 +1454,7 @@ def common():
                 except KeyboardInterrupt:
                     logger.info("Exiting due to keyboard interrupt")
 
+        logger.debug(f"--- Leaving...\n{60*'='}\n\n")
         # don't call exit, background threads might be running still
         # sys.exit(0)
 
@@ -1737,6 +1761,15 @@ def addChannelConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPa
         default=False,
     )
 
+    # ToDo: just for easier debug, to be removed later
+    group.add_argument(
+        "--ch-info",
+        help="List all channels",
+        action="store_true",
+        dest="ch_info",
+        default=False,
+    )
+
     return parser
 
 def addPositionConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
@@ -2040,7 +2073,16 @@ def initParser():
     )
 
     group.add_argument(
-        "--debug", help="Show API library debug log messages", action="store_true"
+        "--debug",
+        help="Show API library debug log messages'",
+        action="store_true"
+    )
+
+    group.add_argument(
+        "--logTo",
+        help="Defines where to log messages. Default is stdout",
+        default="stdout",
+        type=str
     )
 
     group.add_argument(
