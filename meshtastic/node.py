@@ -436,8 +436,13 @@ class Node:
                 ch.role = channel_pb2.Channel.Role.SECONDARY
                 print(f"Adding new channel '{chs.name}' to device")
                 self.writeChannel(ch.index)
-        else:
-            self.deleteAllSecondaryChannels()       # first clean up all channels before setting the new ones.
+        else:   # set new channel settings, starting from index 0. Keep previous settings otherwise
+            # The behavior is somewhat strange: if you load a URL, you might expect that your channel set is
+            # exactly as defined by the URL. So, when the URL has 2 channels and your radio has defined 5, after loading
+            # there should be 2 channels available but not 5 (2 newly set and 3 untouched)
+            # Publishing one URL for the primary channel and one for all together opens an ambiguity: the system
+            # cannot decide if you want to configure just one primary channel without any secondary channels or if you
+            # want to overwrite only the primary channel and keep the secondary channels as they are.
             for i, chs in enumerate(channelSet.settings):
                 ch = channel_pb2.Channel()
                 ch.role = (

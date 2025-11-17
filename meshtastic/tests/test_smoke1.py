@@ -1,29 +1,48 @@
 """Meshtastic smoke tests with a single device via USB"""
-import io
 import re
 import subprocess
 import time
 from pathlib import Path
 import tempfile
 
-# Do not like using hard coded sleeps, but it probably makes
-# sense to pause for the radio at appropriate times
 import pytest
 
 from ..util import findPorts
 
+# Do not like using hard coded sleeps, but it makes
+# sense to pause for the radio at appropriate times to
+# avoid overload of the radio.
 # seconds to pause after running a meshtastic command
 PAUSE_AFTER_COMMAND = 2
 PAUSE_AFTER_REBOOT = 10
 WAIT_FOR_REBOOT = -1
 
-DEBUG = '--debug --logTo smoke1.log'
+""" Following 2 switches allow control creation of additional or debug messages during testing
+    DEBUG contains a string passed to the meshtastic call to log internal behavior
+    VERBOSE toggles additional print output during the command execution of smoketest functions
+    TEMPFILE contains the extracted settings of the radio till the tests have finished, so the 
+    radio will not stay with wrong region settings for a longer time 
+"""
+# DEBUG: str = ''
+# VERBOSE: bool = False
+DEBUG: str = '--debug --logTo smoke1.log'
+VERBOSE: bool = True
+TEMPFILE = None
+
+
+def noPrint(*args):
+    """Dummy print function"""
+    pass
+
+
+vprint = print if VERBOSE else noPrint
+
 
 # Helper functions used in executing tests
 def communicate(cmd: str, repeatTimes: int = 2) -> tuple[int, str]:
     """Communicate to the radio. Repeat request in case serial line is not operational"""
     k = 0
-    print(f'---COM: "{cmd}", r: {repeatTimes}')
+    vprint(f'---COM: "{cmd}", r: {repeatTimes}')
     while k < repeatTimes:
         return_value, out = subprocess.getstatusoutput(f"{cmd} {DEBUG}")
         k += 1
@@ -32,13 +51,13 @@ def communicate(cmd: str, repeatTimes: int = 2) -> tuple[int, str]:
             and not re.search("Input/output error", out, re.MULTILINE) \
             and not re.search("MeshInterfaceError: Timed out", out, re.MULTILINE):
             break
-        print(f"k: {k} ret: {return_value} out: {out}")
+        vprint(f"k: {k} ret: {return_value} out: {out}")
     return return_value, out
 
 def waitFor(eventOrTime: int, repeatTimes: int = 5) -> None:
     """Wait for a dedicated time (positive integer input) or for a reboot. The latter will ensure that the
     serial line is back operational so we can safely send the next command."""
-    print(f"---WAI {eventOrTime}")
+    vprint(f"---WAI {eventOrTime}")
     if eventOrTime > 0:
         time.sleep(eventOrTime)
     elif eventOrTime == WAIT_FOR_REBOOT:
@@ -46,25 +65,25 @@ def waitFor(eventOrTime: int, repeatTimes: int = 5) -> None:
         while True:
             time.sleep(2*PAUSE_AFTER_REBOOT)
             return_value, out = communicate("meshtastic --device-metadata")
-            print(f"ret: {return_value} out: {out}")
+            vprint(f"ret: {return_value} out: {out}")
             k += 1
             if return_value == 0 and re.search("firmware_version", out, re.MULTILINE) is not None:
-                    break
-            if k > repeatTimes:
-                print("Reboot failed")
                 break
-        
+            if k > repeatTimes:
+                vprint("Reboot failed")
+                break
+
 def checkQr(f, qrCompare: str) -> None:
     """checks binary file containing url"""
     f.seek(0)
     qrData = f.read()
     assert len(qrData) > 20000  # file containing qr does not contain enough data
     qrSplit = qrData.splitlines(keepends=True)
-    print(f"checkQr: found lines: {len(qrSplit)}")
+    vprint(f"checkQr: found lines: {len(qrSplit)}")
     assert len(qrSplit) >= 4
     assert re.search(qrCompare, qrSplit[1].decode('utf-8'), re.MULTILINE)
 
-def setAndTestUrl(pat: str) -> None:
+def setAndTestUrl(pat: str, skipTest: bool = False) -> None:
     """transmits set-url command with pattern "pat" and then checks if has been set correctly"""
     url = f"https://meshtastic.org/e/#{pat}"
     return_value, out = communicate(f"meshtastic --seturl {url}")
@@ -72,13 +91,11 @@ def setAndTestUrl(pat: str) -> None:
     assert return_value == 0
     # pause for the radio
     waitFor(PAUSE_AFTER_COMMAND)
-    return_value, out = communicate("meshtastic --info")
-    assert re.search(pat, out, re.MULTILINE)
-    assert return_value == 0
-    waitFor(PAUSE_AFTER_COMMAND)
-
-
-TEMPFILE = None
+    if not skipTest:
+        return_value, out = communicate("meshtastic --info")
+        assert re.search(pat, out, re.MULTILINE)
+        assert return_value == 0
+        waitFor(PAUSE_AFTER_COMMAND)
 
 
 # Fixtures
@@ -124,10 +141,10 @@ def test_smoke1_info():
 def test_smoke1_export_config(temporaryCfgFile):
     """Test exporting current config, then later reimport and check if things are back as before
     Store this config in a temporary file to be used later"""
-    print(f"Got temp file: {temporaryCfgFile.name}")
+    vprint(f"\nGot temp file: {temporaryCfgFile.name}")
     return_value, out = communicate(f'meshtastic --export-config {temporaryCfgFile.name}')
     temporaryCfgFile.seek(0)
-    print(f"ret: {return_value} out: {out}")
+    vprint(f"ret: {return_value} out: {out}")
     pat = f"Exported configuration to {temporaryCfgFile.name}".replace('\\', '\\\\')
     assert re.match(pat, out)
 
@@ -301,7 +318,7 @@ def test_smoke1_ch_modem_presets():
         "--ch-shortslow": "SHORT_SLOW",
         "--ch-shortfast": "SHORT_FAST",
     }
-
+    print("\n")
     for key, val in exp.items():
         print(key, val)
         return_value, out = communicate(f"meshtastic {key}")
@@ -547,15 +564,12 @@ def test_smoke1_ensure_ch_del_second_of_three_channels():
     """Test that when we delete the 2nd of 3 channels, that it deletes the correct channel."""
 
     # prepare test setting: setup 2 channels and validate they are created
-    return_value, out = communicate("meshtastic --ch-info")
-    print(f"ret: {return_value} out: {out}")
-
     return_value, out = communicate("meshtastic --configure tests/ch_reset_config.yaml")
     assert return_value == 0
     waitFor(WAIT_FOR_REBOOT)
 
-    return_value, out = communicate("meshtastic --info")
-    print(f"ret: {return_value} out: {out}")
+    return_value, out = communicate("meshtastic --ch-info")
+    vprint(f"ret: {return_value} out: {out}")
 
     return_value, out = communicate("meshtastic --ch-add testing1")
     assert return_value == 0
@@ -581,7 +595,7 @@ def test_smoke1_ensure_ch_del_second_of_three_channels():
     return_value, out = communicate("meshtastic --ch-del --ch-index 1")
     assert return_value == 0
     assert re.match(r"Connected to radio", out)
-    print(f"ret: {return_value} out: {out}")
+    vprint(f"ret: {return_value} out: {out}")
     waitFor(PAUSE_AFTER_COMMAND)
 
     return_value, out = communicate("meshtastic --info")
@@ -599,14 +613,12 @@ def test_smoke1_ensure_ch_del_third_of_three_channels():
     """Test that when we delete the 3rd of 3 channels, that it deletes the correct channel."""
 
     # prepare test setting: setup 2 channels and validate they are created
-    return_value, out = communicate("meshtastic --ch-info")
-    print(f"ret: {return_value} out: {out}")
     return_value, out = communicate("meshtastic --configure tests/ch_reset_config.yaml")
     assert return_value == 0
     waitFor(WAIT_FOR_REBOOT)
 
     return_value, out = communicate("meshtastic --ch-info")
-    print(f"ret: {return_value} out: {out}")
+    vprint(f"ret: {return_value} out: {out}")
 
     return_value, out = communicate("meshtastic --ch-add testing1")
     assert return_value == 0
@@ -644,8 +656,44 @@ def test_smoke1_ensure_ch_del_third_of_three_channels():
 
 
 @pytest.mark.smoke1
+def test_smoke1_set_primary_channel():
+    """Test --seturl with primary channel"""
+    # prepare test setting: setup 2 channels and validate they are created
+    return_value, _ = communicate("meshtastic --configure tests/ch_reset_config.yaml")
+    assert return_value == 0
+    waitFor(WAIT_FOR_REBOOT)
+
+    # set to different url
+    pat = "CgcSAQE6AggNEg8IATgDQANIAVAbaAHABgE"
+    setAndTestUrl(pat)
+
+
+@pytest.mark.smoke1
+def test_smoke1_qr():
+    """Test --qr, based on setting via URL"""
+    # prepare test setting: setup 2 channels and validate they are created
+    return_value, _ = communicate("meshtastic --configure tests/ch_reset_config.yaml")
+    assert return_value == 0
+    waitFor(WAIT_FOR_REBOOT)
+
+    # set to different url
+    pat = "CgcSAQE6AggNEg8IATgDQANIAVAbaAHABgE"
+    setAndTestUrl(pat)
+    with tempfile.NamedTemporaryFile('w+b', delete=True, delete_on_close=False) as f:
+        return_value, _ = communicate(f"meshtastic --qr >{f.name}")
+        assert return_value == 0
+        checkQr(f, pat)
+    waitFor(PAUSE_AFTER_COMMAND)
+
+
+@pytest.mark.smoke1
 def test_smoke1_seturl_default():
     """Test --seturl with default value"""
+    # prepare test setting: setup std channel
+    return_value, out = communicate("meshtastic --configure tests/ch_reset_config.yaml")
+    assert return_value == 0
+    waitFor(WAIT_FOR_REBOOT)
+
     # set some channel value so we no longer have a default channel
     return_value, out = communicate(
         "meshtastic --ch-set name foo --ch-index 0"
@@ -657,7 +705,6 @@ def test_smoke1_seturl_default():
     return_value, out = communicate("meshtastic --info")
     assert not re.search("CgI6ABIPCAE4A0ADSAFQG2gBwAYB", out, re.MULTILINE)
     assert return_value == 0
-    setAndTestUrl("CgI6ABIPCAE4A0ADSAFQG2gBwAYB")
 
 
 @pytest.mark.smoke1
@@ -676,6 +723,11 @@ def test_smoke1_seturl_invalid_url():
 @pytest.mark.smoke1
 def test_smoke1_seturl_2chan():
     """Test --seturl with 2 channels"""
+    # prepare test setting: setup 2 channels and validate they are created
+    return_value, _ = communicate("meshtastic --configure tests/ch_reset_config.yaml")
+    assert return_value == 0
+    waitFor(WAIT_FOR_REBOOT)
+
     pat = "CgcSAQE6AggNCjASIOKjX3f5UXnz8zkcXi6MxfIsnNof5sUAW4FQQi_IXsLdGgRUZXN0KAEwAToCCBESDwgBOANAA0gBUBtoAcAGAQ"
     setAndTestUrl(pat)
     # check qr output
@@ -683,28 +735,40 @@ def test_smoke1_seturl_2chan():
         return_value, _ = communicate(f"meshtastic --qr-all >{f.name}")
         assert return_value == 0
         checkQr(f, pat)
-    # reset to standard url
-    setAndTestUrl("CgI6ABIPCAE4A0ADSAFQG2gBwAYB")
 
 
 @pytest.mark.smoke1
 def test_smoke1_seturl_3_to_2_chan():
-    """Test --seturl with 3 channels, then reconfigure back to 2 channels"""
-    pat = "CgcSAQE6AggNCjASIOKjX3f5UXnz8zkcXi6MxfIsnNof5sUAW4FQQi_IXsLdGgRUZXN0KAEwAToCCBESDwgBOANAA0gBUBtoAcAGAQ"
+    """Test --seturl with 3 channels, then reconfigure 2 channels"""
+    # prepare test setting: setup 2 channels and validate they are created
+    return_value, out = communicate("meshtastic --configure tests/ch_reset_config.yaml")
+    assert return_value == 0
+    waitFor(WAIT_FOR_REBOOT)
+
+    pat = "CgcSAQE6AggNCjESIOKjX3f5UXnz8zkcXi6MxfIsnNof5sUAW4FQQi_IXsLdGgV0ZXN0MSgBMAE6AggRCi0SIGyPI2Gbw3v6rl9H\
+    Q8SL3LvRx7ScovIdU6pahs_l59CoGgV0ZXN0MigBMAESDwgBOANAA0gBUBtoAcAGAQ"
     setAndTestUrl(pat)
-    # check qr output
-    with tempfile.NamedTemporaryFile('w+b', delete=True, delete_on_close=False) as f:
-        return_value, _ = communicate(f"meshtastic --qr-all >{f.name}")
-        assert return_value == 0
-        checkQr(f, pat)
+    # check that we have 3 channels
+    return_value, out = communicate("meshtastic --info", repeatTimes=2)
+    assert return_value == 0
+    assert re.match(r"Connected to radio", out)
+    assert re.search(r"SECONDARY", out, re.MULTILINE)
+    assert re.search(r"test1", out, re.MULTILINE)
+    assert re.search(r"test2", out, re.MULTILINE)
+    waitFor(PAUSE_AFTER_COMMAND)
+
     # now configure 2 channels only
-    pat = "CgcSAQE6AggNCjASIOKjX3f5UXnz8zkcXi6MxfIsnNof5sUAW4FQQi_IXsLdGgRUZXN0KAEwAToCCBESDwgBOANAA0gBUBtoAcAGAQ"
-    setAndTestUrl(pat)
-    # check qr output
-    with tempfile.NamedTemporaryFile('w+b', delete=True, delete_on_close=False) as f:
-        return_value, _ = communicate(f"meshtastic --qr-all >{f.name}")
-        assert return_value == 0
-        checkQr(f, pat)
+    patSet = "CgcSAQE6AggNCjASIOKjX3f5UXnz8zkcXi6MxfIsnNof5sUAW4FQQi_IXsLdGgRUZXN0KAEwAToCCBESDwgBOANAA0gBUBtoAcAGAQ"
+    setAndTestUrl(patSet, skipTest=True)
+
+    # now test for patComp (url will be diefferent because of not deleted channel 2)
+    return_value, out = communicate("meshtastic --info", repeatTimes=2)
+    assert return_value == 0
+    assert re.match(r"Connected to radio", out)
+    assert re.search(r"SECONDARY", out, re.MULTILINE)
+    assert re.search(r"Test", out, re.MULTILINE)        # Test for changed channel
+    assert re.search(r"test2", out, re.MULTILINE)       # this one should remain as before
+    waitFor(PAUSE_AFTER_COMMAND)
     # Note: keep one secondary channel in order to send the hello to it
 
 @pytest.mark.smoke1
@@ -718,19 +782,6 @@ def test_smoke1_send_hello():
 
 
 @pytest.mark.smoke1
-def test_smoke1_qr():
-    """Test --qr"""
-    # reset to standard url
-    pat = "CgI6ABIPCAE4A0ADSAFQG2gBwAYB"
-    setAndTestUrl(pat)
-    with tempfile.NamedTemporaryFile('w+b', delete=True, delete_on_close=False) as f:
-        return_value, _ = communicate(f"meshtastic --qr >{f.name}")
-        assert return_value == 0
-        checkQr(f, pat)
-    waitFor(PAUSE_AFTER_COMMAND)
-
-
-@pytest.mark.smoke1
 def test_smoke1_configure():
     """Test --configure"""
     cfgPth = Path('example_config.yaml')
@@ -740,7 +791,7 @@ def test_smoke1_configure():
             pytest.fail(f"Cannot access config: actual path: {Path.cwd()}. Execute tests from base folder.")
 
     _, out = communicate(f"meshtastic --configure {str(cfgPth)}")
-    print(f"out: {out}")
+    vprint(f"out: {out}")
     assert re.search("Connected to radio", out)
     assert re.search("^Setting owner properties: Bob TBeam - BOB - True", out, re.MULTILINE)
     assert re.search("^Setting channel url to https://www.meshtastic.org/e/#CgQ6AggNEg8IATgBQANIAVAeaAHABgE", out, re.MULTILINE)
@@ -815,9 +866,9 @@ def test_smoke1_factory_reset():
 @pytest.mark.smoke1
 def test_smoke1_config_reset(temporaryCfgFile):
     """Restore original settings"""
-    print(f"Got temp file: {temporaryCfgFile.name}")
+    vprint(f"Got temp file: {temporaryCfgFile.name}")
     return_value, out = communicate(f"meshtastic --config {temporaryCfgFile.name}")
-    print(f"ret: {return_value} out: {out}")
+    vprint(f"ret: {return_value} out: {out}")
     assert re.search(r"Connected to radio", out)
     assert re.search(r"Configuration finished", out)
 
