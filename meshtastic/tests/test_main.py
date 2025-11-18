@@ -6,6 +6,7 @@ import os
 import platform
 import re
 import sys
+from pathlib import Path
 from unittest.mock import mock_open, MagicMock, patch
 
 import pytest
@@ -408,8 +409,8 @@ def test_main_nodes(capsys):
 
     iface = MagicMock(autospec=SerialInterface)
 
-    def mock_showNodes(includeSelf, showFields):
-        print(f"inside mocked showNodes: {includeSelf} {showFields}")
+    def mock_showNodes(includeSelf, showFields, printFmt):
+        print(f"inside mocked showNodes: {includeSelf} {showFields} {printFmt}")
 
     iface.showNodes.side_effect = mock_showNodes
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
@@ -1088,7 +1089,8 @@ def test_main_configure_with_snake_case(mocked_findports, mocked_serial, mocked_
     """Test --configure with valid file"""
     sys.argv = ["", "--configure", "example_config.yaml"]
     mt_config.args = sys.argv
-
+    outStr = f"Path: {Path.cwd()}, cfg: {mt_config.args}"
+    Path('debugTest.txt').write_text(outStr)
     serialInterface = SerialInterface(noProto=True)
     anode = Node(serialInterface, 1234567890, noProto=True)
     serialInterface.localNode = anode
@@ -1784,23 +1786,17 @@ def test_main_export_config(capsys):
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         mo.getLongName.return_value = "foo"
         mo.getShortName.return_value = "oof"
+        mo.getIsUnmessagable.return_value = True
         mo.localNode.getURL.return_value = "bar"
         mo.getCannedMessage.return_value = "foo|bar"
         mo.getRingtone.return_value = "24:d=32,o=5"
-        mo.getMyNodeInfo().get.return_value = {
-            "latitudeI": 1100000000,
-            "longitudeI": 1200000000,
-            "altitude": 100,
-            "batteryLevel": 34,
-            "latitude": 110.0,
-            "longitude": 120.0,
+        mo.getMyNodeInfo.return_value = {
+            "user": {"hwModel": "HELTEC_V3", "longName": "foo", "shortName": "oof"},
+            "position": {"altitude": 100, "latitude": 110.0, "longitude": 120.0},
+            "deviceMetrics": {"airUtilTx": 0.06, "batteryLevel": 101},
+            "localStats": {"heapFreeBytes": 132796},
         }
-        mo.localNode.radioConfig.preferences = """phone_timeout_secs: 900
-ls_secs: 300
-position_broadcast_smart: true
-fixed_position: true
-position_flags: 35"""
-        export_config(mo)
+        # export_config(mo)
     out = export_config(mo)
     err = ""
 
