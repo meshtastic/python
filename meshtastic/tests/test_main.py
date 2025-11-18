@@ -6,7 +6,6 @@ import os
 import platform
 import re
 import sys
-from pathlib import Path
 from unittest.mock import mock_open, MagicMock, patch
 
 import pytest
@@ -22,7 +21,8 @@ from meshtastic.__main__ import (
     setMissingFlagsFalse,
 )
 from meshtastic import mt_config
-
+from meshtastic.tests.test_node import initChannels
+from ..protobuf import localonly_pb2, config_pb2
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 
 # from ..ble_interface import BLEInterface
@@ -1077,6 +1077,14 @@ def test_main_set_with_invalid(mocked_findports, mocked_serial, mocked_open, moc
         assert err == ""
         mo.assert_called()
 
+def mockNode(ifce: SerialInterface) -> Node:
+    n = Node(ifce, 1234567890, noProto=True)
+    lc = localonly_pb2.LocalConfig()
+    n.localConfig = lc
+    lc.lora.CopyFrom(config_pb2.Config.LoRaConfig())
+    n.moduleConfig = localonly_pb2.LocalModuleConfig()
+    n.channels = initChannels()
+    return n
 
 # TODO: write some negative --configure tests
 @pytest.mark.unit
@@ -1089,25 +1097,21 @@ def test_main_configure_with_snake_case(mocked_findports, mocked_serial, mocked_
     """Test --configure with valid file"""
     sys.argv = ["", "--configure", "example_config.yaml"]
     mt_config.args = sys.argv
-    outStr = f"Path: {Path.cwd()}, cfg: {mt_config.args}"
-    Path('debugTest.txt').write_text(outStr)
     serialInterface = SerialInterface(noProto=True)
-    anode = Node(serialInterface, 1234567890, noProto=True)
-    serialInterface.localNode = anode
+    serialInterface.localNode = mockNode(serialInterface)
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=serialInterface) as mo:
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        # should these come back? maybe a flag?
-        #assert re.search(r"Setting device owner", out, re.MULTILINE)
-        #assert re.search(r"Setting device owner short", out, re.MULTILINE)
-        #assert re.search(r"Setting channel url", out, re.MULTILINE)
-        #assert re.search(r"Fixing altitude", out, re.MULTILINE)
-        #assert re.search(r"Fixing latitude", out, re.MULTILINE)
-        #assert re.search(r"Fixing longitude", out, re.MULTILINE)
-        #assert re.search(r"Set location_share to LocEnabled", out, re.MULTILINE)
-        assert re.search(r"Writing modified configuration to device", out, re.MULTILINE)
+        assert re.search(r"Telling open a transaction to edit settings", out, re.MULTILINE)
+        assert re.search(r"Setting owner properties: Bob TBeam - BOB - True", out, re.MULTILINE)
+        assert re.search(r"Setting channel url to https://www.meshtastic.org/e/#CgQ6AggNEg8IATgBQANIAVAeaAHABgE", out, re.MULTILINE)
+        assert re.search(r"Setting fixed device position to lat 35.88888 lon -93.88888 alt 304", out, re.MULTILINE)
+        assert re.search(r"Set lora.region to US", out, re.MULTILINE)
+        assert re.search(r"Set position.position_flags to 3", out, re.MULTILINE)
+        assert re.search(r"Set telemetry.environment_update_interval to 900", out, re.MULTILINE)
+        assert re.search(r"Committing modified configuration to device", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
@@ -1124,21 +1128,20 @@ def test_main_configure_with_camel_case_keys(mocked_findports, mocked_serial, mo
     mt_config.args = sys.argv
 
     serialInterface = SerialInterface(noProto=True)
-    anode = Node(serialInterface, 1234567890, noProto=True)
-    serialInterface.localNode = anode
+    serialInterface.localNode = mockNode(serialInterface)
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=serialInterface) as mo:
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        # should these come back? maybe a flag?
-        #assert re.search(r"Setting device owner", out, re.MULTILINE)
-        #assert re.search(r"Setting device owner short", out, re.MULTILINE)
-        #assert re.search(r"Setting channel url", out, re.MULTILINE)
-        #assert re.search(r"Fixing altitude", out, re.MULTILINE)
-        #assert re.search(r"Fixing latitude", out, re.MULTILINE)
-        #assert re.search(r"Fixing longitude", out, re.MULTILINE)
-        assert re.search(r"Writing modified configuration to device", out, re.MULTILINE)
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"Telling open a transaction to edit settings", out, re.MULTILINE)
+        assert re.search(r"Setting owner properties: Bob TBeam - BOB - None", out, re.MULTILINE)
+        assert re.search(r"Setting channel url to https://www.meshtastic.org/e/#CgQ6AggNEg8IATgBQANIAVAeaAHABgE", out, re.MULTILINE)
+        assert re.search(r"Setting fixed device position to lat 35.88888 lon -93.88888 alt 304", out, re.MULTILINE)
+        assert re.search(r"Set lora.region to US", out, re.MULTILINE)
+        assert re.search(r"Set position.position_flags to 3", out, re.MULTILINE)
+        assert re.search(r"Committing modified configuration to device", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 

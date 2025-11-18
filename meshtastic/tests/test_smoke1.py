@@ -23,10 +23,10 @@ WAIT_FOR_REBOOT = -1
     TEMPFILE contains the extracted settings of the radio till the tests have finished, so the 
     radio will not stay with wrong region settings for a longer time 
 """
-# DEBUG: str = ''
-# VERBOSE: bool = False
-DEBUG: str = '--debug --logTo smoke1.log'
-VERBOSE: bool = True
+DEBUG: str = ''
+VERBOSE: bool = False
+# DEBUG: str = '--debug --logTo smoke1.log'
+# VERBOSE: bool = True
 TEMPFILE = None
 
 
@@ -220,7 +220,7 @@ def test_smoke1_test_with_arg_but_no_hardware():
     waitFor(PAUSE_AFTER_COMMAND)
 
 
-@pytest.mark.smoke1D
+@pytest.mark.smoke1
 def test_smoke1_debug():
     """Test --debug"""
     return_value, out = communicate("meshtastic --info --debug")

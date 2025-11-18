@@ -1,6 +1,6 @@
 """ Main Meshtastic
 """
-
+from pathlib import Path
 # We just hit the 1600 line limit for main.py, but I currently have a huge set of powermon/structured logging changes
 # later we can have a separate changelist to refactor main.py into smaller files
 # pylint: disable=R0917,C0302
@@ -698,9 +698,8 @@ def onConnected(interface):
                     actNode.writeConfig(meshtastic.util.camel_to_snake(sectionName))
                     time.sleep(0.5)
 
-            with open(args.configure[0], encoding="utf8") as file:
-                configuration = yaml.safe_load(file)
-                closeNow = True
+            configuration = yaml.safe_load(Path(args.configure[0]).read_text(encoding="utf8"))
+            closeNow = True
 
             # fix configuration structure: older version had entries "ownerShort" and "channelUrl"?
             fixEntry(configuration, "ownerShort", "owner_short")
@@ -1761,7 +1760,6 @@ def addChannelConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPa
         default=False,
     )
 
-    # ToDo: just for easier debug, to be removed later
     group.add_argument(
         "--ch-info",
         help="List all channels",
