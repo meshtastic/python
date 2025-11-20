@@ -1972,17 +1972,20 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         action="store_true",
     )
 
-    group.add_argument(
-        "--set-time",
-        help="Set the time to the provided unix epoch timestamp, or the system's current time if omitted or 0.",
-        action="store",
-        type=int,
-        nargs="?",
-        default=None,
-        const=0,
-        metavar="TIMESTAMP",
-    )
-
+   group.add_argument(
+    "--set-time",
+    metavar="TIMESTAMP",
+    nargs="?",
+    type=int,
+    default=None,
+    const=0,
+    action="store",
+    help=(
+        "Set the device clock using a POSIX timestamp "
+        "(seconds since 1970-01-01 00:00:00 UTC). "
+        "If no TIMESTAMP is provided, the current system time is used."
+    ),
+)
     return parser
 
 def initParser():
