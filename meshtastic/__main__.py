@@ -278,7 +278,8 @@ def setPref(config, comp_name, raw_val) -> bool:
         else:
             print(f"Adding '{raw_val}' to the {pref.name} list")
             cur_vals = [x for x in getattr(config_values, pref.name) if x not in [0, "", b""]]
-            cur_vals.append(val)
+            if val not in cur_vals:
+                cur_vals.append(val)
             getattr(config_values, pref.name)[:] = cur_vals
         return True
 
@@ -700,6 +701,10 @@ def onConnected(interface):
 
             configuration = yaml.safe_load(Path(args.configure[0]).read_text(encoding="utf8"))
             closeNow = True
+            if not configuration or not isinstance(configuration, dict) or len(configuration) == 0:
+                logger.debug(f"Importing configuration failed: {configuration}")
+                print("command failed, no valid configuration could be loaded. Please check your file.")
+                return
 
             # fix configuration structure: older version had entries "ownerShort" and "channelUrl"?
             fixEntry(configuration, "ownerShort", "owner_short")
@@ -767,15 +772,14 @@ def onConnected(interface):
                 return
 
             closeNow = True
-            config_txt = export_config(interface)
+            configTxt = export_config(interface)
 
             if args.export_config == "-":
                 # Output to stdout (preserves legacy use of `> file.yaml`)
-                print(config_txt)
+                print(configTxt)
             else:
                 try:
-                    with open(args.export_config, "w", encoding="utf-8") as f:
-                        f.write(config_txt)
+                    Path(args.export_config).write_text(configTxt, encoding="utf-8")
                     print(f"Exported configuration to {args.export_config}")
                 except Exception as e:
                     meshtastic.util.our_exit(f"ERROR: Failed to write config file: {e}")
@@ -1136,28 +1140,31 @@ def setMissingFlagsFalse(configDict: dict, trueDefaults: set[tuple[str, str]]) -
 
 def export_config(interface) -> str:
     """implements --export-config option"""
-    configObj = {}          # main object collecting all settings to be exported
+    configObj: dict = {}          # main object collecting all settings to be exported
 
     # A list of configuration keys that should be set to False if they are missing
-    true_defaults = {
+    configTrueDefaults: set[tuple] = {
         ("bluetooth", "enabled"),
         ("lora", "sx126xRxBoostedGain"),
         ("lora", "txEnabled"),
         ("lora", "usePreset"),
         ("position", "positionBroadcastSmartEnabled"),
         ("security", "serialEnabled"),
+    }
+
+    module_true_defaults: set[tuple] = {
         ("mqtt", "encryptionEnabled"),
     }
 
-    owner = interface.getLongName()
-    ownerShort = interface.getShortName()
-    channelUrl = interface.localNode.getURL()
-    isUnmessagable = interface.getIsUnmessagable()
+    owner: str | None = interface.getLongName()
+    ownerShort: str | None = interface.getShortName()
+    channelUrl: str | None = interface.localNode.getURL()
+    isUnmessagable: bool | None = interface.getIsUnmessagable()
 
-    myinfo = interface.getMyNodeInfo()
-    cannedMessages = interface.getCannedMessage()
-    ringtone = interface.getRingtone()
-    pos = myinfo.get("position")
+    myinfo: dict | None = interface.getMyNodeInfo()
+    cannedMessages: str | None = interface.getCannedMessage()
+    ringtone: str | None = interface.getRingtone()
+    pos: dict | None = myinfo.get("position")
     lat = None
     lon = None
     alt = None
@@ -1205,12 +1212,8 @@ def export_config(interface) -> str:
                 if 'adminKey' in prefs[pref]:
                     for i in range(len(prefs[pref]['adminKey'])):
                         prefs[pref]['adminKey'][i] = 'base64:' + prefs[pref]['adminKey'][i]
-        if mt_config.camel_case:
-            configObj["config"] = config		#Identical command here and 2 lines below?
-        else:
-            configObj["config"] = config
-
-        setMissingFlagsFalse(configObj["config"], true_defaults)
+        configObj["config"] = config
+        setMissingFlagsFalse(configObj["config"], configTrueDefaults)
 
     moduleConfig: dict = MessageToDict(interface.localNode.moduleConfig)
     if moduleConfig:
@@ -1219,14 +1222,12 @@ def export_config(interface) -> str:
         for pref in moduleConfig:
             if len(moduleConfig[pref]) > 0:
                 prefs[pref] = moduleConfig[pref]
-        if mt_config.camel_case:
-            configObj["module_config"] = prefs
-        else:
-            configObj["module_config"] = prefs
+        configObj["module_config"] = prefs
+        setMissingFlagsFalse(configObj["module_config"], module_true_defaults)
 
-    configTxt: str = "# start of Meshtastic configure yaml\n"
-    configTxt += yaml.dump(configObj)
-    return configTxt
+    config_txt = "# start of Meshtastic configure yaml\n"
+    config_txt += yaml.dump(configObj)
+    return config_txt
 
 
 def create_power_meter():

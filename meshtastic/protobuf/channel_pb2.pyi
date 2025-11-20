@@ -127,23 +127,23 @@ class ModuleSettings(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     POSITION_PRECISION_FIELD_NUMBER: builtins.int
-    IS_CLIENT_MUTED_FIELD_NUMBER: builtins.int
+    IS_MUTED_FIELD_NUMBER: builtins.int
     position_precision: builtins.int
     """
     Bits of precision for the location sent in position packets.
     """
-    is_client_muted: builtins.bool
+    is_muted: builtins.bool
     """
-    Controls whether or not the phone / clients should mute the current channel
+    Controls whether or not the client / device should mute the current channel
     Useful for noisy public channels you don't necessarily want to disable
     """
     def __init__(
         self,
         *,
         position_precision: builtins.int = ...,
-        is_client_muted: builtins.bool = ...,
+        is_muted: builtins.bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["is_client_muted", b"is_client_muted", "position_precision", b"position_precision"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["is_muted", b"is_muted", "position_precision", b"position_precision"]) -> None: ...
 
 global___ModuleSettings = ModuleSettings
 

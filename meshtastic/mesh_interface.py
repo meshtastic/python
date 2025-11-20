@@ -839,6 +839,7 @@ class MeshInterface:  # pylint: disable=R0902
         self,
         name,
         description,
+        icon,
         expire: int,
         waypoint_id: Optional[int] = None,
         latitude: float = 0.0,
@@ -857,6 +858,7 @@ class MeshInterface:  # pylint: disable=R0902
         w = mesh_pb2.Waypoint()
         w.name = name
         w.description = description
+        w.icon = icon
         w.expire = expire
         if waypoint_id is None:
             # Generate a waypoint's id, NOT a packet ID.
@@ -1068,28 +1070,28 @@ class MeshInterface:  # pylint: disable=R0902
         logger.debug(f"self.nodesByNum:{self.nodesByNum}")
         return self.nodesByNum.get(self.myInfo.my_node_num)
 
-    def getMyUser(self):
+    def getMyUser(self) -> dict | None:
         """Get user"""
         nodeInfo = self.getMyNodeInfo()
         if nodeInfo is not None:
             return nodeInfo.get("user")
         return None
 
-    def getLongName(self):
+    def getLongName(self) -> str | None:
         """Get long name"""
         user = self.getMyUser()
         if user is not None:
             return user.get("longName", None)
         return None
 
-    def getShortName(self):
+    def getShortName(self) -> str | None:
         """Get short name"""
         user = self.getMyUser()
         if user is not None:
             return user.get("shortName", None)
         return None
 
-    def getIsUnmessagable(self):
+    def getIsUnmessagable(self) -> bool | None:
         """Get getIsUnmessagable property"""
         user = self.getMyUser()
         if user is not None:
@@ -1103,14 +1105,14 @@ class MeshInterface:  # pylint: disable=R0902
             return user.get("publicKey", None)
         return None
 
-    def getCannedMessage(self):
+    def getCannedMessage(self) -> str | None:
         """Get canned message"""
         node = self.localNode
         if node is not None:
             return node.get_canned_message()
         return None
 
-    def getRingtone(self):
+    def getRingtone(self) -> str | None:
         """Get ringtone"""
         node = self.localNode
         if node is not None:

@@ -40,6 +40,8 @@ whitelistVids = dict.fromkeys([0x239a, 0x303a])
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_KEY = base64.b64decode("1PG7OiApB1nwvP+rz05pAQ==".encode("utf-8"))
+
 def quoteBooleans(a_string: str) -> str:
     """Quote booleans
     given a string that contains ": true", replace with ": 'true'" (or false)
@@ -365,6 +367,30 @@ def remove_keys_from_dict(keys: Union[Tuple, List, Set], adict: Dict) -> Dict:
             remove_keys_from_dict(keys, val)
     return adict
 
+def channel_hash(data: bytes) -> int:
+    """Compute an XOR hash from bytes for channel evaluation."""
+    result = 0
+    for char in data:
+        result ^= char
+    return result
+
+def generate_channel_hash(name: Union[str, bytes], key: Union[str, bytes]) -> int:
+    """generate the channel number by hashing the channel name and psk (accepts str or bytes for both)"""
+    # Handle key as str or bytes
+    if isinstance(key, str):
+        key = base64.b64decode(key.replace("-", "+").replace("_", "/").encode("utf-8"))
+
+    if len(key) == 1:
+        key = DEFAULT_KEY[:-1] + key
+
+    # Handle name as str or bytes
+    if isinstance(name, str):
+        name = name.encode("utf-8")
+
+    h_name = channel_hash(name)
+    h_key = channel_hash(key)
+    result: int = h_name ^ h_key
+    return result
 
 def hexstr(barray: bytes) -> str:
     """Print a string of hex digits"""
@@ -692,3 +718,20 @@ def message_to_json(message: Message, multiline: bool=False) -> str:
     except TypeError:
         json = MessageToJson(message, including_default_value_fields=True) # type: ignore[call-arg] # pylint: disable=E1123
     return stripnl(json) if not multiline else json
+
+
+def to_node_num(node_id: Union[int, str]) -> int:
+    """
+    Normalize a node id from int | '!hex' | '0xhex' | 'decimal' to int.
+    """
+    if isinstance(node_id, int):
+        return node_id
+    s = str(node_id).strip()
+    if s.startswith("!"):
+        s = s[1:]
+    if s.lower().startswith("0x"):
+        return int(s, 16)
+    try:
+        return int(s, 10)
+    except ValueError:
+        return int(s, 16)

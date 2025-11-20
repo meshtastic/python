@@ -16,6 +16,8 @@ from meshtastic.util import (
     pskToString,
     stripnl,
     message_to_json,
+    generate_channel_hash,
+    to_node_num,
 )
 
 logger = logging.getLogger(__name__)
@@ -260,7 +262,7 @@ class Node:
             ch = self.channels[channelIndex]
         return ch
 
-    def rewriteChannelList(self, idxStart: int, admIndex: int) -> None:
+    def _rewriteChannelList(self, idxStart: int, admIndex: int) -> None:
         """write back current channels list to device starting from index idxStart
         channels (before idxStart channels have not changed, so we don't need to rewrite those)."""
 
@@ -294,7 +296,7 @@ class Node:
                 for idx in idx2Delete:
                     self.channels.pop(idx)
                 self._fixupChannels()
-                self.rewriteChannelList(idx2Delete[-1], adminIndex)
+                self._rewriteChannelList(idx2Delete[-1], adminIndex)
 
     def deleteChannel(self, channelIndex):
         """Delete the specified channelIndex and shift other channels up"""
@@ -312,7 +314,7 @@ class Node:
         self.channels.pop(channelIndex)
         self._fixupChannels()  # expand back to 8 channels
 
-        self.rewriteChannelList(channelIndex, adminIndex)
+        self._rewriteChannelList(channelIndex, adminIndex)
 
     def getChannelByName(self, name):
         """Try to find the named channel or return None"""
@@ -479,7 +481,7 @@ class Node:
                         logger.debug(f"self.ringtonePart:{self.ringtonePart}")
                         self.gotResponse = True
 
-    def get_ringtone(self):
+    def get_ringtone(self) -> str | None:
         """Get the ringtone. Concatenate all pieces together and return a single string."""
         logger.debug(f"in get_ringtone()")
         if not self.module_available(mesh_pb2.EXTNOTIF_CONFIG):
@@ -752,11 +754,7 @@ class Node:
     def removeNode(self, nodeId: Union[int, str]):
         """Tell the node to remove a specific node by ID"""
         self.ensureSessionKey()
-        if isinstance(nodeId, str):
-            if nodeId.startswith("!"):
-                nodeId = int(nodeId[1:], 16)
-            else:
-                nodeId = int(nodeId)
+        nodeId = to_node_num(nodeId)
 
         p = admin_pb2.AdminMessage()
         p.remove_by_nodenum = nodeId
@@ -770,11 +768,7 @@ class Node:
     def setFavorite(self, nodeId: Union[int, str]):
         """Tell the node to set the specified node ID to be favorited on the NodeDB on the device"""
         self.ensureSessionKey()
-        if isinstance(nodeId, str):
-            if nodeId.startswith("!"):
-                nodeId = int(nodeId[1:], 16)
-            else:
-                nodeId = int(nodeId)
+        nodeId = to_node_num(nodeId)
 
         p = admin_pb2.AdminMessage()
         p.set_favorite_node = nodeId
@@ -788,11 +782,7 @@ class Node:
     def removeFavorite(self, nodeId: Union[int, str]):
         """Tell the node to set the specified node ID to be un-favorited on the NodeDB on the device"""
         self.ensureSessionKey()
-        if isinstance(nodeId, str):
-            if nodeId.startswith("!"):
-                nodeId = int(nodeId[1:], 16)
-            else:
-                nodeId = int(nodeId)
+        nodeId = to_node_num(nodeId)
 
         p = admin_pb2.AdminMessage()
         p.remove_favorite_node = nodeId
@@ -806,11 +796,7 @@ class Node:
     def setIgnored(self, nodeId: Union[int, str]):
         """Tell the node to set the specified node ID to be ignored on the NodeDB on the device"""
         self.ensureSessionKey()
-        if isinstance(nodeId, str):
-            if nodeId.startswith("!"):
-                nodeId = int(nodeId[1:], 16)
-            else:
-                nodeId = int(nodeId)
+        nodeId = to_node_num(nodeId)
 
         p = admin_pb2.AdminMessage()
         p.set_ignored_node = nodeId
@@ -824,11 +810,7 @@ class Node:
     def removeIgnored(self, nodeId: Union[int, str]):
         """Tell the node to set the specified node ID to be un-ignored on the NodeDB on the device"""
         self.ensureSessionKey()
-        if isinstance(nodeId, str):
-            if nodeId.startswith("!"):
-                nodeId = int(nodeId[1:], 16)
-            else:
-                nodeId = int(nodeId)
+        nodeId = to_node_num(nodeId)
 
         p = admin_pb2.AdminMessage()
         p.remove_ignored_node = nodeId
@@ -1051,10 +1033,7 @@ class Node:
             ):  # unless a special channel index was used, we want to use the admin index
                 adminIndex = self.iface.localNode._getAdminChannelIndex()
             logger.debug(f"adminIndex:{adminIndex}")
-            if isinstance(self.nodeNum, int):
-                nodeid = self.nodeNum
-            else: # assume string starting with !
-                nodeid = int(self.nodeNum[1:],16)
+            nodeid = to_node_num(self.nodeNum)
             if "adminSessionPassKey" in self.iface._getOrCreateByNum(nodeid):
                 p.session_passkey = self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey")
             return self.iface.sendData(
@@ -1075,9 +1054,23 @@ class Node:
                 f"Not ensuring session key, because protocol use is disabled by noProto"
             )
         else:
-            if isinstance(self.nodeNum, int):
-                nodeid = self.nodeNum
-            else: # assume string starting with !
-                nodeid = int(self.nodeNum[1:],16)
+            nodeid = to_node_num(self.nodeNum)
             if self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey") is None:
                 self.requestConfig(admin_pb2.AdminMessage.SESSIONKEY_CONFIG)
+
+    def get_channels_with_hash(self):
+        """Return a list of dicts with channel info and hash."""
+        result = []
+        if self.channels:
+            for c in self.channels:
+                if c.settings and hasattr(c.settings, "name") and hasattr(c.settings, "psk"):
+                    hash_val = generate_channel_hash(c.settings.name, c.settings.psk)
+                else:
+                    hash_val = None
+                result.append({
+                    "index": c.index,
+                    "role": channel_pb2.Channel.Role.Name(c.role),
+                    "name": c.settings.name if c.settings and hasattr(c.settings, "name") else "",
+                    "hash": hash_val,
+                })
+        return result
