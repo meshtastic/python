@@ -735,3 +735,16 @@ def to_node_num(node_id: Union[int, str]) -> int:
         return int(s, 10)
     except ValueError:
         return int(s, 16)
+
+def flags_to_list(flag_type, flags: int) -> List[str]:
+    """Given a flag_type that's a protobuf EnumTypeWrapper, and a flag int, give a list of flags enabled."""
+    ret = []
+    for key in flag_type.keys():
+        if key == "EXCLUDED_NONE":
+            continue
+        if flags & flag_type.Value(key):
+            ret.append(key)
+            flags = flags - flag_type.Value(key)
+    if flags > 0:
+        ret.append(f"UNKNOWN_ADDITIONAL_FLAGS({flags})")
+    return ret

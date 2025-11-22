@@ -523,6 +523,10 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     RAK3401
     """
+    RAK6421: _HardwareModel.ValueType  # 118
+    """
+    RAK6421 Hat+
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1028,6 +1032,10 @@ RAK WISMESH_TAP_V2 with ESP32-S3 CPU
 RAK3401: HardwareModel.ValueType  # 117
 """
 RAK3401
+"""
+RAK6421: HardwareModel.ValueType  # 118
+"""
+RAK6421 Hat+
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
@@ -2557,6 +2565,10 @@ class MeshPacket(google.protobuf.message.Message):
     to: builtins.int
     """
     The (immediate) destination for this packet
+    If the value is 4,294,967,295 (maximum value of an unsigned 32bit integer), this indicates that the packet was
+    not destined for a specific node, but for a channel as indicated by the value of `channel` below.
+    If the value is another, this indicates that the packet was destined for a specific
+    node (i.e. a kind of "Direct Message" to this node) and not broadcast on a channel.
     """
     channel: builtins.int
     """

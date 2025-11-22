@@ -7,7 +7,7 @@ import time
 
 from typing import Optional, Union, List
 
-from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, mesh_pb2, portnums_pb2
+from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, config_pb2, localonly_pb2, mesh_pb2, portnums_pb2
 from meshtastic.util import (
     Timeout,
     camel_to_snake,
@@ -18,6 +18,7 @@ from meshtastic.util import (
     message_to_json,
     generate_channel_hash,
     to_node_num,
+    flags_to_list,
 )
 
 logger = logging.getLogger(__name__)
@@ -53,6 +54,16 @@ class Node:
             r += ", timeout={self._timeout.expireTimeout!r}"
         r += ")"
         return r
+
+    @staticmethod
+    def position_flags_list(position_flags: int) -> List[str]:
+        "Return a list of position flags from the given flags integer"
+        return flags_to_list(config_pb2.Config.PositionConfig.PositionFlags, position_flags)
+
+    @staticmethod
+    def excluded_modules_list(excluded_modules: int) -> List[str]:
+        "Return a list of excluded modules from the given flags integer"
+        return flags_to_list(mesh_pb2.ExcludedModules, excluded_modules)
 
     def module_available(self, excluded_bit: int) -> bool:
         """Check DeviceMetadata.excluded_modules to see if a module is available."""
@@ -940,6 +951,18 @@ class Node:
             logger.debug(f"Received metadata {stripnl(c)}")
             print(f"\nfirmware_version: {c.firmware_version}")
             print(f"device_state_version: {c.device_state_version}")
+            if c.role in config_pb2.Config.DeviceConfig.Role.values():
+                print(f"role: {config_pb2.Config.DeviceConfig.Role.Name(c.role)}")
+            else:
+                print(f"role: {c.role}")
+            print(f"position_flags: {self.position_flags_list(c.position_flags)}")
+            if c.hw_model in mesh_pb2.HardwareModel.values():
+                print(f"hw_model: {mesh_pb2.HardwareModel.Name(c.hw_model)}")
+            else:
+                print(f"hw_model: {c.hw_model}")
+            print(f"hasPKC: {c.hasPKC}")
+            if c.excluded_modules > 0:
+                print(f"excluded_modules: {self.excluded_modules_list(c.excluded_modules)}")
 
     def onResponseRequestChannel(self, p):
         """Handle the response packet for requesting a channel _requestChannel()"""
