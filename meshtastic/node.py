@@ -78,20 +78,6 @@ class Node:
         except Exception:
             return True
 
-    def showChannels(self):
-        """Show human readable description of our channels."""
-        chanCfg = self.getChannelInfo()
-        print("Channels:")
-        for idx, c in enumerate(chanCfg['Channels']):
-            if channel_pb2.Channel.Role.Name(c['role'] )!= "DISABLED":
-                print(f"  Index {idx}: {channel_pb2.Channel.Role.Name(c['role'])} psk={pskToString(c['psk'])} {json.dumps(c['settings'])}")
-        print("")
-        publicURL = chanCfg['publicURL']
-        print(f"\nPrimary channel URL: {publicURL}")
-        adminURL = chanCfg['adminURL']
-        if adminURL != publicURL:
-            print(f"Complete URL (includes all channels): {adminURL}")
-
     def getChannelInfo(self) -> dict:
         """Return description of our channels as dict."""
         # print("Channels:")
@@ -99,23 +85,9 @@ class Node:
         if self.channels:
             logger.debug(f"self.channels:{self.channels}")
             chanConfig = [{"role": c.role, "psk": c.settings.psk, "settings": MessageToDict(c.settings, always_print_fields_with_no_presence=True)} for c in self.channels]
-            # for c in self.channels:
-            #     cStr = MessageToDict(c.settings)
-            #     # don't show disabled channels
-            #     if channel_pb2.Channel.Role.Name(c.role) != "DISABLED":
-            #         print(
-            #             f"  Index {c.index}: {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}"
-            #         )
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
         return {"Channels": chanConfig, "publicURL": publicURL, "adminURL": adminURL}
-
-    def showInfo(self):
-        """Show human readable description of our node"""
-        cfgInfo = self.getInfo()
-        print(f"Preferences: {json.dumps(cfgInfo['Preferences'], indent=2)}")
-        print(f"Module preferences: {json.dumps(cfgInfo['Module preferences'], indent=2)}")
-        self.showChannels()
 
     def getInfo(self) ->dict:
         """Return preferences of our node as dictionary"""

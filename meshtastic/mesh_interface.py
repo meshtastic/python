@@ -232,19 +232,6 @@ class MeshInterface:  # pylint: disable=R0902
             addr = convert_mac_addr(val)
             n2["user"]["macaddr"] = addr
 
-    def showInfo(self, file=sys.stdout) -> str:  # pylint: disable=W0613
-        """Show human readable summary about this object"""
-        ifData = self.getInfo()
-
-        owner = f"Owner: {ifData['Owner'][0]}({ifData['Owner'][1]})"
-        myinfo = f"My info: {json.dumps(ifData['My Info'])}" if ifData['My Info'] else ""
-        metadata = f"Metadata: {json.dumps(ifData['Metadata'])}" if ifData['Metadata'] else ""
-        mesh = f"\nNodes in mesh:{json.dumps(ifData['Nodes'], indent=2)}"
-
-        infos = f"{owner}\n{myinfo}\n{metadata}\n{mesh}"
-        print(infos)
-        return infos
-
     def showNodes(self,
                   includeSelf: bool = True,
                   showFields: Optional[List[str]] = None,

@@ -44,6 +44,8 @@ import meshtastic.tcp_interface
 from meshtastic import BROADCAST_ADDR, mt_config, remote_hardware
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
+from meshtastic.formatter import InfoFormatter
+
 try:
     from meshtastic.powermon import (
         PowerMeter,
@@ -988,21 +990,12 @@ def onConnected(interface):
                 print("Completed getting preferences")
 
         if args.info:
-            print("")
             # If we aren't trying to talk to our local node, don't show it
             if args.dest == BROADCAST_ADDR:
-                # infodata = interface.getInfo()
-                # infodata.update(interface.getNode(args.dest, **getNode_kwargs).getInfo())
-                interface.showInfo()
-                interface.getNode(args.dest, **getNode_kwargs).showInfo()
+                infodata = interface.getInfo()
+                infodata.update(interface.getNode(args.dest, **getNode_kwargs).getInfo())
+                InfoFormatter().format(infodata, args.fmt)
                 closeNow = True
-                print("")
-                pypi_version = meshtastic.util.check_if_newer_version()
-                if pypi_version:
-                    print(
-                        f"*** A newer version v{pypi_version} is available!"
-                        ' Consider running "pip install --upgrade meshtastic" ***\n'
-                    )
             else:
                 print("Showing info of remote node is not supported.")
                 print(
