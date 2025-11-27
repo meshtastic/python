@@ -978,12 +978,22 @@ def onConnected(interface):
             ringtone = interface.getNode(args.dest, **getNode_kwargs).get_ringtone()
             print(f"ringtone:{ringtone}")
 
+        if args.get:
+            closeNow = True
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
+            for pref in args.get:
+                found = getPref(node, pref[0])
+
+            if found:
+                print("Completed getting preferences")
+
         if args.info:
             print("")
             # If we aren't trying to talk to our local node, don't show it
             if args.dest == BROADCAST_ADDR:
+                # infodata = interface.getInfo()
+                # infodata.update(interface.getNode(args.dest, **getNode_kwargs).getInfo())
                 interface.showInfo()
-                print("")
                 interface.getNode(args.dest, **getNode_kwargs).showInfo()
                 closeNow = True
                 print("")
@@ -999,24 +1009,19 @@ def onConnected(interface):
                     "Use the '--get' command for a specific configuration (e.g. 'lora') instead."
                 )
 
-        if args.get:
-            closeNow = True
-            node = interface.getNode(args.dest, False, **getNode_kwargs)
-            for pref in args.get:
-                found = getPref(node, pref[0])
-
-            if found:
-                print("Completed getting preferences")
-
         if args.nodes:
             closeNow = True
             if args.dest != BROADCAST_ADDR:
                 print("Showing node list of a remote node is not supported.")
                 return
-            interface.showNodes(True, args.show_fields)
+            interface.showNodes(True, showFields=args.show_fields, printFmt=args.fmt)
 
         if args.show_fields and not args.nodes:
             print("--show-fields can only be used with --nodes")
+            return
+
+        if args.fmt and not (args.nodes or args.info):
+            print("--fmt can only be used with --nodes or --info")
             return
 
         if args.qr or args.qr_all:
@@ -1829,6 +1834,13 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         "--show-fields",
         help="Specify fields to show (comma-separated) when using --nodes",
         type=lambda s: s.split(','),
+        default=None
+    )
+
+    group.add_argument(
+        "--fmt",
+        help="Specify format to show when using --nodes/--info",
+        type=str,
         default=None
     )
 
