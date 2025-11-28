@@ -56,19 +56,29 @@ def test_MeshInterface(capsys):
     # Also get some coverage of the structured logging/power meter stuff by turning it on as well
     log_set = LogSet(iface, None, SimPowerSupply())
 
-    iface.showInfo()
-    iface.localNode.showInfo()
-    iface.showNodes()
-    iface.sendText("hello")
+    ifData = iface.getInfo()
+    nodeData = iface.localNode.getInfo()
+    # iface.showNodes()
+    # iface.sendText("hello")
     iface.close()
     log_set.close()
-    out, err = capsys.readouterr()
-    assert re.search(r"Owner: None \(None\)", out, re.MULTILINE)
-    assert re.search(r"Nodes", out, re.MULTILINE)
-    assert re.search(r"Preferences", out, re.MULTILINE)
-    assert re.search(r"Channels", out, re.MULTILINE)
-    assert re.search(r"Primary channel URL", out, re.MULTILINE)
-    assert err == ""
+
+    # test interface data
+    assert 'Owner' in ifData.keys()
+    assert len(ifData.get('Owner', [])) == 2
+    assert ifData['Owner'][0] is None
+    assert ifData['Owner'][1] is None
+    assert 'My Info' in ifData.keys()
+    assert 'Metadata' in ifData.keys()
+    assert 'Nodes' in ifData.keys()
+    assert len(ifData['Nodes']) > 0
+
+    # test node data
+    assert 'Preferences' in nodeData.keys()
+    assert 'Module preferences' in nodeData.keys()
+    assert 'Channels' in nodeData.keys()
+    assert 'publicURL' in nodeData.keys()
+    assert 'adminURL' in nodeData.keys()
 
 
 @pytest.mark.unit

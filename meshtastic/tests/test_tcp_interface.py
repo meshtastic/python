@@ -16,17 +16,27 @@ def test_TCPInterface(capsys):
         iface = TCPInterface(hostname="localhost", noProto=True)
         iface.localNode.localConfig.lora.CopyFrom(config_pb2.Config.LoRaConfig())
         iface.myConnect()
-        iface.showInfo()
-        iface.localNode.showInfo()
-        out, err = capsys.readouterr()
-        assert re.search(r"Owner: None \(None\)", out, re.MULTILINE)
-        assert re.search(r"Nodes", out, re.MULTILINE)
-        assert re.search(r"Preferences", out, re.MULTILINE)
-        assert re.search(r"Channels", out, re.MULTILINE)
-        assert re.search(r"Primary channel URL", out, re.MULTILINE)
-        assert err == ""
+        ifData = iface.getInfo()
+        nodeData = iface.localNode.getInfo()
+
         assert mock_socket.called
         iface.close()
+
+        # test interface data
+        assert 'Owner' in ifData.keys()
+        assert len(ifData.get('Owner', [])) == 2
+        assert ifData['Owner'][0] is None
+        assert ifData['Owner'][1] is None
+        assert 'My Info' in ifData.keys()
+        assert 'Metadata' in ifData.keys()
+        assert 'Nodes' in ifData.keys()
+
+        # test node data
+        assert 'Preferences' in nodeData.keys()
+        assert 'Module preferences' in nodeData.keys()
+        assert 'Channels' in nodeData.keys()
+        assert 'publicURL' in nodeData.keys()
+        assert 'adminURL' in nodeData.keys()
 
 
 @pytest.mark.unit

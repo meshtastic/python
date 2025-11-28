@@ -60,24 +60,36 @@ class FormatAsText():
     def showMeshInfo(self, data: dict):
         """Show human-readable summary about mesh interface data"""
         owner = f"Owner: {data['Owner'][0]}({data['Owner'][1]})"
-        myinfo = f"My info: {json.dumps(data['My Info'])}" if data['My Info'] else ""
-        metadata = f"Metadata: {json.dumps(data['Metadata'])}" if data['Metadata'] else ""
-        mesh = f"\nNodes in mesh:{json.dumps(data['Nodes'], indent=2)}"
+
+        myinfo = ""
+        if dx := data.get('My Info', None) is not None:
+            myinfo = f"My info: {json.dumps(dx)}"
+
+        metadata = ""
+        if dx := data.get('Metadata', None) is not None:
+            metadata = f"Metadata: {json.dumps(dx)}"
+
+        mesh = f"\nNodes in mesh:{json.dumps(data.get('Nodes', {}), indent=2)}"
 
         infos = f"{owner}\n{myinfo}\n{metadata}\n{mesh}"
         print(infos)
 
     def showNodeInfo(self, data: dict):
         """Show human-readable description of our node"""
-        print(f"Preferences: {json.dumps(data['Preferences'], indent=2)}")
-        print(f"Module preferences: {json.dumps(data['Module preferences'], indent=2)}")
-        print("Channels:")
-        for idx, c in enumerate(data['Channels']):
-            if channel_pb2.Channel.Role.Name(c['role'] )!= "DISABLED":
-                print(f"  Index {idx}: {channel_pb2.Channel.Role.Name(c['role'])} psk={pskToString(c['psk'])} {json.dumps(c['settings'])}")
-        print("")
-        publicURL = data['publicURL']
-        print(f"\nPrimary channel URL: {publicURL}")
-        adminURL = data['adminURL']
-        if adminURL != publicURL:
-            print(f"Complete URL (includes all channels): {adminURL}")
+        if dx := data.get('Preferences', None) is not None:
+            print(f"Preferences: {json.dumps(dx, indent=2)}")
+
+        if dx := data.get('Module preferences', None) is not None:
+            print(f"Module preferences: {json.dumps(dx, indent=2)}")
+
+        if dx := data.get('Channels', None) is not None:
+            print("Channels:")
+            for idx, c in enumerate(dx):
+                if channel_pb2.Channel.Role.Name(c['role']) != "DISABLED":
+                    print(f"  Index {idx}: {channel_pb2.Channel.Role.Name(c['role'])} psk={pskToString(c['psk'])} {json.dumps(c['settings'])}")
+            print("")
+            publicURL = data['publicURL']
+            print(f"\nPrimary channel URL: {publicURL}")
+            adminURL = data['adminURL']
+            if adminURL != publicURL:
+                print(f"Complete URL (includes all channels): {adminURL}")
