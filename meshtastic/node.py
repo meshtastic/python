@@ -84,7 +84,7 @@ class Node:
         chanConfig = {}
         if self.channels:
             logger.debug(f"self.channels:{self.channels}")
-            chanConfig = [{"role": c.role, "psk": c.settings.psk, "settings": MessageToDict(c.settings, always_print_fields_with_no_presence=True)} for c in self.channels]
+            chanConfig = [{"role": c.role, "__psk__": c.settings.psk, "settings": MessageToDict(c.settings, always_print_fields_with_no_presence=True)} for c in self.channels]
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
         return {"Channels": chanConfig, "publicURL": publicURL, "adminURL": adminURL}
