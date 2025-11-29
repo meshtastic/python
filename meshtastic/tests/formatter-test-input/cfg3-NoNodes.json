@@ -3,7 +3,7 @@
     "Meshtastic Test",
     "MT"
   ],
-  "My Info": {
+  "MyInfo": {
     "myNodeNum": 1234,
     "minAppVersion": 30200,
     "deviceId": "S==",
@@ -41,7 +41,7 @@
       "ignoreMqtt": true
     }
   },
-  "Module preferences": {
+  "ModulePreferences": {
     "mqtt": {
       "address": "mqtt.meshtastic.org",
       "username": "meshdev",

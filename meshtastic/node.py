@@ -98,7 +98,7 @@ class Node:
         if self.moduleConfig:
             modConfig = MessageToDict(self.moduleConfig)
         chanConfig = self.getChannelInfo()
-        info = {"Preferences": locConfig, "Module preferences": modConfig}
+        info = {"Preferences": locConfig, "ModulePreferences": modConfig}
         info.update(chanConfig)
         return info
 

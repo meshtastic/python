@@ -27,13 +27,13 @@ def test_TCPInterface(capsys):
         assert len(ifData.get('Owner', [])) == 2
         assert ifData['Owner'][0] is None
         assert ifData['Owner'][1] is None
-        assert 'My Info' in ifData.keys()
+        assert 'MyInfo' in ifData.keys()
         assert 'Metadata' in ifData.keys()
         assert 'Nodes' in ifData.keys()
 
         # test node data
         assert 'Preferences' in nodeData.keys()
-        assert 'Module preferences' in nodeData.keys()
+        assert 'ModulePreferences' in nodeData.keys()
         assert 'Channels' in nodeData.keys()
         assert 'publicURL' in nodeData.keys()
         assert 'adminURL' in nodeData.keys()

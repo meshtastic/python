@@ -33,7 +33,7 @@ def test_node(capsys):
         anode.moduleConfig = localonly_pb2.LocalModuleConfig()
         nodeData = anode.getInfo()
         assert 'Preferences' in nodeData.keys()
-        assert 'Module preferences' in nodeData.keys()
+        assert 'ModulePreferences' in nodeData.keys()
         assert 'Channels' in nodeData.keys()
         assert 'publicURL' in nodeData.keys()
         assert 'adminURL' in nodeData.keys()

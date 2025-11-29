@@ -76,7 +76,7 @@ class FormatAsText(AbstractFormatter):
         owner = f"Owner: {data['Owner'][0]}({data['Owner'][1]})"
 
         myinfo = ""
-        if (dx := data.get('My Info', None)) is not None:
+        if (dx := data.get('MyInfo', None)) is not None:
             myinfo = f"My info: {json.dumps(dx)}"
 
         metadata = ""
@@ -93,7 +93,7 @@ class FormatAsText(AbstractFormatter):
         if (dx := data.get('Preferences', None)) is not None:
             print(f"Preferences: {json.dumps(dx, indent=2)}")
 
-        if (dx := data.get('Module preferences', None)) is not None:
+        if (dx := data.get('ModulePreferences', None)) is not None:
             print(f"Module preferences: {json.dumps(dx, indent=2)}")
 
         if (dx := data.get('Channels', None)) is not None:

@@ -197,13 +197,13 @@ class MeshInterface:  # pylint: disable=R0902
         """retrieve object data"""
         objData: dict[str, Any] = {
             "Owner": [self.getLongName(), self.getShortName()],
-            "My Info": {},
+            "MyInfo": {},
             "Metadata": {},
             "Nodes": {}
         }
 
         if self.myInfo:
-            objData["My Info"] = MessageToDict(self.myInfo)
+            objData["MyInfo"] = MessageToDict(self.myInfo)
         if self.metadata:
             objData["Metadata"] = MessageToDict(self.metadata)
 

@@ -3,16 +3,22 @@
 import json
 from pathlib import Path
 import re
-from unittest.mock import MagicMock, patch
 
+from unittest.mock import MagicMock
 import pytest
 
 import meshtastic
-import meshtastic.formatter
-from meshtastic.formatter import FormatterFactory, AbstractFormatter, InfoFormatter
+# from meshtastic.formatter import FormatterFactory, AbstractFormatter, InfoFormatter
+from ..protobuf import config_pb2
+from ..formatter import FormatterFactory, AbstractFormatter, InfoFormatter
+from ..mesh_interface import MeshInterface
+try:
+    # Depends upon the powermon group, not installed by default
+    from ..slog import LogSet
+    from ..powermon import SimPowerSupply
+except ImportError:
+    pytest.skip("Can't import LogSet or SimPowerSupply", allow_module_level=True)
 
-
-# from ..formatter import FormatterFactory, FormatAsText
 
 def pskBytes(d):
     """Implement a hook to decode psk to byte as needed for the test"""
@@ -23,7 +29,7 @@ def pskBytes(d):
 
 @pytest.mark.unit
 def test_factory():
-    ff = meshtastic.formatter.FormatterFactory()
+    ff = FormatterFactory()
     assert len(ff.infoFormatters) > 0
 
     # test for at least default formatter which should be returned when passed an empty string
@@ -47,24 +53,24 @@ def test_factory():
 @pytest.mark.unit
 @pytest.mark.parametrize("inFile, expected", [
     ("cfg1.json", {
-        "len": 4161,
-        "keys": ["Owner", "My Info", "Metadata", "Nodes", "Preferences", "Module preferences", "Channels", "publicURL"]
+        "len": 4159,
+        "keys": ["Owner", "MyInfo", "Metadata", "Nodes", "Preferences", "ModulePreferences", "Channels", "publicURL"]
     }),
     ("cfg2-OwnerOnly.json", {
-        "len": 169,
-        "keys": ["Owner", "My Info", "Metadata", "Nodes", "Preferences", "Module preferences", "Channels"]
+        "len": 167,
+        "keys": ["Owner", "MyInfo", "Metadata", "Nodes", "Preferences", "ModulePreferences", "Channels"]
     }),
     ("cfg3-NoNodes.json", {
-        "len": 3413,
-        "keys": ["Owner", "My Info", "Metadata", "Preferences", "Module preferences", "Channels", "publicURL"]
+        "len": 3411,
+        "keys": ["Owner", "MyInfo", "Metadata", "Preferences", "ModulePreferences", "Channels", "publicURL"]
     }),
     ("cfg4-NoPrefs.json", {
-        "len": 2354,
-        "keys": ["Owner", "My Info", "Metadata", "Channels", "publicURL"]
+        "len": 2353,
+        "keys": ["Owner", "MyInfo", "Metadata", "Channels", "publicURL"]
     }),
     ("cfg5-NoChannels.json", {
-        "len": 597,
-        "keys": ["Owner", "My Info", "Metadata", "publicURL"]
+        "len": 596,
+        "keys": ["Owner", "MyInfo", "Metadata", "publicURL"]
     })
 ])
 def test_jsonFormatter(inFile, expected):
@@ -132,7 +138,7 @@ def test_ExceptionAbstractClass():
 
 @pytest.mark.unit
 @pytest.mark.parametrize("inCfg, expected", [
-    (("cfg1.json", 'json'), {"len": 4162}),
+    (("cfg1.json", 'json'), {"len": 4160}),
     (("cfg1.json", 'txt'), {"len": 2390}),
     (("cfg1.json", None), {"len": 2390})
     ])
@@ -144,4 +150,53 @@ def test_InfoFormatter(capsys, inCfg, expected):
     InfoFormatter().format(data, inCfg[1])
 
     out, _ = capsys.readouterr()
+    assert len(out) == expected['len']
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+@pytest.mark.parametrize("inFmt, expected", [
+    ('json', {"len": 556, "keys": ["!9388f81c", "Unknown f81c", "44:17:93:88:f8:1c", "https://meshtastic.org/e/#EgA"]}),
+    ('txt', {"len": 539, "keys": ["!9388f81c", "Unknown f81c", "44:17:93:88:f8:1c", "https://meshtastic.org/e/#EgA"]}),
+    (None, {"len": 539, "keys": ["!9388f81c", "Unknown f81c", "44:17:93:88:f8:1c", "https://meshtastic.org/e/#EgA"]})
+    ])
+def test_fullSequenceTest(capsys, inFmt, expected):
+    """Test formatter when exporting data from an instantiated mesh interface
+    --> close the loop of data"""
+    iface = MeshInterface(noProto=True)
+
+    NODE_ID = "!9388f81c"
+    NODE_NUM = 2475227164
+    node = {
+            "num": NODE_NUM,
+            "user": {
+                "id": NODE_ID,
+                "longName": "Unknown f81c",
+                "shortName": "?1C",
+                "macaddr": "RBeTiPgc",
+                "hwModel": "TBEAM",
+            },
+            "position": {},
+            "lastHeard": 1640204888,
+        }
+
+    iface.nodes = {NODE_ID: node}
+    iface.nodesByNum = {NODE_NUM: node}
+
+    myInfo = MagicMock()
+    iface.myInfo = myInfo
+
+    iface.localNode.localConfig.lora.CopyFrom(config_pb2.Config.LoRaConfig())
+
+    # Also get some coverage of the structured logging/power meter stuff by turning it on as well
+    log_set = LogSet(iface, None, SimPowerSupply())
+
+    ifData = iface.getInfo()
+    ifData.update(iface.localNode.getInfo())
+    iface.close()
+    log_set.close()
+
+    InfoFormatter().format(ifData, inFmt)
+
+    out, _ = capsys.readouterr()
+    print(out)
     assert len(out) == expected['len']
