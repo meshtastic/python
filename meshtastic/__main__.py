@@ -87,10 +87,11 @@ def onReceive(packet, interface) -> None:
             if msg:
                 rxSnr = packet["rxSnr"]
                 hopLimit = packet["hopLimit"]
+                channelIndex = packet.get("channel", 0)
                 print(f"message: {msg}")
                 reply = f"got msg '{msg}' with rxSnr: {rxSnr} and hopLimit: {hopLimit}"
-                print("Sending reply: ", reply)
-                interface.sendText(reply)
+                print(f"Sending reply on channelIndex {mt_config.channel_index or 0}: {reply}")
+                interface.sendText(reply,channelIndex=channelIndex)
 
     except Exception as ex:
         print(f"Warning: Error processing received packet: {ex}.")
