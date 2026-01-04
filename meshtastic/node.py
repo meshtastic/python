@@ -170,11 +170,10 @@ class Node:
             p.get_config_request = configType
 
         else:
-            msgIndex = configType.index
             if configType.containing_type.name == "LocalConfig":
-                p.get_config_request = msgIndex
+                p.get_config_request = admin_pb2.AdminMessage.ConfigType.Value(configType.name.upper() + "_CONFIG")
             else:
-                p.get_module_config_request = msgIndex
+                p.get_module_config_request = configType.index
 
         self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
         if onResponse:
