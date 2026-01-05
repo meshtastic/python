@@ -569,6 +569,36 @@ def onConnected(interface):
                         telemetryType=telemType,
                     )
 
+        if args.request_userinfo:
+            if args.dest == BROADCAST_ADDR:
+                meshtastic.util.our_exit("Warning: Must use a destination node ID.")
+            else:
+                channelIndex = mt_config.channel_index or 0
+                if checkChannel(interface, channelIndex):
+                    print(
+                        f"Sending userinfo request to {args.dest} on channelIndex:{channelIndex} (this could take a while)"
+                    )
+                    interface.request_user_info(destinationId=args.dest, channelIndex=channelIndex)
+                    closeNow = True
+
+        if args.broadcast_userinfo:
+            channelIndex = mt_config.channel_index or 0
+            if args.dest != BROADCAST_ADDR:
+                print("Warning: --broadcast-userinfo ignores --dest and always broadcasts to all nodes")
+            if checkChannel(interface, channelIndex):
+                print(f"Broadcasting our userinfo to all nodes on channelIndex:{channelIndex}")
+                interface.request_user_info(destinationId=BROADCAST_ADDR, wantResponse=False, channelIndex=channelIndex)
+                closeNow = True
+
+        if args.send_userinfo:
+            channelIndex = mt_config.channel_index or 0
+            if args.dest == BROADCAST_ADDR:
+                meshtastic.util.our_exit("Error: --send-userinfo requires a destination node ID with --dest")
+            if checkChannel(interface, channelIndex):
+                print(f"Sending our userinfo to {args.dest} on channelIndex:{channelIndex}")
+                interface.request_user_info(destinationId=args.dest, wantResponse=False, channelIndex=channelIndex)
+                closeNow = True
+
         if args.request_position:
             if args.dest == BROADCAST_ADDR:
                 meshtastic.util.our_exit("Warning: Must use a destination node ID.")
@@ -1879,6 +1909,27 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
         help="Request the position from a node. "
         "You need to pass the destination ID as an argument with '--dest'. "
         "For repeaters, the nodeNum is required.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--request-userinfo",
+        help="Request user information from a specific node. "
+        "You need to pass the destination ID as an argument with '--dest'. "
+        "For repeaters, the nodeNum is required.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--broadcast-userinfo",
+        help="Broadcast your user information to all nodes in the mesh network.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--send-userinfo",
+        help="Send your user information to a specific node without requesting a response. "
+        "Must be used with --dest to specify the destination node.",
         action="store_true",
     )
 
