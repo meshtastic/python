@@ -416,6 +416,7 @@ class MeshInterface:  # pylint: disable=R0902
         channelIndex: int = 0,
         portNum: portnums_pb2.PortNum.ValueType = portnums_pb2.PortNum.TEXT_MESSAGE_APP,
         replyId: Optional[int]=None,
+        hopLimit: Optional[int]=None,
     ):
         """Send a utf8 string to some other node, if the node has a display it
            will also be shown on the device.
@@ -433,6 +434,7 @@ class MeshInterface:  # pylint: disable=R0902
             portNum -- the application portnum (similar to IP port numbers)
                        of the destination, see portnums.proto for a list
             replyId -- the ID of the message that this packet is a response to
+            hopLimit -- hop limit to use
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -446,7 +448,8 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
-            replyId=replyId
+            replyId=replyId,
+            hopLimit=hopLimit
         )
 
 
@@ -456,6 +459,7 @@ class MeshInterface:  # pylint: disable=R0902
         destinationId: Union[int, str] = BROADCAST_ADDR,
         onResponse: Optional[Callable[[dict], Any]] = None,
         channelIndex: int = 0,
+        hopLimit: Optional[int]=None,
     ):
         """Send an alert text to some other node. This is similar to a text message,
             but carries a higher priority and is capable of generating special notifications
@@ -463,6 +467,7 @@ class MeshInterface:  # pylint: disable=R0902
 
         Arguments:
             text {string} -- The text of the alert to send
+            hopLimit -- hop limit to use
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this
@@ -480,7 +485,8 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=False,
             onResponse=onResponse,
             channelIndex=channelIndex,
-            priority=mesh_pb2.MeshPacket.Priority.ALERT
+            priority=mesh_pb2.MeshPacket.Priority.ALERT,
+            hopLimit=hopLimit
         )
 
     def sendMqttClientProxyMessage(self, topic: str, data: bytes):
@@ -582,6 +588,7 @@ class MeshInterface:  # pylint: disable=R0902
         wantAck: bool = False,
         wantResponse: bool = False,
         channelIndex: int = 0,
+        hopLimit: Optional[int]=None,
     ):
         """
         Send a position packet to some other node (normally a broadcast)
@@ -618,6 +625,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
+            hopLimit=hopLimit,
         )
         if wantResponse:
             self.waitForPosition()
@@ -723,7 +731,8 @@ class MeshInterface:  # pylint: disable=R0902
         destinationId: Union[int, str] = BROADCAST_ADDR,
         wantResponse: bool = False,
         channelIndex: int = 0,
-        telemetryType: str = "device_metrics"
+        telemetryType: str = "device_metrics",
+        hopLimit: Optional[int]=None
     ):
         """Send telemetry and optionally ask for a response"""
         r = telemetry_pb2.Telemetry()
@@ -770,6 +779,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
+            hopLimit=hopLimit,
         )
         if wantResponse:
             self.waitForTelemetry()
@@ -839,6 +849,7 @@ class MeshInterface:  # pylint: disable=R0902
         wantAck: bool = True,
         wantResponse: bool = False,
         channelIndex: int = 0,
+        hopLimit: Optional[int]=None,
     ): # pylint: disable=R0913
         """
         Send a waypoint packet to some other node (normally a broadcast)
@@ -879,6 +890,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
+            hopLimit=hopLimit,
         )
         if wantResponse:
             self.waitForWaypoint()
@@ -891,6 +903,7 @@ class MeshInterface:  # pylint: disable=R0902
         wantAck: bool = True,
         wantResponse: bool = False,
         channelIndex: int = 0,
+        hopLimit: Optional[int]=None,
     ):
         """
         Send a waypoint deletion packet to some other node (normally a broadcast)
@@ -917,6 +930,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
+            hopLimit=hopLimit,
         )
         if wantResponse:
             self.waitForWaypoint()
