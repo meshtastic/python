@@ -1046,16 +1046,35 @@ class Node:
     def get_channels_with_hash(self):
         """Return a list of dicts with channel info and hash."""
         result = []
+        def format_preset_name(name='Custom'):
+            # Convert name like MODEM_PRESET to ModemPreset
+            return ''.join(word.capitalize() for word in name.split('_'))
+
         if self.channels:
             for c in self.channels:
-                if c.settings and hasattr(c.settings, "name") and hasattr(c.settings, "psk"):
-                    hash_val = generate_channel_hash(c.settings.name, c.settings.psk)
-                else:
-                    hash_val = None
-                result.append({
-                    "index": c.index,
-                    "role": channel_pb2.Channel.Role.Name(c.role),
-                    "name": c.settings.name if c.settings and hasattr(c.settings, "name") else "",
+                # Ignore DISABLED channels
+                if channel_pb2.Channel.Role.Name(getattr(c, "role", 0)) == "DISABLED":
+                    continue
+                hash_val = None
+                name = ""
+                if getattr(c, "settings", None) is not None:
+                    if hasattr(c.settings, "name") and hasattr(c.settings, "psk"):
+                        hash_val = generate_channel_hash(c.settings.name, c.settings.psk)
+                    name = getattr(c.settings, "name", "")
+                # If PRIMARY and name is empty, use formatted preset name from localConfig.lora.modem_preset
+                if not name:
+                    modem_preset_enum = getattr(getattr(self.localConfig, "lora", None), "modem_preset", None)
+                    if modem_preset_enum is not None:
+                        modem_preset_string = self.localConfig.lora.DESCRIPTOR.fields_by_name["modem_preset"].enum_type.values_by_number[modem_preset_enum].name
+                        name = format_preset_name(modem_preset_string)
+                        # Recompute hash with new name and key "AQ=="
+                        hash_val = generate_channel_hash(name, "AQ==")
+                channel_info = {
+                    "index": getattr(c, "index", None),
+                    "role": channel_pb2.Channel.Role.Name(getattr(c, "role", 0)),
+                    "name": name,
                     "hash": hash_val,
-                })
+                }
+                result.append(channel_info)
         return result
+    
