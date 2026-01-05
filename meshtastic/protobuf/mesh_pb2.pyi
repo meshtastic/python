@@ -421,9 +421,9 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Heltec HRI-3621 industrial probe
     """
-    RESERVED_FRIED_CHICKEN: _HardwareModel.ValueType  # 93
+    MUZI_BASE: _HardwareModel.ValueType  # 93
     """
-    Reserved Fried Chicken ID for future use
+    Muzi Works Muzi-Base device
     """
     HELTEC_MESH_POCKET: _HardwareModel.ValueType  # 94
     """
@@ -526,6 +526,14 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     RAK6421: _HardwareModel.ValueType  # 118
     """
     RAK6421 Hat+
+    """
+    THINKNODE_M4: _HardwareModel.ValueType  # 119
+    """
+    Elecrow ThinkNode M4
+    """
+    THINKNODE_M6: _HardwareModel.ValueType  # 120
+    """
+    Elecrow ThinkNode M6
     """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
@@ -931,9 +939,9 @@ HELTEC_SENSOR_HUB: HardwareModel.ValueType  # 92
 """
 Heltec HRI-3621 industrial probe
 """
-RESERVED_FRIED_CHICKEN: HardwareModel.ValueType  # 93
+MUZI_BASE: HardwareModel.ValueType  # 93
 """
-Reserved Fried Chicken ID for future use
+Muzi Works Muzi-Base device
 """
 HELTEC_MESH_POCKET: HardwareModel.ValueType  # 94
 """
@@ -1036,6 +1044,14 @@ RAK3401
 RAK6421: HardwareModel.ValueType  # 118
 """
 RAK6421 Hat+
+"""
+THINKNODE_M4: HardwareModel.ValueType  # 119
+"""
+Elecrow ThinkNode M4
+"""
+THINKNODE_M6: HardwareModel.ValueType  # 120
+"""
+Elecrow ThinkNode M6
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
@@ -2186,6 +2202,137 @@ class KeyVerification(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["hash1", b"hash1", "hash2", b"hash2", "nonce", b"nonce"]) -> None: ...
 
 global___KeyVerification = KeyVerification
+
+@typing.final
+class StoreForwardPlusPlus(google.protobuf.message.Message):
+    """
+    The actual over-the-mesh message doing store and forward++
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _SFPP_message_type:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _SFPP_message_typeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[StoreForwardPlusPlus._SFPP_message_type.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        CANON_ANNOUNCE: StoreForwardPlusPlus._SFPP_message_type.ValueType  # 0
+        """
+        Send an announcement of the canonical tip of a chain
+        """
+        CHAIN_QUERY: StoreForwardPlusPlus._SFPP_message_type.ValueType  # 1
+        """
+        Query whether a specific link is on the chain
+        """
+        LINK_REQUEST: StoreForwardPlusPlus._SFPP_message_type.ValueType  # 3
+        """
+        Request the next link in the chain
+        """
+        LINK_PROVIDE: StoreForwardPlusPlus._SFPP_message_type.ValueType  # 4
+        """
+        Provide a link to add to the chain
+        """
+        LINK_PROVIDE_FIRSTHALF: StoreForwardPlusPlus._SFPP_message_type.ValueType  # 5
+        """
+        If we must fragment, send the first half
+        """
+        LINK_PROVIDE_SECONDHALF: StoreForwardPlusPlus._SFPP_message_type.ValueType  # 6
+        """
+        If we must fragment, send the second half
+        """
+
+    class SFPP_message_type(_SFPP_message_type, metaclass=_SFPP_message_typeEnumTypeWrapper):
+        """
+        Enum of message types
+        """
+
+    CANON_ANNOUNCE: StoreForwardPlusPlus.SFPP_message_type.ValueType  # 0
+    """
+    Send an announcement of the canonical tip of a chain
+    """
+    CHAIN_QUERY: StoreForwardPlusPlus.SFPP_message_type.ValueType  # 1
+    """
+    Query whether a specific link is on the chain
+    """
+    LINK_REQUEST: StoreForwardPlusPlus.SFPP_message_type.ValueType  # 3
+    """
+    Request the next link in the chain
+    """
+    LINK_PROVIDE: StoreForwardPlusPlus.SFPP_message_type.ValueType  # 4
+    """
+    Provide a link to add to the chain
+    """
+    LINK_PROVIDE_FIRSTHALF: StoreForwardPlusPlus.SFPP_message_type.ValueType  # 5
+    """
+    If we must fragment, send the first half
+    """
+    LINK_PROVIDE_SECONDHALF: StoreForwardPlusPlus.SFPP_message_type.ValueType  # 6
+    """
+    If we must fragment, send the second half
+    """
+
+    SFPP_MESSAGE_TYPE_FIELD_NUMBER: builtins.int
+    MESSAGE_HASH_FIELD_NUMBER: builtins.int
+    COMMIT_HASH_FIELD_NUMBER: builtins.int
+    ROOT_HASH_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    ENCAPSULATED_ID_FIELD_NUMBER: builtins.int
+    ENCAPSULATED_TO_FIELD_NUMBER: builtins.int
+    ENCAPSULATED_FROM_FIELD_NUMBER: builtins.int
+    ENCAPSULATED_RXTIME_FIELD_NUMBER: builtins.int
+    sfpp_message_type: global___StoreForwardPlusPlus.SFPP_message_type.ValueType
+    """
+    Which message type is this
+    """
+    message_hash: builtins.bytes
+    """
+    The hash of the specific message
+    """
+    commit_hash: builtins.bytes
+    """
+    The hash of a link on a chain
+    """
+    root_hash: builtins.bytes
+    """
+    the root hash of a chain
+    """
+    message: builtins.bytes
+    """
+    The encrypted bytes from a message
+    """
+    encapsulated_id: builtins.int
+    """
+    Message ID of the contained message
+    """
+    encapsulated_to: builtins.int
+    """
+    Destination of the contained message
+    """
+    encapsulated_from: builtins.int
+    """
+    Sender of the contained message
+    """
+    encapsulated_rxtime: builtins.int
+    """
+    The receive time of the message in question
+    """
+    def __init__(
+        self,
+        *,
+        sfpp_message_type: global___StoreForwardPlusPlus.SFPP_message_type.ValueType = ...,
+        message_hash: builtins.bytes = ...,
+        commit_hash: builtins.bytes = ...,
+        root_hash: builtins.bytes = ...,
+        message: builtins.bytes = ...,
+        encapsulated_id: builtins.int = ...,
+        encapsulated_to: builtins.int = ...,
+        encapsulated_from: builtins.int = ...,
+        encapsulated_rxtime: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["commit_hash", b"commit_hash", "encapsulated_from", b"encapsulated_from", "encapsulated_id", b"encapsulated_id", "encapsulated_rxtime", b"encapsulated_rxtime", "encapsulated_to", b"encapsulated_to", "message", b"message", "message_hash", b"message_hash", "root_hash", b"root_hash", "sfpp_message_type", b"sfpp_message_type"]) -> None: ...
+
+global___StoreForwardPlusPlus = StoreForwardPlusPlus
 
 @typing.final
 class Waypoint(google.protobuf.message.Message):

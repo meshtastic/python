@@ -117,6 +117,13 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     Paxcounter lib included in the firmware
     ENCODING: protobuf
     """
+    STORE_FORWARD_PLUSPLUS_APP: _PortNum.ValueType  # 35
+    """
+    Store and Forward++ module included in the firmware
+    ENCODING: protobuf
+    This module is specifically for Native Linux nodes, and provides a Git-style
+    chain of messages.
+    """
     SERIAL_APP: _PortNum.ValueType  # 64
     """
     Provides a hardware serial interface to send and receive from the Meshtastic network.
@@ -320,6 +327,13 @@ PAXCOUNTER_APP: PortNum.ValueType  # 34
 """
 Paxcounter lib included in the firmware
 ENCODING: protobuf
+"""
+STORE_FORWARD_PLUSPLUS_APP: PortNum.ValueType  # 35
+"""
+Store and Forward++ module included in the firmware
+ENCODING: protobuf
+This module is specifically for Native Linux nodes, and provides a Git-style
+chain of messages.
 """
 SERIAL_APP: PortNum.ValueType  # 64
 """

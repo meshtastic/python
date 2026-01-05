@@ -1487,6 +1487,7 @@ class Config(google.protobuf.message.Message):
             LONG_SLOW: Config.LoRaConfig._ModemPreset.ValueType  # 1
             """
             Long Range - Slow
+            Deprecated in 2.7: Unpopular slow preset.
             """
             VERY_LONG_SLOW: Config.LoRaConfig._ModemPreset.ValueType  # 2
             """
@@ -1519,6 +1520,11 @@ class Config(google.protobuf.message.Message):
             This is the fastest preset and the only one with 500kHz bandwidth.
             It is not legal to use in all regions due to this wider bandwidth.
             """
+            LONG_TURBO: Config.LoRaConfig._ModemPreset.ValueType  # 9
+            """
+            Long Range - Turbo
+            This preset performs similarly to LongFast, but with 500Khz bandwidth.
+            """
 
         class ModemPreset(_ModemPreset, metaclass=_ModemPresetEnumTypeWrapper):
             """
@@ -1533,6 +1539,7 @@ class Config(google.protobuf.message.Message):
         LONG_SLOW: Config.LoRaConfig.ModemPreset.ValueType  # 1
         """
         Long Range - Slow
+        Deprecated in 2.7: Unpopular slow preset.
         """
         VERY_LONG_SLOW: Config.LoRaConfig.ModemPreset.ValueType  # 2
         """
@@ -1564,6 +1571,11 @@ class Config(google.protobuf.message.Message):
         Short Range - Turbo
         This is the fastest preset and the only one with 500kHz bandwidth.
         It is not legal to use in all regions due to this wider bandwidth.
+        """
+        LONG_TURBO: Config.LoRaConfig.ModemPreset.ValueType  # 9
+        """
+        Long Range - Turbo
+        This preset performs similarly to LongFast, but with 500Khz bandwidth.
         """
 
         USE_PRESET_FIELD_NUMBER: builtins.int
