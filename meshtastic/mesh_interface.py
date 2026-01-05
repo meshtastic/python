@@ -225,13 +225,14 @@ class MeshInterface:  # pylint: disable=R0902
         return infos
 
     def showNodes(
-        self, includeSelf: bool = True, showFields: Optional[List[str]] = None
+        self, includeSelf: bool = True, showFields: Optional[List[str]] = None, printFmt: Optional[str] = None
     ) -> str:  # pylint: disable=W0613
         """Show table summary of nodes in mesh
 
            Args:
                 includeSelf (bool): Include ourself in the output?
                 showFields (List[str]): List of fields to show in output
+                printFmt (str): name of format to use
         """
 
         def get_human_readable(name):
@@ -260,7 +261,6 @@ class MeshInterface:  # pylint: disable=R0902
                 return name_map.get(name)  # Default to a formatted guess
             else:
                 return name
-
 
         def formatFloat(value, precision=2, unit="") -> Optional[str]:
             """Format a float value with precision."""
@@ -296,7 +296,7 @@ class MeshInterface:  # pylint: disable=R0902
             return value
 
         if showFields is None or len(showFields) == 0:
-          # The default set of fields to show (e.g., the status quo)
+            # The default set of fields to show (e.g., the status quo)
             showFields = ["N", "user.longName", "user.id", "user.shortName", "user.hwModel", "user.publicKey",
                           "user.role", "position.latitude", "position.longitude", "position.altitude",
                           "deviceMetrics.batteryLevel", "deviceMetrics.channelUtilization",
@@ -372,7 +372,16 @@ class MeshInterface:  # pylint: disable=R0902
         for i, row in enumerate(rows):
             row["N"] = i + 1
 
-        table = tabulate(rows, headers="keys", missingval="N/A", tablefmt="fancy_grid")
+        if not printFmt or len(printFmt) == 0:
+            printFmt = "fancy_grid"
+        if printFmt.lower() == 'json':
+            headers = []
+            if len(rows) > 0:
+                headers = list(rows[0].keys())
+            outDict = {'headers': headers, 'nodes': rows}
+            table = json.dumps(outDict)
+        else:
+            table = tabulate(rows, headers="keys", missingval="N/A", tablefmt=printFmt)
         print(table)
         return table
 
@@ -1061,25 +1070,32 @@ class MeshInterface:  # pylint: disable=R0902
         logger.debug(f"self.nodesByNum:{self.nodesByNum}")
         return self.nodesByNum.get(self.myInfo.my_node_num)
 
-    def getMyUser(self):
+    def getMyUser(self) -> dict | None:
         """Get user"""
         nodeInfo = self.getMyNodeInfo()
         if nodeInfo is not None:
             return nodeInfo.get("user")
         return None
 
-    def getLongName(self):
+    def getLongName(self) -> str | None:
         """Get long name"""
         user = self.getMyUser()
         if user is not None:
             return user.get("longName", None)
         return None
 
-    def getShortName(self):
+    def getShortName(self) -> str | None:
         """Get short name"""
         user = self.getMyUser()
         if user is not None:
             return user.get("shortName", None)
+        return None
+
+    def getIsUnmessagable(self) -> bool | None:
+        """Get getIsUnmessagable property"""
+        user = self.getMyUser()
+        if user is not None:
+            return user.get("isUnmessagable", None)
         return None
 
     def getPublicKey(self):
@@ -1089,14 +1105,14 @@ class MeshInterface:  # pylint: disable=R0902
             return user.get("publicKey", None)
         return None
 
-    def getCannedMessage(self):
+    def getCannedMessage(self) -> str | None:
         """Get canned message"""
         node = self.localNode
         if node is not None:
             return node.get_canned_message()
         return None
 
-    def getRingtone(self):
+    def getRingtone(self) -> str | None:
         """Get ringtone"""
         node = self.localNode
         if node is not None:

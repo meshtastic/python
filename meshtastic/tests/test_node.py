@@ -19,6 +19,13 @@ from ..mesh_interface import MeshInterface
 # from ..util import Timeout
 
 
+def initChannels(maxIdx: int = 8) -> list[Channel]:
+    """Initialize a set of empty channels, set the first one to PRIMARY"""
+    channels = [Channel(index=idx, role=0) for idx in range(0, maxIdx)]
+    channels[0].role = 1
+    return channels
+
+
 @pytest.mark.unit
 def test_node(capsys):
     """Test that we can instantiate a Node"""
@@ -354,28 +361,7 @@ def test_setURL_valid_URL_but_no_settings(capsys):
 def test_getChannelByChannelIndex():
     """Test getChannelByChannelIndex()"""
     anode = Node("foo", "bar")
-
-    channel1 = Channel(index=1, role=1)  # primary channel
-    channel2 = Channel(index=2, role=2)  # secondary channel
-    channel3 = Channel(index=3, role=0)
-    channel4 = Channel(index=4, role=0)
-    channel5 = Channel(index=5, role=0)
-    channel6 = Channel(index=6, role=0)
-    channel7 = Channel(index=7, role=0)
-    channel8 = Channel(index=8, role=0)
-
-    channels = [
-        channel1,
-        channel2,
-        channel3,
-        channel4,
-        channel5,
-        channel6,
-        channel7,
-        channel8,
-    ]
-
-    anode.channels = channels
+    anode.channels = initChannels()
 
     # test primary
     assert anode.getChannelByChannelIndex(0) is not None
