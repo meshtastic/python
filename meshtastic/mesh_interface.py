@@ -3,6 +3,7 @@
 # pylint: disable=R0917,C0302
 
 import collections
+import csv
 import json
 import logging
 import math
@@ -375,6 +376,98 @@ class MeshInterface:  # pylint: disable=R0902
         table = tabulate(rows, headers="keys", missingval="N/A", tablefmt="fancy_grid")
         print(table)
         return table
+
+    def exportNodeDb(self, filename: str, format: str = "json") -> None:
+        """Export the node database to a file
+        
+        Args:
+            filename: Path to the output file
+            format: Export format - either "json" or "csv" (default: "json")
+        """
+        if not self.nodesByNum:
+            logger.warning("No nodes in database to export")
+            print("Warning: No nodes in database to export")
+            return
+        
+        # Prepare node data for export
+        nodes_data = []
+        for node in self.nodesByNum.values():
+            # Remove raw protobuf data and other non-serializable fields
+            keys_to_remove = ("raw", "decoded", "payload")
+            node_clean = remove_keys_from_dict(keys_to_remove, node.copy())
+            
+            # Flatten the structure for easier access
+            export_node = {
+                "num": node_clean.get("num"),
+                "user_id": node_clean.get("user", {}).get("id"),
+                "long_name": node_clean.get("user", {}).get("longName"),
+                "short_name": node_clean.get("user", {}).get("shortName"),
+                "hw_model": node_clean.get("user", {}).get("hwModel"),
+                "role": node_clean.get("user", {}).get("role"),
+                "latitude": node_clean.get("position", {}).get("latitude"),
+                "longitude": node_clean.get("position", {}).get("longitude"),
+                "altitude": node_clean.get("position", {}).get("altitude"),
+                "last_heard": node_clean.get("lastHeard"),
+                "snr": node_clean.get("snr"),
+                "hops_away": node_clean.get("hopsAway"),
+                "channel": node_clean.get("channel", 0),
+                "via_mqtt": node_clean.get("viaMqtt", False),
+                "is_favorite": node_clean.get("isFavorite", False),
+            }
+            
+            # Add device metrics if available
+            if "deviceMetrics" in node_clean:
+                metrics = node_clean["deviceMetrics"]
+                export_node["battery_level"] = metrics.get("batteryLevel")
+                export_node["voltage"] = metrics.get("voltage")
+                export_node["channel_utilization"] = metrics.get("channelUtilization")
+                export_node["air_util_tx"] = metrics.get("airUtilTx")
+            
+            nodes_data.append(export_node)
+        
+        # Export based on format
+        if format.lower() == "csv":
+            self._exportNodeDbCsv(filename, nodes_data)
+        else:
+            self._exportNodeDbJson(filename, nodes_data)
+    
+    def _exportNodeDbJson(self, filename: str, nodes_data: List[Dict]) -> None:
+        """Export node database as JSON"""
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump({
+                    "export_date": datetime.now().isoformat(),
+                    "nodes": nodes_data
+                }, f, indent=2)
+            print(f"Node database exported to {filename} ({len(nodes_data)} nodes)")
+            logger.info(f"Node database exported to {filename}")
+        except Exception as e:
+            logger.error(f"Failed to export node database: {e}")
+            print(f"Error: Failed to export node database: {e}")
+    
+    def _exportNodeDbCsv(self, filename: str, nodes_data: List[Dict]) -> None:
+        """Export node database as CSV"""
+        try:
+            if not nodes_data:
+                print("Warning: No nodes to export")
+                return
+            
+            # Get all possible field names
+            fieldnames = set()
+            for node in nodes_data:
+                fieldnames.update(node.keys())
+            fieldnames = sorted(fieldnames)
+            
+            with open(filename, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(nodes_data)
+            
+            print(f"Node database exported to {filename} ({len(nodes_data)} nodes)")
+            logger.info(f"Node database exported to {filename}")
+        except Exception as e:
+            logger.error(f"Failed to export node database: {e}")
+            print(f"Error: Failed to export node database: {e}")
 
     def getNode(
         self, nodeId: str, requestChannels: bool = True, requestChannelAttempts: int = 3, timeout: int = 300
