@@ -1,12 +1,14 @@
 """Meshtastic unit tests for showNodes favorite column feature"""
 
+from unittest.mock import MagicMock
+
 import pytest
 
 from ..mesh_interface import MeshInterface
 
 
 @pytest.fixture
-def iface_with_favorite_nodes():
+def _iface_with_favorite_nodes():
     """Fixture to setup nodes with favorite flags."""
     nodesById = {
         "!9388f81c": {
@@ -69,7 +71,6 @@ def iface_with_favorite_nodes():
     iface = MeshInterface(noProto=True)
     iface.nodes = nodesById
     iface.nodesByNum = nodesByNum
-    from unittest.mock import MagicMock
     myInfo = MagicMock()
     iface.myInfo = myInfo
     iface.myInfo.my_node_num = 2475227164
@@ -77,9 +78,9 @@ def iface_with_favorite_nodes():
 
 
 @pytest.mark.unit
-def test_showNodes_favorite_column_header(capsys, iface_with_favorite_nodes):
+def test_showNodes_favorite_column_header(capsys, _iface_with_favorite_nodes):
     """Test that 'Fav' column header appears in showNodes output"""
-    iface = iface_with_favorite_nodes
+    iface = _iface_with_favorite_nodes
     iface.showNodes()
     out, err = capsys.readouterr()
     assert "Fav" in out
@@ -87,9 +88,9 @@ def test_showNodes_favorite_column_header(capsys, iface_with_favorite_nodes):
 
 
 @pytest.mark.unit
-def test_showNodes_favorite_asterisk_display(capsys, iface_with_favorite_nodes):
+def test_showNodes_favorite_asterisk_display(capsys, _iface_with_favorite_nodes):
     """Test that favorite nodes show asterisk and non-favorites show empty"""
-    iface = iface_with_favorite_nodes
+    iface = _iface_with_favorite_nodes
     iface.showNodes()
     out, err = capsys.readouterr()
 
@@ -135,9 +136,9 @@ def test_showNodes_favorite_field_formatting():
 
 
 @pytest.mark.unit
-def test_showNodes_with_custom_fields_including_favorite(capsys, iface_with_favorite_nodes):
+def test_showNodes_with_custom_fields_including_favorite(capsys, _iface_with_favorite_nodes):
     """Test that isFavorite can be specified in custom showFields"""
-    iface = iface_with_favorite_nodes
+    iface = _iface_with_favorite_nodes
     custom_fields = ["user.longName", "isFavorite"]
     iface.showNodes(showFields=custom_fields)
     out, err = capsys.readouterr()
@@ -148,13 +149,12 @@ def test_showNodes_with_custom_fields_including_favorite(capsys, iface_with_favo
 
 
 @pytest.mark.unit
-def test_showNodes_default_fields_includes_favorite(iface_with_favorite_nodes):
+def test_showNodes_default_fields_includes_favorite(_iface_with_favorite_nodes):
     """Test that isFavorite is included in default fields"""
-    iface = iface_with_favorite_nodes
+    iface = _iface_with_favorite_nodes
 
     # Call showNodes which uses default fields
     result = iface.showNodes()
 
     # The result should contain the formatted table as a string
     assert "Fav" in result
-
