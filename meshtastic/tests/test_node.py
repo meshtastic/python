@@ -1254,8 +1254,7 @@ def test_requestChannels_non_localNode_starting_index(caplog):
 #        },
 #        'id': 1692918436,
 #        'hopLimit': 3,
-#        'priority':
-#        'RELIABLE',
+#        'priority': 'RELIABLE',
 #        'raw': 'fake',
 #        'fromId': '!9388f81c',
 #        'toId': '!9388f81c'
@@ -1478,6 +1477,77 @@ def test_remove_ignored(ignored):
 
     assert amesg.remove_ignored_node == 502009325
     iface.sendData.assert_called_once()
+
+
+@pytest.mark.unit
+def test_setOwner_whitespace_only_long_name(capsys):
+    """Test setOwner with whitespace-only long name"""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 123, noProto=True)
+
+    with pytest.raises(SystemExit) as excinfo:
+        anode.setOwner(long_name="   ")
+
+    out, _ = capsys.readouterr()
+    assert "ERROR: Long Name cannot be empty or contain only whitespace characters" in out
+    assert excinfo.value.code == 1
+
+
+@pytest.mark.unit
+def test_setOwner_empty_long_name(capsys):
+    """Test setOwner with empty long name"""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 123, noProto=True)
+
+    with pytest.raises(SystemExit) as excinfo:
+        anode.setOwner(long_name="")
+
+    out, _ = capsys.readouterr()
+    assert "ERROR: Long Name cannot be empty or contain only whitespace characters" in out
+    assert excinfo.value.code == 1
+
+
+@pytest.mark.unit
+def test_setOwner_whitespace_only_short_name(capsys):
+    """Test setOwner with whitespace-only short name"""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 123, noProto=True)
+
+    with pytest.raises(SystemExit) as excinfo:
+        anode.setOwner(short_name="   ")
+
+    out, _ = capsys.readouterr()
+    assert "ERROR: Short Name cannot be empty or contain only whitespace characters" in out
+    assert excinfo.value.code == 1
+
+
+@pytest.mark.unit
+def test_setOwner_empty_short_name(capsys):
+    """Test setOwner with empty short name"""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 123, noProto=True)
+
+    with pytest.raises(SystemExit) as excinfo:
+        anode.setOwner(short_name="")
+
+    out, _ = capsys.readouterr()
+    assert "ERROR: Short Name cannot be empty or contain only whitespace characters" in out
+    assert excinfo.value.code == 1
+
+
+@pytest.mark.unit
+def test_setOwner_valid_names(caplog):
+    """Test setOwner with valid names"""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 123, noProto=True)
+
+    with caplog.at_level(logging.DEBUG):
+        anode.setOwner(long_name="ValidName", short_name="VN")
+
+    # Should not raise any exceptions
+    # Note: When noProto=True, _sendAdmin is not called as the method returns early
+    assert re.search(r'p.set_owner.long_name:ValidName:', caplog.text, re.MULTILINE)
+    assert re.search(r'p.set_owner.short_name:VN:', caplog.text, re.MULTILINE)
 
 
 # TODO

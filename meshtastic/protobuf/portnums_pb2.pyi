@@ -97,6 +97,10 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     """
     Same as Text Message but used for critical alerts.
     """
+    KEY_VERIFICATION_APP: _PortNum.ValueType  # 12
+    """
+    Module/port for handling key verification requests.
+    """
     REPLY_APP: _PortNum.ValueType  # 32
     """
     Provides a 'ping' service that replies to any packet it receives.
@@ -112,6 +116,13 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     """
     Paxcounter lib included in the firmware
     ENCODING: protobuf
+    """
+    STORE_FORWARD_PLUSPLUS_APP: _PortNum.ValueType  # 35
+    """
+    Store and Forward++ module included in the firmware
+    ENCODING: protobuf
+    This module is specifically for Native Linux nodes, and provides a Git-style
+    chain of messages.
     """
     SERIAL_APP: _PortNum.ValueType  # 64
     """
@@ -178,6 +189,17 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     POWERSTRESS_APP: _PortNum.ValueType  # 74
     """
     PowerStress based monitoring support (for automated power consumption testing)
+    """
+    RETICULUM_TUNNEL_APP: _PortNum.ValueType  # 76
+    """
+    Reticulum Network Stack Tunnel App
+    ENCODING: Fragmented RNS Packet. Handled by Meshtastic RNS interface
+    """
+    CAYENNE_APP: _PortNum.ValueType  # 77
+    """
+    App for transporting Cayenne Low Power Payload, popular for LoRaWAN sensor nodes. Offers ability to send
+    arbitrary telemetry over meshtastic that is not covered by telemetry.proto
+    ENCODING: CayenneLLP
     """
     PRIVATE_APP: _PortNum.ValueType  # 256
     """
@@ -286,6 +308,10 @@ ALERT_APP: PortNum.ValueType  # 11
 """
 Same as Text Message but used for critical alerts.
 """
+KEY_VERIFICATION_APP: PortNum.ValueType  # 12
+"""
+Module/port for handling key verification requests.
+"""
 REPLY_APP: PortNum.ValueType  # 32
 """
 Provides a 'ping' service that replies to any packet it receives.
@@ -301,6 +327,13 @@ PAXCOUNTER_APP: PortNum.ValueType  # 34
 """
 Paxcounter lib included in the firmware
 ENCODING: protobuf
+"""
+STORE_FORWARD_PLUSPLUS_APP: PortNum.ValueType  # 35
+"""
+Store and Forward++ module included in the firmware
+ENCODING: protobuf
+This module is specifically for Native Linux nodes, and provides a Git-style
+chain of messages.
 """
 SERIAL_APP: PortNum.ValueType  # 64
 """
@@ -367,6 +400,17 @@ Provides unencrypted information about a node for consumption by a map via MQTT
 POWERSTRESS_APP: PortNum.ValueType  # 74
 """
 PowerStress based monitoring support (for automated power consumption testing)
+"""
+RETICULUM_TUNNEL_APP: PortNum.ValueType  # 76
+"""
+Reticulum Network Stack Tunnel App
+ENCODING: Fragmented RNS Packet. Handled by Meshtastic RNS interface
+"""
+CAYENNE_APP: PortNum.ValueType  # 77
+"""
+App for transporting Cayenne Low Power Payload, popular for LoRaWAN sensor nodes. Offers ability to send
+arbitrary telemetry over meshtastic that is not covered by telemetry.proto
+ENCODING: CayenneLLP
 """
 PRIVATE_APP: PortNum.ValueType  # 256
 """

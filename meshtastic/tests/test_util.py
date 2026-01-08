@@ -11,16 +11,19 @@ from hypothesis import given, strategies as st
 from meshtastic.supported_device import SupportedDevice
 from meshtastic.protobuf import mesh_pb2
 from meshtastic.util import (
+    DEFAULT_KEY,
     Timeout,
     active_ports_on_supported_devices,
     camel_to_snake,
     catchAndIgnore,
+    channel_hash,
     convert_mac_addr,
     eliminate_duplicate_port,
     findPorts,
     fixme,
     fromPSK,
     fromStr,
+    generate_channel_hash,
     genPSK256,
     hexstr,
     ipstr,
@@ -563,7 +566,7 @@ def test_active_ports_on_supported_devices_mac_duplicates_check(mock_platform, m
 def test_message_to_json_shows_all():
     """Test that message_to_json prints fields that aren't included in data passed in"""
     actual = json.loads(message_to_json(mesh_pb2.MyNodeInfo()))
-    expected = { "myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0, "deviceId": "", "pioEnv": "" }
+    expected = { "myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0, "deviceId": "", "pioEnv": "", 'firmwareEdition': 'VANILLA', 'nodedbCount': 0 }
     assert actual == expected
 
 @pytest.mark.unit
@@ -670,3 +673,45 @@ def test_shorthex():
     assert result == b'\x05'
     result = fromStr('0xffff')
     assert result == b'\xff\xff'
+
+def test_channel_hash_basics():
+    "Test the default key and LongFast with channel_hash"
+    assert channel_hash(DEFAULT_KEY) == 2
+    assert channel_hash("LongFast".encode("utf-8")) == 10
+
+@given(st.text(min_size=1, max_size=12))
+def test_channel_hash_fuzz(channel_name):
+    "Test channel_hash with fuzzed channel names, ensuring it produces single-byte values"
+    hashed = channel_hash(channel_name.encode("utf-8"))
+    assert 0 <= hashed <= 0xFF
+
+def test_generate_channel_hash_basics():
+    "Test the default key and LongFast/MediumFast with generate_channel_hash"
+    assert generate_channel_hash("LongFast", "AQ==") == 8
+    assert generate_channel_hash("LongFast", bytes([1])) == 8
+    assert generate_channel_hash("LongFast", DEFAULT_KEY) == 8
+    assert generate_channel_hash("MediumFast", DEFAULT_KEY) == 31
+
+@given(st.text(min_size=1, max_size=12))
+def test_generate_channel_hash_fuzz_default_key(channel_name):
+    "Test generate_channel_hash with fuzzed channel names and the default key, ensuring it produces single-byte values"
+    hashed = generate_channel_hash(channel_name, DEFAULT_KEY)
+    assert 0 <= hashed <= 0xFF
+
+@given(st.text(min_size=1, max_size=12), st.binary(min_size=1, max_size=1))
+def test_generate_channel_hash_fuzz_simple(channel_name, key_bytes):
+    "Test generate_channel_hash with fuzzed channel names and one-byte keys, ensuring it produces single-byte values"
+    hashed = generate_channel_hash(channel_name, key_bytes)
+    assert 0 <= hashed <= 0xFF
+
+@given(st.text(min_size=1, max_size=12), st.binary(min_size=16, max_size=16))
+def test_generate_channel_hash_fuzz_aes128(channel_name, key_bytes):
+    "Test generate_channel_hash with fuzzed channel names and 128-bit keys, ensuring it produces single-byte values"
+    hashed = generate_channel_hash(channel_name, key_bytes)
+    assert 0 <= hashed <= 0xFF
+
+@given(st.text(min_size=1, max_size=12), st.binary(min_size=32, max_size=32))
+def test_generate_channel_hash_fuzz_aes256(channel_name, key_bytes):
+    "Test generate_channel_hash with fuzzed channel names and 256-bit keys, ensuring it produces single-byte values"
+    hashed = generate_channel_hash(channel_name, key_bytes)
+    assert 0 <= hashed <= 0xFF

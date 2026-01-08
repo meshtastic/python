@@ -3,12 +3,13 @@
 
 # We just hit the 1600 line limit for main.py, but I currently have a huge set of powermon/structured logging changes
 # later we can have a separate changelist to refactor main.py into smaller files
-# pylint: disable=too-many-lines
+# pylint: disable=R0917,C0302
 
 from typing import List, Optional, Union
 from types import ModuleType
 
 import argparse
+
 argcomplete: Union[None, ModuleType] = None
 try:
     import argcomplete # type: ignore
@@ -59,15 +60,17 @@ except ImportError as e:
     have_powermon = False
     powermon_exception = e
     meter = None
-from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2
+from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2, mesh_pb2
 from meshtastic.version import get_active_version
+
+logger = logging.getLogger(__name__)
 
 def onReceive(packet, interface) -> None:
     """Callback invoked when a packet arrives"""
     args = mt_config.args
     try:
         d = packet.get("decoded")
-        logging.debug(f"in onReceive() d:{d}")
+        logger.debug(f"in onReceive() d:{d}")
 
         # Exit once we receive a reply
         if (
@@ -101,7 +104,7 @@ def onConnection(interface, topic=pub.AUTO_TOPIC) -> None:  # pylint: disable=W0
 def checkChannel(interface: MeshInterface, channelIndex: int) -> bool:
     """Given an interface and channel index, return True if that channel is non-disabled on the local node"""
     ch = interface.localNode.getChannelByChannelIndex(channelIndex)
-    logging.debug(f"ch:{ch}")
+    logger.debug(f"ch:{ch}")
     return ch and ch.role != channel_pb2.Channel.Role.DISABLED
 
 
@@ -114,7 +117,7 @@ def getPref(node, comp_name) -> bool:
         else:
             pref_value = meshtastic.util.toStr(pref_value)
         print(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
-        logging.debug(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
+        logger.debug(f"{str(config_type.name)}.{uni_name}: {str(pref_value)}")
 
     name = splitCompoundName(comp_name)
     wholeField = name[0] == name[1]  # We want the whole field
@@ -123,8 +126,8 @@ def getPref(node, comp_name) -> bool:
     # Note: protobufs has the keys in snake_case, so snake internally
     snake_name = meshtastic.util.camel_to_snake(name[1])
     uni_name = camel_name if mt_config.camel_case else snake_name
-    logging.debug(f"snake_name:{snake_name} camel_name:{camel_name}")
-    logging.debug(f"use camel:{mt_config.camel_case}")
+    logger.debug(f"snake_name:{snake_name} camel_name:{camel_name}")
+    logger.debug(f"use camel:{mt_config.camel_case}")
 
     # First validate the input
     localConfig = node.localConfig
@@ -198,8 +201,8 @@ def setPref(config, comp_name, raw_val) -> bool:
     snake_name = meshtastic.util.camel_to_snake(name[-1])
     camel_name = meshtastic.util.snake_to_camel(name[-1])
     uni_name = camel_name if mt_config.camel_case else snake_name
-    logging.debug(f"snake_name:{snake_name}")
-    logging.debug(f"camel_name:{camel_name}")
+    logger.debug(f"snake_name:{snake_name}")
+    logger.debug(f"camel_name:{camel_name}")
 
     objDesc = config.DESCRIPTOR
     config_part = config
@@ -223,7 +226,7 @@ def setPref(config, comp_name, raw_val) -> bool:
         val = meshtastic.util.fromStr(raw_val)
     else:
         val = raw_val
-    logging.debug(f"valStr:{raw_val} val:{val}")
+    logger.debug(f"valStr:{raw_val} val:{val}")
 
     if snake_name == "wifi_psk" and len(str(raw_val)) < 8:
         print("Warning: network.wifi_psk must be 8 or more characters.")
@@ -274,7 +277,8 @@ def setPref(config, comp_name, raw_val) -> bool:
         else:
             print(f"Adding '{raw_val}' to the {pref.name} list")
             cur_vals = [x for x in getattr(config_values, pref.name) if x not in [0, "", b""]]
-            cur_vals.append(val)
+            if val not in cur_vals:
+                cur_vals.append(val)
             getattr(config_values, pref.name)[:] = cur_vals
         return True
 
@@ -339,32 +343,60 @@ def onConnected(interface):
             # can include lat/long/alt etc: latitude = 37.5, longitude = -122.1
             interface.getNode(args.dest, False, **getNode_kwargs).setFixedPosition(lat, lon, alt)
 
-        if args.set_owner or args.set_owner_short:
+        if args.set_owner or args.set_owner_short or args.set_is_unmessageable:
             closeNow = True
             waitForAckNak = True
-            if args.set_owner and args.set_owner_short:
-                print(f"Setting device owner to {args.set_owner} and short name to {args.set_owner_short}")
-            elif args.set_owner:
-                print(f"Setting device owner to {args.set_owner}")
-            else: # short name only
-                print(f"Setting device owner short to {args.set_owner_short}")
-            interface.getNode(args.dest, False, **getNode_kwargs).setOwner(long_name=args.set_owner, short_name=args.set_owner_short)
 
-        # TODO: add to export-config and configure
+            long_name = args.set_owner.strip() if args.set_owner else None
+            short_name = args.set_owner_short.strip() if args.set_owner_short else None
+
+            if long_name is not None and not long_name:
+                meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
+
+            if short_name is not None and not short_name:
+                meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
+
+            if long_name and short_name:
+                print(f"Setting device owner to {long_name} and short name to {short_name}")
+            elif long_name:
+                print(f"Setting device owner to {long_name}")
+            elif short_name:
+                print(f"Setting device owner short to {short_name}")
+
+            unmessagable = None
+            if args.set_is_unmessageable is not None:
+                unmessagable = (
+                    meshtastic.util.fromStr(args.set_is_unmessageable)
+                    if isinstance(args.set_is_unmessageable, str)
+                    else args.set_is_unmessageable
+                )
+                print(f"Setting device owner is_unmessageable to {unmessagable}")
+
+            interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
+                long_name=long_name,
+                short_name=short_name,
+                is_unmessagable=unmessagable
+            )
+
         if args.set_canned_message:
             closeNow = True
             waitForAckNak = True
-            print(f"Setting canned plugin message to {args.set_canned_message}")
-            interface.getNode(args.dest, False, **getNode_kwargs).set_canned_message(
-                args.set_canned_message
-            )
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
+            if node.module_available(mesh_pb2.CANNEDMSG_CONFIG):
+                print(f"Setting canned plugin message to {args.set_canned_message}")
+                node.set_canned_message(args.set_canned_message)
+            else:
+                print("Canned Message module is excluded by firmware; skipping set.")
 
-        # TODO: add to export-config and configure
         if args.set_ringtone:
             closeNow = True
             waitForAckNak = True
-            print(f"Setting ringtone to {args.set_ringtone}")
-            interface.getNode(args.dest, False, **getNode_kwargs).set_ringtone(args.set_ringtone)
+            node = interface.getNode(args.dest, False, **getNode_kwargs)
+            if node.module_available(mesh_pb2.EXTNOTIF_CONFIG):
+                print(f"Setting ringtone to {args.set_ringtone}")
+                node.set_ringtone(args.set_ringtone)
+            else:
+                print("External Notification is excluded by firmware; skipping ringtone set.")
 
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
@@ -402,6 +434,8 @@ def onConnected(interface):
             print(" ".join(fieldNames))
 
         if args.set_ham:
+            if not args.set_ham.strip():
+                meshtastic.util.our_exit("ERROR: Ham radio callsign cannot be empty or contain only whitespace characters")
             closeNow = True
             print(f"Setting Ham ID to {args.set_ham} and turning off encryption")
             interface.getNode(args.dest, **getNode_kwargs).setOwner(args.set_ham, is_licensed=True)
@@ -578,7 +612,7 @@ def onConnected(interface):
                         time.sleep(1)
                         if interface.gotResponse:
                             break
-                    logging.debug(f"end of gpio_rd")
+                    logger.debug(f"end of gpio_rd")
 
                 if args.gpio_watch:
                     bitmask = int(args.gpio_watch, 16)
@@ -644,11 +678,20 @@ def onConnected(interface):
                 interface.getNode(args.dest, False, **getNode_kwargs).beginSettingsTransaction()
 
                 if "owner" in configuration:
+                    # Validate owner name before setting
+                    owner_name = str(configuration["owner"]).strip()
+                    if not owner_name:
+                        meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
                     print(f"Setting device owner to {configuration['owner']}")
                     waitForAckNak = True
                     interface.getNode(args.dest, False, **getNode_kwargs).setOwner(configuration["owner"])
+                    time.sleep(0.5)
 
                 if "owner_short" in configuration:
+                    # Validate owner short name before setting
+                    owner_short_name = str(configuration["owner_short"]).strip()
+                    if not owner_short_name:
+                        meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
                     print(
                         f"Setting device owner short to {configuration['owner_short']}"
                     )
@@ -656,8 +699,13 @@ def onConnected(interface):
                     interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
                         long_name=None, short_name=configuration["owner_short"]
                     )
+                    time.sleep(0.5)
 
                 if "ownerShort" in configuration:
+                    # Validate owner short name before setting
+                    owner_short_name = str(configuration["ownerShort"]).strip()
+                    if not owner_short_name:
+                        meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
                     print(
                         f"Setting device owner short to {configuration['ownerShort']}"
                     )
@@ -665,14 +713,27 @@ def onConnected(interface):
                     interface.getNode(args.dest, False, **getNode_kwargs).setOwner(
                         long_name=None, short_name=configuration["ownerShort"]
                     )
+                    time.sleep(0.5)
 
                 if "channel_url" in configuration:
                     print("Setting channel url to", configuration["channel_url"])
                     interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channel_url"])
+                    time.sleep(0.5)
 
                 if "channelUrl" in configuration:
                     print("Setting channel url to", configuration["channelUrl"])
                     interface.getNode(args.dest, **getNode_kwargs).setURL(configuration["channelUrl"])
+                    time.sleep(0.5)
+
+                if "canned_messages" in configuration:
+                    print("Setting canned message messages to", configuration["canned_messages"])
+                    interface.getNode(args.dest, **getNode_kwargs).set_canned_message(configuration["canned_messages"])
+                    time.sleep(0.5)
+
+                if "ringtone" in configuration:
+                    print("Setting ringtone to", configuration["ringtone"])
+                    interface.getNode(args.dest, **getNode_kwargs).set_ringtone(configuration["ringtone"])
+                    time.sleep(0.5)
 
                 if "location" in configuration:
                     alt = 0
@@ -691,6 +752,7 @@ def onConnected(interface):
                         print(f"Fixing longitude at {lon} degrees")
                     print("Setting device position")
                     interface.localNode.setFixedPosition(lat, lon, alt)
+                    time.sleep(0.5)
 
                 if "config" in configuration:
                     localConfig = interface.getNode(args.dest, **getNode_kwargs).localConfig
@@ -701,6 +763,7 @@ def onConnected(interface):
                         interface.getNode(args.dest, **getNode_kwargs).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
+                        time.sleep(0.5)
 
                 if "module_config" in configuration:
                     moduleConfig = interface.getNode(args.dest, **getNode_kwargs).moduleConfig
@@ -713,6 +776,7 @@ def onConnected(interface):
                         interface.getNode(args.dest, **getNode_kwargs).writeConfig(
                             meshtastic.util.camel_to_snake(section)
                         )
+                        time.sleep(0.5)
 
                 interface.getNode(args.dest, False, **getNode_kwargs).commitSettingsTransaction()
                 print("Writing modified configuration to device")
@@ -721,9 +785,20 @@ def onConnected(interface):
             if args.dest != BROADCAST_ADDR:
                 print("Exporting configuration of remote nodes is not supported.")
                 return
-            # export the configuration (the opposite of '--configure')
+
             closeNow = True
-            export_config(interface)
+            config_txt = export_config(interface)
+
+            if args.export_config == "-":
+                # Output to stdout (preserves legacy use of `> file.yaml`)
+                print(config_txt)
+            else:
+                try:
+                    with open(args.export_config, "w", encoding="utf-8") as f:
+                        f.write(config_txt)
+                    print(f"Exported configuration to {args.export_config}")
+                except Exception as e:
+                    meshtastic.util.our_exit(f"ERROR: Failed to write config file: {e}")
 
         if args.ch_set_url:
             closeNow = True
@@ -894,12 +969,14 @@ def onConnected(interface):
         if args.get_canned_message:
             closeNow = True
             print("")
-            interface.getNode(args.dest, **getNode_kwargs).get_canned_message()
+            messages = interface.getNode(args.dest, **getNode_kwargs).get_canned_message()
+            print(f"canned_plugin_message:{messages}")
 
         if args.get_ringtone:
             closeNow = True
             print("")
-            interface.getNode(args.dest, **getNode_kwargs).get_ringtone()
+            ringtone = interface.getNode(args.dest, **getNode_kwargs).get_ringtone()
+            print(f"ringtone:{ringtone}")
 
         if args.info:
             print("")
@@ -991,7 +1068,7 @@ def onConnected(interface):
             # Even if others said we could close, stay open if the user asked for a tunnel
             closeNow = False
             if interface.noProto:
-                logging.warning(f"Not starting Tunnel - disabled by noProto")
+                logger.warning(f"Not starting Tunnel - disabled by noProto")
             else:
                 if args.tunnel_net:
                     tunnel.Tunnel(interface, subnet=args.tunnel_net)
@@ -1054,15 +1131,41 @@ def subscribe() -> None:
 
     # pub.subscribe(onNode, "meshtastic.node")
 
+def set_missing_flags_false(config_dict: dict, true_defaults: set[tuple[str, str]]) -> None:
+    """Ensure that missing default=True keys are present in the config_dict and set to False."""
+    for path in true_defaults:
+        d = config_dict
+        for key in path[:-1]:
+            if key not in d or not isinstance(d[key], dict):
+                d[key] = {}
+            d = d[key]
+        if path[-1] not in d:
+            d[path[-1]] = False
 
 def export_config(interface) -> str:
     """used in --export-config"""
     configObj = {}
 
+    # A list of configuration keys that should be set to False if they are missing
+    config_true_defaults = {
+        ("bluetooth", "enabled"),
+        ("lora", "sx126xRxBoostedGain"),
+        ("lora", "txEnabled"),
+        ("lora", "usePreset"),
+        ("position", "positionBroadcastSmartEnabled"),
+        ("security", "serialEnabled"),
+    }
+
+    module_true_defaults = {
+        ("mqtt", "encryptionEnabled"),
+    }
+
     owner = interface.getLongName()
     owner_short = interface.getShortName()
     channel_url = interface.localNode.getURL()
     myinfo = interface.getMyNodeInfo()
+    canned_messages = interface.getCannedMessage()
+    ringtone = interface.getRingtone()
     pos = myinfo.get("position")
     lat = None
     lon = None
@@ -1081,6 +1184,10 @@ def export_config(interface) -> str:
             configObj["channelUrl"] = channel_url
         else:
             configObj["channel_url"] = channel_url
+    if canned_messages:
+        configObj["canned_messages"] = canned_messages
+    if ringtone:
+        configObj["ringtone"] = ringtone
     # lat and lon don't make much sense without the other (so fill with 0s), and alt isn't meaningful without both
     if lat or lon:
         configObj["location"] = {"lat": lat or float(0), "lon": lon or float(0)}
@@ -1088,6 +1195,7 @@ def export_config(interface) -> str:
             configObj["location"]["alt"] = alt
 
     config = MessageToDict(interface.localNode.localConfig)	#checkme - Used as a dictionary here and a string below
+                                                                        #was used as a string here and a Dictionary above
     if config:
         # Convert inner keys to correct snake/camelCase
         prefs = {}
@@ -1110,6 +1218,8 @@ def export_config(interface) -> str:
         else:
             configObj["config"] = config
 
+        set_missing_flags_false(configObj["config"], config_true_defaults)
+
     module_config = MessageToDict(interface.localNode.moduleConfig)
     if module_config:
         # Convert inner keys to correct snake/camelCase
@@ -1122,10 +1232,11 @@ def export_config(interface) -> str:
         else:
             configObj["module_config"] = prefs
 
+        set_missing_flags_false(configObj["module_config"], module_true_defaults)
+
     config_txt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out)
                                                                         #was used as a string here and a Dictionary above
     config_txt += yaml.dump(configObj)
-    print(config_txt)
     return config_txt
 
 
@@ -1153,14 +1264,14 @@ def create_power_meter():
         meter = SimPowerSupply()
 
     if meter and v:
-        logging.info(f"Setting power supply to {v} volts")
+        logger.info(f"Setting power supply to {v} volts")
         meter.v = v
         meter.powerOn()
 
         if args.power_wait:
             input("Powered on, press enter to continue...")
         else:
-            logging.info("Powered-on, waiting for device to boot")
+            logger.info("Powered-on, waiting for device to boot")
             time.sleep(5)
 
 
@@ -1174,6 +1285,10 @@ def common():
         format="%(levelname)s file:%(filename)s %(funcName)s line:%(lineno)s %(message)s",
     )
 
+    # set all meshtastic loggers to DEBUG
+    if not (args.debug or args.listen) and args.debuglib:
+        logging.getLogger('meshtastic').setLevel(logging.DEBUG)
+
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         meshtastic.util.our_exit("", 1)
@@ -1181,6 +1296,22 @@ def common():
         if args.support:
             meshtastic.util.support_info()
             meshtastic.util.our_exit("", 0)
+
+        # Early validation for owner names before attempting device connection
+        if hasattr(args, 'set_owner') and args.set_owner is not None:
+            stripped_long_name = args.set_owner.strip()
+            if not stripped_long_name:
+                meshtastic.util.our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
+
+        if hasattr(args, 'set_owner_short') and args.set_owner_short is not None:
+            stripped_short_name = args.set_owner_short.strip()
+            if not stripped_short_name:
+                meshtastic.util.our_exit("ERROR: Short Name cannot be empty or contain only whitespace characters")
+
+        if hasattr(args, 'set_ham') and args.set_ham is not None:
+            stripped_ham_name = args.set_ham.strip()
+            if not stripped_ham_name:
+                meshtastic.util.our_exit("ERROR: Ham radio callsign cannot be empty or contain only whitespace characters")
 
         if have_powermon:
             create_power_meter()
@@ -1199,7 +1330,7 @@ def common():
                 args.seriallog = "none"  # assume no debug output in this case
 
         if args.deprecated is not None:
-            logging.error(
+            logger.error(
                 "This option has been deprecated, see help below for the correct replacement..."
             )
             parser.print_help(sys.stderr)
@@ -1218,10 +1349,10 @@ def common():
                 logfile = sys.stdout
             elif args.seriallog == "none":
                 args.seriallog = None
-                logging.debug("Not logging serial output")
+                logger.debug("Not logging serial output")
                 logfile = None
             else:
-                logging.info(f"Logging serial output to {args.seriallog}")
+                logger.info(f"Logging serial output to {args.seriallog}")
                 # Note: using "line buffering"
                 # pylint: disable=R1732
                 logfile = open(args.seriallog, "w+", buffering=1, encoding="utf8")
@@ -1229,7 +1360,7 @@ def common():
 
             subscribe()
             if args.ble_scan:
-                logging.debug("BLE scan starting")
+                logger.debug("BLE scan starting")
                 for x in BLEInterface.scan():
                     print(f"Found: name='{x.name}' address='{x.address}'")
                 meshtastic.util.our_exit("BLE scan finished", 0)
@@ -1239,6 +1370,7 @@ def common():
                     debugOut=logfile,
                     noProto=args.noproto,
                     noNodes=args.no_nodes,
+                    timeout=args.timeout,
                 )
             elif args.host:
                 try:
@@ -1253,6 +1385,7 @@ def common():
                         debugOut=logfile,
                         noProto=args.noproto,
                         noNodes=args.no_nodes,
+                        timeout=args.timeout,
                     )
                 except Exception as ex:
                     meshtastic.util.our_exit(f"Error connecting to {args.host}:{ex}", 1)
@@ -1263,6 +1396,7 @@ def common():
                         debugOut=logfile,
                         noProto=args.noproto,
                         noNodes=args.no_nodes,
+                        timeout=args.timeout,
                     )
                 except FileNotFoundError:
                     # Handle the case where the serial device is not found
@@ -1300,6 +1434,7 @@ def common():
                             debugOut=logfile,
                             noProto=args.noproto,
                             noNodes=args.no_nodes,
+                            timeout=args.timeout,
                         )
                     except Exception as ex:
                         meshtastic.util.our_exit(
@@ -1320,7 +1455,7 @@ def common():
                     while True:
                         time.sleep(1000)
                 except KeyboardInterrupt:
-                    logging.info("Exiting due to keyboard interrupt")
+                    logger.info("Exiting due to keyboard interrupt")
 
         # don't call exit, background threads might be running still
         # sys.exit(0)
@@ -1409,8 +1544,10 @@ def addImportExportArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
     )
     group.add_argument(
         "--export-config",
-        help="Export the configuration in yaml(.yml) format.",
-        action="store_true",
+        nargs="?",
+        const="-",  # default to "-" if no value provided
+        metavar="FILE",
+        help="Export device config as YAML (to stdout if no file given)"
     )
     return parser
 
@@ -1530,6 +1667,11 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
 
     group.add_argument(
         "--set-ham", help="Set licensed Ham ID and turn off encryption", action="store"
+    )
+
+    group.add_argument(
+        "--set-is-unmessageable", "--set-is-unmessagable",
+        help="Set if a node is messageable or not", action="store"
     )
 
     group.add_argument(
@@ -1918,6 +2060,10 @@ def initParser():
 
     group.add_argument(
         "--debug", help="Show API library debug log messages", action="store_true"
+    )
+
+    group.add_argument(
+        "--debuglib", help="Show only API library debug log messages", action="store_true"
     )
 
     group.add_argument(

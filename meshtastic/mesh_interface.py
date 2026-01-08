@@ -1,6 +1,6 @@
 """Mesh Interface class
 """
-# pylint: disable=R0917
+# pylint: disable=R0917,C0302
 
 import collections
 import json
@@ -17,6 +17,7 @@ from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import google.protobuf.json_format
+
 try:
     import print_color  # type: ignore[import-untyped]
 except ImportError as e:
@@ -46,6 +47,7 @@ from meshtastic.util import (
     stripnl,
 )
 
+logger = logging.getLogger(__name__)
 
 def _timeago(delta_secs: int) -> str:
     """Convert a number of seconds in the past into a short, friendly string
@@ -88,7 +90,7 @@ class MeshInterface:  # pylint: disable=R0902
             super().__init__(self.message)
 
     def __init__(
-        self, debugOut=None, noProto: bool = False, noNodes: bool = False
+        self, debugOut=None, noProto: bool = False, noNodes: bool = False, timeout: int = 300
     ) -> None:
         """Constructor
 
@@ -97,13 +99,14 @@ class MeshInterface:  # pylint: disable=R0902
                        link - just be a dumb serial client.
             noNodes -- If True, instruct the node to not send its nodedb
                        on startup, just other configuration information.
+            timeout -- How long to wait for replies (default: 300 seconds)
         """
         self.debugOut = debugOut
         self.nodes: Optional[Dict[str, Dict]] = None  # FIXME
         self.isConnected: threading.Event = threading.Event()
         self.noProto: bool = noProto
         self.localNode: meshtastic.node.Node = meshtastic.node.Node(
-            self, -1
+            self, -1, timeout=timeout
         )  # We fixup nodenum later
         self.myInfo: Optional[
             mesh_pb2.MyNodeInfo
@@ -117,7 +120,7 @@ class MeshInterface:  # pylint: disable=R0902
         self.failure = (
             None  # If we've encountered a fatal exception it will be kept here
         )
-        self._timeout: Timeout = Timeout()
+        self._timeout: Timeout = Timeout(maxSecs=timeout)
         self._acknowledgment: Acknowledgment = Acknowledgment()
         self.heartbeatTimer: Optional[threading.Timer] = None
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
@@ -149,11 +152,11 @@ class MeshInterface:  # pylint: disable=R0902
 
     def __exit__(self, exc_type, exc_value, trace):
         if exc_type is not None and exc_value is not None:
-            logging.error(
+            logger.error(
                 f"An exception of type {exc_type} with value {exc_value} has occurred"
             )
         if trace is not None:
-            logging.error(f"Traceback: {trace}")
+            logger.error(f"Traceback:\n{''.join(traceback.format_tb(trace))}")
         self.close()
 
     @staticmethod
@@ -282,7 +285,7 @@ class MeshInterface:  # pylint: disable=R0902
 
         def getNestedValue(node_dict: Dict[str, Any], key_path: str) -> Any:
             if key_path.index(".") < 0:
-                logging.debug("getNestedValue was called without a nested path.")
+                logger.debug("getNestedValue was called without a nested path.")
                 return None
             keys = key_path.split(".")
             value: Optional[Union[str, dict]] = node_dict
@@ -305,7 +308,7 @@ class MeshInterface:  # pylint: disable=R0902
 
         rows: List[Dict[str, Any]] = []
         if self.nodesByNum:
-            logging.debug(f"self.nodes:{self.nodes}")
+            logger.debug(f"self.nodes:{self.nodes}")
             for node in self.nodesByNum.values():
                 if not includeSelf and node["num"] == self.localNode.nodeNum:
                     continue
@@ -386,7 +389,7 @@ class MeshInterface:  # pylint: disable=R0902
             n = meshtastic.node.Node(self, nodeId, timeout=timeout)
             # Only request device settings and channel info when necessary
             if requestChannels:
-                logging.debug("About to requestChannels")
+                logger.debug("About to requestChannels")
                 n.requestChannels()
                 retries_left = requestChannelAttempts
                 last_index: int = 0
@@ -414,7 +417,8 @@ class MeshInterface:  # pylint: disable=R0902
         wantResponse: bool = False,
         onResponse: Optional[Callable[[dict], Any]] = None,
         channelIndex: int = 0,
-        portNum: portnums_pb2.PortNum.ValueType = portnums_pb2.PortNum.TEXT_MESSAGE_APP
+        portNum: portnums_pb2.PortNum.ValueType = portnums_pb2.PortNum.TEXT_MESSAGE_APP,
+        replyId: Optional[int]=None,
     ):
         """Send a utf8 string to some other node, if the node has a display it
            will also be shown on the device.
@@ -431,6 +435,7 @@ class MeshInterface:  # pylint: disable=R0902
                             send an application layer response
             portNum -- the application portnum (similar to IP port numbers)
                        of the destination, see portnums.proto for a list
+            replyId -- the ID of the message that this packet is a response to
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -444,6 +449,7 @@ class MeshInterface:  # pylint: disable=R0902
             wantResponse=wantResponse,
             onResponse=onResponse,
             channelIndex=channelIndex,
+            replyId=replyId
         )
 
 
@@ -454,7 +460,7 @@ class MeshInterface:  # pylint: disable=R0902
         onResponse: Optional[Callable[[dict], Any]] = None,
         channelIndex: int = 0,
     ):
-        """Send an alert text to some other node. This is similar to a text message, 
+        """Send an alert text to some other node. This is similar to a text message,
             but carries a higher priority and is capable of generating special notifications
             on certain clients.
 
@@ -480,6 +486,18 @@ class MeshInterface:  # pylint: disable=R0902
             priority=mesh_pb2.MeshPacket.Priority.ALERT
         )
 
+    def sendMqttClientProxyMessage(self, topic: str, data: bytes):
+        """Send an MQTT Client Proxy message to the radio.
+
+        Topic and data should be the MQTT topic and the message
+        payload from an MQTT broker, respectively."""
+        prox = mesh_pb2.MqttClientProxyMessage()
+        prox.topic = topic
+        prox.data = data
+        toRadio = mesh_pb2.ToRadio()
+        toRadio.mqttClientProxyMessage.CopyFrom(prox)
+        self._sendToRadio(toRadio)
+
     def sendData(
         self,
         data,
@@ -494,6 +512,7 @@ class MeshInterface:  # pylint: disable=R0902
         pkiEncrypted: Optional[bool]=False,
         publicKey: Optional[bytes]=None,
         priority: mesh_pb2.MeshPacket.Priority.ValueType=mesh_pb2.MeshPacket.Priority.RELIABLE,
+        replyId: Optional[int]=None,
     ): # pylint: disable=R0913
         """Send a data packet to some other node
 
@@ -518,17 +537,18 @@ class MeshInterface:  # pylint: disable=R0902
                     will implicitly be true.
             channelIndex -- channel number to use
             hopLimit -- hop limit to use
+            replyId -- the ID of the message that this packet is a response to
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
         """
 
         if getattr(data, "SerializeToString", None):
-            logging.debug(f"Serializing protobuf as data: {stripnl(data)}")
+            logger.debug(f"Serializing protobuf as data: {stripnl(data)}")
             data = data.SerializeToString()
 
-        logging.debug(f"len(data): {len(data)}")
-        logging.debug(
+        logger.debug(f"len(data): {len(data)}")
+        logger.debug(
             f"mesh_pb2.Constants.DATA_PAYLOAD_LEN: {mesh_pb2.Constants.DATA_PAYLOAD_LEN}"
         )
         if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
@@ -545,11 +565,13 @@ class MeshInterface:  # pylint: disable=R0902
         meshPacket.decoded.portnum = portNum
         meshPacket.decoded.want_response = wantResponse
         meshPacket.id = self._generatePacketId()
+        if replyId is not None:
+            meshPacket.decoded.reply_id = replyId
         if priority is not None:
             meshPacket.priority = priority
 
         if onResponse is not None:
-            logging.debug(f"Setting a response handler for requestId {meshPacket.id}")
+            logger.debug(f"Setting a response handler for requestId {meshPacket.id}")
             self._addResponseHandler(meshPacket.id, onResponse, ackPermitted=onResponseAckPermitted)
         p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit, pkiEncrypted=pkiEncrypted, publicKey=publicKey)
         return p
@@ -576,15 +598,15 @@ class MeshInterface:  # pylint: disable=R0902
         p = mesh_pb2.Position()
         if latitude != 0.0:
             p.latitude_i = int(latitude / 1e-7)
-            logging.debug(f"p.latitude_i:{p.latitude_i}")
+            logger.debug(f"p.latitude_i:{p.latitude_i}")
 
         if longitude != 0.0:
             p.longitude_i = int(longitude / 1e-7)
-            logging.debug(f"p.longitude_i:{p.longitude_i}")
+            logger.debug(f"p.longitude_i:{p.longitude_i}")
 
         if altitude != 0:
             p.altitude = int(altitude)
-            logging.debug(f"p.altitude:{p.altitude}")
+            logger.debug(f"p.altitude:{p.altitude}")
 
         if wantResponse:
             onResponse = self.onResponsePosition
@@ -811,6 +833,7 @@ class MeshInterface:  # pylint: disable=R0902
         self,
         name,
         description,
+        icon,
         expire: int,
         waypoint_id: Optional[int] = None,
         latitude: float = 0.0,
@@ -829,21 +852,22 @@ class MeshInterface:  # pylint: disable=R0902
         w = mesh_pb2.Waypoint()
         w.name = name
         w.description = description
+        w.icon = icon
         w.expire = expire
         if waypoint_id is None:
             # Generate a waypoint's id, NOT a packet ID.
             # same algorithm as https://github.com/meshtastic/js/blob/715e35d2374276a43ffa93c628e3710875d43907/src/meshDevice.ts#L791
             seed = secrets.randbits(32)
             w.id = math.floor(seed * math.pow(2, -32) * 1e9)
-            logging.debug(f"w.id:{w.id}")
+            logger.debug(f"w.id:{w.id}")
         else:
             w.id = waypoint_id
         if latitude != 0.0:
             w.latitude_i = int(latitude * 1e7)
-            logging.debug(f"w.latitude_i:{w.latitude_i}")
+            logger.debug(f"w.latitude_i:{w.latitude_i}")
         if longitude != 0.0:
             w.longitude_i = int(longitude * 1e7)
-            logging.debug(f"w.longitude_i:{w.longitude_i}")
+            logger.debug(f"w.longitude_i:{w.longitude_i}")
 
         if wantResponse:
             onResponse = self.onResponseWaypoint
@@ -875,7 +899,7 @@ class MeshInterface:  # pylint: disable=R0902
         Send a waypoint deletion packet to some other node (normally a broadcast)
 
         NB: The id must be the waypoint's id and not the id of the packet creation.
-        
+
         Returns the sent packet. The id field will be populated in this packet and
         can be used to track future message acks/naks.
         """
@@ -958,7 +982,7 @@ class MeshInterface:  # pylint: disable=R0902
                 else:
                     nodeNum = node["num"]
             else:
-                logging.warning("Warning: There were no self.nodes.")
+                logger.warning("Warning: There were no self.nodes.")
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
@@ -982,11 +1006,11 @@ class MeshInterface:  # pylint: disable=R0902
 
         toRadio.packet.CopyFrom(meshPacket)
         if self.noProto:
-            logging.warning(
+            logger.warning(
                 "Not sending packet because protocol use is disabled by noProto"
             )
         else:
-            logging.debug(f"Sending packet: {stripnl(meshPacket)}")
+            logger.debug(f"Sending packet: {stripnl(meshPacket)}")
             self._sendToRadio(toRadio)
         return meshPacket
 
@@ -1037,7 +1061,7 @@ class MeshInterface:  # pylint: disable=R0902
         """Get info about my node."""
         if self.myInfo is None or self.nodesByNum is None:
             return None
-        logging.debug(f"self.nodesByNum:{self.nodesByNum}")
+        logger.debug(f"self.nodesByNum:{self.nodesByNum}")
         return self.nodesByNum.get(self.myInfo.my_node_num)
 
     def getMyUser(self):
@@ -1066,6 +1090,20 @@ class MeshInterface:  # pylint: disable=R0902
         user = self.getMyUser()
         if user is not None:
             return user.get("publicKey", None)
+        return None
+
+    def getCannedMessage(self):
+        """Get canned message"""
+        node = self.localNode
+        if node is not None:
+            return node.get_canned_message()
+        return None
+
+    def getRingtone(self):
+        """Get ringtone"""
+        node = self.localNode
+        if node is not None:
+            return node.get_ringtone()
         return None
 
     def _waitConnected(self, timeout=30.0):
@@ -1113,7 +1151,7 @@ class MeshInterface:  # pylint: disable=R0902
         def callback():
             self.heartbeatTimer = None
             interval = 300
-            logging.debug(f"Sending heartbeat, interval {interval} seconds")
+            logger.debug(f"Sending heartbeat, interval {interval} seconds")
             self.heartbeatTimer = threading.Timer(interval, callback)
             self.heartbeatTimer.start()
             self.sendHeartbeat()
@@ -1171,11 +1209,11 @@ class MeshInterface:  # pylint: disable=R0902
     def _sendToRadio(self, toRadio: mesh_pb2.ToRadio) -> None:
         """Send a ToRadio protobuf to the device"""
         if self.noProto:
-            logging.warning(
+            logger.warning(
                 "Not sending packet because protocol use is disabled by noProto"
             )
         else:
-            # logging.debug(f"Sending toRadio: {stripnl(toRadio)}")
+            # logger.debug(f"Sending toRadio: {stripnl(toRadio)}")
 
             if not toRadio.HasField("packet"):
                 # not a meshpacket -- send immediately, give queue a chance,
@@ -1188,38 +1226,38 @@ class MeshInterface:  # pylint: disable=R0902
             resentQueue = collections.OrderedDict()
 
             while self.queue:
-                # logging.warn("queue: " + " ".join(f'{k:08x}' for k in self.queue))
+                # logger.warn("queue: " + " ".join(f'{k:08x}' for k in self.queue))
                 while not self._queueHasFreeSpace():
-                    logging.debug("Waiting for free space in TX Queue")
+                    logger.debug("Waiting for free space in TX Queue")
                     time.sleep(0.5)
                 try:
                     toResend = self.queue.popitem(last=False)
                 except KeyError:
                     break
                 packetId, packet = toResend
-                # logging.warn(f"packet: {packetId:08x} {packet}")
+                # logger.warn(f"packet: {packetId:08x} {packet}")
                 resentQueue[packetId] = packet
                 if packet is False:
                     continue
                 self._queueClaim()
                 if packet != toRadio:
-                    logging.debug(f"Resending packet ID {packetId:08x} {packet}")
+                    logger.debug(f"Resending packet ID {packetId:08x} {packet}")
                 self._sendToRadioImpl(packet)
 
-            # logging.warn("resentQueue: " + " ".join(f'{k:08x}' for k in resentQueue))
+            # logger.warn("resentQueue: " + " ".join(f'{k:08x}' for k in resentQueue))
             for packetId, packet in resentQueue.items():
                 if (
                     self.queue.pop(packetId, False) is False
                 ):  # Packet got acked under us
-                    logging.debug(f"packet {packetId:08x} got acked under us")
+                    logger.debug(f"packet {packetId:08x} got acked under us")
                     continue
                 if packet:
                     self.queue[packetId] = packet
-            # logging.warn("queue + resentQueue: " + " ".join(f'{k:08x}' for k in self.queue))
+            # logger.warn("queue + resentQueue: " + " ".join(f'{k:08x}' for k in self.queue))
 
     def _sendToRadioImpl(self, toRadio: mesh_pb2.ToRadio) -> None:
         """Send a ToRadio protobuf to the device"""
-        logging.error(f"Subclass must provide toradio: {toRadio}")
+        logger.error(f"Subclass must provide toradio: {toRadio}")
 
     def _handleConfigComplete(self) -> None:
         """
@@ -1235,22 +1273,22 @@ class MeshInterface:  # pylint: disable=R0902
 
     def _handleQueueStatusFromRadio(self, queueStatus) -> None:
         self.queueStatus = queueStatus
-        logging.debug(
+        logger.debug(
             f"TX QUEUE free {queueStatus.free} of {queueStatus.maxlen}, res = {queueStatus.res}, id = {queueStatus.mesh_packet_id:08x} "
         )
 
         if queueStatus.res:
             return
 
-        # logging.warn("queue: " + " ".join(f'{k:08x}' for k in self.queue))
+        # logger.warn("queue: " + " ".join(f'{k:08x}' for k in self.queue))
         justQueued = self.queue.pop(queueStatus.mesh_packet_id, None)
 
         if justQueued is None and queueStatus.mesh_packet_id != 0:
             self.queue[queueStatus.mesh_packet_id] = False
-            logging.debug(
+            logger.debug(
                 f"Reply for unexpected packet ID {queueStatus.mesh_packet_id:08x}"
             )
-        # logging.warn("queue: " + " ".join(f'{k:08x}' for k in self.queue))
+        # logger.warn("queue: " + " ".join(f'{k:08x}' for k in self.queue))
 
     def _handleFromRadio(self, fromRadioBytes):
         """
@@ -1258,30 +1296,30 @@ class MeshInterface:  # pylint: disable=R0902
 
         Called by subclasses."""
         fromRadio = mesh_pb2.FromRadio()
-        logging.debug(
+        logger.debug(
             f"in mesh_interface.py _handleFromRadio() fromRadioBytes: {fromRadioBytes}"
         )
         try:
             fromRadio.ParseFromString(fromRadioBytes)
         except Exception as ex:
-            logging.error(
+            logger.error(
                     f"Error while parsing FromRadio bytes:{fromRadioBytes} {ex}"
             )
             traceback.print_exc()
             raise ex
         asDict = google.protobuf.json_format.MessageToDict(fromRadio)
-        logging.debug(f"Received from radio: {fromRadio}")
+        logger.debug(f"Received from radio: {fromRadio}")
         if fromRadio.HasField("my_info"):
             self.myInfo = fromRadio.my_info
             self.localNode.nodeNum = self.myInfo.my_node_num
-            logging.debug(f"Received myinfo: {stripnl(fromRadio.my_info)}")
+            logger.debug(f"Received myinfo: {stripnl(fromRadio.my_info)}")
 
         elif fromRadio.HasField("metadata"):
             self.metadata = fromRadio.metadata
-            logging.debug(f"Received device metadata: {stripnl(fromRadio.metadata)}")
+            logger.debug(f"Received device metadata: {stripnl(fromRadio.metadata)}")
 
         elif fromRadio.HasField("node_info"):
-            logging.debug(f"Received nodeinfo: {asDict['nodeInfo']}")
+            logger.debug(f"Received nodeinfo: {asDict['nodeInfo']}")
 
             node = self._getOrCreateByNum(asDict["nodeInfo"]["num"])
             node.update(asDict["nodeInfo"])
@@ -1289,7 +1327,7 @@ class MeshInterface:  # pylint: disable=R0902
                 newpos = self._fixupPosition(node["position"])
                 node["position"] = newpos
             except:
-                logging.debug("Node without position")
+                logger.debug("Node without position")
 
             # no longer necessary since we're mutating directly in nodesByNum via _getOrCreateByNum
             # self.nodesByNum[node["num"]] = node
@@ -1304,7 +1342,7 @@ class MeshInterface:  # pylint: disable=R0902
         elif fromRadio.config_complete_id == self.configId:
             # we ignore the config_complete_id, it is unneeded for our
             # stream API fromRadio.config_complete_id
-            logging.debug(f"Config complete ID {self.configId}")
+            logger.debug(f"Config complete ID {self.configId}")
             self._handleConfigComplete()
         elif fromRadio.HasField("channel"):
             self._handleChannel(fromRadio.channel)
@@ -1314,6 +1352,14 @@ class MeshInterface:  # pylint: disable=R0902
             self._handleLogRecord(fromRadio.log_record)
         elif fromRadio.HasField("queueStatus"):
             self._handleQueueStatusFromRadio(fromRadio.queueStatus)
+        elif fromRadio.HasField("clientNotification"):
+            publishingThread.queueWork(
+                lambda: pub.sendMessage(
+                    "meshtastic.clientNotification",
+                    notification=fromRadio.clientNotification,
+                    interface=self,
+                )
+            )
 
         elif fromRadio.HasField("mqttClientProxyMessage"):
             publishingThread.queueWork(
@@ -1411,7 +1457,7 @@ class MeshInterface:  # pylint: disable=R0902
                 )
 
         else:
-            logging.debug("Unexpected FromRadio payload")
+            logger.debug("Unexpected FromRadio payload")
 
     def _fixupPosition(self, position: Dict) -> Dict:
         """Convert integer lat/lon into floats
@@ -1445,7 +1491,7 @@ class MeshInterface:  # pylint: disable=R0902
         try:
             return self.nodesByNum[num]["user"]["id"]  # type: ignore[index]
         except:
-            logging.debug(f"Node {num} not found for fromId")
+            logger.debug(f"Node {num} not found for fromId")
             return None
 
     def _getOrCreateByNum(self, nodeNum):
@@ -1501,7 +1547,7 @@ class MeshInterface:  # pylint: disable=R0902
         # from might be missing if the nodenum was zero.
         if not hack and "from" not in asDict:
             asDict["from"] = 0
-            logging.error(
+            logger.error(
                 f"Device returned a packet we sent, ignoring: {stripnl(asDict)}"
             )
             print(
@@ -1515,11 +1561,11 @@ class MeshInterface:  # pylint: disable=R0902
         try:
             asDict["fromId"] = self._nodeNumToId(asDict["from"], False)
         except Exception as ex:
-            logging.warning(f"Not populating fromId {ex}")
+            logger.warning(f"Not populating fromId {ex}")
         try:
             asDict["toId"] = self._nodeNumToId(asDict["to"])
         except Exception as ex:
-            logging.warning(f"Not populating toId {ex}")
+            logger.warning(f"Not populating toId {ex}")
 
         # We could provide our objects as DotMaps - which work with . notation or as dictionaries
         # asObj = DotMap(asDict)
@@ -1539,7 +1585,7 @@ class MeshInterface:  # pylint: disable=R0902
             # it to prevent confusion
             if "portnum" not in decoded:
                 decoded["portnum"] = portnum
-                logging.warning(f"portnum was not in decoded. Setting to:{portnum}")
+                logger.warning(f"portnum was not in decoded. Setting to:{portnum}")
             else:
                 portnum = decoded["portnum"]
 
@@ -1571,7 +1617,7 @@ class MeshInterface:  # pylint: disable=R0902
             # Is this message in response to a request, if so, look for a handler
             requestId = decoded.get("requestId")
             if requestId is not None:
-                logging.debug(f"Got a response for requestId {requestId}")
+                logger.debug(f"Got a response for requestId {requestId}")
                 # We ignore ACK packets unless the callback is named `onAckNak`
                 # or the handler is set as ackPermitted, but send NAKs and
                 # other, data-containing responses to the handlers
@@ -1588,12 +1634,12 @@ class MeshInterface:  # pylint: disable=R0902
                         or handler.ackPermitted
                     ):
                         handler = self.responseHandlers.pop(requestId, None)
-                        logging.debug(
+                        logger.debug(
                             f"Calling response handler for requestId {requestId}"
                         )
                         handler.callback(asDict)
 
-        logging.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
+        logger.debug(f"Publishing {topic}: packet={stripnl(asDict)} ")
         publishingThread.queueWork(
             lambda: pub.sendMessage(topic, packet=asDict, interface=self)
         )

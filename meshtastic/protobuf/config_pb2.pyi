@@ -64,6 +64,7 @@ class Config(google.protobuf.message.Message):
             Description: Infrastructure node for extending network coverage by relaying messages with minimal overhead. Not visible in Nodes list.
             Technical Details: Mesh packets will simply be rebroadcasted over this node. Nodes configured with this role will not originate NodeInfo, Position, Telemetry
               or any other packet type. They will simply rebroadcast any mesh packets on the same frequency, channel num, spread factor, and coding rate.
+            Deprecated in v2.7.11 because it creates "holes" in the mesh rebroadcast chain.
             """
             TRACKER: Config.DeviceConfig._Role.ValueType  # 5
             """
@@ -116,6 +117,13 @@ class Config(google.protobuf.message.Message):
                but should not be given priority over other routers in order to avoid unnecessaraily
                consuming hops.
             """
+            CLIENT_BASE: Config.DeviceConfig._Role.ValueType  # 12
+            """
+            Description: Treats packets from or to favorited nodes as ROUTER, and all other packets as CLIENT.
+            Technical Details: Used for stronger attic/roof nodes to distribute messages more widely
+               from weaker, indoor, or less-well-positioned nodes. Recommended for users with multiple nodes
+               where one CLIENT_BASE acts as a more powerful base station, such as an attic/roof node.
+            """
 
         class Role(_Role, metaclass=_RoleEnumTypeWrapper):
             """
@@ -148,6 +156,7 @@ class Config(google.protobuf.message.Message):
         Description: Infrastructure node for extending network coverage by relaying messages with minimal overhead. Not visible in Nodes list.
         Technical Details: Mesh packets will simply be rebroadcasted over this node. Nodes configured with this role will not originate NodeInfo, Position, Telemetry
           or any other packet type. They will simply rebroadcast any mesh packets on the same frequency, channel num, spread factor, and coding rate.
+        Deprecated in v2.7.11 because it creates "holes" in the mesh rebroadcast chain.
         """
         TRACKER: Config.DeviceConfig.Role.ValueType  # 5
         """
@@ -199,6 +208,13 @@ class Config(google.protobuf.message.Message):
            in areas not already covered by other routers, or to bridge around problematic terrain,
            but should not be given priority over other routers in order to avoid unnecessaraily
            consuming hops.
+        """
+        CLIENT_BASE: Config.DeviceConfig.Role.ValueType  # 12
+        """
+        Description: Treats packets from or to favorited nodes as ROUTER, and all other packets as CLIENT.
+        Technical Details: Used for stronger attic/roof nodes to distribute messages more widely
+           from weaker, indoor, or less-well-positioned nodes. Recommended for users with multiple nodes
+           where one CLIENT_BASE acts as a more powerful base station, such as an attic/roof node.
         """
 
         class _RebroadcastMode:
@@ -272,6 +288,73 @@ class Config(google.protobuf.message.Message):
         Only rebroadcasts packets with standard portnums: NodeInfo, Text, Position, Telemetry, and Routing.
         """
 
+        class _BuzzerMode:
+            ValueType = typing.NewType("ValueType", builtins.int)
+            V: typing_extensions.TypeAlias = ValueType
+
+        class _BuzzerModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Config.DeviceConfig._BuzzerMode.ValueType], builtins.type):
+            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+            ALL_ENABLED: Config.DeviceConfig._BuzzerMode.ValueType  # 0
+            """
+            Default behavior.
+            Buzzer is enabled for all audio feedback including button presses and alerts.
+            """
+            DISABLED: Config.DeviceConfig._BuzzerMode.ValueType  # 1
+            """
+            Disabled.
+            All buzzer audio feedback is disabled.
+            """
+            NOTIFICATIONS_ONLY: Config.DeviceConfig._BuzzerMode.ValueType  # 2
+            """
+            Notifications Only.
+            Buzzer is enabled only for notifications and alerts, but not for button presses.
+            External notification config determines the specifics of the notification behavior.
+            """
+            SYSTEM_ONLY: Config.DeviceConfig._BuzzerMode.ValueType  # 3
+            """
+            Non-notification system buzzer tones only.
+            Buzzer is enabled only for non-notification tones such as button presses, startup, shutdown, but not for alerts.
+            """
+            DIRECT_MSG_ONLY: Config.DeviceConfig._BuzzerMode.ValueType  # 4
+            """
+            Direct Message notifications only.
+            Buzzer is enabled only for direct messages and alerts, but not for button presses.
+            External notification config determines the specifics of the notification behavior.
+            """
+
+        class BuzzerMode(_BuzzerMode, metaclass=_BuzzerModeEnumTypeWrapper):
+            """
+            Defines buzzer behavior for audio feedback
+            """
+
+        ALL_ENABLED: Config.DeviceConfig.BuzzerMode.ValueType  # 0
+        """
+        Default behavior.
+        Buzzer is enabled for all audio feedback including button presses and alerts.
+        """
+        DISABLED: Config.DeviceConfig.BuzzerMode.ValueType  # 1
+        """
+        Disabled.
+        All buzzer audio feedback is disabled.
+        """
+        NOTIFICATIONS_ONLY: Config.DeviceConfig.BuzzerMode.ValueType  # 2
+        """
+        Notifications Only.
+        Buzzer is enabled only for notifications and alerts, but not for button presses.
+        External notification config determines the specifics of the notification behavior.
+        """
+        SYSTEM_ONLY: Config.DeviceConfig.BuzzerMode.ValueType  # 3
+        """
+        Non-notification system buzzer tones only.
+        Buzzer is enabled only for non-notification tones such as button presses, startup, shutdown, but not for alerts.
+        """
+        DIRECT_MSG_ONLY: Config.DeviceConfig.BuzzerMode.ValueType  # 4
+        """
+        Direct Message notifications only.
+        Buzzer is enabled only for direct messages and alerts, but not for button presses.
+        External notification config determines the specifics of the notification behavior.
+        """
+
         ROLE_FIELD_NUMBER: builtins.int
         SERIAL_ENABLED_FIELD_NUMBER: builtins.int
         BUTTON_GPIO_FIELD_NUMBER: builtins.int
@@ -283,6 +366,7 @@ class Config(google.protobuf.message.Message):
         DISABLE_TRIPLE_CLICK_FIELD_NUMBER: builtins.int
         TZDEF_FIELD_NUMBER: builtins.int
         LED_HEARTBEAT_DISABLED_FIELD_NUMBER: builtins.int
+        BUZZER_MODE_FIELD_NUMBER: builtins.int
         role: global___Config.DeviceConfig.Role.ValueType
         """
         Sets the role of node
@@ -333,6 +417,11 @@ class Config(google.protobuf.message.Message):
         """
         If true, disable the default blinking LED (LED_PIN) behavior on the device
         """
+        buzzer_mode: global___Config.DeviceConfig.BuzzerMode.ValueType
+        """
+        Controls buzzer behavior for audio feedback
+        Defaults to ENABLED
+        """
         def __init__(
             self,
             *,
@@ -347,8 +436,9 @@ class Config(google.protobuf.message.Message):
             disable_triple_click: builtins.bool = ...,
             tzdef: builtins.str = ...,
             led_heartbeat_disabled: builtins.bool = ...,
+            buzzer_mode: global___Config.DeviceConfig.BuzzerMode.ValueType = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["button_gpio", b"button_gpio", "buzzer_gpio", b"buzzer_gpio", "disable_triple_click", b"disable_triple_click", "double_tap_as_button_press", b"double_tap_as_button_press", "is_managed", b"is_managed", "led_heartbeat_disabled", b"led_heartbeat_disabled", "node_info_broadcast_secs", b"node_info_broadcast_secs", "rebroadcast_mode", b"rebroadcast_mode", "role", b"role", "serial_enabled", b"serial_enabled", "tzdef", b"tzdef"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["button_gpio", b"button_gpio", "buzzer_gpio", b"buzzer_gpio", "buzzer_mode", b"buzzer_mode", "disable_triple_click", b"disable_triple_click", "double_tap_as_button_press", b"double_tap_as_button_press", "is_managed", b"is_managed", "led_heartbeat_disabled", b"led_heartbeat_disabled", "node_info_broadcast_secs", b"node_info_broadcast_secs", "rebroadcast_mode", b"rebroadcast_mode", "role", b"role", "serial_enabled", b"serial_enabled", "tzdef", b"tzdef"]) -> None: ...
 
     @typing.final
     class PositionConfig(google.protobuf.message.Message):
@@ -615,7 +705,7 @@ class Config(google.protobuf.message.Message):
         POWERMON_ENABLES_FIELD_NUMBER: builtins.int
         is_power_saving: builtins.bool
         """
-        Description: Will sleep everything as much as possible, for the tracker and sensor role this will also include the lora radio. 
+        Description: Will sleep everything as much as possible, for the tracker and sensor role this will also include the lora radio.
         Don't use this setting if you want to use your device with the phone apps or are using a device without a user button.
         Technical Details: Works for ESP32 devices and NRF52 devices in the Sensor or Tracker roles
         """
@@ -781,6 +871,7 @@ class Config(google.protobuf.message.Message):
         IPV4_CONFIG_FIELD_NUMBER: builtins.int
         RSYSLOG_SERVER_FIELD_NUMBER: builtins.int
         ENABLED_PROTOCOLS_FIELD_NUMBER: builtins.int
+        IPV6_ENABLED_FIELD_NUMBER: builtins.int
         wifi_enabled: builtins.bool
         """
         Enable WiFi (disables Bluetooth)
@@ -796,7 +887,7 @@ class Config(google.protobuf.message.Message):
         """
         ntp_server: builtins.str
         """
-        NTP server to use if WiFi is conneced, defaults to `0.pool.ntp.org`
+        NTP server to use if WiFi is conneced, defaults to `meshtastic.pool.ntp.org`
         """
         eth_enabled: builtins.bool
         """
@@ -813,6 +904,10 @@ class Config(google.protobuf.message.Message):
         enabled_protocols: builtins.int
         """
         Flags for enabling/disabling network protocols
+        """
+        ipv6_enabled: builtins.bool
+        """
+        Enable/Disable ipv6 support
         """
         @property
         def ipv4_config(self) -> global___Config.NetworkConfig.IpV4Config:
@@ -832,9 +927,10 @@ class Config(google.protobuf.message.Message):
             ipv4_config: global___Config.NetworkConfig.IpV4Config | None = ...,
             rsyslog_server: builtins.str = ...,
             enabled_protocols: builtins.int = ...,
+            ipv6_enabled: builtins.bool = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["ipv4_config", b"ipv4_config"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing.Literal["address_mode", b"address_mode", "enabled_protocols", b"enabled_protocols", "eth_enabled", b"eth_enabled", "ipv4_config", b"ipv4_config", "ntp_server", b"ntp_server", "rsyslog_server", b"rsyslog_server", "wifi_enabled", b"wifi_enabled", "wifi_psk", b"wifi_psk", "wifi_ssid", b"wifi_ssid"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["address_mode", b"address_mode", "enabled_protocols", b"enabled_protocols", "eth_enabled", b"eth_enabled", "ipv4_config", b"ipv4_config", "ipv6_enabled", b"ipv6_enabled", "ntp_server", b"ntp_server", "rsyslog_server", b"rsyslog_server", "wifi_enabled", b"wifi_enabled", "wifi_psk", b"wifi_psk", "wifi_ssid", b"wifi_ssid"]) -> None: ...
 
     @typing.final
     class DisplayConfig(google.protobuf.message.Message):
@@ -844,80 +940,20 @@ class Config(google.protobuf.message.Message):
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-        class _GpsCoordinateFormat:
+        class _DeprecatedGpsCoordinateFormat:
             ValueType = typing.NewType("ValueType", builtins.int)
             V: typing_extensions.TypeAlias = ValueType
 
-        class _GpsCoordinateFormatEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Config.DisplayConfig._GpsCoordinateFormat.ValueType], builtins.type):
+        class _DeprecatedGpsCoordinateFormatEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Config.DisplayConfig._DeprecatedGpsCoordinateFormat.ValueType], builtins.type):
             DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-            DEC: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 0
+            UNUSED: Config.DisplayConfig._DeprecatedGpsCoordinateFormat.ValueType  # 0
+
+        class DeprecatedGpsCoordinateFormat(_DeprecatedGpsCoordinateFormat, metaclass=_DeprecatedGpsCoordinateFormatEnumTypeWrapper):
             """
-            GPS coordinates are displayed in the normal decimal degrees format:
-            DD.DDDDDD DDD.DDDDDD
-            """
-            DMS: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 1
-            """
-            GPS coordinates are displayed in the degrees minutes seconds format:
-            DD°MM'SS"C DDD°MM'SS"C, where C is the compass point representing the locations quadrant
-            """
-            UTM: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 2
-            """
-            Universal Transverse Mercator format:
-            ZZB EEEEEE NNNNNNN, where Z is zone, B is band, E is easting, N is northing
-            """
-            MGRS: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 3
-            """
-            Military Grid Reference System format:
-            ZZB CD EEEEE NNNNN, where Z is zone, B is band, C is the east 100k square, D is the north 100k square,
-            E is easting, N is northing
-            """
-            OLC: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 4
-            """
-            Open Location Code (aka Plus Codes).
-            """
-            OSGR: Config.DisplayConfig._GpsCoordinateFormat.ValueType  # 5
-            """
-            Ordnance Survey Grid Reference (the National Grid System of the UK).
-            Format: AB EEEEE NNNNN, where A is the east 100k square, B is the north 100k square,
-            E is the easting, N is the northing
+            Deprecated in 2.7.4: Unused
             """
 
-        class GpsCoordinateFormat(_GpsCoordinateFormat, metaclass=_GpsCoordinateFormatEnumTypeWrapper):
-            """
-            How the GPS coordinates are displayed on the OLED screen.
-            """
-
-        DEC: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 0
-        """
-        GPS coordinates are displayed in the normal decimal degrees format:
-        DD.DDDDDD DDD.DDDDDD
-        """
-        DMS: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 1
-        """
-        GPS coordinates are displayed in the degrees minutes seconds format:
-        DD°MM'SS"C DDD°MM'SS"C, where C is the compass point representing the locations quadrant
-        """
-        UTM: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 2
-        """
-        Universal Transverse Mercator format:
-        ZZB EEEEEE NNNNNNN, where Z is zone, B is band, E is easting, N is northing
-        """
-        MGRS: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 3
-        """
-        Military Grid Reference System format:
-        ZZB CD EEEEE NNNNN, where Z is zone, B is band, C is the east 100k square, D is the north 100k square,
-        E is easting, N is northing
-        """
-        OLC: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 4
-        """
-        Open Location Code (aka Plus Codes).
-        """
-        OSGR: Config.DisplayConfig.GpsCoordinateFormat.ValueType  # 5
-        """
-        Ordnance Survey Grid Reference (the National Grid System of the UK).
-        Format: AB EEEEE NNNNN, where A is the east 100k square, B is the north 100k square,
-        E is the easting, N is the northing
-        """
+        UNUSED: Config.DisplayConfig.DeprecatedGpsCoordinateFormat.ValueType  # 0
 
         class _DisplayUnits:
             ValueType = typing.NewType("ValueType", builtins.int)
@@ -956,17 +992,21 @@ class Config(google.protobuf.message.Message):
             DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
             OLED_AUTO: Config.DisplayConfig._OledType.ValueType  # 0
             """
-            Default / Auto
+            Default / Autodetect
             """
             OLED_SSD1306: Config.DisplayConfig._OledType.ValueType  # 1
             """
-            Default / Auto
+            Default / Autodetect
             """
             OLED_SH1106: Config.DisplayConfig._OledType.ValueType  # 2
             """
-            Default / Auto
+            Default / Autodetect
             """
             OLED_SH1107: Config.DisplayConfig._OledType.ValueType  # 3
+            """
+            Can not be auto detected but set by proto. Used for 128x64 screens
+            """
+            OLED_SH1107_128_128: Config.DisplayConfig._OledType.ValueType  # 4
             """
             Can not be auto detected but set by proto. Used for 128x128 screens
             """
@@ -978,17 +1018,21 @@ class Config(google.protobuf.message.Message):
 
         OLED_AUTO: Config.DisplayConfig.OledType.ValueType  # 0
         """
-        Default / Auto
+        Default / Autodetect
         """
         OLED_SSD1306: Config.DisplayConfig.OledType.ValueType  # 1
         """
-        Default / Auto
+        Default / Autodetect
         """
         OLED_SH1106: Config.DisplayConfig.OledType.ValueType  # 2
         """
-        Default / Auto
+        Default / Autodetect
         """
         OLED_SH1107: Config.DisplayConfig.OledType.ValueType  # 3
+        """
+        Can not be auto detected but set by proto. Used for 128x64 screens
+        """
+        OLED_SH1107_128_128: Config.DisplayConfig.OledType.ValueType  # 4
         """
         Can not be auto detected but set by proto. Used for 128x128 screens
         """
@@ -1119,13 +1163,15 @@ class Config(google.protobuf.message.Message):
         WAKE_ON_TAP_OR_MOTION_FIELD_NUMBER: builtins.int
         COMPASS_ORIENTATION_FIELD_NUMBER: builtins.int
         USE_12H_CLOCK_FIELD_NUMBER: builtins.int
+        USE_LONG_NODE_NAME_FIELD_NUMBER: builtins.int
         screen_on_secs: builtins.int
         """
         Number of seconds the screen stays on after pressing the user button or receiving a message
         0 for default of one minute MAXUINT for always on
         """
-        gps_format: global___Config.DisplayConfig.GpsCoordinateFormat.ValueType
+        gps_format: global___Config.DisplayConfig.DeprecatedGpsCoordinateFormat.ValueType
         """
+        Deprecated in 2.7.4: Unused
         How the GPS coordinates are formatted on the OLED screen.
         """
         auto_screen_carousel_secs: builtins.int
@@ -1171,11 +1217,16 @@ class Config(google.protobuf.message.Message):
         If false (default), the device will display the time in 24-hour format on screen.
         If true, the device will display the time in 12-hour format on screen.
         """
+        use_long_node_name: builtins.bool
+        """
+        If false (default), the device will use short names for various display screens.
+        If true, node names will show in long format
+        """
         def __init__(
             self,
             *,
             screen_on_secs: builtins.int = ...,
-            gps_format: global___Config.DisplayConfig.GpsCoordinateFormat.ValueType = ...,
+            gps_format: global___Config.DisplayConfig.DeprecatedGpsCoordinateFormat.ValueType = ...,
             auto_screen_carousel_secs: builtins.int = ...,
             compass_north_top: builtins.bool = ...,
             flip_screen: builtins.bool = ...,
@@ -1186,8 +1237,9 @@ class Config(google.protobuf.message.Message):
             wake_on_tap_or_motion: builtins.bool = ...,
             compass_orientation: global___Config.DisplayConfig.CompassOrientation.ValueType = ...,
             use_12h_clock: builtins.bool = ...,
+            use_long_node_name: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["auto_screen_carousel_secs", b"auto_screen_carousel_secs", "compass_north_top", b"compass_north_top", "compass_orientation", b"compass_orientation", "displaymode", b"displaymode", "flip_screen", b"flip_screen", "gps_format", b"gps_format", "heading_bold", b"heading_bold", "oled", b"oled", "screen_on_secs", b"screen_on_secs", "units", b"units", "use_12h_clock", b"use_12h_clock", "wake_on_tap_or_motion", b"wake_on_tap_or_motion"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["auto_screen_carousel_secs", b"auto_screen_carousel_secs", "compass_north_top", b"compass_north_top", "compass_orientation", b"compass_orientation", "displaymode", b"displaymode", "flip_screen", b"flip_screen", "gps_format", b"gps_format", "heading_bold", b"heading_bold", "oled", b"oled", "screen_on_secs", b"screen_on_secs", "units", b"units", "use_12h_clock", b"use_12h_clock", "use_long_node_name", b"use_long_node_name", "wake_on_tap_or_motion", b"wake_on_tap_or_motion"]) -> None: ...
 
     @typing.final
     class LoRaConfig(google.protobuf.message.Message):
@@ -1291,6 +1343,26 @@ class Config(google.protobuf.message.Message):
             """
             Philippines 915mhz
             """
+            ANZ_433: Config.LoRaConfig._RegionCode.ValueType  # 22
+            """
+            Australia / New Zealand 433MHz
+            """
+            KZ_433: Config.LoRaConfig._RegionCode.ValueType  # 23
+            """
+            Kazakhstan 433MHz
+            """
+            KZ_863: Config.LoRaConfig._RegionCode.ValueType  # 24
+            """
+            Kazakhstan 863MHz
+            """
+            NP_865: Config.LoRaConfig._RegionCode.ValueType  # 25
+            """
+            Nepal 865MHz
+            """
+            BR_902: Config.LoRaConfig._RegionCode.ValueType  # 26
+            """
+            Brazil 902MHz
+            """
 
         class RegionCode(_RegionCode, metaclass=_RegionCodeEnumTypeWrapper): ...
         UNSET: Config.LoRaConfig.RegionCode.ValueType  # 0
@@ -1381,6 +1453,26 @@ class Config(google.protobuf.message.Message):
         """
         Philippines 915mhz
         """
+        ANZ_433: Config.LoRaConfig.RegionCode.ValueType  # 22
+        """
+        Australia / New Zealand 433MHz
+        """
+        KZ_433: Config.LoRaConfig.RegionCode.ValueType  # 23
+        """
+        Kazakhstan 433MHz
+        """
+        KZ_863: Config.LoRaConfig.RegionCode.ValueType  # 24
+        """
+        Kazakhstan 863MHz
+        """
+        NP_865: Config.LoRaConfig.RegionCode.ValueType  # 25
+        """
+        Nepal 865MHz
+        """
+        BR_902: Config.LoRaConfig.RegionCode.ValueType  # 26
+        """
+        Brazil 902MHz
+        """
 
         class _ModemPreset:
             ValueType = typing.NewType("ValueType", builtins.int)
@@ -1395,6 +1487,7 @@ class Config(google.protobuf.message.Message):
             LONG_SLOW: Config.LoRaConfig._ModemPreset.ValueType  # 1
             """
             Long Range - Slow
+            Deprecated in 2.7: Unpopular slow preset.
             """
             VERY_LONG_SLOW: Config.LoRaConfig._ModemPreset.ValueType  # 2
             """
@@ -1427,6 +1520,11 @@ class Config(google.protobuf.message.Message):
             This is the fastest preset and the only one with 500kHz bandwidth.
             It is not legal to use in all regions due to this wider bandwidth.
             """
+            LONG_TURBO: Config.LoRaConfig._ModemPreset.ValueType  # 9
+            """
+            Long Range - Turbo
+            This preset performs similarly to LongFast, but with 500Khz bandwidth.
+            """
 
         class ModemPreset(_ModemPreset, metaclass=_ModemPresetEnumTypeWrapper):
             """
@@ -1441,6 +1539,7 @@ class Config(google.protobuf.message.Message):
         LONG_SLOW: Config.LoRaConfig.ModemPreset.ValueType  # 1
         """
         Long Range - Slow
+        Deprecated in 2.7: Unpopular slow preset.
         """
         VERY_LONG_SLOW: Config.LoRaConfig.ModemPreset.ValueType  # 2
         """
@@ -1472,6 +1571,11 @@ class Config(google.protobuf.message.Message):
         Short Range - Turbo
         This is the fastest preset and the only one with 500kHz bandwidth.
         It is not legal to use in all regions due to this wider bandwidth.
+        """
+        LONG_TURBO: Config.LoRaConfig.ModemPreset.ValueType  # 9
+        """
+        Long Range - Turbo
+        This preset performs similarly to LongFast, but with 500Khz bandwidth.
         """
 
         USE_PRESET_FIELD_NUMBER: builtins.int
