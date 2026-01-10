@@ -23,6 +23,7 @@ from meshtastic.__main__ import (
 from meshtastic import mt_config
 
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
+from ..protobuf import localonly_pb2, config_pb2, module_config_pb2
 
 # from ..ble_interface import BLEInterface
 from ..node import Node
@@ -499,6 +500,56 @@ def test_main_set_canned_messages(capsys):
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
         assert re.search(r"Setting canned plugin message to foo", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
+@patch("builtins.open", new_callable=mock_open, read_data="data")
+@patch("serial.Serial")
+@patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
+def test_main_set_3_parameters_OK(mocked_findPorts, mocked_serial, mocked_open, mock_hupcl, capsys):
+    """Test --set with 3 parameters with success"""
+    sys.argv = ["", "--set", "mqtt.enabled", "1", "--set", "mqtt.username", "abc", "--set", "position.gps_enabled", "false"]
+    mt_config.args = sys.argv
+
+    iface = SerialInterface(noProto=True)
+    iface.localNode.localConfig.position.CopyFrom(config_pb2.Config.PositionConfig())
+    iface.localNode.moduleConfig.mqtt.CopyFrom(module_config_pb2.ModuleConfig.MQTTConfig())
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"Writing mqtt configuration to device", out, re.MULTILINE)
+        assert re.search(r"Writing position configuration to device", out, re.MULTILINE)
+        assert re.search(r"Set position.gps_enabled to false", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+@patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
+@patch("builtins.open", new_callable=mock_open, read_data="data")
+@patch("serial.Serial")
+@patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
+def test_main_set_3_parameters_NOK(mocked_findPorts, mocked_serial, mocked_open, mock_hupcl, capsys):
+    """Test --set with 3 parameters where 1 parameter is faulty"""
+    sys.argv = ["", "--set", "mqtt.enabled", "1", "--set", "mqtt", "1", "--set", "mqtt.username", "abc"]
+    mt_config.args = sys.argv
+
+    iface = SerialInterface(noProto=True)
+    iface.localNode.localConfig.position.CopyFrom(config_pb2.Config.PositionConfig())
+    iface.localNode.moduleConfig.mqtt.CopyFrom(module_config_pb2.ModuleConfig.MQTTConfig())
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"Cannot process command due to errors in parameters", out, re.MULTILINE)
+        assert re.search(r"LocalConfig and LocalModuleConfig do not have an attribute mqtt in category mqtt", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
@@ -1065,14 +1116,14 @@ def test_main_set_with_invalid(mocked_findports, mocked_serial, mocked_open, moc
     mt_config.args = sys.argv
 
     serialInterface = SerialInterface(noProto=True)
-    anode = Node(serialInterface, 1234567890, noProto=True)
-    serialInterface.localNode = anode
+    serialInterface.localNode.nodeNum = 1234567890
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=serialInterface) as mo:
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"do not have attribute foo", out, re.MULTILINE)
+        assert re.search(r"Cannot process command due to errors in parameters", out, re.MULTILINE)
+        assert re.search(r"LocalConfig and LocalModuleConfig do not have an attribute foo in category foo", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 

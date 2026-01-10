@@ -193,8 +193,12 @@ def traverseConfig(config_root, config, interface_config) -> bool:
     return True
 
 
-def setPref(config, comp_name, raw_val) -> bool:
-    """Set a channel or preferences value"""
+def setPref(config, comp_name: str, raw_val) -> bool:
+    """Set a channel or preferences value
+    config: LocalConfig, ModuleConfig structures from protobuf
+    comp_name: dotted name of configuration entry
+    raw_val: value to set
+    """
 
     name = splitCompoundName(comp_name)
 
@@ -209,7 +213,7 @@ def setPref(config, comp_name, raw_val) -> bool:
     config_type = objDesc.fields_by_name.get(name[0])
     if config_type and config_type.message_type is not None:
         for name_part in name[1:-1]:
-            part_snake_name = meshtastic.util.camel_to_snake((name_part))
+            part_snake_name = meshtastic.util.camel_to_snake(name_part)
             config_part = getattr(config, config_type.name)
             config_type = config_type.message_type.fields_by_name.get(part_snake_name)
     pref = None
@@ -234,7 +238,7 @@ def setPref(config, comp_name, raw_val) -> bool:
 
     enumType = pref.enum_type
     # pylint: disable=C0123
-    if enumType and type(val) == str:
+    if enumType and isinstance(val, str):
         # We've failed so far to convert this string into an enum, try to find it by reflection
         e = enumType.values_by_name.get(val)
         if e:
@@ -628,12 +632,11 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
             node = interface.getNode(args.dest, False, **getNode_kwargs)
-
             # Handle the int/float/bool arguments
-            pref = None
-            fields = set()
+            fields = []
+            allSettingOK = True
             for pref in args.set:
-                found = False
+                actSettingOK = False
                 field = splitCompoundName(pref[0].lower())[0]
                 for config in [node.localConfig, node.moduleConfig]:
                     config_type = config.DESCRIPTOR.fields_by_name.get(field)
@@ -642,30 +645,29 @@ def onConnected(interface):
                             node.requestConfig(
                                 config.DESCRIPTOR.fields_by_name.get(field)
                             )
-                        found = setPref(config, pref[0], pref[1])
-                        if found:
-                            fields.add(field)
+                        if actSettingOK := setPref(config, pref[0], pref[1]):
                             break
+                fields.append((field, actSettingOK, pref[0]),)
+                allSettingOK = allSettingOK and actSettingOK
 
-            if found:
+            # only write to radio when all settings can be processed. If one setting is wrong, drop everything.
+            # This shall ensure consistency of settings in the radio
+            if allSettingOK:
+                fieldsToWrite = set([field[0] for field in fields])     # keep only one occurence of a field
                 print("Writing modified preferences to device")
-                if len(fields) > 1:
+                if len(fieldsToWrite) > 1:
                     print("Using a configuration transaction")
                     node.beginSettingsTransaction()
-                for field in fields:
+                for field in fieldsToWrite:
                     print(f"Writing {field} configuration to device")
                     node.writeConfig(field)
-                if len(fields) > 1:
+                if len(fieldsToWrite) > 1:
                     node.commitSettingsTransaction()
             else:
-                if mt_config.camel_case:
-                    print(
-                        f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have an attribute {pref[0]}."
-                    )
-                else:
-                    print(
-                        f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have attribute {pref[0]}."
-                    )
+                print("Cannot process command due to errors in parameters:")
+                for field, flag, settingName in fields:
+                    if not flag:
+                        print(f"{node.localConfig.__class__.__name__} and {node.moduleConfig.__class__.__name__} do not have an attribute {settingName} in category {field}.")
                 print("Choices are...")
                 printConfig(node.localConfig)
                 printConfig(node.moduleConfig)
@@ -927,11 +929,11 @@ def onConnected(interface):
             # Handle the channel settings
             for pref in args.ch_set or []:
                 if pref[0] == "psk":
-                    found = True
+                    actSettingOK = True
                     ch.settings.psk = meshtastic.util.fromPSK(pref[1])
                 else:
-                    found = setPref(ch.settings, pref[0], pref[1])
-                if not found:
+                    actSettingOK = setPref(ch.settings, pref[0], pref[1])
+                if not actSettingOK:
                     category_settings = ["module_settings"]
                     print(
                         f"{ch.settings.__class__.__name__} does not have an attribute {pref[0]}."
@@ -1003,9 +1005,9 @@ def onConnected(interface):
             closeNow = True
             node = interface.getNode(args.dest, False, **getNode_kwargs)
             for pref in args.get:
-                found = getPref(node, pref[0])
+                actSettingOK = getPref(node, pref[0])
 
-            if found:
+            if actSettingOK:
                 print("Completed getting preferences")
 
         if args.nodes:
