@@ -44,6 +44,8 @@ import meshtastic.tcp_interface
 from meshtastic import BROADCAST_ADDR, mt_config, remote_hardware
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
+from meshtastic.formatter import InfoFormatter
+
 try:
     from meshtastic.powermon import (
         PowerMeter,
@@ -978,27 +980,6 @@ def onConnected(interface):
             ringtone = interface.getNode(args.dest, **getNode_kwargs).get_ringtone()
             print(f"ringtone:{ringtone}")
 
-        if args.info:
-            print("")
-            # If we aren't trying to talk to our local node, don't show it
-            if args.dest == BROADCAST_ADDR:
-                interface.showInfo()
-                print("")
-                interface.getNode(args.dest, **getNode_kwargs).showInfo()
-                closeNow = True
-                print("")
-                pypi_version = meshtastic.util.check_if_newer_version()
-                if pypi_version:
-                    print(
-                        f"*** A newer version v{pypi_version} is available!"
-                        ' Consider running "pip install --upgrade meshtastic" ***\n'
-                    )
-            else:
-                print("Showing info of remote node is not supported.")
-                print(
-                    "Use the '--get' command for a specific configuration (e.g. 'lora') instead."
-                )
-
         if args.get:
             closeNow = True
             node = interface.getNode(args.dest, False, **getNode_kwargs)
@@ -1008,15 +989,32 @@ def onConnected(interface):
             if found:
                 print("Completed getting preferences")
 
+        if args.info:
+            # If we aren't trying to talk to our local node, don't show it
+            if args.dest == BROADCAST_ADDR:
+                infodata = interface.getInfo()
+                infodata.update(interface.getNode(args.dest, **getNode_kwargs).getInfo())
+                InfoFormatter().format(infodata, args.fmt)
+                closeNow = True
+            else:
+                print("Showing info of remote node is not supported.")
+                print(
+                    "Use the '--get' command for a specific configuration (e.g. 'lora') instead."
+                )
+
         if args.nodes:
             closeNow = True
             if args.dest != BROADCAST_ADDR:
                 print("Showing node list of a remote node is not supported.")
                 return
-            interface.showNodes(True, args.show_fields)
+            interface.showNodes(True, showFields=args.show_fields, printFmt=args.fmt)
 
         if args.show_fields and not args.nodes:
             print("--show-fields can only be used with --nodes")
+            return
+
+        if args.fmt and not (args.nodes or args.info):
+            print("--fmt can only be used with --nodes or --info")
             return
 
         if args.qr or args.qr_all:
@@ -1829,6 +1827,13 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         "--show-fields",
         help="Specify fields to show (comma-separated) when using --nodes",
         type=lambda s: s.split(','),
+        default=None
+    )
+
+    group.add_argument(
+        "--fmt",
+        help="Specify format to show when using --nodes/--info",
+        type=str,
         default=None
     )
 

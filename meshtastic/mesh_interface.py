@@ -17,6 +17,7 @@ from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import google.protobuf.json_format
+from google.protobuf.json_format import MessageToDict
 
 try:
     import print_color  # type: ignore[import-untyped]
@@ -192,40 +193,49 @@ class MeshInterface:  # pylint: disable=R0902
         # For now we just try to format the line as if it had come in over the serial port
         self._handleLogLine(record.message)
 
-    def showInfo(self, file=sys.stdout) -> str:  # pylint: disable=W0613
-        """Show human readable summary about this object"""
-        owner = f"Owner: {self.getLongName()} ({self.getShortName()})"
-        myinfo = ""
+    def getInfo(self) -> dict:
+        """retrieve object data"""
+        objData: dict[str, Any] = {
+            "Owner": [self.getLongName(), self.getShortName()],
+            "MyInfo": {},
+            "Metadata": {},
+            "Nodes": {}
+        }
+
         if self.myInfo:
-            myinfo = f"\nMy info: {message_to_json(self.myInfo)}"
-        metadata = ""
+            objData["MyInfo"] = MessageToDict(self.myInfo)
         if self.metadata:
-            metadata = f"\nMetadata: {message_to_json(self.metadata)}"
-        mesh = "\n\nNodes in mesh: "
-        nodes = {}
+            objData["Metadata"] = MessageToDict(self.metadata)
+
+        keys_to_remove = ("raw", "decoded", "payload")
         if self.nodes:
             for n in self.nodes.values():
                 # when the TBeam is first booted, it sometimes shows the raw data
                 # so, we will just remove any raw keys
-                keys_to_remove = ("raw", "decoded", "payload")
                 n2 = remove_keys_from_dict(keys_to_remove, n)
 
                 # if we have 'macaddr', re-format it
-                if "macaddr" in n2["user"]:
-                    val = n2["user"]["macaddr"]
-                    # decode the base64 value
-                    addr = convert_mac_addr(val)
-                    n2["user"]["macaddr"] = addr
+                self.reformatMAC(n2)
 
                 # use id as dictionary key for correct json format in list of nodes
                 nodeid = n2["user"]["id"]
-                nodes[nodeid] = n2
-        infos = owner + myinfo + metadata + mesh + json.dumps(nodes, indent=2)
-        print(infos)
-        return infos
+                # nodes[nodeid] = n2
+                objData["Nodes"][nodeid] = n2
+        return objData
 
-    def showNodes(
-        self, includeSelf: bool = True, showFields: Optional[List[str]] = None
+    @staticmethod
+    def reformatMAC(n2: dict):
+        """reformat MAC address to hex format"""
+        if "macaddr" in n2["user"]:
+            val = n2["user"]["macaddr"]
+            # decode the base64 value
+            addr = convert_mac_addr(val)
+            n2["user"]["macaddr"] = addr
+
+    def showNodes(self,
+                  includeSelf: bool = True,
+                  showFields: Optional[List[str]] = None,
+                  printFmt: Optional[str] = None
     ) -> str:  # pylint: disable=W0613
         """Show table summary of nodes in mesh
 
@@ -375,7 +385,16 @@ class MeshInterface:  # pylint: disable=R0902
         for i, row in enumerate(rows):
             row["N"] = i + 1
 
-        table = tabulate(rows, headers="keys", missingval="N/A", tablefmt="fancy_grid")
+        if not printFmt or len(printFmt) == 0:
+            printFmt = "fancy_grid"
+        if printFmt.lower() == 'json':
+            headers = []
+            if len(rows) > 0:
+                headers = list(rows[0].keys())
+            outDict = {'headers': headers, 'nodes': rows}
+            table = json.dumps(outDict)
+        else:
+            table = tabulate(rows, headers="keys", missingval="N/A", tablefmt=printFmt)
         print(table)
         return table
 

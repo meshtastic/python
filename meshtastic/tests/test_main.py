@@ -217,10 +217,12 @@ def test_main_info(capsys, caplog):
 
     iface = MagicMock(autospec=SerialInterface)
 
-    def mock_showInfo():
-        print("inside mocked showInfo")
+    def mock_getInfo():
+        print("inside mocked getInfo")
+        # return minimum data structure
+        return {'Owner': [None, None]}
 
-    iface.showInfo.side_effect = mock_showInfo
+    iface.getInfo.side_effect = mock_getInfo
     with caplog.at_level(logging.DEBUG):
         with patch(
             "meshtastic.serial_interface.SerialInterface", return_value=iface
@@ -228,7 +230,7 @@ def test_main_info(capsys, caplog):
             main()
             out, err = capsys.readouterr()
             assert re.search(r"Connected to radio", out, re.MULTILINE)
-            assert re.search(r"inside mocked showInfo", out, re.MULTILINE)
+            assert re.search(r"inside mocked getInfo", out, re.MULTILINE)
             assert err == ""
             mo.assert_called()
 
@@ -268,15 +270,17 @@ def test_main_info_with_tcp_interface(capsys):
 
     iface = MagicMock(autospec=TCPInterface)
 
-    def mock_showInfo():
-        print("inside mocked showInfo")
+    def mock_getInfo():
+        print("inside mocked getInfo")
+        # return minimum data structure
+        return {'Owner': [None, None]}
 
-    iface.showInfo.side_effect = mock_showInfo
+    iface.getInfo.side_effect = mock_getInfo
     with patch("meshtastic.tcp_interface.TCPInterface", return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"inside mocked showInfo", out, re.MULTILINE)
+        assert re.search(r"inside mocked getInfo", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
@@ -290,10 +294,12 @@ def test_main_no_proto(capsys):
 
     iface = MagicMock(autospec=SerialInterface)
 
-    def mock_showInfo():
-        print("inside mocked showInfo")
+    def mock_getInfo():
+        print("inside mocked getInfo")
+        # return minimum data structure
+        return {'Owner': [None, None]}
 
-    iface.showInfo.side_effect = mock_showInfo
+    iface.getInfo.side_effect = mock_getInfo
 
     # Override the time.sleep so there is no loop
     def my_sleep(amount):
@@ -308,7 +314,7 @@ def test_main_no_proto(capsys):
             assert pytest_wrapped_e.value.code == 0
             out, err = capsys.readouterr()
             assert re.search(r"Connected to radio", out, re.MULTILINE)
-            assert re.search(r"inside mocked showInfo", out, re.MULTILINE)
+            assert re.search(r"inside mocked getInfo", out, re.MULTILINE)
             assert err == ""
 
 
@@ -321,15 +327,17 @@ def test_main_info_with_seriallog_stdout(capsys):
 
     iface = MagicMock(autospec=SerialInterface)
 
-    def mock_showInfo():
-        print("inside mocked showInfo")
+    def mock_getInfo():
+        print("inside mocked getInfo")
+        # return minimum data structure
+        return {'Owner': [None, None]}
 
-    iface.showInfo.side_effect = mock_showInfo
+    iface.getInfo.side_effect = mock_getInfo
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"inside mocked showInfo", out, re.MULTILINE)
+        assert re.search(r"inside mocked getInfo", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
@@ -343,15 +351,17 @@ def test_main_info_with_seriallog_output_txt(capsys):
 
     iface = MagicMock(autospec=SerialInterface)
 
-    def mock_showInfo():
-        print("inside mocked showInfo")
+    def mock_getInfo():
+        print("inside mocked getInfo")
+        # return minimum data structure
+        return {'Owner': [None, None]}
 
-    iface.showInfo.side_effect = mock_showInfo
+    iface.getInfo.side_effect = mock_getInfo
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"inside mocked showInfo", out, re.MULTILINE)
+        assert re.search(r"inside mocked getInfo", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
     # do some cleanup
@@ -408,8 +418,8 @@ def test_main_nodes(capsys):
 
     iface = MagicMock(autospec=SerialInterface)
 
-    def mock_showNodes(includeSelf, showFields):
-        print(f"inside mocked showNodes: {includeSelf} {showFields}")
+    def mock_showNodes(includeSelf, showFields, printFmt):
+        print(f"inside mocked showNodes: {includeSelf} {showFields} {printFmt}")
 
     iface.showNodes.side_effect = mock_showNodes
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:

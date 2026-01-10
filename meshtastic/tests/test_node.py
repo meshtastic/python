@@ -31,14 +31,12 @@ def test_node(capsys):
         anode.localConfig = lc
         lc.lora.CopyFrom(config_pb2.Config.LoRaConfig())
         anode.moduleConfig = localonly_pb2.LocalModuleConfig()
-        anode.showInfo()
-        out, err = capsys.readouterr()
-        assert re.search(r'Preferences', out)
-        assert re.search(r'Module preferences', out)
-        assert re.search(r'Channels', out)
-        assert re.search(r'Primary channel URL', out)
-        assert not re.search(r'remote node', out)
-        assert err == ''
+        nodeData = anode.getInfo()
+        assert 'Preferences' in nodeData.keys()
+        assert 'ModulePreferences' in nodeData.keys()
+        assert 'Channels' in nodeData.keys()
+        assert 'publicURL' in nodeData.keys()
+        assert 'adminURL' in nodeData.keys()
 
 # TODO
 # @pytest.mark.unit
