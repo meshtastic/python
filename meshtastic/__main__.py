@@ -85,12 +85,18 @@ def onReceive(packet, interface) -> None:
         if d is not None and args and args.reply:
             msg = d.get("text")
             if msg:
-                rxSnr = packet["rxSnr"]
-                hopLimit = packet["hopLimit"]
-                print(f"message: {msg}")
-                reply = f"got msg '{msg}' with rxSnr: {rxSnr} and hopLimit: {hopLimit}"
-                print("Sending reply: ", reply)
-                interface.sendText(reply)
+                rxChannel = packet.get("channel", 0)
+                targetChannel = int(args.ch_index or 0)
+                if rxChannel == targetChannel:
+                    rxSnr = packet["rxSnr"]
+                    hopLimit = packet["hopLimit"]
+                    print(f"message: {msg}")
+                    reply = f"got msg '{msg}' with rxSnr: {rxSnr} and hopLimit: {hopLimit}"
+                    print(f"Received channel {rxChannel}. Sending reply: {reply}")
+                    interface.sendText(reply,channelIndex=rxChannel)
+                else:
+                    print(f"Ignored message on channel {rxChannel} (waiting for channel {targetChannel})")
+                    
 
     except Exception as ex:
         print(f"Warning: Error processing received packet: {ex}.")
