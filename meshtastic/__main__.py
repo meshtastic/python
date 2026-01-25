@@ -1474,6 +1474,23 @@ def common():
                     message += "  Please close any applications or webpages that may be using the device and try again.\n"
                     message += f"\nOriginal error: {ex}"
                     meshtastic.util.our_exit(message)
+                except MeshInterface.MeshInterfaceError as ex:
+                    msg = str(ex)
+                    if "Timed out" in msg:
+                        meshtastic.util.our_exit(
+                            "Connection timed out.\n\n"
+                            "Possible causes:\n"
+                            "  - Device is rebooting\n"
+                            "  - Device firmware is updating\n"
+                            "  - Serial connection was interrupted\n\n"
+                            "Try:\n"
+                            "  - Wait a few seconds and try again\n"
+                            "  - Check if device is fully booted (LED patterns)\n"
+                            "  - Reconnect the USB cable",
+                            1,
+                        )
+                    else:
+                        meshtastic.util.our_exit(f"Connection error: {ex}", 1)
                 if client.devPath is None:
                     try:
                         client = meshtastic.tcp_interface.TCPInterface(
