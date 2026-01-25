@@ -1365,13 +1365,60 @@ def common():
                     print(f"Found: name='{x.name}' address='{x.address}'")
                 meshtastic.util.our_exit("BLE scan finished", 0)
             elif args.ble:
-                client = BLEInterface(
-                    args.ble if args.ble != "any" else None,
-                    debugOut=logfile,
-                    noProto=args.noproto,
-                    noNodes=args.no_nodes,
-                    timeout=args.timeout,
-                )
+                try:
+                    client = BLEInterface(
+                        args.ble if args.ble != "any" else None,
+                        debugOut=logfile,
+                        noProto=args.noproto,
+                        noNodes=args.no_nodes,
+                        timeout=args.timeout,
+                    )
+                except BLEInterface.BLEError as e:
+                    msg = str(e)
+                    if "No Meshtastic BLE peripheral" in msg:
+                        meshtastic.util.our_exit(
+                            "BLE device not found.\n\n"
+                            "Possible causes:\n"
+                            "  - Bluetooth is disabled on the Meshtastic device\n"
+                            "  - Device is in deep sleep mode\n"
+                            "  - Device is out of range\n\n"
+                            "Try:\n"
+                            "  - Press the reset button on your device\n"
+                            "  - Run 'meshtastic --ble-scan' to see available devices",
+                            1,
+                        )
+                    elif "More than one" in msg:
+                        meshtastic.util.our_exit(
+                            "Multiple Meshtastic BLE devices found.\n\n"
+                            "Please specify which device to connect to:\n"
+                            "  - Run 'meshtastic --ble-scan' to list devices\n"
+                            "  - Use 'meshtastic --ble <name_or_address>' to connect",
+                            1,
+                        )
+                    elif "Error writing BLE" in msg:
+                        meshtastic.util.our_exit(
+                            "Failed to write to BLE device.\n\n"
+                            "Possible causes:\n"
+                            "  - Device requires pairing PIN (check device screen)\n"
+                            "  - On Linux: user not in 'bluetooth' group\n"
+                            "  - Connection was interrupted\n\n"
+                            "Try:\n"
+                            "  - Restart Bluetooth on your computer\n"
+                            "  - Reset the Meshtastic device",
+                            1,
+                        )
+                    elif "Error reading BLE" in msg:
+                        meshtastic.util.our_exit(
+                            "Failed to read from BLE device.\n\n"
+                            "The device may have disconnected unexpectedly.\n\n"
+                            "Try:\n"
+                            "  - Move closer to the device\n"
+                            "  - Reset the Meshtastic device\n"
+                            "  - Restart Bluetooth on your computer",
+                            1,
+                        )
+                    else:
+                        meshtastic.util.our_exit(f"BLE error: {e}", 1)
             elif args.host:
                 try:
                     if ":" in args.host:
