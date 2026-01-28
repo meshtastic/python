@@ -654,7 +654,7 @@ class Node:
         return self._sendAdmin(p, onResponse=onResponse)
 
     def rebootOTA(self, secs: int = 10):
-        """Tell the node to reboot into factory firmware."""
+        """Tell the node to reboot into factory firmware (firmware < 2.7.18)."""
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.reboot_ota_seconds = secs
@@ -666,6 +666,22 @@ class Node:
         else:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
+
+    def startOTA(
+        self,
+        mode: admin_pb2.OTAMode.ValueType,
+        hash: bytes,
+    ):
+        """Tell the node to start OTA mode (firmware >= 2.7.18)."""
+        if self != self.iface.localNode:
+            raise Exception("startOTA only possible in local node")
+
+        self.ensureSessionKey()
+        p = admin_pb2.AdminMessage()
+        p.ota_request.reboot_ota_mode=mode
+        p.ota_request.ota_hash=hash
+
+        return self._sendAdmin(p)
 
     def enterDFUMode(self):
         """Tell the node to enter DFU mode (NRF52)."""
