@@ -1550,6 +1550,41 @@ def test_setOwner_valid_names(caplog):
     assert re.search(r'p.set_owner.short_name:VN:', caplog.text, re.MULTILINE)
 
 
+@pytest.mark.unit
+def test_start_ota_local_node():
+    """Test startOTA on local node"""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 1234567890, noProto=True)
+    # Set up as local node
+    iface.localNode = anode
+
+    amesg = admin_pb2.AdminMessage()
+    with patch("meshtastic.admin_pb2.AdminMessage", return_value=amesg):
+        with patch.object(anode, "_sendAdmin") as mock_send_admin:
+            test_hash = b"\x01\x02\x03" * 8  # 24 bytes hash
+            anode.startOTA(ota_mode=admin_pb2.OTAMode.OTA_WIFI, ota_file_hash=test_hash)
+
+            # Verify the OTA request was set correctly
+            assert amesg.ota_request.reboot_ota_mode == admin_pb2.OTAMode.OTA_WIFI
+            assert amesg.ota_request.ota_hash == test_hash
+            mock_send_admin.assert_called_once_with(amesg)
+
+
+@pytest.mark.unit
+def test_start_ota_remote_node_raises_error():
+    """Test startOTA on remote node raises ValueError"""
+    iface = MagicMock(autospec=MeshInterface)
+    local_node = Node(iface, 1234567890, noProto=True)
+    remote_node = Node(iface, 9876543210, noProto=True)
+    iface.localNode = local_node
+
+    test_hash = b"\x01\x02\x03" * 8
+    with pytest.raises(ValueError, match="startOTA only possible in local node"):
+        remote_node.startOTA(
+            ota_mode=admin_pb2.OTAMode.OTA_WIFI, ota_file_hash=test_hash
+        )
+
+
 # TODO
 # @pytest.mark.unitslow
 # def test_waitForConfig():
