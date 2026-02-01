@@ -669,17 +669,17 @@ class Node:
 
     def startOTA(
         self,
-        mode: admin_pb2.OTAMode.ValueType,
-        hash: bytes,
+        ota_mode: admin_pb2.OTAMode.ValueType,
+        ota_file_hash: bytes,
     ):
         """Tell the node to start OTA mode (firmware >= 2.7.18)."""
         if self != self.iface.localNode:
-            raise Exception("startOTA only possible in local node")
+            raise ValueError("startOTA only possible in local node")
 
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
-        p.ota_request.reboot_ota_mode=mode
-        p.ota_request.ota_hash=hash
+        p.ota_request.reboot_ota_mode = ota_mode
+        p.ota_request.ota_hash = ota_file_hash
 
         return self._sendAdmin(p)
 

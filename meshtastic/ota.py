@@ -1,4 +1,6 @@
-import os 
+"""Meshtastic ESP32 Unified OTA
+"""
+import os
 import hashlib
 import socket
 import logging
@@ -11,12 +13,17 @@ logger = logging.getLogger(__name__)
 def _file_sha256(filename: str):
     """Calculate SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    
+
     with open(filename, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
 
     return sha256_hash
+
+
+class OTAError(Exception):
+    """Exception for OTA errors."""
+
 
 class ESP32WiFiOTA:
     """ESP32 WiFi Unified OTA updates."""
@@ -28,21 +35,21 @@ class ESP32WiFiOTA:
         self._socket: Optional[socket.socket] = None
 
         if not os.path.exists(self._filename):
-            raise Exception(f"File {self._filename} does not exist")
+            raise FileNotFoundError(f"File {self._filename} does not exist")
 
         self._file_hash = _file_sha256(self._filename)
 
     def _read_line(self) -> str:
         """Read a line from the socket."""
         if not self._socket:
-            raise Exception("Socket not connected")
+            raise ConnectionError("Socket not connected")
 
         line = b""
         while not line.endswith(b"\n"):
             char = self._socket.recv(1)
-            
+
             if not char:
-                raise Exception("Connection closed while waiting for response")
+                raise ConnectionError("Connection closed while waiting for response")
 
             line += char
 
@@ -78,10 +85,11 @@ class ESP32WiFiOTA:
                 response = self._read_line()
                 if response == "OK":
                     break
-                elif response == "ERASING":
+
+                if response == "ERASING":
                     logger.info("Device is erasing flash...")
                 elif response.startswith("ERR "):
-                    raise Exception(f"Device reported error: {response}")
+                    raise OTAError(f"Device reported error: {response}")
                 else:
                     logger.warning(f"Unexpected response: {response}")
 
@@ -105,15 +113,13 @@ class ESP32WiFiOTA:
             logger.info("Firmware sent, waiting for verification...")
             while True:
                 response = self._read_line()
-
                 if response == "OK":
                     logger.info("OTA update completed successfully!")
                     break
-                elif response == "ACK":
-                    continue
-                elif response.startswith("ERR "):
-                    raise Exception(f"OTA update failed: {response}")
-                else:
+
+                if response.startswith("ERR "):
+                    raise OTAError(f"OTA update failed: {response}")
+                elif response != "ACK":
                     logger.warning(f"Unexpected final response: {response}")
 
         finally:
