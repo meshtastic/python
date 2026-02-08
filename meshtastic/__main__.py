@@ -1085,6 +1085,11 @@ def onConnected(interface):
             print(f"Waiting {args.wait_to_disconnect} seconds before disconnecting")
             time.sleep(int(args.wait_to_disconnect))
 
+        if args.sensor_config:
+            closeNow = True
+            waitForAckNak = True
+            interface.getNode(args.dest, False, **getNode_kwargs).sensorConfig(args.sensor_config)
+
         # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
         if (not args.seriallog) and closeNow:
             interface.close()  # after running command then exit
@@ -1981,6 +1986,14 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         default=None,
         const=0,
         metavar="TIMESTAMP",
+    )
+
+    group.add_argument(
+        "--sensor-config",
+        help="Send a sensor admin command to configure sensor parameters.",
+        action="store",
+        nargs=2,
+        default=None
     )
 
     return parser

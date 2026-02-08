@@ -977,6 +977,49 @@ class Node:
                 print(f"Received an ACK.")
                 self.iface._acknowledgment.receivedAck = True
 
+    def sensorConfig(self, command: List = None):
+        """Send a sensor configuration command"""
+        self.ensureSessionKey()
+
+        p = admin_pb2.AdminMessage()
+        if 'scd4x_config' in command[0]:
+            if 'set_asc' in command[0]:
+                if command[1] == "true":
+                    p.sensor_config.scd4x_config.set_asc = True
+                    print ("Setting SCD4X ASC mode")
+                elif command[1] == "false":
+                    p.sensor_config.scd4x_config.set_asc = False
+                    print ("Setting SCD4X FRC mode")
+                else:
+                    print(
+                        f'Not valid argument for sensor_config.scd4x.set_asc'
+                    )
+            elif 'set_temperature' in command[0]:
+                try:
+                    temperature = float(command[1])
+                except ValueError:
+                    print(
+                        f'Invalid value for reference temperature'
+                    )
+                    return
+                else:
+                    print (f"Setting SCD4X Reference temperature to {temperature}")
+                    p.sensor_config.scd4x_config.set_temperature = temperature
+            elif 'factory_reset' in command[0]:
+                print ("Performing factory reset on SCD4X")
+                p.sensor_config.scd4x_config.factory_reset = True
+            # TODO - add the rest?
+
+        elif 'sen5x_config' in command[0]:
+            raise NotImplementedError("Not implemented")
+
+        # How to represent a HANDLED event?
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
     def _requestChannel(self, channelNum: int):
         """Done with initial config messages, now send regular
         MeshPackets to ask for settings"""
