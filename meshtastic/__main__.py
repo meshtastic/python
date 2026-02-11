@@ -1992,7 +1992,7 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         "--sensor-config",
         help="Send a sensor admin command to configure sensor parameters.",
         action="store",
-        nargs=2,
+        nargs='+',
         default=None
     )
 
