@@ -1061,6 +1061,71 @@ class Node:
                         f'Not valid argument for sensor_config.sen5x_config.set_one_shot_mode'
                     )
 
+        if any(['scd30_config' in command for command in commands]):
+            cleanup_commands = [command.replace('scd30_config.', '') for command in commands]
+
+            if 'soft_reset' in cleanup_commands:
+                print ("Performing soft reset on SCD30")
+                p.sensor_config.scd30_config.soft_reset = True
+            else:
+                if 'set_asc' in cleanup_commands:
+                    if cleanup_commands[cleanup_commands.index('set_asc')+1] == "true":
+                        p.sensor_config.scd30_config.set_asc = True
+                        print ("Setting SCD30 ASC mode")
+                    elif cleanup_commands[cleanup_commands.index('set_asc')+1] == "false":
+                        p.sensor_config.scd30_config.set_asc = False
+                        print ("Setting SCD30 FRC mode")
+                    else:
+                        print(
+                            f'Not valid argument for sensor_config.scd30_config.set_asc'
+                        )
+                if 'set_target_co2_conc' in cleanup_commands:
+                    try:
+                        target_co2_conc = int(cleanup_commands[cleanup_commands.index('set_target_co2_conc')+1])
+                    except ValueError:
+                        print(
+                            f'Invalid value for target CO2 conc'
+                        )
+                        return
+                    else:
+                        print (f"Setting SCD30 target CO2 conc to {target_co2_conc}")
+                        p.sensor_config.scd30_config.set_target_co2_conc = target_co2_conc
+                        send_command = True
+                if 'set_temperature' in cleanup_commands:
+                    try:
+                        temperature = float(cleanup_commands[cleanup_commands.index('set_temperature')+1])
+                    except ValueError:
+                        print(
+                            f'Invalid value for reference temperature'
+                        )
+                        return
+                    else:
+                        print (f"Setting SCD30 Reference temperature to {temperature}")
+                        p.sensor_config.scd30_config.set_temperature = temperature
+                        send_command = True
+                if 'set_altitude' in cleanup_commands:
+                    try:
+                        altitude = int(cleanup_commands[cleanup_commands.index('set_altitude')+1])
+                    except ValueError:
+                        print(
+                            f'Invalid value for reference altitude'
+                        )
+                        return
+                    else:
+                        print (f"Setting SCD30 Reference altitude to {altitude}")
+                        p.sensor_config.scd30_config.set_altitude = altitude
+                if 'set_measurement_interval' in cleanup_commands:
+                    try:
+                        measurement_interval = int(cleanup_commands[cleanup_commands.index('set_measurement_interval')+1])
+                    except ValueError:
+                        print(
+                            f'Invalid value for measurement interval'
+                        )
+                        return
+                    else:
+                        print (f"Setting SCD30 measurement interval to {measurement_interval}")
+                        p.sensor_config.scd30_config.set_measurement_interval = measurement_interval
+
         # How to represent a HANDLED event?
         if self == self.iface.localNode:
             onResponse = None
