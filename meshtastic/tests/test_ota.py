@@ -1,10 +1,11 @@
 """Meshtastic unit tests for ota.py"""
 
 import hashlib
+import logging
 import os
 import socket
 import tempfile
-from unittest.mock import MagicMock, mock_open, patch, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -396,8 +397,6 @@ def test_esp32_wifi_ota_update_large_firmware(mock_socket_class):
 @patch("meshtastic.ota.socket.socket")
 def test_esp32_wifi_ota_update_unexpected_response_warning(mock_socket_class, caplog):
     """Test update() logs warning on unexpected response during startup"""
-    import logging
-
     with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
         f.write(b"firmware")
         temp_file = f.name
@@ -429,8 +428,6 @@ def test_esp32_wifi_ota_update_unexpected_response_warning(mock_socket_class, ca
 @patch("meshtastic.ota.socket.socket")
 def test_esp32_wifi_ota_update_unexpected_final_response(mock_socket_class, caplog):
     """Test update() logs warning on unexpected final response after firmware upload"""
-    import logging
-
     with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
         f.write(b"firmware")
         temp_file = f.name
