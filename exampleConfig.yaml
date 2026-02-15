@@ -1,16 +1,46 @@
 # example config using camelCase keys
 owner: Bob TBeam
 ownerShort: BOB
+isUnmessagable: true
 
-channelUrl: https://www.meshtastic.org/d/#CgUYAyIBAQ
+channelUrl: https://www.meshtastic.org/e/#CgQ6AggNEg8IATgBQANIAVAeaAHABgE
+
+cannedMessages: Hi|Bye|Yes|No|Ok
+ringtone: 24:d=32,o=5,b=565:f6,p,f6,4p,p,f6,p,f6,2p,p,b6,p,b6,p,b6,p,b6,p,b,p,b,p,b,p,b,p,b,p,b,p,b,p,b,1p.,2p.,p
 
 location:
   lat: 35.88888
   lon: -93.88888
   alt: 304
-
-userPrefs:
-  region: 1
-  isAlwaysPowered: "true"
-  screenOnSecs: 31536000
-  waitBluetoothSecs: 31536000
+config:
+  bluetooth:
+    enabled: true
+    fixedPin: 123456
+  device:
+    serialEnabled: true
+  display:
+    screenOnSecs: 781
+  lora:
+    region: US
+    hopLimit: 3
+    txEnabled: true
+    txPower: 30
+  network:
+    ntpServer: 0.pool.ntp.org
+  position:
+    gpsAttemptTime: 900
+    gpsEnabled: true
+    gpsUpdateInterval: 120
+    positionBroadcastSecs: 900
+    positionBroadcastSmartEnabled: true
+    positionFlags: 3
+  power:
+    lsSecs: 300
+    meshSdsTimeoutSecs: 7200
+    minWakeSecs: 10
+    sdsSecs: 4294967295
+    waitBluetoothSecs: 344
+moduleConfig:
+  telemetry:
+    deviceUpdateInterval: 900
+    environmentUpdateInterval: 900

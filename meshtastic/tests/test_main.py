@@ -18,10 +18,11 @@ from meshtastic.__main__ import (
     onNode,
     onReceive,
     tunnelMain,
-    set_missing_flags_false,
+    setMissingFlagsFalse,
 )
 from meshtastic import mt_config
-
+from meshtastic.tests.test_node import initChannels
+from ..protobuf import localonly_pb2, config_pb2
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 
 # from ..ble_interface import BLEInterface
@@ -408,8 +409,8 @@ def test_main_nodes(capsys):
 
     iface = MagicMock(autospec=SerialInterface)
 
-    def mock_showNodes(includeSelf, showFields):
-        print(f"inside mocked showNodes: {includeSelf} {showFields}")
+    def mock_showNodes(includeSelf, showFields, printFmt):
+        print(f"inside mocked showNodes: {includeSelf} {showFields} {printFmt}")
 
     iface.showNodes.side_effect = mock_showNodes
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
@@ -1076,6 +1077,14 @@ def test_main_set_with_invalid(mocked_findports, mocked_serial, mocked_open, moc
         assert err == ""
         mo.assert_called()
 
+def mockNode(ifce: SerialInterface) -> Node:
+    n = Node(ifce, 1234567890, noProto=True)
+    lc = localonly_pb2.LocalConfig()
+    n.localConfig = lc
+    lc.lora.CopyFrom(config_pb2.Config.LoRaConfig())
+    n.moduleConfig = localonly_pb2.LocalModuleConfig()
+    n.channels = initChannels()
+    return n
 
 # TODO: write some negative --configure tests
 @pytest.mark.unit
@@ -1088,24 +1097,21 @@ def test_main_configure_with_snake_case(mocked_findports, mocked_serial, mocked_
     """Test --configure with valid file"""
     sys.argv = ["", "--configure", "example_config.yaml"]
     mt_config.args = sys.argv
-
     serialInterface = SerialInterface(noProto=True)
-    anode = Node(serialInterface, 1234567890, noProto=True)
-    serialInterface.localNode = anode
+    serialInterface.localNode = mockNode(serialInterface)
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=serialInterface) as mo:
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        # should these come back? maybe a flag?
-        #assert re.search(r"Setting device owner", out, re.MULTILINE)
-        #assert re.search(r"Setting device owner short", out, re.MULTILINE)
-        #assert re.search(r"Setting channel url", out, re.MULTILINE)
-        #assert re.search(r"Fixing altitude", out, re.MULTILINE)
-        #assert re.search(r"Fixing latitude", out, re.MULTILINE)
-        #assert re.search(r"Fixing longitude", out, re.MULTILINE)
-        #assert re.search(r"Set location_share to LocEnabled", out, re.MULTILINE)
-        assert re.search(r"Writing modified configuration to device", out, re.MULTILINE)
+        assert re.search(r"Telling open a transaction to edit settings", out, re.MULTILINE)
+        assert re.search(r"Setting owner properties: Bob TBeam - BOB - True", out, re.MULTILINE)
+        assert re.search(r"Setting channel url to https://www.meshtastic.org/e/#CgQ6AggNEg8IATgBQANIAVAeaAHABgE", out, re.MULTILINE)
+        assert re.search(r"Setting fixed device position to lat 35.88888 lon -93.88888 alt 304", out, re.MULTILINE)
+        assert re.search(r"Set lora.region to US", out, re.MULTILINE)
+        assert re.search(r"Set position.position_flags to 3", out, re.MULTILINE)
+        assert re.search(r"Set telemetry.environment_update_interval to 900", out, re.MULTILINE)
+        assert re.search(r"Committing modified configuration to device", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
@@ -1122,21 +1128,20 @@ def test_main_configure_with_camel_case_keys(mocked_findports, mocked_serial, mo
     mt_config.args = sys.argv
 
     serialInterface = SerialInterface(noProto=True)
-    anode = Node(serialInterface, 1234567890, noProto=True)
-    serialInterface.localNode = anode
+    serialInterface.localNode = mockNode(serialInterface)
 
     with patch("meshtastic.serial_interface.SerialInterface", return_value=serialInterface) as mo:
         main()
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        # should these come back? maybe a flag?
-        #assert re.search(r"Setting device owner", out, re.MULTILINE)
-        #assert re.search(r"Setting device owner short", out, re.MULTILINE)
-        #assert re.search(r"Setting channel url", out, re.MULTILINE)
-        #assert re.search(r"Fixing altitude", out, re.MULTILINE)
-        #assert re.search(r"Fixing latitude", out, re.MULTILINE)
-        #assert re.search(r"Fixing longitude", out, re.MULTILINE)
-        assert re.search(r"Writing modified configuration to device", out, re.MULTILINE)
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"Telling open a transaction to edit settings", out, re.MULTILINE)
+        assert re.search(r"Setting owner properties: Bob TBeam - BOB - None", out, re.MULTILINE)
+        assert re.search(r"Setting channel url to https://www.meshtastic.org/e/#CgQ6AggNEg8IATgBQANIAVAeaAHABgE", out, re.MULTILINE)
+        assert re.search(r"Setting fixed device position to lat 35.88888 lon -93.88888 alt 304", out, re.MULTILINE)
+        assert re.search(r"Set lora.region to US", out, re.MULTILINE)
+        assert re.search(r"Set position.position_flags to 3", out, re.MULTILINE)
+        assert re.search(r"Committing modified configuration to device", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
@@ -1784,23 +1789,17 @@ def test_main_export_config(capsys):
     with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
         mo.getLongName.return_value = "foo"
         mo.getShortName.return_value = "oof"
+        mo.getIsUnmessagable.return_value = True
         mo.localNode.getURL.return_value = "bar"
         mo.getCannedMessage.return_value = "foo|bar"
         mo.getRingtone.return_value = "24:d=32,o=5"
-        mo.getMyNodeInfo().get.return_value = {
-            "latitudeI": 1100000000,
-            "longitudeI": 1200000000,
-            "altitude": 100,
-            "batteryLevel": 34,
-            "latitude": 110.0,
-            "longitude": 120.0,
+        mo.getMyNodeInfo.return_value = {
+            "user": {"hwModel": "HELTEC_V3", "longName": "foo", "shortName": "oof"},
+            "position": {"altitude": 100, "latitude": 110.0, "longitude": 120.0},
+            "deviceMetrics": {"airUtilTx": 0.06, "batteryLevel": 101},
+            "localStats": {"heapFreeBytes": 132796},
         }
-        mo.localNode.radioConfig.preferences = """phone_timeout_secs: 900
-ls_secs: 300
-position_broadcast_smart: true
-fixed_position: true
-position_flags: 35"""
-        export_config(mo)
+        # export_config(mo)
     out = export_config(mo)
     err = ""
 
@@ -1911,7 +1910,7 @@ def test_set_missing_flags_false():
         ("mqtt", "encryptionEnabled"),
     }
 
-    set_missing_flags_false(config, false_defaults)
+    setMissingFlagsFalse(config, false_defaults)
 
     # Preserved
     assert config["bluetooth"]["enabled"] is True
