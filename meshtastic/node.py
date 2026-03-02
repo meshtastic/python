@@ -244,6 +244,8 @@ class Node:
             p.set_module_config.ambient_lighting.CopyFrom(self.moduleConfig.ambient_lighting)
         elif config_name == "paxcounter":
             p.set_module_config.paxcounter.CopyFrom(self.moduleConfig.paxcounter)
+        elif config_name == "traffic_management":
+            p.set_module_config.traffic_management.CopyFrom(self.moduleConfig.traffic_management)
         else:
             our_exit(f"Error: No valid config with name {config_name}")
 
