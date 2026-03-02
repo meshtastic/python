@@ -1,4 +1,5 @@
 """Meshtastic unit tests for node.py"""
+# pylint: disable=C0302
 
 import logging
 import re
