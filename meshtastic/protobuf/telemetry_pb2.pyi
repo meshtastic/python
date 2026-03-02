@@ -219,10 +219,6 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     Sensirion STC31 CO2 sensor
     """
-    SCD30: _TelemetrySensorType.ValueType  # 49
-    """
-    SCD30 CO2, humidity, temperature sensor
-    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -424,10 +420,6 @@ STH21 Temperature and R. Humidity sensor
 STC31: TelemetrySensorType.ValueType  # 48
 """
 Sensirion STC31 CO2 sensor
-"""
-SCD30: TelemetrySensorType.ValueType  # 49
-"""
-SCD30 CO2, humidity, temperature sensor
 """
 global___TelemetrySensorType = TelemetrySensorType
 
