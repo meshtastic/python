@@ -1132,7 +1132,9 @@ def subscribe() -> None:
     # pub.subscribe(onNode, "meshtastic.node")
 
 def _is_repeated_field(field_desc) -> bool:
-    """Return True if the protobuf field is repeated. Protobuf 6.31.0 and later use an is_repeated property, while older versions compare against the label field."""
+    """Return True if the protobuf field is repeated. 
+       Protobuf 6.31.0 and later use an is_repeated property, while older versions compare against the label field.
+       """
     if hasattr(field_desc, "is_repeated"):
         return bool(field_desc.is_repeated)
     return field_desc.label == field_desc.LABEL_REPEATED
