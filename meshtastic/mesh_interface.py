@@ -448,7 +448,7 @@ class MeshInterface:  # pylint: disable=R0902
             onResponse=onResponse,
             channelIndex=channelIndex,
             replyId=replyId,
-            hopLimit=hopLimit
+            hopLimit=hopLimit,
         )
 
 
@@ -485,7 +485,7 @@ class MeshInterface:  # pylint: disable=R0902
             onResponse=onResponse,
             channelIndex=channelIndex,
             priority=mesh_pb2.MeshPacket.Priority.ALERT,
-            hopLimit=hopLimit
+            hopLimit=hopLimit,
         )
 
     def sendMqttClientProxyMessage(self, topic: str, data: bytes):
@@ -731,7 +731,7 @@ class MeshInterface:  # pylint: disable=R0902
         wantResponse: bool = False,
         channelIndex: int = 0,
         telemetryType: str = "device_metrics",
-        hopLimit: Optional[int]=None
+        hopLimit: Optional[int]=None,
     ):
         """Send telemetry and optionally ask for a response"""
         r = telemetry_pb2.Telemetry()
