@@ -805,7 +805,7 @@ def test_writeConfig_traffic_management():
 
     sent_admin = []
 
-    def capture_send(p, *args, **kwargs):
+    def capture_send(p, *args, **kwargs): # pylint: disable=W0613
         sent_admin.append(p)
 
     with patch.object(anode, "_sendAdmin", side_effect=capture_send):
