@@ -433,7 +433,7 @@ class MeshInterface:  # pylint: disable=R0902
             portNum -- the application portnum (similar to IP port numbers)
                        of the destination, see portnums.proto for a list
             replyId -- the ID of the message that this packet is a response to
-            hopLimit -- hop limit to use
+            hopLimit {int} -- hop limit to use
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -466,11 +466,11 @@ class MeshInterface:  # pylint: disable=R0902
 
         Arguments:
             text {string} -- The text of the alert to send
-            hopLimit -- hop limit to use
 
         Keyword Arguments:
             destinationId {nodeId or nodeNum} -- where to send this
                                                  message (default: {BROADCAST_ADDR})
+            hopLimit {int} -- hop limit to use
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
