@@ -106,7 +106,7 @@ class MeshInterface:  # pylint: disable=R0902
         self.isConnected: threading.Event = threading.Event()
         self.noProto: bool = noProto
         self.localNode: meshtastic.node.Node = meshtastic.node.Node(
-            self, -1, timeout=timeout
+            self, -1, timeout=timeout, noProto=self.noProto
         )  # We fixup nodenum later
         self.myInfo: Optional[
             mesh_pb2.MyNodeInfo
