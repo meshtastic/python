@@ -37,6 +37,7 @@ try:
 except ImportError as e:
     have_test = False
 
+import meshtastic.ota
 import meshtastic.util
 import meshtastic.serial_interface
 import meshtastic.tcp_interface
@@ -60,7 +61,7 @@ except ImportError as e:
     have_powermon = False
     powermon_exception = e
     meter = None
-from meshtastic.protobuf import channel_pb2, config_pb2, portnums_pb2, mesh_pb2
+from meshtastic.protobuf import admin_pb2, channel_pb2, config_pb2, portnums_pb2, mesh_pb2
 from meshtastic.version import get_active_version
 
 logger = logging.getLogger(__name__)
@@ -158,11 +159,11 @@ def getPref(node, comp_name) -> bool:
         config_values = getattr(config, config_type.name)
         if not wholeField:
             pref_value = getattr(config_values, pref.name)
-            repeated = pref.label == pref.LABEL_REPEATED
+            repeated = _is_repeated_field(pref)
             _printSetting(config_type, uni_name, pref_value, repeated)
         else:
             for field in config_values.ListFields():
-                repeated = field[0].label == field[0].LABEL_REPEATED
+                repeated = _is_repeated_field(field[0])
                 _printSetting(config_type, field[0].name, field[1], repeated)
     else:
         # Always show whole field for remote node
@@ -253,7 +254,7 @@ def setPref(config, comp_name, raw_val) -> bool:
             return False
 
     # repeating fields need to be handled with append, not setattr
-    if pref.label != pref.LABEL_REPEATED:
+    if not _is_repeated_field(pref):
         try:
             if config_type.message_type is not None:
                 config_values = getattr(config_part, config_type.name)
@@ -451,6 +452,41 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
             interface.getNode(args.dest, False, **getNode_kwargs).rebootOTA()
+
+        if args.ota_update:
+            closeNow = True
+            waitForAckNak = True
+
+            if not isinstance(interface, meshtastic.tcp_interface.TCPInterface):
+                meshtastic.util.our_exit(
+                    "Error: OTA update currently requires a TCP connection to the node (use --host)."
+                )
+
+            ota = meshtastic.ota.ESP32WiFiOTA(args.ota_update, interface.hostname)
+
+            print(f"Triggering OTA update on {interface.hostname}...")
+            interface.getNode(args.dest, False, **getNode_kwargs).startOTA(
+                ota_mode=admin_pb2.OTAMode.OTA_WIFI,
+                ota_file_hash=ota.hash_bytes()
+            )
+
+            print("Waiting for device to reboot into OTA mode...")
+            time.sleep(5)
+
+            retries = 5
+            while retries > 0:
+                try:
+                    ota.update()
+                    break
+
+                except Exception as e:
+                    retries -= 1
+                    if retries == 0:
+                        meshtastic.util.our_exit(f"\nOTA update failed: {e}")
+
+                    time.sleep(2)
+
+            print("\nOTA update completed successfully!")
 
         if args.enter_dfu:
             closeNow = True
@@ -1130,6 +1166,14 @@ def subscribe() -> None:
     # pub.subscribe(onConnected, "meshtastic.connection.established")
 
     # pub.subscribe(onNode, "meshtastic.node")
+
+def _is_repeated_field(field_desc) -> bool:
+    """Return True if the protobuf field is repeated. 
+       Protobuf 6.31.0 and later use an is_repeated property, while older versions compare against the label field.
+       """
+    if hasattr(field_desc, "is_repeated"):
+        return bool(field_desc.is_repeated)
+    return field_desc.label == field_desc.LABEL_REPEATED
 
 def set_missing_flags_false(config_dict: dict, true_defaults: set[tuple[str, str]]) -> None:
     """Ensure that missing default=True keys are present in the config_dict and set to False."""
@@ -1904,8 +1948,16 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
 
     group.add_argument(
         "--reboot-ota",
-        help="Tell the destination node to reboot into factory firmware (ESP32)",
+        help="Tell the destination node to reboot into factory firmware (ESP32, firmware version <2.7.18)",
         action="store_true",
+    )
+
+    group.add_argument(
+        "--ota-update",
+        help="Perform an OTA update on the local node (ESP32, firmware version >=2.7.18, WiFi/TCP only for now). "
+        "Specify the path to the firmware file.",
+        metavar="FIRMWARE_FILE",
+        action="store",
     )
 
     group.add_argument(

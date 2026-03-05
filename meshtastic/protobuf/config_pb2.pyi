@@ -1164,6 +1164,7 @@ class Config(google.protobuf.message.Message):
         COMPASS_ORIENTATION_FIELD_NUMBER: builtins.int
         USE_12H_CLOCK_FIELD_NUMBER: builtins.int
         USE_LONG_NODE_NAME_FIELD_NUMBER: builtins.int
+        ENABLE_MESSAGE_BUBBLES_FIELD_NUMBER: builtins.int
         screen_on_secs: builtins.int
         """
         Number of seconds the screen stays on after pressing the user button or receiving a message
@@ -1222,6 +1223,10 @@ class Config(google.protobuf.message.Message):
         If false (default), the device will use short names for various display screens.
         If true, node names will show in long format
         """
+        enable_message_bubbles: builtins.bool
+        """
+        If true, the device will display message bubbles on screen.
+        """
         def __init__(
             self,
             *,
@@ -1238,8 +1243,9 @@ class Config(google.protobuf.message.Message):
             compass_orientation: global___Config.DisplayConfig.CompassOrientation.ValueType = ...,
             use_12h_clock: builtins.bool = ...,
             use_long_node_name: builtins.bool = ...,
+            enable_message_bubbles: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["auto_screen_carousel_secs", b"auto_screen_carousel_secs", "compass_north_top", b"compass_north_top", "compass_orientation", b"compass_orientation", "displaymode", b"displaymode", "flip_screen", b"flip_screen", "gps_format", b"gps_format", "heading_bold", b"heading_bold", "oled", b"oled", "screen_on_secs", b"screen_on_secs", "units", b"units", "use_12h_clock", b"use_12h_clock", "use_long_node_name", b"use_long_node_name", "wake_on_tap_or_motion", b"wake_on_tap_or_motion"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["auto_screen_carousel_secs", b"auto_screen_carousel_secs", "compass_north_top", b"compass_north_top", "compass_orientation", b"compass_orientation", "displaymode", b"displaymode", "enable_message_bubbles", b"enable_message_bubbles", "flip_screen", b"flip_screen", "gps_format", b"gps_format", "heading_bold", b"heading_bold", "oled", b"oled", "screen_on_secs", b"screen_on_secs", "units", b"units", "use_12h_clock", b"use_12h_clock", "use_long_node_name", b"use_long_node_name", "wake_on_tap_or_motion", b"wake_on_tap_or_motion"]) -> None: ...
 
     @typing.final
     class LoRaConfig(google.protobuf.message.Message):

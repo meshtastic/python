@@ -207,6 +207,18 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     BH1750 light sensor
     """
+    HDC1080: _TelemetrySensorType.ValueType  # 46
+    """
+    HDC1080 Temperature and Humidity Sensor
+    """
+    SHT21: _TelemetrySensorType.ValueType  # 47
+    """
+    STH21 Temperature and R. Humidity sensor
+    """
+    STC31: _TelemetrySensorType.ValueType  # 48
+    """
+    Sensirion STC31 CO2 sensor
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -396,6 +408,18 @@ TSL2561 light sensor
 BH1750: TelemetrySensorType.ValueType  # 45
 """
 BH1750 light sensor
+"""
+HDC1080: TelemetrySensorType.ValueType  # 46
+"""
+HDC1080 Temperature and Humidity Sensor
+"""
+SHT21: TelemetrySensorType.ValueType  # 47
+"""
+STH21 Temperature and R. Humidity sensor
+"""
+STC31: TelemetrySensorType.ValueType  # 48
+"""
+Sensirion STC31 CO2 sensor
 """
 global___TelemetrySensorType = TelemetrySensorType
 
@@ -1122,6 +1146,64 @@ class LocalStats(google.protobuf.message.Message):
 global___LocalStats = LocalStats
 
 @typing.final
+class TrafficManagementStats(google.protobuf.message.Message):
+    """
+    Traffic management statistics for mesh network optimization
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PACKETS_INSPECTED_FIELD_NUMBER: builtins.int
+    POSITION_DEDUP_DROPS_FIELD_NUMBER: builtins.int
+    NODEINFO_CACHE_HITS_FIELD_NUMBER: builtins.int
+    RATE_LIMIT_DROPS_FIELD_NUMBER: builtins.int
+    UNKNOWN_PACKET_DROPS_FIELD_NUMBER: builtins.int
+    HOP_EXHAUSTED_PACKETS_FIELD_NUMBER: builtins.int
+    ROUTER_HOPS_PRESERVED_FIELD_NUMBER: builtins.int
+    packets_inspected: builtins.int
+    """
+    Total number of packets inspected by traffic management
+    """
+    position_dedup_drops: builtins.int
+    """
+    Number of position packets dropped due to deduplication
+    """
+    nodeinfo_cache_hits: builtins.int
+    """
+    Number of NodeInfo requests answered from cache
+    """
+    rate_limit_drops: builtins.int
+    """
+    Number of packets dropped due to rate limiting
+    """
+    unknown_packet_drops: builtins.int
+    """
+    Number of unknown/undecryptable packets dropped
+    """
+    hop_exhausted_packets: builtins.int
+    """
+    Number of packets with hop_limit exhausted for local-only broadcast
+    """
+    router_hops_preserved: builtins.int
+    """
+    Number of times router hop preservation was applied
+    """
+    def __init__(
+        self,
+        *,
+        packets_inspected: builtins.int = ...,
+        position_dedup_drops: builtins.int = ...,
+        nodeinfo_cache_hits: builtins.int = ...,
+        rate_limit_drops: builtins.int = ...,
+        unknown_packet_drops: builtins.int = ...,
+        hop_exhausted_packets: builtins.int = ...,
+        router_hops_preserved: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["hop_exhausted_packets", b"hop_exhausted_packets", "nodeinfo_cache_hits", b"nodeinfo_cache_hits", "packets_inspected", b"packets_inspected", "position_dedup_drops", b"position_dedup_drops", "rate_limit_drops", b"rate_limit_drops", "router_hops_preserved", b"router_hops_preserved", "unknown_packet_drops", b"unknown_packet_drops"]) -> None: ...
+
+global___TrafficManagementStats = TrafficManagementStats
+
+@typing.final
 class HealthMetrics(google.protobuf.message.Message):
     """
     Health telemetry metrics
@@ -1256,6 +1338,7 @@ class Telemetry(google.protobuf.message.Message):
     LOCAL_STATS_FIELD_NUMBER: builtins.int
     HEALTH_METRICS_FIELD_NUMBER: builtins.int
     HOST_METRICS_FIELD_NUMBER: builtins.int
+    TRAFFIC_MANAGEMENT_STATS_FIELD_NUMBER: builtins.int
     time: builtins.int
     """
     Seconds since 1970 - or 0 for unknown/unset
@@ -1302,6 +1385,12 @@ class Telemetry(google.protobuf.message.Message):
         Linux host metrics
         """
 
+    @property
+    def traffic_management_stats(self) -> global___TrafficManagementStats:
+        """
+        Traffic management statistics
+        """
+
     def __init__(
         self,
         *,
@@ -1313,10 +1402,11 @@ class Telemetry(google.protobuf.message.Message):
         local_stats: global___LocalStats | None = ...,
         health_metrics: global___HealthMetrics | None = ...,
         host_metrics: global___HostMetrics | None = ...,
+        traffic_management_stats: global___TrafficManagementStats | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "variant", b"variant"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "time", b"time", "variant", b"variant"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["variant", b"variant"]) -> typing.Literal["device_metrics", "environment_metrics", "air_quality_metrics", "power_metrics", "local_stats", "health_metrics", "host_metrics"] | None: ...
+    def HasField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "traffic_management_stats", b"traffic_management_stats", "variant", b"variant"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "time", b"time", "traffic_management_stats", b"traffic_management_stats", "variant", b"variant"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["variant", b"variant"]) -> typing.Literal["device_metrics", "environment_metrics", "air_quality_metrics", "power_metrics", "local_stats", "health_metrics", "host_metrics", "traffic_management_stats"] | None: ...
 
 global___Telemetry = Telemetry
 
@@ -1347,3 +1437,62 @@ class Nau7802Config(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["calibrationFactor", b"calibrationFactor", "zeroOffset", b"zeroOffset"]) -> None: ...
 
 global___Nau7802Config = Nau7802Config
+
+@typing.final
+class SEN5XState(google.protobuf.message.Message):
+    """
+    SEN5X State, for saving to flash
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    LAST_CLEANING_TIME_FIELD_NUMBER: builtins.int
+    LAST_CLEANING_VALID_FIELD_NUMBER: builtins.int
+    ONE_SHOT_MODE_FIELD_NUMBER: builtins.int
+    VOC_STATE_TIME_FIELD_NUMBER: builtins.int
+    VOC_STATE_VALID_FIELD_NUMBER: builtins.int
+    VOC_STATE_ARRAY_FIELD_NUMBER: builtins.int
+    last_cleaning_time: builtins.int
+    """
+    Last cleaning time for SEN5X
+    """
+    last_cleaning_valid: builtins.bool
+    """
+    Last cleaning time for SEN5X - valid flag
+    """
+    one_shot_mode: builtins.bool
+    """
+    Config flag for one-shot mode (see admin.proto)
+    """
+    voc_state_time: builtins.int
+    """
+    Last VOC state time for SEN55
+    """
+    voc_state_valid: builtins.bool
+    """
+    Last VOC state validity flag for SEN55
+    """
+    voc_state_array: builtins.int
+    """
+    VOC state array (8x uint8t) for SEN55
+    """
+    def __init__(
+        self,
+        *,
+        last_cleaning_time: builtins.int = ...,
+        last_cleaning_valid: builtins.bool = ...,
+        one_shot_mode: builtins.bool = ...,
+        voc_state_time: builtins.int | None = ...,
+        voc_state_valid: builtins.bool | None = ...,
+        voc_state_array: builtins.int | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_voc_state_array", b"_voc_state_array", "_voc_state_time", b"_voc_state_time", "_voc_state_valid", b"_voc_state_valid", "voc_state_array", b"voc_state_array", "voc_state_time", b"voc_state_time", "voc_state_valid", b"voc_state_valid"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_voc_state_array", b"_voc_state_array", "_voc_state_time", b"_voc_state_time", "_voc_state_valid", b"_voc_state_valid", "last_cleaning_time", b"last_cleaning_time", "last_cleaning_valid", b"last_cleaning_valid", "one_shot_mode", b"one_shot_mode", "voc_state_array", b"voc_state_array", "voc_state_time", b"voc_state_time", "voc_state_valid", b"voc_state_valid"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_voc_state_array", b"_voc_state_array"]) -> typing.Literal["voc_state_array"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_voc_state_time", b"_voc_state_time"]) -> typing.Literal["voc_state_time"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_voc_state_valid", b"_voc_state_valid"]) -> typing.Literal["voc_state_valid"] | None: ...
+
+global___SEN5XState = SEN5XState
