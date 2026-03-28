@@ -6,6 +6,7 @@ import os
 import platform
 import re
 import sys
+import tempfile
 from unittest.mock import mock_open, MagicMock, patch
 
 import pytest
@@ -2900,3 +2901,68 @@ def test_main_set_ham_empty_string(capsys):
     out, _ = capsys.readouterr()
     assert "ERROR: Ham radio callsign cannot be empty or contain only whitespace characters" in out
     assert excinfo.value.code == 1
+
+
+# OTA-related tests
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_ota_update_file_not_found(capsys):
+    """Test --ota-update with non-existent file"""
+    sys.argv = [
+        "",
+        "--ota-update",
+        "/nonexistent/firmware.bin",
+        "--host",
+        "192.168.1.100",
+    ]
+    mt_config.args = sys.argv
+
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        main()
+
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+@patch("meshtastic.ota.ESP32WiFiOTA")
+@patch("meshtastic.__main__.meshtastic.util.our_exit")
+def test_main_ota_update_retries(mock_our_exit, mock_ota_class, capsys):
+    """Test --ota-update retries on failure"""
+    # Create a temporary firmware file
+    with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
+        f.write(b"fake firmware data")
+        firmware_file = f.name
+
+    try:
+        sys.argv = ["", "--ota-update", firmware_file, "--host", "192.168.1.100"]
+        mt_config.args = sys.argv
+
+        # Mock the OTA class to fail all 5 retries
+        mock_ota = MagicMock()
+        mock_ota_class.return_value = mock_ota
+        mock_ota.hash_bytes.return_value = b"\x00" * 32
+        mock_ota.hash_hex.return_value = "a" * 64
+        mock_ota.update.side_effect = Exception("Connection failed")
+
+        # Mock isinstance to return True
+        with patch("meshtastic.__main__.isinstance", return_value=True):
+            with patch("meshtastic.tcp_interface.TCPInterface") as mock_tcp:
+                mock_iface = MagicMock()
+                mock_iface.hostname = "192.168.1.100"
+                mock_iface.localNode = MagicMock(autospec=Node)
+                mock_tcp.return_value = mock_iface
+
+                with patch("time.sleep"):
+                    main()
+
+        # Should have exhausted all retries and called our_exit
+        # Note: our_exit might be called twice - once for TCP check, once for failure
+        assert mock_our_exit.call_count >= 1
+        # Check the last call was for OTA failure
+        last_call_args = mock_our_exit.call_args[0][0]
+        assert "OTA update failed" in last_call_args
+
+    finally:
+        os.unlink(firmware_file)
