@@ -988,6 +988,15 @@ class Node:
             if 'factory_reset' in cleanup_commands:
                 print ("Performing factory reset on SCD4X")
                 p.sensor_config.scd4x_config.factory_reset = True
+            elif 'scd4xdisables.disable_trh' in cleanup_commands:
+                print (cleanup_commands)
+                print ("Disabling SCD4X sensors")
+                if cleanup_commands[cleanup_commands.index('scd4xdisables.disable_trh')+1] == "true":
+                        p.sensor_config.scd4x_config.scd4xdisables.disable_trh = True
+                        print ("Disabling temperature")
+                elif cleanup_commands[cleanup_commands.index('scd4xdisables.disable_trh')+1] == "false":
+                        p.sensor_config.scd4x_config.scd4xdisables.disable_trh = False
+                        print ("Enabling temperature")
             else:
                 if 'set_asc' in cleanup_commands:
                     if cleanup_commands[cleanup_commands.index('set_asc')+1] == "true":
@@ -1125,6 +1134,10 @@ class Node:
                     else:
                         print (f"Setting SCD30 measurement interval to {measurement_interval}")
                         p.sensor_config.scd30_config.set_measurement_interval = measurement_interval
+
+
+        print ("Payload")
+        print (p.sensor_config)
 
         # How to represent a HANDLED event?
         if self == self.iface.localNode:
