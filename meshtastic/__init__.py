@@ -179,8 +179,30 @@ def _onPositionReceive(iface, asDict):
             logger.debug(f"p:{p}")
             p = iface._fixupPosition(p)
             logger.debug(f"after fixup p:{p}")
-            # update node DB as needed
-            iface._getOrCreateByNum(asDict["from"])["position"] = p
+            # For the local node, only accept position updates with equal
+            # or better precision. The local GPS is authoritative, and
+            # low-precision echoes from the mesh (e.g., map reports relayed
+            # by other nodes) should not overwrite it.
+            # For remote nodes, always accept the latest position since
+            # any update from them reflects their current state.
+            node = iface._getOrCreateByNum(asDict["from"])
+            is_local_node = (
+                iface.myInfo is not None
+                and asDict["from"] == iface.myInfo.my_node_num
+            )
+            if is_local_node:
+                existing = node.get("position", {})
+                existing_precision = existing.get("precisionBits", 0) or 0
+                new_precision = p.get("precisionBits", 0) or 0
+                if existing_precision == 0 or new_precision >= existing_precision:
+                    node["position"] = p
+                else:
+                    logger.debug(
+                        f"Ignoring low-precision position echo for local node "
+                        f"({new_precision} < {existing_precision})"
+                    )
+            else:
+                node["position"] = p
 
 
 def _onNodeInfoReceive(iface, asDict):
