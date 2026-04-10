@@ -547,6 +547,22 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     LilyGo T5 S3 ePaper Pro (V1 and V2)
     """
+    TBEAM_BPF: _HardwareModel.ValueType  # 124
+    """
+    LilyGo T-Beam BPF (144-148Mhz)
+    """
+    MINI_EPAPER_S3: _HardwareModel.ValueType  # 125
+    """
+    LilyGo T-Mini E-paper S3 Kit
+    """
+    TDISPLAY_S3_PRO: _HardwareModel.ValueType  # 126
+    """
+    LilyGo T-Display S3 Pro LR1121
+    """
+    HELTEC_MESH_NODE_T096: _HardwareModel.ValueType  # 127
+    """
+    Heltec Mesh Node T096 board features an nRF52840 CPU and a TFT screen.
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1076,6 +1092,22 @@ LilyGo T-Beam 1W
 T5_S3_EPAPER_PRO: HardwareModel.ValueType  # 123
 """
 LilyGo T5 S3 ePaper Pro (V1 and V2)
+"""
+TBEAM_BPF: HardwareModel.ValueType  # 124
+"""
+LilyGo T-Beam BPF (144-148Mhz)
+"""
+MINI_EPAPER_S3: HardwareModel.ValueType  # 125
+"""
+LilyGo T-Mini E-paper S3 Kit
+"""
+TDISPLAY_S3_PRO: HardwareModel.ValueType  # 126
+"""
+LilyGo T-Display S3 Pro LR1121
+"""
+HELTEC_MESH_NODE_T096: HardwareModel.ValueType  # 127
+"""
+Heltec Mesh Node T096 board features an nRF52840 CPU and a TFT screen.
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """

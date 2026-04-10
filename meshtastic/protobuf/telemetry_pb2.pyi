@@ -53,7 +53,7 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     SHTC3: _TelemetrySensorType.ValueType  # 7
     """
-    High accuracy temperature and humidity
+    TODO - REMOVE High accuracy temperature and humidity
     """
     LPS22: _TelemetrySensorType.ValueType  # 8
     """
@@ -73,7 +73,7 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     SHT31: _TelemetrySensorType.ValueType  # 12
     """
-    High accuracy temperature and humidity
+    TODO - REMOVE High accuracy temperature and humidity
     """
     PMSA003I: _TelemetrySensorType.ValueType  # 13
     """
@@ -93,7 +93,7 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     SHT4X: _TelemetrySensorType.ValueType  # 17
     """
-    Sensirion High accuracy temperature and humidity
+    TODO - REMOVE Sensirion High accuracy temperature and humidity
     """
     VEML7700: _TelemetrySensorType.ValueType  # 18
     """
@@ -213,11 +213,19 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     SHT21: _TelemetrySensorType.ValueType  # 47
     """
-    STH21 Temperature and R. Humidity sensor
+    TODO - REMOVE STH21 Temperature and R. Humidity sensor
     """
     STC31: _TelemetrySensorType.ValueType  # 48
     """
     Sensirion STC31 CO2 sensor
+    """
+    SCD30: _TelemetrySensorType.ValueType  # 49
+    """
+    SCD30 CO2, humidity, temperature sensor
+    """
+    SHTXX: _TelemetrySensorType.ValueType  # 50
+    """
+    SHT family of sensors for temperature and humidity
     """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
@@ -255,7 +263,7 @@ High accuracy temperature and pressure
 """
 SHTC3: TelemetrySensorType.ValueType  # 7
 """
-High accuracy temperature and humidity
+TODO - REMOVE High accuracy temperature and humidity
 """
 LPS22: TelemetrySensorType.ValueType  # 8
 """
@@ -275,7 +283,7 @@ QMC5883L: TelemetrySensorType.ValueType  # 11
 """
 SHT31: TelemetrySensorType.ValueType  # 12
 """
-High accuracy temperature and humidity
+TODO - REMOVE High accuracy temperature and humidity
 """
 PMSA003I: TelemetrySensorType.ValueType  # 13
 """
@@ -295,7 +303,7 @@ RCWL-9620 Doppler Radar Distance Sensor, used for water level detection
 """
 SHT4X: TelemetrySensorType.ValueType  # 17
 """
-Sensirion High accuracy temperature and humidity
+TODO - REMOVE Sensirion High accuracy temperature and humidity
 """
 VEML7700: TelemetrySensorType.ValueType  # 18
 """
@@ -415,11 +423,19 @@ HDC1080 Temperature and Humidity Sensor
 """
 SHT21: TelemetrySensorType.ValueType  # 47
 """
-STH21 Temperature and R. Humidity sensor
+TODO - REMOVE STH21 Temperature and R. Humidity sensor
 """
 STC31: TelemetrySensorType.ValueType  # 48
 """
 Sensirion STC31 CO2 sensor
+"""
+SCD30: TelemetrySensorType.ValueType  # 49
+"""
+SCD30 CO2, humidity, temperature sensor
+"""
+SHTXX: TelemetrySensorType.ValueType  # 50
+"""
+SHT family of sensors for temperature and humidity
 """
 global___TelemetrySensorType = TelemetrySensorType
 

@@ -1584,6 +1584,39 @@ class Config(google.protobuf.message.Message):
         This preset performs similarly to LongFast, but with 500Khz bandwidth.
         """
 
+        class _FEM_LNA_Mode:
+            ValueType = typing.NewType("ValueType", builtins.int)
+            V: typing_extensions.TypeAlias = ValueType
+
+        class _FEM_LNA_ModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Config.LoRaConfig._FEM_LNA_Mode.ValueType], builtins.type):
+            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+            DISABLED: Config.LoRaConfig._FEM_LNA_Mode.ValueType  # 0
+            """
+            FEM_LNA is present but disabled
+            """
+            ENABLED: Config.LoRaConfig._FEM_LNA_Mode.ValueType  # 1
+            """
+            FEM_LNA is present and enabled
+            """
+            NOT_PRESENT: Config.LoRaConfig._FEM_LNA_Mode.ValueType  # 2
+            """
+            FEM_LNA is not present on the device
+            """
+
+        class FEM_LNA_Mode(_FEM_LNA_Mode, metaclass=_FEM_LNA_ModeEnumTypeWrapper): ...
+        DISABLED: Config.LoRaConfig.FEM_LNA_Mode.ValueType  # 0
+        """
+        FEM_LNA is present but disabled
+        """
+        ENABLED: Config.LoRaConfig.FEM_LNA_Mode.ValueType  # 1
+        """
+        FEM_LNA is present and enabled
+        """
+        NOT_PRESENT: Config.LoRaConfig.FEM_LNA_Mode.ValueType  # 2
+        """
+        FEM_LNA is not present on the device
+        """
+
         USE_PRESET_FIELD_NUMBER: builtins.int
         MODEM_PRESET_FIELD_NUMBER: builtins.int
         BANDWIDTH_FIELD_NUMBER: builtins.int
@@ -1602,6 +1635,7 @@ class Config(google.protobuf.message.Message):
         IGNORE_INCOMING_FIELD_NUMBER: builtins.int
         IGNORE_MQTT_FIELD_NUMBER: builtins.int
         CONFIG_OK_TO_MQTT_FIELD_NUMBER: builtins.int
+        FEM_LNA_MODE_FIELD_NUMBER: builtins.int
         use_preset: builtins.bool
         """
         When enabled, the `modem_preset` fields will be adhered to, else the `bandwidth`/`spread_factor`/`coding_rate`
@@ -1699,6 +1733,10 @@ class Config(google.protobuf.message.Message):
         """
         Sets the ok_to_mqtt bit on outgoing packets
         """
+        fem_lna_mode: global___Config.LoRaConfig.FEM_LNA_Mode.ValueType
+        """
+        Set where LORA FEM is enabled, disabled, or not present
+        """
         @property
         def ignore_incoming(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
             """
@@ -1728,8 +1766,9 @@ class Config(google.protobuf.message.Message):
             ignore_incoming: collections.abc.Iterable[builtins.int] | None = ...,
             ignore_mqtt: builtins.bool = ...,
             config_ok_to_mqtt: builtins.bool = ...,
+            fem_lna_mode: global___Config.LoRaConfig.FEM_LNA_Mode.ValueType = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["bandwidth", b"bandwidth", "channel_num", b"channel_num", "coding_rate", b"coding_rate", "config_ok_to_mqtt", b"config_ok_to_mqtt", "frequency_offset", b"frequency_offset", "hop_limit", b"hop_limit", "ignore_incoming", b"ignore_incoming", "ignore_mqtt", b"ignore_mqtt", "modem_preset", b"modem_preset", "override_duty_cycle", b"override_duty_cycle", "override_frequency", b"override_frequency", "pa_fan_disabled", b"pa_fan_disabled", "region", b"region", "spread_factor", b"spread_factor", "sx126x_rx_boosted_gain", b"sx126x_rx_boosted_gain", "tx_enabled", b"tx_enabled", "tx_power", b"tx_power", "use_preset", b"use_preset"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["bandwidth", b"bandwidth", "channel_num", b"channel_num", "coding_rate", b"coding_rate", "config_ok_to_mqtt", b"config_ok_to_mqtt", "fem_lna_mode", b"fem_lna_mode", "frequency_offset", b"frequency_offset", "hop_limit", b"hop_limit", "ignore_incoming", b"ignore_incoming", "ignore_mqtt", b"ignore_mqtt", "modem_preset", b"modem_preset", "override_duty_cycle", b"override_duty_cycle", "override_frequency", b"override_frequency", "pa_fan_disabled", b"pa_fan_disabled", "region", b"region", "spread_factor", b"spread_factor", "sx126x_rx_boosted_gain", b"sx126x_rx_boosted_gain", "tx_enabled", b"tx_enabled", "tx_power", b"tx_power", "use_preset", b"use_preset"]) -> None: ...
 
     @typing.final
     class BluetoothConfig(google.protobuf.message.Message):

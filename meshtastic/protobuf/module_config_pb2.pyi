@@ -9,6 +9,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
+import meshtastic.protobuf.atak_pb2
 import sys
 import typing
 
@@ -1301,6 +1302,34 @@ class ModuleConfig(google.protobuf.message.Message):
         ) -> None: ...
         def ClearField(self, field_name: typing.Literal["node_status", b"node_status"]) -> None: ...
 
+    @typing.final
+    class TAKConfig(google.protobuf.message.Message):
+        """
+        TAK team/role configuration
+        """
+
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        TEAM_FIELD_NUMBER: builtins.int
+        ROLE_FIELD_NUMBER: builtins.int
+        team: meshtastic.protobuf.atak_pb2.Team.ValueType
+        """
+        Team color.
+        Default Unspecifed_Color -> firmware uses Cyan
+        """
+        role: meshtastic.protobuf.atak_pb2.MemberRole.ValueType
+        """
+        Member role.
+        Default Unspecifed -> firmware uses TeamMember
+        """
+        def __init__(
+            self,
+            *,
+            team: meshtastic.protobuf.atak_pb2.Team.ValueType = ...,
+            role: meshtastic.protobuf.atak_pb2.MemberRole.ValueType = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["role", b"role", "team", b"team"]) -> None: ...
+
     MQTT_FIELD_NUMBER: builtins.int
     SERIAL_FIELD_NUMBER: builtins.int
     EXTERNAL_NOTIFICATION_FIELD_NUMBER: builtins.int
@@ -1316,6 +1345,7 @@ class ModuleConfig(google.protobuf.message.Message):
     PAXCOUNTER_FIELD_NUMBER: builtins.int
     STATUSMESSAGE_FIELD_NUMBER: builtins.int
     TRAFFIC_MANAGEMENT_FIELD_NUMBER: builtins.int
+    TAK_FIELD_NUMBER: builtins.int
     @property
     def mqtt(self) -> global___ModuleConfig.MQTTConfig:
         """
@@ -1406,6 +1436,12 @@ class ModuleConfig(google.protobuf.message.Message):
         Traffic management module config for mesh network optimization
         """
 
+    @property
+    def tak(self) -> global___ModuleConfig.TAKConfig:
+        """
+        TAK team/role configuration for TAK_TRACKER
+        """
+
     def __init__(
         self,
         *,
@@ -1424,10 +1460,11 @@ class ModuleConfig(google.protobuf.message.Message):
         paxcounter: global___ModuleConfig.PaxcounterConfig | None = ...,
         statusmessage: global___ModuleConfig.StatusMessageConfig | None = ...,
         traffic_management: global___ModuleConfig.TrafficManagementConfig | None = ...,
+        tak: global___ModuleConfig.TAKConfig | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["mqtt", "serial", "external_notification", "store_forward", "range_test", "telemetry", "canned_message", "audio", "remote_hardware", "neighbor_info", "ambient_lighting", "detection_sensor", "paxcounter", "statusmessage", "traffic_management"] | None: ...
+    def HasField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["mqtt", "serial", "external_notification", "store_forward", "range_test", "telemetry", "canned_message", "audio", "remote_hardware", "neighbor_info", "ambient_lighting", "detection_sensor", "paxcounter", "statusmessage", "traffic_management", "tak"] | None: ...
 
 global___ModuleConfig = ModuleConfig
 

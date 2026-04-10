@@ -232,6 +232,10 @@ class AdminMessage(google.protobuf.message.Message):
         """
         Traffic management module config
         """
+        TAK_CONFIG: AdminMessage._ModuleConfigType.ValueType  # 15
+        """
+        TAK module config
+        """
 
     class ModuleConfigType(_ModuleConfigType, metaclass=_ModuleConfigTypeEnumTypeWrapper):
         """
@@ -297,6 +301,10 @@ class AdminMessage(google.protobuf.message.Message):
     TRAFFICMANAGEMENT_CONFIG: AdminMessage.ModuleConfigType.ValueType  # 14
     """
     Traffic management module config
+    """
+    TAK_CONFIG: AdminMessage.ModuleConfigType.ValueType  # 15
+    """
+    TAK module config
     """
 
     class _BackupLocation:
@@ -1000,6 +1008,8 @@ class SensorConfig(google.protobuf.message.Message):
 
     SCD4X_CONFIG_FIELD_NUMBER: builtins.int
     SEN5X_CONFIG_FIELD_NUMBER: builtins.int
+    SCD30_CONFIG_FIELD_NUMBER: builtins.int
+    SHTXX_CONFIG_FIELD_NUMBER: builtins.int
     @property
     def scd4x_config(self) -> global___SCD4X_config:
         """
@@ -1012,14 +1022,28 @@ class SensorConfig(google.protobuf.message.Message):
         SEN5X PM Sensor configuration
         """
 
+    @property
+    def scd30_config(self) -> global___SCD30_config:
+        """
+        SCD30 CO2 Sensor configuration
+        """
+
+    @property
+    def shtxx_config(self) -> global___SHTXX_config:
+        """
+        SHTXX temperature and relative humidity sensor configuration
+        """
+
     def __init__(
         self,
         *,
         scd4x_config: global___SCD4X_config | None = ...,
         sen5x_config: global___SEN5X_config | None = ...,
+        scd30_config: global___SCD30_config | None = ...,
+        shtxx_config: global___SHTXX_config | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["scd4x_config", b"scd4x_config", "sen5x_config", b"sen5x_config"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["scd4x_config", b"scd4x_config", "sen5x_config", b"sen5x_config"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["scd30_config", b"scd30_config", "scd4x_config", b"scd4x_config", "sen5x_config", b"sen5x_config", "shtxx_config", b"shtxx_config"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["scd30_config", b"scd30_config", "scd4x_config", b"scd4x_config", "sen5x_config", b"sen5x_config", "shtxx_config", b"shtxx_config"]) -> None: ...
 
 global___SensorConfig = SensorConfig
 
@@ -1120,3 +1144,84 @@ class SEN5X_config(google.protobuf.message.Message):
     def WhichOneof(self, oneof_group: typing.Literal["_set_temperature", b"_set_temperature"]) -> typing.Literal["set_temperature"] | None: ...
 
 global___SEN5X_config = SEN5X_config
+
+@typing.final
+class SCD30_config(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SET_ASC_FIELD_NUMBER: builtins.int
+    SET_TARGET_CO2_CONC_FIELD_NUMBER: builtins.int
+    SET_TEMPERATURE_FIELD_NUMBER: builtins.int
+    SET_ALTITUDE_FIELD_NUMBER: builtins.int
+    SET_MEASUREMENT_INTERVAL_FIELD_NUMBER: builtins.int
+    SOFT_RESET_FIELD_NUMBER: builtins.int
+    set_asc: builtins.bool
+    """
+    Set Automatic self-calibration enabled
+    """
+    set_target_co2_conc: builtins.int
+    """
+    Recalibration target CO2 concentration in ppm (FRC or ASC)
+    """
+    set_temperature: builtins.float
+    """
+    Reference temperature in degC
+    """
+    set_altitude: builtins.int
+    """
+    Altitude of sensor in meters above sea level. 0 - 3000m (overrides ambient pressure)
+    """
+    set_measurement_interval: builtins.int
+    """
+    Power mode for sensor (true for low power, false for normal)
+    """
+    soft_reset: builtins.bool
+    """
+    Perform a factory reset of the sensor
+    """
+    def __init__(
+        self,
+        *,
+        set_asc: builtins.bool | None = ...,
+        set_target_co2_conc: builtins.int | None = ...,
+        set_temperature: builtins.float | None = ...,
+        set_altitude: builtins.int | None = ...,
+        set_measurement_interval: builtins.int | None = ...,
+        soft_reset: builtins.bool | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_set_altitude", b"_set_altitude", "_set_asc", b"_set_asc", "_set_measurement_interval", b"_set_measurement_interval", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "_soft_reset", b"_soft_reset", "set_altitude", b"set_altitude", "set_asc", b"set_asc", "set_measurement_interval", b"set_measurement_interval", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature", "soft_reset", b"soft_reset"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_set_altitude", b"_set_altitude", "_set_asc", b"_set_asc", "_set_measurement_interval", b"_set_measurement_interval", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "_soft_reset", b"_soft_reset", "set_altitude", b"set_altitude", "set_asc", b"set_asc", "set_measurement_interval", b"set_measurement_interval", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature", "soft_reset", b"soft_reset"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_altitude", b"_set_altitude"]) -> typing.Literal["set_altitude"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_asc", b"_set_asc"]) -> typing.Literal["set_asc"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_measurement_interval", b"_set_measurement_interval"]) -> typing.Literal["set_measurement_interval"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_target_co2_conc", b"_set_target_co2_conc"]) -> typing.Literal["set_target_co2_conc"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_temperature", b"_set_temperature"]) -> typing.Literal["set_temperature"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_soft_reset", b"_soft_reset"]) -> typing.Literal["soft_reset"] | None: ...
+
+global___SCD30_config = SCD30_config
+
+@typing.final
+class SHTXX_config(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SET_ACCURACY_FIELD_NUMBER: builtins.int
+    set_accuracy: builtins.int
+    """
+    Accuracy mode (0 = low, 1 = medium, 2 = high)
+    """
+    def __init__(
+        self,
+        *,
+        set_accuracy: builtins.int | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_set_accuracy", b"_set_accuracy", "set_accuracy", b"set_accuracy"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_set_accuracy", b"_set_accuracy", "set_accuracy", b"set_accuracy"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_set_accuracy", b"_set_accuracy"]) -> typing.Literal["set_accuracy"] | None: ...
+
+global___SHTXX_config = SHTXX_config

@@ -121,6 +121,7 @@ class LocalModuleConfig(google.protobuf.message.Message):
     PAXCOUNTER_FIELD_NUMBER: builtins.int
     STATUSMESSAGE_FIELD_NUMBER: builtins.int
     TRAFFIC_MANAGEMENT_FIELD_NUMBER: builtins.int
+    TAK_FIELD_NUMBER: builtins.int
     VERSION_FIELD_NUMBER: builtins.int
     version: builtins.int
     """
@@ -218,6 +219,12 @@ class LocalModuleConfig(google.protobuf.message.Message):
         The part of the config that is specific to the Traffic Management module
         """
 
+    @property
+    def tak(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.TAKConfig:
+        """
+        TAK Config
+        """
+
     def __init__(
         self,
         *,
@@ -236,9 +243,10 @@ class LocalModuleConfig(google.protobuf.message.Message):
         paxcounter: meshtastic.protobuf.module_config_pb2.ModuleConfig.PaxcounterConfig | None = ...,
         statusmessage: meshtastic.protobuf.module_config_pb2.ModuleConfig.StatusMessageConfig | None = ...,
         traffic_management: meshtastic.protobuf.module_config_pb2.ModuleConfig.TrafficManagementConfig | None = ...,
+        tak: meshtastic.protobuf.module_config_pb2.ModuleConfig.TAKConfig | None = ...,
         version: builtins.int = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "telemetry", b"telemetry", "traffic_management", b"traffic_management", "version", b"version"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management", "version", b"version"]) -> None: ...
 
 global___LocalModuleConfig = LocalModuleConfig
