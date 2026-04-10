@@ -208,7 +208,7 @@ class StreamInterface(MeshInterface):
                             self._rxBuf = empty
                 else:
                     # logger.debug(f"timeout")
-                    pass
+                    time.sleep(0.001)       # don't block the system in case we do not get data
         except serial.SerialException as ex:
             if (
                 not self._wantExit
