@@ -32,6 +32,17 @@ Events are delivered using a publish-subscribe model, and you can subscribe to o
 This library and CLI has gone without a consistent maintainer for a while, and there's many improvements that could be made. We're all volunteers here and help is extremely appreciated, whether in implementing your own needs or helping maintain the library and CLI in general.
 
 If you're interested in contributing but don't have specific things you'd like to work on, look at the roadmap below!
+## Local Development
+
+If you would like to contribute to the Meshtastic Python library or CLI, we recommend setting up a local development environment.
+
+A detailed, step-by-step guide for running the project from source — including dependency installation with Poetry, initializing git submodules, running the CLI locally, and executing tests — is available here:
+
+👉 **Local Development Guide for Meshtastic Python (coming soon)**  
+https://meshtastic.org/docs/development/python/local-dev/
+
+
+This guide is intended for contributors who want to develop, debug, or test changes before submitting a pull request.
 
 ## Roadmap
 
