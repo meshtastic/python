@@ -450,7 +450,7 @@ def onConnected(interface):
             node = interface.localNode
             rows = node.listDir(remote_dir, depth=depth)
             if rows is None:
-                our_exit("listDir failed", 1)
+                meshtastic.util.our_exit("listDir failed", 1)
             for path, sz in rows:
                 print(f"{sz}\t{path}")
 
@@ -469,7 +469,7 @@ def onConnected(interface):
                 ok = node.uploadFile(src, dst, on_progress=_upload_progress)
                 print(f"\r  {'OK' if ok else 'FAILED'}: {src} → {dst}        ")
                 if not ok:
-                    our_exit("Upload failed", 1)
+                    meshtastic.util.our_exit("Upload failed", 1)
             else:
                 print(f"Downloading {src} → {dst}")
                 def _download_progress(received, _total):
@@ -477,7 +477,7 @@ def onConnected(interface):
                 ok = node.downloadFile(src, dst, on_progress=_download_progress)
                 print(f"\r  {'OK' if ok else 'FAILED'}: {src} → {dst}        ")
                 if not ok:
-                    our_exit("Download failed", 1)
+                    meshtastic.util.our_exit("Download failed", 1)
 
         if args.reboot:
             closeNow = True
