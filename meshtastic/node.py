@@ -1201,7 +1201,8 @@ class Node:
                 return False
 
             offset += len(chunk)
-            seq = (seq & 0xFF) + 1
+            # Firmware uses monotonic uint16 packet numbers (not 8-bit XMODEM wrap).
+            seq += 1
             if on_progress:
                 on_progress(offset, total)
 
@@ -1297,7 +1298,7 @@ class Node:
                         on_progress(sum(len(c) for c in chunks), -1)
                     ack = xmodem_pb2.XModem()
                     ack.control = XC.ACK
-                    expected_seq = (expected_seq & 0xFF) + 1
+                    expected_seq += 1
                 else:
                     ack = xmodem_pb2.XModem()
                     ack.control = XC.NAK
@@ -1370,7 +1371,7 @@ class Node:
                     chunks.append(chunk)
                     ack = xmodem_pb2.XModem()
                     ack.control = XC.ACK
-                    expected_seq = (expected_seq & 0xFF) + 1
+                    expected_seq += 1
                 else:
                     ack = xmodem_pb2.XModem()
                     ack.control = XC.NAK
