@@ -37,6 +37,7 @@ try:
 except ImportError as e:
     have_test = False
 
+import meshtastic.file_transfer_cli as file_transfer_cli
 import meshtastic.ota
 import meshtastic.util
 import meshtastic.serial_interface
@@ -454,28 +455,102 @@ def onConnected(interface):
             for path, sz in rows:
                 print(f"{sz}\t{path}")
 
-        if args.cp:
+        if args.upload is not None:
             closeNow = True
-            src, dst = args.cp
-            import os
             node = interface.localNode
-            # Direction: if src is an existing local file → upload; otherwise → download
-            if os.path.isfile(src):
-                print(f"Uploading {src} → {dst}")
-                def _upload_progress(sent, total):
-                    pct = 100 * sent // total
-                    bar = '#' * (pct // 5) + '.' * (20 - pct // 5)
-                    print(f"\r  [{bar}] {pct}%", end="", flush=True)
-                ok = node.uploadFile(src, dst, on_progress=_upload_progress)
-                print(f"\r  {'OK' if ok else 'FAILED'}: {src} → {dst}        ")
+            local_tokens = list(args.upload[:-1])
+            remote_base = args.upload[-1]
+            try:
+                upload_pairs = file_transfer_cli.plan_upload(local_tokens, remote_base)
+            except file_transfer_cli.FileTransferCliError as e:
+                meshtastic.util.our_exit(str(e), 1)
+
+            def _upload_progress(sent, total):
+                pct = 100 * sent // total if total else 0
+                bar = '#' * (pct // 5) + '.' * (20 - pct // 5)
+                print(f"\r  [{bar}] {pct}%", end="", flush=True)
+
+            for i, (lp, devp) in enumerate(upload_pairs, start=1):
+                print(f"Uploading ({i}/{len(upload_pairs)}) {lp} → {devp}")
+                ok = node.uploadFile(lp, devp, on_progress=_upload_progress)
+                print(f"\r  {'OK' if ok else 'FAILED'}: {lp} → {devp}        ")
                 if not ok:
                     meshtastic.util.our_exit("Upload failed", 1)
-            else:
-                print(f"Downloading {src} → {dst}")
-                def _download_progress(received, _total):
-                    print(f"\r  {received} bytes received...", end="", flush=True)
-                ok = node.downloadFile(src, dst, on_progress=_download_progress)
-                print(f"\r  {'OK' if ok else 'FAILED'}: {src} → {dst}        ")
+
+        if args.download is not None:
+            closeNow = True
+            node = interface.localNode
+            rpath, lpath = args.download
+            lpath_abs = os.path.abspath(os.path.expanduser(lpath))
+            if os.path.isdir(lpath_abs):
+                meshtastic.util.our_exit(
+                    "ERROR: --download LOCAL must be a file path, not a directory (use --download-tree or --download-glob).",
+                    1,
+                )
+            parent = os.path.dirname(lpath_abs)
+            if parent:
+                os.makedirs(parent, exist_ok=True)
+            print(f"Downloading {rpath} → {lpath}")
+            def _download_progress(received, _total):
+                print(f"\r  {received} bytes received...", end="", flush=True)
+            ok = node.downloadFile(rpath, lpath_abs, on_progress=_download_progress)
+            print(f"\r  {'OK' if ok else 'FAILED'}: {rpath} → {lpath_abs}        ")
+            if not ok:
+                meshtastic.util.our_exit("Download failed", 1)
+
+        if args.download_tree is not None:
+            closeNow = True
+            node = interface.localNode
+            rdir, ldir = args.download_tree
+            depth = 255
+            rows = node.listDir(rdir.rstrip("/") or "/", depth=depth)
+            if rows is None:
+                meshtastic.util.our_exit("listDir failed", 1)
+            try:
+                tree_pairs = file_transfer_cli.plan_download_tree(rdir, ldir, rows)
+            except file_transfer_cli.FileTransferCliError as e:
+                meshtastic.util.our_exit(str(e), 1)
+            if not tree_pairs:
+                meshtastic.util.our_exit("No files matched for --download-tree", 1)
+
+            def _download_progress(received, _total):
+                print(f"\r  {received} bytes received...", end="", flush=True)
+
+            for i, (devp, locp) in enumerate(tree_pairs, start=1):
+                os.makedirs(os.path.dirname(locp) or ".", exist_ok=True)
+                print(f"Downloading ({i}/{len(tree_pairs)}) {devp} → {locp}")
+                ok = node.downloadFile(devp, locp, on_progress=_download_progress)
+                print(f"\r  {'OK' if ok else 'FAILED'}: {devp} → {locp}        ")
+                if not ok:
+                    meshtastic.util.our_exit("Download failed", 1)
+
+        if args.download_glob is not None:
+            closeNow = True
+            node = interface.localNode
+            pattern, ldir = args.download_glob
+            try:
+                base, _rel = file_transfer_cli.split_remote_glob_pattern(pattern)
+            except file_transfer_cli.FileTransferCliError as e:
+                meshtastic.util.our_exit(str(e), 1)
+            depth = 255
+            rows = node.listDir(base, depth=depth)
+            if rows is None:
+                meshtastic.util.our_exit("listDir failed", 1)
+            try:
+                glob_pairs = file_transfer_cli.plan_download_glob(pattern, ldir, rows)
+            except file_transfer_cli.FileTransferCliError as e:
+                meshtastic.util.our_exit(str(e), 1)
+            if not glob_pairs:
+                meshtastic.util.our_exit("No files matched for --download-glob", 1)
+
+            def _download_progress(received, _total):
+                print(f"\r  {received} bytes received...", end="", flush=True)
+
+            for i, (devp, locp) in enumerate(glob_pairs, start=1):
+                os.makedirs(os.path.dirname(locp) or ".", exist_ok=True)
+                print(f"Downloading ({i}/{len(glob_pairs)}) {devp} → {locp}")
+                ok = node.downloadFile(devp, locp, on_progress=_download_progress)
+                print(f"\r  {'OK' if ok else 'FAILED'}: {devp} → {locp}        ")
                 if not ok:
                     meshtastic.util.our_exit("Download failed", 1)
 
@@ -1912,17 +1987,53 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         default=None
     )
 
-    group.add_argument(
-        "--cp",
+    xfer = group.add_mutually_exclusive_group()
+    xfer.add_argument(
+        "--upload",
         help=(
-            "Copy a file to or from the device via XModem.  "
-            "Usage: --cp <src> <dst>.  "
-            "If <src> is an existing local file it is uploaded to <dst> on the device.  "
-            "Otherwise <src> is treated as a device path and downloaded to local <dst>.  "
-            "Use /__ext__/ or /__int__/ prefixes to target external or internal flash."
+            "Upload local files to the device via XModem (requires matching firmware).  "
+            "Usage: --upload LOCAL [LOCAL ...] REMOTE.  "
+            "Last argument is the device path: for a single plain file LOCAL, REMOTE is the exact destination file path; "
+            "otherwise REMOTE is a directory prefix and relative paths are preserved.  "
+            "LOCAL may be files, directories (recursive), or globs (quote patterns with **).  "
+            "Each device path must be <= 128 UTF-8 bytes."
+        ),
+        nargs="+",
+        metavar="SPEC",
+        default=None,
+    )
+    xfer.add_argument(
+        "--download",
+        help=(
+            "Download one file from the device.  "
+            "Usage: --download REMOTE_FILE LOCAL_FILE.  "
+            "For a directory tree use --download-tree; for remote globs use --download-glob."
         ),
         nargs=2,
-        metavar=("SRC", "DST"),
+        metavar=("REMOTE", "LOCAL"),
+        default=None,
+    )
+    xfer.add_argument(
+        "--download-tree",
+        help=(
+            "Download a full remote directory tree via MFLIST + XModem.  "
+            "Usage: --download-tree REMOTE_DIR LOCAL_DIR.  "
+            "Only rows with size > 0 are treated as files."
+        ),
+        nargs=2,
+        metavar=("REMOTE_DIR", "LOCAL_DIR"),
+        default=None,
+    )
+    xfer.add_argument(
+        "--download-glob",
+        help=(
+            "Download remote files matching a glob (MFLIST at the literal base + filter).  "
+            "Usage: --download-glob 'REMOTE_PATTERN' LOCAL_DIR.  "
+            "Pattern must include * ? or [; ** matches across / (relative to the literal base)."
+        ),
+        nargs=2,
+        metavar=("REMOTE_PATTERN", "LOCAL_DIR"),
+        default=None,
     )
 
     group.add_argument(
