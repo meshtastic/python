@@ -1083,6 +1083,7 @@ class Node:
     _XMODEM_BUFFER_MAX = 128   # meshtastic_XModem_buffer_t::bytes
     _XMODEM_MAX_RETRY  = 10
     _XMODEM_TIMEOUT_S  = 5.0
+    _MFLIST_PREFIX = "MFLIST "
 
     @staticmethod
     def _xmodem_crc16(data: bytes) -> int:
@@ -1318,3 +1319,78 @@ class Node:
 
         logger.debug(f"downloadFile: {device_path} → {local_path} complete ({len(data)} bytes)")
         return True
+
+    def listDir(self, device_path: str, depth: int = 0, timeout_s: float = _XMODEM_TIMEOUT_S):
+        """List files on the device under ``device_path`` via XMODEM ``MFLIST`` (matching firmware).
+
+        Args:
+            device_path: Directory on the device (``/__ext__/``, ``/__int__/``, or bare ``/``).
+            depth: Recursion depth (0 = files in that directory only; each increment adds one tree level).
+            timeout_s: Per-packet timeout.
+
+        Returns:
+            List of ``(path, size_bytes)`` for each file, or ``None`` on failure.
+            Lines starting with ``#`` in the payload are ignored (comments / truncation markers).
+        """
+        if self.noProto:
+            logger.warning("listDir: protocol disabled (noProto)")
+            return None
+
+        d = max(0, min(255, int(depth)))
+        cmd = f"{self._MFLIST_PREFIX}{device_path} {d}".encode("utf-8")[: self._XMODEM_BUFFER_MAX]
+        XC = xmodem_pb2.XModem
+
+        xm = xmodem_pb2.XModem()
+        xm.control = XC.SOH
+        xm.seq = 0
+        xm.buffer = bytes(cmd)
+
+        chunks: list = []
+        expected_seq = 1
+        resp = self._xmodem_roundtrip(xm, timeout_s)
+
+        while True:
+            if resp is None:
+                logger.error(f"listDir: timeout waiting for data from {device_path}")
+                return None
+
+            if resp.control == XC.EOT:
+                ack = xmodem_pb2.XModem()
+                ack.control = XC.ACK
+                self._xmodem_send(ack)
+                break
+
+            if resp.control in (XC.NAK, XC.CAN):
+                logger.error(f"listDir: device rejected or cancelled for {device_path}")
+                return None
+
+            if resp.control in (XC.SOH, XC.STX):
+                chunk = bytes(resp.buffer)
+                if resp.seq == expected_seq and self._xmodem_crc16(chunk) == resp.crc16:
+                    chunks.append(chunk)
+                    ack = xmodem_pb2.XModem()
+                    ack.control = XC.ACK
+                    expected_seq = (expected_seq & 0xFF) + 1
+                else:
+                    ack = xmodem_pb2.XModem()
+                    ack.control = XC.NAK
+
+                resp = self._xmodem_roundtrip(ack, timeout_s)
+                continue
+
+            resp = self._xmodem_wait_next(timeout_s)
+
+        raw = b"".join(chunks).decode("utf-8", errors="replace")
+        out: list = []
+        for line in raw.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "\t" not in line:
+                continue
+            path, sz = line.split("\t", 1)
+            try:
+                out.append((path, int(sz)))
+            except ValueError:
+                logger.debug("listDir: skip unparsable line %r", line)
+        return out

@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ..protobuf import admin_pb2, localonly_pb2, config_pb2
+from ..protobuf import admin_pb2, localonly_pb2, config_pb2, xmodem_pb2
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 from ..node import Node
 from ..serial_interface import SerialInterface
@@ -1608,6 +1608,287 @@ def test_start_ota_remote_node_raises_error():
         remote_node.startOTA(
             ota_mode=admin_pb2.OTAMode.OTA_WIFI, ota_file_hash=test_hash
         )
+
+
+@pytest.mark.unit
+def test_node_xmodem_crc16_known_vectors():
+    """Regression vectors for CRC-16-CCITT matching firmware XModem."""
+    assert Node._xmodem_crc16(b"") == 0
+    assert Node._xmodem_crc16(b"a") == 31879
+    assert Node._xmodem_crc16(b"hello") == 50018
+    assert Node._xmodem_crc16(b"x" * 128) == 33239
+
+
+@pytest.mark.unit
+def test_node_upload_file_xmodem_happy_path(tmp_path):
+    """uploadFile: OPEN (SOH/0), one STX data packet, EOT — all ACKed."""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 1234567890, noProto=False)
+    XC = xmodem_pb2.XModem
+    device_path = "/__ext__/t.bin"
+    payload = b"hello"
+    src = tmp_path / "src.bin"
+    src.write_bytes(payload)
+
+    def fake_roundtrip(xm, timeout_s=5.0):
+        if xm.control == XC.SOH and xm.seq == 0:
+            assert bytes(xm.buffer) == device_path.encode("utf-8")
+            p = xmodem_pb2.XModem()
+            p.control = XC.ACK
+            return p
+        if xm.control == XC.STX and xm.seq == 1:
+            assert bytes(xm.buffer) == payload
+            assert xm.crc16 == Node._xmodem_crc16(payload)
+            p = xmodem_pb2.XModem()
+            p.control = XC.ACK
+            return p
+        if xm.control == XC.EOT:
+            p = xmodem_pb2.XModem()
+            p.control = XC.ACK
+            return p
+        return None
+
+    with patch.object(anode, "_xmodem_roundtrip", side_effect=fake_roundtrip):
+        with patch.object(anode, "_xmodem_send"):
+            assert anode.uploadFile(str(src), device_path) is True
+
+
+@pytest.mark.unit
+def test_node_upload_file_xmodem_two_chunks(tmp_path):
+    """uploadFile spans two STX packets when payload is larger than buffer max (128)."""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 1234567890, noProto=False)
+    XC = xmodem_pb2.XModem
+    device_path = "/__int__/big.bin"
+    payload = b"Z" * 129
+    c0, c1 = payload[:128], payload[128:]
+    src = tmp_path / "src.bin"
+    src.write_bytes(payload)
+
+    def fake_roundtrip(xm, timeout_s=5.0):
+        if xm.control == XC.SOH and xm.seq == 0:
+            p = xmodem_pb2.XModem()
+            p.control = XC.ACK
+            return p
+        if xm.control == XC.STX and xm.seq == 1:
+            assert bytes(xm.buffer) == c0
+            assert xm.crc16 == Node._xmodem_crc16(c0)
+            p = xmodem_pb2.XModem()
+            p.control = XC.ACK
+            return p
+        if xm.control == XC.STX and xm.seq == 2:
+            assert bytes(xm.buffer) == c1
+            assert xm.crc16 == Node._xmodem_crc16(c1)
+            p = xmodem_pb2.XModem()
+            p.control = XC.ACK
+            return p
+        if xm.control == XC.EOT:
+            p = xmodem_pb2.XModem()
+            p.control = XC.ACK
+            return p
+        return None
+
+    with patch.object(anode, "_xmodem_roundtrip", side_effect=fake_roundtrip):
+        with patch.object(anode, "_xmodem_send"):
+            assert anode.uploadFile(str(src), device_path) is True
+
+
+@pytest.mark.unit
+def test_node_upload_file_open_rejected(tmp_path):
+    """uploadFile returns False when device never ACKs OPEN."""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 1234567890, noProto=False)
+    XC = xmodem_pb2.XModem
+    src = tmp_path / "src.bin"
+    src.write_bytes(b"x")
+
+    def fake_roundtrip(xm, timeout_s=5.0):
+        if xm.control == XC.SOH and xm.seq == 0:
+            p = xmodem_pb2.XModem()
+            p.control = XC.NAK
+            return p
+        return None
+
+    with patch.object(anode, "_xmodem_roundtrip", side_effect=fake_roundtrip):
+        with patch.object(anode, "_xmodem_send"):
+            assert anode.uploadFile(str(src), "/x.bin") is False
+
+
+@pytest.mark.unit
+def test_node_download_file_xmodem_happy_path(tmp_path):
+    """downloadFile: request STX/0, receive data STX/1..n, then EOT."""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 1234567890, noProto=False)
+    XC = xmodem_pb2.XModem
+    device_path = "/__ext__/r.bin"
+    payload = b"hi"
+    dst = tmp_path / "out.bin"
+    phase = 0
+
+    def fake_roundtrip(xm, timeout_s=5.0):
+        nonlocal phase
+        if phase == 0:
+            phase += 1
+            assert xm.control == XC.STX and xm.seq == 0
+            assert bytes(xm.buffer) == device_path.encode("utf-8")
+            p = xmodem_pb2.XModem()
+            p.control = XC.STX
+            p.seq = 1
+            p.buffer = payload
+            p.crc16 = Node._xmodem_crc16(payload)
+            return p
+        if phase == 1:
+            phase += 1
+            assert xm.control == XC.ACK
+            p = xmodem_pb2.XModem()
+            p.control = XC.EOT
+            return p
+        return None
+
+    with patch.object(anode, "_xmodem_roundtrip", side_effect=fake_roundtrip):
+        with patch.object(anode, "_xmodem_send"):
+            assert anode.downloadFile(device_path, str(dst)) is True
+    assert dst.read_bytes() == payload
+
+
+@pytest.mark.unit
+def test_node_download_file_two_chunks(tmp_path):
+    """downloadFile reassembles multiple STX payloads before EOT."""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 1234567890, noProto=False)
+    XC = xmodem_pb2.XModem
+    device_path = "/p.bin"
+    c0, c1 = b"A" * 128, b"B" * 10
+    payload = c0 + c1
+    dst = tmp_path / "out.bin"
+    phase = 0
+
+    def fake_roundtrip(xm, timeout_s=5.0):
+        nonlocal phase
+        if phase == 0:
+            phase += 1
+            assert xm.control == XC.STX and xm.seq == 0
+            p = xmodem_pb2.XModem()
+            p.control = XC.STX
+            p.seq = 1
+            p.buffer = c0
+            p.crc16 = Node._xmodem_crc16(c0)
+            return p
+        if phase == 1:
+            phase += 1
+            assert xm.control == XC.ACK
+            p = xmodem_pb2.XModem()
+            p.control = XC.STX
+            p.seq = 2
+            p.buffer = c1
+            p.crc16 = Node._xmodem_crc16(c1)
+            return p
+        if phase == 2:
+            phase += 1
+            assert xm.control == XC.ACK
+            p = xmodem_pb2.XModem()
+            p.control = XC.EOT
+            return p
+        return None
+
+    with patch.object(anode, "_xmodem_roundtrip", side_effect=fake_roundtrip):
+        with patch.object(anode, "_xmodem_send"):
+            assert anode.downloadFile(device_path, str(dst)) is True
+    assert dst.read_bytes() == payload
+
+
+@pytest.mark.unit
+def test_node_listdir_parses_mflist_payload():
+    """listDir sends MFLIST, collects SOH chunks, parses path\\tsize lines."""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 1234567890, noProto=False)
+    XC = xmodem_pb2.XModem
+
+    def fake_roundtrip(xm, timeout_s=5.0):
+        if xm.control == XC.SOH and xm.seq == 0:
+            assert bytes(xm.buffer) == b"MFLIST / 0"
+            chunk = b"/a.txt\t10\n/b.bin\t3\n"
+            p = xmodem_pb2.XModem()
+            p.control = XC.SOH
+            p.seq = 1
+            p.buffer = chunk
+            p.crc16 = Node._xmodem_crc16(chunk)
+            return p
+        if xm.control == XC.ACK:
+            p = xmodem_pb2.XModem()
+            p.control = XC.EOT
+            return p
+        return None
+
+    with patch.object(anode, "_xmodem_roundtrip", side_effect=fake_roundtrip):
+        with patch.object(anode, "_xmodem_send"):
+            rows = anode.listDir("/", depth=0)
+    assert rows == [("/a.txt", 10), ("/b.bin", 3)]
+
+
+@pytest.mark.unit
+def test_node_listdir_skips_comments_and_bad_lines():
+    """listDir ignores # lines, lines without tab, and non-integer sizes."""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 1234567890, noProto=False)
+    XC = xmodem_pb2.XModem
+    chunk = (
+        b"# meta\n"
+        b"/ok.txt\t1\n"
+        b"no-tab-field\n"
+        b"/badsz\txx\n"
+        b"/good.bin\t99\n"
+    )
+
+    def fake_roundtrip(xm, timeout_s=5.0):
+        if xm.control == XC.SOH and xm.seq == 0:
+            p = xmodem_pb2.XModem()
+            p.control = XC.SOH
+            p.seq = 1
+            p.buffer = chunk
+            p.crc16 = Node._xmodem_crc16(chunk)
+            return p
+        if xm.control == XC.ACK:
+            p = xmodem_pb2.XModem()
+            p.control = XC.EOT
+            return p
+        return None
+
+    with patch.object(anode, "_xmodem_roundtrip", side_effect=fake_roundtrip):
+        with patch.object(anode, "_xmodem_send"):
+            rows = anode.listDir("/__ext__", depth=0)
+    assert rows == [("/ok.txt", 1), ("/good.bin", 99)]
+
+
+@pytest.mark.unit
+def test_node_listdir_depth_clamped_to_byte_range():
+    """listDir clamps depth to 0..255 in the MFLIST command."""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 1234567890, noProto=False)
+    XC = xmodem_pb2.XModem
+    first_cmd: list[bytes] = []
+
+    def fake_roundtrip(xm, timeout_s=5.0):
+        if xm.control == XC.SOH and xm.seq == 0:
+            first_cmd.append(bytes(xm.buffer))
+            p = xmodem_pb2.XModem()
+            p.control = XC.SOH
+            p.seq = 1
+            p.buffer = b"/x\t0\n"
+            p.crc16 = Node._xmodem_crc16(p.buffer)
+            return p
+        if xm.control == XC.ACK:
+            p = xmodem_pb2.XModem()
+            p.control = XC.EOT
+            return p
+        return None
+
+    with patch.object(anode, "_xmodem_roundtrip", side_effect=fake_roundtrip):
+        with patch.object(anode, "_xmodem_send"):
+            anode.listDir("/mount", depth=300)
+            anode.listDir("/mount", depth=-5)
+    assert first_cmd[0] == b"MFLIST /mount 255"
+    assert first_cmd[1] == b"MFLIST /mount 0"
 
 
 # TODO
