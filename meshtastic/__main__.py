@@ -443,6 +443,31 @@ def onConnected(interface):
             # Must turn off encryption on primary channel
             interface.getNode(args.dest, **getNode_kwargs).turnOffEncryptionOnPrimaryChannel()
 
+        if args.cp:
+            closeNow = True
+            src, dst = args.cp
+            import os
+            node = interface.localNode
+            # Direction: if src is an existing local file → upload; otherwise → download
+            if os.path.isfile(src):
+                print(f"Uploading {src} → {dst}")
+                def _upload_progress(sent, total):
+                    pct = 100 * sent // total
+                    bar = '#' * (pct // 5) + '.' * (20 - pct // 5)
+                    print(f"\r  [{bar}] {pct}%", end="", flush=True)
+                ok = node.uploadFile(src, dst, on_progress=_upload_progress)
+                print(f"\r  {'OK' if ok else 'FAILED'}: {src} → {dst}        ")
+                if not ok:
+                    our_exit("Upload failed", 1)
+            else:
+                print(f"Downloading {src} → {dst}")
+                def _download_progress(received, _total):
+                    print(f"\r  {received} bytes received...", end="", flush=True)
+                ok = node.downloadFile(src, dst, on_progress=_download_progress)
+                print(f"\r  {'OK' if ok else 'FAILED'}: {src} → {dst}        ")
+                if not ok:
+                    our_exit("Download failed", 1)
+
         if args.reboot:
             closeNow = True
             waitForAckNak = True
@@ -1874,6 +1899,19 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         help="Specify fields to show (comma-separated) when using --nodes",
         type=lambda s: s.split(','),
         default=None
+    )
+
+    group.add_argument(
+        "--cp",
+        help=(
+            "Copy a file to or from the device via XModem.  "
+            "Usage: --cp <src> <dst>.  "
+            "If <src> is a local file it is uploaded to <dst> on the device.  "
+            "If <src> starts with / it is downloaded from the device to <dst> locally.  "
+            "Use /__ext__/ or /__int__/ prefixes to target external or internal flash."
+        ),
+        nargs=2,
+        metavar=("SRC", "DST"),
     )
 
     return parser
