@@ -443,6 +443,17 @@ def onConnected(interface):
             # Must turn off encryption on primary channel
             interface.getNode(args.dest, **getNode_kwargs).turnOffEncryptionOnPrimaryChannel()
 
+        if args.ls is not None:
+            closeNow = True
+            remote_dir = args.ls
+            depth = int(getattr(args, "ls_depth", 0) or 0)
+            node = interface.localNode
+            rows = node.listDir(remote_dir, depth=depth)
+            if rows is None:
+                our_exit("listDir failed", 1)
+            for path, sz in rows:
+                print(f"{sz}\t{path}")
+
         if args.cp:
             closeNow = True
             src, dst = args.cp
@@ -1906,12 +1917,31 @@ def addLocalActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
         help=(
             "Copy a file to or from the device via XModem.  "
             "Usage: --cp <src> <dst>.  "
-            "If <src> is a local file it is uploaded to <dst> on the device.  "
-            "If <src> starts with / it is downloaded from the device to <dst> locally.  "
+            "If <src> is an existing local file it is uploaded to <dst> on the device.  "
+            "Otherwise <src> is treated as a device path and downloaded to local <dst>.  "
             "Use /__ext__/ or /__int__/ prefixes to target external or internal flash."
         ),
         nargs=2,
         metavar=("SRC", "DST"),
+    )
+
+    group.add_argument(
+        "--ls",
+        help=(
+            "List files on the device under REMOTE_DIR via XMODEM MFLIST (requires matching firmware).  "
+            "Output: size_bytes<TAB>path (one per line)."
+        ),
+        nargs="?",
+        const="/",
+        default=None,
+        metavar="REMOTE_DIR",
+    )
+
+    group.add_argument(
+        "--ls-depth",
+        help="Max directory depth for --ls (0 = files in REMOTE_DIR only).",
+        type=int,
+        default=0,
     )
 
     return parser

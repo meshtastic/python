@@ -2,6 +2,11 @@
 """
 Round-trip XModem tests for firmware path prefixes /__int__/ and /__ext__/.
 
+After each successful upload+download round-trip, the harness runs ``listDir``
+(MFLIST) on the parent directory and checks that the test file path appears in
+the listing (requires firmware with MFLIST support). Use ``--skip-listdir`` to
+disable that step (e.g. older firmware).
+
 Run one device at a time: connect only the target radio, then pass --device and
 either --port (serial) or --host (TCP). Do not rely on auto port discovery.
 
@@ -38,7 +43,7 @@ import sys
 import tempfile
 import threading
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from pathlib import Path
 from typing import Any, Literal
 
@@ -76,10 +81,25 @@ class StepResult:
 
 
 @dataclass
+class ListStepResult:
+    """Result of verifying an upload via MFLIST ``listDir`` on the parent directory."""
+
+    device: str
+    prefix: str
+    dir_path: str
+    expect_path: str
+    row_count: int
+    duration_s: float
+    ok: bool
+    error: str | None = None
+
+
+@dataclass
 class SuiteResult:
     device: str
     ok: bool
     steps: list[StepResult]
+    list_steps: list[ListStepResult] = field(default_factory=list)
 
 
 def _sha256(data: bytes) -> str:
@@ -239,6 +259,68 @@ def _run_prefix_roundtrip(
                 pass
 
 
+def _run_listdir_check(
+    iface: Any,
+    device: DeviceId,
+    prefix_name: str,
+    dir_path: str,
+    expect_path: str,
+    timeout_s: float,
+) -> ListStepResult:
+    """Confirm ``expect_path`` appears in ``listDir(dir_path, depth=0)``."""
+    t0 = time.perf_counter()
+    node = iface.localNode
+    rows = node.listDir(dir_path, depth=0, timeout_s=timeout_s)
+    dt = time.perf_counter() - t0
+    if rows is None:
+        return ListStepResult(
+            device=device,
+            prefix=prefix_name,
+            dir_path=dir_path,
+            expect_path=expect_path,
+            row_count=0,
+            duration_s=dt,
+            ok=False,
+            error="listDir returned None (NAK, timeout, or firmware without MFLIST)",
+        )
+    paths = [p for p, _ in rows]
+    if expect_path in paths:
+        return ListStepResult(
+            device=device,
+            prefix=prefix_name,
+            dir_path=dir_path,
+            expect_path=expect_path,
+            row_count=len(rows),
+            duration_s=dt,
+            ok=True,
+            error=None,
+        )
+    base = Path(expect_path).name
+    matched = [p for p in paths if p.rstrip("/").endswith("/" + base) or p.rstrip("/").endswith(base)]
+    if matched:
+        return ListStepResult(
+            device=device,
+            prefix=prefix_name,
+            dir_path=dir_path,
+            expect_path=expect_path,
+            row_count=len(rows),
+            duration_s=dt,
+            ok=True,
+            error=None,
+        )
+    sample = paths[:12]
+    return ListStepResult(
+        device=device,
+        prefix=prefix_name,
+        dir_path=dir_path,
+        expect_path=expect_path,
+        row_count=len(rows),
+        duration_s=dt,
+        ok=False,
+        error=f"expected path not in listing (sample {sample!r})",
+    )
+
+
 def run_suite(
     device: DeviceId,
     port: str | None,
@@ -249,6 +331,8 @@ def run_suite(
     xmodem_timeout: float,
     skip_prompt: bool,
     device_log: bool = False,
+    *,
+    skip_listdir: bool = False,
 ) -> SuiteResult:
     label = DEVICE_LABELS[device]
     print("\n" + "=" * 72)
@@ -269,6 +353,7 @@ def run_suite(
 
     iface: SerialInterface | TCPInterface | None = None
     steps: list[StepResult] = []
+    list_steps: list[ListStepResult] = []
     try:
         stop_hb = threading.Event()
         hb_thread = threading.Thread(target=_connect_heartbeat, args=(stop_hb,), daemon=True)
@@ -303,7 +388,7 @@ def run_suite(
             )
             print(f"\nYou may disconnect {label} now (open failed).")
             _prompt("Disconnect complete?", skip_prompt)
-            return SuiteResult(device=device, ok=False, steps=steps)
+            return SuiteResult(device=device, ok=False, steps=steps, list_steps=list_steps)
 
         print(f"  Transport + handshake finished in {link_dt:.1f}s", flush=True)
 
@@ -321,6 +406,15 @@ def run_suite(
             print(f"  {status}  {r.direction}  {r.duration_s:.2f}s  sha256={r.sha256_expected[:16]}…")
             if not r.ok:
                 print(f"  error: {r.error}")
+            elif not skip_listdir:
+                parent = str(Path(path).parent)
+                print(f"  listDir: {parent} (expect {path!r})", flush=True)
+                lr = _run_listdir_check(iface, device, prefix_name, parent, path, xmodem_timeout)
+                list_steps.append(lr)
+                ls = "PASS" if lr.ok else "FAIL"
+                print(f"  {ls}  listDir  {lr.duration_s:.2f}s  rows={lr.row_count}", flush=True)
+                if not lr.ok:
+                    print(f"  error: {lr.error}", flush=True)
     finally:
         if iface is not None:
             try:
@@ -331,8 +425,8 @@ def run_suite(
     print(f"\nYou may disconnect {label} now.")
     _prompt("Disconnect complete?", skip_prompt)
 
-    suite_ok = all(s.ok for s in steps)
-    return SuiteResult(device=device, ok=suite_ok, steps=steps)
+    suite_ok = all(s.ok for s in steps) and all(s.ok for s in list_steps)
+    return SuiteResult(device=device, ok=suite_ok, steps=steps, list_steps=list_steps)
 
 
 # ── Optional XModem round-trip tracing (monkeypatch Node._xmodem_roundtrip) ───
@@ -391,8 +485,15 @@ def _emit_json(results: list[SuiteResult]) -> None:
     def ser(obj: Any) -> Any:
         if isinstance(obj, StepResult):
             return asdict(obj)
+        if isinstance(obj, ListStepResult):
+            return asdict(obj)
         if isinstance(obj, SuiteResult):
-            return {"device": obj.device, "ok": obj.ok, "steps": [asdict(s) for s in obj.steps]}
+            return {
+                "device": obj.device,
+                "ok": obj.ok,
+                "steps": [asdict(s) for s in obj.steps],
+                "list_steps": [asdict(s) for s in obj.list_steps],
+            }
         raise TypeError(type(obj))
 
     print(json.dumps([ser(r) for r in results], indent=2))
@@ -447,6 +548,11 @@ def main() -> int:
         action="store_true",
         help="Print device firmware logs on stdout over the same API link (needs security.debug_log_api_enabled on the node).",
     )
+    p.add_argument(
+        "--skip-listdir",
+        action="store_true",
+        help="Do not run MFLIST listDir checks after each successful round-trip (older firmware without MFLIST).",
+    )
 
     args = p.parse_args()
     if args.verbose:
@@ -478,6 +584,8 @@ def main() -> int:
         print("  --trace-xmodem: printing each XModem tx/rx line", flush=True)
     if args.device_log:
         print("  --device-log: firmware LogRecord -> stdout (same USB session)", flush=True)
+    if args.skip_listdir:
+        print("  --skip-listdir: MFLIST verification disabled", flush=True)
 
     if args.trace_xmodem:
         install_xmodem_trace()
@@ -496,6 +604,7 @@ def main() -> int:
                 xmodem_timeout=args.xmodem_timeout,
                 skip_prompt=args.skip_prompt,
                 device_log=args.device_log,
+                skip_listdir=args.skip_listdir,
             )
             results.append(r)
             line = "PASS" if r.ok else "FAIL"
@@ -507,7 +616,11 @@ def main() -> int:
         print("\n" + "=" * 72)
         print("SUMMARY (copy/paste)")
         for r in results:
-            print(f"  {r.device}: {'PASS' if r.ok else 'FAIL'}")
+            extra = ""
+            if r.list_steps:
+                bad = [x for x in r.list_steps if not x.ok]
+                extra = f"  listDir: {len(r.list_steps)} step(s)" + (f", {len(bad)} FAIL" if bad else " OK")
+            print(f"  {r.device}: {'PASS' if r.ok else 'FAIL'}{extra}")
         any_fail = any(not r.ok for r in results)
         if any_fail:
             print("\nTriage:")
@@ -517,6 +630,123 @@ def main() -> int:
     finally:
         if args.trace_xmodem:
             uninstall_xmodem_trace()
+
+
+# ── Unit tests (no device): `pytest scripts/test_prefix_routing.py -q` from repo root ──
+
+
+def test_run_listdir_check_exact_path():
+    from unittest.mock import MagicMock
+
+    node = MagicMock()
+    node.listDir.return_value = [("/__int__/meshforge-test/tdeck/int.bin", 10)]
+    iface = MagicMock()
+    iface.localNode = node
+    r = _run_listdir_check(
+        iface,
+        "tdeck",
+        "__int__",
+        "/__int__/meshforge-test/tdeck",
+        "/__int__/meshforge-test/tdeck/int.bin",
+        1.0,
+    )
+    assert r.ok is True
+    assert r.row_count == 1
+    assert r.error is None
+    node.listDir.assert_called_once_with("/__int__/meshforge-test/tdeck", depth=0, timeout_s=1.0)
+
+
+def test_run_listdir_check_basename_fallback():
+    from unittest.mock import MagicMock
+
+    node = MagicMock()
+    # Listed path differs from expected full virtual path but same basename — still accepted
+    node.listDir.return_value = [("/some/other/prefix/ext.bin", 10)]
+    iface = MagicMock()
+    iface.localNode = node
+    r = _run_listdir_check(
+        iface,
+        "techo",
+        "__ext__",
+        "/__ext__/meshforge-test/techo",
+        "/__ext__/meshforge-test/techo/ext.bin",
+        2.0,
+    )
+    assert r.ok is True
+
+
+def test_run_listdir_check_fails_when_path_missing():
+    from unittest.mock import MagicMock
+
+    node = MagicMock()
+    node.listDir.return_value = [("/other/file.bin", 5)]
+    iface = MagicMock()
+    iface.localNode = node
+    r = _run_listdir_check(
+        iface,
+        "tdeck",
+        "__ext__",
+        "/__ext__/meshforge-test/tdeck",
+        "/__ext__/meshforge-test/tdeck/ext.bin",
+        1.0,
+    )
+    assert r.ok is False
+    assert r.error is not None
+    assert r.row_count == 1
+
+
+def test_run_listdir_check_none_from_node():
+    from unittest.mock import MagicMock
+
+    node = MagicMock()
+    node.listDir.return_value = None
+    iface = MagicMock()
+    iface.localNode = node
+    r = _run_listdir_check(iface, "rak4631", "__ext__", "/__ext__/x", "/__ext__/x/y.bin", 0.5)
+    assert r.ok is False
+    assert "None" in (r.error or "")
+
+
+def test_emit_json_includes_list_steps():
+    sr = SuiteResult(
+        device="tdeck",
+        ok=True,
+        steps=[
+            StepResult(
+                device="tdeck",
+                prefix="__int__",
+                direction="roundtrip",
+                device_path="/p",
+                bytes_count=1,
+                sha256_expected="a",
+                sha256_got="a",
+                duration_s=0.1,
+                ok=True,
+            )
+        ],
+        list_steps=[
+            ListStepResult(
+                device="tdeck",
+                prefix="__int__",
+                dir_path="/",
+                expect_path="/p",
+                row_count=3,
+                duration_s=0.05,
+                ok=True,
+            )
+        ],
+    )
+    import io
+    import contextlib
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        _emit_json([sr])
+    out = json.loads(buf.getvalue())
+    assert len(out) == 1
+    assert "list_steps" in out[0]
+    assert len(out[0]["list_steps"]) == 1
+    assert out[0]["list_steps"][0]["expect_path"] == "/p"
 
 
 if __name__ == "__main__":
