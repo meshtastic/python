@@ -19,8 +19,8 @@ from meshtastic.file_transfer_cli import (
 
 
 def test_device_posix_join():
-    assert device_posix_join("/__ext__/d", "a/b") == "/__ext__/d/a/b"
-    assert device_posix_join("/__ext__/d/", "a", "b") == "/__ext__/d/a/b"
+    assert device_posix_join("/mnt/d", "a/b") == "/mnt/d/a/b"
+    assert device_posix_join("/mnt/d/", "a", "b") == "/mnt/d/a/b"
     assert device_posix_join("/", "x") == "/x"
 
 
@@ -35,8 +35,8 @@ def test_plan_upload_single_plain_file():
         f = os.path.join(d, "one.bin")
         with open(f, "wb") as fp:
             fp.write(b"x")
-        pairs = plan_upload([f], "/__ext__/out.bin")
-        assert pairs == [(f, "/__ext__/out.bin")]
+        pairs = plan_upload([f], "/mnt/out.bin")
+        assert pairs == [(f, "/mnt/out.bin")]
 
 
 def test_plan_upload_glob_recursive():
@@ -48,10 +48,10 @@ def test_plan_upload_glob_recursive():
             with open(fp, "w") as fh:
                 fh.write("x")
         pat = os.path.join(d, "p", "**", "*.txt")
-        pairs = plan_upload([pat], "/__ext__/out")
+        pairs = plan_upload([pat], "/mnt/out")
         assert len(pairs) == 2
         devs = sorted(dev for _loc, dev in pairs)
-        assert devs == ["/__ext__/out/a.txt", "/__ext__/out/q/b.txt"]
+        assert devs == ["/mnt/out/a.txt", "/mnt/out/q/b.txt"]
 
 
 def test_plan_upload_directory_preserves_layout():
@@ -61,11 +61,11 @@ def test_plan_upload_directory_preserves_layout():
         f1 = os.path.join(sub, "f.txt")
         with open(f1, "w") as fp:
             fp.write("hi")
-        pairs = plan_upload([d], "/__ext__/dst")
+        pairs = plan_upload([d], "/mnt/dst")
         assert len(pairs) == 1
         loc, dev = pairs[0]
         assert loc == f1
-        assert dev == "/__ext__/dst/a/b/f.txt"
+        assert dev == "/mnt/dst/a/b/f.txt"
 
 
 def test_plan_upload_dedupe():
@@ -73,7 +73,7 @@ def test_plan_upload_dedupe():
         f = os.path.join(d, "x.bin")
         with open(f, "wb") as fp:
             fp.write(b"x")
-        pairs = plan_upload([f, f], "/__ext__/d")
+        pairs = plan_upload([f, f], "/mnt/d")
         assert len(pairs) == 1
 
 
@@ -88,7 +88,7 @@ def test_plan_upload_path_too_long():
 
 
 def test_split_remote_glob_pattern():
-    assert split_remote_glob_pattern("/__ext__/bbs/*.md") == ("/__ext__/bbs", "*.md")
+    assert split_remote_glob_pattern("/mnt/bbs/*.md") == ("/mnt/bbs", "*.md")
     base, rel = split_remote_glob_pattern("*.md")
     assert base == "/"
     assert rel == "*.md"
@@ -103,26 +103,26 @@ def test_remote_rel_glob_to_regex():
 
 def test_plan_download_tree():
     rows = [
-        ("/__ext__/d/a.txt", 3),
-        ("/__ext__/d/sub/b.bin", 2),
-        ("/__ext__/d/emptydir", 0),
+        ("/mnt/d/a.txt", 3),
+        ("/mnt/d/sub/b.bin", 2),
+        ("/mnt/d/emptydir", 0),
     ]
     with tempfile.TemporaryDirectory() as ld:
-        pairs = plan_download_tree("/__ext__/d", ld, rows)
+        pairs = plan_download_tree("/mnt/d", ld, rows)
         assert len(pairs) == 2
         by = {os.path.basename(lp): dp for dp, lp in pairs}
-        assert by["a.txt"] == "/__ext__/d/a.txt"
-        assert by["b.bin"] == "/__ext__/d/sub/b.bin"
+        assert by["a.txt"] == "/mnt/d/a.txt"
+        assert by["b.bin"] == "/mnt/d/sub/b.bin"
 
 
 def test_plan_download_glob():
     rows = [
-        ("/__ext__/bbs/kb/one.md", 10),
-        ("/__ext__/bbs/kb/two.txt", 5),
-        ("/__ext__/bbs/other/x.md", 3),
+        ("/mnt/bbs/kb/one.md", 10),
+        ("/mnt/bbs/kb/two.txt", 5),
+        ("/mnt/bbs/other/x.md", 3),
     ]
     with tempfile.TemporaryDirectory() as ld:
-        pairs = plan_download_glob("/__ext__/bbs/**/*.md", ld, rows)
+        pairs = plan_download_glob("/mnt/bbs/**/*.md", ld, rows)
         assert len(pairs) == 2
         locs = sorted(lp for _dp, lp in pairs)
         assert locs[0].endswith(os.path.join("kb", "one.md"))

@@ -1625,7 +1625,7 @@ def test_node_upload_file_xmodem_happy_path(tmp_path):
     iface = MagicMock(autospec=MeshInterface)
     anode = Node(iface, 1234567890, noProto=False)
     XC = xmodem_pb2.XModem
-    device_path = "/__ext__/t.bin"
+    device_path = "/t.bin"
     payload = b"hello"
     src = tmp_path / "src.bin"
     src.write_bytes(payload)
@@ -1659,7 +1659,7 @@ def test_node_upload_file_xmodem_two_chunks(tmp_path):
     iface = MagicMock(autospec=MeshInterface)
     anode = Node(iface, 1234567890, noProto=False)
     XC = xmodem_pb2.XModem
-    device_path = "/__int__/big.bin"
+    device_path = "/big.bin"
     payload = b"Z" * 129
     c0, c1 = payload[:128], payload[128:]
     src = tmp_path / "src.bin"
@@ -1720,7 +1720,7 @@ def test_node_download_file_xmodem_happy_path(tmp_path):
     iface = MagicMock(autospec=MeshInterface)
     anode = Node(iface, 1234567890, noProto=False)
     XC = xmodem_pb2.XModem
-    device_path = "/__ext__/r.bin"
+    device_path = "/r.bin"
     payload = b"hi"
     dst = tmp_path / "out.bin"
     phase = 0
@@ -1856,7 +1856,7 @@ def test_node_listdir_skips_comments_and_bad_lines():
 
     with patch.object(anode, "_xmodem_roundtrip", side_effect=fake_roundtrip):
         with patch.object(anode, "_xmodem_send"):
-            rows = anode.listDir("/__ext__", depth=0)
+            rows = anode.listDir("/mnt", depth=0)
     assert rows == [("/ok.txt", 1), ("/good.bin", 99)]
 
 

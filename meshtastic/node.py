@@ -1133,9 +1133,8 @@ class Node:
 
         Args:
             local_path:   Path to the local file to upload.
-            device_path:  Destination path on the device.  Use ``/__ext__/`` or
-                          ``/__int__/`` prefixes to target external or internal
-                          flash respectively; bare ``/`` paths go to InternalFS.
+            device_path:  Absolute path on the device filesystem (what the firmware
+                          resolves for XModem open/write).
             on_progress:  Optional callback ``fn(bytes_sent, total_bytes)``.
             timeout_s:    Per-packet ACK timeout in seconds.
 
@@ -1144,7 +1143,7 @@ class Node:
 
         Example::
 
-            iface.localNode.uploadFile("wordle.bin", "/__ext__/bbs/kb/wordle.bin")
+            iface.localNode.uploadFile("wordle.bin", "/bbs/kb/wordle.bin")
         """
         if self.noProto:
             logger.warning("uploadFile: protocol disabled (noProto)")
@@ -1242,8 +1241,7 @@ class Node:
         """Download a file from the device via XModem.
 
         Args:
-            device_path:  Source path on the device (``/__ext__/``, ``/__int__/``,
-                          or bare ``/`` for InternalFS).
+            device_path:  Absolute path on the device (same path rules as ``uploadFile``).
             local_path:   Destination path on the local filesystem.
             on_progress:  Optional callback ``fn(bytes_received, total_bytes)``.
                           ``total_bytes`` is -1 (unknown) during transfer.
@@ -1254,7 +1252,7 @@ class Node:
 
         Example::
 
-            iface.localNode.downloadFile("/__ext__/bbs/kb/wordle.bin", "wordle.bin")
+            iface.localNode.downloadFile("/bbs/kb/wordle.bin", "wordle.bin")
         """
         if self.noProto:
             logger.warning("downloadFile: protocol disabled (noProto)")
@@ -1325,7 +1323,7 @@ class Node:
         """List files on the device under ``device_path`` via XMODEM ``MFLIST`` (matching firmware).
 
         Args:
-            device_path: Directory on the device (``/__ext__/``, ``/__int__/``, or bare ``/``).
+            device_path: Directory path on the device to list.
             depth: Recursion depth (0 = files in that directory only; each increment adds one tree level).
             timeout_s: Per-packet timeout.
 
