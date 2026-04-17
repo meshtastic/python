@@ -263,6 +263,36 @@ def test_shutdown(caplog):
 
 
 @pytest.mark.unit
+def test_factoryReset_config_uses_int_field():
+    """Test factoryReset(config) sets int32 protobuf field with an int value."""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 1234567890, noProto=True)
+
+    amesg = admin_pb2.AdminMessage()
+    with patch("meshtastic.admin_pb2.AdminMessage", return_value=amesg):
+        with patch.object(anode, "_sendAdmin") as mock_send_admin:
+            anode.factoryReset(full=False)
+
+            assert amesg.factory_reset_config == 1
+            mock_send_admin.assert_called_once_with(amesg, onResponse=anode.onAckNak)
+
+
+@pytest.mark.unit
+def test_factoryReset_full_sets_device_field():
+    """Test factoryReset(full=True) sets the full-device reset protobuf field."""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 1234567890, noProto=True)
+
+    amesg = admin_pb2.AdminMessage()
+    with patch("meshtastic.admin_pb2.AdminMessage", return_value=amesg):
+        with patch.object(anode, "_sendAdmin") as mock_send_admin:
+            anode.factoryReset(full=True)
+
+            assert amesg.factory_reset_device is True
+            mock_send_admin.assert_called_once_with(amesg, onResponse=anode.onAckNak)
+
+
+@pytest.mark.unit
 def test_setURL_empty_url(capsys):
     """Test reboot"""
     anode = Node("foo", "bar", noProto=True)
