@@ -731,7 +731,7 @@ class Node:
             p.factory_reset_device = True
             logger.info(f"Telling node to factory reset (full device reset)")
         else:
-            p.factory_reset_config = True
+            p.factory_reset_config = 1
             logger.info(f"Telling node to factory reset (config reset)")
 
         # If sending to a remote node, wait for ACK/NAK
