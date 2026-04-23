@@ -1,5 +1,6 @@
 """Stream Interface base class
 """
+import contextlib
 import io
 import logging
 import threading
@@ -61,9 +62,17 @@ class StreamInterface(MeshInterface):
 
         # Start the reader thread after superclass constructor completes init
         if connectNow:
-            self.connect()
-            if not noProto:
-                self.waitForConfig()
+            try:
+                self.connect()
+                if not noProto:
+                    self.waitForConfig()
+            except Exception:
+                # If the handshake raises, the caller never receives a reference
+                # to this instance and cannot call close() themselves. Clean up
+                # the reader thread + stream here so retries don't leak.
+                with contextlib.suppress(Exception):
+                    self.close()
+                raise
 
     def connect(self) -> None:
         """Connect to our radio
@@ -136,7 +145,13 @@ class StreamInterface(MeshInterface):
         # reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
-            self._rxThread.join()  # wait for it to exit
+            try:
+                self._rxThread.join()  # wait for it to exit
+            except RuntimeError:
+                # Thread was never started — happens when close() is invoked
+                # from a failed __init__ before connect() could spawn it.
+                # Nothing to join; safe to ignore.
+                pass
 
     def _handleLogByte(self, b):
         """Handle a byte that is part of a log message from the device."""
