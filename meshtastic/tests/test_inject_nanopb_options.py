@@ -12,10 +12,17 @@ import importlib.util
 import sys
 import textwrap
 from pathlib import Path
-from typing import Any, Dict, Tuple
 from unittest.mock import patch
 
 import pytest
+
+from meshtastic.protobuf import (
+    atak_pb2,
+    config_pb2,
+    mesh_pb2,
+    nanopb_pb2,
+    telemetry_pb2,
+)
 
 # ---------------------------------------------------------------------------
 # Load bin/inject_nanopb_options.py as a module without adding it to the
@@ -55,26 +62,31 @@ NANOPB_IMPORT = 'import "meshtastic/protobuf/nanopb.proto";'
 
 @pytest.mark.unit
 def test_parse_value_integer():
+    """parse_value converts a decimal string to int."""
     assert parse_value("40") == 40
 
 
 @pytest.mark.unit
 def test_parse_value_negative_integer():
+    """parse_value handles negative integer strings."""
     assert parse_value("-1") == -1
 
 
 @pytest.mark.unit
 def test_parse_value_true():
+    """parse_value converts 'true' to Python True."""
     assert parse_value("true") is True
 
 
 @pytest.mark.unit
 def test_parse_value_false():
+    """parse_value converts 'false' to Python False."""
     assert parse_value("false") is False
 
 
 @pytest.mark.unit
 def test_parse_value_string():
+    """parse_value returns non-numeric, non-boolean strings as-is."""
     assert parse_value("IS_8") == "IS_8"
 
 
@@ -113,7 +125,7 @@ def test_parse_specific(tmp_path):
 def test_parse_multilevel(tmp_path):
     """Three-part pattern (Route.Link.uid) produces a 3-tuple key."""
     f = _write_options(tmp_path, "*Route.Link.uid max_size:48\n")
-    specific, wildcard = parse_options_file(f)
+    specific, _ = parse_options_file(f)
     assert ("Route", "Link", "uid") in specific
     assert specific[("Route", "Link", "uid")] == {"max_size": 48}
 
@@ -181,12 +193,14 @@ def test_parse_int_and_bool_values(tmp_path):
 
 @pytest.mark.unit
 def test_message_path_matches_simple():
+    """A single-element path matches the current message on the stack."""
     stack = [("message", "User")]
     assert message_path_matches(stack, ("User",))
 
 
 @pytest.mark.unit
 def test_message_path_matches_nested():
+    """Both a 1-element and 2-element path match correctly against a nested stack."""
     stack = [("message", "Config"), ("message", "DeviceConfig")]
     assert message_path_matches(stack, ("DeviceConfig",))
     assert message_path_matches(stack, ("Config", "DeviceConfig"))
@@ -201,6 +215,7 @@ def test_message_path_matches_with_oneof_in_stack():
 
 @pytest.mark.unit
 def test_message_path_no_match():
+    """A path with the wrong message name does not match."""
     stack = [("message", "User")]
     assert not message_path_matches(stack, ("Route",))
 
@@ -220,11 +235,13 @@ def test_message_path_multilevel_partial_match():
 
 @pytest.mark.unit
 def test_format_max_size():
+    """max_size is rendered as an integer literal."""
     assert format_nanopb_opts({"max_size": 40}) == "(nanopb).max_size = 40"
 
 
 @pytest.mark.unit
 def test_format_int_size_as_enum():
+    """int_size numeric values are rendered as IS_8/IS_16/IS_32/IS_64 enum names."""
     assert format_nanopb_opts({"int_size": 8}) == "(nanopb).int_size = IS_8"
     assert format_nanopb_opts({"int_size": 16}) == "(nanopb).int_size = IS_16"
     assert format_nanopb_opts({"int_size": 32}) == "(nanopb).int_size = IS_32"
@@ -233,11 +250,13 @@ def test_format_int_size_as_enum():
 
 @pytest.mark.unit
 def test_format_bool_true():
+    """True is rendered as the proto literal 'true'."""
     assert format_nanopb_opts({"fixed_length": True}) == "(nanopb).fixed_length = true"
 
 
 @pytest.mark.unit
 def test_format_bool_false():
+    """False is rendered as the proto literal 'false'."""
     assert format_nanopb_opts({"fixed_length": False}) == "(nanopb).fixed_length = false"
 
 
@@ -293,6 +312,7 @@ def test_inject_merges_with_existing_options():
 
 @pytest.mark.unit
 def test_inject_int_size_uses_enum_name():
+    """int_size values are written as IS_N enum names, not raw integers."""
     proto = """\
         syntax = "proto3";
         import "meshtastic/protobuf/mesh.proto";
@@ -335,8 +355,6 @@ def test_inject_specific_not_leaking_to_other_messages():
         }
     """
     result = _inject(proto, specific={("User", "id"): {"max_size": 16}})
-    lines = result.splitlines()
-    user_line = next(l for l in lines if "User" not in l and "id = 1" in l and "Other" not in l.split("message")[0] if "message" not in l)
     # Easier: count annotations — should be exactly one
     assert result.count("(nanopb).max_size = 16") == 1
 
@@ -400,6 +418,7 @@ def test_inject_optional_qualifier_preserved():
 
 @pytest.mark.unit
 def test_inject_repeated_qualifier_preserved():
+    """The 'repeated' qualifier is kept when a field gets an annotation."""
     proto = """\
         syntax = "proto3";
         import "meshtastic/protobuf/mesh.proto";
@@ -413,6 +432,7 @@ def test_inject_repeated_qualifier_preserved():
 
 @pytest.mark.unit
 def test_inject_multiple_options_on_one_field():
+    """Multiple options from the same pattern are all injected on one field."""
     proto = """\
         syntax = "proto3";
         import "meshtastic/protobuf/mesh.proto";
@@ -510,14 +530,6 @@ def test_inject_noop_when_no_options():
 # embedded in the serialized descriptors.
 # ===========================================================================
 
-from meshtastic.protobuf import (  # noqa: E402  (after local helpers)
-    atak_pb2,
-    config_pb2,
-    mesh_pb2,
-    nanopb_pb2,
-    telemetry_pb2,
-)
-
 
 def _field_opts(descriptor, *path):
     """Walk a descriptor by field/nested-type path and return its nanopb opts.
@@ -534,12 +546,14 @@ def _field_opts(descriptor, *path):
 
 @pytest.mark.unit
 def test_descriptor_user_long_name():
+    """User.long_name has max_size = 40 from mesh.options."""
     opts = _field_opts(mesh_pb2.DESCRIPTOR.message_types_by_name["User"], "long_name")
     assert opts.max_size == 40
 
 
 @pytest.mark.unit
 def test_descriptor_user_short_name():
+    """User.short_name has max_size = 5 from mesh.options."""
     opts = _field_opts(mesh_pb2.DESCRIPTOR.message_types_by_name["User"], "short_name")
     assert opts.max_size == 5
 
@@ -554,12 +568,14 @@ def test_descriptor_wildcard_macaddr():
 
 @pytest.mark.unit
 def test_descriptor_meshpacket_hop_limit():
+    """MeshPacket.hop_limit has int_size = IS_8 from mesh.options."""
     opts = _field_opts(mesh_pb2.DESCRIPTOR.message_types_by_name["MeshPacket"], "hop_limit")
     assert opts.int_size == nanopb_pb2.IS_8
 
 
 @pytest.mark.unit
 def test_descriptor_routediscovery_snr_towards():
+    """RouteDiscovery.snr_towards has max_count = 8 and int_size = IS_8 from mesh.options."""
     opts = _field_opts(
         mesh_pb2.DESCRIPTOR.message_types_by_name["RouteDiscovery"], "snr_towards"
     )
@@ -569,6 +585,7 @@ def test_descriptor_routediscovery_snr_towards():
 
 @pytest.mark.unit
 def test_descriptor_data_payload():
+    """Data.payload has max_size = 233 from mesh.options."""
     opts = _field_opts(mesh_pb2.DESCRIPTOR.message_types_by_name["Data"], "payload")
     assert opts.max_size == 233
 
@@ -600,6 +617,7 @@ def test_descriptor_multilevel_nested_route_link_uid():
 
 @pytest.mark.unit
 def test_descriptor_telemetry_environment_one_wire_temperature():
+    """EnvironmentMetrics.one_wire_temperature has max_count = 8 from telemetry.options."""
     env = telemetry_pb2.DESCRIPTOR.message_types_by_name["EnvironmentMetrics"]
     opts = _field_opts(env, "one_wire_temperature")
     assert opts.max_count == 8
