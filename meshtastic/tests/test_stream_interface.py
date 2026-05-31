@@ -18,6 +18,101 @@ def test_StreamInterface():
     assert pytest_wrapped_e.type == Exception
 
 
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_StreamInterface_close_safe_when_thread_never_started():
+    """close() must not raise RuntimeError when called before connect() has started the reader.
+
+    Hits the cleanup path used by __init__ when the handshake raises before the
+    reader thread is started.
+    """
+    iface = StreamInterface(noProto=True, connectNow=False)
+    iface.stream = MagicMock()
+    # _rxThread was created in __init__ but never .start()'d. close() should
+    # detect that and skip join() instead of raising RuntimeError.
+    iface.close()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_StreamInterface_init_cleans_up_when_connect_raises():
+    """If connect() raises during __init__, close() runs and the original exception propagates."""
+
+    cleanup_calls = []
+
+    class FailingConnectStream(StreamInterface):
+        """Subclass whose connect() raises, to exercise the __init__ cleanup path."""
+
+        def __init__(self):
+            self.stream = MagicMock()  # bypass StreamInterface abstract check
+            super().__init__(noProto=False, connectNow=True)
+
+        def connect(self):
+            raise RuntimeError("simulated handshake failure")
+
+        def close(self):
+            cleanup_calls.append("close")
+            super().close()
+
+    with pytest.raises(RuntimeError, match="simulated handshake failure"):
+        FailingConnectStream()
+    assert cleanup_calls == ["close"], "close() should be invoked exactly once on handshake failure"
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_StreamInterface_init_cleans_up_when_waitForConfig_raises():
+    """If waitForConfig() raises after a successful connect(), close() runs and exception propagates."""
+
+    cleanup_calls = []
+
+    class FailingWaitStream(StreamInterface):
+        """Subclass whose waitForConfig() raises, to exercise the second leg of cleanup."""
+
+        def __init__(self):
+            self.stream = MagicMock()
+            super().__init__(noProto=False, connectNow=True)
+
+        def connect(self):
+            # No-op connect — we are simulating handshake-stage failure, not connect-stage.
+            pass
+
+        def waitForConfig(self):
+            raise TimeoutError("simulated config-handshake timeout")
+
+        def close(self):
+            cleanup_calls.append("close")
+            super().close()
+
+    with pytest.raises(TimeoutError, match="simulated config-handshake timeout"):
+        FailingWaitStream()
+    assert cleanup_calls == ["close"], "close() should be invoked exactly once on handshake timeout"
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_StreamInterface_init_cleanup_does_not_shadow_original_exception():
+    """If close() itself raises during __init__ cleanup, the original exception still propagates.
+
+    The cleanup uses contextlib.suppress(Exception) so that a secondary failure
+    in close() doesn't replace the real reason for the failed handshake.
+    """
+
+    class CleanupRaisesStream(StreamInterface):
+        def __init__(self):
+            self.stream = MagicMock()
+            super().__init__(noProto=False, connectNow=True)
+
+        def connect(self):
+            raise RuntimeError("original handshake failure")
+
+        def close(self):
+            raise RuntimeError("secondary close failure — should be suppressed")
+
+    with pytest.raises(RuntimeError, match="original handshake failure"):
+        CleanupRaisesStream()
+
+
 # Note: This takes a bit, so moving from unit to slow
 @pytest.mark.unitslow
 @pytest.mark.usefixtures("reset_mt_config")
