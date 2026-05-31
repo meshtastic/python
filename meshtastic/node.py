@@ -728,10 +728,10 @@ class Node:
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         if full:
-            p.factory_reset_device = True
+            p.factory_reset_device = 1
             logger.info(f"Telling node to factory reset (full device reset)")
         else:
-            p.factory_reset_config = True
+            p.factory_reset_config = 1
             logger.info(f"Telling node to factory reset (config reset)")
 
         # If sending to a remote node, wait for ACK/NAK
