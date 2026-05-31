@@ -28,6 +28,7 @@ OUTDIR=${TMPDIR}/out
 PYIDIR=${TMPDIR}/out
 mkdir -p "${OUTDIR}" "${INDIR}" "${PYIDIR}"
 cp ./protobufs/meshtastic/*.proto "${INDIR}"
+cp ./protobufs/meshtastic/*.options "${INDIR}"
 cp ./protobufs/nanopb.proto "${INDIR}"
 
 # OS-X sed is apparently a little different and expects an arg for -i

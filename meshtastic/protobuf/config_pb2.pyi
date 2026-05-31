@@ -1010,6 +1010,10 @@ class Config(google.protobuf.message.Message):
             """
             Can not be auto detected but set by proto. Used for 128x128 screens
             """
+            OLED_SH1107_ROTATED: Config.DisplayConfig._OledType.ValueType  # 5
+            """
+            Can not be auto detected but set by proto. Used for 64x128 rotated screens
+            """
 
         class OledType(_OledType, metaclass=_OledTypeEnumTypeWrapper):
             """
@@ -1035,6 +1039,10 @@ class Config(google.protobuf.message.Message):
         OLED_SH1107_128_128: Config.DisplayConfig.OledType.ValueType  # 4
         """
         Can not be auto detected but set by proto. Used for 128x128 screens
+        """
+        OLED_SH1107_ROTATED: Config.DisplayConfig.OledType.ValueType  # 5
+        """
+        Can not be auto detected but set by proto. Used for 64x128 rotated screens
         """
 
         class _DisplayMode:
@@ -1369,6 +1377,31 @@ class Config(google.protobuf.message.Message):
             """
             Brazil 902MHz
             """
+            ITU1_2M: Config.LoRaConfig._RegionCode.ValueType  # 27
+            """
+            ITU Region 1 Amateur Radio 2m band (144-146 MHz)
+            """
+            ITU2_2M: Config.LoRaConfig._RegionCode.ValueType  # 28
+            """
+            ITU Region 2 Amateur Radio 2m band (144-148 MHz)
+            """
+            EU_866: Config.LoRaConfig._RegionCode.ValueType  # 29
+            """
+            EU 866MHz band (Band no. 47b of 2006/771/EC and subsequent amendments) for Non-specific short-range devices (SRD)
+            """
+            EU_874: Config.LoRaConfig._RegionCode.ValueType  # 30
+            """
+            EU 874MHz and 917MHz bands (Band no. 1 and 4 of 2022/172/EC and subsequent amendments) for Non-specific short-range devices (SRD)
+            """
+            EU_917: Config.LoRaConfig._RegionCode.ValueType  # 31
+            EU_N_868: Config.LoRaConfig._RegionCode.ValueType  # 32
+            """
+            EU 868MHz band, with narrow presets
+            """
+            ITU3_2M: Config.LoRaConfig._RegionCode.ValueType  # 33
+            """
+            ITU Region 3 Amateur Radio 2m band (144-148 MHz)
+            """
 
         class RegionCode(_RegionCode, metaclass=_RegionCodeEnumTypeWrapper): ...
         UNSET: Config.LoRaConfig.RegionCode.ValueType  # 0
@@ -1479,6 +1512,31 @@ class Config(google.protobuf.message.Message):
         """
         Brazil 902MHz
         """
+        ITU1_2M: Config.LoRaConfig.RegionCode.ValueType  # 27
+        """
+        ITU Region 1 Amateur Radio 2m band (144-146 MHz)
+        """
+        ITU2_2M: Config.LoRaConfig.RegionCode.ValueType  # 28
+        """
+        ITU Region 2 Amateur Radio 2m band (144-148 MHz)
+        """
+        EU_866: Config.LoRaConfig.RegionCode.ValueType  # 29
+        """
+        EU 866MHz band (Band no. 47b of 2006/771/EC and subsequent amendments) for Non-specific short-range devices (SRD)
+        """
+        EU_874: Config.LoRaConfig.RegionCode.ValueType  # 30
+        """
+        EU 874MHz and 917MHz bands (Band no. 1 and 4 of 2022/172/EC and subsequent amendments) for Non-specific short-range devices (SRD)
+        """
+        EU_917: Config.LoRaConfig.RegionCode.ValueType  # 31
+        EU_N_868: Config.LoRaConfig.RegionCode.ValueType  # 32
+        """
+        EU 868MHz band, with narrow presets
+        """
+        ITU3_2M: Config.LoRaConfig.RegionCode.ValueType  # 33
+        """
+        ITU Region 3 Amateur Radio 2m band (144-148 MHz)
+        """
 
         class _ModemPreset:
             ValueType = typing.NewType("ValueType", builtins.int)
@@ -1531,6 +1589,31 @@ class Config(google.protobuf.message.Message):
             Long Range - Turbo
             This preset performs similarly to LongFast, but with 500Khz bandwidth.
             """
+            LITE_FAST: Config.LoRaConfig._ModemPreset.ValueType  # 10
+            """
+            Lite Fast
+            Medium range preset optimized for EU 866MHz SRD band with 125kHz bandwidth.
+            Comparable link budget to MEDIUM_FAST but compliant with Band no. 47b of 2006/771/EC.
+            """
+            LITE_SLOW: Config.LoRaConfig._ModemPreset.ValueType  # 11
+            """
+            Lite Slow
+            Medium-to-moderate range preset optimized for EU 866MHz SRD band with 125kHz bandwidth.
+            Comparable link budget to LONG_FAST but compliant with Band no. 47b of 2006/771/EC.
+            """
+            NARROW_FAST: Config.LoRaConfig._ModemPreset.ValueType  # 12
+            """
+            Narrow Fast
+            Medium-to-moderate range preset optimized for EU 868MHz band with 62.5kHz bandwidth.
+            Comparable link budget to SHORT_SLOW, but with half the data rate.
+            Intended to avoid interference with other devices.
+            """
+            NARROW_SLOW: Config.LoRaConfig._ModemPreset.ValueType  # 13
+            """
+            Narrow Slow
+            Moderate range preset optimized for EU 868MHz band with 62.5kHz bandwidth.
+            Comparable link budget and data rate to LONG_FAST.
+            """
 
         class ModemPreset(_ModemPreset, metaclass=_ModemPresetEnumTypeWrapper):
             """
@@ -1582,6 +1665,31 @@ class Config(google.protobuf.message.Message):
         """
         Long Range - Turbo
         This preset performs similarly to LongFast, but with 500Khz bandwidth.
+        """
+        LITE_FAST: Config.LoRaConfig.ModemPreset.ValueType  # 10
+        """
+        Lite Fast
+        Medium range preset optimized for EU 866MHz SRD band with 125kHz bandwidth.
+        Comparable link budget to MEDIUM_FAST but compliant with Band no. 47b of 2006/771/EC.
+        """
+        LITE_SLOW: Config.LoRaConfig.ModemPreset.ValueType  # 11
+        """
+        Lite Slow
+        Medium-to-moderate range preset optimized for EU 866MHz SRD band with 125kHz bandwidth.
+        Comparable link budget to LONG_FAST but compliant with Band no. 47b of 2006/771/EC.
+        """
+        NARROW_FAST: Config.LoRaConfig.ModemPreset.ValueType  # 12
+        """
+        Narrow Fast
+        Medium-to-moderate range preset optimized for EU 868MHz band with 62.5kHz bandwidth.
+        Comparable link budget to SHORT_SLOW, but with half the data rate.
+        Intended to avoid interference with other devices.
+        """
+        NARROW_SLOW: Config.LoRaConfig.ModemPreset.ValueType  # 13
+        """
+        Narrow Slow
+        Moderate range preset optimized for EU 868MHz band with 62.5kHz bandwidth.
+        Comparable link budget and data rate to LONG_FAST.
         """
 
         class _FEM_LNA_Mode:
@@ -1636,6 +1744,7 @@ class Config(google.protobuf.message.Message):
         IGNORE_MQTT_FIELD_NUMBER: builtins.int
         CONFIG_OK_TO_MQTT_FIELD_NUMBER: builtins.int
         FEM_LNA_MODE_FIELD_NUMBER: builtins.int
+        SERIAL_HAL_ONLY_FIELD_NUMBER: builtins.int
         use_preset: builtins.bool
         """
         When enabled, the `modem_preset` fields will be adhered to, else the `bandwidth`/`spread_factor`/`coding_rate`
@@ -1737,6 +1846,10 @@ class Config(google.protobuf.message.Message):
         """
         Set where LORA FEM is enabled, disabled, or not present
         """
+        serial_hal_only: builtins.bool
+        """
+        Don't use radiolib to initialize the radio, instead listen for a serialHal connection
+        """
         @property
         def ignore_incoming(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
             """
@@ -1767,8 +1880,9 @@ class Config(google.protobuf.message.Message):
             ignore_mqtt: builtins.bool = ...,
             config_ok_to_mqtt: builtins.bool = ...,
             fem_lna_mode: global___Config.LoRaConfig.FEM_LNA_Mode.ValueType = ...,
+            serial_hal_only: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["bandwidth", b"bandwidth", "channel_num", b"channel_num", "coding_rate", b"coding_rate", "config_ok_to_mqtt", b"config_ok_to_mqtt", "fem_lna_mode", b"fem_lna_mode", "frequency_offset", b"frequency_offset", "hop_limit", b"hop_limit", "ignore_incoming", b"ignore_incoming", "ignore_mqtt", b"ignore_mqtt", "modem_preset", b"modem_preset", "override_duty_cycle", b"override_duty_cycle", "override_frequency", b"override_frequency", "pa_fan_disabled", b"pa_fan_disabled", "region", b"region", "spread_factor", b"spread_factor", "sx126x_rx_boosted_gain", b"sx126x_rx_boosted_gain", "tx_enabled", b"tx_enabled", "tx_power", b"tx_power", "use_preset", b"use_preset"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["bandwidth", b"bandwidth", "channel_num", b"channel_num", "coding_rate", b"coding_rate", "config_ok_to_mqtt", b"config_ok_to_mqtt", "fem_lna_mode", b"fem_lna_mode", "frequency_offset", b"frequency_offset", "hop_limit", b"hop_limit", "ignore_incoming", b"ignore_incoming", "ignore_mqtt", b"ignore_mqtt", "modem_preset", b"modem_preset", "override_duty_cycle", b"override_duty_cycle", "override_frequency", b"override_frequency", "pa_fan_disabled", b"pa_fan_disabled", "region", b"region", "serial_hal_only", b"serial_hal_only", "spread_factor", b"spread_factor", "sx126x_rx_boosted_gain", b"sx126x_rx_boosted_gain", "tx_enabled", b"tx_enabled", "tx_power", b"tx_power", "use_preset", b"use_preset"]) -> None: ...
 
     @typing.final
     class BluetoothConfig(google.protobuf.message.Message):

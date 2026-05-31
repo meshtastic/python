@@ -113,7 +113,7 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         json_enabled: builtins.bool
         """
-        Whether to send / consume json packets on MQTT
+        Deprecated: JSON packet support on MQTT was removed, and this field is ignored.
         """
         tls_enabled: builtins.bool
         """
