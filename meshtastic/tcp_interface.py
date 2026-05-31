@@ -105,6 +105,7 @@ class TCPInterface(StreamInterface):
             except OSError as e:
                 logger.error(f"Socket send error, reconnecting: {e}")
                 self._reconnect()
+                raise
 
     def _readBytes(self, length) -> Optional[bytes]:
         """Read an array of bytes from our stream"""
