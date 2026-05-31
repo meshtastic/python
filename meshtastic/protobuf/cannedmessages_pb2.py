@@ -11,9 +11,10 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
+from meshtastic.protobuf import nanopb_pb2 as meshtastic_dot_protobuf_dot_nanopb__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(meshtastic/protobuf/cannedmessages.proto\x12\x13meshtastic.protobuf\"-\n\x19\x43\x61nnedMessageModuleConfig\x12\x10\n\x08messages\x18\x01 \x01(\tBo\n\x14org.meshtastic.protoB\x19\x43\x61nnedMessageConfigProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(meshtastic/protobuf/cannedmessages.proto\x12\x13meshtastic.protobuf\x1a meshtastic/protobuf/nanopb.proto\"5\n\x19\x43\x61nnedMessageModuleConfig\x12\x18\n\x08messages\x18\x01 \x01(\tB\x06\x92?\x03\x08\xc9\x01\x42o\n\x14org.meshtastic.protoB\x19\x43\x61nnedMessageConfigProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -21,6 +22,8 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'meshtastic.protobuf.cannedm
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\024org.meshtastic.protoB\031CannedMessageConfigProtosZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
-  _globals['_CANNEDMESSAGEMODULECONFIG']._serialized_start=65
-  _globals['_CANNEDMESSAGEMODULECONFIG']._serialized_end=110
+  _CANNEDMESSAGEMODULECONFIG.fields_by_name['messages']._options = None
+  _CANNEDMESSAGEMODULECONFIG.fields_by_name['messages']._serialized_options = b'\222?\003\010\311\001'
+  _globals['_CANNEDMESSAGEMODULECONFIG']._serialized_start=99
+  _globals['_CANNEDMESSAGEMODULECONFIG']._serialized_end=152
 # @@protoc_insertion_point(module_scope)
