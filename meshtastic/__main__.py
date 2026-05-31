@@ -1889,7 +1889,10 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
     )
 
     group.add_argument(
-        "--reply", help="Reply to received messages", action="store_true"
+        "--reply",
+        help="Reply to received messages on the channel they were received. "
+        "If '--ch-index' is set, only messages on that channel are replied to.",
+        action="store_true",
     )
 
     return parser
