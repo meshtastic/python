@@ -110,11 +110,10 @@ def test_TCPInterface_writeBytes_reconnects():
 @pytest.mark.unit
 def test_TCPInterface_readBytes_reconnects():
     """Test that _readBytes calls _reconnect on empty bytes"""
-    with patch("socket.socket"):
-        iface = TCPInterface(hostname="localhost", noProto=True)
-        # Mock the socket instance on the interface
-        iface.socket.recv.return_value = b''
+    iface = TCPInterface(hostname="localhost", noProto=True, connectNow=False)
+    iface.socket = MagicMock()
+    iface.socket.recv.return_value = b""
 
-        with patch.object(iface, '_reconnect') as mock_reconnect:
-            iface._readBytes(10)
-            mock_reconnect.assert_called_once()
+    with patch.object(iface, "_reconnect") as mock_reconnect:
+        iface._readBytes(10)
+        mock_reconnect.assert_called_once()
