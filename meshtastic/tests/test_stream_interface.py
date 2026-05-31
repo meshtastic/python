@@ -110,6 +110,8 @@ def test_StreamInterface_init_cleanup_does_not_shadow_original_exception():
     """
 
     class CleanupRaisesStream(StreamInterface):
+        """Helper stream that raises during close() to verify exception precedence."""
+
         def __init__(self):
             self.stream = MagicMock()
             super().__init__(noProto=False, connectNow=True)
