@@ -56,14 +56,17 @@ class SerialInterface(StreamInterface):
 
     def connect(self) -> None:
         logger.debug(f"Connecting to {self.devPath}")
+        dev_path = self.devPath
+        if dev_path is None:
+            raise RuntimeError("Serial device path is not set")
 
         if sys.platform != "win32":
-            with open(self.devPath, encoding="utf8") as f:
+            with open(dev_path, encoding="utf8") as f:
                 self._set_hupcl_with_termios(f)
             time.sleep(0.1)
 
         self.stream = serial.Serial(
-            self.devPath, 115200, exclusive=True, timeout=0.5, write_timeout=0
+            dev_path, 115200, exclusive=True, timeout=0.5, write_timeout=0
         )
         self.stream.flush()	# type: ignore[attr-defined]
         time.sleep(0.1)
