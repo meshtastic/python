@@ -2795,7 +2795,6 @@ class CasevacReport(google.protobuf.message.Message):
     non_us_military: builtins.int
     non_us_civilian: builtins.int
     epw: builtins.int
-    """enemy prisoner of war"""
     child: builtins.int
     terrain_flags: builtins.int
     """

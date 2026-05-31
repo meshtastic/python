@@ -11,9 +11,10 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
+from meshtastic.protobuf import nanopb_pb2 as meshtastic_dot_protobuf_dot_nanopb__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$meshtastic/protobuf/serial_hal.proto\x12\x13meshtastic.protobuf\"\xab\x02\n\x10SerialHalCommand\x12\x16\n\x0etransaction_id\x18\x01 \x01(\r\x12\x38\n\x04type\x18\x02 \x01(\x0e\x32*.meshtastic.protobuf.SerialHalCommand.Type\x12\x0b\n\x03pin\x18\x03 \x01(\r\x12\r\n\x05value\x18\x04 \x01(\r\x12\x0c\n\x04mode\x18\x05 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x06 \x01(\x0c\"\x8c\x01\n\x04Type\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08PIN_MODE\x10\x01\x12\x11\n\rDIGITAL_WRITE\x10\x02\x12\x10\n\x0c\x44IGITAL_READ\x10\x03\x12\x14\n\x10\x41TTACH_INTERRUPT\x10\x04\x12\x14\n\x10\x44\x45TACH_INTERRUPT\x10\x05\x12\x10\n\x0cSPI_TRANSFER\x10\x06\x12\x08\n\x04NOOP\x10\x07\"\xd5\x01\n\x11SerialHalResponse\x12\x16\n\x0etransaction_id\x18\x01 \x01(\r\x12=\n\x06result\x18\x02 \x01(\x0e\x32-.meshtastic.protobuf.SerialHalResponse.Result\x12\r\n\x05value\x18\x03 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x04 \x01(\x0c\x12\r\n\x05\x65rror\x18\x05 \x01(\t\"=\n\x06Result\x12\x06\n\x02OK\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x12\x0f\n\x0b\x42\x41\x44_REQUEST\x10\x02\x12\x0f\n\x0bUNSUPPORTED\x10\x03\x42_\n\x14org.meshtastic.protoB\tSerialHalZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$meshtastic/protobuf/serial_hal.proto\x12\x13meshtastic.protobuf\x1a meshtastic/protobuf/nanopb.proto\"\xb3\x02\n\x10SerialHalCommand\x12\x16\n\x0etransaction_id\x18\x01 \x01(\r\x12\x38\n\x04type\x18\x02 \x01(\x0e\x32*.meshtastic.protobuf.SerialHalCommand.Type\x12\x0b\n\x03pin\x18\x03 \x01(\r\x12\r\n\x05value\x18\x04 \x01(\r\x12\x0c\n\x04mode\x18\x05 \x01(\r\x12\x14\n\x04\x64\x61ta\x18\x06 \x01(\x0c\x42\x06\x92?\x03\x08\x80\x04\"\x8c\x01\n\x04Type\x12\t\n\x05UNSET\x10\x00\x12\x0c\n\x08PIN_MODE\x10\x01\x12\x11\n\rDIGITAL_WRITE\x10\x02\x12\x10\n\x0c\x44IGITAL_READ\x10\x03\x12\x14\n\x10\x41TTACH_INTERRUPT\x10\x04\x12\x14\n\x10\x44\x45TACH_INTERRUPT\x10\x05\x12\x10\n\x0cSPI_TRANSFER\x10\x06\x12\x08\n\x04NOOP\x10\x07\"\xe4\x01\n\x11SerialHalResponse\x12\x16\n\x0etransaction_id\x18\x01 \x01(\r\x12=\n\x06result\x18\x02 \x01(\x0e\x32-.meshtastic.protobuf.SerialHalResponse.Result\x12\r\n\x05value\x18\x03 \x01(\r\x12\x14\n\x04\x64\x61ta\x18\x04 \x01(\x0c\x42\x06\x92?\x03\x08\x80\x04\x12\x14\n\x05\x65rror\x18\x05 \x01(\tB\x05\x92?\x02\x08P\"=\n\x06Result\x12\x06\n\x02OK\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x12\x0f\n\x0b\x42\x41\x44_REQUEST\x10\x02\x12\x0f\n\x0bUNSUPPORTED\x10\x03\x42_\n\x14org.meshtastic.protoB\tSerialHalZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -21,12 +22,18 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'meshtastic.protobuf.serial_
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\024org.meshtastic.protoB\tSerialHalZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
-  _globals['_SERIALHALCOMMAND']._serialized_start=62
-  _globals['_SERIALHALCOMMAND']._serialized_end=361
-  _globals['_SERIALHALCOMMAND_TYPE']._serialized_start=221
-  _globals['_SERIALHALCOMMAND_TYPE']._serialized_end=361
-  _globals['_SERIALHALRESPONSE']._serialized_start=364
-  _globals['_SERIALHALRESPONSE']._serialized_end=577
-  _globals['_SERIALHALRESPONSE_RESULT']._serialized_start=516
-  _globals['_SERIALHALRESPONSE_RESULT']._serialized_end=577
+  _SERIALHALCOMMAND.fields_by_name['data']._options = None
+  _SERIALHALCOMMAND.fields_by_name['data']._serialized_options = b'\222?\003\010\200\004'
+  _SERIALHALRESPONSE.fields_by_name['data']._options = None
+  _SERIALHALRESPONSE.fields_by_name['data']._serialized_options = b'\222?\003\010\200\004'
+  _SERIALHALRESPONSE.fields_by_name['error']._options = None
+  _SERIALHALRESPONSE.fields_by_name['error']._serialized_options = b'\222?\002\010P'
+  _globals['_SERIALHALCOMMAND']._serialized_start=96
+  _globals['_SERIALHALCOMMAND']._serialized_end=403
+  _globals['_SERIALHALCOMMAND_TYPE']._serialized_start=263
+  _globals['_SERIALHALCOMMAND_TYPE']._serialized_end=403
+  _globals['_SERIALHALRESPONSE']._serialized_start=406
+  _globals['_SERIALHALRESPONSE']._serialized_end=634
+  _globals['_SERIALHALRESPONSE_RESULT']._serialized_start=573
+  _globals['_SERIALHALRESPONSE_RESULT']._serialized_end=634
 # @@protoc_insertion_point(module_scope)
