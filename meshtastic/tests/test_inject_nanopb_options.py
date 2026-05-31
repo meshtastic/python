@@ -15,6 +15,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from hypothesis import given, strategies as st
 
 from meshtastic.protobuf import (
     atak_pb2,
@@ -88,6 +89,28 @@ def test_parse_value_false():
 def test_parse_value_string():
     """parse_value returns non-numeric, non-boolean strings as-is."""
     assert parse_value("IS_8") == "IS_8"
+
+
+@pytest.mark.unit
+@given(st.integers())
+def test_parse_value_any_integer_returns_int(n):
+    """parse_value always returns int for any decimal integer string."""
+    assert parse_value(str(n)) == n
+
+
+@pytest.mark.unit
+@given(st.text())
+def test_parse_value_never_crashes(s):
+    """parse_value never raises on arbitrary input."""
+    result = parse_value(s)
+    assert isinstance(result, (int, bool, str))
+
+
+@pytest.mark.unit
+@given(st.text().filter(lambda s: not s.lstrip("-").isdigit() and s.lower() not in ("true", "false")))
+def test_parse_value_non_numeric_non_bool_returns_str(s):
+    """parse_value returns the original string when it is neither an integer nor a boolean."""
+    assert parse_value(s) == s
 
 
 # ---------------------------------------------------------------------------

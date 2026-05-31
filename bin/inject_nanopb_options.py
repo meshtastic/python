@@ -49,7 +49,7 @@ FIELD_OPTIONS = frozenset(
 
 def parse_value(s: str) -> Any:
     """Convert an option value string to an appropriate Python type."""
-    if s.lstrip("-").isdigit():
+    if re.fullmatch(r"-?[0-9]+", s):
         return int(s)
     if s.lower() == "true":
         return True
