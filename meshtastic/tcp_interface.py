@@ -104,7 +104,8 @@ class TCPInterface(StreamInterface):
                 self.socket.sendall(b)
             except OSError as e:
                 logger.error(f"Socket send error, reconnecting: {e}")
-                self._reconnect()
+                if not self._wantExit:
+                    self._reconnect()
                 raise
 
     def _readBytes(self, length) -> Optional[bytes]:
@@ -115,7 +116,8 @@ class TCPInterface(StreamInterface):
             # we need to handle it to avoid an infinite loop reading from null socket
             if data == b"":
                 logger.debug("Closed socket, re-connecting")
-                self._reconnect()
+                if not self._wantExit:
+                    self._reconnect()
             return data
 
         # no socket, break reader thread
@@ -126,7 +128,10 @@ class TCPInterface(StreamInterface):
         """Reconnect to the socket"""
         # Save the socket reference before attempting to acquire the lock.
         sock = self.socket
+        start_config = False
         with self.reconnectLock:
+            if self._wantExit:
+                return
             # Don't reconnect: someone else already did it.
             if sock is not self.socket:
                 return
@@ -138,4 +143,7 @@ class TCPInterface(StreamInterface):
             self.socket = None
             time.sleep(1)
             self.myConnect()
+            start_config = True
+
+        if start_config and not self._wantExit and self.socket is not None:
             self._startConfig()
