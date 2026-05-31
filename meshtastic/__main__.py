@@ -97,7 +97,6 @@ def onReceive(packet, interface) -> None:
                     interface.sendText(reply,channelIndex=rxChannel)
                 else:
                     print(f"Ignored message on channel {rxChannel} (waiting for channel {targetChannel})")
-                    
 
     except Exception as ex:
         print(f"Warning: Error processing received packet: {ex}.")
