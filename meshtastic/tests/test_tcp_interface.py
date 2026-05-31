@@ -76,3 +76,44 @@ def test_TCPInterface_close_shutdowns_socket_before_super_close():
     assert call_order == ["shutdown", "super_close"]
     sock.close.assert_called_once()
     assert iface.socket is None
+
+
+@pytest.mark.unit
+def test_TCPInterface_reconnect():
+    """Test that _reconnect correctly reconnects"""
+    with patch("socket.socket") as mock_socket:
+        with patch("time.sleep"):
+            iface = TCPInterface(hostname="localhost", noProto=True)
+            old_socket = iface.socket
+            assert old_socket is not None
+
+            iface._reconnect()
+
+            assert old_socket.close.called
+            # We expect socket class to be instantiated at least twice (init + reconnect)
+            assert mock_socket.call_count >= 2
+
+
+@pytest.mark.unit
+def test_TCPInterface_writeBytes_reconnects():
+    """Test that _writeBytes reconnects and re-raises on OSError."""
+    with patch("socket.socket"):
+        iface = TCPInterface(hostname="localhost", noProto=True)
+        iface.socket.sendall.side_effect = OSError("Broken pipe")
+
+        with patch.object(iface, "_reconnect") as mock_reconnect:
+            with pytest.raises(OSError, match="Broken pipe"):
+                iface._writeBytes(b"some data")
+            mock_reconnect.assert_called_once()
+
+
+@pytest.mark.unit
+def test_TCPInterface_readBytes_reconnects():
+    """Test that _readBytes calls _reconnect on empty bytes"""
+    iface = TCPInterface(hostname="localhost", noProto=True, connectNow=False)
+    iface.socket = MagicMock()
+    iface.socket.recv.return_value = b""
+
+    with patch.object(iface, "_reconnect") as mock_reconnect:
+        iface._readBytes(10)
+        mock_reconnect.assert_called_once()
