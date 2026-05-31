@@ -12,10 +12,13 @@ WORKDIR /tmp/build
 COPY . /tmp/build
 
 RUN _poetry_venv_dir="$(mktemp -d -p "${TMPDIR:-/tmp}" 'poetry_venv.XXXXXX')" && \
+    apk add --no-cache libffi && \
+    apk add --no-cache --virtual .build-deps build-base libffi-dev && \
     python -m 'venv' "${_poetry_venv_dir}" && \
     "${_poetry_venv_dir}/bin/pip" install --no-cache-dir 'poetry' && \
     "${_poetry_venv_dir}/bin/poetry" config --local virtualenvs.create false && \
     "${_poetry_venv_dir}/bin/poetry" install --without dev --extras cli --extras tunnel --no-interaction --no-ansi && \
+    apk del .build-deps && \
     addgroup -S meshtastic && \
     adduser -S -G meshtastic -h /home/meshtastic meshtastic && \
     rm -f -r "${_poetry_venv_dir}" && \
