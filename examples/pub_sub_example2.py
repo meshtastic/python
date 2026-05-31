@@ -5,9 +5,9 @@
 import sys
 import time
 
-from meshtastic.tcp_interface import TCPInterface
-
 from pubsub import pub
+
+from meshtastic.tcp_interface import TCPInterface
 
 # simple arg check
 if len(sys.argv) < 2:
