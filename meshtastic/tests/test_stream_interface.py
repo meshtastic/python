@@ -35,6 +35,17 @@ def test_StreamInterface_close_safe_when_thread_never_started():
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
+def test_StreamInterface_close_when_thread_never_started_closes_stream():
+    """If no reader thread was started, close() should still close the stream."""
+    iface = StreamInterface(noProto=True, connectNow=False)
+    stream = MagicMock()
+    iface.stream = stream
+    iface.close()
+    stream.close.assert_called_once()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
 def test_StreamInterface_init_cleans_up_when_connect_raises():
     """If connect() raises during __init__, close() runs and the original exception propagates."""
 
