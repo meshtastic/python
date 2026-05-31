@@ -9,6 +9,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
+import meshtastic.protobuf.atak_pb2
 import sys
 import typing
 
@@ -112,7 +113,7 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         json_enabled: builtins.bool
         """
-        Whether to send / consume json packets on MQTT
+        Deprecated: JSON packet support on MQTT was removed, and this field is ignored.
         """
         tls_enabled: builtins.bool
         """
@@ -491,6 +492,105 @@ class ModuleConfig(google.protobuf.message.Message):
             ble_threshold: builtins.int = ...,
         ) -> None: ...
         def ClearField(self, field_name: typing.Literal["ble_threshold", b"ble_threshold", "enabled", b"enabled", "paxcounter_update_interval", b"paxcounter_update_interval", "wifi_threshold", b"wifi_threshold"]) -> None: ...
+
+    @typing.final
+    class TrafficManagementConfig(google.protobuf.message.Message):
+        """
+        Config for the Traffic Management module.
+        Provides packet inspection and traffic shaping to help reduce channel utilization
+        """
+
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        ENABLED_FIELD_NUMBER: builtins.int
+        POSITION_DEDUP_ENABLED_FIELD_NUMBER: builtins.int
+        POSITION_PRECISION_BITS_FIELD_NUMBER: builtins.int
+        POSITION_MIN_INTERVAL_SECS_FIELD_NUMBER: builtins.int
+        NODEINFO_DIRECT_RESPONSE_FIELD_NUMBER: builtins.int
+        NODEINFO_DIRECT_RESPONSE_MAX_HOPS_FIELD_NUMBER: builtins.int
+        RATE_LIMIT_ENABLED_FIELD_NUMBER: builtins.int
+        RATE_LIMIT_WINDOW_SECS_FIELD_NUMBER: builtins.int
+        RATE_LIMIT_MAX_PACKETS_FIELD_NUMBER: builtins.int
+        DROP_UNKNOWN_ENABLED_FIELD_NUMBER: builtins.int
+        UNKNOWN_PACKET_THRESHOLD_FIELD_NUMBER: builtins.int
+        EXHAUST_HOP_TELEMETRY_FIELD_NUMBER: builtins.int
+        EXHAUST_HOP_POSITION_FIELD_NUMBER: builtins.int
+        ROUTER_PRESERVE_HOPS_FIELD_NUMBER: builtins.int
+        enabled: builtins.bool
+        """
+        Master enable for traffic management module
+        """
+        position_dedup_enabled: builtins.bool
+        """
+        Enable position deduplication to drop redundant position broadcasts
+        """
+        position_precision_bits: builtins.int
+        """
+        Number of bits of precision for position deduplication (0-32)
+        """
+        position_min_interval_secs: builtins.int
+        """
+        Minimum interval in seconds between position updates from the same node
+        """
+        nodeinfo_direct_response: builtins.bool
+        """
+        Enable direct response to NodeInfo requests from local cache
+        """
+        nodeinfo_direct_response_max_hops: builtins.int
+        """
+        Minimum hop distance from requestor before responding to NodeInfo requests
+        """
+        rate_limit_enabled: builtins.bool
+        """
+        Enable per-node rate limiting to throttle chatty nodes
+        """
+        rate_limit_window_secs: builtins.int
+        """
+        Time window in seconds for rate limiting calculations
+        """
+        rate_limit_max_packets: builtins.int
+        """
+        Maximum packets allowed per node within the rate limit window
+        """
+        drop_unknown_enabled: builtins.bool
+        """
+        Enable dropping of unknown/undecryptable packets per rate_limit_window_secs
+        """
+        unknown_packet_threshold: builtins.int
+        """
+        Number of unknown packets before dropping from a node
+        """
+        exhaust_hop_telemetry: builtins.bool
+        """
+        Set hop_limit to 0 for relayed telemetry broadcasts (own packets unaffected)
+        """
+        exhaust_hop_position: builtins.bool
+        """
+        Set hop_limit to 0 for relayed position broadcasts (own packets unaffected)
+        """
+        router_preserve_hops: builtins.bool
+        """
+        Preserve hop_limit for router-to-router traffic
+        """
+        def __init__(
+            self,
+            *,
+            enabled: builtins.bool = ...,
+            position_dedup_enabled: builtins.bool = ...,
+            position_precision_bits: builtins.int = ...,
+            position_min_interval_secs: builtins.int = ...,
+            nodeinfo_direct_response: builtins.bool = ...,
+            nodeinfo_direct_response_max_hops: builtins.int = ...,
+            rate_limit_enabled: builtins.bool = ...,
+            rate_limit_window_secs: builtins.int = ...,
+            rate_limit_max_packets: builtins.int = ...,
+            drop_unknown_enabled: builtins.bool = ...,
+            unknown_packet_threshold: builtins.int = ...,
+            exhaust_hop_telemetry: builtins.bool = ...,
+            exhaust_hop_position: builtins.bool = ...,
+            router_preserve_hops: builtins.bool = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["drop_unknown_enabled", b"drop_unknown_enabled", "enabled", b"enabled", "exhaust_hop_position", b"exhaust_hop_position", "exhaust_hop_telemetry", b"exhaust_hop_telemetry", "nodeinfo_direct_response", b"nodeinfo_direct_response", "nodeinfo_direct_response_max_hops", b"nodeinfo_direct_response_max_hops", "position_dedup_enabled", b"position_dedup_enabled", "position_min_interval_secs", b"position_min_interval_secs", "position_precision_bits", b"position_precision_bits", "rate_limit_enabled", b"rate_limit_enabled", "rate_limit_max_packets", b"rate_limit_max_packets", "rate_limit_window_secs", b"rate_limit_window_secs", "router_preserve_hops", b"router_preserve_hops", "unknown_packet_threshold", b"unknown_packet_threshold"]) -> None: ...
 
     @typing.final
     class SerialConfig(google.protobuf.message.Message):
@@ -1202,6 +1302,34 @@ class ModuleConfig(google.protobuf.message.Message):
         ) -> None: ...
         def ClearField(self, field_name: typing.Literal["node_status", b"node_status"]) -> None: ...
 
+    @typing.final
+    class TAKConfig(google.protobuf.message.Message):
+        """
+        TAK team/role configuration
+        """
+
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        TEAM_FIELD_NUMBER: builtins.int
+        ROLE_FIELD_NUMBER: builtins.int
+        team: meshtastic.protobuf.atak_pb2.Team.ValueType
+        """
+        Team color.
+        Default Unspecifed_Color -> firmware uses Cyan
+        """
+        role: meshtastic.protobuf.atak_pb2.MemberRole.ValueType
+        """
+        Member role.
+        Default Unspecifed -> firmware uses TeamMember
+        """
+        def __init__(
+            self,
+            *,
+            team: meshtastic.protobuf.atak_pb2.Team.ValueType = ...,
+            role: meshtastic.protobuf.atak_pb2.MemberRole.ValueType = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["role", b"role", "team", b"team"]) -> None: ...
+
     MQTT_FIELD_NUMBER: builtins.int
     SERIAL_FIELD_NUMBER: builtins.int
     EXTERNAL_NOTIFICATION_FIELD_NUMBER: builtins.int
@@ -1216,6 +1344,8 @@ class ModuleConfig(google.protobuf.message.Message):
     DETECTION_SENSOR_FIELD_NUMBER: builtins.int
     PAXCOUNTER_FIELD_NUMBER: builtins.int
     STATUSMESSAGE_FIELD_NUMBER: builtins.int
+    TRAFFIC_MANAGEMENT_FIELD_NUMBER: builtins.int
+    TAK_FIELD_NUMBER: builtins.int
     @property
     def mqtt(self) -> global___ModuleConfig.MQTTConfig:
         """
@@ -1300,6 +1430,18 @@ class ModuleConfig(google.protobuf.message.Message):
         TODO: REPLACE
         """
 
+    @property
+    def traffic_management(self) -> global___ModuleConfig.TrafficManagementConfig:
+        """
+        Traffic management module config for mesh network optimization
+        """
+
+    @property
+    def tak(self) -> global___ModuleConfig.TAKConfig:
+        """
+        TAK team/role configuration for TAK_TRACKER
+        """
+
     def __init__(
         self,
         *,
@@ -1317,10 +1459,12 @@ class ModuleConfig(google.protobuf.message.Message):
         detection_sensor: global___ModuleConfig.DetectionSensorConfig | None = ...,
         paxcounter: global___ModuleConfig.PaxcounterConfig | None = ...,
         statusmessage: global___ModuleConfig.StatusMessageConfig | None = ...,
+        traffic_management: global___ModuleConfig.TrafficManagementConfig | None = ...,
+        tak: global___ModuleConfig.TAKConfig | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "telemetry", b"telemetry"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "telemetry", b"telemetry"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["mqtt", "serial", "external_notification", "store_forward", "range_test", "telemetry", "canned_message", "audio", "remote_hardware", "neighbor_info", "ambient_lighting", "detection_sensor", "paxcounter", "statusmessage"] | None: ...
+    def HasField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["mqtt", "serial", "external_notification", "store_forward", "range_test", "telemetry", "canned_message", "audio", "remote_hardware", "neighbor_info", "ambient_lighting", "detection_sensor", "paxcounter", "statusmessage", "traffic_management", "tak"] | None: ...
 
 global___ModuleConfig = ModuleConfig
 

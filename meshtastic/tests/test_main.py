@@ -6,6 +6,8 @@ import os
 import platform
 import re
 import sys
+import tempfile
+from types import SimpleNamespace
 from unittest.mock import mock_open, MagicMock, patch
 
 import pytest
@@ -1721,11 +1723,9 @@ def test_main_onReceive_with_sendtext(caplog, capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-def test_main_onReceive_with_text(caplog, capsys):
-    """Test onReceive with text"""
-    args = MagicMock()
-    args.sendtext.return_value = "foo"
-    mt_config.args = args
+def test_main_onReceive_with_text_replies_on_target_channel(caplog, capsys):
+    """Test onReceive replies when channel matches --ch-index (default 0)."""
+    mt_config.args = SimpleNamespace(reply=True, ch_index=0, sendtext=None)
 
     # Note: 'TEXT_MESSAGE_APP' value is 1
     # Note: Some of this is faked below.
@@ -1751,6 +1751,83 @@ def test_main_onReceive_with_text(caplog, capsys):
         assert re.search(r"in onReceive", caplog.text, re.MULTILINE)
         out, err = capsys.readouterr()
         assert re.search(r"Sending reply", out, re.MULTILINE)
+        iface.sendText.assert_called_once_with(
+            "got msg 'faked' with rxSnr: 6.0 and hopLimit: 3", channelIndex=0
+        )
+        assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_onReceive_with_text_ignores_non_target_channel(caplog, capsys):
+    """Test onReceive does not reply when packet channel differs from --ch-index."""
+    mt_config.args = SimpleNamespace(reply=True, ch_index=1, sendtext=None)
+
+    packet = {
+        "to": 4294967295,
+        "decoded": {"portnum": 1, "payload": "hello", "text": "faked"},
+        "id": 334776977,
+        "hop_limit": 3,
+        "want_ack": True,
+        "rxSnr": 6.0,
+        "hopLimit": 3,
+        "raw": "faked",
+        "fromId": "!28b5465c",
+        "toId": "^all",
+        "channel": 0,
+    }
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.myInfo.my_node_num = 4294967295
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with caplog.at_level(logging.DEBUG):
+            onReceive(packet, iface)
+        assert re.search(r"in onReceive", caplog.text, re.MULTILINE)
+        out, err = capsys.readouterr()
+        assert re.search(
+            r"Ignored message on channel 0 \(waiting for channel 1\)", out, re.MULTILINE
+        )
+        iface.sendText.assert_not_called()
+        assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_onReceive_with_text_replies_on_explicit_matching_channel(caplog, capsys):
+    """Test onReceive replies when explicit packet channel matches --ch-index."""
+    mt_config.args = SimpleNamespace(reply=True, ch_index=2, sendtext=None)
+
+    packet = {
+        "to": 4294967295,
+        "decoded": {"portnum": 1, "payload": "hello", "text": "faked"},
+        "id": 334776977,
+        "hop_limit": 3,
+        "want_ack": True,
+        "rxSnr": 6.0,
+        "hopLimit": 3,
+        "raw": "faked",
+        "fromId": "!28b5465c",
+        "toId": "^all",
+        "channel": 2,
+    }
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.myInfo.my_node_num = 4294967295
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with caplog.at_level(logging.DEBUG):
+            onReceive(packet, iface)
+        assert re.search(r"in onReceive", caplog.text, re.MULTILINE)
+        out, err = capsys.readouterr()
+        assert re.search(
+            r"Received channel 2\. Sending reply: got msg 'faked' with rxSnr: 6.0 and hopLimit: 3",
+            out,
+            re.MULTILINE,
+        )
+        iface.sendText.assert_called_once_with(
+            "got msg 'faked' with rxSnr: 6.0 and hopLimit: 3", channelIndex=2
+        )
         assert err == ""
 
 
@@ -2900,3 +2977,68 @@ def test_main_set_ham_empty_string(capsys):
     out, _ = capsys.readouterr()
     assert "ERROR: Ham radio callsign cannot be empty or contain only whitespace characters" in out
     assert excinfo.value.code == 1
+
+
+# OTA-related tests
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_ota_update_file_not_found(capsys):
+    """Test --ota-update with non-existent file"""
+    sys.argv = [
+        "",
+        "--ota-update",
+        "/nonexistent/firmware.bin",
+        "--host",
+        "192.168.1.100",
+    ]
+    mt_config.args = sys.argv
+
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        main()
+
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+@patch("meshtastic.ota.ESP32WiFiOTA")
+@patch("meshtastic.__main__.meshtastic.util.our_exit")
+def test_main_ota_update_retries(mock_our_exit, mock_ota_class, capsys):
+    """Test --ota-update retries on failure"""
+    # Create a temporary firmware file
+    with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
+        f.write(b"fake firmware data")
+        firmware_file = f.name
+
+    try:
+        sys.argv = ["", "--ota-update", firmware_file, "--host", "192.168.1.100"]
+        mt_config.args = sys.argv
+
+        # Mock the OTA class to fail all 5 retries
+        mock_ota = MagicMock()
+        mock_ota_class.return_value = mock_ota
+        mock_ota.hash_bytes.return_value = b"\x00" * 32
+        mock_ota.hash_hex.return_value = "a" * 64
+        mock_ota.update.side_effect = Exception("Connection failed")
+
+        # Mock isinstance to return True
+        with patch("meshtastic.__main__.isinstance", return_value=True):
+            with patch("meshtastic.tcp_interface.TCPInterface") as mock_tcp:
+                mock_iface = MagicMock()
+                mock_iface.hostname = "192.168.1.100"
+                mock_iface.localNode = MagicMock(autospec=Node)
+                mock_tcp.return_value = mock_iface
+
+                with patch("time.sleep"):
+                    main()
+
+        # Should have exhausted all retries and called our_exit
+        # Note: our_exit might be called twice - once for TCP check, once for failure
+        assert mock_our_exit.call_count >= 1
+        # Check the last call was for OTA failure
+        last_call_args = mock_our_exit.call_args[0][0]
+        assert "OTA update failed" in last_call_args
+
+    finally:
+        os.unlink(firmware_file)

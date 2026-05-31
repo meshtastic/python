@@ -1,6 +1,9 @@
 name: "Update protobufs"
 on: workflow_dispatch
 
+permissions:
+  contents: write
+
 jobs:
   update-protobufs:
     runs-on: ubuntu-latest
@@ -9,23 +12,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           submodules: true
 
-      - name: Update Submodule
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
         run: |
-          git pull --recurse-submodules
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+
+      - name: Update protobuf submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
           git submodule update --remote --recursive
 
       - name: Download nanopb
         run: |
-          wget https://jpa.kapsi.fi/nanopb/download/nanopb-0.4.8-linux-x86.tar.gz
+          curl -L -o nanopb-0.4.8-linux-x86.tar.gz https://jpa.kapsi.fi/nanopb/download/nanopb-0.4.8-linux-x86.tar.gz
           tar xvzf nanopb-0.4.8-linux-x86.tar.gz
           mv nanopb-0.4.8-linux-x86 nanopb-0.4.8
 
-      - name: Install poetry (needed by regen-protobufs.sh)
+      - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip3 install poetry
+          poetry install --with dev
 
       - name: Re-generate protocol buffers
         run: |
@@ -38,4 +52,9 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git add protobufs
           git add meshtastic/protobuf
-          git commit -m "Update protobuf submodule" && git push || echo "No changes to commit"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git commit -m "Update protobufs"
+            git push
+          else
+            echo "No changes to commit"
+          fi

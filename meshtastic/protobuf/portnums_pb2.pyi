@@ -101,6 +101,10 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     """
     Module/port for handling key verification requests.
     """
+    REMOTE_SHELL_APP: _PortNum.ValueType  # 13
+    """
+    Module/port for handling primitive remote shell access.
+    """
     REPLY_APP: _PortNum.ValueType  # 32
     """
     Provides a 'ping' service that replies to any packet it receives.
@@ -197,6 +201,11 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     """
     PowerStress based monitoring support (for automated power consumption testing)
     """
+    LORAWAN_BRIDGE: _PortNum.ValueType  # 75
+    """
+    LoraWAN Payload Transport
+    ENCODING: compact binary LoRaWAN uplink (10-byte RF metadata + PHY payload) - see LoRaWANBridgeModule
+    """
     RETICULUM_TUNNEL_APP: _PortNum.ValueType  # 76
     """
     Reticulum Network Stack Tunnel App
@@ -207,6 +216,18 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     App for transporting Cayenne Low Power Payload, popular for LoRaWAN sensor nodes. Offers ability to send
     arbitrary telemetry over meshtastic that is not covered by telemetry.proto
     ENCODING: CayenneLLP
+    """
+    ATAK_PLUGIN_V2: _PortNum.ValueType  # 78
+    """
+    ATAK Plugin V2
+    Portnum for payloads from the official Meshtastic ATAK plugin using
+    TAKPacketV2 with zstd dictionary compression.
+    """
+    GROUPALARM_APP: _PortNum.ValueType  # 112
+    """
+    GroupAlarm integration
+    Used for transporting GroupAlarm-related messages between Meshtastic nodes
+    and companion applications/services.
     """
     PRIVATE_APP: _PortNum.ValueType  # 256
     """
@@ -319,6 +340,10 @@ KEY_VERIFICATION_APP: PortNum.ValueType  # 12
 """
 Module/port for handling key verification requests.
 """
+REMOTE_SHELL_APP: PortNum.ValueType  # 13
+"""
+Module/port for handling primitive remote shell access.
+"""
 REPLY_APP: PortNum.ValueType  # 32
 """
 Provides a 'ping' service that replies to any packet it receives.
@@ -415,6 +440,11 @@ POWERSTRESS_APP: PortNum.ValueType  # 74
 """
 PowerStress based monitoring support (for automated power consumption testing)
 """
+LORAWAN_BRIDGE: PortNum.ValueType  # 75
+"""
+LoraWAN Payload Transport
+ENCODING: compact binary LoRaWAN uplink (10-byte RF metadata + PHY payload) - see LoRaWANBridgeModule
+"""
 RETICULUM_TUNNEL_APP: PortNum.ValueType  # 76
 """
 Reticulum Network Stack Tunnel App
@@ -425,6 +455,18 @@ CAYENNE_APP: PortNum.ValueType  # 77
 App for transporting Cayenne Low Power Payload, popular for LoRaWAN sensor nodes. Offers ability to send
 arbitrary telemetry over meshtastic that is not covered by telemetry.proto
 ENCODING: CayenneLLP
+"""
+ATAK_PLUGIN_V2: PortNum.ValueType  # 78
+"""
+ATAK Plugin V2
+Portnum for payloads from the official Meshtastic ATAK plugin using
+TAKPacketV2 with zstd dictionary compression.
+"""
+GROUPALARM_APP: PortNum.ValueType  # 112
+"""
+GroupAlarm integration
+Used for transporting GroupAlarm-related messages between Meshtastic nodes
+and companion applications/services.
 """
 PRIVATE_APP: PortNum.ValueType  # 256
 """

@@ -1,5 +1,6 @@
 """Stream Interface base class
 """
+import contextlib
 import io
 import logging
 import threading
@@ -39,15 +40,14 @@ class StreamInterface(MeshInterface):
             timeout -- How long to wait for replies (default: 300 seconds)
 
         Raises:
-            Exception: [description]
-            Exception: [description]
+            RuntimeError: Raised if StreamInterface is instantiated when noProto is false.
         """
 
-        if not hasattr(self, "stream") and not noProto:
-            raise Exception( # pylint: disable=W0719
+        if not noProto and type(self) == StreamInterface: # pylint: disable=C0123
+            raise RuntimeError(
                 "StreamInterface is now abstract (to update existing code create SerialInterface instead)"
             )
-        self.stream: Optional[serial.Serial] # only serial uses this, TCPInterface overrides the relevant methods instead
+        self.stream: Optional[serial.Serial] = None  # only serial uses this, TCPInterface overrides the relevant methods instead
         self._rxBuf = bytes()  # empty
         self._wantExit = False
 
@@ -61,9 +61,17 @@ class StreamInterface(MeshInterface):
 
         # Start the reader thread after superclass constructor completes init
         if connectNow:
-            self.connect()
-            if not noProto:
-                self.waitForConfig()
+            try:
+                self.connect()
+                if not noProto:
+                    self.waitForConfig()
+            except Exception:
+                # If the handshake raises, the caller never receives a reference
+                # to this instance and cannot call close() themselves. Clean up
+                # the reader thread + stream here so retries don't leak.
+                with contextlib.suppress(Exception):
+                    self.close()
+                raise
 
     def connect(self) -> None:
         """Connect to our radio
@@ -136,7 +144,16 @@ class StreamInterface(MeshInterface):
         # reader thread to close things for us
         self._wantExit = True
         if self._rxThread != threading.current_thread():
-            self._rxThread.join()  # wait for it to exit
+            try:
+                self._rxThread.join()  # wait for it to exit
+            except RuntimeError:
+                # Thread was never started — happens when close() is invoked
+                # from a failed __init__ before connect() could spawn it.
+                # In this case there is no reader thread to close the stream.
+                if self.stream is not None:
+                    with contextlib.suppress(Exception):
+                        self.stream.close()
+                    self.stream = None
 
     def _handleLogByte(self, b):
         """Handle a byte that is part of a log message from the device."""

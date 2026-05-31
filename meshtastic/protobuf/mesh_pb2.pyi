@@ -547,6 +547,53 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     LilyGo T5 S3 ePaper Pro (V1 and V2)
     """
+    TBEAM_BPF: _HardwareModel.ValueType  # 124
+    """
+    LilyGo T-Beam BPF (144-148Mhz)
+    """
+    MINI_EPAPER_S3: _HardwareModel.ValueType  # 125
+    """
+    LilyGo T-Mini E-paper S3 Kit
+    """
+    TDISPLAY_S3_PRO: _HardwareModel.ValueType  # 126
+    """
+    LilyGo T-Display S3 Pro LR1121
+    """
+    HELTEC_MESH_NODE_T096: _HardwareModel.ValueType  # 127
+    """
+    Heltec Mesh Node T096 board features an nRF52840 CPU and a TFT screen.
+    """
+    TRACKER_T1000_E_PRO: _HardwareModel.ValueType  # 128
+    """
+    Seeed studio T1000-E Pro tracker card. NRF52840 w/ LR2021 radio,
+    GPS, button, buzzer, and sensors.
+    """
+    THINKNODE_M7: _HardwareModel.ValueType  # 129
+    """
+    Elecrow ThinkNode M7, M8 and M9
+    """
+    THINKNODE_M8: _HardwareModel.ValueType  # 130
+    THINKNODE_M9: _HardwareModel.ValueType  # 131
+    HELTEC_V4_R8: _HardwareModel.ValueType  # 132
+    """
+    The Heltec-V4-R8 uses an ESP32S3R8 chip, plus an SX1262.
+    """
+    HELTEC_MESH_NODE_T1: _HardwareModel.ValueType  # 133
+    """
+    The HELTEC_MESH_NODE_T1 uses an NRF52840 chip, plus an SX1262.
+    """
+    STATION_G3: _HardwareModel.ValueType  # 134
+    """
+    B&Q Consulting Station G3: TBD
+    """
+    T_IMPULSE_PLUS: _HardwareModel.ValueType  # 135
+    """
+    Lilygo T-Impulse-Plus
+    """
+    T_ECHO_CARD: _HardwareModel.ValueType  # 136
+    """
+    Lilygo T-Echo Card
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1076,6 +1123,53 @@ LilyGo T-Beam 1W
 T5_S3_EPAPER_PRO: HardwareModel.ValueType  # 123
 """
 LilyGo T5 S3 ePaper Pro (V1 and V2)
+"""
+TBEAM_BPF: HardwareModel.ValueType  # 124
+"""
+LilyGo T-Beam BPF (144-148Mhz)
+"""
+MINI_EPAPER_S3: HardwareModel.ValueType  # 125
+"""
+LilyGo T-Mini E-paper S3 Kit
+"""
+TDISPLAY_S3_PRO: HardwareModel.ValueType  # 126
+"""
+LilyGo T-Display S3 Pro LR1121
+"""
+HELTEC_MESH_NODE_T096: HardwareModel.ValueType  # 127
+"""
+Heltec Mesh Node T096 board features an nRF52840 CPU and a TFT screen.
+"""
+TRACKER_T1000_E_PRO: HardwareModel.ValueType  # 128
+"""
+Seeed studio T1000-E Pro tracker card. NRF52840 w/ LR2021 radio,
+GPS, button, buzzer, and sensors.
+"""
+THINKNODE_M7: HardwareModel.ValueType  # 129
+"""
+Elecrow ThinkNode M7, M8 and M9
+"""
+THINKNODE_M8: HardwareModel.ValueType  # 130
+THINKNODE_M9: HardwareModel.ValueType  # 131
+HELTEC_V4_R8: HardwareModel.ValueType  # 132
+"""
+The Heltec-V4-R8 uses an ESP32S3R8 chip, plus an SX1262.
+"""
+HELTEC_MESH_NODE_T1: HardwareModel.ValueType  # 133
+"""
+The HELTEC_MESH_NODE_T1 uses an NRF52840 chip, plus an SX1262.
+"""
+STATION_G3: HardwareModel.ValueType  # 134
+"""
+B&Q Consulting Station G3: TBD
+"""
+T_IMPULSE_PLUS: HardwareModel.ValueType  # 135
+"""
+Lilygo T-Impulse-Plus
+"""
+T_ECHO_CARD: HardwareModel.ValueType  # 136
+"""
+Lilygo T-Echo Card
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
@@ -2375,6 +2469,126 @@ class StoreForwardPlusPlus(google.protobuf.message.Message):
 global___StoreForwardPlusPlus = StoreForwardPlusPlus
 
 @typing.final
+class RemoteShell(google.protobuf.message.Message):
+    """
+    The actual over-the-mesh message doing RemoteShell
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _OpCode:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _OpCodeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[RemoteShell._OpCode.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        OP_UNSET: RemoteShell._OpCode.ValueType  # 0
+        OPEN: RemoteShell._OpCode.ValueType  # 1
+        """Client -> server"""
+        INPUT: RemoteShell._OpCode.ValueType  # 2
+        RESIZE: RemoteShell._OpCode.ValueType  # 3
+        CLOSE: RemoteShell._OpCode.ValueType  # 4
+        PING: RemoteShell._OpCode.ValueType  # 5
+        ACK: RemoteShell._OpCode.ValueType  # 6
+        OPEN_OK: RemoteShell._OpCode.ValueType  # 64
+        """Server -> client"""
+        OUTPUT: RemoteShell._OpCode.ValueType  # 65
+        CLOSED: RemoteShell._OpCode.ValueType  # 66
+        ERROR: RemoteShell._OpCode.ValueType  # 67
+        PONG: RemoteShell._OpCode.ValueType  # 68
+
+    class OpCode(_OpCode, metaclass=_OpCodeEnumTypeWrapper):
+        """
+        Frame op code for PTY session control and stream transport.
+
+        Values 1-63 are client->server requests.
+        Values 64-127 are server->client responses/events.
+        """
+
+    OP_UNSET: RemoteShell.OpCode.ValueType  # 0
+    OPEN: RemoteShell.OpCode.ValueType  # 1
+    """Client -> server"""
+    INPUT: RemoteShell.OpCode.ValueType  # 2
+    RESIZE: RemoteShell.OpCode.ValueType  # 3
+    CLOSE: RemoteShell.OpCode.ValueType  # 4
+    PING: RemoteShell.OpCode.ValueType  # 5
+    ACK: RemoteShell.OpCode.ValueType  # 6
+    OPEN_OK: RemoteShell.OpCode.ValueType  # 64
+    """Server -> client"""
+    OUTPUT: RemoteShell.OpCode.ValueType  # 65
+    CLOSED: RemoteShell.OpCode.ValueType  # 66
+    ERROR: RemoteShell.OpCode.ValueType  # 67
+    PONG: RemoteShell.OpCode.ValueType  # 68
+
+    OP_FIELD_NUMBER: builtins.int
+    SESSION_ID_FIELD_NUMBER: builtins.int
+    SEQ_FIELD_NUMBER: builtins.int
+    ACK_SEQ_FIELD_NUMBER: builtins.int
+    PAYLOAD_FIELD_NUMBER: builtins.int
+    COLS_FIELD_NUMBER: builtins.int
+    ROWS_FIELD_NUMBER: builtins.int
+    FLAGS_FIELD_NUMBER: builtins.int
+    LAST_TX_SEQ_FIELD_NUMBER: builtins.int
+    LAST_RX_SEQ_FIELD_NUMBER: builtins.int
+    op: global___RemoteShell.OpCode.ValueType
+    """
+    Structured frame operation.
+    """
+    session_id: builtins.int
+    """
+    Logical PTY session identifier.
+    """
+    seq: builtins.int
+    """
+    Monotonic sequence number for this frame.
+    """
+    ack_seq: builtins.int
+    """
+    Cumulative ack sequence number.
+    """
+    payload: builtins.bytes
+    """
+    Opaque bytes payload for INPUT/OUTPUT/ERROR and other frame bodies.
+    """
+    cols: builtins.int
+    """
+    Terminal size columns used for OPEN/RESIZE signaling.
+    """
+    rows: builtins.int
+    """
+    Terminal size rows used for OPEN/RESIZE signaling.
+    """
+    flags: builtins.int
+    """
+    Bit flags for protocol extensions.
+    """
+    last_tx_seq: builtins.int
+    """
+    The last sequence number TX'd.
+    """
+    last_rx_seq: builtins.int
+    """
+    The last sequence number RX'd.
+    """
+    def __init__(
+        self,
+        *,
+        op: global___RemoteShell.OpCode.ValueType = ...,
+        session_id: builtins.int = ...,
+        seq: builtins.int = ...,
+        ack_seq: builtins.int = ...,
+        payload: builtins.bytes = ...,
+        cols: builtins.int = ...,
+        rows: builtins.int = ...,
+        flags: builtins.int = ...,
+        last_tx_seq: builtins.int = ...,
+        last_rx_seq: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["ack_seq", b"ack_seq", "cols", b"cols", "flags", b"flags", "last_rx_seq", b"last_rx_seq", "last_tx_seq", b"last_tx_seq", "op", b"op", "payload", b"payload", "rows", b"rows", "seq", b"seq", "session_id", b"session_id"]) -> None: ...
+
+global___RemoteShell = RemoteShell
+
+@typing.final
 class Waypoint(google.protobuf.message.Message):
     """
     Waypoint message, used to share arbitrary locations across the mesh
@@ -3282,6 +3496,7 @@ class FromRadio(google.protobuf.message.Message):
     FILEINFO_FIELD_NUMBER: builtins.int
     CLIENTNOTIFICATION_FIELD_NUMBER: builtins.int
     DEVICEUICONFIG_FIELD_NUMBER: builtins.int
+    LOCKDOWN_STATUS_FIELD_NUMBER: builtins.int
     id: builtins.int
     """
     The packet id, used to allow the phone to request missing read packets from the FIFO,
@@ -3387,6 +3602,16 @@ class FromRadio(google.protobuf.message.Message):
         Persistent data for device-ui
         """
 
+    @property
+    def lockdown_status(self) -> global___LockdownStatus:
+        """
+        Lockdown state notification for hardened firmware builds.
+        Sent post-config (so unauthorized clients learn they must
+        provision/unlock) and after each LockdownAuth admin command
+        to report success or failure. Replaces the earlier scheme of
+        encoding state as magic-string prefixes inside ClientNotification.
+        """
+
     def __init__(
         self,
         *,
@@ -3407,12 +3632,132 @@ class FromRadio(google.protobuf.message.Message):
         fileInfo: global___FileInfo | None = ...,
         clientNotification: global___ClientNotification | None = ...,
         deviceuiConfig: meshtastic.protobuf.device_ui_pb2.DeviceUIConfig | None = ...,
+        lockdown_status: global___LockdownStatus | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "deviceuiConfig", b"deviceuiConfig", "fileInfo", b"fileInfo", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "deviceuiConfig", b"deviceuiConfig", "fileInfo", b"fileInfo", "id", b"id", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["packet", "my_info", "node_info", "config", "log_record", "config_complete_id", "rebooted", "moduleConfig", "channel", "queueStatus", "xmodemPacket", "metadata", "mqttClientProxyMessage", "fileInfo", "clientNotification", "deviceuiConfig"] | None: ...
+    def HasField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "deviceuiConfig", b"deviceuiConfig", "fileInfo", b"fileInfo", "lockdown_status", b"lockdown_status", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "deviceuiConfig", b"deviceuiConfig", "fileInfo", b"fileInfo", "id", b"id", "lockdown_status", b"lockdown_status", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "xmodemPacket", b"xmodemPacket"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["packet", "my_info", "node_info", "config", "log_record", "config_complete_id", "rebooted", "moduleConfig", "channel", "queueStatus", "xmodemPacket", "metadata", "mqttClientProxyMessage", "fileInfo", "clientNotification", "deviceuiConfig", "lockdown_status"] | None: ...
 
 global___FromRadio = FromRadio
+
+@typing.final
+class LockdownStatus(google.protobuf.message.Message):
+    """
+    Lockdown state report from firmware to client (for hardened builds
+    with MESHTASTIC_LOCKDOWN). Sent immediately after config_complete_id
+    to inform a freshly-connected unauthorized client what it must do,
+    and again in response to each LockdownAuth admin command.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _State:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _StateEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[LockdownStatus._State.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        STATE_UNSPECIFIED: LockdownStatus._State.ValueType  # 0
+        """Default; should not be sent."""
+        NEEDS_PROVISION: LockdownStatus._State.ValueType  # 1
+        """
+        No passphrase has ever been provisioned on this device.
+        Client should prompt the operator to set one.
+        """
+        LOCKED: LockdownStatus._State.ValueType  # 2
+        """
+        Storage is locked or this client has not authenticated yet.
+        lock_reason carries a machine-readable detail string.
+        Client should present (or auto-replay) a passphrase via
+        AdminMessage.lockdown_auth.
+        """
+        UNLOCKED: LockdownStatus._State.ValueType  # 3
+        """
+        Passphrase accepted; client is now authorized for this connection.
+        boots_remaining and valid_until_epoch describe the active session
+        token's TTL.
+        """
+        UNLOCK_FAILED: LockdownStatus._State.ValueType  # 4
+        """
+        Passphrase rejected. backoff_seconds is non-zero when rate-limited.
+        """
+
+    class State(_State, metaclass=_StateEnumTypeWrapper): ...
+    STATE_UNSPECIFIED: LockdownStatus.State.ValueType  # 0
+    """Default; should not be sent."""
+    NEEDS_PROVISION: LockdownStatus.State.ValueType  # 1
+    """
+    No passphrase has ever been provisioned on this device.
+    Client should prompt the operator to set one.
+    """
+    LOCKED: LockdownStatus.State.ValueType  # 2
+    """
+    Storage is locked or this client has not authenticated yet.
+    lock_reason carries a machine-readable detail string.
+    Client should present (or auto-replay) a passphrase via
+    AdminMessage.lockdown_auth.
+    """
+    UNLOCKED: LockdownStatus.State.ValueType  # 3
+    """
+    Passphrase accepted; client is now authorized for this connection.
+    boots_remaining and valid_until_epoch describe the active session
+    token's TTL.
+    """
+    UNLOCK_FAILED: LockdownStatus.State.ValueType  # 4
+    """
+    Passphrase rejected. backoff_seconds is non-zero when rate-limited.
+    """
+
+    STATE_FIELD_NUMBER: builtins.int
+    LOCK_REASON_FIELD_NUMBER: builtins.int
+    BOOTS_REMAINING_FIELD_NUMBER: builtins.int
+    VALID_UNTIL_EPOCH_FIELD_NUMBER: builtins.int
+    BACKOFF_SECONDS_FIELD_NUMBER: builtins.int
+    state: global___LockdownStatus.State.ValueType
+    """Current lockdown state being reported."""
+    lock_reason: builtins.str
+    """
+    For LOCKED: machine-readable reason. Known values:
+      "needs_auth"        — storage already unlocked, client must auth
+      "token_missing"     — no boot token on flash
+      "token_expired"     — boot token wall-clock TTL elapsed
+      "token_boots_zero"  — boot token boot-count TTL exhausted
+      "token_hmac_fail"   — token tampered or wrong device
+      "token_dek_fail"    — token DEK decrypt failed
+      "token_wrong_size"  — token file corrupted
+      "token_bad_magic"   — token file corrupted
+      "not_provisioned"   — should generally use NEEDS_PROVISION state instead
+    Other values may be added; clients should treat unknown values as
+    "locked, ask for passphrase".
+    """
+    boots_remaining: builtins.int
+    """
+    For UNLOCKED: remaining boots on the issued session token.
+    Decrements by 1 on each subsequent boot.
+    """
+    valid_until_epoch: builtins.int
+    """
+    For UNLOCKED: wall-clock expiry of the issued session token,
+    absolute Unix-epoch seconds. 0 = no time limit.
+    """
+    backoff_seconds: builtins.int
+    """
+    For UNLOCK_FAILED: seconds the client must wait before another
+    passphrase attempt will be accepted. 0 = wrong passphrase, no
+    backoff (immediate retry allowed but advisable to prompt user).
+    """
+    def __init__(
+        self,
+        *,
+        state: global___LockdownStatus.State.ValueType = ...,
+        lock_reason: builtins.str = ...,
+        boots_remaining: builtins.int = ...,
+        valid_until_epoch: builtins.int = ...,
+        backoff_seconds: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["backoff_seconds", b"backoff_seconds", "boots_remaining", b"boots_remaining", "lock_reason", b"lock_reason", "state", b"state", "valid_until_epoch", b"valid_until_epoch"]) -> None: ...
+
+global___LockdownStatus = LockdownStatus
 
 @typing.final
 class ClientNotification(google.protobuf.message.Message):

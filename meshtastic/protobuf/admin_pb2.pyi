@@ -228,6 +228,14 @@ class AdminMessage(google.protobuf.message.Message):
         """
         TODO: REPLACE
         """
+        TRAFFICMANAGEMENT_CONFIG: AdminMessage._ModuleConfigType.ValueType  # 14
+        """
+        Traffic management module config
+        """
+        TAK_CONFIG: AdminMessage._ModuleConfigType.ValueType  # 15
+        """
+        TAK module config
+        """
 
     class ModuleConfigType(_ModuleConfigType, metaclass=_ModuleConfigTypeEnumTypeWrapper):
         """
@@ -289,6 +297,14 @@ class AdminMessage(google.protobuf.message.Message):
     STATUSMESSAGE_CONFIG: AdminMessage.ModuleConfigType.ValueType  # 13
     """
     TODO: REPLACE
+    """
+    TRAFFICMANAGEMENT_CONFIG: AdminMessage.ModuleConfigType.ValueType  # 14
+    """
+    Traffic management module config
+    """
+    TAK_CONFIG: AdminMessage.ModuleConfigType.ValueType  # 15
+    """
+    TAK module config
     """
 
     class _BackupLocation:
@@ -439,6 +455,8 @@ class AdminMessage(google.protobuf.message.Message):
     FACTORY_RESET_CONFIG_FIELD_NUMBER: builtins.int
     NODEDB_RESET_FIELD_NUMBER: builtins.int
     OTA_REQUEST_FIELD_NUMBER: builtins.int
+    SENSOR_CONFIG_FIELD_NUMBER: builtins.int
+    LOCKDOWN_AUTH_FIELD_NUMBER: builtins.int
     session_passkey: builtins.bytes
     """
     The node generates this key and sends it with any get_x_response packets.
@@ -720,6 +738,25 @@ class AdminMessage(google.protobuf.message.Message):
         Tell the node to reset into the OTA Loader
         """
 
+    @property
+    def sensor_config(self) -> global___SensorConfig:
+        """
+        Parameters and sensor configuration
+        """
+
+    @property
+    def lockdown_auth(self) -> global___LockdownAuth:
+        """
+        Lockdown passphrase delivery / unlock / lock-now command for hardened
+        firmware builds (see MESHTASTIC_LOCKDOWN). Used to provision the
+        passphrase on first boot, unlock encrypted storage on subsequent
+        reboots, re-verify on already-unlocked devices to authorize a new
+        client connection, or immediately re-lock the device.
+
+        Replaces the earlier scheme that repurposed SecurityConfig.private_key
+        to carry passphrase bytes; that hack is retired.
+        """
+
     def __init__(
         self,
         *,
@@ -780,12 +817,76 @@ class AdminMessage(google.protobuf.message.Message):
         factory_reset_config: builtins.int = ...,
         nodedb_reset: builtins.bool = ...,
         ota_request: global___AdminMessage.OTAEvent | None = ...,
+        sensor_config: global___SensorConfig | None = ...,
+        lockdown_auth: global___LockdownAuth | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["add_contact", b"add_contact", "backup_preferences", b"backup_preferences", "begin_edit_settings", b"begin_edit_settings", "commit_edit_settings", b"commit_edit_settings", "delete_file_request", b"delete_file_request", "enter_dfu_mode_request", b"enter_dfu_mode_request", "exit_simulator", b"exit_simulator", "factory_reset_config", b"factory_reset_config", "factory_reset_device", b"factory_reset_device", "get_canned_message_module_messages_request", b"get_canned_message_module_messages_request", "get_canned_message_module_messages_response", b"get_canned_message_module_messages_response", "get_channel_request", b"get_channel_request", "get_channel_response", b"get_channel_response", "get_config_request", b"get_config_request", "get_config_response", b"get_config_response", "get_device_connection_status_request", b"get_device_connection_status_request", "get_device_connection_status_response", b"get_device_connection_status_response", "get_device_metadata_request", b"get_device_metadata_request", "get_device_metadata_response", b"get_device_metadata_response", "get_module_config_request", b"get_module_config_request", "get_module_config_response", b"get_module_config_response", "get_node_remote_hardware_pins_request", b"get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", b"get_node_remote_hardware_pins_response", "get_owner_request", b"get_owner_request", "get_owner_response", b"get_owner_response", "get_ringtone_request", b"get_ringtone_request", "get_ringtone_response", b"get_ringtone_response", "get_ui_config_request", b"get_ui_config_request", "get_ui_config_response", b"get_ui_config_response", "key_verification", b"key_verification", "nodedb_reset", b"nodedb_reset", "ota_request", b"ota_request", "payload_variant", b"payload_variant", "reboot_ota_seconds", b"reboot_ota_seconds", "reboot_seconds", b"reboot_seconds", "remove_backup_preferences", b"remove_backup_preferences", "remove_by_nodenum", b"remove_by_nodenum", "remove_favorite_node", b"remove_favorite_node", "remove_fixed_position", b"remove_fixed_position", "remove_ignored_node", b"remove_ignored_node", "restore_preferences", b"restore_preferences", "send_input_event", b"send_input_event", "set_canned_message_module_messages", b"set_canned_message_module_messages", "set_channel", b"set_channel", "set_config", b"set_config", "set_favorite_node", b"set_favorite_node", "set_fixed_position", b"set_fixed_position", "set_ham_mode", b"set_ham_mode", "set_ignored_node", b"set_ignored_node", "set_module_config", b"set_module_config", "set_owner", b"set_owner", "set_ringtone_message", b"set_ringtone_message", "set_scale", b"set_scale", "set_time_only", b"set_time_only", "shutdown_seconds", b"shutdown_seconds", "store_ui_config", b"store_ui_config", "toggle_muted_node", b"toggle_muted_node"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["add_contact", b"add_contact", "backup_preferences", b"backup_preferences", "begin_edit_settings", b"begin_edit_settings", "commit_edit_settings", b"commit_edit_settings", "delete_file_request", b"delete_file_request", "enter_dfu_mode_request", b"enter_dfu_mode_request", "exit_simulator", b"exit_simulator", "factory_reset_config", b"factory_reset_config", "factory_reset_device", b"factory_reset_device", "get_canned_message_module_messages_request", b"get_canned_message_module_messages_request", "get_canned_message_module_messages_response", b"get_canned_message_module_messages_response", "get_channel_request", b"get_channel_request", "get_channel_response", b"get_channel_response", "get_config_request", b"get_config_request", "get_config_response", b"get_config_response", "get_device_connection_status_request", b"get_device_connection_status_request", "get_device_connection_status_response", b"get_device_connection_status_response", "get_device_metadata_request", b"get_device_metadata_request", "get_device_metadata_response", b"get_device_metadata_response", "get_module_config_request", b"get_module_config_request", "get_module_config_response", b"get_module_config_response", "get_node_remote_hardware_pins_request", b"get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", b"get_node_remote_hardware_pins_response", "get_owner_request", b"get_owner_request", "get_owner_response", b"get_owner_response", "get_ringtone_request", b"get_ringtone_request", "get_ringtone_response", b"get_ringtone_response", "get_ui_config_request", b"get_ui_config_request", "get_ui_config_response", b"get_ui_config_response", "key_verification", b"key_verification", "nodedb_reset", b"nodedb_reset", "ota_request", b"ota_request", "payload_variant", b"payload_variant", "reboot_ota_seconds", b"reboot_ota_seconds", "reboot_seconds", b"reboot_seconds", "remove_backup_preferences", b"remove_backup_preferences", "remove_by_nodenum", b"remove_by_nodenum", "remove_favorite_node", b"remove_favorite_node", "remove_fixed_position", b"remove_fixed_position", "remove_ignored_node", b"remove_ignored_node", "restore_preferences", b"restore_preferences", "send_input_event", b"send_input_event", "session_passkey", b"session_passkey", "set_canned_message_module_messages", b"set_canned_message_module_messages", "set_channel", b"set_channel", "set_config", b"set_config", "set_favorite_node", b"set_favorite_node", "set_fixed_position", b"set_fixed_position", "set_ham_mode", b"set_ham_mode", "set_ignored_node", b"set_ignored_node", "set_module_config", b"set_module_config", "set_owner", b"set_owner", "set_ringtone_message", b"set_ringtone_message", "set_scale", b"set_scale", "set_time_only", b"set_time_only", "shutdown_seconds", b"shutdown_seconds", "store_ui_config", b"store_ui_config", "toggle_muted_node", b"toggle_muted_node"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["get_channel_request", "get_channel_response", "get_owner_request", "get_owner_response", "get_config_request", "get_config_response", "get_module_config_request", "get_module_config_response", "get_canned_message_module_messages_request", "get_canned_message_module_messages_response", "get_device_metadata_request", "get_device_metadata_response", "get_ringtone_request", "get_ringtone_response", "get_device_connection_status_request", "get_device_connection_status_response", "set_ham_mode", "get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", "enter_dfu_mode_request", "delete_file_request", "set_scale", "backup_preferences", "restore_preferences", "remove_backup_preferences", "send_input_event", "set_owner", "set_channel", "set_config", "set_module_config", "set_canned_message_module_messages", "set_ringtone_message", "remove_by_nodenum", "set_favorite_node", "remove_favorite_node", "set_fixed_position", "remove_fixed_position", "set_time_only", "get_ui_config_request", "get_ui_config_response", "store_ui_config", "set_ignored_node", "remove_ignored_node", "toggle_muted_node", "begin_edit_settings", "commit_edit_settings", "add_contact", "key_verification", "factory_reset_device", "reboot_ota_seconds", "exit_simulator", "reboot_seconds", "shutdown_seconds", "factory_reset_config", "nodedb_reset", "ota_request"] | None: ...
+    def HasField(self, field_name: typing.Literal["add_contact", b"add_contact", "backup_preferences", b"backup_preferences", "begin_edit_settings", b"begin_edit_settings", "commit_edit_settings", b"commit_edit_settings", "delete_file_request", b"delete_file_request", "enter_dfu_mode_request", b"enter_dfu_mode_request", "exit_simulator", b"exit_simulator", "factory_reset_config", b"factory_reset_config", "factory_reset_device", b"factory_reset_device", "get_canned_message_module_messages_request", b"get_canned_message_module_messages_request", "get_canned_message_module_messages_response", b"get_canned_message_module_messages_response", "get_channel_request", b"get_channel_request", "get_channel_response", b"get_channel_response", "get_config_request", b"get_config_request", "get_config_response", b"get_config_response", "get_device_connection_status_request", b"get_device_connection_status_request", "get_device_connection_status_response", b"get_device_connection_status_response", "get_device_metadata_request", b"get_device_metadata_request", "get_device_metadata_response", b"get_device_metadata_response", "get_module_config_request", b"get_module_config_request", "get_module_config_response", b"get_module_config_response", "get_node_remote_hardware_pins_request", b"get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", b"get_node_remote_hardware_pins_response", "get_owner_request", b"get_owner_request", "get_owner_response", b"get_owner_response", "get_ringtone_request", b"get_ringtone_request", "get_ringtone_response", b"get_ringtone_response", "get_ui_config_request", b"get_ui_config_request", "get_ui_config_response", b"get_ui_config_response", "key_verification", b"key_verification", "lockdown_auth", b"lockdown_auth", "nodedb_reset", b"nodedb_reset", "ota_request", b"ota_request", "payload_variant", b"payload_variant", "reboot_ota_seconds", b"reboot_ota_seconds", "reboot_seconds", b"reboot_seconds", "remove_backup_preferences", b"remove_backup_preferences", "remove_by_nodenum", b"remove_by_nodenum", "remove_favorite_node", b"remove_favorite_node", "remove_fixed_position", b"remove_fixed_position", "remove_ignored_node", b"remove_ignored_node", "restore_preferences", b"restore_preferences", "send_input_event", b"send_input_event", "sensor_config", b"sensor_config", "set_canned_message_module_messages", b"set_canned_message_module_messages", "set_channel", b"set_channel", "set_config", b"set_config", "set_favorite_node", b"set_favorite_node", "set_fixed_position", b"set_fixed_position", "set_ham_mode", b"set_ham_mode", "set_ignored_node", b"set_ignored_node", "set_module_config", b"set_module_config", "set_owner", b"set_owner", "set_ringtone_message", b"set_ringtone_message", "set_scale", b"set_scale", "set_time_only", b"set_time_only", "shutdown_seconds", b"shutdown_seconds", "store_ui_config", b"store_ui_config", "toggle_muted_node", b"toggle_muted_node"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["add_contact", b"add_contact", "backup_preferences", b"backup_preferences", "begin_edit_settings", b"begin_edit_settings", "commit_edit_settings", b"commit_edit_settings", "delete_file_request", b"delete_file_request", "enter_dfu_mode_request", b"enter_dfu_mode_request", "exit_simulator", b"exit_simulator", "factory_reset_config", b"factory_reset_config", "factory_reset_device", b"factory_reset_device", "get_canned_message_module_messages_request", b"get_canned_message_module_messages_request", "get_canned_message_module_messages_response", b"get_canned_message_module_messages_response", "get_channel_request", b"get_channel_request", "get_channel_response", b"get_channel_response", "get_config_request", b"get_config_request", "get_config_response", b"get_config_response", "get_device_connection_status_request", b"get_device_connection_status_request", "get_device_connection_status_response", b"get_device_connection_status_response", "get_device_metadata_request", b"get_device_metadata_request", "get_device_metadata_response", b"get_device_metadata_response", "get_module_config_request", b"get_module_config_request", "get_module_config_response", b"get_module_config_response", "get_node_remote_hardware_pins_request", b"get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", b"get_node_remote_hardware_pins_response", "get_owner_request", b"get_owner_request", "get_owner_response", b"get_owner_response", "get_ringtone_request", b"get_ringtone_request", "get_ringtone_response", b"get_ringtone_response", "get_ui_config_request", b"get_ui_config_request", "get_ui_config_response", b"get_ui_config_response", "key_verification", b"key_verification", "lockdown_auth", b"lockdown_auth", "nodedb_reset", b"nodedb_reset", "ota_request", b"ota_request", "payload_variant", b"payload_variant", "reboot_ota_seconds", b"reboot_ota_seconds", "reboot_seconds", b"reboot_seconds", "remove_backup_preferences", b"remove_backup_preferences", "remove_by_nodenum", b"remove_by_nodenum", "remove_favorite_node", b"remove_favorite_node", "remove_fixed_position", b"remove_fixed_position", "remove_ignored_node", b"remove_ignored_node", "restore_preferences", b"restore_preferences", "send_input_event", b"send_input_event", "sensor_config", b"sensor_config", "session_passkey", b"session_passkey", "set_canned_message_module_messages", b"set_canned_message_module_messages", "set_channel", b"set_channel", "set_config", b"set_config", "set_favorite_node", b"set_favorite_node", "set_fixed_position", b"set_fixed_position", "set_ham_mode", b"set_ham_mode", "set_ignored_node", b"set_ignored_node", "set_module_config", b"set_module_config", "set_owner", b"set_owner", "set_ringtone_message", b"set_ringtone_message", "set_scale", b"set_scale", "set_time_only", b"set_time_only", "shutdown_seconds", b"shutdown_seconds", "store_ui_config", b"store_ui_config", "toggle_muted_node", b"toggle_muted_node"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["get_channel_request", "get_channel_response", "get_owner_request", "get_owner_response", "get_config_request", "get_config_response", "get_module_config_request", "get_module_config_response", "get_canned_message_module_messages_request", "get_canned_message_module_messages_response", "get_device_metadata_request", "get_device_metadata_response", "get_ringtone_request", "get_ringtone_response", "get_device_connection_status_request", "get_device_connection_status_response", "set_ham_mode", "get_node_remote_hardware_pins_request", "get_node_remote_hardware_pins_response", "enter_dfu_mode_request", "delete_file_request", "set_scale", "backup_preferences", "restore_preferences", "remove_backup_preferences", "send_input_event", "set_owner", "set_channel", "set_config", "set_module_config", "set_canned_message_module_messages", "set_ringtone_message", "remove_by_nodenum", "set_favorite_node", "remove_favorite_node", "set_fixed_position", "remove_fixed_position", "set_time_only", "get_ui_config_request", "get_ui_config_response", "store_ui_config", "set_ignored_node", "remove_ignored_node", "toggle_muted_node", "begin_edit_settings", "commit_edit_settings", "add_contact", "key_verification", "factory_reset_device", "reboot_ota_seconds", "exit_simulator", "reboot_seconds", "shutdown_seconds", "factory_reset_config", "nodedb_reset", "ota_request", "sensor_config", "lockdown_auth"] | None: ...
 
 global___AdminMessage = AdminMessage
+
+@typing.final
+class LockdownAuth(google.protobuf.message.Message):
+    """
+    Lockdown passphrase delivery payload.
+
+    One message handles three operations distinguished by content:
+      - Provision (first-time): passphrase set, lock_now=false. Firmware
+        generates DEK, wraps with passphrase-derived KEK, persists.
+      - Unlock: passphrase set, lock_now=false. Firmware verifies
+        passphrase against stored DEK, unlocks storage, authorizes the
+        connection that delivered this packet.
+      - Lock now: lock_now=true, passphrase ignored. Firmware revokes
+        all client auth and reboots into the locked state.
+
+    Firmware decides between provision and unlock based on its own state
+    (whether a DEK file already exists). Clients do not need to track
+    which case applies.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PASSPHRASE_FIELD_NUMBER: builtins.int
+    BOOTS_REMAINING_FIELD_NUMBER: builtins.int
+    VALID_UNTIL_EPOCH_FIELD_NUMBER: builtins.int
+    LOCK_NOW_FIELD_NUMBER: builtins.int
+    passphrase: builtins.bytes
+    """
+    Passphrase bytes (1-32). Empty when lock_now is true.
+    Capped to 32 to match the proto cap on related security fields.
+    """
+    boots_remaining: builtins.int
+    """
+    Optional override of the boot-count token TTL granted on success.
+    0 = use firmware default (TOKEN_DEFAULT_BOOTS).
+    On reboot the firmware decrements this; when it reaches 0 the
+    device boots fully locked and requires a fresh passphrase.
+    """
+    valid_until_epoch: builtins.int
+    """
+    Optional wall-clock expiry for the unlock token, as absolute
+    Unix-epoch seconds. 0 = no time limit (only the boot-count TTL
+    applies). On boot, if the device RTC is set and now > this value,
+    the token is treated as expired.
+    """
+    lock_now: builtins.bool
+    """
+    If true, ignore passphrase fields, immediately revoke all
+    connection-level admin authorization, and reboot the device into
+    the locked state. Always honoured regardless of current lock state.
+    """
+    def __init__(
+        self,
+        *,
+        passphrase: builtins.bytes = ...,
+        boots_remaining: builtins.int = ...,
+        valid_until_epoch: builtins.int = ...,
+        lock_now: builtins.bool = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["boots_remaining", b"boots_remaining", "lock_now", b"lock_now", "passphrase", b"passphrase", "valid_until_epoch", b"valid_until_epoch"]) -> None: ...
+
+global___LockdownAuth = LockdownAuth
 
 @typing.final
 class HamParameters(google.protobuf.message.Message):
@@ -977,3 +1078,227 @@ class KeyVerificationAdmin(google.protobuf.message.Message):
     def WhichOneof(self, oneof_group: typing.Literal["_security_number", b"_security_number"]) -> typing.Literal["security_number"] | None: ...
 
 global___KeyVerificationAdmin = KeyVerificationAdmin
+
+@typing.final
+class SensorConfig(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SCD4X_CONFIG_FIELD_NUMBER: builtins.int
+    SEN5X_CONFIG_FIELD_NUMBER: builtins.int
+    SCD30_CONFIG_FIELD_NUMBER: builtins.int
+    SHTXX_CONFIG_FIELD_NUMBER: builtins.int
+    @property
+    def scd4x_config(self) -> global___SCD4X_config:
+        """
+        SCD4X CO2 Sensor configuration
+        """
+
+    @property
+    def sen5x_config(self) -> global___SEN5X_config:
+        """
+        SEN5X PM Sensor configuration
+        """
+
+    @property
+    def scd30_config(self) -> global___SCD30_config:
+        """
+        SCD30 CO2 Sensor configuration
+        """
+
+    @property
+    def shtxx_config(self) -> global___SHTXX_config:
+        """
+        SHTXX temperature and relative humidity sensor configuration
+        """
+
+    def __init__(
+        self,
+        *,
+        scd4x_config: global___SCD4X_config | None = ...,
+        sen5x_config: global___SEN5X_config | None = ...,
+        scd30_config: global___SCD30_config | None = ...,
+        shtxx_config: global___SHTXX_config | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["scd30_config", b"scd30_config", "scd4x_config", b"scd4x_config", "sen5x_config", b"sen5x_config", "shtxx_config", b"shtxx_config"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["scd30_config", b"scd30_config", "scd4x_config", b"scd4x_config", "sen5x_config", b"sen5x_config", "shtxx_config", b"shtxx_config"]) -> None: ...
+
+global___SensorConfig = SensorConfig
+
+@typing.final
+class SCD4X_config(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SET_ASC_FIELD_NUMBER: builtins.int
+    SET_TARGET_CO2_CONC_FIELD_NUMBER: builtins.int
+    SET_TEMPERATURE_FIELD_NUMBER: builtins.int
+    SET_ALTITUDE_FIELD_NUMBER: builtins.int
+    SET_AMBIENT_PRESSURE_FIELD_NUMBER: builtins.int
+    FACTORY_RESET_FIELD_NUMBER: builtins.int
+    SET_POWER_MODE_FIELD_NUMBER: builtins.int
+    set_asc: builtins.bool
+    """
+    Set Automatic self-calibration enabled
+    """
+    set_target_co2_conc: builtins.int
+    """
+    Recalibration target CO2 concentration in ppm (FRC or ASC)
+    """
+    set_temperature: builtins.float
+    """
+    Reference temperature in degC
+    """
+    set_altitude: builtins.int
+    """
+    Altitude of sensor in meters above sea level. 0 - 3000m (overrides ambient pressure)
+    """
+    set_ambient_pressure: builtins.int
+    """
+    Sensor ambient pressure in Pa. 70000 - 120000 Pa (overrides altitude)
+    """
+    factory_reset: builtins.bool
+    """
+    Perform a factory reset of the sensor
+    """
+    set_power_mode: builtins.bool
+    """
+    Power mode for sensor (true for low power, false for normal)
+    """
+    def __init__(
+        self,
+        *,
+        set_asc: builtins.bool | None = ...,
+        set_target_co2_conc: builtins.int | None = ...,
+        set_temperature: builtins.float | None = ...,
+        set_altitude: builtins.int | None = ...,
+        set_ambient_pressure: builtins.int | None = ...,
+        factory_reset: builtins.bool | None = ...,
+        set_power_mode: builtins.bool | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_factory_reset", b"_factory_reset", "_set_altitude", b"_set_altitude", "_set_ambient_pressure", b"_set_ambient_pressure", "_set_asc", b"_set_asc", "_set_power_mode", b"_set_power_mode", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "factory_reset", b"factory_reset", "set_altitude", b"set_altitude", "set_ambient_pressure", b"set_ambient_pressure", "set_asc", b"set_asc", "set_power_mode", b"set_power_mode", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_factory_reset", b"_factory_reset", "_set_altitude", b"_set_altitude", "_set_ambient_pressure", b"_set_ambient_pressure", "_set_asc", b"_set_asc", "_set_power_mode", b"_set_power_mode", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "factory_reset", b"factory_reset", "set_altitude", b"set_altitude", "set_ambient_pressure", b"set_ambient_pressure", "set_asc", b"set_asc", "set_power_mode", b"set_power_mode", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_factory_reset", b"_factory_reset"]) -> typing.Literal["factory_reset"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_altitude", b"_set_altitude"]) -> typing.Literal["set_altitude"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_ambient_pressure", b"_set_ambient_pressure"]) -> typing.Literal["set_ambient_pressure"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_asc", b"_set_asc"]) -> typing.Literal["set_asc"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_power_mode", b"_set_power_mode"]) -> typing.Literal["set_power_mode"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_target_co2_conc", b"_set_target_co2_conc"]) -> typing.Literal["set_target_co2_conc"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_temperature", b"_set_temperature"]) -> typing.Literal["set_temperature"] | None: ...
+
+global___SCD4X_config = SCD4X_config
+
+@typing.final
+class SEN5X_config(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SET_TEMPERATURE_FIELD_NUMBER: builtins.int
+    SET_ONE_SHOT_MODE_FIELD_NUMBER: builtins.int
+    set_temperature: builtins.float
+    """
+    Reference temperature in degC
+    """
+    set_one_shot_mode: builtins.bool
+    """
+    One-shot mode (true for low power - one-shot mode, false for normal - continuous mode)
+    """
+    def __init__(
+        self,
+        *,
+        set_temperature: builtins.float | None = ...,
+        set_one_shot_mode: builtins.bool | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_set_one_shot_mode", b"_set_one_shot_mode", "_set_temperature", b"_set_temperature", "set_one_shot_mode", b"set_one_shot_mode", "set_temperature", b"set_temperature"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_set_one_shot_mode", b"_set_one_shot_mode", "_set_temperature", b"_set_temperature", "set_one_shot_mode", b"set_one_shot_mode", "set_temperature", b"set_temperature"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_one_shot_mode", b"_set_one_shot_mode"]) -> typing.Literal["set_one_shot_mode"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_temperature", b"_set_temperature"]) -> typing.Literal["set_temperature"] | None: ...
+
+global___SEN5X_config = SEN5X_config
+
+@typing.final
+class SCD30_config(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SET_ASC_FIELD_NUMBER: builtins.int
+    SET_TARGET_CO2_CONC_FIELD_NUMBER: builtins.int
+    SET_TEMPERATURE_FIELD_NUMBER: builtins.int
+    SET_ALTITUDE_FIELD_NUMBER: builtins.int
+    SET_MEASUREMENT_INTERVAL_FIELD_NUMBER: builtins.int
+    SOFT_RESET_FIELD_NUMBER: builtins.int
+    set_asc: builtins.bool
+    """
+    Set Automatic self-calibration enabled
+    """
+    set_target_co2_conc: builtins.int
+    """
+    Recalibration target CO2 concentration in ppm (FRC or ASC)
+    """
+    set_temperature: builtins.float
+    """
+    Reference temperature in degC
+    """
+    set_altitude: builtins.int
+    """
+    Altitude of sensor in meters above sea level. 0 - 3000m (overrides ambient pressure)
+    """
+    set_measurement_interval: builtins.int
+    """
+    Power mode for sensor (true for low power, false for normal)
+    """
+    soft_reset: builtins.bool
+    """
+    Perform a factory reset of the sensor
+    """
+    def __init__(
+        self,
+        *,
+        set_asc: builtins.bool | None = ...,
+        set_target_co2_conc: builtins.int | None = ...,
+        set_temperature: builtins.float | None = ...,
+        set_altitude: builtins.int | None = ...,
+        set_measurement_interval: builtins.int | None = ...,
+        soft_reset: builtins.bool | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_set_altitude", b"_set_altitude", "_set_asc", b"_set_asc", "_set_measurement_interval", b"_set_measurement_interval", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "_soft_reset", b"_soft_reset", "set_altitude", b"set_altitude", "set_asc", b"set_asc", "set_measurement_interval", b"set_measurement_interval", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature", "soft_reset", b"soft_reset"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_set_altitude", b"_set_altitude", "_set_asc", b"_set_asc", "_set_measurement_interval", b"_set_measurement_interval", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "_soft_reset", b"_soft_reset", "set_altitude", b"set_altitude", "set_asc", b"set_asc", "set_measurement_interval", b"set_measurement_interval", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature", "soft_reset", b"soft_reset"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_altitude", b"_set_altitude"]) -> typing.Literal["set_altitude"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_asc", b"_set_asc"]) -> typing.Literal["set_asc"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_measurement_interval", b"_set_measurement_interval"]) -> typing.Literal["set_measurement_interval"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_target_co2_conc", b"_set_target_co2_conc"]) -> typing.Literal["set_target_co2_conc"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_temperature", b"_set_temperature"]) -> typing.Literal["set_temperature"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_soft_reset", b"_soft_reset"]) -> typing.Literal["soft_reset"] | None: ...
+
+global___SCD30_config = SCD30_config
+
+@typing.final
+class SHTXX_config(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SET_ACCURACY_FIELD_NUMBER: builtins.int
+    set_accuracy: builtins.int
+    """
+    Accuracy mode (0 = low, 1 = medium, 2 = high)
+    """
+    def __init__(
+        self,
+        *,
+        set_accuracy: builtins.int | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_set_accuracy", b"_set_accuracy", "set_accuracy", b"set_accuracy"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_set_accuracy", b"_set_accuracy", "set_accuracy", b"set_accuracy"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_set_accuracy", b"_set_accuracy"]) -> typing.Literal["set_accuracy"] | None: ...
+
+global___SHTXX_config = SHTXX_config
