@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Copyright (C) 2025 Olliver Schinagl <oliver@schinagl.nl>
+
+ARG TARGET_VERSION="3.11"
+ARG TARGET_ARCH="library"
+
+FROM docker.io/${TARGET_ARCH}/python:${TARGET_VERSION}
+
+WORKDIR /tmp/build
+
+COPY . /tmp/build
+
+RUN _poetry_venv_dir="$(mktemp -d -p "${TMPDIR:-/tmp}" 'poetry_venv.XXXXXX')" && \
+    python -m 'venv' "${_poetry_venv_dir}" && \
+    "${_poetry_venv_dir}/bin/pip" install --no-cache-dir 'poetry' && \
+    "${_poetry_venv_dir}/bin/poetry" config --local virtualenvs.create false && \
+    "${_poetry_venv_dir}/bin/poetry" install --without dev --extras cli --extras tunnel --no-interaction --no-ansi && \
+    useradd --system --create-home --home-dir /home/meshtastic meshtastic && \
+    rm -f -r "${_poetry_venv_dir}" && \
+    rm -f -r "/tmp/build"
+
+COPY "./bin/container-entrypoint.sh" "/init"
+RUN chmod 0755 /init
+
+WORKDIR /home/meshtastic
+USER meshtastic
+
+ENTRYPOINT [ "/init" ]

@@ -27,6 +27,24 @@ This small library (and example application) provides an easy API for sending an
 It also provides access to any of the operations/data available in the device user interface or the Android application.
 Events are delivered using a publish-subscribe model, and you can subscribe to only the message types you are interested in.
 
+## Container usage
+
+Container images are published to GHCR for this repository. The container entrypoint defaults to running `meshtastic`,
+so CLI flags can be passed directly:
+
+```bash
+docker run --rm ghcr.io/meshtastic/python --help
+```
+
+To run another command, pass it explicitly (for example, a shell):
+
+```bash
+docker run --rm -it --entrypoint /bin/sh ghcr.io/meshtastic/python
+```
+
+The container runs as a non-root user by default. When talking to local hardware, pass the serial device through
+explicitly (for example `--device /dev/ttyUSB0:/dev/ttyUSB0`) and ensure host device permissions allow access.
+
 ## Call for Contributors
 
 This library and CLI has gone without a consistent maintainer for a while, and there's many improvements that could be made. We're all volunteers here and help is extremely appreciated, whether in implementing your own needs or helping maintain the library and CLI in general.
