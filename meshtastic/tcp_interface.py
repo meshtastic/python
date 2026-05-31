@@ -86,18 +86,19 @@ class TCPInterface(StreamInterface):
     def close(self) -> None:
         """Close a connection to the device."""
         logger.debug("Closing TCP stream")
-        super().close()
         # Sometimes the socket read might be blocked in the reader thread.
-        # Therefore we force the shutdown by closing the socket here
+        # Therefore force a shutdown first to unblock reader thread reads.
         self._wantExit = True
         if self.socket is not None:
             with contextlib.suppress(
                 Exception
             ):  # Ignore errors in shutdown, because we might have a race with the server
                 self._socket_shutdown()
-            self.socket.close()
+            with contextlib.suppress(Exception):
+                self.socket.close()
 
         self.socket = None
+        super().close()
 
     def _writeBytes(self, b: bytes) -> None:
         """Write an array of bytes to our stream"""
@@ -134,7 +135,8 @@ class TCPInterface(StreamInterface):
 
             with contextlib.suppress(Exception):
                 self._socket_shutdown()
-            self.socket.close()
+            if self.socket is not None:
+                self.socket.close()
             self.socket = None
             time.sleep(1)
             self.myConnect()
