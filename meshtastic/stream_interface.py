@@ -149,8 +149,11 @@ class StreamInterface(MeshInterface):
             except RuntimeError:
                 # Thread was never started — happens when close() is invoked
                 # from a failed __init__ before connect() could spawn it.
-                # Nothing to join; safe to ignore.
-                pass
+                # In this case there is no reader thread to close the stream.
+                if self.stream is not None:
+                    with contextlib.suppress(Exception):
+                        self.stream.close()
+                    self.stream = None
 
     def _handleLogByte(self, b):
         """Handle a byte that is part of a log message from the device."""
