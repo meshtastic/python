@@ -66,7 +66,7 @@ class TCPInterface(StreamInterface):
         super().connect()
 
     def myConnect(self) -> None:
-        """Connect to socket (without attempting to start the interface's receive thread"""
+        """Connect to socket (without attempting to start the interface's receive thread)"""
         logger.debug(f"Connecting to {self.hostname}") # type: ignore[str-bytes-safe]
         server_address = (self.hostname, self.portNumber)
         self.socket = socket.create_connection(server_address)
