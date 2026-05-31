@@ -5,10 +5,9 @@
 import sys
 import time
 
-from pubsub import pub
+from meshtastic.tcp_interface import TCPInterface
 
-import meshtastic
-import meshtastic.tcp_interface
+from pubsub import pub
 
 # simple arg check
 if len(sys.argv) < 2:
@@ -29,11 +28,15 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):  # pylint: disable=unused-arg
 
 pub.subscribe(onReceive, "meshtastic.receive")
 pub.subscribe(onConnection, "meshtastic.connection.established")
+
+iface=None
 try:
-    iface = meshtastic.tcp_interface.TCPInterface(hostname=sys.argv[1])
+    iface = TCPInterface(hostname=sys.argv[1])
     while True:
         time.sleep(1000)
-    iface.close()
 except Exception as ex:
     print(f"Error: Could not connect to {sys.argv[1]} {ex}")
-    sys.exit(1)
+    raise
+finally:
+    if iface:
+        iface.close()
