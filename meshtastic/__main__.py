@@ -1374,8 +1374,7 @@ def common():
                         timeout=args.timeout,
                     )
                 except BLEInterface.BLEError as e:
-                    msg = str(e)
-                    if "No Meshtastic BLE peripheral" in msg:
+                    if e.kind == BLEInterface.BLEError.DEVICE_NOT_FOUND:
                         meshtastic.util.our_exit(
                             "BLE device not found.\n\n"
                             "Possible causes:\n"
@@ -1387,7 +1386,7 @@ def common():
                             "  - Run 'meshtastic --ble-scan' to see available devices",
                             1,
                         )
-                    elif "More than one" in msg:
+                    elif e.kind == BLEInterface.BLEError.MULTIPLE_DEVICES:
                         meshtastic.util.our_exit(
                             "Multiple Meshtastic BLE devices found.\n\n"
                             "Please specify which device to connect to:\n"
@@ -1395,7 +1394,7 @@ def common():
                             "  - Use 'meshtastic --ble <name_or_address>' to connect",
                             1,
                         )
-                    elif "Error writing BLE" in msg:
+                    elif e.kind == BLEInterface.BLEError.WRITE_ERROR:
                         meshtastic.util.our_exit(
                             "Failed to write to BLE device.\n\n"
                             "Possible causes:\n"
@@ -1407,7 +1406,7 @@ def common():
                             "  - Reset the Meshtastic device",
                             1,
                         )
-                    elif "Error reading BLE" in msg:
+                    elif e.kind == BLEInterface.BLEError.READ_ERROR:
                         meshtastic.util.our_exit(
                             "Failed to read from BLE device.\n\n"
                             "The device may have disconnected unexpectedly.\n\n"
