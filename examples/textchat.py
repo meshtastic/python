@@ -1,7 +1,10 @@
-"""Simple text chat demo for meshtastic.
-   To run: python examples/textchat.py
-   To run with TCP: python examples/textchat.py --host 192.168.1.5
-   To run with BLE: python examples/textchat.py --ble 24:62:AB:DD:DF:3A
+"""Interactive text chat demo.
+
+Purpose: demonstrate bidirectional text chat loop.
+Transport scope: Serial default, optional TCP/BLE.
+Behavior: prints incoming messages and sends each typed line as text.
+Expected output: incoming sender/text lines and sent messages reaching peers.
+Cleanup/error handling: explicit connect errors and graceful Ctrl+C / EOF close.
 """
 
 import argparse
@@ -66,8 +69,5 @@ except KeyboardInterrupt:
 except EOFError:
     pass
 finally:
-    try:
-        if iface:
-            iface.close()
-    except AttributeError:
-        pass
+    if iface:
+        iface.close()
