@@ -11,6 +11,7 @@ from types import SimpleNamespace
 from unittest.mock import mock_open, MagicMock, patch
 
 import pytest
+import meshtastic.__main__ as mt_main
 
 from meshtastic.__main__ import (
     export_config,
@@ -27,6 +28,7 @@ from meshtastic import mt_config
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 
 # from ..ble_interface import BLEInterface
+from ..mesh_interface import MeshInterface
 from ..node import Node
 
 # from ..radioconfig_pb2 import UserPreferences
@@ -259,6 +261,113 @@ def test_main_info_with_permission_error(patched_getlogin, capsys, caplog):
         patched_getlogin.assert_called()
         assert re.search(r"Need to add yourself", out, re.MULTILINE)
         assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_ble_device_not_found_message(capsys):
+    """Test BLE device-not-found help text."""
+    sys.argv = ["", "--info", "--ble", "any"]
+    mt_config.args = sys.argv
+
+    with patch("meshtastic.__main__.BLEInterface.__init__") as mock_ble_init:
+        mock_ble_init.side_effect = mt_main.BLEInterface.BLEError(
+            "missing",
+            mt_main.BLEInterface.BLEError.DEVICE_NOT_FOUND,
+        )
+        with pytest.raises(SystemExit) as excinfo:
+            main()
+
+    out, err = capsys.readouterr()
+    assert excinfo.value.code == 1
+    assert re.search(r"BLE device not found", out, re.MULTILINE)
+    assert re.search(r"--ble-scan", out, re.MULTILINE)
+    assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_ble_multiple_devices_message(capsys):
+    """Test BLE multiple-devices help text."""
+    sys.argv = ["", "--info", "--ble", "any"]
+    mt_config.args = sys.argv
+
+    with patch("meshtastic.__main__.BLEInterface.__init__") as mock_ble_init:
+        mock_ble_init.side_effect = mt_main.BLEInterface.BLEError(
+            "multiple",
+            mt_main.BLEInterface.BLEError.MULTIPLE_DEVICES,
+        )
+        with pytest.raises(SystemExit) as excinfo:
+            main()
+
+    out, err = capsys.readouterr()
+    assert excinfo.value.code == 1
+    assert re.search(r"Multiple Meshtastic BLE devices found", out, re.MULTILINE)
+    assert re.search(r"meshtastic --ble <name_or_address>", out, re.MULTILINE)
+    assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_ble_write_error_message(capsys):
+    """Test BLE write-error help text."""
+    sys.argv = ["", "--info", "--ble", "any"]
+    mt_config.args = sys.argv
+
+    with patch("meshtastic.__main__.BLEInterface.__init__") as mock_ble_init:
+        mock_ble_init.side_effect = mt_main.BLEInterface.BLEError(
+            "write fail",
+            mt_main.BLEInterface.BLEError.WRITE_ERROR,
+        )
+        with pytest.raises(SystemExit) as excinfo:
+            main()
+
+    out, err = capsys.readouterr()
+    assert excinfo.value.code == 1
+    assert re.search(r"Failed to write to BLE device", out, re.MULTILINE)
+    assert re.search(r"user not in 'bluetooth' group", out, re.MULTILINE)
+    assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_ble_read_error_message(capsys):
+    """Test BLE read-error help text."""
+    sys.argv = ["", "--info", "--ble", "any"]
+    mt_config.args = sys.argv
+
+    with patch("meshtastic.__main__.BLEInterface.__init__") as mock_ble_init:
+        mock_ble_init.side_effect = mt_main.BLEInterface.BLEError(
+            "read fail",
+            mt_main.BLEInterface.BLEError.READ_ERROR,
+        )
+        with pytest.raises(SystemExit) as excinfo:
+            main()
+
+    out, err = capsys.readouterr()
+    assert excinfo.value.code == 1
+    assert re.search(r"Failed to read from BLE device", out, re.MULTILINE)
+    assert re.search(r"Move closer to the device", out, re.MULTILINE)
+    assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_serial_timeout_message(capsys):
+    """Test serial timeout help text."""
+    sys.argv = ["", "--info"]
+    mt_config.args = sys.argv
+
+    with patch("meshtastic.serial_interface.SerialInterface") as mock_serial:
+        mock_serial.side_effect = MeshInterface.MeshInterfaceError("Timed out waiting")
+        with pytest.raises(SystemExit) as excinfo:
+            main()
+
+    out, err = capsys.readouterr()
+    assert excinfo.value.code == 1
+    assert re.search(r"Connection timed out", out, re.MULTILINE)
+    assert re.search(r"Device is rebooting", out, re.MULTILINE)
+    assert err == ""
 
 
 @pytest.mark.unit
