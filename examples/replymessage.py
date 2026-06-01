@@ -1,7 +1,10 @@
-"""Reply message demo script.
-   To run: python examples/replymessage.py
-   To run with TCP: python examples/replymessage.py --host 192.168.1.5
-   To run with BLE: python examples/replymessage.py --ble 24:62:AB:DD:DF:3A
+"""Auto-reply to received text messages.
+
+Purpose: demonstrate receive callback + generated reply flow.
+Transport scope: Serial default, optional TCP/BLE.
+Behavior: listens for text, prints message metadata, sends one reply per text message.
+Expected output: "Connected..." plus message/reply lines while running.
+Cleanup/error handling: clear connect failures and graceful Ctrl+C close.
 """
 
 import argparse
@@ -13,7 +16,7 @@ import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from meshtastic.mesh_interface import MeshInterface
 
-def onReceive(packet: dict, interface: MeshInterface) -> None:  # pylint: disable=unused-argument
+def onReceive(packet: dict, interface: MeshInterface) -> None:
     """Reply to every received packet with some info"""
     text: Optional[str] = packet.get("decoded", {}).get("text")
     if text:
@@ -66,8 +69,5 @@ try:
 except KeyboardInterrupt:
     pass
 finally:
-    try:
-        if iface:
-            iface.close()
-    except AttributeError:
-        pass
+    if iface:
+        iface.close()

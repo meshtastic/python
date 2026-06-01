@@ -1,58 +1,64 @@
 #!/usr/bin/env python3
-#
-# Released Under GNU GPLv3
-# Copyright 2025 Henri Shustak
-#
-# About :
-#    This script will print messages as they arrive from a meshtastic node connected via serial port USB.
-#    If you have multiple nodes attached, you will need to edit this script and specify the node to monitor.
-#
-# Requirements :
-#    You will need to install python meshtastic libraries : https://github.com/meshtastic/python
-#
-# Version History :
-#    1.0 - initial release
-#    1.1 - added support for sender id and bug fixes
-#    1.2 - added date and time reporting to each message
-#    1.3 - bug fixes and improved error handling
+"""Passively monitor incoming text messages over serial.
 
+Purpose: receive-only monitor for text messages.
+Transport scope: Serial only.
+Behavior: subscribes to text receive events and prints timestamp/channel/sender/text.
+Expected output: one line per received text message.
+Cleanup/error handling: graceful Ctrl+C exit and explicit connection errors.
+"""
+
+import argparse
 import time
-from datetime import datetime, timezone
-import meshtastic
-import meshtastic.serial_interface
-from pubsub import pub
+from datetime import datetime
+from typing import Any, Optional
 
-def onReceive(packet, interface):
-    # DEBUGGING
-    # print(f"message arrived")
-    # print(f"{packet}")
-    # print(f"-----------------------------------------------------------------")
-    try:
-        if packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
-            try:
-                message = packet['decoded']['text']
-                try:
-                    channel_num = packet['channel']
-                except KeyError as e1:
-                    channel_num = 0
-                sender_id = packet['fromId']
-                message_time = datetime.now().strftime(f"%a %b %d %Y %H:%M:%S {tz_name}")
-                print(f"{message_time} : {channel_num} : {sender_id}  :  {message}")
-            except KeyError as e2:
-                print(f"unable to decode message")
-                return
-    except KeyError as e3:
+from pubsub import pub
+import meshtastic.serial_interface
+
+_TZ_NAME = time.tzname[time.localtime().tm_isdst > 0]
+
+
+def on_receive(packet: dict[str, Any], interface: Any) -> None:  # pylint: disable=unused-argument
+    """Print a compact line for each received text packet."""
+    decoded = packet.get("decoded", {})
+    if decoded.get("portnum") != "TEXT_MESSAGE_APP":
         return
 
-# configure the local time zone
-tz_name = time.tzname[time.localtime().tm_isdst > 0]
+    message = decoded.get("text")
+    if not message:
+        return
 
-# registrer for incomming messages
-#pub.subscribe(onReceive, "meshtastic.receive.text")
-pub.subscribe(onReceive, "meshtastic.receive")
+    channel_num = packet.get("channel", 0)
+    sender_id = packet.get("fromId", "unknown")
+    message_time = datetime.now().strftime(f"%a %b %d %Y %H:%M:%S {_TZ_NAME}")
+    print(f"{message_time} : {channel_num} : {sender_id} : {message}")
 
-# attempt to locate a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
-interface = meshtastic.serial_interface.SerialInterface()
 
-while True:
-    time.sleep(10)  # wait for the next message
+def main() -> int:
+    """Connect over serial and print inbound text messages."""
+    parser = argparse.ArgumentParser(description="Read incoming Meshtastic text over serial")
+    parser.add_argument("--port", default=None, help="Serial port path (default: auto-detect)")
+    args = parser.parse_args()
+
+    pub.subscribe(on_receive, "meshtastic.receive")
+
+    iface: Optional[meshtastic.serial_interface.SerialInterface] = None
+    try:
+        iface = meshtastic.serial_interface.SerialInterface(devPath=args.port)
+        print("Connected. Listening for text messages. Press Ctrl+C to exit.")
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        return 0
+    except Exception as exc:
+        print(f"Error: Could not monitor serial messages: {exc}")
+        return 1
+    finally:
+        if iface:
+            iface.close()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
