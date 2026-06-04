@@ -757,3 +757,23 @@ def test_timeago_fuzz(seconds):
     """Fuzz _timeago to ensure it works with any integer"""
     val = _timeago(seconds)
     assert re.match(r"(now|\d+ (secs?|mins?|hours?|days?|months?|years?))", val)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_onResponseTraceRoute_routing_error(capsys):
+    """Test that onResponseTraceRoute handles ROUTING_APP error packets correctly."""
+    iface = MeshInterface(noProto=True)
+
+    packet = {
+        "decoded": {
+            "portnum": "ROUTING_APP",
+            "routing": {"errorReason": "MAX_RETRANSMIT"},
+        }
+    }
+
+    iface.onResponseTraceRoute(packet)
+
+    assert iface._acknowledgment.receivedTraceRoute is True
+    out, _ = capsys.readouterr()
+    assert "Traceroute failed: MAX_RETRANSMIT" in out
