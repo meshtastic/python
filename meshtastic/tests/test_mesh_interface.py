@@ -777,3 +777,23 @@ def test_onResponseTraceRoute_routing_error(capsys):
     assert iface._acknowledgment.receivedTraceRoute is True
     out, _ = capsys.readouterr()
     assert "Traceroute failed: MAX_RETRANSMIT" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_onResponseTraceRoute_routing_none(capsys):
+    """Test that onResponseTraceRoute does not print error for ROUTING_APP with NONE errorReason."""
+    iface = MeshInterface(noProto=True)
+
+    packet = {
+        "decoded": {
+            "portnum": "ROUTING_APP",
+            "routing": {"errorReason": "NONE"},
+        }
+    }
+
+    iface.onResponseTraceRoute(packet)
+
+    assert iface._acknowledgment.receivedTraceRoute is True
+    out, _ = capsys.readouterr()
+    assert "Traceroute failed" not in out

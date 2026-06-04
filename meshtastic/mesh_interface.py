@@ -689,7 +689,8 @@ class MeshInterface:  # pylint: disable=R0902
         """on response for trace route"""
         if p["decoded"]["portnum"] == "ROUTING_APP":
             error = p["decoded"]["routing"]["errorReason"]
-            print(f"Traceroute failed: {error}")
+            if error != "NONE":
+                print(f"Traceroute failed: {error}")
             self._acknowledgment.receivedTraceRoute = True
             return
 
