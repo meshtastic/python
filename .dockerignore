@@ -2,6 +2,7 @@
 !Containerfile*
 !Dockerfile
 !README.md
+!LICENSE.md
 !bin/container-entrypoint.sh
 !examples/
 !extra/
