@@ -5,24 +5,31 @@
 ARG TARGET_VERSION="3.11-alpine"
 ARG TARGET_ARCH="library"
 
-FROM docker.io/${TARGET_ARCH}/python:${TARGET_VERSION}
+FROM docker.io/${TARGET_ARCH}/python:${TARGET_VERSION} AS builder
 
 WORKDIR /tmp/build
 
-COPY . /tmp/build
+COPY pyproject.toml poetry.lock /tmp/build/
 
-RUN _poetry_venv_dir="$(mktemp -d -p "${TMPDIR:-/tmp}" 'poetry_venv.XXXXXX')" && \
-    apk add --no-cache libffi && \
-    apk add --no-cache --virtual .build-deps build-base libffi-dev && \
-    python -m 'venv' "${_poetry_venv_dir}" && \
-    "${_poetry_venv_dir}/bin/pip" install --no-cache-dir 'poetry' && \
-    "${_poetry_venv_dir}/bin/poetry" config --local virtualenvs.create false && \
-    "${_poetry_venv_dir}/bin/poetry" install --without dev --extras cli --extras tunnel --no-interaction --no-ansi && \
-    apk del .build-deps && \
+RUN apk add --no-cache --virtual .build-deps build-base libffi-dev && \
+    pip install --no-cache-dir 'poetry==2.4.1' && \
+    poetry config virtualenvs.create false && \
+    poetry install --without dev --extras cli --extras tunnel --no-interaction --no-ansi --no-root
+
+COPY . /tmp/build/
+
+RUN poetry build --format wheel --no-interaction
+
+FROM docker.io/${TARGET_ARCH}/python:${TARGET_VERSION}
+
+RUN apk add --no-cache libffi && \
     addgroup -S meshtastic && \
-    adduser -S -G meshtastic -h /home/meshtastic meshtastic && \
-    rm -f -r "${_poetry_venv_dir}" && \
-    rm -f -r "/tmp/build"
+    adduser -S -G meshtastic -h /home/meshtastic meshtastic
+
+COPY --from=builder /tmp/build/dist/*.whl /tmp/
+
+RUN wheel=$(echo /tmp/meshtastic-*.whl) && pip install --no-cache-dir "${wheel}[cli,tunnel]" && \
+    rm -f /tmp/meshtastic-*.whl
 
 COPY "./bin/container-entrypoint.sh" "/init"
 RUN chmod 0755 /init
