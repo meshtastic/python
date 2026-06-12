@@ -687,6 +687,13 @@ class MeshInterface:  # pylint: disable=R0902
 
     def onResponseTraceRoute(self, p: dict):
         """on response for trace route"""
+        if p["decoded"]["portnum"] == "ROUTING_APP":
+            error = p["decoded"]["routing"]["errorReason"]
+            if error != "NONE":
+                print(f"Traceroute failed: {error}")
+            self._acknowledgment.receivedTraceRoute = True
+            return
+
         UNK_SNR = -128 # Value representing unknown SNR
 
         routeDiscovery = mesh_pb2.RouteDiscovery()
