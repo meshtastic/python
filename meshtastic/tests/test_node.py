@@ -7,7 +7,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ..protobuf import admin_pb2, localonly_pb2, config_pb2
+import base64
+
+from ..protobuf import admin_pb2, localonly_pb2, config_pb2, mesh_pb2
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 from ..node import Node
 from ..serial_interface import SerialInterface
@@ -337,6 +339,56 @@ def test_setURL_valid_URL_but_no_settings(capsys):
     out, err = capsys.readouterr()
     assert re.search(r"Warning: config or channels not loaded", out, re.MULTILINE)
     assert err == ""
+
+
+@pytest.mark.unit
+def test_contact_url_roundtrip():
+    """Verify that contact URL generation and parsing is fully reversible"""
+    def encode_url(contact):
+        data = contact.SerializeToString()
+        s = base64.urlsafe_b64encode(data).decode("ascii")
+        s = s.replace("=", "").replace("+", "-").replace("/", "_")
+        return f"https://meshtastic.org/v/#{s}"
+
+    def decode_url(url):
+        b64 = url.split("/#")[-1]
+        missing_padding = len(b64) % 4
+        if missing_padding:
+            b64 += "=" * (4 - missing_padding)
+        decoded = base64.urlsafe_b64decode(b64)
+        contact = admin_pb2.SharedContact()
+        contact.ParseFromString(decoded)
+        return contact
+
+    original = admin_pb2.SharedContact()
+    original.node_num = 2198819370
+    original.user.id = "!830f522a"
+    original.user.long_name = "Roadrunner Ridge"
+    original.user.short_name = "RKSN"
+    original.user.macaddr = b'\x00\x00\x00\x00\x00\x00'
+    original.user.hw_model = mesh_pb2.HardwareModel.Value("RAK4631")
+    original.user.role = mesh_pb2.User.DESCRIPTOR.fields_by_name['role'].enum_type.values_by_name["ROUTER"].number
+    original.user.public_key = bytes.fromhex("471a3f170fdeae0408851a816eb1dab0b632de053e032f21ae1bb83959c83d07")
+    original.user.is_licensed = True
+    original.user.is_unmessagable = False
+    original.should_ignore = True
+    original.manually_verified = True
+
+    url = encode_url(original)
+    parsed = decode_url(url)
+
+    assert parsed.node_num == original.node_num
+    assert parsed.user.id == original.user.id
+    assert parsed.user.long_name == original.user.long_name
+    assert parsed.user.short_name == original.user.short_name
+    assert parsed.user.macaddr == original.user.macaddr
+    assert parsed.user.hw_model == original.user.hw_model
+    assert parsed.user.role == original.user.role
+    assert parsed.user.public_key == original.user.public_key
+    assert parsed.user.is_licensed == original.user.is_licensed
+    assert parsed.user.is_unmessagable == original.user.is_unmessagable
+    assert parsed.should_ignore == original.should_ignore
+    assert parsed.manually_verified == original.manually_verified
 
 
 # TODO

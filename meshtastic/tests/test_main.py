@@ -2998,6 +2998,56 @@ def test_remove_ignored_node():
         main()
 
     mocked_node.removeIgnored.assert_called_once_with("!12345678")
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_add_contact_url():
+    """Test --add-contact with a shareable URL"""
+    url = "https://meshtastic.org/v/#CKqkvZgIElEKCSE4MzBmNTIyYRIQUm9hZHJ1bm5lciBSaWRnZRoEUktTTiIGAAAAAAAAKAk4AkIgRxo_Fw_ergQIhRqBbrHasLYy3gU-Ay8hrhu4OVnIPQc=" # pylint: disable=line-too-long
+    sys.argv = ["", "--add-contact", url]
+    mt_config.args = sys.argv
+    mocked_node = MagicMock(autospec=Node)
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+
+    mocked_node.addContactURL.assert_called_once_with(url)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_contact_qr():
+    """Test --contact-qr with a node ID"""
+    sys.argv = ["", "--contact-qr", "!830f522a"]
+    mt_config.args = sys.argv
+    mocked_node = MagicMock(autospec=Node)
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+    mocked_node.iface = iface
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+
+    mocked_node.getContactURL.assert_called_once_with("!830f522a", should_ignore=False, manually_verified=False)
+    mocked_node.getContactURL.reset_mock()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_contact_qr_with_flags():
+    """Test --contact-qr with --contact-verified and --contact-ignore"""
+    sys.argv = ["", "--contact-qr", "!830f522a", "--contact-verified", "--contact-ignore"]
+    mt_config.args = sys.argv
+    mocked_node = MagicMock(autospec=Node)
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+    mocked_node.iface = iface
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+
+    mocked_node.getContactURL.assert_called_once_with("!830f522a", should_ignore=True, manually_verified=True)
+
+
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 def test_main_set_owner_whitespace_only(capsys):

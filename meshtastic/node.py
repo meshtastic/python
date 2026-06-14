@@ -380,6 +380,46 @@ class Node:
         s = s.replace("=", "").replace("+", "-").replace("/", "_")
         return f"https://meshtastic.org/e/#{s}"
 
+    def getContactURL(self, node_id: Union[int, str], should_ignore: bool = False, manually_verified: bool = False):
+        """Generate a shareable contact URL for the specified node"""
+        nodeNum = to_node_num(node_id)
+
+        node = self.iface.nodesByNum.get(nodeNum)
+        if not node or not node.get("user"):
+            our_exit(f"Warning: Node {node_id} not found in NodeDB")
+
+        contact = admin_pb2.SharedContact()
+        contact.node_num = nodeNum
+
+        u = node["user"]
+        if u.get("id"):
+            contact.user.id = u["id"]
+        if u.get("macaddr"):
+            contact.user.macaddr = base64.b64decode(u["macaddr"])
+        if u.get("longName"):
+            contact.user.long_name = u["longName"]
+        if u.get("shortName"):
+            contact.user.short_name = u["shortName"]
+        if u.get("hwModel") and u["hwModel"] != "UNSET":
+            contact.user.hw_model = mesh_pb2.HardwareModel.Value(u["hwModel"])
+        if u.get("role"):
+            contact.user.role = u["role"]
+        if u.get("publicKey"):
+            contact.user.public_key = base64.b64decode(u["publicKey"])
+        if u.get("isLicensed"):
+            contact.user.is_licensed = u["isLicensed"]
+        if u.get("isUnmessagable") is not None:
+            contact.user.is_unmessagable = u["isUnmessagable"]
+        if should_ignore:
+            contact.should_ignore = True
+        if manually_verified:
+            contact.manually_verified = True
+
+        data = contact.SerializeToString()
+        s = base64.urlsafe_b64encode(data).decode("ascii")
+        s = s.replace("=", "").replace("+", "-").replace("/", "_")
+        return f"https://meshtastic.org/v/#{s}"
+
     def setURL(self, url: str, addOnly: bool = False):
         """Set mesh network URL"""
         if self.localConfig is None or self.channels is None:
@@ -444,6 +484,32 @@ class Node:
         p.set_config.lora.CopyFrom(channelSet.lora_config)
         self.ensureSessionKey()
         self._sendAdmin(p)
+
+    def addContactURL(self, url: str):
+        """Add a contact (User) to the NodeDB from a shareable URL"""
+        self.ensureSessionKey()
+
+        splitURL = url.split("/#")
+        if len(splitURL) == 1:
+            our_exit(f"Warning: Invalid URL '{url}'")
+        b64 = splitURL[-1]
+
+        missing_padding = len(b64) % 4
+        if missing_padding:
+            b64 += "=" * (4 - missing_padding)
+
+        decodedURL = base64.urlsafe_b64decode(b64)
+        contact = admin_pb2.SharedContact()
+        contact.ParseFromString(decodedURL)
+
+        p = admin_pb2.AdminMessage()
+        p.add_contact.CopyFrom(contact)
+
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
 
     def onResponseRequestRingtone(self, p):
         """Handle the response packet for requesting ringtone part 1"""
