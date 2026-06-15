@@ -403,7 +403,7 @@ class Node:
         if u.get("hwModel") and u["hwModel"] != "UNSET":
             contact.user.hw_model = mesh_pb2.HardwareModel.Value(u["hwModel"])
         if u.get("role"):
-            contact.user.role = u["role"]
+            contact.user.role = config_pb2.Config.DeviceConfig.Role.Value(u["role"])
         if u.get("publicKey"):
             contact.user.public_key = base64.b64decode(u["publicKey"])
         if u.get("isLicensed"):

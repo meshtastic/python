@@ -1,9 +1,9 @@
 """Meshtastic unit tests for node.py"""
 # pylint: disable=C0302
 
+import base64
 import logging
 import re
-import base64
 from unittest.mock import MagicMock, patch
 
 import pytest
