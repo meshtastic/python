@@ -3,11 +3,10 @@
 
 import logging
 import re
+import base64
 from unittest.mock import MagicMock, patch
 
 import pytest
-
-import base64
 
 from ..protobuf import admin_pb2, localonly_pb2, config_pb2, mesh_pb2
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
