@@ -450,7 +450,7 @@ def test_contact_url_roundtrip(node_id, node_data, should_ignore, manually_verif
     anode = Node(iface, node_num, noProto=True)
 
     sent_admin = []
-    def capture_send(p, *args, **kwargs):
+    def capture_send(p, *_args, **_kwargs):
         sent_admin.append(p)
 
     with patch.object(anode, "_sendAdmin", side_effect=capture_send):
@@ -557,7 +557,7 @@ def test_contact_url_roundtrip_hypothesis(params):
     anode = Node(iface, node_num, noProto=True)
 
     sent_admin = []
-    def capture_send(p, *args, **kwargs):
+    def capture_send(p, *_args, **_kwargs):
         sent_admin.append(p)
 
     with patch.object(anode, "_sendAdmin", side_effect=capture_send):
