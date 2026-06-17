@@ -1,17 +1,20 @@
 """Meshtastic unit tests for node.py"""
 # pylint: disable=C0302
 
+import base64
 import logging
 import re
 from unittest.mock import MagicMock, patch
 
 import pytest
+from hypothesis import given, strategies as st
 
-from ..protobuf import admin_pb2, localonly_pb2, config_pb2
+from ..protobuf import admin_pb2, localonly_pb2, config_pb2, mesh_pb2, nanopb_pb2
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 from ..node import Node
 from ..serial_interface import SerialInterface
 from ..mesh_interface import MeshInterface
+from ..util import to_node_num
 
 # from ..config_pb2 import Config
 # from ..cannedmessages_pb2 import (CannedMessagePluginMessagePart1, CannedMessagePluginMessagePart2,
@@ -19,6 +22,11 @@ from ..mesh_interface import MeshInterface
 #                                  CannedMessagePluginMessagePart5)
 # from ..util import Timeout
 
+# Extract nanopb max_size constraints from the User protobuf descriptor
+_USER_NANOPB = {
+    field.name: field.GetOptions().Extensions[nanopb_pb2.nanopb]
+    for field in mesh_pb2.User.DESCRIPTOR.fields
+}
 
 @pytest.mark.unit
 def test_node(capsys):
@@ -337,6 +345,248 @@ def test_setURL_valid_URL_but_no_settings(capsys):
     out, err = capsys.readouterr()
     assert re.search(r"Warning: config or channels not loaded", out, re.MULTILINE)
     assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("node_id,node_data,should_ignore,manually_verified", [
+    pytest.param(
+        "!830f522a",
+        {
+            "num": 2198819370,
+            "user": {
+                "id": "!830f522a",
+                "longName": "Roadrunner Ridge",
+                "shortName": "RKSN",
+                "macaddr": "AAAAAAAAAAA=",
+                "hwModel": "RAK4631",
+                "role": "ROUTER",
+                "publicKey": "Rx8XD96uBAiFGoFusdqwti3eBT4DLyGuG7g5Wcg9Bw==",
+                "isLicensed": True,
+                "isUnmessagable": False,
+            },
+        },
+        True,
+        True,
+        id="all_fields_all_flags",
+    ),
+    pytest.param(
+        "!12345678",
+        {
+            "num": 305419896,
+            "user": {
+                "id": "!12345678",
+                "longName": "Test Node",
+                "shortName": "TN",
+                "macaddr": "QkVTVEVWRVI=",
+                "hwModel": "TBEAM",
+            },
+        },
+        False,
+        False,
+        id="minimal_fields_no_flags",
+    ),
+    pytest.param(
+        305419896,
+        {
+            "num": 305419896,
+            "user": {
+                "id": "!12345678",
+                "longName": "Another Node",
+                "shortName": "AN",
+                "macaddr": "QkVTVEVWRVI=",
+                "hwModel": "HELTEC_V3",
+                "role": "CLIENT",
+                "publicKey": "AAAAAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
+                "isLicensed": False,
+            },
+        },
+        True,
+        False,
+        id="int_node_id_should_ignore_only",
+    ),
+    pytest.param(
+        "!deadbeef",
+        {
+            "num": 3735928559,
+            "user": {
+                "id": "!deadbeef",
+                "longName": "Minimal Contact",
+                "shortName": "MC",
+                "macaddr": "BQYHCAkKCw==",
+                "hwModel": "UNSET",
+                "role": "CLIENT_MUTE",
+            },
+        },
+        False,
+        True,
+        id="unset_hw_model_verified_only",
+    ),
+    pytest.param(
+        "!1a2b3c4d",
+        {
+            "num": 439041101,
+            "user": {
+                "id": "!1a2b3c4d",
+                "longName": "Licensed Node",
+                "shortName": "LN",
+                "macaddr": "DA0ODxAREg==",
+                "hwModel": "NANO_G1",
+                "isLicensed": True,
+                "isUnmessagable": True,
+            },
+        },
+        False,
+        False,
+        id="licensed_unmessagable_no_flags",
+    ),
+])
+def test_contact_url_roundtrip(node_id, node_data, should_ignore, manually_verified):
+    """Verify that contact URL generation via getContactURL() and parsing via addContactURL() is fully reversible"""
+    iface = MagicMock(autospec=MeshInterface)
+    node_num = to_node_num(node_id)
+    iface.nodesByNum = {node_num: node_data}
+    iface.localNode = None
+
+    anode = Node(iface, node_num, noProto=True)
+
+    sent_admin = []
+    def capture_send(p, *_args, **_kwargs):
+        sent_admin.append(p)
+
+    with patch.object(anode, "_sendAdmin", side_effect=capture_send):
+        url = anode.getContactURL(node_id, should_ignore=should_ignore, manually_verified=manually_verified)
+        assert url.startswith("https://meshtastic.org/v/#")
+
+        anode.addContactURL(url)
+
+    assert len(sent_admin) == 1
+    contact = sent_admin[0].add_contact
+    u = node_data["user"]
+
+    assert contact.node_num == node_num
+    assert contact.user.id == u["id"]
+    assert contact.user.long_name == u["longName"]
+    assert contact.user.short_name == u["shortName"]
+    assert contact.user.macaddr == base64.b64decode(u["macaddr"])
+
+    if u.get("hwModel") and u["hwModel"] != "UNSET":
+        assert contact.user.hw_model == mesh_pb2.HardwareModel.Value(u["hwModel"])
+    if u.get("role"):
+        assert contact.user.role == config_pb2.Config.DeviceConfig.Role.Value(u["role"])
+    if u.get("publicKey"):
+        assert contact.user.public_key == base64.b64decode(u["publicKey"])
+    if u.get("isLicensed"):
+        assert contact.user.is_licensed is True
+    if u.get("isUnmessagable") is not None:
+        assert contact.user.is_unmessagable == u["isUnmessagable"]
+
+    assert contact.should_ignore == should_ignore
+    assert contact.manually_verified == manually_verified
+
+
+@st.composite
+def contact_url_roundtrip_params(draw):
+    """Hypothesis strategy: generate a full node config and roundtrip flags"""
+    should_ignore = draw(st.booleans())
+    manually_verified = draw(st.booleans())
+
+    node_num = draw(st.integers(min_value=6, max_value=2**32 - 2))
+    node_id = f"!{node_num:08x}"
+
+    hw_model = draw(st.sampled_from(list(mesh_pb2.HardwareModel.keys())))
+    role = draw(st.one_of(
+        st.none(),
+        st.sampled_from(list(config_pb2.Config.DeviceConfig.Role.keys())),
+    ))
+
+    long_name = draw(st.text(
+        min_size=1, max_size=_USER_NANOPB['long_name'].max_size
+    ))
+    short_name = draw(st.text(
+        min_size=1, max_size=_USER_NANOPB['short_name'].max_size
+    ))
+
+    macaddr_bytes = draw(st.binary(
+        min_size=_USER_NANOPB['macaddr'].max_size,
+        max_size=_USER_NANOPB['macaddr'].max_size,
+    ))
+    macaddr_b64 = base64.b64encode(macaddr_bytes).decode("ascii")
+
+    has_public_key = draw(st.booleans())
+    public_key_b64 = None
+    if has_public_key:
+        pk_bytes = draw(st.binary(
+            min_size=_USER_NANOPB['public_key'].max_size,
+            max_size=_USER_NANOPB['public_key'].max_size,
+        ))
+        public_key_b64 = base64.b64encode(pk_bytes).decode("ascii")
+
+    is_licensed = draw(st.booleans())
+    is_unmessagable = draw(st.booleans())
+
+    node_data = {
+        "num": node_num,
+        "user": {
+            "id": node_id,
+            "longName": long_name,
+            "shortName": short_name,
+            "macaddr": macaddr_b64,
+            "hwModel": hw_model,
+            "isLicensed": is_licensed,
+            "isUnmessagable": is_unmessagable,
+        },
+    }
+    if role is not None:
+        node_data["user"]["role"] = role
+    if public_key_b64 is not None:
+        node_data["user"]["publicKey"] = public_key_b64
+
+    return node_num, node_data, should_ignore, manually_verified
+
+
+@pytest.mark.unit
+@given(contact_url_roundtrip_params())
+def test_contact_url_roundtrip_hypothesis(params):
+    """Property: roundtrip preserves data across random field configurations"""
+    node_num, node_data, should_ignore, manually_verified = params
+
+    iface = MagicMock(autospec=MeshInterface)
+    iface.nodesByNum = {node_num: node_data}
+    iface.localNode = None
+
+    anode = Node(iface, node_num, noProto=True)
+
+    sent_admin = []
+    def capture_send(p, *_args, **_kwargs):
+        sent_admin.append(p)
+
+    with patch.object(anode, "_sendAdmin", side_effect=capture_send):
+        url = anode.getContactURL(
+            node_num,
+            should_ignore=should_ignore,
+            manually_verified=manually_verified,
+        )
+        anode.addContactURL(url)
+
+    assert len(sent_admin) == 1
+    contact = sent_admin[0].add_contact
+    u = node_data["user"]
+
+    assert contact.node_num == node_num
+    assert contact.user.id == u["id"]
+    assert contact.user.long_name == u["longName"]
+    assert contact.user.short_name == u["shortName"]
+    assert contact.user.macaddr == base64.b64decode(u["macaddr"])
+    assert contact.user.hw_model == mesh_pb2.HardwareModel.Value(u["hwModel"])
+
+    if "role" in u:
+        assert contact.user.role == config_pb2.Config.DeviceConfig.Role.Value(u["role"])
+    if "publicKey" in u:
+        assert contact.user.public_key == base64.b64decode(u["publicKey"])
+    assert contact.user.is_licensed == u["isLicensed"]
+    assert contact.user.is_unmessagable == u["isUnmessagable"]
+    assert contact.should_ignore == should_ignore
+    assert contact.manually_verified == manually_verified
 
 
 # TODO

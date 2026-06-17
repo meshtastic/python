@@ -37,6 +37,7 @@ from meshtastic.util import (
     stripnl,
     support_info,
     message_to_json,
+    to_node_num,
     Acknowledgment
 )
 
@@ -715,3 +716,69 @@ def test_generate_channel_hash_fuzz_aes256(channel_name, key_bytes):
     "Test generate_channel_hash with fuzzed channel names and 256-bit keys, ensuring it produces single-byte values"
     hashed = generate_channel_hash(channel_name, key_bytes)
     assert 0 <= hashed <= 0xFF
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("input_val,expected", [
+    # int passthrough
+    (0, 0),
+    (1, 1),
+    (6, 6),
+    (502009325, 502009325),
+    (2198819370, 2198819370),
+    (0xFFFFFFFF, 0xFFFFFFFF),
+    # !hex format (always treated as hex)
+    ("!00000000", 0x00000000),
+    ("!00000001", 0x00000001),
+    ("!00000010", 0x00000010),
+    ("!000000ff", 0x000000FF),
+    ("!830f522a", 0x830F522A),
+    ("!1dec0ded", 0x1DEC0DED),
+    ("!ffffffff", 0xFFFFFFFF),
+    ("!FFFFFFFF", 0xFFFFFFFF),
+    # 0xhex format
+    ("0x00000000", 0x00000000),
+    ("0x00000010", 0x00000010),
+    ("0x830f522a", 0x830F522A),
+    ("0x1dec0ded", 0x1DEC0DED),
+    ("0xFFFFFFFF", 0xFFFFFFFF),
+    # Unprefixed hex string (falls back to hex when decimal fails)
+    ("830f522a", 0x830F522A),
+    ("1dec0ded", 0x1DEC0DED),
+    # Decimal string
+    ("42", 42),
+    ("12345678", 12345678),
+    ("0", 0),
+    ("1", 1),
+    # With whitespace
+    ("  !830f522a  ", 2198819370),
+    ("  !00000010  ", 16),
+    ("  0x830f522a  ", 2198819370),
+])
+def test_to_node_num(input_val, expected):
+    """Test to_node_num with various valid inputs"""
+    assert to_node_num(input_val) == expected
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("input_val", [
+    "",
+    "!",
+    "!!",
+    "!0x10",
+    "!xyz",
+])
+def test_to_node_num_invalid(input_val):
+    """Test to_node_num raises ValueError for invalid inputs"""
+    with pytest.raises(ValueError):
+        to_node_num(input_val)
+
+
+@pytest.mark.unit
+@given(st.integers(min_value=0, max_value=2**32 - 1))
+def test_to_node_num_hypothesis_roundtrip(n):
+    """Property: all supported input formats roundtrip for any valid node number"""
+    assert to_node_num(n) == n
+    assert to_node_num(f"!{n:08x}") == n
+    assert to_node_num(f"0x{n:x}") == n
+    assert to_node_num(str(n)) == n

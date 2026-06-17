@@ -728,7 +728,7 @@ def to_node_num(node_id: Union[int, str]) -> int:
         return node_id
     s = str(node_id).strip()
     if s.startswith("!"):
-        s = s[1:]
+        s = "0x" + s[1:]
     if s.lower().startswith("0x"):
         return int(s, 16)
     try:
