@@ -9,7 +9,7 @@ import pytest
 from hypothesis import given, strategies as st
 
 from meshtastic.supported_device import SupportedDevice
-from meshtastic.protobuf import mesh_pb2
+from meshtastic.protobuf import mesh_pb2, config_pb2
 from meshtastic.util import (
     DEFAULT_KEY,
     Timeout,
@@ -20,6 +20,7 @@ from meshtastic.util import (
     convert_mac_addr,
     eliminate_duplicate_port,
     findPorts,
+    flags_to_list,
     fixme,
     fromPSK,
     fromStr,
@@ -782,3 +783,62 @@ def test_to_node_num_hypothesis_roundtrip(n):
     assert to_node_num(f"!{n:08x}") == n
     assert to_node_num(f"0x{n:x}") == n
     assert to_node_num(str(n)) == n
+
+
+_EXCLUDED_MODULES = mesh_pb2.ExcludedModules
+_POSITION_FLAGS = config_pb2.Config.PositionConfig.PositionFlags
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("flag_type,flags,expected", [
+    (_EXCLUDED_MODULES, 0, []),
+    (_EXCLUDED_MODULES, 1, ["MQTT_CONFIG"]),
+    (_EXCLUDED_MODULES, 3, ["MQTT_CONFIG", "SERIAL_CONFIG"]),
+    (_EXCLUDED_MODULES, 0x7FFF, [
+        "MQTT_CONFIG", "SERIAL_CONFIG", "EXTNOTIF_CONFIG", "STOREFORWARD_CONFIG",
+        "RANGETEST_CONFIG", "TELEMETRY_CONFIG", "CANNEDMSG_CONFIG", "AUDIO_CONFIG",
+        "REMOTEHARDWARE_CONFIG", "NEIGHBORINFO_CONFIG", "AMBIENTLIGHTING_CONFIG",
+        "DETECTIONSENSOR_CONFIG", "PAXCOUNTER_CONFIG", "BLUETOOTH_CONFIG",
+        "NETWORK_CONFIG",
+    ]),
+    (_EXCLUDED_MODULES, 0x8000, ["UNKNOWN_ADDITIONAL_FLAGS(32768)"]),
+    (_EXCLUDED_MODULES, 0x8001, ["MQTT_CONFIG", "UNKNOWN_ADDITIONAL_FLAGS(32768)"]),
+    (_POSITION_FLAGS, 0, []),
+    (_POSITION_FLAGS, 0x09, ["ALTITUDE", "DOP"]),
+    (_POSITION_FLAGS, 0x1FF, [
+        "ALTITUDE", "ALTITUDE_MSL", "GEOIDAL_SEPARATION", "DOP", "HVDOP",
+        "SATINVIEW", "SEQ_NO", "TIMESTAMP", "HEADING",
+    ]),
+])
+def test_flags_to_list(flag_type, flags, expected):
+    """Test flags_to_list decodes set bits in enum order and reports unknown remainders."""
+    assert flags_to_list(flag_type, flags) == expected
+
+
+@pytest.mark.unit
+@given(st.integers(min_value=0, max_value=0xFFFFF))
+def test_flags_to_list_conservation(flags):
+    """Property: flags_to_list partitions `flags` into known names plus an exact unknown remainder.
+
+    Every known bit that is set must appear as a name, and the leftover reported in
+    UNKNOWN_ADDITIONAL_FLAGS(...) must together with the named bits reconstruct the input.
+    """
+    for flag_type in (_EXCLUDED_MODULES, _POSITION_FLAGS):
+        known_union = 0
+        for key in flag_type.keys():
+            value = flag_type.Value(key)
+            if key != "EXCLUDED_NONE" and value:
+                known_union |= value
+
+        result = flags_to_list(flag_type, flags)
+
+        accounted = 0
+        leftover = 0
+        for name in result:
+            if name.startswith("UNKNOWN_ADDITIONAL_FLAGS("):
+                leftover = int(name[len("UNKNOWN_ADDITIONAL_FLAGS("):-1])
+            else:
+                accounted |= flag_type.Value(name)
+
+        assert accounted == (flags & known_union)
+        assert (accounted | leftover) == flags
