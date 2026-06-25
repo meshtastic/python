@@ -1383,6 +1383,11 @@ def common():
             if not stripped_ham_name:
                 meshtastic.util.our_exit("ERROR: Ham radio callsign cannot be empty or contain only whitespace characters")
 
+        # Early validation for OTA firmware file before attempting device connection
+        if hasattr(args, 'ota_update') and args.ota_update is not None:
+            if not os.path.isfile(args.ota_update):
+                meshtastic.util.our_exit(f"Error: OTA firmware file not found: {args.ota_update}", 1)
+
         if have_powermon:
             create_power_meter()
 
