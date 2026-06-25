@@ -1621,10 +1621,12 @@ def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
         "--host",
         "--tcp",
         "-t",
-        help="Connect to a device using TCP, optionally passing hostname or IP address to use. (defaults to '%(const)s')",
+        help=("Connect to a device using TCP, optionally passing hostname or IP address to use. (defaults to '%(const)s'). "
+              "A port number may be specified as well, e.g. meshtastic.local:4404. The default port is 4403."),
         nargs="?",
         default=None,
         const="localhost",
+        metavar="HOST[:PORT]",
     )
 
     group.add_argument(
