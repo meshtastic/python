@@ -3,6 +3,8 @@
 import json
 import logging
 import re
+import time
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -236,20 +238,111 @@ def test_remove_keys_from_dict_nested():
     assert remove_keys_from_dict(keys, adict) == exp
 
 
-@pytest.mark.unitslow
-def test_Timeout_not_found():
-    """Test Timeout()"""
-    to = Timeout(0.2)
-    attrs = "foo"
-    to.waitForSet("bar", attrs)
+@pytest.mark.unit
+def test_Timeout_waitForSet_found():
+    """waitForSet returns True when all required attrs are truthy on target."""
+    to = Timeout(0.01)
+    target = SimpleNamespace(foo=1, bar="ok")
+    assert to.waitForSet(target, ("foo", "bar")) is True
 
 
-@pytest.mark.unitslow
-def test_Timeout_found():
-    """Test Timeout()"""
-    to = Timeout(0.2)
-    attrs = ()
-    to.waitForSet("bar", attrs)
+@pytest.mark.unit
+@patch("meshtastic.util.time.sleep")
+def test_Timeout_waitForSet_not_found(mock_sleep):  # pylint: disable=unused-argument
+    """waitForSet returns False when attrs remain falsy until timeout."""
+    to = Timeout(0.01)
+    target = SimpleNamespace(foo=None, bar=0)
+    assert to.waitForSet(target, ("foo", "bar")) is False
+
+
+@pytest.mark.unit
+def test_Timeout_waitForSet_empty_attrs():
+    """waitForSet returns True immediately when attrs is empty (vacuous truth)."""
+    to = Timeout(0.01)
+    assert to.waitForSet(object(), ()) is True
+
+
+@pytest.mark.unit
+def test_Timeout_reset():
+    """reset() sets expireTime to now + expireTimeout."""
+    to = Timeout(maxSecs=5)
+    before = time.time()
+    to.reset()
+    assert to.expireTime == pytest.approx(before + 5, abs=0.1)
+
+
+@pytest.mark.unit
+def test_Timeout_reset_custom():
+    """reset(expireTimeout) overrides the stored expireTimeout."""
+    to = Timeout(maxSecs=5)
+    before = time.time()
+    to.reset(expireTimeout=10)
+    assert to.expireTime == pytest.approx(before + 10, abs=0.1)
+
+
+@pytest.mark.unit
+def test_Timeout_waitForAckNak_found():
+    """waitForAckNak returns True when any acknowledgment attr is set, and clears it."""
+    to = Timeout(0.01)
+    ack = Acknowledgment()
+    ack.receivedAck = True
+    assert to.waitForAckNak(ack) is True
+    assert ack.receivedAck is False  # cleared after detection
+
+
+@pytest.mark.unit
+@patch("meshtastic.util.time.sleep")
+def test_Timeout_waitForAckNak_not_found(mock_sleep):  # pylint: disable=unused-argument
+    """waitForAckNak returns False when no acknowledgment attr is set."""
+    to = Timeout(0.01)
+    ack = Acknowledgment()
+    assert to.waitForAckNak(ack) is False
+
+
+@pytest.mark.unit
+def test_Timeout_waitForTraceRoute_found():
+    """waitForTraceRoute returns True on receivedTraceRoute, and clears it."""
+    to = Timeout(0.01)
+    ack = Acknowledgment()
+    ack.receivedTraceRoute = True
+    assert to.waitForTraceRoute(3.0, ack) is True
+    assert ack.receivedTraceRoute is False
+
+
+@pytest.mark.unit
+@patch("meshtastic.util.time.sleep")
+def test_Timeout_waitForTraceRoute_not_found(mock_sleep):  # pylint: disable=unused-argument
+    """waitForTraceRoute returns False on timeout."""
+    to = Timeout(0.01)
+    ack = Acknowledgment()
+    assert to.waitForTraceRoute(3.0, ack) is False
+
+
+@pytest.mark.unit
+def test_Timeout_waitForTelemetry_found():
+    """waitForTelemetry returns True when receivedTelemetry is set."""
+    to = Timeout(0.01)
+    ack = Acknowledgment()
+    ack.receivedTelemetry = True
+    assert to.waitForTelemetry(ack) is True
+
+
+@pytest.mark.unit
+def test_Timeout_waitForPosition_found():
+    """waitForPosition returns True when receivedPosition is set."""
+    to = Timeout(0.01)
+    ack = Acknowledgment()
+    ack.receivedPosition = True
+    assert to.waitForPosition(ack) is True
+
+
+@pytest.mark.unit
+def test_Timeout_waitForWaypoint_found():
+    """waitForWaypoint returns True when receivedWaypoint is set."""
+    to = Timeout(0.01)
+    ack = Acknowledgment()
+    ack.receivedWaypoint = True
+    assert to.waitForWaypoint(ack) is True
 
 
 @pytest.mark.unitslow
