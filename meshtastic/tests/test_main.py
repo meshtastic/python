@@ -3157,7 +3157,7 @@ def test_main_ota_update_file_not_found(capsys):
 
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert "OTA firmware file not found" in out
     assert "/nonexistent/firmware.bin" in out
 
