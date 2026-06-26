@@ -66,6 +66,14 @@ from meshtastic.version import get_active_version
 
 logger = logging.getLogger(__name__)
 
+# Map dotted preference paths to the protobuf enum that defines their flags.
+# These fields are stored as uint32 bitmasks in the protobuf but have an
+# associated enum that names the individual flags.
+BITFIELD_ENUMS = {
+    "network.enabled_protocols": config_pb2.Config.NetworkConfig.ProtocolFlags,
+    "position.position_flags": config_pb2.Config.PositionConfig.PositionFlags,
+}
+
 def onReceive(packet, interface) -> None:
     """Callback invoked when a packet arrives"""
     args = mt_config.args
@@ -237,6 +245,21 @@ def setPref(config, comp_name, raw_val) -> bool:
     if snake_name == "wifi_psk" and len(str(raw_val)) < 8:
         print("Warning: network.wifi_psk must be 8 or more characters.")
         return False
+
+    # Handle uint32 bitfields that have an associated enum of flag names.
+    bitfield_enum = None
+    if config_type.message_type is not None:
+        bitfield_path = f"{config_type.name}.{pref.name}"
+        bitfield_enum = BITFIELD_ENUMS.get(bitfield_path)
+    if bitfield_enum and isinstance(val, str):
+        # At this point fromStr() could not parse val as int/float/bool/bytes,
+        # so treat it as a comma-separated list of bitfield flag names.
+        flag_names = [name.strip() for name in val.split(",") if name.strip()]
+        try:
+            val = meshtastic.util.flags_from_list(bitfield_enum, flag_names)
+        except ValueError as e:
+            print(f"ERROR: {e}")
+            return False
 
     enumType = pref.enum_type
     # pylint: disable=C0123
@@ -1956,7 +1979,8 @@ def addPositionConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentP
 
     group.add_argument(
         "--pos-fields",
-        help="Specify fields to send when sending a position. Use no argument for a list of valid values. "
+        help="Deprecated: use '--set position.position_flags FLAG1,FLAG2' instead. "
+        "Specify fields to send when sending a position. Use no argument for a list of valid values. "
         "Can pass multiple values as a space separated list like "
         "this: '--pos-fields ALTITUDE HEADING SPEED'",
         nargs="*",

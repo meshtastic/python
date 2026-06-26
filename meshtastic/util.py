@@ -737,14 +737,41 @@ def to_node_num(node_id: Union[int, str]) -> int:
         return int(s, 16)
 
 def flags_to_list(flag_type, flags: int) -> List[str]:
-    """Given a flag_type that's a protobuf EnumTypeWrapper, and a flag int, give a list of flags enabled."""
+    """Given a flag_type that's a protobuf EnumTypeWrapper, and a flag int, give a list of flags enabled.
+
+    Zero-valued members (e.g. EXCLUDED_NONE, UNSET, NO_BROADCAST) never appear in the
+    result: they hold no bit, so `flags & value` is always False for them, and a flags
+    value of 0 therefore decodes to an empty list rather than a named "no flags" entry.
+    Any leftover bits not corresponding to a known member are reported via
+    `UNKNOWN_ADDITIONAL_FLAGS(<leftover>)`.
+    """
     ret = []
     for key in flag_type.keys():
-        if key == "EXCLUDED_NONE":
-            continue
         if flags & flag_type.Value(key):
             ret.append(key)
             flags = flags - flag_type.Value(key)
     if flags > 0:
         ret.append(f"UNKNOWN_ADDITIONAL_FLAGS({flags})")
     return ret
+
+
+def flags_from_list(flag_type, flags: List[str]) -> int:
+    """Given a flag_type that's a protobuf EnumTypeWrapper, and a list of flag names, return the combined bitmask.
+
+    Zero-valued members (e.g. EXCLUDED_NONE, UNSET, NO_BROADCAST) are accepted but are
+    no-ops: they OR in 0 and thus set nothing. A list consisting solely of such a member
+    (or an empty list) yields 0, which round-trips back through flags_to_list as an
+    empty list rather than the original member name -- see flags_to_list's docstring.
+    """
+    result = 0
+    valid_names = list(flag_type.keys())
+    for flag_name in flags:
+        flag_name = flag_name.strip()
+        if not flag_name:
+            continue
+        if flag_name not in valid_names:
+            raise ValueError(
+                f"Unknown flag '{flag_name}'. Valid choices: {', '.join(sorted(valid_names))}"
+            )
+        result |= flag_type.Value(flag_name)
+    return result
