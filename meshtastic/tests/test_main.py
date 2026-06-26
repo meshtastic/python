@@ -20,12 +20,14 @@ from meshtastic.__main__ import (
     onConnection,
     onNode,
     onReceive,
+    setPref,
     tunnelMain,
     set_missing_flags_false,
 )
 from meshtastic import mt_config
 
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
+from ..protobuf.config_pb2 import Config # pylint: disable=E0611
 
 # from ..ble_interface import BLEInterface
 from ..mesh_interface import MeshInterface
@@ -3204,3 +3206,48 @@ def test_main_ota_update_retries(mock_our_exit, mock_ota_class, capsys):
 
     finally:
         os.unlink(firmware_file)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_setPref_network_enabled_protocols_by_name(capsys):
+    """Test setPref() accepts bitfield flag names for network.enabled_protocols."""
+    config = Config()
+    assert setPref(config, "network.enabled_protocols", "UDP_BROADCAST") is True
+    assert config.network.enabled_protocols == 1
+    out, _ = capsys.readouterr()
+    assert "Set network.enabled_protocols to UDP_BROADCAST" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_setPref_position_flags_multiple(capsys):
+    """Test setPref() accepts comma-separated bitfield flag names."""
+    config = Config()
+    assert setPref(config, "position.position_flags", "ALTITUDE,SPEED") is True
+    assert config.position.position_flags == 513
+    out, _ = capsys.readouterr()
+    assert "Set position.position_flags to ALTITUDE,SPEED" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_setPref_bitfield_raw_integer(capsys):
+    """Test setPref() still accepts raw integers for bitfields."""
+    config = Config()
+    assert setPref(config, "network.enabled_protocols", "0") is True
+    assert config.network.enabled_protocols == 0
+    out, _ = capsys.readouterr()
+    assert "Set network.enabled_protocols to 0" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_setPref_bitfield_invalid_name(capsys):
+    """Test setPref() rejects unknown bitfield flag names."""
+    config = Config()
+    assert setPref(config, "network.enabled_protocols", "TCP") is False
+    out, _ = capsys.readouterr()
+    assert "Unknown flag 'TCP'" in out
+    assert "NO_BROADCAST" in out
+    assert "UDP_BROADCAST" in out

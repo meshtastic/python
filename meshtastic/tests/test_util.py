@@ -22,6 +22,7 @@ from meshtastic.util import (
     convert_mac_addr,
     eliminate_duplicate_port,
     findPorts,
+    flags_from_list,
     flags_to_list,
     fixme,
     fromPSK,
@@ -880,6 +881,7 @@ def test_to_node_num_hypothesis_roundtrip(n):
 
 _EXCLUDED_MODULES = mesh_pb2.ExcludedModules
 _POSITION_FLAGS = config_pb2.Config.PositionConfig.PositionFlags
+_NETWORK_PROTOCOLS = config_pb2.Config.NetworkConfig.ProtocolFlags
 
 
 @pytest.mark.unit
@@ -935,3 +937,36 @@ def test_flags_to_list_conservation(flags):
 
         assert accounted == (flags & known_union)
         assert (accounted | leftover) == flags
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("flag_type, flags, expected", [
+    (_NETWORK_PROTOCOLS, ["UDP_BROADCAST"], 1),
+    (_NETWORK_PROTOCOLS, ["NO_BROADCAST"], 0),
+    (_NETWORK_PROTOCOLS, [], 0),
+    (_POSITION_FLAGS, ["ALTITUDE"], 1),
+    (_POSITION_FLAGS, ["ALTITUDE", "SPEED"], 513),
+    (_POSITION_FLAGS, ["ALTITUDE", " SPEED "], 513),
+])
+def test_flags_from_list(flag_type, flags, expected):
+    """Test flags_from_list combines named flags into the expected bitmask."""
+    assert flags_from_list(flag_type, flags) == expected
+
+
+@pytest.mark.unit
+def test_flags_from_list_unknown_flag():
+    """Test flags_from_list raises ValueError for an unknown flag name."""
+    with pytest.raises(ValueError, match="Unknown flag 'TCP'"):
+        flags_from_list(_NETWORK_PROTOCOLS, ["UDP_BROADCAST", "TCP"])
+
+
+@pytest.mark.unit
+@given(st.lists(st.sampled_from(list(_POSITION_FLAGS.keys())), unique=True))
+def test_flags_from_list_roundtrip(flags):
+    """Property: flags_from_list and flags_to_list are inverses for known position flags."""
+    combined = flags_from_list(_POSITION_FLAGS, flags)
+    decoded = flags_to_list(_POSITION_FLAGS, combined)
+    # flags_to_list drops zero-value flags and may report unknown remainders,
+    # but for combinations of known non-zero flags it should return the same set of names.
+    nonzero_flags = {f for f in flags if _POSITION_FLAGS.Value(f)}
+    assert set(decoded) == nonzero_flags
