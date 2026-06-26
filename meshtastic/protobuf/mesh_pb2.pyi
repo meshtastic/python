@@ -594,6 +594,22 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Lilygo T-Echo Card
     """
+    SEEED_WIO_TRACKER_L2: _HardwareModel.ValueType  # 137
+    """
+    Seeed Tracker L2
+    """
+    CROWPANEL_P4: _HardwareModel.ValueType  # 138
+    """
+    Elecrow CrowPanel Advance P4 models, ESP32-P4 and TFT with SX1262 radio plugin
+    """
+    HELTEC_MESH_TOWER_V2: _HardwareModel.ValueType  # 139
+    """
+    Heltec Mesh Tower V2
+    """
+    MESHNOLOGY_W10: _HardwareModel.ValueType  # 140
+    """
+    Meshnology W10
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1170,6 +1186,22 @@ Lilygo T-Impulse-Plus
 T_ECHO_CARD: HardwareModel.ValueType  # 136
 """
 Lilygo T-Echo Card
+"""
+SEEED_WIO_TRACKER_L2: HardwareModel.ValueType  # 137
+"""
+Seeed Tracker L2
+"""
+CROWPANEL_P4: HardwareModel.ValueType  # 138
+"""
+Elecrow CrowPanel Advance P4 models, ESP32-P4 and TFT with SX1262 radio plugin
+"""
+HELTEC_MESH_TOWER_V2: HardwareModel.ValueType  # 139
+"""
+Heltec Mesh Tower V2
+"""
+MESHNOLOGY_W10: HardwareModel.ValueType  # 140
+"""
+Meshnology W10
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
