@@ -265,9 +265,9 @@ def setPref(config, comp_name, raw_val) -> bool:
     # pylint: disable=C0123
     if enumType and type(val) == str:
         # We've failed so far to convert this string into an enum, try to find it by reflection
-        e = enumType.values_by_name.get(val)
-        if e:
-            val = e.number
+        ev = enumType.values_by_name.get(val)
+        if ev:
+            val = ev.number
         else:
             print(
                 f"{name[0]}.{uni_name} does not have an enum called {val}, so you can not set it."
