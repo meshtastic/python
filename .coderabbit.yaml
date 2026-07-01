@@ -1,0 +1,16 @@
+language: en-US
+reviews:
+  profile: chill
+  high_level_summary: true
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: false
+    skip_author:
+      - renovate
+      - renovate[bot]
+  abort_on_close: true
+
+  path_filters:
+    - "!/protobufs/**"
+    - "!/meshtastic/protobuf/**"
