@@ -1347,6 +1347,8 @@ def export_config(interface) -> str:
     return config_txt
 
 def _set_if_populated(profile, field_name, value):
+    if value is None:
+        return
     val = str(value).strip()
     if val:
         setattr(profile, field_name, val)
