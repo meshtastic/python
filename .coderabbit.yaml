@@ -6,7 +6,7 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
-    skip_author:
+    ignore_usernames:
       - renovate
       - renovate[bot]
   abort_on_close: true
