@@ -10,11 +10,13 @@ import tempfile
 from types import SimpleNamespace
 from unittest.mock import mock_open, MagicMock, patch
 
+import yaml
 import pytest
 import meshtastic.__main__ as mt_main
 
 from meshtastic.__main__ import (
     export_config,
+    export_profile,
     initParser,
     main,
     onConnection,
@@ -23,11 +25,14 @@ from meshtastic.__main__ import (
     setPref,
     tunnelMain,
     set_missing_flags_false,
+    _profile_from_yaml,
 )
 from meshtastic import mt_config
 
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 from ..protobuf.config_pb2 import Config # pylint: disable=E0611
+from ..protobuf.clientonly_pb2 import DeviceProfile # pylint: disable=E0611
+from ..protobuf.localonly_pb2 import LocalConfig, LocalModuleConfig # pylint: disable=E0611
 
 # from ..ble_interface import BLEInterface
 from ..mesh_interface import MeshInterface
@@ -871,7 +876,7 @@ def test_main_sendtext_with_invalid_channel_nine(caplog, capsys):
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
-@patch("builtins.open", new_callable=mock_open, read_data="data")
+@patch("builtins.open", new_callable=mock_open, read_data=b"{}")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_main_sendtext_with_dest(mock_findPorts, mock_serial, mocked_open, mock_hupcl, capsys, caplog, iface_with_nodes):
@@ -1069,7 +1074,7 @@ def test_main_seturl(capsys):
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
-@patch("builtins.open", new_callable=mock_open, read_data="data")
+@patch("builtins.open", new_callable=mock_open, read_data=b"{}")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_main_set_valid(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
@@ -1093,7 +1098,7 @@ def test_main_set_valid(mocked_findports, mocked_serial, mocked_open, mocked_hup
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
-@patch("builtins.open", new_callable=mock_open, read_data="data")
+@patch("builtins.open", new_callable=mock_open, read_data=b"{}")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_main_set_valid_wifi_psk(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
@@ -1117,7 +1122,7 @@ def test_main_set_valid_wifi_psk(mocked_findports, mocked_serial, mocked_open, m
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
-@patch("builtins.open", new_callable=mock_open, read_data="data")
+@patch("builtins.open", new_callable=mock_open, read_data=b"{}")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_main_set_invalid_wifi_psk(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
@@ -1144,7 +1149,7 @@ def test_main_set_invalid_wifi_psk(mocked_findports, mocked_serial, mocked_open,
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
-@patch("builtins.open", new_callable=mock_open, read_data="data")
+@patch("builtins.open", new_callable=mock_open, read_data=b"{}")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_main_set_valid_camel_case(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
@@ -1169,7 +1174,7 @@ def test_main_set_valid_camel_case(mocked_findports, mocked_serial, mocked_open,
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
-@patch("builtins.open", new_callable=mock_open, read_data="data")
+@patch("builtins.open", new_callable=mock_open, read_data=b"{}")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_main_set_with_invalid(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
@@ -1194,7 +1199,7 @@ def test_main_set_with_invalid(mocked_findports, mocked_serial, mocked_open, moc
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
-@patch("builtins.open", new_callable=mock_open, read_data="data")
+@patch("builtins.open", new_callable=mock_open, read_data=b"{}")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_main_configure_with_snake_case(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
@@ -1226,7 +1231,7 @@ def test_main_configure_with_snake_case(mocked_findports, mocked_serial, mocked_
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
-@patch("builtins.open", new_callable=mock_open, read_data="data")
+@patch("builtins.open", new_callable=mock_open, read_data=b"{}")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_main_configure_with_camel_case_keys(mocked_findports, mocked_serial, mocked_open, mocked_hupcl, capsys):
@@ -2012,6 +2017,471 @@ position_flags: 35"""
     assert err == ""
 
 
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_export_profile_serializes_deviceprofile():
+    """export_profile() returns a parseable DeviceProfile protobuf"""
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getLongName.return_value = "foo"
+    iface.getShortName.return_value = "oof"
+    iface.localNode.getURL.return_value = "https://meshtastic.org/e/#test"
+    iface.getCannedMessage.return_value = "Hi|Bye"
+    iface.getRingtone.return_value = "24:d=32,o=5"
+    iface.getMyNodeInfo.return_value = {
+        "position": {"latitude": 35.88888, "longitude": -93.88888, "altitude": 304}
+    }
+    iface.localNode.localConfig = LocalConfig()
+    iface.localNode.localConfig.position.fixed_position = True
+    iface.localNode.moduleConfig = LocalModuleConfig()
+
+    raw = export_profile(iface)
+
+    profile = DeviceProfile()
+    profile.ParseFromString(raw)  # must not raise
+    assert profile.long_name == "foo"
+    assert profile.short_name == "oof"
+    assert profile.channel_url == "https://meshtastic.org/e/#test"
+    assert profile.canned_messages == "Hi|Bye"
+    assert profile.ringtone == "24:d=32,o=5"
+    assert profile.HasField("fixed_position")
+    assert profile.fixed_position.latitude_i == 358888800
+    assert profile.fixed_position.longitude_i == -938888800
+    assert profile.fixed_position.altitude == 304
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_export_profile_omits_fixed_position_when_not_enabled():
+    """export_profile() omits fixed_position when position.fixed_position is False"""
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getLongName.return_value = "foo"
+    iface.getShortName.return_value = "oof"
+    iface.localNode.getURL.return_value = ""
+    iface.getCannedMessage.return_value = None
+    iface.getRingtone.return_value = None
+    iface.getMyNodeInfo.return_value = {
+        "position": {"latitude": 35.88888, "longitude": -93.88888, "altitude": 304}
+    }
+    iface.localNode.localConfig = LocalConfig()
+    iface.localNode.moduleConfig = LocalModuleConfig()
+
+    raw = export_profile(iface)
+
+    profile = DeviceProfile()
+    profile.ParseFromString(raw)
+    assert not profile.HasField("fixed_position"), \
+        "fixed_position should be omitted when position.fixed_position is not enabled"
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_export_profile_omits_empty_fields():
+    """export_profile() should not populate protobuf oneofs for missing values"""
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getLongName.return_value = None
+    iface.getShortName.return_value = None
+    iface.localNode.getURL.return_value = ""
+    iface.getCannedMessage.return_value = None
+    iface.getRingtone.return_value = None
+    iface.getMyNodeInfo.return_value = {}
+    iface.localNode.localConfig = LocalConfig()
+    iface.localNode.moduleConfig = LocalModuleConfig()
+
+    raw = export_profile(iface)
+
+    profile = DeviceProfile()
+    profile.ParseFromString(raw)
+    assert not profile.HasField("long_name")
+    assert not profile.HasField("short_name")
+    assert not profile.HasField("channel_url")
+    assert not profile.HasField("canned_messages")
+    assert not profile.HasField("ringtone")
+    assert not profile.HasField("fixed_position")
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_export_profile_converts_precisely():
+    """export_profile() uses exact arithmetic for lat/lon conversion"""
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getLongName.return_value = None
+    iface.getShortName.return_value = None
+    iface.localNode.getURL.return_value = ""
+    iface.getCannedMessage.return_value = None
+    iface.getRingtone.return_value = None
+    iface.getMyNodeInfo.return_value = {
+        "position": {"latitude": -49.82207, "longitude": 0, "altitude": 0},
+    }
+    iface.localNode.localConfig = LocalConfig()
+    iface.localNode.localConfig.position.fixed_position = True
+    iface.localNode.moduleConfig = LocalModuleConfig()
+
+    raw = export_profile(iface)
+
+    profile = DeviceProfile()
+    profile.ParseFromString(raw)
+    assert profile.fixed_position.latitude_i == -498220700
+    assert profile.fixed_position.longitude_i == 0
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_profile_from_yaml_maps_all_fields():
+    """_profile_from_yaml() converts a YAML dict to an equivalent DeviceProfile"""
+    configuration = {
+        "owner": "YAML Owner",
+        "owner_short": "YO",
+        "channel_url": "https://meshtastic.org/e/#test",
+        "canned_messages": "Hi|Bye",
+        "ringtone": "24:d=32,o=5",
+        "location": {"lat": 35.88888, "lon": -93.88888, "alt": 304},
+        "config": {"bluetooth": {"enabled": True, "fixedPin": 123456}},
+        "module_config": {"telemetry": {"deviceUpdateInterval": 900}},
+    }
+    profile = _profile_from_yaml(configuration)
+
+    assert profile.long_name == "YAML Owner"
+    assert profile.short_name == "YO"
+    assert profile.channel_url == "https://meshtastic.org/e/#test"
+    assert profile.canned_messages == "Hi|Bye"
+    assert profile.ringtone == "24:d=32,o=5"
+    assert profile.HasField("fixed_position")
+    assert profile.fixed_position.latitude_i == 358888800
+    assert profile.fixed_position.longitude_i == -938888800
+    assert profile.fixed_position.altitude == 304
+    assert profile.HasField("config")
+    assert profile.config.bluetooth.enabled is True
+    assert profile.config.bluetooth.fixed_pin == 123456
+    assert profile.HasField("module_config")
+    assert profile.module_config.telemetry.device_update_interval == 900
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_profile_from_yaml_camelcase_keys():
+    """_profile_from_yaml() handles camelCase YAML keys"""
+    configuration = {
+        "ownerShort": "CB",
+        "channelUrl": "https://meshtastic.org/e/#camel",
+    }
+    profile = _profile_from_yaml(configuration)
+
+    assert profile.short_name == "CB"
+    assert profile.channel_url == "https://meshtastic.org/e/#camel"
+    assert not profile.HasField("long_name")
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_profile_from_yaml_converts_precisely():
+    """_profile_from_yaml() uses exact arithmetic for lat/lon conversion"""
+    # -49.82207 is a value where int(float * 1e7) truncates to -498220699
+    # instead of the correct -498220700
+    configuration = {
+        "location": {"lat": -49.82207, "lon": 0, "alt": 0},
+    }
+    profile = _profile_from_yaml(configuration)
+
+    assert profile.fixed_position.latitude_i == -498220700
+    assert profile.fixed_position.longitude_i == 0
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_combines_setowner_into_single_call(tmp_path, capsys):
+    """Both long_name and short_name are set in a single setOwner call"""
+    profile = DeviceProfile()
+    profile.long_name = "Single Call"
+    profile.short_name = "SC"
+    cfg_path = tmp_path / "combined.cfg"
+    cfg_path.write_bytes(profile.SerializeToString())
+
+    sys.argv = ["", "--configure", str(cfg_path)]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+        out, _ = capsys.readouterr()
+        # Single combined message, not two separate ones
+        assert re.search(r"Setting device owner to Single Call and short name to SC", out, re.MULTILINE)
+        assert not re.search(r"Setting device owner short to SC$", out, re.MULTILINE)
+        # setOwner should be called once, not twice
+        iface.getNode.return_value.setOwner.assert_called_once()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_with_binary_cfg(tmp_path, capsys):
+    """--configure with a .cfg binary file parses and applies a DeviceProfile"""
+    profile = DeviceProfile()
+    profile.long_name = "Binary Bob"
+    profile.short_name = "BB"
+    cfg_path = tmp_path / "backup.cfg"
+    cfg_path.write_bytes(profile.SerializeToString())
+
+    sys.argv = ["", "--configure", str(cfg_path)]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+        out, _ = capsys.readouterr()
+        assert re.search(r"Setting device owner to Binary Bob and short name to BB", out, re.MULTILINE)
+        assert re.search(r"Writing modified configuration to device", out, re.MULTILINE)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_rejects_invalid_yaml_and_extension(tmp_path, capsys):
+    """A non-dict YAML file with a non-.cfg extension should error cleanly."""
+    bad = tmp_path / "bad.yaml"
+    bad.write_text("just a scalar string")
+    sys.argv = ["", "--configure", str(bad)]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with pytest.raises(SystemExit):
+            main()
+        out, _ = capsys.readouterr()
+        assert re.search(r"is not a valid YAML config or DeviceProfile", out, re.MULTILINE)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_rejects_corrupt_cfg(tmp_path, capsys):
+    """A .cfg file that is not a valid DeviceProfile should error cleanly."""
+    bad = tmp_path / "corrupt.cfg"
+    bad.write_bytes(b"\x00\x01\x02 not really protobuf \xff\xfe")
+    sys.argv = ["", "--configure", str(bad)]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with pytest.raises(SystemExit):
+            main()
+        out, _ = capsys.readouterr()
+        assert re.search(r"is not a valid YAML config or DeviceProfile", out, re.MULTILINE)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_binary_with_explicit_format(tmp_path, capsys):
+    """--configure --export-format binary forces binary parsing regardless of extension"""
+    profile = DeviceProfile()
+    profile.long_name = "Forced Binary"
+    cfg_path = tmp_path / "notcfg.dat"  # non-.cfg extension, but format forced
+    cfg_path.write_bytes(profile.SerializeToString())
+
+    sys.argv = ["", "--configure", str(cfg_path), "--export-format", "binary"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+        out, _ = capsys.readouterr()
+        assert re.search(r"Setting device owner to Forced Binary", out, re.MULTILINE)
+        assert re.search(r"Writing modified configuration to device", out, re.MULTILINE)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_autodetects_binary_by_content(tmp_path, capsys):
+    """Binary DeviceProfile is detected by content even without .cfg extension"""
+    profile = DeviceProfile()
+    profile.long_name = "Content Detected"
+    # Use .bin extension — autodetection must rely on content, not extension
+    cfg_path = tmp_path / "backup.bin"
+    cfg_path.write_bytes(profile.SerializeToString())
+
+    sys.argv = ["", "--configure", str(cfg_path)]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+        out, _ = capsys.readouterr()
+        assert re.search(r"Setting device owner to Content Detected", out, re.MULTILINE)
+        assert re.search(r"Writing modified configuration to device", out, re.MULTILINE)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_autodetects_yaml_by_content(tmp_path, capsys):
+    """YAML config is detected by content even with a non-standard extension"""
+    yaml_path = tmp_path / "config.txt"
+    yaml_path.write_text("owner: YAML Detected\n")
+
+    sys.argv = ["", "--configure", str(yaml_path)]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+        out, _ = capsys.readouterr()
+        assert re.search(r"Setting device owner to YAML Detected", out, re.MULTILINE)
+        assert re.search(r"Writing modified configuration to device", out, re.MULTILINE)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_export_config_binary_round_trip(tmp_path, capsys):
+    """Round-trip: export a .cfg via main(), then --configure it back via main()."""
+    cfg_path = tmp_path / "roundtrip.cfg"
+
+    # Export
+    sys.argv = ["", "--export-config", str(cfg_path)]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getLongName.return_value = "Round Trip"
+    iface.getShortName.return_value = "RT"
+    iface.localNode.getURL.return_value = "https://meshtastic.org/e/#rt"
+    iface.getCannedMessage.return_value = "Yes|No"
+    iface.getRingtone.return_value = None
+    iface.getMyNodeInfo.return_value = {
+        "position": {"latitude": 1.0, "longitude": 2.0, "altitude": 3}
+    }
+    iface.localNode.localConfig = LocalConfig()
+    iface.localNode.localConfig.position.fixed_position = True
+    iface.localNode.moduleConfig = LocalModuleConfig()
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+    out, _ = capsys.readouterr()
+    assert re.search(r"Exported profile to", out, re.MULTILINE)
+    assert cfg_path.exists()
+
+    # Verify the exported file is a valid DeviceProfile
+    profile = DeviceProfile()
+    profile.ParseFromString(cfg_path.read_bytes())
+    assert profile.long_name == "Round Trip"
+    assert profile.short_name == "RT"
+    assert profile.HasField("fixed_position")
+    assert profile.fixed_position.latitude_i == int(1.0 * 1e7)
+    assert profile.fixed_position.longitude_i == int(2.0 * 1e7)
+    assert profile.fixed_position.altitude == 3
+
+    # Re-import the file we just wrote
+    sys.argv = ["", "--configure", str(cfg_path)]
+    mt_config.args = sys.argv
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+    out, _ = capsys.readouterr()
+    assert re.search(r"Setting device owner to Round Trip and short name to RT", out, re.MULTILINE)
+    assert re.search(r"Setting device position", out, re.MULTILINE)
+    assert re.search(r"Writing modified configuration to device", out, re.MULTILINE)
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_does_not_set_fixed_position_for_legacy_yaml(tmp_path, capsys):
+    """Legacy YAML with location and no position config does NOT call setFixedPosition"""
+    yaml_path = tmp_path / "legacy.yaml"
+    yaml_path.write_text("location:\n  lat: 35.0\n  lon: -93.0\n  alt: 100\n")
+
+    sys.argv = ["", "--configure", str(yaml_path)]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+        out, _ = capsys.readouterr()
+        assert not re.search(r"Setting device position", out, re.MULTILINE)
+        iface.getNode.return_value.setFixedPosition.assert_not_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_skips_setfixedposition_when_config_disables_it(tmp_path, capsys):
+    """YAML with location but position.fixed_position=false skips setFixedPosition"""
+    yaml_path = tmp_path / "no_fixed.yaml"
+    yaml_path.write_text(
+        "location:\n  lat: 35.0\n  lon: -93.0\n  alt: 100\n"
+        "config:\n  position:\n    fixed_position: false\n"
+    )
+
+    sys.argv = ["", "--configure", str(yaml_path)]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode.localConfig = LocalConfig()
+    iface.localNode.moduleConfig = LocalModuleConfig()
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+        out, _ = capsys.readouterr()
+        assert not re.search(r"Setting device position", out, re.MULTILINE)
+        iface.getNode.return_value.setFixedPosition.assert_not_called()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_calls_setfixedposition_when_config_opt_in(tmp_path, capsys):
+    """YAML with location and position.fixed_position=true calls setFixedPosition"""
+    yaml_path = tmp_path / "fixed_on.yaml"
+    yaml_path.write_text(
+        "location:\n  lat: 35.0\n  lon: -93.0\n  alt: 100\n"
+        "config:\n  position:\n    fixed_position: true\n"
+    )
+
+    sys.argv = ["", "--configure", str(yaml_path)]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.localNode.localConfig = LocalConfig()
+    iface.localNode.moduleConfig = LocalModuleConfig()
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+        out, _ = capsys.readouterr()
+        assert re.search(r"Setting device position", out, re.MULTILINE)
+        iface.getNode.return_value.setFixedPosition.assert_called_once()
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_yaml_preserves_unmentioned_fields(tmp_path, capsys):
+    """Partial YAML config does not reset unspecified fields in the same section."""
+    yaml_path = tmp_path / "partial.yaml"
+    yaml_path.write_text("config:\n  bluetooth:\n    enabled: false\n")
+
+    sys.argv = ["", "--configure", str(yaml_path)]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    local_config = LocalConfig()
+    local_config.bluetooth.enabled = True
+    local_config.bluetooth.fixed_pin = 654321
+    iface.localNode.localConfig = local_config
+    iface.localNode.moduleConfig = LocalModuleConfig()
+    # Make getNode return the same node object so apply writes back to our real config.
+    iface.getNode.return_value = iface.localNode
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+        out, _ = capsys.readouterr()
+        assert re.search(r"Writing modified configuration to device", out, re.MULTILINE)
+        assert iface.localNode.localConfig.bluetooth.enabled is False
+        assert iface.localNode.localConfig.bluetooth.fixed_pin == 654321
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_configure_rejects_remote_node(tmp_path, capsys):
+    """--configure with --dest pointing to a remote node is rejected."""
+    yaml_path = tmp_path / "remote.yaml"
+    yaml_path.write_text("owner: Remote Owner\n")
+
+    sys.argv = ["", "--configure", str(yaml_path), "--dest", "!12345678"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+        out, _ = capsys.readouterr()
+        assert re.search(r"Configuring remote nodes is not supported", out, re.MULTILINE)
+
+
 # TODO
 # recursion depth exceeded error
 #@pytest.mark.unit
@@ -2075,6 +2545,124 @@ position_flags: 35"""
 #        assert re.search(r"# start of Meshtastic configure yaml", out, re.MULTILINE)
 #        assert err == ""
 #        mo.assert_called()
+
+
+_TRUE_DEFAULTS = [
+    "bluetooth.enabled",
+    "lora.sx126x_rx_boosted_gain",
+    "lora.tx_enabled",
+    "lora.use_preset",
+    "position.position_broadcast_smart_enabled",
+    "security.serial_enabled",
+]
+
+_MOD_TRUE_DEFAULTS = [
+    "mqtt.encryption_enabled",
+]
+
+
+def _set_config_bool(lc, path, value):
+    section, field = path.split(".")
+    setattr(getattr(lc, section), field, value)
+
+
+def _assert_config_bool(profile, path, expected):
+    section, field = path.split(".")
+    assert getattr(getattr(profile.config, section), field) is expected
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+@pytest.mark.parametrize("fmt", ["binary", "yaml"])
+@pytest.mark.parametrize("value", [True, False])
+def test_round_trip_preserves_config_true_defaults(fmt, value):
+    """Export-->import preserves config_true_defaults fields for both formats"""
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getLongName.return_value = None
+    iface.getShortName.return_value = None
+    iface.localNode.getURL.return_value = ""
+    iface.getCannedMessage.return_value = None
+    iface.getRingtone.return_value = None
+    iface.getMyNodeInfo.return_value = {}
+    iface.localNode.localConfig = LocalConfig()
+    iface.localNode.moduleConfig = LocalModuleConfig()
+
+    for path in _TRUE_DEFAULTS:
+        _set_config_bool(iface.localNode.localConfig, path, value)
+    for path in _MOD_TRUE_DEFAULTS:
+        _set_config_bool(iface.localNode.moduleConfig, path, value)
+
+    if fmt == "binary":
+        raw = export_profile(iface)
+        profile = DeviceProfile()
+        profile.ParseFromString(raw)
+    else:
+        yaml_str = export_config(iface)
+        configuration = yaml.safe_load(yaml_str)
+        profile = _profile_from_yaml(configuration)
+
+    assert profile.HasField("config")
+    assert profile.HasField("module_config")
+    for path in _TRUE_DEFAULTS:
+        _assert_config_bool(profile, path, value)
+    for path in _MOD_TRUE_DEFAULTS:
+        section, field = path.split(".")
+        assert getattr(getattr(profile.module_config, section), field) is value
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_binary_and_yaml_export_consistent():
+    """Binary and YAML export paths produce equivalent DeviceProfile protos"""
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getLongName.return_value = "Consistency"
+    iface.getShortName.return_value = "CON"
+    iface.localNode.getURL.return_value = ""
+    iface.getCannedMessage.return_value = None
+    iface.getRingtone.return_value = None
+    iface.getMyNodeInfo.return_value = {}
+    iface.localNode.localConfig = LocalConfig()
+    iface.localNode.moduleConfig = LocalModuleConfig()
+
+    lc = iface.localNode.localConfig
+    lc.bluetooth.enabled = True
+    lc.bluetooth.fixed_pin = 123456
+    lc.lora.sx126x_rx_boosted_gain = False
+    lc.lora.tx_enabled = True
+    lc.lora.use_preset = True
+    lc.position.position_broadcast_smart_enabled = False
+    lc.security.serial_enabled = True
+
+    lc_mod = iface.localNode.moduleConfig
+    lc_mod.mqtt.encryption_enabled = True
+
+    # Binary path
+    raw = export_profile(iface)
+    binary_profile = DeviceProfile()
+    binary_profile.ParseFromString(raw)
+
+    # YAML path
+    yaml_str = export_config(iface)
+    configuration = yaml.safe_load(yaml_str)
+    yaml_profile = _profile_from_yaml(configuration)
+
+    # Both should have config
+    assert binary_profile.HasField("config") == yaml_profile.HasField("config")
+    assert binary_profile.HasField("module_config") == yaml_profile.HasField("module_config")
+
+    # Compare individual field values
+    assert binary_profile.config.bluetooth.enabled == yaml_profile.config.bluetooth.enabled
+    assert binary_profile.config.bluetooth.fixed_pin == yaml_profile.config.bluetooth.fixed_pin
+    assert binary_profile.config.lora.sx126x_rx_boosted_gain == yaml_profile.config.lora.sx126x_rx_boosted_gain
+    assert binary_profile.config.lora.tx_enabled == yaml_profile.config.lora.tx_enabled
+    assert binary_profile.config.lora.use_preset == yaml_profile.config.lora.use_preset
+    assert binary_profile.config.position.position_broadcast_smart_enabled == yaml_profile.config.position.position_broadcast_smart_enabled
+    assert binary_profile.config.security.serial_enabled == yaml_profile.config.security.serial_enabled
+    assert binary_profile.module_config.mqtt.encryption_enabled == yaml_profile.module_config.mqtt.encryption_enabled
+
+    # Owner fields also match
+    assert binary_profile.long_name == yaml_profile.long_name
+    assert binary_profile.short_name == yaml_profile.short_name
 
 
 @pytest.mark.unit
@@ -2906,7 +3494,7 @@ def test_tunnel_subnet_arg_with_no_devices(mock_platform_system, caplog, capsys)
 @pytest.mark.usefixtures("reset_mt_config")
 @patch("platform.system")
 @patch("meshtastic.serial_interface.SerialInterface._set_hupcl_with_termios")
-@patch("builtins.open", new_callable=mock_open, read_data="data")
+@patch("builtins.open", new_callable=mock_open, read_data=b"{}")
 @patch("serial.Serial")
 @patch("meshtastic.util.findPorts", return_value=["/dev/ttyUSBfake"])
 def test_tunnel_tunnel_arg(
