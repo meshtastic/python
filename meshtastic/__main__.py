@@ -1201,7 +1201,7 @@ def onConnected(interface):
 def printConfig(config) -> None:
     """print configuration"""
     objDesc = config.DESCRIPTOR
-    type_map = {5: "int", 8: "bool", 9: "str", 13: "int", 14: "enum"}
+    type_map = {1:"float",2:"float",5: "int", 8: "bool", 9: "str", 13: "int", 14: "enum"}
     descriptions = {
         "display.flip_screen": "orientation of oled screen",
         "display.gps_format": "format of lat, lon coordinates"
