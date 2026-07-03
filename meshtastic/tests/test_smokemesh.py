@@ -6,7 +6,7 @@ The SIMULATOR_APP packet bridge forwards transmissions between nodes
 according to this topology.
 """
 import time
-from typing import List
+from typing import Any, Callable, List, Optional
 
 import pytest
 from pubsub import pub  # type: ignore[import-untyped]
@@ -19,11 +19,14 @@ class _PacketCollector:
 
     def __init__(self):
         self.packets: List[dict] = []
+        self._handler: Optional[Callable[..., Any]] = None
 
     def on_receive(self, packet, interface):  # pylint: disable=unused-argument
+        """Store a received packet."""
         self.packets.append(packet)
 
     def wait_for(self, count: int, timeout: float = RECEIVE_TIMEOUT) -> bool:
+        """Wait until *count* packets have been collected or *timeout* expires."""
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             if len(self.packets) >= count:
@@ -33,6 +36,7 @@ class _PacketCollector:
 
     @property
     def texts(self) -> List[str]:
+        """Return text payloads from TEXT_MESSAGE_APP packets."""
         return [
             p.get("decoded", {}).get("text", "")
             for p in self.packets
@@ -41,12 +45,14 @@ class _PacketCollector:
 
     @property
     def traceroutes(self) -> List[dict]:
+        """Return TRACEROUTE_APP packets."""
         return [
             p for p in self.packets
             if p.get("decoded", {}).get("portnum") == "TRACEROUTE_APP"
         ]
 
     def reset(self):
+        """Clear all collected packets."""
         self.packets.clear()
 
 

@@ -89,8 +89,13 @@ class SimNode:
         self.workdir = tempfile.mkdtemp(prefix=f"mtd_node{self.node_id}_")
         vfs_dir = os.path.join(self.workdir, "vfs")
         os.mkdir(vfs_dir)
-        log_stdout = open(os.path.join(self.workdir, "meshtasticd.log"), "wb", buffering=0)
-        log_stderr = open(os.path.join(self.workdir, "meshtasticd.err"), "wb", buffering=0)
+        # Files are closed in _kill(); keep them open for the process lifetime.
+        log_stdout = open(  # pylint: disable=consider-using-with
+            os.path.join(self.workdir, "meshtasticd.log"), "wb", buffering=0
+        )
+        log_stderr = open(  # pylint: disable=consider-using-with
+            os.path.join(self.workdir, "meshtasticd.err"), "wb", buffering=0
+        )
         self._log_files = [log_stdout, log_stderr]
         self.process = subprocess.Popen(  # pylint: disable=consider-using-with
             [
@@ -244,9 +249,11 @@ class SimMesh:
         self._started = False
 
     def get_node(self, idx: int) -> SimNode:
+        """Return the SimNode at the given index."""
         return self.nodes[idx]
 
     def get_iface(self, idx: int) -> TCPInterface:
+        """Return the TCPInterface for the node at the given index."""
         iface = self.nodes[idx].iface
         assert iface is not None, f"node {idx} has no interface"
         return iface
