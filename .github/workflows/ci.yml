@@ -73,6 +73,14 @@ jobs:
 
   simradio_testing:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        channel:
+          - beta
+          - alpha
+          - daily
+    continue-on-error: ${{ matrix.channel == 'daily' }}
     steps:
       - uses: actions/checkout@v4
       - name: Install Python 3
@@ -85,9 +93,9 @@ jobs:
           pip3 install poetry
           poetry install --all-extras --with dev
           poetry run meshtastic --version
-      - name: Install meshtasticd (beta) from PPA
+      - name: Install meshtasticd (${{ matrix.channel }}) from PPA
         run: |
-          sudo add-apt-repository -y ppa:meshtastic/beta
+          sudo add-apt-repository -y ppa:meshtastic/${{ matrix.channel }}
           sudo apt-get update
           sudo apt-get install -y meshtasticd
       - name: Run firmware smoke tests
