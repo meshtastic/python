@@ -17,7 +17,7 @@ from .firmware_harness import (
 )
 
 # Use a different base port for the single-node fixture so it doesn't
-# conflict with the multi-node mesh fixture (both are session-scoped).
+# conflict with the multi-node mesh fixture.
 SINGLE_NODE_BASE_PORT = DEFAULT_BASE_PORT + 100
 
 
@@ -31,9 +31,14 @@ def _skip_firmware_if_unavailable() -> None:
         )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def firmware_node():
     """A single meshtasticd sim node for smokevirt tests.
+
+    Function-scoped so every test gets a freshly-erased node with no
+    state leaking from previous tests. This makes destructive commands
+    (``--reboot``, ``--set factory_reset true``) safe to run and lets
+    tests be order-independent.
 
     Yields the SimNode instance.  The node is booted with a fresh erased
     config and listens on localhost at its TCP port.

@@ -287,12 +287,22 @@ class Node:
         # for sending admin channels will also change
         adminIndex = self.iface.localNode._getAdminChannelIndex()
 
+        # Snapshot serialized channel payloads from channelIndex onward so we
+        # can avoid writing slots whose protobuf content did not change after
+        # the shift. Use bytes (not message objects), because _fixupChannels()
+        # mutates message fields in-place.
+        old_channels = [
+            self.channels[i].SerializeToString()
+            for i in range(channelIndex, len(self.channels))
+        ]
+
         self.channels.pop(channelIndex)
         self._fixupChannels()  # expand back to 8 channels
 
         index = channelIndex
-        while index < 8:
-            self.writeChannel(index, adminIndex=adminIndex)
+        for old_ch in old_channels:
+            if self.channels[index].SerializeToString() != old_ch:
+                self.writeChannel(index, adminIndex=adminIndex)
             index += 1
 
             # if we are updating the local node, we might end up

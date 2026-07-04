@@ -161,6 +161,9 @@ class SimNode:
                     os.killpg(os.getpgid(self.process.pid), signal.SIGKILL)
                 except Exception:
                     pass
+            # Give OS time to release TCP port (avoid TIME_WAIT preventing
+            # next instance from binding the same port)
+            time.sleep(1.0)
             self.process = None
 
 
