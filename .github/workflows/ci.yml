@@ -71,7 +71,7 @@ jobs:
           poetry install
           poetry run meshtastic --version
 
-  firmware:
+  simradio_testing:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
