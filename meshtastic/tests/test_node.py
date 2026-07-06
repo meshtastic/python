@@ -669,6 +669,78 @@ def test_getChannelByChannelIndex():
     assert anode.getChannelByChannelIndex(9) is None
 
 
+def _build_channels(highest_secondary_index: int):
+    """Build an 8-slot channel table with contiguous active channels.
+
+    Slot 0 is PRIMARY. Slots 1..highest_secondary_index are SECONDARY.
+    Remaining slots are DISABLED.
+    """
+    channels = []
+    for idx in range(8):
+        ch = Channel()
+        ch.index = idx
+        if idx == 0:
+            ch.role = Channel.Role.PRIMARY
+            ch.settings.name = "primary"
+        elif idx <= highest_secondary_index:
+            ch.role = Channel.Role.SECONDARY
+            ch.settings.name = f"ch{idx}"
+        else:
+            ch.role = Channel.Role.DISABLED
+        channels.append(ch)
+    return channels
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "highest_secondary_index,delete_index,expected_writes",
+    [
+        pytest.param(1, 1, [1], id="active-0-1-del-1"),
+        pytest.param(2, 1, [1, 2], id="active-0-2-del-1"),
+        pytest.param(3, 1, [1, 2, 3], id="active-0-3-del-1"),
+        pytest.param(3, 2, [2, 3], id="active-0-3-del-2"),
+    ],
+)
+def test_delete_channel_writes_only_changed_suffix(
+    highest_secondary_index, delete_index, expected_writes
+):
+    """deleteChannel should only write slots whose payload changed."""
+    iface = MagicMock()
+    anode = Node(iface, "bar", noProto=True)
+    iface.localNode = anode
+    anode.channels = _build_channels(highest_secondary_index)
+
+    writes = []
+
+    def fake_write(channel_index, adminIndex=0):
+        writes.append((channel_index, adminIndex))
+
+    anode.writeChannel = fake_write
+
+    anode.deleteChannel(delete_index)
+
+    written_indices = [idx for idx, _ in writes]
+    assert written_indices == expected_writes
+    assert all(admin_idx == 0 for _, admin_idx in writes)
+    assert 0 not in written_indices
+    assert all(idx < 4 for idx in written_indices)
+
+
+@pytest.mark.unit
+def test_delete_channel_rejects_primary():
+    """deleteChannel should refuse deleting PRIMARY slot 0."""
+    iface = MagicMock()
+    anode = Node(iface, "bar", noProto=True)
+    iface.localNode = anode
+    anode.channels = _build_channels(3)
+
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        anode.deleteChannel(0)
+
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
 # TODO
 # @pytest.mark.unit
 # def test_deleteChannel_try_to_delete_primary_channel(capsys):
