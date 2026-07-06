@@ -970,13 +970,13 @@ def onConnected(interface):
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_SLOW)
 
         if args.ch_longmod:
-            setSimpleConfig(config_pb2.config.LoRaConfig.ModemPreset.LONG_MODERATE)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_MODERATE)
 
         if args.ch_longfast:
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_FAST)
 
         if args.ch_longturbo:
-            setSimpleConfig(config_pb2.config.LoRaConfig.ModemPreset.LONG_TURBO)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_TURBO)
 
         if args.ch_medslow:
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MEDIUM_SLOW)
@@ -991,7 +991,7 @@ def onConnected(interface):
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.SHORT_FAST)
 
         if args.ch_shortturbo:
-            setSimpleConfig(config_pb2.config.LoRaConfig.ModemPreset.SHORT_TURBO)
+            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.SHORT_TURBO)
 
         if args.ch_set or args.ch_enable or args.ch_disable:
             closeNow = True
@@ -1969,7 +1969,7 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
 
     group.add_argument(
         "--ch-vlongslow",
-        help="Change to the VERY_LONG_SLOW modem preset. Deprecated sincce 2.5 firmware.",
+        help="Change to the VERY_LONG_SLOW modem preset. Deprecated since 2.5 firmware.",
         action="store_true",
     )
 

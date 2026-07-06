@@ -737,7 +737,7 @@ def test_delete_channel_rejects_primary():
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         anode.deleteChannel(0)
 
-    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.type is SystemExit
     assert pytest_wrapped_e.value.code == 1
 
 
