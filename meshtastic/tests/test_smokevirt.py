@@ -262,12 +262,14 @@ def test_smokevirt_ch_set_name(firmware_node):
 
 
 _CH_PRESETS = [
-    ("--ch-longslow", config_pb2.Config.LoRaConfig.ModemPreset.LONG_SLOW),
+    ("--ch-longmod", config_pb2.Config.LoRaConfig.ModemPreset.LONG_MODERATE),
     ("--ch-longfast", config_pb2.Config.LoRaConfig.ModemPreset.LONG_FAST),
+    ("--ch-longturbo", config_pb2.Config.LoRaConfig.ModemPreset.LONG_TURBO),
     ("--ch-medslow", config_pb2.Config.LoRaConfig.ModemPreset.MEDIUM_SLOW),
     ("--ch-medfast", config_pb2.Config.LoRaConfig.ModemPreset.MEDIUM_FAST),
     ("--ch-shortslow", config_pb2.Config.LoRaConfig.ModemPreset.SHORT_SLOW),
     ("--ch-shortfast", config_pb2.Config.LoRaConfig.ModemPreset.SHORT_FAST),
+    ("--ch-shortturbo", config_pb2.Config.LoRaConfig.ModemPreset.SHORT_TURBO),
 ]
 
 

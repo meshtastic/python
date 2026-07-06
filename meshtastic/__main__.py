@@ -969,8 +969,14 @@ def onConnected(interface):
         if args.ch_longslow:
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_SLOW)
 
+        if args.ch_longmod:
+            setSimpleConfig(config_pb2.config.LoRaConfig.ModemPreset.LONG_MODERATE)
+
         if args.ch_longfast:
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_FAST)
+
+        if args.ch_longturbo:
+            setSimpleConfig(config_pb2.config.LoRaConfig.ModemPreset.LONG_TURBO)
 
         if args.ch_medslow:
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MEDIUM_SLOW)
@@ -983,6 +989,9 @@ def onConnected(interface):
 
         if args.ch_shortfast:
             setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.SHORT_FAST)
+
+        if args.ch_shortturbo:
+            setSimpleConfig(config_pb2.config.LoRaConfig.ModemPreset.SHORT_TURBO)
 
         if args.ch_set or args.ch_enable or args.ch_disable:
             closeNow = True
@@ -1960,43 +1969,61 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
 
     group.add_argument(
         "--ch-vlongslow",
-        help="Change to the very long-range and slow modem preset",
+        help="Change to the VERY_LONG_SLOW modem preset. Deprecated sincce 2.5 firmware.",
         action="store_true",
     )
 
     group.add_argument(
         "--ch-longslow",
-        help="Change to the long-range and slow modem preset",
+        help="Change to the LONG_SLOW modem preset. Deprecated since 2.7 firmware.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-longmod", "--ch-longmoderate",
+        help="Change to the LONG_MODERATE modem preset",
         action="store_true",
     )
 
     group.add_argument(
         "--ch-longfast",
-        help="Change to the long-range and fast modem preset",
+        help="Change to the LONG_FAST modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-longturbo",
+        help="Change to the LONG_TURBO preset",
         action="store_true",
     )
 
     group.add_argument(
         "--ch-medslow",
-        help="Change to the med-range and slow modem preset",
+        help="Change to the MEDIUM_SLOW modem preset",
         action="store_true",
     )
 
     group.add_argument(
         "--ch-medfast",
-        help="Change to the med-range and fast modem preset",
+        help="Change to the MEDIUM_FAST modem preset",
         action="store_true",
     )
 
     group.add_argument(
         "--ch-shortslow",
-        help="Change to the short-range and slow modem preset",
+        help="Change to the SHORT_SLOW modem preset",
         action="store_true",
     )
 
     group.add_argument(
         "--ch-shortfast",
-        help="Change to the short-range and fast modem preset",
+        help="Change to the SHORT_FAST modem preset",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--ch-shortturbo",
+        help="Change to the SHORT_TURBO modem preset",
         action="store_true",
     )
 
