@@ -49,8 +49,17 @@ def firmware_node():
     _skip_firmware_if_unavailable()
     mesh = SimMesh(n_nodes=1, base_port=SINGLE_NODE_BASE_PORT)
     mesh.start()
-    set_region(mesh.get_node(0).port, "US")
-    yield mesh.get_node(0)
+    node = mesh.get_node(0)
+    set_region(node.port, "US")
+    # The region commit restarts the TCP listener, so reconnect the harness
+    # interface in case a test wants to use it directly.
+    if node.iface is not None:
+        try:
+            node.iface.close()
+        except Exception:  # pylint: disable=broad-except
+            pass
+    node.connect()
+    yield node
     mesh.stop()
 
 
