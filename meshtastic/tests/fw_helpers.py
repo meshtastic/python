@@ -31,6 +31,11 @@ logger = logging.getLogger(__name__)
 # simulator happy when many short-lived connections are happening.
 PAUSE_AFTER_CLI = 0.2
 
+# Pause after changing the LoRa region. The firmware may restart the TCP
+# listener while committing the new radio config, so give it time to settle
+# before the next CLI call or harness reconnect.
+PAUSE_AFTER_REGION_CHANGE = 2.0
+
 
 # ---------------------------------------------------------------------------
 # CLI invocation
@@ -325,6 +330,19 @@ def subscribe_positions(iface: TCPInterface) -> PacketCollector:
     return _subscribe_topic(iface, "meshtastic.receive.position")
 
 
+def set_region(port: int, region: str = "US") -> None:
+    """Set the LoRa region on a sim node via the CLI.
+
+    The node briefly restarts its TCP listener while committing the radio
+    config; ``run_cli()`` handles the reconnect retry, and we sleep long
+    enough for the new region to take effect before callers continue.
+    """
+    rc, out = run_cli(port, "--set", "lora.region", region)
+    if rc != 0:
+        raise RuntimeError(f"Failed to set lora.region={region}: {out}")
+    time.sleep(PAUSE_AFTER_REGION_CHANGE)
+
+
 def unsubscribe_all(topic: str) -> None:
     """Drop every handler currently registered on *topic*.
 
@@ -339,12 +357,14 @@ def unsubscribe_all(topic: str) -> None:
 
 __all__ = [
     "PAUSE_AFTER_CLI",
+    "PAUSE_AFTER_REGION_CHANGE",
     "PacketCollector",
     "RECEIVE_TIMEOUT",
     "cli_then_verify",
     "connect_iface",
     "resolve_cli",
     "run_cli",
+    "set_region",
     "subscribe_positions",
     "subscribe_telemetries",
     "subscribe_texts",
