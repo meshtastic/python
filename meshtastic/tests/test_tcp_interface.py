@@ -1,6 +1,7 @@
 """Meshtastic unit tests for tcp_interface.py"""
 
 import re
+import socket
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -74,6 +75,56 @@ def test_TCPInterface_close_shutdowns_socket_before_super_close():
             iface.close()
 
     assert call_order == ["shutdown", "super_close"]
+    sock.close.assert_called_once()
+    assert iface.socket is None
+
+
+@pytest.mark.unit
+def test_TCPInterface_close_half_closes_before_shutdown():
+    """Close should send FIN and let the device drain before forcing the link down.
+
+    Going straight to shutdown(SHUT_RDWR)/close() with data still unread makes the
+    stack send RST, and Winsock then discards data the device had received but not
+    yet read, silently losing writes such as `--set`.
+    """
+    iface = TCPInterface(hostname="localhost", noProto=True, connectNow=False)
+    sock = MagicMock()
+    iface.socket = sock
+    call_order = []
+
+    with patch.object(TCPInterface, "_socket_shutdown", autospec=True) as mock_shutdown:
+        with patch.object(
+            TCPInterface, "_wait_for_reader_exit", autospec=True
+        ) as mock_wait:
+            with patch(
+                "meshtastic.stream_interface.StreamInterface.close", autospec=True
+            ) as mock_super_close:
+                sock.shutdown.side_effect = lambda how: call_order.append(f"shutdown_{how}")
+                mock_wait.side_effect = lambda _self, _t: call_order.append("wait")
+                mock_shutdown.side_effect = lambda _self: call_order.append("full_shutdown")
+                mock_super_close.side_effect = lambda _self: call_order.append("super_close")
+
+                iface.close()
+
+    assert call_order == [
+        f"shutdown_{socket.SHUT_WR}",
+        "wait",
+        "full_shutdown",
+        "super_close",
+    ]
+
+
+@pytest.mark.unit
+def test_TCPInterface_close_survives_half_close_failure():
+    """A peer that already vanished must not break close()."""
+    iface = TCPInterface(hostname="localhost", noProto=True, connectNow=False)
+    sock = MagicMock()
+    sock.shutdown.side_effect = OSError("already gone")
+    iface.socket = sock
+
+    with patch("meshtastic.stream_interface.StreamInterface.close", autospec=True):
+        iface.close()  # must not raise
+
     sock.close.assert_called_once()
     assert iface.socket is None
 
