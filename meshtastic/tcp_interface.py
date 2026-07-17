@@ -11,6 +11,11 @@ from typing import Optional
 from meshtastic.stream_interface import StreamInterface
 
 DEFAULT_TCP_PORT = 4403
+
+# How long close() gives the device to consume what we last wrote before forcing
+# the connection down. See close() for why this exists.
+GRACEFUL_CLOSE_TIMEOUT = 0.25
+
 logger = logging.getLogger(__name__)
 
 
@@ -80,6 +85,18 @@ class TCPInterface(StreamInterface):
         server_address = (self.hostname, self.portNumber)
         self.socket = socket.create_connection(server_address)
 
+    def _wait_for_reader_exit(self, timeout: float) -> None:
+        """Wait briefly for the reader thread to drain and exit after a half-close.
+
+        Returns as soon as it exits, or after timeout: the device is not obliged
+        to close just because we did.
+        """
+        rx = getattr(self, "_rxThread", None)
+        if rx is None or rx is threading.current_thread():
+            return
+        with contextlib.suppress(Exception):
+            rx.join(timeout)
+
     def close(self) -> None:
         """Close a connection to the device."""
         logger.debug("Closing TCP stream")
@@ -87,6 +104,20 @@ class TCPInterface(StreamInterface):
         # Therefore force a shutdown first to unblock reader thread reads.
         self._wantExit = True
         if self.socket is not None:
+            # Half-close first. shutdown(SHUT_WR) sends FIN, which tells the
+            # device we are done writing and lets it consume what we last wrote
+            # before the connection goes away -- typically the admin message a
+            # one-shot command such as `--set` just sent.
+            #
+            # Going straight to shutdown(SHUT_RDWR) + close() while either side
+            # still has unread data makes the stack send RST instead. Winsock
+            # then discards data the peer had already received but not yet read,
+            # so the write is lost; Linux delivers it before reporting
+            # ECONNRESET, which is why this only bites on Windows.
+            with contextlib.suppress(Exception):
+                self.socket.shutdown(socket.SHUT_WR)
+            self._wait_for_reader_exit(GRACEFUL_CLOSE_TIMEOUT)
+
             with contextlib.suppress(
                 Exception
             ):  # Ignore errors in shutdown, because we might have a race with the server
