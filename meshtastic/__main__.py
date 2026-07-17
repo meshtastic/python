@@ -762,6 +762,27 @@ def onConnected(interface):
 
             profile = _read_profile(filename, fmt, seed_fn=_seed_config)
 
+            filter_profile(profile, getattr(args, "include_settings", None), getattr(args, "exclude_settings", None))
+
+            is_binary = False
+            if fmt in ("binary", "protobuf"):
+                is_binary = True
+            elif fmt == "yaml":
+                is_binary = False
+            else:
+                is_binary = filename.endswith(".cfg")
+
+            if is_binary and not getattr(args, "yes", False):
+                print("The following configuration will be applied:")
+                print(profile)
+                try:
+                    response = input("Apply these changes to the node? [y/N] ")
+                except EOFError:
+                    response = "n"
+                if response.lower() != "y":
+                    print("Aborted.")
+                    return
+
             closeNow = True
             interface.getNode(args.dest, False, **getNode_kwargs).beginSettingsTransaction()
 
@@ -861,7 +882,11 @@ def onConnected(interface):
                 is_binary = args.export_config.endswith(".cfg")
 
             if is_binary:
-                config_bytes = export_profile(interface)
+                config_bytes = export_profile(
+                    interface,
+                    getattr(args, "include_settings", None),
+                    getattr(args, "exclude_settings", None)
+                )
                 if args.export_config == "-":
                     sys.stdout.buffer.write(config_bytes)
                 else:
@@ -1469,7 +1494,90 @@ def _parse_profile_bytes(raw: bytes) -> clientonly_pb2.DeviceProfile:
     return profile
 
 
-def export_profile(interface) -> bytes:
+def filter_profile(profile: clientonly_pb2.DeviceProfile, includes: Optional[str] = None, excludes: Optional[str] = None) -> clientonly_pb2.DeviceProfile:
+    """
+    Filter a DeviceProfile protobuf based on a list of includes and excludes.
+    includes and excludes are comma-separated strings like 'owner,position,mqtt.enabled'.
+    """
+    if not includes and not excludes:
+        return profile
+
+    include_list = [x.strip() for x in includes.split(",")] if includes else None
+    exclude_list = [x.strip() for x in excludes.split(",")] if excludes else None
+
+    # Map friendly names to actual fields
+    top_level_map = {
+        "owner": "long_name",
+        "owner_short": "short_name",
+        "ownershort": "short_name",
+        "channel_url": "channel_url",
+        "channelurl": "channel_url",
+        "canned_messages": "canned_messages",
+        "ringtone": "ringtone",
+        "location": "fixed_position"
+    }
+
+    def get_parts(path):
+        parts = path.split('.')
+        base = parts[0].lower()
+        sub = meshtastic.util.camel_to_snake(parts[1]) if len(parts) > 1 else None
+        return base, sub
+
+    if include_list:
+        include_bases = set()
+        include_subs = {} # base -> set of subs
+        for inc in include_list:
+            base, sub = get_parts(inc)
+            include_bases.add(base)
+            if sub:
+                include_subs.setdefault(base, set()).add(sub)
+            else:
+                # If they include the base, it implies all subs
+                include_subs[base] = None
+
+        # Filter top-level fields
+        for friendly, actual in top_level_map.items():
+            # if neither friendly nor friendly without underscores is in bases, clear it
+            if friendly not in include_bases and friendly.replace('_', '') not in include_bases:
+                profile.ClearField(actual)
+
+        # Filter config/module_config
+        for container in (profile.config, profile.module_config):
+            for field in container.DESCRIPTOR.fields:
+                if field.name not in include_bases and field.name.replace('_', '') not in include_bases:
+                    container.ClearField(field.name)
+                elif include_subs.get(field.name) is not None:
+                    # They included specific subs
+                    msg = getattr(container, field.name)
+                    subs = include_subs[field.name]
+                    for sub_field in msg.DESCRIPTOR.fields:
+                        if sub_field.name not in subs and sub_field.name.replace('_', '') not in subs:
+                            msg.ClearField(sub_field.name)
+
+    if exclude_list:
+        for exc in exclude_list:
+            base, sub = get_parts(exc)
+            
+            # Top-level
+            if base in top_level_map and not sub:
+                profile.ClearField(top_level_map[base])
+            elif base.replace('_', '') in top_level_map and not sub:
+                profile.ClearField(top_level_map[base.replace('_', '')])
+                
+            # Config / module config
+            for container in (profile.config, profile.module_config):
+                if container.DESCRIPTOR.fields_by_name.get(base):
+                    if not sub:
+                        container.ClearField(base)
+                    else:
+                        msg = getattr(container, base)
+                        if msg.DESCRIPTOR.fields_by_name.get(sub):
+                            msg.ClearField(sub)
+
+    return profile
+
+
+def export_profile(interface, includes=None, excludes=None) -> bytes:
     """used in --export-config for binary .cfg files"""
     profile = clientonly_pb2.DeviceProfile()
 
@@ -1509,6 +1617,7 @@ def export_profile(interface) -> bytes:
                 if alt:
                     profile.fixed_position.altitude = int(alt)
 
+    filter_profile(profile, includes, excludes)
     return profile.SerializeToString()
 
 
@@ -1898,6 +2007,22 @@ def addImportExportArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
         choices=["auto", "yaml", "binary", "protobuf"],
         default="auto",
         help="Format for export or import. 'auto' uses file extension or contents. 'binary' or 'protobuf' forces binary format. 'yaml' forces yaml."
+    )
+    group.add_argument(
+        "--include-settings",
+        help="Comma-separated list of configuration settings to include in the import/export (e.g. owner,lora,device.role)",
+        default=None,
+    )
+    group.add_argument(
+        "--exclude-settings",
+        help="Comma-separated list of configuration settings to exclude from the import/export (e.g. owner,lora,device.role)",
+        default=None,
+    )
+    group.add_argument(
+        "-y",
+        "--yes",
+        help="Automatically answer yes to any confirmation prompts (e.g. for --configure)",
+        action="store_true",
     )
     return parser
 
