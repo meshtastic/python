@@ -1523,28 +1523,45 @@ def filter_profile(profile: clientonly_pb2.DeviceProfile, includes: Optional[str
         sub = meshtastic.util.camel_to_snake(parts[1]) if len(parts) > 1 else None
         return base, sub
 
+    def normalize_base(base: str) -> str:
+        # Match against config/module_config fields
+        for container in (profile.config, profile.module_config):
+            for field in container.DESCRIPTOR.fields:
+                if base == field.name or base.replace('_', '') == field.name.replace('_', ''):
+                    return field.name
+        return base
+
     if include_list:
         include_bases = set()
-        include_subs = {} # base -> set of subs
+        include_subs = {} # base -> set of subs or None for all
         for inc in include_list:
             base, sub = get_parts(inc)
+            base = normalize_base(base)
             include_bases.add(base)
+            
             if sub:
-                include_subs.setdefault(base, set()).add(sub)
+                if base not in include_subs:
+                    include_subs[base] = set()
+                if include_subs[base] is not None:
+                    include_subs[base].add(sub)
             else:
                 # If they include the base, it implies all subs
                 include_subs[base] = None
 
         # Filter top-level fields
+        included_top_actuals = set()
         for friendly, actual in top_level_map.items():
-            # if neither friendly nor friendly without underscores is in bases, clear it
-            if friendly not in include_bases and friendly.replace('_', '') not in include_bases:
+            if friendly in include_bases or friendly.replace('_', '') in include_bases:
+                included_top_actuals.add(actual)
+                
+        for actual in set(top_level_map.values()):
+            if actual not in included_top_actuals:
                 profile.ClearField(actual)
 
         # Filter config/module_config
         for container in (profile.config, profile.module_config):
             for field in container.DESCRIPTOR.fields:
-                if field.name not in include_bases and field.name.replace('_', '') not in include_bases:
+                if field.name not in include_bases:
                     container.ClearField(field.name)
                 elif include_subs.get(field.name) is not None:
                     # They included specific subs
@@ -1557,6 +1574,7 @@ def filter_profile(profile: clientonly_pb2.DeviceProfile, includes: Optional[str
     if exclude_list:
         for exc in exclude_list:
             base, sub = get_parts(exc)
+            base = normalize_base(base)
             
             # Top-level
             if base in top_level_map and not sub:
@@ -1571,8 +1589,14 @@ def filter_profile(profile: clientonly_pb2.DeviceProfile, includes: Optional[str
                         container.ClearField(base)
                     else:
                         msg = getattr(container, base)
+                        sub_found = False
                         if msg.DESCRIPTOR.fields_by_name.get(sub):
                             msg.ClearField(sub)
+                            sub_found = True
+                        if not sub_found:
+                            for sub_field in msg.DESCRIPTOR.fields:
+                                if sub_field.name.replace('_', '') == sub.replace('_', ''):
+                                    msg.ClearField(sub_field.name)
 
     return profile
 
