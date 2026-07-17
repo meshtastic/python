@@ -11,7 +11,7 @@ permissions:
 jobs:
   simradio_testing:
     runs-on: ubuntu-latest
-    if: github.repository == 'meshtastic/meshtastic-python'
+    if: github.repository == 'meshtastic/python'
     steps:
       - uses: actions/checkout@v4
         with:
