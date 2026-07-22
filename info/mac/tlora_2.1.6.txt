@@ -1,0 +1,85 @@
+lsusb
+
+Bus 001 Device 001: ID 0bda:2172 Realtek Semiconductor Corp. BillBoard Device  Serial: 00000000000000000
+Bus 000 Device 002: ID 2109:0817 VIA Labs, Inc. USB3.0 Hub  Serial: 000000000
+Bus 000 Device 003: ID 2109:0715 VIA Labs, Inc. VLI Product String  Serial: 000000075003
+Bus 000 Device 004: ID 0bda:0306 Realtek Semiconductor Corp. USB3.0-CRW  Serial: 60000719201300000
+Bus 000 Device 005: ID 2109:0817 VIA Labs, Inc. USB3.0 Hub  Serial: 000000000
+Bus 000 Device 001: ID 2109:2817 VIA Labs, Inc. USB2.0 Hub  Serial: 000000000
+Bus 000 Device 009: ID 1a86:55d4 1a86 USB Single Serial  Serial: 533C005215
+Bus 000 Device 006: ID 2109:2817 VIA Labs, Inc. USB2.0 Hub  Serial: 000000000
+Bus 000 Device 007: ID 2109:8817 VIA Labs, Inc. USB Billboard Device  Serial: 0000000000000001
+Bus 000 Device 008: ID 2109:8817 VIA Labs, Inc. USB Billboard Device  Serial: 0000000000000001
+Bus 002 Device 001: ID 1a40:0101 TERMINUS TECHNOLOGY INC. USB 2.0 Hub 
+Bus 002 Device 003: ID 0922:001f Dymo Corporation DYMO LabelWriter 4XL  Serial: 17032316350940
+Bus 002 Device 002: ID 046d:082d Logitech Inc. HD Pro Webcam C920  Serial: A21C905F
+Bus 000 Device 000: ID 0bda:2172 Realtek Semiconductor Corp. USB 3.1 Bus 
+Bus 000 Device 000: ID 2109:0817 VIA Labs, Inc. USB 3.1 Bus 
+Bus 000 Device 001: ID 1d6b:1100 Linux Foundation USB 3.0 Bus
+
+% lsusb -v (with parts snipped)
+
+        USB2.0 Hub             :
+
+          Product ID: 0x2817
+          Vendor ID: 0x2109  (VIA Labs, Inc.)
+          Version: 6.03
+          Serial Number: 000000000
+          Speed: Up to 480 Mb/s
+          Manufacturer: VIA Labs, Inc.
+          Location ID: 0x00100000 / 1
+          Current Available (mA): 500
+          Current Required (mA): 0
+          Extra Operating Current (mA): 0
+
+            USB Single Serial:
+
+              Product ID: 0x55d4
+              Vendor ID: 0x1a86
+              Version: 4.43
+              Serial Number: 533C005215
+              Speed: Up to 12 Mb/s
+              Location ID: 0x00140000 / 9
+              Current Available (mA): 500
+              Current Required (mA): 134
+              Extra Operating Current (mA): 0
+
+            USB2.0 Hub             :
+
+              Product ID: 0x2817
+              Vendor ID: 0x2109  (VIA Labs, Inc.)
+              Version: 6.03
+              Serial Number: 000000000
+              Speed: Up to 480 Mb/s
+              Manufacturer: VIA Labs, Inc.
+              Location ID: 0x00110000 / 6
+              Current Available (mA): 500
+              Current Required (mA): 0
+              Extra Operating Current (mA): 0
+
+                USB Billboard Device   :
+
+                  Product ID: 0x8817
+                  Vendor ID: 0x2109  (VIA Labs, Inc.)
+                  Version: 0.01
+                  Serial Number: 0000000000000001
+                  Speed: Up to 480 Mb/s
+                  Manufacturer: VIA Labs, Inc.
+                  Location ID: 0x00115000 / 7
+                  Current Available (mA): 500
+                  Current Required (mA): 100
+                  Extra Operating Current (mA): 0
+
+            USB Billboard Device   :
+
+              Product ID: 0x8817
+              Vendor ID: 0x2109  (VIA Labs, Inc.)
+              Version: 0.01
+              Serial Number: 0000000000000001
+              Speed: Up to 480 Mb/s
+              Manufacturer: VIA Labs, Inc.
+              Location ID: 0x00150000 / 8
+              Current Available (mA): 500
+              Current Required (mA): 100
+              Extra Operating Current (mA): 0
+

@@ -1,0 +1,22 @@
+{
+    "cSpell.words": [
+        "bitmask",
+        "boardid",
+        "DEEPSLEEP",
+        "Meshtastic",
+        "milliwatt",
+        "portnums",
+        "powermon",
+        "POWERSTRESS",
+        "pyarrow",
+        "TORADIO",
+        "Vids"
+    ],
+    "python.pythonPath": "/usr/bin/python3",
+    "flake8.enabled": false,
+    "python.testing.pytestArgs": [
+        "meshtastic/tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true // we are using trunk for formatting/linting rules, don't yell at us about line length
+}

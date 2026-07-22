@@ -1,0 +1,64 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Meshtastic Python
+Upstream-Contact: Various Authors
+Source: https://github.com/meshtastic/python
+
+Files: *
+Copyright:
+ 2020-2020 Nils Werner <nils@hey.com>
+ 2020-2020 Paul Vivier <github@vivier.net>
+ 2020-2020 Tim Gunter <tgunter+github@gmail.com>
+ 2020-2021 Charles Crossan <crossan007@gmail.com>
+ 2020-2021 IZ1IVA
+ 2020-2022 Jm Casler <jm@casler.org>
+ 2020-2024 geeksville <kevinh@geeksville.com>
+ 2021-2021 Andrew Cabey <me@acabey.xyz>
+ 2021-2021 dylan <eris.has.a.dad+github@gmail.com>
+ 2021-2021 Fabian Affolter <mail@fabian-affolter.ch>
+ 2021-2021 Foster Irwin <foster@jfirwin.com>
+ 2021-2021 Manuel Giolo <iz1kga@gmail.com>
+ 2021-2021 meehow <michal@ert.pl>
+ 2021-2021 srichs
+ 2021-2021 ChuckNorrison
+ 2021-2021 Aivaras-s
+ 2021-2021 a-f-G-U-C
+ 2021-2021 <Beiri22ny@googlemail.com>
+ 2021-2021 jdstroy
+ 2021-2021 linagee
+ 2021-2021 Simonas <simonas@5grupe.lt>
+ 2021-2022 <mike.kinney@gmail.com>
+ 2021-2023 Sacha Weatherstone <sachaw100@hotmail.com>
+ 2021-2024 Ben Meadors <benmmeadors@gmail.com>
+ 2022-2022 Balázs Kelemen <10376327+prampec
+ 2022-2022 <akadd8@gmail.com>
+ 2022-2022 <a.merino.jimenez@gmail.com>
+ 2022-2022 <ghostop14@gmail.com>
+ 2022-2022 <git@schiraldi.org>
+ 2022-2022 <pavel.b@techspark.engineering>
+ 2022-2022 Rohan King <king.rohan.ja@gmail.com>
+ 2022-2022 Tom Douile
+ 2022-2023 Thomas Göttgens <tgoettgens@gmail.com>
+ 2022-2024 thijs@havinga.eu>
+ 2023-2023 Eli Schleifer <eli@trunk.io>
+ 2023-2023 Manuel <manuel.verch@gmx.de>
+ 2023-2023 Marek Küthe <m.k@mk16.de>
+ 2023-2023 <benlipsey@gmail.com>
+ 2023-2023 <dwelch@structuralcomponents.net>
+ 2023-2023 <henrichhartzer@tuta.io>
+ 2023-2023 luzpaz
+ 2023-2023 <sb@liztv.net>
+ 2023-2023 Toby Murray <toby.murray@protonmail.com>
+ 2023-2024 Brad Midgley <bmidgley@gmail.com>
+ 2024-2024 Ian McEwen <ianmcorvidae@ianmcorvidae.net>
+ 2024-2024 John Hollowell <jhollowe@johnhollowell.com>
+ 2024-2024 Jonathan Bennett <jbennett@incomsystems.biz>
+ 2024-2024 <danwelch3@gmail.com>
+ 2024-2024 <god@yahoo.com>
+ 2024-2024 <herbert.todd@gmail.com>
+ 2024-2024 <jorropo.pgm@gmail.com>
+ 2024-2024 rc14193 <emdort@gmail.com>
+ 2024-2024 Steve Holden <steve@holdenweb.com>
+ 2024-2024 Thomas Herrmann <mail@thoherr.de>
+ 2024-2024 Timothy Harder <harder.timothy.j@gmail.com>
+ 2024-2024 Wolfgang Nagele <mail@wnagele.com>
+License: GPL-3.0-only

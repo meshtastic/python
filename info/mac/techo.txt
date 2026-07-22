@@ -1,0 +1,40 @@
+
+in boot mode:
+
+% mount
+<snip>
+/dev/disk122 on /Volumes/TECHOBOOT (msdos, local, nodev, nosuid, noowners)
+
+% ls -al /Volumes/TECHOBOOT
+total 3735
+drwxrwxrwx@ 1 bob         staff     2048 Feb  1 16:47 .
+drwxr-xr-x  5 root        wheel      160 Feb  1 16:47 ..
+drwxrwxrwx  1 bob         staff      512 Feb  1 16:47 .fseventsd
+-rwxrwxrwx  1 bob         staff  1908736 Oct 13 08:37 CURRENT.UF2
+-rwxrwxrwx  1 bob         staff      129 Oct 13 08:37 INDEX.HTM
+-rwxrwxrwx  1 bob         staff      237 Oct 13 08:37 INFO_UF2.TXT
+
+
+# nothing plugged in
+% ioreg -p IOUSB > /tmp/a
+# not boot mode
+% ioreg -p IOUSB > /tmp/b
+# bootmode
+% ioreg -p IOUSB > /tmp/c
+
+
+% diff /tmp/a /tmp/b
+<snip>
+>   | +-o TTGO_eink@14300000  <class AppleUSBDevice, id 0x100060fe4, registered, matched, active, busy 0 (18 ms), retain 14>
+
+% diff /tmp/a /tmp/c
+<snip>
+>   | +-o T-Echo v1@14300000  <class AppleUSBDevice, id 0x100061000, registered, matched, active, busy 0 (25 ms), retain 16>
+
+contents of: INFO_UF2.TXT
+
+UF2 Bootloader 0.6.1-2-g1224915 lib/nrfx (v2.0.0) lib/tinyusb (0.10.1-293-gaf8e5a90) lib/uf2 (remotes/origin/configupdate-9-gadbb8c7)
+Model: LilyGo T-Echo
+Board-ID: nRF52840-TEcho-v1
+SoftDevice: S140 version 6.1.1
+Date: Oct 13 2021

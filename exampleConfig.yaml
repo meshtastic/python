@@ -1,0 +1,16 @@
+# example config using camelCase keys
+owner: Bob TBeam
+ownerShort: BOB
+
+channelUrl: https://www.meshtastic.org/d/#CgUYAyIBAQ
+
+location:
+  lat: 35.88888
+  lon: -93.88888
+  alt: 304
+
+userPrefs:
+  region: 1
+  isAlwaysPowered: "true"
+  screenOnSecs: 31536000
+  waitBluetoothSecs: 31536000

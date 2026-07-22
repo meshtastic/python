@@ -1,0 +1,52 @@
+
+
+% ioreg -p IOUSB > /tmp/a
+# only a solid red light (pins GRND and BOOT0 jumpered)
+
+% ioreg -p IOUSB > /tmp/b
+# solid red light and solid green light
+
+% ioreg -p IOUSB > /tmp/c
+# nothing plugged in
+
+
+
+% diff /tmp/a /tmp/c
+13c13
+<   +-o AppleUSBXHCI Root Hub Simulation@14000000  <class AppleUSBRootHubDevice, id 0x100000589, registered, matched, active, busy 0 (15 ms), retain 11>
+---
+>   +-o AppleUSBXHCI Root Hub Simulation@14000000  <class AppleUSBRootHubDevice, id 0x100000589, registered, matched, active, busy 0 (15 ms), retain 10>
+18d17
+<     +-o USB Serial@14300000  <class AppleUSBDevice, id 0x100004ca4, registered, matched, active, busy 0 (10 ms), retain 12>
+
+
+% diff /tmp/b /tmp/c
+13c13
+<   +-o AppleUSBXHCI Root Hub Simulation@14000000  <class AppleUSBRootHubDevice, id 0x100000589, registered, matched, active, busy 0 (15 ms), retain 11>
+---
+>   +-o AppleUSBXHCI Root Hub Simulation@14000000  <class AppleUSBRootHubDevice, id 0x100000589, registered, matched, active, busy 0 (15 ms), retain 10>
+18d17
+<     +-o USB Serial@14300000  <class AppleUSBDevice, id 0x100004ce5, registered, matched, active, busy 0 (11 ms), retain 12>
+
+
+
+system_profiler SPUSBDataType > /tmp/d
+# red solid
+
+
+system_profiler SPUSBDataType > /tmp/e
+# nothing
+
+
+% diff /tmp/d /tmp/e
+38,48d37
+<         USB Serial:
+<
+<           Product ID: 0x7523
+<           Vendor ID: 0x1a86
+<           Version: 2.64
+<           Speed: Up to 12 Mb/s
+<           Location ID: 0x14300000 / 33
+<           Current Available (mA): 500
+<           Current Required (mA): 98
+<           Extra Operating Current (mA): 0

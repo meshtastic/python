@@ -1,0 +1,46 @@
+# example configuration file with snake_case keys
+owner: Bob TBeam
+owner_short: BOB
+
+channel_url: https://www.meshtastic.org/e/#CgMSAQESCDgBQANIAVAe
+
+canned_messages: Hi|Bye|Yes|No|Ok
+ringtone: 24:d=32,o=5,b=565:f6,p,f6,4p,p,f6,p,f6,2p,p,b6,p,b6,p,b6,p,b6,p,b,p,b,p,b,p,b,p,b,p,b,p,b,p,b,1p.,2p.,p
+
+location:
+  lat: 35.88888
+  lon: -93.88888
+  alt: 304
+
+config:
+  bluetooth:
+    enabled: true
+    fixedPin: 123456
+  device:
+    serialEnabled: true
+  display:
+    screenOnSecs: 600
+  lora:
+    region: US
+    hopLimit: 3
+    txEnabled: true
+    txPower: 30
+  network:
+    ntpServer: 0.pool.ntp.org
+  position:
+    gpsAttemptTime: 900
+    gpsEnabled: true
+    gpsUpdateInterval: 120
+    positionBroadcastSecs: 900
+    positionBroadcastSmartEnabled: true
+    positionFlags: 3
+  power:
+    lsSecs: 300
+    meshSdsTimeoutSecs: 7200
+    minWakeSecs: 10
+    sdsSecs: 4294967295
+
+module_config:
+  telemetry:
+    deviceUpdateInterval: 900
+    environmentUpdateInterval: 900

@@ -1,0 +1,68 @@
+
+
+>   | +-o WisCore RAK4631 Board@14400000  <class AppleUSBDevice, id 0x10005c158, registered, matched, active, busy 0 (18 ms), retain 14>
+
+
+/dev/cu.usbmodem14401
+
+% ls -al /dev/*modem*
+crw-rw-rw-  1 root  wheel  0x9000005 Jan 29 15:32 /dev/cu.usbmodem14401
+crw-rw-rw-  1 root  wheel  0x9000004 Jan 29 15:31 /dev/tty.usbmodem14401
+
+
+Note: On a Mac Air, output is:
+
+% system_profiler SPUSBDataType
+USB:
+    USB 3.1 Bus:
+      Host Controller Driver: AppleT8103USBXHCI
+    USB 3.1 Bus:
+      Host Controller Driver: AppleT8103USBXHCI
+        WisCore RAK4631 Board:
+          Product ID: 0x8029
+          Vendor ID: 0x239a
+          Version: 1.00
+          Serial Number: E6CF9502B1D410D8
+          Speed: Up to 12 Mb/s
+          Manufacturer: RAKwireless
+          Location ID: 0x01100000 / 2
+          Current Available (mA): 500
+          Current Required (mA): 100
+          Extra Operating Current (mA): 0
+
+However, in FTHR840BOOT mode, it shows this:
+
+% system_profiler SPUSBDataType
+USB:
+    USB 3.1 Bus:
+      Host Controller Driver: AppleT8103USBXHCI
+    USB 3.1 Bus:
+      Host Controller Driver: AppleT8103USBXHCI
+        Feather nRF52840 Express:
+          Product ID: 0x0029
+          Vendor ID: 0x239a
+          Version: 1.00
+          Serial Number: E6CF9502B1D410D8
+          Speed: Up to 12 Mb/s
+          Manufacturer: Adafruit Industries
+          Location ID: 0x01100000 / 1
+          Current Available (mA): 500
+          Current Required (mA): 100
+          Extra Operating Current (mA): 0
+          Media:
+            nRF UF2:
+              Capacity: 33.7 MB (33,690,112 bytes)
+              Removable Media: Yes
+              BSD Name: disk4
+              Logical Unit: 0
+              Partition Map Type: Unknown
+              S.M.A.R.T. status: Verified
+              USB Interface: 2
+
+
+$ cat /Volumes/FTHR840BOOT/INFO_UF2.TXT
+UF2 Bootloader 0.3.2-109-gd6b28e6-dirty lib/nrfx (v2.0.0) lib/tinyusb (0.6.0-272-g4e6aa0d8) lib/uf2 (heads/master)
+Model: Adafruit Feather nRF52840 Express
+Board-ID: nRF52840-Feather-revD
+SoftDevice: S140 version 6.1.1
+Date: Jun 16 2020

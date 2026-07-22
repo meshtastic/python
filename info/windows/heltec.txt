@@ -1,0 +1,106 @@
+Run from Windows 10
+
+Might work... (nope)
+ Get-PnpDevice -Class 'USB' -PresentOnly | Format-List
+
+
+> Get-PnpDevice -PresentOnly | Format-List > b
+> Compare-Object (get-content a) (Get-Content b)
+
+InputObject                                                                                              SideIndicator
+-----------                                                                                              -------------
+Caption                     : CP2102 USB to UART Bridge Controller                                       <=
+Description                 : CP2102 USB to UART Bridge Controller                                       <=
+Name                        : CP2102 USB to UART Bridge Controller                                       <=
+Status                      : Error                                                                      <=
+ConfigManagerErrorCode      : CM_PROB_FAILED_INSTALL                                                     <=
+DeviceID                    : USB\VID_10C4&PID_EA60\0001                                                 <=
+PNPDeviceID                 : USB\VID_10C4&PID_EA60\0001                                                 <=
+CompatibleID                : {USB\Class_FF&SubClass_00&Prot_00, USB\Class_FF&SubClass_00, USB\Class_FF} <=
+HardwareID                  : {USB\VID_10C4&PID_EA60&REV_0100, USB\VID_10C4&PID_EA60}                    <=
+FriendlyName                : CP2102 USB to UART Bridge Controller                                       <=
+InstanceId                  : USB\VID_10C4&PID_EA60\0001                                                 <=
+Problem                     : CM_PROB_FAILED_INSTALL                                                     <=
+ClassGuid                   :                                                                            <=
+Manufacturer                :                                                                            <=
+PNPClass                    :                                                                            <=
+Class                       :                                                                            <=
+Service                     :                                                                            <=
+InstallDate                 :                                                                            <=
+Availability                :                                                                            <=
+ConfigManagerUserConfig     : False                                                                      <=
+CreationClassName           : Win32_PnPEntity                                                            <=
+ErrorCleared                :                                                                            <=
+ErrorDescription            :                                                                            <=
+LastErrorCode               :                                                                            <=
+PowerManagementCapabilities :                                                                            <=
+PowerManagementSupported    :                                                                            <=
+StatusInfo                  :                                                                            <=
+SystemCreationClassName     : Win32_ComputerSystem                                                       <=
+SystemName                  : DESKTOP-FRFQN8H                                                            <=
+Present                     : True                                                                       <=
+PSComputerName              :                                                                            <=
+ProblemDescription          :                                                                            <=
+                                                                                                         <=
+
+> Get-PnpDevice -DeviceID 'USB\VID_10C4&PID_EA60\0001'
+
+Status     Class           FriendlyName                                                                     InstanceId
+------     -----           ------------                                                                     ----------
+Error                      CP2102 USB to UART Bridge Controller                                             USB\VID_...
+
+
+> Get-PnpDevice -PresentOnly -DeviceID 'USB\VID_10C4&PID_EA60\0001'
+Get-PnpDevice : No matching Win32_PnPEntity objects found by CIM query for instances of the ROOT\cimv2\Win32_PnPEntity
+class on the  CIM server: SELECT * FROM Win32_PnPEntity  WHERE ((DeviceId LIKE 'USB\\VID[_]10C4&PID[_]EA60\\0001'))
+AND ((Present = TRUE)). Verify query parameters and retry.
+At line:1 char:1
++ Get-PnpDevice -PresentOnly -DeviceID 'USB\VID_10C4&PID_EA60\0001'
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (Win32_PnPEntity:String) [Get-PnpDevice], CimJobException
+    + FullyQualifiedErrorId : CmdletizationQuery_NotFound,Get-PnpDevice
+
+> Get-PnpDevice -PresentOnly -DeviceID 'USB\VID_10C4&PID_EA60\0001'
+
+Status     Class           FriendlyName                                                                     InstanceId
+------     -----           ------------                                                                     ----------
+Error                      CP2102 USB to UART Bridge Controller                                             USB\VID_...
+
+
+
+If need to install driver
+Get-PnpDevice -DeviceID 'USB\VID_10C4&PID_EA60\0001' | Format-List
+
+
+Caption                     : CP2102 USB to UART Bridge Controller
+Description                 : CP2102 USB to UART Bridge Controller
+InstallDate                 :
+Name                        : CP2102 USB to UART Bridge Controller
+Status                      : Error
+Availability                :
+ConfigManagerErrorCode      : CM_PROB_FAILED_INSTALL
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_PnPEntity
+DeviceID                    : USB\VID_10C4&PID_EA60\0001
+ErrorCleared                :
+ErrorDescription            :
+LastErrorCode               :
+PNPDeviceID                 : USB\VID_10C4&PID_EA60\0001
+PowerManagementCapabilities :
+PowerManagementSupported    :
+StatusInfo                  :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-FRFQN8H
+ClassGuid                   :
+CompatibleID                : {USB\Class_FF&SubClass_00&Prot_00, USB\Class_FF&SubClass_00, USB\Class_FF}
+HardwareID                  : {USB\VID_10C4&PID_EA60&REV_0100, USB\VID_10C4&PID_EA60}
+Manufacturer                :
+PNPClass                    :
+Present                     : True
+Service                     :
+PSComputerName              :
+Class                       :
+FriendlyName                : CP2102 USB to UART Bridge Controller
+InstanceId                  : USB\VID_10C4&PID_EA60\0001
+Problem                     : CM_PROB_FAILED_INSTALL
+ProblemDescription          :

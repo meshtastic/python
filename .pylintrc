@@ -1,0 +1,82 @@
+# pylint configuration file
+#
+# Note: "pylint --generate-rcfile" is helpful to see what values to add to this file
+
+
+[MASTER]
+
+# Add files or directories matching the regex patterns to the blacklist. The
+# regex matches against base names, not paths.
+ignore-patterns=mqtt_pb2.py,channel_pb2.py,telemetry_pb2.py,admin_pb2.py,config_pb2.py,deviceonly_pb2.py,apponly_pb2.py,remote_hardware_pb2.py,portnums_pb2.py,mesh_pb2.py,storeforward_pb2.py,cannedmessages_pb2.py,module_config_pb2.py,localonly_pb2.py,node.py,device_metadata_pb2.py,nanopb_pb2.py
+
+
+
+[MESSAGES CONTROL]
+
+# Disable the message, report, category or checker with the given id(s). You
+# can either give multiple identifiers separated by comma (,) or put this
+# option multiple times (only on the command line, not in the configuration
+# file where it should appear only once).You can also use "--disable=all" to
+# disable everything first and then reenable specific checks. For example, if
+# you want to run only the similarities checker, you can use "--disable=all
+# --enable=similarities". If you want to run only the classes checker, but have
+# no Warning level messages displayed, use"--disable=all --enable=classes
+# --disable=W"
+#
+disable=invalid-name,fixme,logging-fstring-interpolation,too-many-statements,too-many-branches,too-many-locals,no-member,f-string-without-interpolation,protected-access,pointless-string-statement,too-few-public-methods,broad-except,no-else-return,no-else-raise,bare-except,too-many-public-methods,nested-min-max
+
+[BASIC]
+
+# Good variable names which should always be accepted, separated by a comma
+good-names=i,j,k,ex,Run,_
+
+# Bad variable names which should always be refused, separated by a comma
+bad-names=foo,bar,baz,toto,tutu,tata
+
+
+[FORMAT]
+
+# Maximum number of characters on a single line.
+max-line-length=150
+
+# Maximum number of lines in a module
+max-module-lines=1600
+
+
+
+[REFACTORING]
+
+# Maximum number of nested blocks for function / method body
+max-nested-blocks=10
+
+
+
+[MISCELLANEOUS]
+
+# List of note tags to take in consideration, separated by a comma.
+notes=FIXME,fixme,XXX,TODO
+
+
+[SIMILARITIES]
+
+# Minimum lines number of a similarity.
+min-similarity-lines=30
+
+# Ignore comments when computing similarities.
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities.
+ignore-docstrings=yes
+
+# Ignore imports when computing similarities.
+ignore-imports=yes
+
+
+
+[DESIGN]
+
+# Maximum number of arguments for function / method.
+max-args=10
+
+# Maximum number of attributes for a class (see R0902).
+max-attributes=20

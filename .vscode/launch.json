@@ -1,0 +1,275 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+
+    {
+      "name": "meshtastic BLE",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--ble", "--info", "--seriallog", "stdout"]
+    },
+     {
+      "name": "meshtastic BLE scan",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--debug", "--ble-scan"]
+    },
+    {
+      "name": "meshtastic admin",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--setch-longslow", "--port", "/dev/ttyUSB1"]
+    },
+    {
+      "name": "meshtastic tunnel",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--tunnel", "--debug"]
+    },
+    {
+      "name": "meshtastic analysis",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic.analysis",
+      "justMyCode": false,
+      "args": []
+    },
+    {
+      "name": "meshtastic set chan",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--setchan", "psk", "0x1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b", "--debug"]
+    },
+    {
+      "name": "meshtastic debug",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug"]
+    },
+    {
+      "name": "meshtastic listen",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--listen", "--debug"]
+    },
+    {
+      "name": "meshtastic debug getPref",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--get", "power.is_power_saving"]
+    },
+    {
+      "name": "meshtastic debug getPref telemetry",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--get", "telemetry.environment_update_interval"]
+    },
+    {
+      "name": "meshtastic debug info",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--info"]
+    },
+    {
+      "name": "meshtastic debug BLE",
+      "type": "python",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--ble", "--info"]
+    },
+    {
+      "name": "meshtastic debug set region",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--set", "lora.region", "TW"]
+    },
+    {
+      "name": "meshtastic debug set bluetooth fixed pin",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--set", "bluetooth.fixed_pin", "555555"]
+    },
+    {
+      "name": "meshtastic debug get bluetooth fixed pin",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--get", "bluetooth.fixed_pin"]
+    },
+    {
+      "name": "meshtastic debug setPref",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--set", "power.powermon_enables", "65527"]
+    },
+    {
+      "name": "meshtastic debug setPref telemetry.environment_measurement_enabled",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--set", "telemetry.environment_measurement_enabled", "1"]
+    },
+    {
+      "name": "meshtastic debug setPref telemetry.environment_screen_enabled",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--set", "telemetry.environment_screen_enabled", "1"]
+    },
+    {
+      "name": "meshtastic debug setPref telemetry",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--set", "telemetry.environment_measurement_enabled", "1"]
+    },
+    {
+      "name": "meshtastic setpref",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--setchan", "psk", ""]
+    },
+    {
+      "name": "meshtastic --ch-set",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--ch-set", "channel_num", "0", "--ch-index", "0"]
+    },
+    
+    {
+      "name": "meshtastic seturl",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--seturl", "https://www.meshtastic.org/d/#CgIYAw"
+      ]
+    },
+    {
+      "name": "meshtastic shell",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--noproto", "--seriallog", "stdout"]
+    },
+    {
+      "name": "meshtastic powermon sim",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--slog-out", "default", "--power-sim", "--power-voltage", "3.3", "--port", "/dev/ttyUSB0", "--noproto", "--seriallog", "stdout"]
+    },
+    {
+      "name": "meshtastic powermon ppk2",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--slog-out", "default", "--power-ppk2-meter", "--power-wait", "--power-voltage", "3.3", "--noproto", "--seriallog", "stdout"]
+    },
+    {
+      "name": "meshtastic stress ppk2",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": false,
+      "args": ["--slog", "--power-ppk2-supply", "--power-stress", "--power-voltage", "3.3", "--ble"]
+    },
+    {
+      "name": "meshtastic test",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--test"]
+    },
+    {
+      "name": "meshtastic settime",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--settime"]
+    },
+    {
+      "name": "meshtastic sendtext",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--sendtext", "pytest"]
+    },
+    {
+      "name": "meshtastic showNodes",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--debug", "--nodes"]
+    },
+    {
+      "name": "meshtastic nodes table",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--nodes"]
+    },
+        {
+      "name": "meshtastic nodes table with show-fields",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--nodes", "--show-fields", "AKA,Pubkey,Role,Role,Role,Latitude,Latitude,deviceMetrics.voltage"]
+    },
+    {
+      "name": "meshtastic --export-config",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meshtastic",
+      "justMyCode": true,
+      "args": ["--export-config", "config.json"]
+    },
+  ]
+}

@@ -1,0 +1,41 @@
+Run from Windows 10
+
+PS > Get-PnpDevice -PresentOnly | Format-List > a
+PS > Get-PnpDevice -PresentOnly | Format-List > b
+PS > Compare-Object (get-content a) (Get-Content b)
+
+InputObject                                                                                              SideIndicator
+-----------                                                                                              -------------
+Caption                     : USB-Enhanced-SERIAL CH9102 (COM3)                                          <=
+Description                 : USB-Enhanced-SERIAL CH9102                                                 <=
+Name                        : USB-Enhanced-SERIAL CH9102 (COM3)                                          <=
+DeviceID                    : USB\VID_1A86&PID_55D4\5&27435A1F&0&1                                       <=
+PNPDeviceID                 : USB\VID_1A86&PID_55D4\5&27435A1F&0&1                                       <=
+ClassGuid                   : {4d36e978-e325-11ce-bfc1-08002be10318}                                     <=
+CompatibleID                : {USB\Class_02&SubClass_02&Prot_01, USB\Class_02&SubClass_02, USB\Class_02} <=
+HardwareID                  : {USB\VID_1A86&PID_55D4&REV_0443, USB\VID_1A86&PID_55D4}                    <=
+Manufacturer                : wch.cn                                                                     <=
+PNPClass                    : Ports                                                                      <=
+Service                     : CH343SER_A64                                                               <=
+Class                       : Ports                                                                      <=
+FriendlyName                : USB-Enhanced-SERIAL CH9102 (COM3)                                          <=
+InstanceId                  : USB\VID_1A86&PID_55D4\5&27435A1F&0&1                                       <=
+InstallDate                 :                                                                            <=
+Status                      : OK                                                                         <=
+Availability                :                                                                            <=
+ConfigManagerErrorCode      : CM_PROB_NONE                                                               <=
+ConfigManagerUserConfig     : False                                                                      <=
+CreationClassName           : Win32_PnPEntity                                                            <=
+ErrorCleared                :                                                                            <=
+ErrorDescription            :                                                                            <=
+LastErrorCode               :                                                                            <=
+PowerManagementCapabilities :                                                                            <=
+PowerManagementSupported    :                                                                            <=
+StatusInfo                  :                                                                            <=
+SystemCreationClassName     : Win32_ComputerSystem                                                       <=
+SystemName                  : DESKTOP-FRFQN8H                                                            <=
+Present                     : True                                                                       <=
+PSComputerName              :                                                                            <=
+Problem                     : CM_PROB_NONE                                                               <=
+ProblemDescription          :                                                                            <=
+                                                                                                         <=

@@ -1,0 +1,6 @@
+[run]
+omit = meshtastic/protobuf/*_pb2.py,meshtastic/tests/*.py,meshtastic/test.py
+
+[report]
+exclude_lines =
+    if __name__ == .__main__.:

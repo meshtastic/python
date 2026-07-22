@@ -1,0 +1,21 @@
+
+meshtastic detected port: /dev/cu.usbmodem53230050571
+
+ioreg -p IOUSB > /tmp/c
+
+>   | +-o USB Single Serial@14400000  <class AppleUSBDevice, id 0x10005bff7, registered, matched, active, busy 0 (15 ms), retain 14>
+
+
+system_profiler SPUSBDataType > /tmp/a
+
+>         USB Single Serial:
+>
+>           Product ID: 0x55d4
+>           Vendor ID: 0x1a86
+>           Version: 4.43
+>           Serial Number: 5323005057
+>           Speed: Up to 12 Mb/s
+>           Location ID: 0x14400000 / 50
+>           Current Available (mA): 500
+>           Current Required (mA): 134
+>           Extra Operating Current (mA): 0
