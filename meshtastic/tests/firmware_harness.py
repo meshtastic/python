@@ -351,5 +351,7 @@ def _build_mesh_packet(packet: dict, data: bytes) -> mesh_pb2.MeshPacket:
         mp.decoded.request_id = decoded["requestId"]
     if "wantResponse" in decoded:
         mp.decoded.want_response = decoded["wantResponse"]
+    if "bitfield" in decoded:
+        mp.decoded.bitfield = decoded["bitfield"]
 
     return mp
