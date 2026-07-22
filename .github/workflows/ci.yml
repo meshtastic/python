@@ -1,4 +1,7 @@
 name: CI
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 on:
   push:
     branches:
@@ -8,7 +11,29 @@ on:
       - master
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.12"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install meshtastic from local
+        run: |
+          python -m pip install --upgrade pip
+          pip3 install poetry
+          poetry install
+          poetry run meshtastic --version
+
   build:
+    needs: validate
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,8 +46,10 @@ jobs:
           - "3.14"
     steps:
       - uses: actions/checkout@v4
-      - name: Install Python 3
+      - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Uninstall meshtastic
         run: |
           pip3 uninstall -y meshtastic
@@ -53,26 +80,9 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: true
           verbose: true
-  validate:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version:
-          - "3.12"
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Install Python 3
-        uses: actions/setup-python@v5
-      - name: Install meshtastic from local
-        run: |
-          python -m pip install --upgrade pip
-          pip3 install poetry
-          poetry install
-          poetry run meshtastic --version
 
   simradio_testing:
+    needs: [validate, build]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
