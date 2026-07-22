@@ -51,7 +51,10 @@ optional = true
 riden = { git = "https://github.com/geeksville/riden.git#1.2.1" }
 ppk2-api = "^0.9.2"
 parse = "^1.20.2"
-pyarrow = "^18.0.0"
+pyarrow = [
+    { version = "^18.0.0", python = "<3.14" },
+    { version = "^22.0.0", python = ">=3.14" }
+]
 platformdirs = "^4.2.2"
 
 # If you are doing power analysis you might want these extra devtools
