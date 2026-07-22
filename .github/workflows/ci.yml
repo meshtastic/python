@@ -61,15 +61,8 @@ jobs:
         run: |
           poetry install --all-extras --with dev,powermon
           poetry run meshtastic --version
-      - name: Run pylint
-        run: poetry run pylint meshtastic examples/ --ignore-patterns ".*_pb2.pyi?$"
-      - name: Check types with mypy
-        run: poetry run mypy meshtastic/
-      - name: Run tests with pytest
-        run: poetry run pytest --cov=meshtastic
-      - name: Generate coverage report
-        run: |
-          poetry run pytest --cov=meshtastic --cov-report=xml
+      - name: Run lint, type check, and tests in parallel
+        run: make -j3 --output-sync=target ci
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:

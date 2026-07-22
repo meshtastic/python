@@ -42,5 +42,19 @@ cov:
 examples: FORCE
 	pytest -mexamples
 
+# CI targets (run via poetry, executed in parallel by the CI workflow)
+.PHONY: ci-pylint ci-mypy ci-test ci
+
+ci-pylint:
+	poetry run pylint meshtastic examples/ --ignore-patterns ".*_pb2.pyi?$$"
+
+ci-mypy:
+	poetry run mypy meshtastic/
+
+ci-test:
+	poetry run pytest --cov=meshtastic --cov-report=xml
+
+ci: ci-pylint ci-mypy ci-test
+
 # Makefile hack to get the examples to always run
 FORCE: ;
