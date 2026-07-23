@@ -1590,6 +1590,12 @@ def common():
             if not os.path.isfile(args.ota_update):
                 meshtastic.util.our_exit(f"Error: OTA firmware file not found: {args.ota_update}", 1)
 
+        # OTA (WiFi/BLE) only needs the local node to send the admin request and then
+        # streams the firmware directly; it never reads the node DB. Skip fetching it so a
+        # large node DB dump can't stall/close the connection before the OTA request lands.
+        if getattr(args, "ota_update", None) or getattr(args, "reboot_ota", False):
+            args.no_nodes = True
+
         if have_powermon:
             create_power_meter()
 
