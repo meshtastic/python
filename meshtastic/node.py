@@ -2,10 +2,13 @@
 """
 
 import base64
+import json
 import logging
 import time
 
 from typing import Optional, Union, List
+
+from google.protobuf.json_format import MessageToDict
 
 from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, config_pb2, localonly_pb2, mesh_pb2, portnums_pb2
 from meshtastic.util import (
@@ -75,35 +78,29 @@ class Node:
         except Exception:
             return True
 
-    def showChannels(self):
-        """Show human readable description of our channels."""
-        print("Channels:")
+    def getChannelInfo(self) -> dict:
+        """Return description of our channels as dict."""
+        # print("Channels:")
+        chanConfig = {}
         if self.channels:
             logger.debug(f"self.channels:{self.channels}")
-            for c in self.channels:
-                cStr = message_to_json(c.settings)
-                # don't show disabled channels
-                if channel_pb2.Channel.Role.Name(c.role) != "DISABLED":
-                    print(
-                        f"  Index {c.index}: {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}"
-                    )
+            chanConfig = [{"role": c.role, "__psk__": c.settings.psk, "settings": MessageToDict(c.settings, always_print_fields_with_no_presence=True)} for c in self.channels]
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
-        print(f"\nPrimary channel URL: {publicURL}")
-        if adminURL != publicURL:
-            print(f"Complete URL (includes all channels): {adminURL}")
+        return {"Channels": chanConfig, "publicURL": publicURL, "adminURL": adminURL}
 
-    def showInfo(self):
-        """Show human readable description of our node"""
-        prefs = ""
+    def getInfo(self) ->dict:
+        """Return preferences of our node as dictionary"""
+        locConfig = {}
         if self.localConfig:
-            prefs = message_to_json(self.localConfig, multiline=True)
-        print(f"Preferences: {prefs}\n")
-        prefs = ""
+            locConfig = MessageToDict(self.localConfig)
+        modConfig = {}
         if self.moduleConfig:
-            prefs = message_to_json(self.moduleConfig, multiline=True)
-        print(f"Module preferences: {prefs}\n")
-        self.showChannels()
+            modConfig = MessageToDict(self.moduleConfig)
+        chanConfig = self.getChannelInfo()
+        info = {"Preferences": locConfig, "ModulePreferences": modConfig}
+        info.update(chanConfig)
+        return info
 
     def setChannels(self, channels):
         """Set the channels for this node"""
