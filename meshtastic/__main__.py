@@ -1210,6 +1210,11 @@ def onConnected(interface):
 def printConfig(config) -> None:
     """print configuration"""
     objDesc = config.DESCRIPTOR
+    type_map = {1:"float",2:"float",5: "int", 8: "bool", 9: "str", 13: "int", 14: "enum"}
+    descriptions = {
+        "display.flip_screen": "orientation of oled screen",
+        "display.gps_format": "format of lat, lon coordinates"
+    }
     for config_section in objDesc.fields:
         if config_section.name != "version":
             config = objDesc.fields_by_name.get(config_section.name)
@@ -1217,11 +1222,19 @@ def printConfig(config) -> None:
             names = []
             for field in config.message_type.fields:
                 tmp_name = f"{config_section.name}.{field.name}"
+                lookup_name= tmp_name
+
                 if mt_config.camel_case:
                     tmp_name = meshtastic.util.snake_to_camel(tmp_name)
-                names.append(tmp_name)
+                f_type = type_map.get(field.type, "unknown")
+                desc = f"{descriptions[lookup_name]}  ||  " if lookup_name in descriptions else ""
+                opts = "  ||  options: True/False" if f_type == "bool" else ""
+                if f_type == "enum" and field.enum_type:
+                    opts = f"  ||  Options: {', '.join([v.name for v in field.enum_type.values])}"
+                    
+                names.append(f"    {tmp_name:<45} # {desc}Type: {f_type}{opts}")
             for temp_name in sorted(names):
-                print(f"    {temp_name}")
+                print(temp_name)
 
 
 def onNode(node) -> None:
