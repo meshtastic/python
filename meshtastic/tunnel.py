@@ -146,6 +146,14 @@ class Tunnel:
 
     def _shouldFilterPacket(self, p):
         """Given a packet, decode it and return true if it should be ignored"""
+        # Packets received from the mesh are untrusted.  IPv4 requires a
+        # 20-byte header, and the protocol-specific fields below require the
+        # first four bytes of the transport header.  Without these checks a
+        # truncated payload raises IndexError in the tunnel reader thread.
+        if not isinstance(p, (bytes, bytearray)) or len(p) < 20:
+            logger.warning("Ignoring malformed IP tunnel packet")
+            return True
+
         protocol = p[8 + 1]
         srcaddr = p[12:16]
         destAddr = p[16:20]
@@ -157,6 +165,9 @@ class Tunnel:
                 self.LOG_TRACE, f"Ignoring blacklisted protocol 0x{protocol:02x}"
             )
         elif protocol == 0x01:  # ICMP
+            if len(p) < subheader + 4:
+                logger.warning("Ignoring truncated ICMP tunnel packet")
+                return True
             icmpType = p[20]
             icmpCode = p[21]
             checksum = p[22:24]
@@ -168,6 +179,9 @@ class Tunnel:
             # pingback = p[:12]+p[16:20]+p[12:16]+p[20:]
             # tap.write(pingback)
         elif protocol == 0x11:  # UDP
+            if len(p) < subheader + 4:
+                logger.warning("Ignoring truncated UDP tunnel packet")
+                return True
             srcport = readnet_u16(p, subheader)
             destport = readnet_u16(p, subheader + 2)
             if destport in self.udpBlacklist:
@@ -176,6 +190,9 @@ class Tunnel:
             else:
                 logger.debug(f"forwarding udp srcport={srcport}, destport={destport}")
         elif protocol == 0x06:  # TCP
+            if len(p) < subheader + 4:
+                logger.warning("Ignoring truncated TCP tunnel packet")
+                return True
             srcport = readnet_u16(p, subheader)
             destport = readnet_u16(p, subheader + 2)
             if destport in self.tcpBlacklist:
