@@ -1,11 +1,12 @@
 """Meshtastic unit tests for ble_interface.py"""
 
+from concurrent.futures import TimeoutError as FutureTimeoutError
 from unittest.mock import MagicMock, patch
 
 import pytest
-from bleak.exc import BleakError
+from bleak.exc import BleakDBusError, BleakError
 
-from ..ble_interface import BLEInterface
+from ..ble_interface import BLEClient, BLEInterface
 
 
 @pytest.mark.unit
@@ -67,3 +68,31 @@ def test_ble_receive_wraps_unexpected_bleak_error_with_kind():
     with pytest.raises(BLEInterface.BLEError) as excinfo:
         iface._receiveFromRadioImpl()
     assert excinfo.value.kind == BLEInterface.BLEError.READ_ERROR
+
+
+@pytest.mark.unit
+def test_ble_receive_disconnect_mid_read_unwinds_cleanly():
+    """A disconnect mid-read (BleakDBusError) must stop the receive loop
+    without raising UnboundLocalError on the `b` read buffer."""
+    iface = object.__new__(BLEInterface)
+    iface.should_read = True
+    iface._want_receive = True
+    iface.client = MagicMock()
+    iface.client.read_gatt_char.side_effect = BleakDBusError(
+        "org.bluez.Error.Failed", []
+    )
+    # Must return normally (no UnboundLocalError) and halt the loop.
+    iface._receiveFromRadioImpl()
+    assert iface._want_receive is False
+
+
+@pytest.mark.unit
+def test_ble_client_disconnect_swallows_stalled_teardown():
+    """BLEClient.disconnect must not propagate a stalled-teardown timeout,
+    so BLEInterface.close() can always finish."""
+    client = object.__new__(BLEClient)
+    client.bleak_client = MagicMock()
+    with patch.object(BLEClient, "async_await", side_effect=FutureTimeoutError()):
+        client.disconnect()  # must not raise
+    with patch.object(BLEClient, "async_await", side_effect=BleakError("gone")):
+        client.disconnect()  # must not raise

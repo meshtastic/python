@@ -7,6 +7,7 @@ import struct
 import sys
 import time
 import io
+from concurrent.futures import TimeoutError as FutureTimeoutError
 from threading import Thread, Event
 from typing import List, Optional
 
@@ -24,6 +25,12 @@ FROMRADIO_UUID = "2c55e69e-4993-11ed-b878-0242ac120002"
 FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
 LEGACY_LOGRADIO_UUID = "6c6fd238-78fa-436b-aacf-15c5be1ef2e2"
 LOGRADIO_UUID = "5a3d6e49-06e6-4423-9944-e9de8cdf9547"
+
+# Upper bound (seconds) on how long we wait for bleak to tear a connection
+# down. bleak's disconnect can stall indefinitely on some backends, so we cap
+# it to guarantee close() returns instead of hanging forever.
+BLE_DISCONNECT_TIMEOUT = 5.0
+
 logger = logging.getLogger(__name__)
 
 
@@ -204,6 +211,7 @@ class BLEInterface(MeshInterface):
                         logger.debug(f"BLE client is None, shutting down")
                         self._want_receive = False
                         continue
+                    b = b""
                     try:
                         b = bytes(self.client.read_gatt_char(FROMRADIO_UUID))
                     except BleakDBusError as e:
@@ -299,7 +307,15 @@ class BLEClient:
         return self.async_await(self.bleak_client.connect(**kwargs))
 
     def disconnect(self, **kwargs):  # pylint: disable=C0116
-        self.async_await(self.bleak_client.disconnect(**kwargs))
+        # bleak's disconnect can stall indefinitely on some backends; bound it
+        # so BLEInterface.close() can never hang forever waiting on teardown.
+        try:
+            self.async_await(
+                self.bleak_client.disconnect(**kwargs),
+                timeout=BLE_DISCONNECT_TIMEOUT,
+            )
+        except (FutureTimeoutError, BleakError) as e:
+            logger.warning(f"BLE disconnect did not complete cleanly: {e}")
 
     def read_gatt_char(self, *args, **kwargs):  # pylint: disable=C0116
         return self.async_await(self.bleak_client.read_gatt_char(*args, **kwargs))
@@ -316,7 +332,9 @@ class BLEClient:
 
     def close(self):  # pylint: disable=C0116
         self.async_run(self._stop_event_loop())
-        self._eventThread.join()
+        # The event loop thread is a daemon; if it fails to stop promptly we
+        # must not block the caller forever, so join with a bounded timeout.
+        self._eventThread.join(timeout=BLE_DISCONNECT_TIMEOUT)
 
     def __enter__(self):
         return self
