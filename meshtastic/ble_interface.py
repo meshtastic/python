@@ -354,7 +354,13 @@ class BLEClient:
         # On macOS without debug logging, callbacks may not be delivered
         # unless we trigger some I/O. This is a known quirk of CoreBluetooth.
         sys.stdout.flush()
-        result = future.result(timeout)
+        try:
+            result = future.result(timeout)
+        except FutureTimeoutError:
+            # The coroutine is still queued/running on the event loop; cancel it
+            # so a stalled call (e.g. a hung disconnect) is not left pending.
+            future.cancel()
+            raise
         logger.debug("async_await: complete")
         return result
 
