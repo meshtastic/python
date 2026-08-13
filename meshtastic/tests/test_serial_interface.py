@@ -22,8 +22,8 @@ def test_SerialInterface_single_port(
     """Test that we can instantiate a SerialInterface with a single port"""
     iface = SerialInterface(noProto=True)
     iface.localNode.localConfig.lora.CopyFrom(config_pb2.Config.LoRaConfig())
-    iface.showInfo()
-    iface.localNode.showInfo()
+    ifData = iface.getInfo()
+    nodeData = iface.localNode.getInfo()
     iface.close()
     mocked_findPorts.assert_called()
     mocked_serial.assert_called()
@@ -34,12 +34,22 @@ def test_SerialInterface_single_port(
         mock_hupcl.assert_called()
 
     mock_sleep.assert_called()
-    out, err = capsys.readouterr()
-    assert re.search(r"Nodes in mesh", out, re.MULTILINE)
-    assert re.search(r"Preferences", out, re.MULTILINE)
-    assert re.search(r"Channels", out, re.MULTILINE)
-    assert re.search(r"Primary channel", out, re.MULTILINE)
-    assert err == ""
+
+    # test interface data
+    assert 'Owner' in ifData.keys()
+    assert len(ifData.get('Owner', [])) == 2
+    assert ifData['Owner'][0] is None
+    assert ifData['Owner'][1] is None
+    assert 'MyInfo' in ifData.keys()
+    assert 'Metadata' in ifData.keys()
+    assert 'Nodes' in ifData.keys()
+
+    # test node data
+    assert 'Preferences' in nodeData.keys()
+    assert 'ModulePreferences' in nodeData.keys()
+    assert 'Channels' in nodeData.keys()
+    assert 'publicURL' in nodeData.keys()
+    assert 'adminURL' in nodeData.keys()
 
 
 @pytest.mark.unit
