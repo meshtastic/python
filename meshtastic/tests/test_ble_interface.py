@@ -1,5 +1,6 @@
 """Meshtastic unit tests for ble_interface.py"""
 
+import atexit
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -67,3 +68,31 @@ def test_ble_receive_wraps_unexpected_bleak_error_with_kind():
     with pytest.raises(BLEInterface.BLEError) as excinfo:
         iface._receiveFromRadioImpl()
     assert excinfo.value.kind == BLEInterface.BLEError.READ_ERROR
+
+
+@pytest.mark.unit
+def test_ble_close_reentrant_does_not_deadlock() -> None:
+    """close() must not deadlock when disconnect callback re-enters close()."""
+    iface = object.__new__(BLEInterface)
+    iface._closing = False
+    iface._want_receive = False
+    iface._receiveThread = None
+
+    disconnect_count = 0
+
+    def fake_disconnect():
+        nonlocal disconnect_count
+        disconnect_count += 1
+        iface.close()  # re-entrant call — should return immediately
+
+    mock_client = MagicMock()
+    mock_client.disconnect.side_effect = fake_disconnect
+    iface.client = mock_client
+    iface._exit_handler = lambda: None
+
+    with patch("meshtastic.mesh_interface.MeshInterface.close"), \
+         patch.object(iface, "_disconnected"):
+        iface.close()
+
+    assert disconnect_count == 1, "disconnect() should be called exactly once"
+    assert iface.client is None, "client should be cleaned up"

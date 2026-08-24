@@ -60,6 +60,7 @@ class BLEInterface(MeshInterface):
         )
 
         self.should_read = False
+        self._closing = False
 
         logger.debug("Threads starting")
         self._want_receive = True
@@ -254,6 +255,10 @@ class BLEInterface(MeshInterface):
             self.should_read = True
 
     def close(self) -> None:
+        if self._closing:
+            return
+        self._closing = True
+
         try:
             MeshInterface.close(self)
         except Exception as e:
