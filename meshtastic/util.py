@@ -309,7 +309,7 @@ class DeferredExecution:
             try:
                 o = self.queue.get()
                 o()
-            except:
+            except Exception:
                 logger.error(
                     f"Unexpected error in deferred execution {sys.exc_info()[0]}"
                 )
@@ -360,7 +360,7 @@ def remove_keys_from_dict(keys: Union[Tuple, List, Set], adict: Dict) -> Dict:
     for key in keys:
         try:
             del adict[key]
-        except:
+        except KeyError:
             pass
     for val in adict.values():
         if isinstance(val, dict):

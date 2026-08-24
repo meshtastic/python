@@ -205,7 +205,7 @@ def testSimulator() -> None:
         iface.localNode.exitSimulator()
         iface.close()
         logger.info("Integration test successful!")
-    except:
+    except Exception:
         print("Error while testing simulator:", sys.exc_info()[0])
         traceback.print_exc()
         sys.exit(1)
