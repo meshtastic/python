@@ -135,6 +135,13 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     This module allows setting an extra string of status for a node.
     Broadcasts on change and on a timer, possibly once a day.
     """
+    MESH_BEACON_APP: _PortNum.ValueType  # 37
+    """
+    Beacon module broadcast packets.
+    ENCODING: protobuf
+    Periodically broadcast by nodes in beacon mode; received by nodes with MeshBeaconConfig.FLAG_LISTEN_ENABLED.
+    Carries a text message plus optional channel/preset offers for client apps.
+    """
     SERIAL_APP: _PortNum.ValueType  # 64
     """
     Provides a hardware serial interface to send and receive from the Meshtastic network.
@@ -222,6 +229,11 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     ATAK Plugin V2
     Portnum for payloads from the official Meshtastic ATAK plugin using
     TAKPacketV2 with zstd dictionary compression.
+    """
+    LORA_OTA_APP: _PortNum.ValueType  # 79
+    """signed firmware updates over lora.
+
+    ENCODING: binary (ota-common transport frames)
     """
     GROUPALARM_APP: _PortNum.ValueType  # 112
     """
@@ -374,6 +386,13 @@ ENCODING: protobuf
 This module allows setting an extra string of status for a node.
 Broadcasts on change and on a timer, possibly once a day.
 """
+MESH_BEACON_APP: PortNum.ValueType  # 37
+"""
+Beacon module broadcast packets.
+ENCODING: protobuf
+Periodically broadcast by nodes in beacon mode; received by nodes with MeshBeaconConfig.FLAG_LISTEN_ENABLED.
+Carries a text message plus optional channel/preset offers for client apps.
+"""
 SERIAL_APP: PortNum.ValueType  # 64
 """
 Provides a hardware serial interface to send and receive from the Meshtastic network.
@@ -461,6 +480,11 @@ ATAK_PLUGIN_V2: PortNum.ValueType  # 78
 ATAK Plugin V2
 Portnum for payloads from the official Meshtastic ATAK plugin using
 TAKPacketV2 with zstd dictionary compression.
+"""
+LORA_OTA_APP: PortNum.ValueType  # 79
+"""signed firmware updates over lora.
+
+ENCODING: binary (ota-common transport frames)
 """
 GROUPALARM_APP: PortNum.ValueType  # 112
 """

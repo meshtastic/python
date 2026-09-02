@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from meshtastic.protobuf import nanopb_pb2 as meshtastic_dot_protobuf_dot_nanopb__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%meshtastic/protobuf/interdevice.proto\x12\x13meshtastic.protobuf\x1a meshtastic/protobuf/nanopb.proto\"s\n\nSensorData\x12.\n\x04type\x18\x01 \x01(\x0e\x32 .meshtastic.protobuf.MessageType\x12\x15\n\x0b\x66loat_value\x18\x02 \x01(\x02H\x00\x12\x16\n\x0cuint32_value\x18\x03 \x01(\rH\x00\x42\x06\n\x04\x64\x61ta\"g\n\x12InterdeviceMessage\x12\x16\n\x04nmea\x18\x01 \x01(\tB\x06\x92?\x03\x08\x80\x08H\x00\x12\x31\n\x06sensor\x18\x02 \x01(\x0b\x32\x1f.meshtastic.protobuf.SensorDataH\x00\x42\x06\n\x04\x64\x61ta*\xd5\x01\n\x0bMessageType\x12\x07\n\x03\x41\x43K\x10\x00\x12\x15\n\x10\x43OLLECT_INTERVAL\x10\xa0\x01\x12\x0c\n\x07\x42\x45\x45P_ON\x10\xa1\x01\x12\r\n\x08\x42\x45\x45P_OFF\x10\xa2\x01\x12\r\n\x08SHUTDOWN\x10\xa3\x01\x12\r\n\x08POWER_ON\x10\xa4\x01\x12\x0f\n\nSCD41_TEMP\x10\xb0\x01\x12\x13\n\x0eSCD41_HUMIDITY\x10\xb1\x01\x12\x0e\n\tSCD41_CO2\x10\xb2\x01\x12\x0f\n\nAHT20_TEMP\x10\xb3\x01\x12\x13\n\x0e\x41HT20_HUMIDITY\x10\xb4\x01\x12\x0f\n\nTVOC_INDEX\x10\xb5\x01\x42g\n\x14org.meshtastic.protoB\x11InterdeviceProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%meshtastic/protobuf/interdevice.proto\x12\x13meshtastic.protobuf\x1a meshtastic/protobuf/nanopb.proto\"\xf6\x01\n\x0c\x46ileTransfer\x12\x35\n\toperation\x18\x01 \x01(\x0e\x32\".meshtastic.protobuf.FileOperation\x12\x18\n\x08\x66ilepath\x18\x02 \x01(\tB\x06\x92?\x03\x08\x80\x02\x12\x18\n\x08\x66iledata\x18\x03 \x01(\x0c\x42\x06\x92?\x03\x08\x80 \x12/\n\x06status\x18\x04 \x01(\x0e\x32\x1f.meshtastic.protobuf.FileStatus\x12\x17\n\x07message\x18\x05 \x01(\tB\x06\x92?\x03\x08\xff\x01\x12\x0e\n\x06offset\x18\x06 \x01(\x04\x12\x0e\n\x06length\x18\x07 \x01(\r\x12\x11\n\tfile_size\x18\x08 \x01(\x04\"\xb9\x01\n\x10\x44irectoryListing\x12\x19\n\tdirectory\x18\x01 \x01(\tB\x06\x92?\x03\x08\x80\x02\x12\x1b\n\tfilenames\x18\x02 \x03(\tB\x08\x92?\x05\x10\x10p\xff\x01\x12/\n\x06status\x18\x03 \x01(\x0e\x32\x1f.meshtastic.protobuf.FileStatus\x12\x17\n\x07message\x18\x04 \x01(\tB\x06\x92?\x03\x08\xff\x01\x12\x0e\n\x06offset\x18\x05 \x01(\r\x12\x13\n\x0btotal_count\x18\x06 \x01(\r\"O\n\x0eI2CTransaction\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\r\x12\x1a\n\nwrite_data\x18\x02 \x01(\x0c\x42\x06\x92?\x03\x08\x80\x02\x12\x10\n\x08read_len\x18\x03 \x01(\r\"\x92\x03\n\nSdCardInfo\x12\x0f\n\x07present\x18\x01 \x01(\x08\x12;\n\tcard_type\x18\x02 \x01(\x0e\x32(.meshtastic.protobuf.SdCardInfo.CardType\x12\x39\n\x08\x66\x61t_type\x18\x03 \x01(\x0e\x32\'.meshtastic.protobuf.SdCardInfo.FatType\x12\x11\n\tcard_size\x18\x04 \x01(\x04\x12\x12\n\nused_bytes\x18\x05 \x01(\x04\x12\x12\n\nfree_bytes\x18\x06 \x01(\x04\x12\x13\n\x0bstats_valid\x18\x07 \x01(\x08\x12\x0c\n\x04\x62usy\x18\x08 \x01(\x08\x12\x13\n\x0bunformatted\x18\t \x01(\x08\"K\n\x08\x43\x61rdType\x12\x08\n\x04NONE\x10\x00\x12\x07\n\x03MMC\x10\x01\x12\x06\n\x02SD\x10\x02\x12\x08\n\x04SDHC\x10\x03\x12\x08\n\x04SDXC\x10\x04\x12\x10\n\x0cUNKNOWN_CARD\x10\x05\";\n\x07\x46\x61tType\x12\x0f\n\x0bUNKNOWN_FAT\x10\x00\x12\t\n\x05\x46\x41T16\x10\x01\x12\t\n\x05\x46\x41T32\x10\x02\x12\t\n\x05\x45XFAT\x10\x03\"\xac\x01\n\tI2CResult\x12\x35\n\x06status\x18\x01 \x01(\x0e\x32%.meshtastic.protobuf.I2CResult.Status\x12\x19\n\tread_data\x18\x02 \x01(\x0c\x42\x06\x92?\x03\x08\x80\x02\"M\n\x06Status\x12\x0f\n\x0bUNSPECIFIED\x10\x00\x12\x06\n\x02OK\x10\x01\x12\x10\n\x0cNACK_ADDRESS\x10\x02\x12\r\n\tNACK_DATA\x10\x03\x12\t\n\x05\x45RROR\x10\x04\"\x87\x05\n\x12InterdeviceMessage\x12\n\n\x02id\x18\x0f \x01(\r\x12\x16\n\x04nmea\x18\x01 \x01(\tB\x06\x92?\x03\x08\x80\x08H\x00\x12\x15\n\x04\x62\x65\x65p\x18\x02 \x01(\rB\x05\x92?\x02\x38\x10H\x00\x12>\n\x0fi2c_transaction\x18\x03 \x01(\x0b\x32#.meshtastic.protobuf.I2CTransactionH\x00\x12\x34\n\ni2c_result\x18\x04 \x01(\x0b\x32\x1e.meshtastic.protobuf.I2CResultH\x00\x12\x12\n\x08i2c_scan\x18\x05 \x01(\x08H\x00\x12!\n\x0fi2c_scan_result\x18\x06 \x01(\x0c\x42\x06\x92?\x03\x08\x80\x01H\x00\x12:\n\rfile_transfer\x18\x07 \x01(\x0b\x32!.meshtastic.protobuf.FileTransferH\x00\x12\x42\n\x11\x64irectory_listing\x18\x08 \x01(\x0b\x32%.meshtastic.protobuf.DirectoryListingH\x00\x12\x15\n\x0bget_sd_info\x18\t \x01(\x08H\x00\x12\x32\n\x07sd_info\x18\n \x01(\x0b\x32\x1f.meshtastic.protobuf.SdCardInfoH\x00\x12\x37\n\x04ping\x18\x0b \x01(\x0e\x32\'.meshtastic.protobuf.InterdeviceVersionH\x00\x12\x37\n\x04pong\x18\x0c \x01(\x0e\x32\'.meshtastic.protobuf.InterdeviceVersionH\x00\x12\x0e\n\x04nack\x18\r \x01(\x08H\x00\x12\x34\n\nsd_command\x18\x0e \x01(\x0e\x32\x1e.meshtastic.protobuf.SdCommandH\x00\x42\x06\n\x04\x64\x61ta*Z\n\x12InterdeviceVersion\x12#\n\x1fINTERDEVICE_VERSION_UNSPECIFIED\x10\x00\x12\x1f\n\x1bINTERDEVICE_VERSION_CURRENT\x10\x02*7\n\rFileOperation\x12\x07\n\x03GET\x10\x00\x12\x08\n\x04POST\x10\x01\x12\x07\n\x03PUT\x10\x02\x12\n\n\x06\x44\x45LETE\x10\x03*\xa6\x01\n\nFileStatus\x12\x14\n\x10\x46ILE_UNSPECIFIED\x10\x00\x12\x0b\n\x07\x46ILE_OK\x10\x01\x12\r\n\tFILE_BUSY\x10\x02\x12\x10\n\x0c\x46ILE_NO_CARD\x10\x03\x12\x12\n\x0e\x46ILE_NOT_FOUND\x10\x04\x12\x18\n\x14\x46ILE_OFFSET_CONFLICT\x10\x05\x12\x11\n\rFILE_IO_ERROR\x10\x06\x12\x13\n\x0f\x46ILE_NOT_A_FILE\x10\x07*R\n\tSdCommand\x12\x1a\n\x16SD_COMMAND_UNSPECIFIED\x10\x00\x12\x0c\n\x08SD_MOUNT\x10\x01\x12\x0c\n\x08SD_EJECT\x10\x02\x12\r\n\tSD_FORMAT\x10\x03\x42g\n\x14org.meshtastic.protoB\x11InterdeviceProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -22,12 +22,52 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'meshtastic.protobuf.interde
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\024org.meshtastic.protoB\021InterdeviceProtosZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
+  _FILETRANSFER.fields_by_name['filepath']._options = None
+  _FILETRANSFER.fields_by_name['filepath']._serialized_options = b'\222?\003\010\200\002'
+  _FILETRANSFER.fields_by_name['filedata']._options = None
+  _FILETRANSFER.fields_by_name['filedata']._serialized_options = b'\222?\003\010\200 '
+  _FILETRANSFER.fields_by_name['message']._options = None
+  _FILETRANSFER.fields_by_name['message']._serialized_options = b'\222?\003\010\377\001'
+  _DIRECTORYLISTING.fields_by_name['directory']._options = None
+  _DIRECTORYLISTING.fields_by_name['directory']._serialized_options = b'\222?\003\010\200\002'
+  _DIRECTORYLISTING.fields_by_name['filenames']._options = None
+  _DIRECTORYLISTING.fields_by_name['filenames']._serialized_options = b'\222?\005\020\020p\377\001'
+  _DIRECTORYLISTING.fields_by_name['message']._options = None
+  _DIRECTORYLISTING.fields_by_name['message']._serialized_options = b'\222?\003\010\377\001'
+  _I2CTRANSACTION.fields_by_name['write_data']._options = None
+  _I2CTRANSACTION.fields_by_name['write_data']._serialized_options = b'\222?\003\010\200\002'
+  _I2CRESULT.fields_by_name['read_data']._options = None
+  _I2CRESULT.fields_by_name['read_data']._serialized_options = b'\222?\003\010\200\002'
   _INTERDEVICEMESSAGE.fields_by_name['nmea']._options = None
   _INTERDEVICEMESSAGE.fields_by_name['nmea']._serialized_options = b'\222?\003\010\200\010'
-  _globals['_MESSAGETYPE']._serialized_start=319
-  _globals['_MESSAGETYPE']._serialized_end=532
-  _globals['_SENSORDATA']._serialized_start=96
-  _globals['_SENSORDATA']._serialized_end=211
-  _globals['_INTERDEVICEMESSAGE']._serialized_start=213
-  _globals['_INTERDEVICEMESSAGE']._serialized_end=316
+  _INTERDEVICEMESSAGE.fields_by_name['beep']._options = None
+  _INTERDEVICEMESSAGE.fields_by_name['beep']._serialized_options = b'\222?\0028\020'
+  _INTERDEVICEMESSAGE.fields_by_name['i2c_scan_result']._options = None
+  _INTERDEVICEMESSAGE.fields_by_name['i2c_scan_result']._serialized_options = b'\222?\003\010\200\001'
+  _globals['_INTERDEVICEVERSION']._serialized_start=1844
+  _globals['_INTERDEVICEVERSION']._serialized_end=1934
+  _globals['_FILEOPERATION']._serialized_start=1936
+  _globals['_FILEOPERATION']._serialized_end=1991
+  _globals['_FILESTATUS']._serialized_start=1994
+  _globals['_FILESTATUS']._serialized_end=2160
+  _globals['_SDCOMMAND']._serialized_start=2162
+  _globals['_SDCOMMAND']._serialized_end=2244
+  _globals['_FILETRANSFER']._serialized_start=97
+  _globals['_FILETRANSFER']._serialized_end=343
+  _globals['_DIRECTORYLISTING']._serialized_start=346
+  _globals['_DIRECTORYLISTING']._serialized_end=531
+  _globals['_I2CTRANSACTION']._serialized_start=533
+  _globals['_I2CTRANSACTION']._serialized_end=612
+  _globals['_SDCARDINFO']._serialized_start=615
+  _globals['_SDCARDINFO']._serialized_end=1017
+  _globals['_SDCARDINFO_CARDTYPE']._serialized_start=881
+  _globals['_SDCARDINFO_CARDTYPE']._serialized_end=956
+  _globals['_SDCARDINFO_FATTYPE']._serialized_start=958
+  _globals['_SDCARDINFO_FATTYPE']._serialized_end=1017
+  _globals['_I2CRESULT']._serialized_start=1020
+  _globals['_I2CRESULT']._serialized_end=1192
+  _globals['_I2CRESULT_STATUS']._serialized_start=1115
+  _globals['_I2CRESULT_STATUS']._serialized_end=1192
+  _globals['_INTERDEVICEMESSAGE']._serialized_start=1195
+  _globals['_INTERDEVICEMESSAGE']._serialized_end=1842
 # @@protoc_insertion_point(module_scope)

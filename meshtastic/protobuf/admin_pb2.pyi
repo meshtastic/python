@@ -236,6 +236,10 @@ class AdminMessage(google.protobuf.message.Message):
         """
         TAK module config
         """
+        MESHBEACON_CONFIG: AdminMessage._ModuleConfigType.ValueType  # 16
+        """
+        Mesh Beacon module config
+        """
 
     class ModuleConfigType(_ModuleConfigType, metaclass=_ModuleConfigTypeEnumTypeWrapper):
         """
@@ -305,6 +309,10 @@ class AdminMessage(google.protobuf.message.Message):
     TAK_CONFIG: AdminMessage.ModuleConfigType.ValueType  # 15
     """
     TAK module config
+    """
+    MESHBEACON_CONFIG: AdminMessage.ModuleConfigType.ValueType  # 16
+    """
+    Mesh Beacon module config
     """
 
     class _BackupLocation:
@@ -851,6 +859,8 @@ class LockdownAuth(google.protobuf.message.Message):
     BOOTS_REMAINING_FIELD_NUMBER: builtins.int
     VALID_UNTIL_EPOCH_FIELD_NUMBER: builtins.int
     LOCK_NOW_FIELD_NUMBER: builtins.int
+    MAX_SESSION_SECONDS_FIELD_NUMBER: builtins.int
+    DISABLE_FIELD_NUMBER: builtins.int
     passphrase: builtins.bytes
     """
     Passphrase bytes (1-32). Empty when lock_now is true.
@@ -876,6 +886,67 @@ class LockdownAuth(google.protobuf.message.Message):
     connection-level admin authorization, and reboot the device into
     the locked state. Always honoured regardless of current lock state.
     """
+    max_session_seconds: builtins.int
+    """
+    Optional per-boot uptime cap on the unlocked session, in seconds.
+    0 = unlimited (token-only enforcement, suitable for unattended
+    tower / infrastructure nodes).
+
+    When non-zero, the firmware arms an uptime timer at unlock. On
+    each expiry, while there is still boot-count budget, the firmware
+    decrements the on-flash boot count in place, revokes per-
+    connection admin auth (clients must re-authenticate to see
+    content), re-engages the screen lock, and re-arms the timer
+    without rebooting. Mesh routing keeps running across session
+    boundaries; only when the boot-count budget reaches zero does
+    the device hard-lock and reboot.
+
+    Total exposure ceiling = ((resolved boot count) + 1) * max_session_seconds.
+    The +1 accounts for the initial passphrase-unlocked session
+    itself, since boots_remaining is the number of subsequent
+    session rolls (each consuming one boot from the rollback ledger).
+    The resolved boot count is the value the firmware writes into the
+    token at unlock time: the client-supplied boots_remaining when
+    non-zero, otherwise the firmware default (TOKEN_DEFAULT_BOOTS).
+    Note that boots_remaining == 0 in this message means "use firmware
+    default", NOT "zero boots" — a client computing the ceiling for
+    display should mirror that resolution rather than multiplying the
+    raw request value.
+
+    The cap is persisted in the token, so it survives token-based
+    auto-unlock across reboots. Explicit operator Lock Now still
+    deletes the token and forces passphrase re-entry.
+
+    Uses millis() (CPU uptime), not wall-clock time, so the cap is
+    immune to GPS spoofing, RTC backup-battery removal, and Faraday
+    cage isolation — none of those move the uptime counter. The only
+    way to reset the session clock is a reboot, which costs a boot
+    from the on-flash, HMAC-bound counter.
+    """
+    disable: builtins.bool
+    """
+    Disable lockdown mode. Requires a valid passphrase in the same
+    message (the device must prove the operator owns it before
+    reverting at-rest encryption). On success the firmware decrypts
+    every stored config / channel / nodedb file back to plaintext,
+    removes the wrapped DEK, unlock token, monotonic-counter, and
+    backoff files, and reboots out of lockdown.
+
+    This is the inverse of the provision/unlock path: it is how the
+    client app's "lockdown mode" toggle returns a device to normal
+    operation.
+
+    NOT reversed by this operation: APPROTECT. Once the debug port
+    lockout has been burned (on silicon where it is effective) it is
+    permanent — disabling lockdown decrypts your data and removes the
+    access gates, but the SWD/JTAG port stays locked for the life of
+    the device (recoverable only via a full chip erase over a debug
+    probe, which destroys all data). Clients should make this
+    irreversibility clear at the moment lockdown is first enabled.
+
+    When true the passphrase field is still required; boots_remaining,
+    valid_until_epoch, max_session_seconds, and lock_now are ignored.
+    """
     def __init__(
         self,
         *,
@@ -883,8 +954,10 @@ class LockdownAuth(google.protobuf.message.Message):
         boots_remaining: builtins.int = ...,
         valid_until_epoch: builtins.int = ...,
         lock_now: builtins.bool = ...,
+        max_session_seconds: builtins.int = ...,
+        disable: builtins.bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["boots_remaining", b"boots_remaining", "lock_now", b"lock_now", "passphrase", b"passphrase", "valid_until_epoch", b"valid_until_epoch"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["boots_remaining", b"boots_remaining", "disable", b"disable", "lock_now", b"lock_now", "max_session_seconds", b"max_session_seconds", "passphrase", b"passphrase", "valid_until_epoch", b"valid_until_epoch"]) -> None: ...
 
 global___LockdownAuth = LockdownAuth
 
@@ -900,6 +973,7 @@ class HamParameters(google.protobuf.message.Message):
     TX_POWER_FIELD_NUMBER: builtins.int
     FREQUENCY_FIELD_NUMBER: builtins.int
     SHORT_NAME_FIELD_NUMBER: builtins.int
+    LONG_NAME_FIELD_NUMBER: builtins.int
     call_sign: builtins.str
     """
     Amateur radio call sign, eg. KD2ABC
@@ -918,6 +992,11 @@ class HamParameters(google.protobuf.message.Message):
     """
     Optional short name of user
     """
+    long_name: builtins.str
+    """
+    Optional long name of user
+    Appended to callsign
+    """
     def __init__(
         self,
         *,
@@ -925,8 +1004,9 @@ class HamParameters(google.protobuf.message.Message):
         tx_power: builtins.int = ...,
         frequency: builtins.float = ...,
         short_name: builtins.str = ...,
+        long_name: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["call_sign", b"call_sign", "frequency", b"frequency", "short_name", b"short_name", "tx_power", b"tx_power"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["call_sign", b"call_sign", "frequency", b"frequency", "long_name", b"long_name", "short_name", b"short_name", "tx_power", b"tx_power"]) -> None: ...
 
 global___HamParameters = HamParameters
 
@@ -1087,6 +1167,9 @@ class SensorConfig(google.protobuf.message.Message):
     SEN5X_CONFIG_FIELD_NUMBER: builtins.int
     SCD30_CONFIG_FIELD_NUMBER: builtins.int
     SHTXX_CONFIG_FIELD_NUMBER: builtins.int
+    DS248X_CONFIG_FIELD_NUMBER: builtins.int
+    SEN6X_CONFIG_FIELD_NUMBER: builtins.int
+    AS3935_CONFIG_FIELD_NUMBER: builtins.int
     @property
     def scd4x_config(self) -> global___SCD4X_config:
         """
@@ -1111,6 +1194,24 @@ class SensorConfig(google.protobuf.message.Message):
         SHTXX temperature and relative humidity sensor configuration
         """
 
+    @property
+    def ds248x_config(self) -> global___DS248X_config:
+        """
+        DS248X-800 temperature sensor configuration
+        """
+
+    @property
+    def sen6x_config(self) -> global___SEN6X_config:
+        """
+        SEN6X PM/RHT/VOC/NOx/CO2/HCHO Sensor configuration
+        """
+
+    @property
+    def as3935_config(self) -> global___AS3935_config:
+        """
+        AS3935 lightning sensor configuration
+        """
+
     def __init__(
         self,
         *,
@@ -1118,9 +1219,12 @@ class SensorConfig(google.protobuf.message.Message):
         sen5x_config: global___SEN5X_config | None = ...,
         scd30_config: global___SCD30_config | None = ...,
         shtxx_config: global___SHTXX_config | None = ...,
+        ds248x_config: global___DS248X_config | None = ...,
+        sen6x_config: global___SEN6X_config | None = ...,
+        as3935_config: global___AS3935_config | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["scd30_config", b"scd30_config", "scd4x_config", b"scd4x_config", "sen5x_config", b"sen5x_config", "shtxx_config", b"shtxx_config"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["scd30_config", b"scd30_config", "scd4x_config", b"scd4x_config", "sen5x_config", b"sen5x_config", "shtxx_config", b"shtxx_config"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["as3935_config", b"as3935_config", "ds248x_config", b"ds248x_config", "scd30_config", b"scd30_config", "scd4x_config", b"scd4x_config", "sen5x_config", b"sen5x_config", "sen6x_config", b"sen6x_config", "shtxx_config", b"shtxx_config"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["as3935_config", b"as3935_config", "ds248x_config", b"ds248x_config", "scd30_config", b"scd30_config", "scd4x_config", b"scd4x_config", "sen5x_config", b"sen5x_config", "sen6x_config", b"sen6x_config", "shtxx_config", b"shtxx_config"]) -> None: ...
 
 global___SensorConfig = SensorConfig
 
@@ -1199,6 +1303,7 @@ class SEN5X_config(google.protobuf.message.Message):
 
     SET_TEMPERATURE_FIELD_NUMBER: builtins.int
     SET_ONE_SHOT_MODE_FIELD_NUMBER: builtins.int
+    START_FAN_CLEANING_FIELD_NUMBER: builtins.int
     set_temperature: builtins.float
     """
     Reference temperature in degC
@@ -1207,20 +1312,104 @@ class SEN5X_config(google.protobuf.message.Message):
     """
     One-shot mode (true for low power - one-shot mode, false for normal - continuous mode)
     """
+    start_fan_cleaning: builtins.bool
+    """
+    Trigger a fan cleaning cycle
+    """
     def __init__(
         self,
         *,
         set_temperature: builtins.float | None = ...,
         set_one_shot_mode: builtins.bool | None = ...,
+        start_fan_cleaning: builtins.bool | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_set_one_shot_mode", b"_set_one_shot_mode", "_set_temperature", b"_set_temperature", "set_one_shot_mode", b"set_one_shot_mode", "set_temperature", b"set_temperature"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_set_one_shot_mode", b"_set_one_shot_mode", "_set_temperature", b"_set_temperature", "set_one_shot_mode", b"set_one_shot_mode", "set_temperature", b"set_temperature"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_set_one_shot_mode", b"_set_one_shot_mode", "_set_temperature", b"_set_temperature", "_start_fan_cleaning", b"_start_fan_cleaning", "set_one_shot_mode", b"set_one_shot_mode", "set_temperature", b"set_temperature", "start_fan_cleaning", b"start_fan_cleaning"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_set_one_shot_mode", b"_set_one_shot_mode", "_set_temperature", b"_set_temperature", "_start_fan_cleaning", b"_start_fan_cleaning", "set_one_shot_mode", b"set_one_shot_mode", "set_temperature", b"set_temperature", "start_fan_cleaning", b"start_fan_cleaning"]) -> None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_set_one_shot_mode", b"_set_one_shot_mode"]) -> typing.Literal["set_one_shot_mode"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_set_temperature", b"_set_temperature"]) -> typing.Literal["set_temperature"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_start_fan_cleaning", b"_start_fan_cleaning"]) -> typing.Literal["start_fan_cleaning"] | None: ...
 
 global___SEN5X_config = SEN5X_config
+
+@typing.final
+class SEN6X_config(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SET_TEMPERATURE_FIELD_NUMBER: builtins.int
+    SET_ONE_SHOT_MODE_FIELD_NUMBER: builtins.int
+    START_FAN_CLEANING_FIELD_NUMBER: builtins.int
+    SET_ASC_FIELD_NUMBER: builtins.int
+    SET_TARGET_CO2_CONC_FIELD_NUMBER: builtins.int
+    SET_ALTITUDE_FIELD_NUMBER: builtins.int
+    SET_AMBIENT_PRESSURE_FIELD_NUMBER: builtins.int
+    FACTORY_RESET_FIELD_NUMBER: builtins.int
+    set_temperature: builtins.float
+    """
+    Reference temperature in degC
+    """
+    set_one_shot_mode: builtins.bool
+    """
+    One-shot mode (true for low power - one-shot mode, false for normal - continuous mode)
+    """
+    start_fan_cleaning: builtins.bool
+    """
+    Trigger a fan cleaning cycle
+    """
+    set_asc: builtins.bool
+    """
+    Set Automatic self-calibration enabled (CO2-capable variants only: SEN63C, SEN66, SEN69C)
+    """
+    set_target_co2_conc: builtins.int
+    """
+    Recalibration target CO2 concentration in ppm (FRC only), CO2-capable variants only
+    """
+    set_altitude: builtins.int
+    """
+    Altitude of sensor in meters above sea level. 0 - 3000m (overrides ambient pressure), CO2-capable variants only
+    """
+    set_ambient_pressure: builtins.int
+    """
+    Sensor ambient pressure in Pa. 70000 - 120000 Pa (overrides altitude), CO2-capable variants only
+    """
+    factory_reset: builtins.bool
+    """
+    Perform a factory reset of the CO2 sensor's calibration, CO2-capable variants only
+    """
+    def __init__(
+        self,
+        *,
+        set_temperature: builtins.float | None = ...,
+        set_one_shot_mode: builtins.bool | None = ...,
+        start_fan_cleaning: builtins.bool | None = ...,
+        set_asc: builtins.bool | None = ...,
+        set_target_co2_conc: builtins.int | None = ...,
+        set_altitude: builtins.int | None = ...,
+        set_ambient_pressure: builtins.int | None = ...,
+        factory_reset: builtins.bool | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_factory_reset", b"_factory_reset", "_set_altitude", b"_set_altitude", "_set_ambient_pressure", b"_set_ambient_pressure", "_set_asc", b"_set_asc", "_set_one_shot_mode", b"_set_one_shot_mode", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "_start_fan_cleaning", b"_start_fan_cleaning", "factory_reset", b"factory_reset", "set_altitude", b"set_altitude", "set_ambient_pressure", b"set_ambient_pressure", "set_asc", b"set_asc", "set_one_shot_mode", b"set_one_shot_mode", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature", "start_fan_cleaning", b"start_fan_cleaning"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_factory_reset", b"_factory_reset", "_set_altitude", b"_set_altitude", "_set_ambient_pressure", b"_set_ambient_pressure", "_set_asc", b"_set_asc", "_set_one_shot_mode", b"_set_one_shot_mode", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "_start_fan_cleaning", b"_start_fan_cleaning", "factory_reset", b"factory_reset", "set_altitude", b"set_altitude", "set_ambient_pressure", b"set_ambient_pressure", "set_asc", b"set_asc", "set_one_shot_mode", b"set_one_shot_mode", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature", "start_fan_cleaning", b"start_fan_cleaning"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_factory_reset", b"_factory_reset"]) -> typing.Literal["factory_reset"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_altitude", b"_set_altitude"]) -> typing.Literal["set_altitude"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_ambient_pressure", b"_set_ambient_pressure"]) -> typing.Literal["set_ambient_pressure"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_asc", b"_set_asc"]) -> typing.Literal["set_asc"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_one_shot_mode", b"_set_one_shot_mode"]) -> typing.Literal["set_one_shot_mode"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_target_co2_conc", b"_set_target_co2_conc"]) -> typing.Literal["set_target_co2_conc"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_set_temperature", b"_set_temperature"]) -> typing.Literal["set_temperature"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_start_fan_cleaning", b"_start_fan_cleaning"]) -> typing.Literal["start_fan_cleaning"] | None: ...
+
+global___SEN6X_config = SEN6X_config
 
 @typing.final
 class SCD30_config(google.protobuf.message.Message):
@@ -1302,3 +1491,44 @@ class SHTXX_config(google.protobuf.message.Message):
     def WhichOneof(self, oneof_group: typing.Literal["_set_accuracy", b"_set_accuracy"]) -> typing.Literal["set_accuracy"] | None: ...
 
 global___SHTXX_config = SHTXX_config
+
+@typing.final
+class DS248X_config(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MAIN_TEMPERATURE_CHANNEL_FIELD_NUMBER: builtins.int
+    main_temperature_channel: builtins.int
+    """
+    Main channel for temperature reporting (0-7)
+    """
+    def __init__(
+        self,
+        *,
+        main_temperature_channel: builtins.int | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_main_temperature_channel", b"_main_temperature_channel", "main_temperature_channel", b"main_temperature_channel"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_main_temperature_channel", b"_main_temperature_channel", "main_temperature_channel", b"main_temperature_channel"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_main_temperature_channel", b"_main_temperature_channel"]) -> typing.Literal["main_temperature_channel"] | None: ...
+
+global___DS248X_config = DS248X_config
+
+@typing.final
+class AS3935_config(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SET_TUNING_CAP_PF_FIELD_NUMBER: builtins.int
+    set_tuning_cap_pf: builtins.int
+    """
+    Antenna tuning capacitance in pF, 0 to 120 in steps of 8. The antenna tank must
+    resonate within 3.5% of 500kHz; the correct trim is specific to the sensor board.
+    """
+    def __init__(
+        self,
+        *,
+        set_tuning_cap_pf: builtins.int | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_set_tuning_cap_pf", b"_set_tuning_cap_pf", "set_tuning_cap_pf", b"set_tuning_cap_pf"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_set_tuning_cap_pf", b"_set_tuning_cap_pf", "set_tuning_cap_pf", b"set_tuning_cap_pf"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_set_tuning_cap_pf", b"_set_tuning_cap_pf"]) -> typing.Literal["set_tuning_cap_pf"] | None: ...
+
+global___AS3935_config = AS3935_config

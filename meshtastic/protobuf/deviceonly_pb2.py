@@ -19,7 +19,7 @@ from meshtastic.protobuf import telemetry_pb2 as meshtastic_dot_protobuf_dot_tel
 from meshtastic.protobuf import nanopb_pb2 as meshtastic_dot_protobuf_dot_nanopb__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$meshtastic/protobuf/deviceonly.proto\x12\x13meshtastic.protobuf\x1a!meshtastic/protobuf/channel.proto\x1a meshtastic/protobuf/config.proto\x1a#meshtastic/protobuf/localonly.proto\x1a\x1emeshtastic/protobuf/mesh.proto\x1a#meshtastic/protobuf/telemetry.proto\x1a meshtastic/protobuf/nanopb.proto\"\x99\x01\n\x0cPositionLite\x12\x12\n\nlatitude_i\x18\x01 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x02 \x01(\x0f\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x0c\n\x04time\x18\x04 \x01(\x07\x12@\n\x0flocation_source\x18\x05 \x01(\x0e\x32\'.meshtastic.protobuf.Position.LocSource\"\xb0\x02\n\x08UserLite\x12\x1a\n\x07macaddr\x18\x01 \x01(\x0c\x42\t\x18\x01\x92?\x04\x08\x06x\x01\x12\x18\n\tlong_name\x18\x02 \x01(\tB\x05\x92?\x02\x08(\x12\x19\n\nshort_name\x18\x03 \x01(\tB\x05\x92?\x02\x08\x05\x12\x34\n\x08hw_model\x18\x04 \x01(\x0e\x32\".meshtastic.protobuf.HardwareModel\x12\x13\n\x0bis_licensed\x18\x05 \x01(\x08\x12;\n\x04role\x18\x06 \x01(\x0e\x32-.meshtastic.protobuf.Config.DeviceConfig.Role\x12\x19\n\npublic_key\x18\x07 \x01(\x0c\x42\x05\x92?\x02\x08 \x12\x1c\n\x0fis_unmessagable\x18\t \x01(\x08H\x00\x88\x01\x01\x42\x12\n\x10_is_unmessagable\"\x85\x03\n\x0cNodeInfoLite\x12\x0b\n\x03num\x18\x01 \x01(\r\x12+\n\x04user\x18\x02 \x01(\x0b\x32\x1d.meshtastic.protobuf.UserLite\x12\x33\n\x08position\x18\x03 \x01(\x0b\x32!.meshtastic.protobuf.PositionLite\x12\x0b\n\x03snr\x18\x04 \x01(\x02\x12\x12\n\nlast_heard\x18\x05 \x01(\x07\x12:\n\x0e\x64\x65vice_metrics\x18\x06 \x01(\x0b\x32\".meshtastic.protobuf.DeviceMetrics\x12\x16\n\x07\x63hannel\x18\x07 \x01(\rB\x05\x92?\x02\x38\x08\x12\x10\n\x08via_mqtt\x18\x08 \x01(\x08\x12\x1d\n\thops_away\x18\t \x01(\rB\x05\x92?\x02\x38\x08H\x00\x88\x01\x01\x12\x13\n\x0bis_favorite\x18\n \x01(\x08\x12\x12\n\nis_ignored\x18\x0b \x01(\x08\x12\x17\n\x08next_hop\x18\x0c \x01(\rB\x05\x92?\x02\x38\x08\x12\x10\n\x08\x62itfield\x18\r \x01(\rB\x0c\n\n_hops_away\"\xaf\x03\n\x0b\x44\x65viceState\x12\x30\n\x07my_node\x18\x02 \x01(\x0b\x32\x1f.meshtastic.protobuf.MyNodeInfo\x12(\n\x05owner\x18\x03 \x01(\x0b\x32\x19.meshtastic.protobuf.User\x12=\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x1f.meshtastic.protobuf.MeshPacketB\x05\x92?\x02\x10\x01\x12\x0f\n\x07version\x18\x08 \x01(\r\x12\x38\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x1f.meshtastic.protobuf.MeshPacket\x12\x13\n\x07no_save\x18\t \x01(\x08\x42\x02\x18\x01\x12\x19\n\rdid_gps_reset\x18\x0b \x01(\x08\x42\x02\x18\x01\x12\x34\n\x0brx_waypoint\x18\x0c \x01(\x0b\x32\x1f.meshtastic.protobuf.MeshPacket\x12T\n\x19node_remote_hardware_pins\x18\r \x03(\x0b\x32*.meshtastic.protobuf.NodeRemoteHardwarePinB\x05\x92?\x02\x10\x0c\"}\n\x0cNodeDatabase\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\\\n\x05nodes\x18\x02 \x03(\x0b\x32!.meshtastic.protobuf.NodeInfoLiteB*\x92?\'\x92\x01$std::vector<meshtastic_NodeInfoLite>\"U\n\x0b\x43hannelFile\x12\x35\n\x08\x63hannels\x18\x01 \x03(\x0b\x32\x1c.meshtastic.protobuf.ChannelB\x05\x92?\x02\x10\x08\x12\x0f\n\x07version\x18\x02 \x01(\r\"\x86\x02\n\x11\x42\x61\x63kupPreferences\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x11\n\ttimestamp\x18\x02 \x01(\x07\x12\x30\n\x06\x63onfig\x18\x03 \x01(\x0b\x32 .meshtastic.protobuf.LocalConfig\x12=\n\rmodule_config\x18\x04 \x01(\x0b\x32&.meshtastic.protobuf.LocalModuleConfig\x12\x32\n\x08\x63hannels\x18\x05 \x01(\x0b\x32 .meshtastic.protobuf.ChannelFile\x12(\n\x05owner\x18\x06 \x01(\x0b\x32\x19.meshtastic.protobuf.UserBn\n\x14org.meshtastic.protoB\nDeviceOnlyZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x92?\x0b\xc2\x01\x08<vector>b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$meshtastic/protobuf/deviceonly.proto\x12\x13meshtastic.protobuf\x1a!meshtastic/protobuf/channel.proto\x1a meshtastic/protobuf/config.proto\x1a#meshtastic/protobuf/localonly.proto\x1a\x1emeshtastic/protobuf/mesh.proto\x1a#meshtastic/protobuf/telemetry.proto\x1a meshtastic/protobuf/nanopb.proto\"\xb1\x01\n\x0cPositionLite\x12\x12\n\nlatitude_i\x18\x01 \x01(\x0f\x12\x13\n\x0blongitude_i\x18\x02 \x01(\x0f\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x05\x12\x0c\n\x04time\x18\x04 \x01(\x07\x12@\n\x0flocation_source\x18\x05 \x01(\x0e\x32\'.meshtastic.protobuf.Position.LocSource\x12\x16\n\x0eprecision_bits\x18\x06 \x01(\r\"\xb0\x02\n\x08UserLite\x12\x1a\n\x07macaddr\x18\x01 \x01(\x0c\x42\t\x18\x01\x92?\x04\x08\x06x\x01\x12\x18\n\tlong_name\x18\x02 \x01(\tB\x05\x92?\x02\x08(\x12\x19\n\nshort_name\x18\x03 \x01(\tB\x05\x92?\x02\x08\x05\x12\x34\n\x08hw_model\x18\x04 \x01(\x0e\x32\".meshtastic.protobuf.HardwareModel\x12\x13\n\x0bis_licensed\x18\x05 \x01(\x08\x12;\n\x04role\x18\x06 \x01(\x0e\x32-.meshtastic.protobuf.Config.DeviceConfig.Role\x12\x19\n\npublic_key\x18\x07 \x01(\x0c\x42\x05\x92?\x02\x08 \x12\x1c\n\x0fis_unmessagable\x18\t \x01(\x08H\x00\x88\x01\x01\x42\x12\n\x10_is_unmessagable\"\xf4\x03\n\x0cNodeInfoLite\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x0b\n\x03snr\x18\x04 \x01(\x02\x12\x12\n\nlast_heard\x18\x05 \x01(\x07\x12\x16\n\x07\x63hannel\x18\x07 \x01(\rB\x05\x92?\x02\x38\x08\x12\x1d\n\thops_away\x18\t \x01(\rB\x05\x92?\x02\x38\x08H\x00\x88\x01\x01\x12\x17\n\x08next_hop\x18\x0c \x01(\rB\x05\x92?\x02\x38\x08\x12\x10\n\x08\x62itfield\x18\r \x01(\r\x12\x18\n\tlong_name\x18\x0e \x01(\tB\x05\x92?\x02\x08\x19\x12\x19\n\nshort_name\x18\x0f \x01(\tB\x05\x92?\x02\x08\x05\x12;\n\x08hw_model\x18\x10 \x01(\x0e\x32\".meshtastic.protobuf.HardwareModelB\x05\x92?\x02\x38\x08\x12\x42\n\x04role\x18\x11 \x01(\x0e\x32-.meshtastic.protobuf.Config.DeviceConfig.RoleB\x05\x92?\x02\x38\x08\x12\x19\n\npublic_key\x18\x12 \x01(\x0c\x42\x05\x92?\x02\x08 \x12\x0e\n\x06snr_q4\x18\x13 \x01(\x11\x42\x0c\n\n_hops_awayJ\x04\x08\x02\x10\x03J\x04\x08\x03\x10\x04J\x04\x08\x06\x10\x07J\x04\x08\x08\x10\tJ\x04\x08\n\x10\x0bJ\x04\x08\x0b\x10\x0cR\x04userR\x08positionR\x0e\x64\x65vice_metricsR\x08via_mqttR\x0bis_favoriteR\nis_ignored\"\xaf\x03\n\x0b\x44\x65viceState\x12\x30\n\x07my_node\x18\x02 \x01(\x0b\x32\x1f.meshtastic.protobuf.MyNodeInfo\x12(\n\x05owner\x18\x03 \x01(\x0b\x32\x19.meshtastic.protobuf.User\x12=\n\rreceive_queue\x18\x05 \x03(\x0b\x32\x1f.meshtastic.protobuf.MeshPacketB\x05\x92?\x02\x10\x01\x12\x0f\n\x07version\x18\x08 \x01(\r\x12\x38\n\x0frx_text_message\x18\x07 \x01(\x0b\x32\x1f.meshtastic.protobuf.MeshPacket\x12\x13\n\x07no_save\x18\t \x01(\x08\x42\x02\x18\x01\x12\x19\n\rdid_gps_reset\x18\x0b \x01(\x08\x42\x02\x18\x01\x12\x34\n\x0brx_waypoint\x18\x0c \x01(\x0b\x32\x1f.meshtastic.protobuf.MeshPacket\x12T\n\x19node_remote_hardware_pins\x18\r \x03(\x0b\x32*.meshtastic.protobuf.NodeRemoteHardwarePinB\x05\x92?\x02\x10\x0c\"U\n\x11NodePositionEntry\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x33\n\x08position\x18\x02 \x01(\x0b\x32!.meshtastic.protobuf.PositionLite\"]\n\x12NodeTelemetryEntry\x12\x0b\n\x03num\x18\x01 \x01(\r\x12:\n\x0e\x64\x65vice_metrics\x18\x02 \x01(\x0b\x32\".meshtastic.protobuf.DeviceMetrics\"i\n\x14NodeEnvironmentEntry\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x44\n\x13\x65nvironment_metrics\x18\x02 \x01(\x0b\x32\'.meshtastic.protobuf.EnvironmentMetrics\"R\n\x0fNodeStatusEntry\x12\x0b\n\x03num\x18\x01 \x01(\r\x12\x32\n\x06status\x18\x02 \x01(\x0b\x32\".meshtastic.protobuf.StatusMessage\"\xb0\x04\n\x0cNodeDatabase\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\\\n\x05nodes\x18\x02 \x03(\x0b\x32!.meshtastic.protobuf.NodeInfoLiteB*\x92?\'\x92\x01$std::vector<meshtastic_NodeInfoLite>\x12j\n\tpositions\x18\x03 \x03(\x0b\x32&.meshtastic.protobuf.NodePositionEntryB/\x92?,\x92\x01)std::vector<meshtastic_NodePositionEntry>\x12l\n\ttelemetry\x18\x04 \x03(\x0b\x32\'.meshtastic.protobuf.NodeTelemetryEntryB0\x92?-\x92\x01*std::vector<meshtastic_NodeTelemetryEntry>\x12\x63\n\x06status\x18\x05 \x03(\x0b\x32$.meshtastic.protobuf.NodeStatusEntryB-\x92?*\x92\x01\'std::vector<meshtastic_NodeStatusEntry>\x12r\n\x0b\x65nvironment\x18\x06 \x03(\x0b\x32).meshtastic.protobuf.NodeEnvironmentEntryB2\x92?/\x92\x01,std::vector<meshtastic_NodeEnvironmentEntry>\"U\n\x0b\x43hannelFile\x12\x35\n\x08\x63hannels\x18\x01 \x03(\x0b\x32\x1c.meshtastic.protobuf.ChannelB\x05\x92?\x02\x10\x08\x12\x0f\n\x07version\x18\x02 \x01(\r\"\x86\x02\n\x11\x42\x61\x63kupPreferences\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x11\n\ttimestamp\x18\x02 \x01(\x07\x12\x30\n\x06\x63onfig\x18\x03 \x01(\x0b\x32 .meshtastic.protobuf.LocalConfig\x12=\n\rmodule_config\x18\x04 \x01(\x0b\x32&.meshtastic.protobuf.LocalModuleConfig\x12\x32\n\x08\x63hannels\x18\x05 \x01(\x0b\x32 .meshtastic.protobuf.ChannelFile\x12(\n\x05owner\x18\x06 \x01(\x0b\x32\x19.meshtastic.protobuf.UserBn\n\x14org.meshtastic.protoB\nDeviceOnlyZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x92?\x0b\xc2\x01\x08<vector>b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -41,6 +41,16 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _NODEINFOLITE.fields_by_name['hops_away']._serialized_options = b'\222?\0028\010'
   _NODEINFOLITE.fields_by_name['next_hop']._options = None
   _NODEINFOLITE.fields_by_name['next_hop']._serialized_options = b'\222?\0028\010'
+  _NODEINFOLITE.fields_by_name['long_name']._options = None
+  _NODEINFOLITE.fields_by_name['long_name']._serialized_options = b'\222?\002\010\031'
+  _NODEINFOLITE.fields_by_name['short_name']._options = None
+  _NODEINFOLITE.fields_by_name['short_name']._serialized_options = b'\222?\002\010\005'
+  _NODEINFOLITE.fields_by_name['hw_model']._options = None
+  _NODEINFOLITE.fields_by_name['hw_model']._serialized_options = b'\222?\0028\010'
+  _NODEINFOLITE.fields_by_name['role']._options = None
+  _NODEINFOLITE.fields_by_name['role']._serialized_options = b'\222?\0028\010'
+  _NODEINFOLITE.fields_by_name['public_key']._options = None
+  _NODEINFOLITE.fields_by_name['public_key']._serialized_options = b'\222?\002\010 '
   _DEVICESTATE.fields_by_name['receive_queue']._options = None
   _DEVICESTATE.fields_by_name['receive_queue']._serialized_options = b'\222?\002\020\001'
   _DEVICESTATE.fields_by_name['no_save']._options = None
@@ -51,20 +61,36 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _DEVICESTATE.fields_by_name['node_remote_hardware_pins']._serialized_options = b'\222?\002\020\014'
   _NODEDATABASE.fields_by_name['nodes']._options = None
   _NODEDATABASE.fields_by_name['nodes']._serialized_options = b'\222?\'\222\001$std::vector<meshtastic_NodeInfoLite>'
+  _NODEDATABASE.fields_by_name['positions']._options = None
+  _NODEDATABASE.fields_by_name['positions']._serialized_options = b'\222?,\222\001)std::vector<meshtastic_NodePositionEntry>'
+  _NODEDATABASE.fields_by_name['telemetry']._options = None
+  _NODEDATABASE.fields_by_name['telemetry']._serialized_options = b'\222?-\222\001*std::vector<meshtastic_NodeTelemetryEntry>'
+  _NODEDATABASE.fields_by_name['status']._options = None
+  _NODEDATABASE.fields_by_name['status']._serialized_options = b'\222?*\222\001\'std::vector<meshtastic_NodeStatusEntry>'
+  _NODEDATABASE.fields_by_name['environment']._options = None
+  _NODEDATABASE.fields_by_name['environment']._serialized_options = b'\222?/\222\001,std::vector<meshtastic_NodeEnvironmentEntry>'
   _CHANNELFILE.fields_by_name['channels']._options = None
   _CHANNELFILE.fields_by_name['channels']._serialized_options = b'\222?\002\020\010'
   _globals['_POSITIONLITE']._serialized_start=271
-  _globals['_POSITIONLITE']._serialized_end=424
-  _globals['_USERLITE']._serialized_start=427
-  _globals['_USERLITE']._serialized_end=731
-  _globals['_NODEINFOLITE']._serialized_start=734
-  _globals['_NODEINFOLITE']._serialized_end=1123
-  _globals['_DEVICESTATE']._serialized_start=1126
-  _globals['_DEVICESTATE']._serialized_end=1557
-  _globals['_NODEDATABASE']._serialized_start=1559
-  _globals['_NODEDATABASE']._serialized_end=1684
-  _globals['_CHANNELFILE']._serialized_start=1686
-  _globals['_CHANNELFILE']._serialized_end=1771
-  _globals['_BACKUPPREFERENCES']._serialized_start=1774
-  _globals['_BACKUPPREFERENCES']._serialized_end=2036
+  _globals['_POSITIONLITE']._serialized_end=448
+  _globals['_USERLITE']._serialized_start=451
+  _globals['_USERLITE']._serialized_end=755
+  _globals['_NODEINFOLITE']._serialized_start=758
+  _globals['_NODEINFOLITE']._serialized_end=1258
+  _globals['_DEVICESTATE']._serialized_start=1261
+  _globals['_DEVICESTATE']._serialized_end=1692
+  _globals['_NODEPOSITIONENTRY']._serialized_start=1694
+  _globals['_NODEPOSITIONENTRY']._serialized_end=1779
+  _globals['_NODETELEMETRYENTRY']._serialized_start=1781
+  _globals['_NODETELEMETRYENTRY']._serialized_end=1874
+  _globals['_NODEENVIRONMENTENTRY']._serialized_start=1876
+  _globals['_NODEENVIRONMENTENTRY']._serialized_end=1981
+  _globals['_NODESTATUSENTRY']._serialized_start=1983
+  _globals['_NODESTATUSENTRY']._serialized_end=2065
+  _globals['_NODEDATABASE']._serialized_start=2068
+  _globals['_NODEDATABASE']._serialized_end=2628
+  _globals['_CHANNELFILE']._serialized_start=2630
+  _globals['_CHANNELFILE']._serialized_end=2715
+  _globals['_BACKUPPREFERENCES']._serialized_start=2718
+  _globals['_BACKUPPREFERENCES']._serialized_end=2980
 # @@protoc_insertion_point(module_scope)

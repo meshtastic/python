@@ -21,6 +21,7 @@ from meshtastic.protobuf import (
     atak_pb2,
     config_pb2,
     mesh_pb2,
+    mqtt_pb2,
     nanopb_pb2,
     telemetry_pb2,
 )
@@ -640,7 +641,15 @@ def test_descriptor_multilevel_nested_route_link_uid():
 
 @pytest.mark.unit
 def test_descriptor_telemetry_environment_one_wire_temperature():
-    """EnvironmentMetrics.one_wire_temperature has max_count = 8 from telemetry.options."""
+    """EnvironmentMetrics.one_wire_temperature has type = FT_IGNORE from telemetry.options."""
     env = telemetry_pb2.DESCRIPTOR.message_types_by_name["EnvironmentMetrics"]
     opts = _field_opts(env, "one_wire_temperature")
-    assert opts.max_count == 8
+    assert opts.type == nanopb_pb2.FT_IGNORE
+
+
+@pytest.mark.unit
+def test_descriptor_mqtt_service_envelope_pointer_fields():
+    """ServiceEnvelope fields carry type = FT_POINTER from mqtt.options."""
+    envelope = mqtt_pb2.DESCRIPTOR.message_types_by_name["ServiceEnvelope"]
+    for name in ("packet", "channel_id", "gateway_id"):
+        assert _field_opts(envelope, name).type == nanopb_pb2.FT_POINTER

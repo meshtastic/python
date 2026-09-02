@@ -1153,8 +1153,8 @@ def test_writeConfig_traffic_management():
     """Test writeConfig with traffic_management module config."""
     iface = MagicMock(autospec=SerialInterface)
     anode = Node(iface, 123, noProto=True)
-    anode.moduleConfig.traffic_management.enabled = True
-    anode.moduleConfig.traffic_management.rate_limit_enabled = True
+    anode.moduleConfig.traffic_management.position_min_interval_secs = 30
+    anode.moduleConfig.traffic_management.rate_limit_window_secs = 60
 
     sent_admin = []
 
@@ -1167,8 +1167,8 @@ def test_writeConfig_traffic_management():
     assert len(sent_admin) == 1
     assert sent_admin[0].HasField("set_module_config")
     assert sent_admin[0].set_module_config.HasField("traffic_management")
-    assert sent_admin[0].set_module_config.traffic_management.enabled is True
-    assert sent_admin[0].set_module_config.traffic_management.rate_limit_enabled is True
+    assert sent_admin[0].set_module_config.traffic_management.position_min_interval_secs == 30
+    assert sent_admin[0].set_module_config.traffic_management.rate_limit_window_secs == 60
 
 
 # TODO
