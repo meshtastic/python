@@ -3,6 +3,7 @@
 # Note python-pytuntap was too buggy
 # using pip3 install pytap2
 # make sure to "sudo setcap cap_net_admin+eip /usr/bin/python3.8" so python can access tun device without being root
+# The Linux tunnel setup uses iproute2 rather than the obsolete ifconfig tool.
 # sudo ip tuntap del mode tun tun0
 # sudo bin/run.sh --port /dev/ttyUSB0 --setch-shortfast
 # sudo bin/run.sh --port /dev/ttyUSB0 --tunnel --debug
@@ -15,8 +16,10 @@
 # FIXME: use a more optimal MTU
 """
 
+import ipaddress
 import logging
 import platform
+import subprocess
 import threading
 
 from pubsub import pub # type: ignore[import-untyped]
@@ -115,9 +118,14 @@ class Tunnel:
                 f"Not creating a TapDevice() because it is disabled by noProto"
             )
         else:
-            self.tun = TapDevice(name="mesh")
-            self.tun.up()
-            self.tun.ifconfig(address=myAddr, netmask=netmask, mtu=200)
+            self.tun = TapDevice(name="mesh", mtu=200)
+            try:
+                self._configure_tun_device(self.tun, myAddr, netmask, 200)
+            except (OSError, ValueError, subprocess.CalledProcessError) as error:
+                self.tun.close()
+                raise Tunnel.TunnelError(
+                    "Unable to configure the TUN device with iproute2."
+                ) from error
 
         self._rxThread = None
         if self.iface.noProto:
@@ -130,6 +138,26 @@ class Tunnel:
                 target=self.__tunReader, args=(), daemon=True
             )
             self._rxThread.start()
+
+    @staticmethod
+    def _configure_tun_device(tun, address: str, netmask: str, mtu: int) -> None:
+        """Configure a Linux TUN device using the standard iproute2 utility."""
+        prefix_length = ipaddress.IPv4Network(f"0.0.0.0/{netmask}").prefixlen
+        subprocess.run(
+            ["ip", "link", "set", "dev", tun.name, "mtu", str(mtu), "up"],
+            check=True,
+        )
+        subprocess.run(
+            [
+                "ip",
+                "address",
+                "replace",
+                f"{address}/{prefix_length}",
+                "dev",
+                tun.name,
+            ],
+            check=True,
+        )
 
     def onReceive(self, packet):
         """onReceive"""

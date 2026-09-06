@@ -1,7 +1,9 @@
 """Meshtastic unit tests for tunnel.py"""
 import logging
 import re
+import subprocess
 import sys
+from unittest.mock import call
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -60,6 +62,87 @@ def test_Tunnel_with_interface(mock_platform_system, caplog, iface_with_nodes):
     assert re.search(r"Not creating a TapDevice()", caplog.text, re.MULTILINE)
     assert re.search(r"Not starting TUN reader", caplog.text, re.MULTILINE)
     assert re.search(r"Not sending packet", caplog.text, re.MULTILINE)
+
+
+@pytest.mark.unit
+@patch("platform.system", return_value="Linux")
+@patch("meshtastic.tunnel.threading.Thread")
+@patch("meshtastic.tunnel.subprocess.run")
+@patch("meshtastic.tunnel.TapDevice")
+def test_Tunnel_configures_device_with_iproute2(
+    mock_tap_device,
+    mock_run,
+    _mock_thread,
+    _mock_platform_system,
+    iface_with_nodes,
+):
+    """The tunnel must not depend on the obsolete ifconfig command."""
+    iface_with_nodes.noProto = False
+    iface_with_nodes.myInfo.my_node_num = 0x12345678
+    tap = mock_tap_device.return_value
+    tap.name = "mesh0"
+
+    Tunnel(iface_with_nodes)
+
+    mock_tap_device.assert_called_once_with(name="mesh", mtu=200)
+    assert mock_run.call_args_list == [
+        call(
+            ["ip", "link", "set", "dev", "mesh0", "mtu", "200", "up"],
+            check=True,
+        ),
+        call(
+            ["ip", "address", "replace", "10.115.86.120/16", "dev", "mesh0"],
+            check=True,
+        ),
+    ]
+    tap.up.assert_not_called()
+    tap.ifconfig.assert_not_called()
+
+
+@pytest.mark.unit
+@patch("platform.system", return_value="Linux")
+@patch("meshtastic.tunnel.threading.Thread")
+@patch("meshtastic.tunnel.subprocess.run")
+@patch("meshtastic.tunnel.TapDevice")
+def test_Tunnel_closes_device_when_iproute2_configuration_fails(
+    mock_tap_device,
+    mock_run,
+    _mock_thread,
+    _mock_platform_system,
+    iface_with_nodes,
+):
+    """A failed iproute2 command must not leak the open TUN descriptor."""
+    iface_with_nodes.noProto = False
+    iface_with_nodes.myInfo.my_node_num = 0x12345678
+    mock_run.side_effect = subprocess.CalledProcessError(1, ["ip"])
+
+    with pytest.raises(Tunnel.TunnelError, match="iproute2"):
+        Tunnel(iface_with_nodes)
+
+    mock_tap_device.return_value.close.assert_called_once_with()
+
+
+@pytest.mark.unit
+@patch("platform.system", return_value="Linux")
+@patch("meshtastic.tunnel.threading.Thread")
+@patch("meshtastic.tunnel.subprocess.run")
+@patch("meshtastic.tunnel.TapDevice")
+def test_Tunnel_closes_device_when_netmask_is_invalid(
+    mock_tap_device,
+    mock_run,
+    _mock_thread,
+    _mock_platform_system,
+    iface_with_nodes,
+):
+    """Invalid network configuration must not leak the open TUN descriptor."""
+    iface_with_nodes.noProto = False
+    iface_with_nodes.myInfo.my_node_num = 0x12345678
+
+    with pytest.raises(Tunnel.TunnelError, match="iproute2"):
+        Tunnel(iface_with_nodes, netmask="invalid")
+
+    mock_run.assert_not_called()
+    mock_tap_device.return_value.close.assert_called_once_with()
 
 
 @pytest.mark.unitslow
