@@ -20,14 +20,32 @@ def test_RemoteHardwareClient():
 
 
 @pytest.mark.unit
-def test_onGPIOreceive(capsys):
-    """Test onGPIOreceive"""
+@pytest.mark.parametrize(
+    ("gpio_value", "mask", "expected_value"),
+    [
+        ("8192", 0x2000, "0x2000"),
+        ("12288", 0x2000, "0x2000"),
+        (None, 0x10, "0x0"),
+    ],
+)
+def test_onGPIOreceive_formats_masked_values_as_hex(
+    capsys, gpio_value, mask, expected_value
+):
+    """GPIO replies use the same hexadecimal notation as write requests."""
     iface = MagicMock(autospec=SerialInterface)
-    packet = {"decoded": {"remotehw": {"type": "foo", "gpioValue": "4096"}}}
+    iface.mask = mask
+    remotehw = {"type": "READ_GPIOS_REPLY"}
+    if gpio_value is not None:
+        remotehw["gpioValue"] = gpio_value
+    packet = {"decoded": {"remotehw": remotehw}}
     onGPIOreceive(packet, iface)
     out, err = capsys.readouterr()
-    assert re.search(r"Received RemoteHardware", out)
+    assert out == (
+        "Received Remote_Hardware type=READ_GPIOS_REPLY, "
+        f"mask=0x{mask:x} value={expected_value}\n"
+    )
     assert err == ""
+    assert iface.gotResponse is True
 
 
 @pytest.mark.unit
