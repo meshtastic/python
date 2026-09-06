@@ -63,7 +63,7 @@ except ImportError as e:
     have_powermon = False
     powermon_exception = e
     meter = None
-from meshtastic.protobuf import admin_pb2, channel_pb2, clientonly_pb2, config_pb2, portnums_pb2, mesh_pb2
+from meshtastic.protobuf import admin_pb2, channel_pb2, clientonly_pb2, config_pb2, localonly_pb2, portnums_pb2, mesh_pb2
 from meshtastic.version import get_active_version
 
 logger = logging.getLogger(__name__)
@@ -1907,6 +1907,25 @@ def addImportExportArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
     )
     return parser
 
+def _config_field_names() -> List[str]:
+    """Return shell-completion candidates derived from config descriptors."""
+    names = set()
+    for config in (localonly_pb2.LocalConfig, localonly_pb2.LocalModuleConfig):
+        for section in config.DESCRIPTOR.fields:
+            if section.message_type is None:
+                continue
+            for field in section.message_type.fields:
+                snake_name = f"{section.name}.{field.name}"
+                names.add(snake_name)
+                names.add(meshtastic.util.snake_to_camel(snake_name))
+    return sorted(names)
+
+
+def _complete_config_fields(prefix: str, **_kwargs) -> List[str]:
+    """Complete static config paths without connecting to a device."""
+    return [name for name in _config_field_names() if name.startswith(prefix)]
+
+
 def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """Add arguments to do with configuring a device"""
 
@@ -1915,7 +1934,7 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         "Arguments that concern general configuration of Meshtastic devices",
     )
 
-    group.add_argument(
+    get_action = group.add_argument(
         "--get",
         help=(
             "Get a preferences field. Use an invalid field such as '0' to get a list of all fields."
@@ -1925,6 +1944,7 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         action="append",
         metavar="FIELD"
     )
+    get_action.completer = _complete_config_fields  # type: ignore[attr-defined]
 
     group.add_argument(
         "--set",

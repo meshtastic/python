@@ -26,6 +26,8 @@ from meshtastic.__main__ import (
     tunnelMain,
     set_missing_flags_false,
     _profile_from_yaml,
+    _config_field_names,
+    _complete_config_fields,
 )
 from meshtastic import mt_config
 
@@ -45,6 +47,46 @@ from ..tcp_interface import TCPInterface
 
 # from ..remote_hardware import onGPIOreceive
 # from ..config_pb2 import Config
+
+
+@pytest.mark.unit
+def test_config_field_names_follow_protobuf_descriptors():
+    """Completion candidates include every current local configuration field."""
+    expected = {
+        f"{section.name}.{field.name}"
+        for config in (LocalConfig, LocalModuleConfig)
+        for section in config.DESCRIPTOR.fields
+        if section.message_type is not None
+        for field in section.message_type.fields
+    }
+
+    names = _config_field_names()
+
+    assert expected <= set(names)
+    assert "power.ls_secs" in names
+    assert "power.lsSecs" in names
+    assert names == sorted(set(names))
+
+
+@pytest.mark.unit
+def test_complete_config_fields_filters_by_prefix():
+    """Shell completion returns only fields matching the typed prefix."""
+    matches = list(_complete_config_fields("bluetooth.fixed"))
+
+    assert matches
+    assert all(name.startswith("bluetooth.fixed") for name in matches)
+    assert "bluetooth.fixed_pin" in matches
+    assert "bluetooth.fixedPin" in matches
+
+
+@pytest.mark.unit
+def test_get_argument_uses_config_field_completer():
+    """The --get argparse action exposes config candidates to argcomplete."""
+    parser = mt_main.argparse.ArgumentParser()
+    mt_main.addConfigArgs(parser)
+    get_action = next(action for action in parser._actions if "--get" in action.option_strings)
+
+    assert get_action.completer is _complete_config_fields
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
