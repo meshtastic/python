@@ -29,8 +29,11 @@ def test_RemoteHardwareClient():
     ],
 )
 def test_onGPIOreceive_formats_masked_values_as_hex(
-    capsys, gpio_value, mask, expected_value
-):
+    capsys: pytest.CaptureFixture[str],
+    gpio_value: str | None,
+    mask: int,
+    expected_value: str,
+) -> None:
     """GPIO replies use the same hexadecimal notation as write requests."""
     iface = MagicMock(autospec=SerialInterface)
     iface.mask = mask
