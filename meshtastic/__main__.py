@@ -1921,7 +1921,7 @@ def _config_field_names() -> List[str]:
     return sorted(names)
 
 
-def _complete_config_fields(prefix: str, **_kwargs) -> List[str]:
+def _complete_config_fields(prefix: str, **_kwargs: object) -> List[str]:
     """Complete static config paths without connecting to a device."""
     return [name for name in _config_field_names() if name.startswith(prefix)]
 
