@@ -140,7 +140,7 @@ class Tunnel:
             self._rxThread.start()
 
     @staticmethod
-    def _configure_tun_device(tun, address: str, netmask: str, mtu: int) -> None:
+    def _configure_tun_device(tun: TapDevice, address: str, netmask: str, mtu: int) -> None:
         """Configure a Linux TUN device using the standard iproute2 utility."""
         prefix_length = ipaddress.IPv4Network(f"0.0.0.0/{netmask}").prefixlen
         subprocess.run(

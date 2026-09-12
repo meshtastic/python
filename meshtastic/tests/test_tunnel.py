@@ -69,7 +69,7 @@ def test_Tunnel_with_interface(mock_platform_system, caplog, iface_with_nodes):
 @patch("meshtastic.tunnel.threading.Thread")
 @patch("meshtastic.tunnel.subprocess.run")
 @patch("meshtastic.tunnel.TapDevice")
-def test_Tunnel_configures_device_with_iproute2(
+def test_tunnel_configures_device_with_iproute2(
     mock_tap_device,
     mock_run,
     _mock_thread,
@@ -104,7 +104,7 @@ def test_Tunnel_configures_device_with_iproute2(
 @patch("meshtastic.tunnel.threading.Thread")
 @patch("meshtastic.tunnel.subprocess.run")
 @patch("meshtastic.tunnel.TapDevice")
-def test_Tunnel_closes_device_when_iproute2_configuration_fails(
+def test_tunnel_closes_device_when_iproute2_configuration_fails(
     mock_tap_device,
     mock_run,
     _mock_thread,
@@ -127,7 +127,7 @@ def test_Tunnel_closes_device_when_iproute2_configuration_fails(
 @patch("meshtastic.tunnel.threading.Thread")
 @patch("meshtastic.tunnel.subprocess.run")
 @patch("meshtastic.tunnel.TapDevice")
-def test_Tunnel_closes_device_when_netmask_is_invalid(
+def test_tunnel_closes_device_when_netmask_is_invalid(
     mock_tap_device,
     mock_run,
     _mock_thread,
