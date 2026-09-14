@@ -4,7 +4,9 @@ isort:skip_file
 """
 
 import builtins
+import collections.abc
 import google.protobuf.descriptor
+import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import sys
@@ -17,89 +19,476 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
-class _MessageType:
+class _InterdeviceVersion:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
 
-class _MessageTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_MessageType.ValueType], builtins.type):
+class _InterdeviceVersionEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_InterdeviceVersion.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    ACK: _MessageType.ValueType  # 0
-    COLLECT_INTERVAL: _MessageType.ValueType  # 160
-    """in ms"""
-    BEEP_ON: _MessageType.ValueType  # 161
-    """duration ms"""
-    BEEP_OFF: _MessageType.ValueType  # 162
-    """cancel prematurely"""
-    SHUTDOWN: _MessageType.ValueType  # 163
-    POWER_ON: _MessageType.ValueType  # 164
-    SCD41_TEMP: _MessageType.ValueType  # 176
-    SCD41_HUMIDITY: _MessageType.ValueType  # 177
-    SCD41_CO2: _MessageType.ValueType  # 178
-    AHT20_TEMP: _MessageType.ValueType  # 179
-    AHT20_HUMIDITY: _MessageType.ValueType  # 180
-    TVOC_INDEX: _MessageType.ValueType  # 181
+    INTERDEVICE_VERSION_UNSPECIFIED: _InterdeviceVersion.ValueType  # 0
+    INTERDEVICE_VERSION_CURRENT: _InterdeviceVersion.ValueType  # 2
+    """Never use 1: ping/pong were bools before the handshake existed, and a
+    bool true is the same varint on the wire as the number 1, so firmware
+    predating the handshake would pass it.
+    """
 
-class MessageType(_MessageType, metaclass=_MessageTypeEnumTypeWrapper):
-    """encapsulate up to 1k of NMEA string data"""
+class InterdeviceVersion(_InterdeviceVersion, metaclass=_InterdeviceVersionEnumTypeWrapper):
+    """Version of the interdevice protocol spoken on the link. Both sides send
+    theirs in the ping/pong handshake; a peer reporting a different one runs
+    firmware that does not match and is not talked to.
 
-ACK: MessageType.ValueType  # 0
-COLLECT_INTERVAL: MessageType.ValueType  # 160
-"""in ms"""
-BEEP_ON: MessageType.ValueType  # 161
-"""duration ms"""
-BEEP_OFF: MessageType.ValueType  # 162
-"""cancel prematurely"""
-SHUTDOWN: MessageType.ValueType  # 163
-POWER_ON: MessageType.ValueType  # 164
-SCD41_TEMP: MessageType.ValueType  # 176
-SCD41_HUMIDITY: MessageType.ValueType  # 177
-SCD41_CO2: MessageType.ValueType  # 178
-AHT20_TEMP: MessageType.ValueType  # 179
-AHT20_HUMIDITY: MessageType.ValueType  # 180
-TVOC_INDEX: MessageType.ValueType  # 181
-global___MessageType = MessageType
+    On a change that breaks the other side (renumbered fields, changed
+    semantics, removed messages), raise the value of CURRENT. Do not add
+    another entry: this enum carries a single constant, not a history.
+    """
+
+INTERDEVICE_VERSION_UNSPECIFIED: InterdeviceVersion.ValueType  # 0
+INTERDEVICE_VERSION_CURRENT: InterdeviceVersion.ValueType  # 2
+"""Never use 1: ping/pong were bools before the handshake existed, and a
+bool true is the same varint on the wire as the number 1, so firmware
+predating the handshake would pass it.
+"""
+global___InterdeviceVersion = InterdeviceVersion
+
+class _FileOperation:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _FileOperationEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_FileOperation.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    GET: _FileOperation.ValueType  # 0
+    POST: _FileOperation.ValueType  # 1
+    PUT: _FileOperation.ValueType  # 2
+    DELETE: _FileOperation.ValueType  # 3
+
+class FileOperation(_FileOperation, metaclass=_FileOperationEnumTypeWrapper):
+    """Defines the supported file operations"""
+
+GET: FileOperation.ValueType  # 0
+POST: FileOperation.ValueType  # 1
+PUT: FileOperation.ValueType  # 2
+DELETE: FileOperation.ValueType  # 3
+global___FileOperation = FileOperation
+
+class _FileStatus:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _FileStatusEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_FileStatus.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    FILE_UNSPECIFIED: _FileStatus.ValueType  # 0
+    FILE_OK: _FileStatus.ValueType  # 1
+    FILE_BUSY: _FileStatus.ValueType  # 2
+    """Retry later: the co-processor is doing card maintenance (mount,
+    free space scan) and cannot serve the request right now
+    """
+    FILE_NO_CARD: _FileStatus.ValueType  # 3
+    FILE_NOT_FOUND: _FileStatus.ValueType  # 4
+    FILE_OFFSET_CONFLICT: _FileStatus.ValueType  # 5
+    """PUT only: offset did not match the current end of the file. file_size
+    carries the size the file actually has, so the writer can resync (or
+    recognize its own chunk as already written after a lost response).
+    """
+    FILE_IO_ERROR: _FileStatus.ValueType  # 6
+    FILE_NOT_A_FILE: _FileStatus.ValueType  # 7
+    """path is a directory (GET) or not one (listing)"""
+
+class FileStatus(_FileStatus, metaclass=_FileStatusEnumTypeWrapper):
+    """Outcome of a file or directory operation. The requester must be able to
+    tell a transient condition from a definitive one: BUSY is worth another
+    try, NOT_FOUND is not.
+    """
+
+FILE_UNSPECIFIED: FileStatus.ValueType  # 0
+FILE_OK: FileStatus.ValueType  # 1
+FILE_BUSY: FileStatus.ValueType  # 2
+"""Retry later: the co-processor is doing card maintenance (mount,
+free space scan) and cannot serve the request right now
+"""
+FILE_NO_CARD: FileStatus.ValueType  # 3
+FILE_NOT_FOUND: FileStatus.ValueType  # 4
+FILE_OFFSET_CONFLICT: FileStatus.ValueType  # 5
+"""PUT only: offset did not match the current end of the file. file_size
+carries the size the file actually has, so the writer can resync (or
+recognize its own chunk as already written after a lost response).
+"""
+FILE_IO_ERROR: FileStatus.ValueType  # 6
+FILE_NOT_A_FILE: FileStatus.ValueType  # 7
+"""path is a directory (GET) or not one (listing)"""
+global___FileStatus = FileStatus
+
+class _SdCommand:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _SdCommandEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_SdCommand.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    SD_COMMAND_UNSPECIFIED: _SdCommand.ValueType  # 0
+    SD_MOUNT: _SdCommand.ValueType  # 1
+    """mount a card that is in the slot, also after an eject"""
+    SD_EJECT: _SdCommand.ValueType  # 2
+    """flush and release the card so it can be pulled safely"""
+    SD_FORMAT: _SdCommand.ValueType  # 3
+    """wipe the card and put a fresh FAT on it, then mount it"""
+
+class SdCommand(_SdCommand, metaclass=_SdCommandEnumTypeWrapper):
+    """What to do with the SD card of the co-processor"""
+
+SD_COMMAND_UNSPECIFIED: SdCommand.ValueType  # 0
+SD_MOUNT: SdCommand.ValueType  # 1
+"""mount a card that is in the slot, also after an eject"""
+SD_EJECT: SdCommand.ValueType  # 2
+"""flush and release the card so it can be pulled safely"""
+SD_FORMAT: SdCommand.ValueType  # 3
+"""wipe the card and put a fresh FAT on it, then mount it"""
+global___SdCommand = SdCommand
 
 @typing.final
-class SensorData(google.protobuf.message.Message):
+class FileTransfer(google.protobuf.message.Message):
+    """Message for file operations"""
+
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    TYPE_FIELD_NUMBER: builtins.int
-    FLOAT_VALUE_FIELD_NUMBER: builtins.int
-    UINT32_VALUE_FIELD_NUMBER: builtins.int
-    type: global___MessageType.ValueType
-    """The message type"""
-    float_value: builtins.float
-    uint32_value: builtins.int
+    OPERATION_FIELD_NUMBER: builtins.int
+    FILEPATH_FIELD_NUMBER: builtins.int
+    FILEDATA_FIELD_NUMBER: builtins.int
+    STATUS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    OFFSET_FIELD_NUMBER: builtins.int
+    LENGTH_FIELD_NUMBER: builtins.int
+    FILE_SIZE_FIELD_NUMBER: builtins.int
+    operation: global___FileOperation.ValueType
+    """File operation (GET, POST, PUT, DELETE)"""
+    filepath: builtins.str
+    filedata: builtins.bytes
+    status: global___FileStatus.ValueType
+    """Response: outcome of the operation"""
+    message: builtins.str
+    offset: builtins.int
+    """Byte offset of this chunk within the file (ranged GET/PUT)"""
+    length: builtins.int
+    """GET request: number of bytes to read, 0 = max chunk size. A response
+    carries at most the filedata max_size (see interdevice.options) per
+    chunk; larger requests are truncated, visible in the filedata length.
+    """
+    file_size: builtins.int
+    """GET response: total size of the file"""
     def __init__(
         self,
         *,
-        type: global___MessageType.ValueType = ...,
-        float_value: builtins.float = ...,
-        uint32_value: builtins.int = ...,
+        operation: global___FileOperation.ValueType = ...,
+        filepath: builtins.str = ...,
+        filedata: builtins.bytes = ...,
+        status: global___FileStatus.ValueType = ...,
+        message: builtins.str = ...,
+        offset: builtins.int = ...,
+        length: builtins.int = ...,
+        file_size: builtins.int = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["data", b"data", "float_value", b"float_value", "uint32_value", b"uint32_value"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["data", b"data", "float_value", b"float_value", "type", b"type", "uint32_value", b"uint32_value"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["data", b"data"]) -> typing.Literal["float_value", "uint32_value"] | None: ...
+    def ClearField(self, field_name: typing.Literal["file_size", b"file_size", "filedata", b"filedata", "filepath", b"filepath", "length", b"length", "message", b"message", "offset", b"offset", "operation", b"operation", "status", b"status"]) -> None: ...
 
-global___SensorData = SensorData
+global___FileTransfer = FileTransfer
+
+@typing.final
+class DirectoryListing(google.protobuf.message.Message):
+    """Message for structured directory listing"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    DIRECTORY_FIELD_NUMBER: builtins.int
+    FILENAMES_FIELD_NUMBER: builtins.int
+    STATUS_FIELD_NUMBER: builtins.int
+    MESSAGE_FIELD_NUMBER: builtins.int
+    OFFSET_FIELD_NUMBER: builtins.int
+    TOTAL_COUNT_FIELD_NUMBER: builtins.int
+    directory: builtins.str
+    status: global___FileStatus.ValueType
+    """Response: outcome of the operation"""
+    message: builtins.str
+    offset: builtins.int
+    """Request: skip this many entries (paging)"""
+    total_count: builtins.int
+    """Response: total number of entries in the directory"""
+    @property
+    def filenames(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
+        """One page of entry names, full FAT LFN length. Subdirectories carry a
+        trailing slash. Note that a name whose directory prefix pushes the
+        combined path past the FileTransfer.filepath limit cannot round-trip.
+        Page size is the max_count in interdevice.options; page through with
+        offset and total_count.
+        """
+
+    def __init__(
+        self,
+        *,
+        directory: builtins.str = ...,
+        filenames: collections.abc.Iterable[builtins.str] | None = ...,
+        status: global___FileStatus.ValueType = ...,
+        message: builtins.str = ...,
+        offset: builtins.int = ...,
+        total_count: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["directory", b"directory", "filenames", b"filenames", "message", b"message", "offset", b"offset", "status", b"status", "total_count", b"total_count"]) -> None: ...
+
+global___DirectoryListing = DirectoryListing
+
+@typing.final
+class I2CTransaction(google.protobuf.message.Message):
+    """A single I2C transaction: an optional write followed by an optional
+    read with repeated start, matching the TwoWire usage of sensor drivers
+    (beginTransmission/write.../endTransmission(false)/requestFrom)
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ADDRESS_FIELD_NUMBER: builtins.int
+    WRITE_DATA_FIELD_NUMBER: builtins.int
+    READ_LEN_FIELD_NUMBER: builtins.int
+    address: builtins.int
+    """7-bit device address"""
+    write_data: builtins.bytes
+    read_len: builtins.int
+    """Number of bytes to read after the write, 0 = write-only. Bounded by
+    the read_data max_size of I2CResult (see interdevice.options); larger
+    requests are truncated, visible in the returned byte count.
+    """
+    def __init__(
+        self,
+        *,
+        address: builtins.int = ...,
+        write_data: builtins.bytes = ...,
+        read_len: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["address", b"address", "read_len", b"read_len", "write_data", b"write_data"]) -> None: ...
+
+global___I2CTransaction = I2CTransaction
+
+@typing.final
+class SdCardInfo(google.protobuf.message.Message):
+    """SD card statistics"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _CardType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _CardTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[SdCardInfo._CardType.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        NONE: SdCardInfo._CardType.ValueType  # 0
+        MMC: SdCardInfo._CardType.ValueType  # 1
+        SD: SdCardInfo._CardType.ValueType  # 2
+        SDHC: SdCardInfo._CardType.ValueType  # 3
+        SDXC: SdCardInfo._CardType.ValueType  # 4
+        UNKNOWN_CARD: SdCardInfo._CardType.ValueType  # 5
+
+    class CardType(_CardType, metaclass=_CardTypeEnumTypeWrapper): ...
+    NONE: SdCardInfo.CardType.ValueType  # 0
+    MMC: SdCardInfo.CardType.ValueType  # 1
+    SD: SdCardInfo.CardType.ValueType  # 2
+    SDHC: SdCardInfo.CardType.ValueType  # 3
+    SDXC: SdCardInfo.CardType.ValueType  # 4
+    UNKNOWN_CARD: SdCardInfo.CardType.ValueType  # 5
+
+    class _FatType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _FatTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[SdCardInfo._FatType.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN_FAT: SdCardInfo._FatType.ValueType  # 0
+        FAT16: SdCardInfo._FatType.ValueType  # 1
+        FAT32: SdCardInfo._FatType.ValueType  # 2
+        EXFAT: SdCardInfo._FatType.ValueType  # 3
+
+    class FatType(_FatType, metaclass=_FatTypeEnumTypeWrapper): ...
+    UNKNOWN_FAT: SdCardInfo.FatType.ValueType  # 0
+    FAT16: SdCardInfo.FatType.ValueType  # 1
+    FAT32: SdCardInfo.FatType.ValueType  # 2
+    EXFAT: SdCardInfo.FatType.ValueType  # 3
+
+    PRESENT_FIELD_NUMBER: builtins.int
+    CARD_TYPE_FIELD_NUMBER: builtins.int
+    FAT_TYPE_FIELD_NUMBER: builtins.int
+    CARD_SIZE_FIELD_NUMBER: builtins.int
+    USED_BYTES_FIELD_NUMBER: builtins.int
+    FREE_BYTES_FIELD_NUMBER: builtins.int
+    STATS_VALID_FIELD_NUMBER: builtins.int
+    BUSY_FIELD_NUMBER: builtins.int
+    UNFORMATTED_FIELD_NUMBER: builtins.int
+    present: builtins.bool
+    """Card initialized and usable. False while `busy` is set does not mean
+    there is no card: the co-processor does not know yet.
+    """
+    card_type: global___SdCardInfo.CardType.ValueType
+    fat_type: global___SdCardInfo.FatType.ValueType
+    card_size: builtins.int
+    """Filesystem size in bytes"""
+    used_bytes: builtins.int
+    """Used bytes (may be expensive to compute on FAT32)"""
+    free_bytes: builtins.int
+    """Free bytes"""
+    stats_valid: builtins.bool
+    """used_bytes/free_bytes are only meaningful when true: the scan behind
+    them runs in the background after mount and can take a while, and a
+    full card is otherwise indistinguishable from a scan in progress
+    """
+    busy: builtins.bool
+    """The co-processor is mounting a card right now, so whether one is
+    present is not decided yet. Ask again rather than concluding the slot
+    is empty.
+    """
+    unformatted: builtins.bool
+    """A card answers in the slot but carries no filesystem that could be
+    mounted (present is false then). Formatting it makes it usable.
+    """
+    def __init__(
+        self,
+        *,
+        present: builtins.bool = ...,
+        card_type: global___SdCardInfo.CardType.ValueType = ...,
+        fat_type: global___SdCardInfo.FatType.ValueType = ...,
+        card_size: builtins.int = ...,
+        used_bytes: builtins.int = ...,
+        free_bytes: builtins.int = ...,
+        stats_valid: builtins.bool = ...,
+        busy: builtins.bool = ...,
+        unformatted: builtins.bool = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["busy", b"busy", "card_size", b"card_size", "card_type", b"card_type", "fat_type", b"fat_type", "free_bytes", b"free_bytes", "present", b"present", "stats_valid", b"stats_valid", "unformatted", b"unformatted", "used_bytes", b"used_bytes"]) -> None: ...
+
+global___SdCardInfo = SdCardInfo
+
+@typing.final
+class I2CResult(google.protobuf.message.Message):
+    """Result of an I2CTransaction"""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _Status:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _StatusEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[I2CResult._Status.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNSPECIFIED: I2CResult._Status.ValueType  # 0
+        """Never sent: an all-defaults (e.g. accidentally empty) message must
+        not decode as a successful transaction
+        """
+        OK: I2CResult._Status.ValueType  # 1
+        NACK_ADDRESS: I2CResult._Status.ValueType  # 2
+        NACK_DATA: I2CResult._Status.ValueType  # 3
+        ERROR: I2CResult._Status.ValueType  # 4
+
+    class Status(_Status, metaclass=_StatusEnumTypeWrapper): ...
+    UNSPECIFIED: I2CResult.Status.ValueType  # 0
+    """Never sent: an all-defaults (e.g. accidentally empty) message must
+    not decode as a successful transaction
+    """
+    OK: I2CResult.Status.ValueType  # 1
+    NACK_ADDRESS: I2CResult.Status.ValueType  # 2
+    NACK_DATA: I2CResult.Status.ValueType  # 3
+    ERROR: I2CResult.Status.ValueType  # 4
+
+    STATUS_FIELD_NUMBER: builtins.int
+    READ_DATA_FIELD_NUMBER: builtins.int
+    status: global___I2CResult.Status.ValueType
+    read_data: builtins.bytes
+    def __init__(
+        self,
+        *,
+        status: global___I2CResult.Status.ValueType = ...,
+        read_data: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["read_data", b"read_data", "status", b"status"]) -> None: ...
+
+global___I2CResult = I2CResult
 
 @typing.final
 class InterdeviceMessage(google.protobuf.message.Message):
+    """Main message for interdevice communication"""
+
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    ID_FIELD_NUMBER: builtins.int
     NMEA_FIELD_NUMBER: builtins.int
-    SENSOR_FIELD_NUMBER: builtins.int
+    BEEP_FIELD_NUMBER: builtins.int
+    I2C_TRANSACTION_FIELD_NUMBER: builtins.int
+    I2C_RESULT_FIELD_NUMBER: builtins.int
+    I2C_SCAN_FIELD_NUMBER: builtins.int
+    I2C_SCAN_RESULT_FIELD_NUMBER: builtins.int
+    FILE_TRANSFER_FIELD_NUMBER: builtins.int
+    DIRECTORY_LISTING_FIELD_NUMBER: builtins.int
+    GET_SD_INFO_FIELD_NUMBER: builtins.int
+    SD_INFO_FIELD_NUMBER: builtins.int
+    PING_FIELD_NUMBER: builtins.int
+    PONG_FIELD_NUMBER: builtins.int
+    NACK_FIELD_NUMBER: builtins.int
+    SD_COMMAND_FIELD_NUMBER: builtins.int
+    id: builtins.int
+    """Correlates a response with its request: responses echo the id of the
+    request they answer. 0 for unsolicited messages (e.g. the nmea stream).
+    """
     nmea: builtins.str
+    beep: builtins.int
+    i2c_scan: builtins.bool
+    """Request: scan the secondary I2C bus"""
+    i2c_scan_result: builtins.bytes
+    get_sd_info: builtins.bool
+    """Request: SD card statistics"""
+    ping: global___InterdeviceVersion.ValueType
+    """Link liveness probe and version handshake. The receiver answers ping
+    with pong, echoing the id. Touches no peripherals, so it works with
+    nothing attached. Both carry the version the sender speaks; a peer
+    that answers with a different one speaks another protocol and must
+    not be used.
+    """
+    pong: global___InterdeviceVersion.ValueType
+    nack: builtins.bool
+    """Response: the request could not be decoded or is of an unhandled
+    type, so the requester fails fast instead of burning its timeout.
+    Echoes the id when known, 0 when the frame was undecodable. Never
+    sent in reaction to a nack.
+    """
+    sd_command: global___SdCommand.ValueType
+    """Request: mount the card, or release it so it can be pulled safely. The
+    co-processor answers with sd_info. Without an eject the card is mounted
+    on its own and kept mounted; after one it stays released until a mount
+    is asked for.
+    """
     @property
-    def sensor(self) -> global___SensorData: ...
+    def i2c_transaction(self) -> global___I2CTransaction: ...
+    @property
+    def i2c_result(self) -> global___I2CResult: ...
+    @property
+    def file_transfer(self) -> global___FileTransfer: ...
+    @property
+    def directory_listing(self) -> global___DirectoryListing: ...
+    @property
+    def sd_info(self) -> global___SdCardInfo:
+        """Response"""
+
     def __init__(
         self,
         *,
+        id: builtins.int = ...,
         nmea: builtins.str = ...,
-        sensor: global___SensorData | None = ...,
+        beep: builtins.int = ...,
+        i2c_transaction: global___I2CTransaction | None = ...,
+        i2c_result: global___I2CResult | None = ...,
+        i2c_scan: builtins.bool = ...,
+        i2c_scan_result: builtins.bytes = ...,
+        file_transfer: global___FileTransfer | None = ...,
+        directory_listing: global___DirectoryListing | None = ...,
+        get_sd_info: builtins.bool = ...,
+        sd_info: global___SdCardInfo | None = ...,
+        ping: global___InterdeviceVersion.ValueType = ...,
+        pong: global___InterdeviceVersion.ValueType = ...,
+        nack: builtins.bool = ...,
+        sd_command: global___SdCommand.ValueType = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["data", b"data", "nmea", b"nmea", "sensor", b"sensor"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["data", b"data", "nmea", b"nmea", "sensor", b"sensor"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["data", b"data"]) -> typing.Literal["nmea", "sensor"] | None: ...
+    def HasField(self, field_name: typing.Literal["beep", b"beep", "data", b"data", "directory_listing", b"directory_listing", "file_transfer", b"file_transfer", "get_sd_info", b"get_sd_info", "i2c_result", b"i2c_result", "i2c_scan", b"i2c_scan", "i2c_scan_result", b"i2c_scan_result", "i2c_transaction", b"i2c_transaction", "nack", b"nack", "nmea", b"nmea", "ping", b"ping", "pong", b"pong", "sd_command", b"sd_command", "sd_info", b"sd_info"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["beep", b"beep", "data", b"data", "directory_listing", b"directory_listing", "file_transfer", b"file_transfer", "get_sd_info", b"get_sd_info", "i2c_result", b"i2c_result", "i2c_scan", b"i2c_scan", "i2c_scan_result", b"i2c_scan_result", "i2c_transaction", b"i2c_transaction", "id", b"id", "nack", b"nack", "nmea", b"nmea", "ping", b"ping", "pong", b"pong", "sd_command", b"sd_command", "sd_info", b"sd_info"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["data", b"data"]) -> typing.Literal["nmea", "beep", "i2c_transaction", "i2c_result", "i2c_scan", "i2c_scan_result", "file_transfer", "directory_listing", "get_sd_info", "sd_info", "ping", "pong", "nack", "sd_command"] | None: ...
 
 global___InterdeviceMessage = InterdeviceMessage

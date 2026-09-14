@@ -1402,6 +1402,27 @@ class Config(google.protobuf.message.Message):
             """
             ITU Region 3 Amateur Radio 2m band (144-148 MHz)
             """
+            ITU1_70CM: Config.LoRaConfig._RegionCode.ValueType  # 34
+            """
+            ITU Region 1 Amateur Radio 70cm band (430-440 MHz)
+            """
+            ITU2_70CM: Config.LoRaConfig._RegionCode.ValueType  # 35
+            """
+            ITU Region 2 Amateur Radio 70cm band (420-450 MHz)
+            Note: Some countries do not allocate 420-430 MHz or 440-450 MHz.
+            Check local law!
+            """
+            ITU3_70CM: Config.LoRaConfig._RegionCode.ValueType  # 36
+            """
+            ITU Region 3 Amateur Radio 70cm band (430-450 MHz)
+            Note: Some countries do not allocate 440-450 MHz. Check local law!
+            """
+            ITU2_125CM: Config.LoRaConfig._RegionCode.ValueType  # 37
+            """
+            ITU Region 2 Amateur Radio 1.25m '125cm' band (220-225 MHz)
+            Note: Some countries do not allocate 220-222 MHz (Ex: USA/Canada).
+            Check local law!
+            """
 
         class RegionCode(_RegionCode, metaclass=_RegionCodeEnumTypeWrapper): ...
         UNSET: Config.LoRaConfig.RegionCode.ValueType  # 0
@@ -1537,6 +1558,27 @@ class Config(google.protobuf.message.Message):
         """
         ITU Region 3 Amateur Radio 2m band (144-148 MHz)
         """
+        ITU1_70CM: Config.LoRaConfig.RegionCode.ValueType  # 34
+        """
+        ITU Region 1 Amateur Radio 70cm band (430-440 MHz)
+        """
+        ITU2_70CM: Config.LoRaConfig.RegionCode.ValueType  # 35
+        """
+        ITU Region 2 Amateur Radio 70cm band (420-450 MHz)
+        Note: Some countries do not allocate 420-430 MHz or 440-450 MHz.
+        Check local law!
+        """
+        ITU3_70CM: Config.LoRaConfig.RegionCode.ValueType  # 36
+        """
+        ITU Region 3 Amateur Radio 70cm band (430-450 MHz)
+        Note: Some countries do not allocate 440-450 MHz. Check local law!
+        """
+        ITU2_125CM: Config.LoRaConfig.RegionCode.ValueType  # 37
+        """
+        ITU Region 2 Amateur Radio 1.25m '125cm' band (220-225 MHz)
+        Note: Some countries do not allocate 220-222 MHz (Ex: USA/Canada).
+        Check local law!
+        """
 
         class _ModemPreset:
             ValueType = typing.NewType("ValueType", builtins.int)
@@ -1614,6 +1656,30 @@ class Config(google.protobuf.message.Message):
             Moderate range preset optimized for EU 868MHz band with 62.5kHz bandwidth.
             Comparable link budget and data rate to LONG_FAST.
             """
+            TINY_FAST: Config.LoRaConfig._ModemPreset.ValueType  # 14
+            """
+            Tiny Fast
+            Preset optimized for compliance with Amateur Radio restrictions with 20kHz bandwidth.
+            Many regions limit data transmission bandwidth in lower amateur bands (2 Meter).
+            Note: TCXO with tight tolerances (±5 ppm or better) is *absolutely required* at these narrow bandwidths.
+            Only compatible with SX127x and SX126x chipsets.
+            Comparable link budget and data rate to LONG_FAST.
+            """
+            TINY_SLOW: Config.LoRaConfig._ModemPreset.ValueType  # 15
+            """
+            Tiny Slow
+            Preset optimized for compliance with Amateur Radio restrictions with 20kHz bandwidth.
+            Many regions limit data transmission bandwidth in lower amateur bands (2 Meter).
+            Note: TCXO with tight tolerances (±5 ppm or better) is *absolutely required* at these narrow bandwidths.
+            Only compatible with SX127x and SX126x chipsets.
+            Comparable link budget and data rate to LONG_MODERATE.
+            """
+            MEDIUM_TURBO: Config.LoRaConfig._ModemPreset.ValueType  # 16
+            """
+            Medium Range - Turbo
+            This preset performs similarly to MEDIUM_FAST, but with 500kHz bandwidth.
+            It is not legal to use in all regions due to this wider bandwidth.
+            """
 
         class ModemPreset(_ModemPreset, metaclass=_ModemPresetEnumTypeWrapper):
             """
@@ -1690,6 +1756,30 @@ class Config(google.protobuf.message.Message):
         Narrow Slow
         Moderate range preset optimized for EU 868MHz band with 62.5kHz bandwidth.
         Comparable link budget and data rate to LONG_FAST.
+        """
+        TINY_FAST: Config.LoRaConfig.ModemPreset.ValueType  # 14
+        """
+        Tiny Fast
+        Preset optimized for compliance with Amateur Radio restrictions with 20kHz bandwidth.
+        Many regions limit data transmission bandwidth in lower amateur bands (2 Meter).
+        Note: TCXO with tight tolerances (±5 ppm or better) is *absolutely required* at these narrow bandwidths.
+        Only compatible with SX127x and SX126x chipsets.
+        Comparable link budget and data rate to LONG_FAST.
+        """
+        TINY_SLOW: Config.LoRaConfig.ModemPreset.ValueType  # 15
+        """
+        Tiny Slow
+        Preset optimized for compliance with Amateur Radio restrictions with 20kHz bandwidth.
+        Many regions limit data transmission bandwidth in lower amateur bands (2 Meter).
+        Note: TCXO with tight tolerances (±5 ppm or better) is *absolutely required* at these narrow bandwidths.
+        Only compatible with SX127x and SX126x chipsets.
+        Comparable link budget and data rate to LONG_MODERATE.
+        """
+        MEDIUM_TURBO: Config.LoRaConfig.ModemPreset.ValueType  # 16
+        """
+        Medium Range - Turbo
+        This preset performs similarly to MEDIUM_FAST, but with 500kHz bandwidth.
+        It is not legal to use in all regions due to this wider bandwidth.
         """
 
         class _FEM_LNA_Mode:
@@ -1949,6 +2039,49 @@ class Config(google.protobuf.message.Message):
     class SecurityConfig(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+        class _PacketSignaturePolicy:
+            ValueType = typing.NewType("ValueType", builtins.int)
+            V: typing_extensions.TypeAlias = ValueType
+
+        class _PacketSignaturePolicyEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Config.SecurityConfig._PacketSignaturePolicy.ValueType], builtins.type):
+            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+            PACKET_SIGNATURE_POLICY_COMPATIBLE: Config.SecurityConfig._PacketSignaturePolicy.ValueType  # 0
+            """
+            Accept unsigned packets for maximum compatibility while still rejecting malformed or invalid signatures.
+            This is the default to avoid legacy nodes dropping signed packets during rebroadcast.
+            """
+            PACKET_SIGNATURE_POLICY_BALANCED: Config.SecurityConfig._PacketSignaturePolicy.ValueType  # 1
+            """
+            Prefer authenticated packets while retaining compatibility with unsigned packets from nodes not known to sign.
+            Rejects unsigned, signable broadcasts from nodes that have previously signed.
+            """
+            PACKET_SIGNATURE_POLICY_STRICT: Config.SecurityConfig._PacketSignaturePolicy.ValueType  # 2
+            """
+            Accept only packets authenticated by a verified XEdDSA signature or successful PKI decryption.
+            Unsigned, malformed, invalid, or unverifiable packets are ignored.
+            """
+
+        class PacketSignaturePolicy(_PacketSignaturePolicy, metaclass=_PacketSignaturePolicyEnumTypeWrapper):
+            """
+            Controls how the device authenticates remotely received mesh packets.
+            """
+
+        PACKET_SIGNATURE_POLICY_COMPATIBLE: Config.SecurityConfig.PacketSignaturePolicy.ValueType  # 0
+        """
+        Accept unsigned packets for maximum compatibility while still rejecting malformed or invalid signatures.
+        This is the default to avoid legacy nodes dropping signed packets during rebroadcast.
+        """
+        PACKET_SIGNATURE_POLICY_BALANCED: Config.SecurityConfig.PacketSignaturePolicy.ValueType  # 1
+        """
+        Prefer authenticated packets while retaining compatibility with unsigned packets from nodes not known to sign.
+        Rejects unsigned, signable broadcasts from nodes that have previously signed.
+        """
+        PACKET_SIGNATURE_POLICY_STRICT: Config.SecurityConfig.PacketSignaturePolicy.ValueType  # 2
+        """
+        Accept only packets authenticated by a verified XEdDSA signature or successful PKI decryption.
+        Unsigned, malformed, invalid, or unverifiable packets are ignored.
+        """
+
         PUBLIC_KEY_FIELD_NUMBER: builtins.int
         PRIVATE_KEY_FIELD_NUMBER: builtins.int
         ADMIN_KEY_FIELD_NUMBER: builtins.int
@@ -1956,6 +2089,7 @@ class Config(google.protobuf.message.Message):
         SERIAL_ENABLED_FIELD_NUMBER: builtins.int
         DEBUG_LOG_API_ENABLED_FIELD_NUMBER: builtins.int
         ADMIN_CHANNEL_ENABLED_FIELD_NUMBER: builtins.int
+        PACKET_SIGNATURE_POLICY_FIELD_NUMBER: builtins.int
         public_key: builtins.bytes
         """
         The public key of the user's device.
@@ -1984,6 +2118,10 @@ class Config(google.protobuf.message.Message):
         """
         Allow incoming device control over the insecure legacy admin channel.
         """
+        packet_signature_policy: global___Config.SecurityConfig.PacketSignaturePolicy.ValueType
+        """
+        Determines the packet signature policy applied to remotely received mesh packets.
+        """
         @property
         def admin_key(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.bytes]:
             """
@@ -2000,8 +2138,9 @@ class Config(google.protobuf.message.Message):
             serial_enabled: builtins.bool = ...,
             debug_log_api_enabled: builtins.bool = ...,
             admin_channel_enabled: builtins.bool = ...,
+            packet_signature_policy: global___Config.SecurityConfig.PacketSignaturePolicy.ValueType = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["admin_channel_enabled", b"admin_channel_enabled", "admin_key", b"admin_key", "debug_log_api_enabled", b"debug_log_api_enabled", "is_managed", b"is_managed", "private_key", b"private_key", "public_key", b"public_key", "serial_enabled", b"serial_enabled"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["admin_channel_enabled", b"admin_channel_enabled", "admin_key", b"admin_key", "debug_log_api_enabled", b"debug_log_api_enabled", "is_managed", b"is_managed", "packet_signature_policy", b"packet_signature_policy", "private_key", b"private_key", "public_key", b"public_key", "serial_enabled", b"serial_enabled"]) -> None: ...
 
     @typing.final
     class SessionkeyConfig(google.protobuf.message.Message):
