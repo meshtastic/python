@@ -26,6 +26,13 @@ from typing import Any, Dict, List, Tuple
 # IntSize enum values from nanopb.proto
 INT_SIZE_ENUM = {8: "IS_8", 16: "IS_16", 32: "IS_32", 64: "IS_64"}
 
+# FieldType enum names from nanopb.proto.  Only FT_IGNORE carries meaning for a
+# Python client (the firmware omits the field entirely); the rest describe C
+# storage class, but are passed through so the descriptor mirrors the .options.
+FIELD_TYPE_ENUM = frozenset(
+    {"FT_DEFAULT", "FT_CALLBACK", "FT_POINTER", "FT_STATIC", "FT_IGNORE", "FT_INLINE"}
+)
+
 # Options that are valid proto FieldOptions and useful outside of C code generation.
 # We skip C-only options (anonymous_oneof, no_unions, skip_message, packed_struct,
 # packed_enum, mangle_names, callback_datatype, callback_function, descriptorsize,
@@ -36,6 +43,7 @@ FIELD_OPTIONS = frozenset(
         "max_length",
         "max_count",
         "int_size",
+        "type",
         "fixed_length",
         "fixed_count",
         "long_names",
@@ -122,6 +130,10 @@ def format_nanopb_opts(opts: Dict[str, Any]) -> str:
         if k == "int_size":
             enum_val = INT_SIZE_ENUM.get(v, f"IS_{v}")
             parts.append(f"(nanopb).int_size = {enum_val}")
+        elif k == "type":
+            if v not in FIELD_TYPE_ENUM:
+                raise ValueError(f"unknown nanopb field type {v!r}")
+            parts.append(f"(nanopb).type = {v}")
         elif isinstance(v, bool):
             parts.append(f"(nanopb).{k} = {'true' if v else 'false'}")
         else:
