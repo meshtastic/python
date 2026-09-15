@@ -2,7 +2,7 @@
 import sys
 try:
     from importlib.metadata import version
-except:
+except ImportError:
     import pkg_resources
 
 def get_active_version():

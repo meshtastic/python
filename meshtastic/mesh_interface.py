@@ -1348,7 +1348,7 @@ class MeshInterface:  # pylint: disable=R0902
             try:
                 newpos = self._fixupPosition(node["position"])
                 node["position"] = newpos
-            except:
+            except (KeyError, TypeError):
                 logger.debug("Node without position")
 
             # no longer necessary since we're mutating directly in nodesByNum via _getOrCreateByNum
@@ -1516,7 +1516,7 @@ class MeshInterface:  # pylint: disable=R0902
 
         try:
             return self.nodesByNum[num]["user"]["id"]  # type: ignore[index]
-        except:
+        except (KeyError, TypeError):
             logger.debug(f"Node {num} not found for fromId")
             return None
 
