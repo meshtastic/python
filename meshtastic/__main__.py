@@ -605,11 +605,13 @@ def onConnected(interface):
 
                 #Save Outbound Messages -- if save enabled
                 if mt_config.message_store:
-                    mt_config.message_store.log_sent(
-                        args.sendtext,
-                        destination_id=args.dest,
-                        channel=channelIndex,
-                    )
+                    #Donot Save on Private 
+                    if not args.private:
+                        mt_config.message_store.log_sent(
+                            args.sendtext,
+                            destination_id=args.dest,
+                            channel=channelIndex,
+                        )
             else:
                 meshtastic.util.our_exit(
                     f"Warning: {channelIndex} is not a valid channel. Channel must not be DISABLED."
@@ -1653,16 +1655,16 @@ def common():
 
             subscribe()
 
+            #Display Messages
+            if handleShowMessagesArgs(args):
+                return
+
             # (after the early arg checks, before any interface is constructed)
             # Enable? StoreMessages? Call to get bool --> True (Save)
             message_store = None
             if handleMessageStoreArgs(args):
                 message_store = MessageStore(MessageLog())
             mt_config.message_store = message_store   # so onConnected can reach it
-
-            #Display Messages
-            if handleShowMessagesArgs(args):
-                return
 
             if args.ble_scan:
                 logger.debug("BLE scan starting")
@@ -1844,18 +1846,26 @@ def handleMessageStoreArgs(args) -> bool:
     if mode is None:
         return store.is_enabled()
 
+    #Flag Messages ON: True - Creates MessageStore(MessageLog) to Log Messages
     if mode == "on":
-        store.set_enabled(True)     # persist
+        if not store.set_enabled(True):     # persist -- if write to config fails
+            print("Message logging is on for this run only (could not save the setting).")
         return True
 
     if mode == "off":
-        store.set_enabled(False)    # persist
+        if not store.set_enabled(False):    # persist -- if write to config fails -- throws an err
+            meshtastic.util.our_exit(
+                "Error: could not save the 'off' setting, so message logging "
+                "may still be ON next time. Check permissions on ~/.meshtastic and retry.",
+                1
+            )
         return False
 
     if mode == "live":
         # Log for this run only; saved setting is untouched
         return True
 
+    #Check the current status from the config
     if mode == "status":
         saved = store.is_enabled()
         print(f"Message logging is {'ON' if saved else 'OFF'}")
@@ -1871,7 +1881,7 @@ def handleShowMessagesArgs(args) -> bool:
     parser = mt_config.parser
 
     mode = getattr(args, "show_messages", None)
-    #
+
     if mode is None:
         return False
 

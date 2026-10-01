@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 import sys
 import tempfile
 import time
@@ -61,6 +62,19 @@ def _data_dir(directory: Optional[Path] = None) -> Path:
     if os.environ.get(ENV_DIR):
         return Path(os.environ[ENV_DIR])
     return Path.home() / ".meshtastic"
+
+
+def _tighten_permissions(fd: int) -> None:
+    """The 0o600 passed to os.open only applies when the file is created, so
+    a file that already existed with looser permissions is tightened here.
+    Best effort; no-op where the OS has no POSIX permissions."""
+    if os.name != "posix":
+        return
+    try:
+        if stat.S_IMODE(os.fstat(fd).st_mode) & 0o077:
+            os.fchmod(fd, 0o600)
+    except OSError:
+        pass
 
 
 def _ensure_dir(path: Path) -> None:
@@ -93,6 +107,40 @@ def _node_id(packet: dict, id_key: str, num_key: str) -> str:
     if isinstance(num, int):
         return "^all" if num == BROADCAST_NUM else f"!{num:08x}"
     return "unknown"
+
+
+def normalize_node_id(dest: Any, my_id: Optional[str] = None) -> str:
+    """Canonical form of a user-supplied destination: '!xxxxxxxx' or '^all'.
+
+    Accepts '^all', '^local' (our own node, if my_id is known), '!hex' in any
+    case, '0x...' hex, a decimal node number, or an int. Anything it can't
+    make sense of is returned unchanged rather than guessed at.
+    """
+    if dest is None:
+        return "^all"
+    num = None
+    if isinstance(dest, int) and not isinstance(dest, bool):
+        num = dest
+    else:
+        text = str(dest).strip()
+        if text == "^all":
+            return "^all"
+        if text == "^local":
+            return my_id or "^local"
+        try:
+            if text.startswith("!"):
+                num = int(text[1:], 16)
+            elif text.lower().startswith("0x"):
+                num = int(text, 16)
+            elif text.isdigit():
+                num = int(text)
+        except ValueError:
+            num = None
+        if num is None:
+            return text
+    if not 0 <= num <= BROADCAST_NUM:
+        return str(dest)
+    return "^all" if num == BROADCAST_NUM else f"!{num:08x}"
 
 
 # ---------------------------------------------------------------------------
@@ -218,6 +266,7 @@ class MessageLog:
             # interleave partial lines
             fd = os.open(self.path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
             with os.fdopen(fd, "ab") as f:
+                _tighten_permissions(f.fileno())
                 f.write(line.encode("utf-8"))
             return True
         except (OSError, TypeError, ValueError) as e:
@@ -262,7 +311,7 @@ class MessageStore:
         log: Optional[MessageLog] = None,
         interface=None,
         my_id: Optional[str] = None,
-        text_only: bool = True,
+        text_only: bool = True, #Save Normal Chat Messages Only
     ) -> None:
         self.log = log if log is not None else MessageLog()
         self.interface = interface
@@ -288,12 +337,12 @@ class MessageStore:
                 num = self.interface.localNode.nodeNum
             except AttributeError:
                 pass
-            if not isinstance(num, int):
+            if not isinstance(num, int) or num < 0:
                 try:
                     num = self.interface.myInfo.my_node_num
                 except AttributeError:
                     num = None
-            if isinstance(num, int):
+            if isinstance(num, int) and num >= 0:
                 self._my_id = f"!{num:08x}"
         return self._my_id
 
@@ -314,6 +363,8 @@ class MessageStore:
         try:
             if self.interface is None:
                 self.interface = interface  # learn it from the first packet
+            elif interface is not None and interface is not self.interface:
+                return  # a packet from some other interface: not ours to log
             msg = Message.from_packet(packet)
             if self.text_only and msg.port != TEXT_PORT:
                 return
@@ -346,7 +397,7 @@ class MessageStore:
             Message(
                 from_id=my_id or "self",
                 my_id=my_id,
-                to_id=destination_id,
+                to_id=normalize_node_id(destination_id, my_id),
                 timestamp=time.time(),
                 text=text,
                 port=port,
@@ -372,13 +423,27 @@ class MessageStore:
 # ---------------------------------------------------------------------------
 
 
+def _clean(value: Any) -> str:
+    """Make untrusted text safe to print: escape control characters (ESC,
+    newlines, CR, ...) and other non-printable characters such as bidi
+    overrides, so a received message can't forge extra log lines or drive the
+    terminal. Display only: the stored values are left exactly as received.
+    Side effect: zero-width joiners inside emoji sequences also get escaped."""
+    text = "" if value is None else str(value)
+    return "".join(
+        ch if ch.isprintable() else ch.encode("unicode_escape").decode("ascii")
+        for ch in text
+    )
+
+
 def _label(node_id: str, name: Optional[str], my_id: Optional[str]) -> str:
     """'You (!id)' for our own node, 'Name (!id)' when a name is known,
     otherwise just the id. Records logged before my_id existed can't say."""
-    if my_id and node_id == my_id:
+    node_id = _clean(node_id)
+    if my_id and node_id == _clean(my_id):
         return f"You ({node_id})"
     if name and name != node_id:
-        return f"{name} ({node_id})"
+        return f"{_clean(name)} ({node_id})"
     return node_id
 
 
@@ -394,12 +459,14 @@ def format_message(msg: Message) -> str:
         when = "unknown time"
 
     if msg.direction == "sent":
-        who = f"You ({msg.my_id})" if msg.my_id else "You"
+        who = f"You ({_clean(msg.my_id)})" if msg.my_id else "You"
     else:
         who = _label(msg.from_id, msg.from_name, msg.my_id)
     dest = _label(msg.to_id, None, msg.my_id)
 
     meta = [f"ch{msg.channel}"]
+    if msg.port and msg.port != TEXT_PORT:
+        meta.insert(0, _clean(msg.port))
     if msg.hops is not None:
         meta.append(f"{msg.hops} hop" + ("" if msg.hops == 1 else "s"))
     if msg.rx_snr is not None:
@@ -407,7 +474,7 @@ def format_message(msg: Message) -> str:
     if msg.rx_rssi is not None:
         meta.append(f"RSSI {msg.rx_rssi}")
 
-    return f"{when}  {who} -> {dest}  [{' | '.join(meta)}]: {msg.text or ''}"
+    return f"{when}  {who} -> {dest}  [{' | '.join(meta)}]: {_clean(msg.text)}"
 
 
 def print_messages(log: Optional[MessageLog] = None, out: Optional[TextIO] = None) -> int:
