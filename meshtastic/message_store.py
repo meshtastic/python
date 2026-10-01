@@ -70,11 +70,11 @@ def _tighten_permissions(fd: int) -> None:
     Best effort; no-op where the OS has no POSIX permissions."""
     if os.name != "posix":
         return
-    try:
-        if stat.S_IMODE(os.fstat(fd).st_mode) & 0o077:
-            os.fchmod(fd, 0o600)
-    except OSError:
-        pass
+    
+    mode = stat.S_IMODE(os.fstat(fd).st_mode)
+
+    if mode & 0o077:
+        os.fchmod(fd, 0o600)   # let OSError propagate -- MessageLog.append will catch
 
 
 def _ensure_dir(path: Path) -> None:
@@ -261,15 +261,39 @@ class MessageLog:
         """Append one record as a single JSON line. Never raises."""
         try:
             _ensure_dir(self.dir)
+
+            # Reject if any path component is a symlink
+            path = Path(self.path).resolve(strict=False)
+            for parent in [path] + list(path.parents):
+                if parent.exists() and parent.is_symlink():
+                    _warn(f"refusing to log: symlink in path ({parent})")
+
             line = json.dumps(msg.to_dict(), ensure_ascii=False, separators=(",", ":")) + "\n"
-            # one write call per record so concurrent CLI processes don't
-            # interleave partial lines
-            fd = os.open(self.path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
-            with os.fdopen(fd, "ab") as f:
-                _tighten_permissions(f.fileno())
-                f.write(line.encode("utf-8"))
+
+            # Open with O_NOFOLLOW where available (prevents following a symlink
+            # that appears between the check above and the open call)
+            flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT
+            if hasattr(os, "O_NOFOLLOW"):
+                flags |= os.O_NOFOLLOW
+
+            fd = os.open(str(path), flags, 0o600)
+            try:
+                with os.fdopen(fd, "ab") as f:
+                    _tighten_permissions(f.fileno())
+                    f.write(line.encode("utf-8"))
+            except Exception:
+                # fd is already owned by the with-statement if fdopen succeeded;
+                # if fdopen itself failed we still need to close the raw fd
+                try:
+                    os.close(fd)
+                except OSError:
+                    pass
+                raise
+
             return True
+        
         except (OSError, TypeError, ValueError) as e:
+            # O_NOFOLLOW raises OSError (ELOOP) when the final component is a symlink
             _warn(f"could not log message ({e})")
             return False
 
