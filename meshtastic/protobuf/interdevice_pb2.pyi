@@ -160,10 +160,13 @@ class FileTransfer(google.protobuf.message.Message):
     operation: global___FileOperation.ValueType
     """File operation (GET, POST, PUT, DELETE)"""
     filepath: builtins.str
+    """Path of the file on the SD card"""
     filedata: builtins.bytes
+    """Chunk content (POST/PUT request, GET response)"""
     status: global___FileStatus.ValueType
     """Response: outcome of the operation"""
     message: builtins.str
+    """Response: human readable detail, may be empty"""
     offset: builtins.int
     """Byte offset of this chunk within the file (ranged GET/PUT)"""
     length: builtins.int
@@ -202,9 +205,11 @@ class DirectoryListing(google.protobuf.message.Message):
     OFFSET_FIELD_NUMBER: builtins.int
     TOTAL_COUNT_FIELD_NUMBER: builtins.int
     directory: builtins.str
+    """Path of the directory"""
     status: global___FileStatus.ValueType
     """Response: outcome of the operation"""
     message: builtins.str
+    """Response: human readable detail, may be empty"""
     offset: builtins.int
     """Request: skip this many entries (paging)"""
     total_count: builtins.int
@@ -247,6 +252,7 @@ class I2CTransaction(google.protobuf.message.Message):
     address: builtins.int
     """7-bit device address"""
     write_data: builtins.bytes
+    """Bytes to write, may be empty"""
     read_len: builtins.int
     """Number of bytes to read after the write, 0 = write-only. Bounded by
     the read_data max_size of I2CResult (see interdevice.options); larger
@@ -394,6 +400,7 @@ class I2CResult(google.protobuf.message.Message):
     READ_DATA_FIELD_NUMBER: builtins.int
     status: global___I2CResult.Status.ValueType
     read_data: builtins.bytes
+    """Data read from the device, empty for write-only transactions"""
     def __init__(
         self,
         *,
@@ -434,6 +441,7 @@ class InterdeviceMessage(google.protobuf.message.Message):
     i2c_scan: builtins.bool
     """Request: scan the secondary I2C bus"""
     i2c_scan_result: builtins.bytes
+    """Response: 7-bit addresses of discovered devices"""
     get_sd_info: builtins.bool
     """Request: SD card statistics"""
     ping: global___InterdeviceVersion.ValueType

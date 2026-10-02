@@ -142,6 +142,14 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     Periodically broadcast by nodes in beacon mode; received by nodes with MeshBeaconConfig.FLAG_LISTEN_ENABLED.
     Carries a text message plus optional channel/preset offers for client apps.
     """
+    PAGING_APP: _PortNum.ValueType  # 38
+    """
+    Acknowledged paging: alerts a person is expected to physically acknowledge, and the
+    acknowledgements themselves.
+    ENCODING: protobuf PagingPacket
+    Distinct from ALERT_APP, which is a text message the recipient never confirms, and from a
+    routing or delivery ACK, which says the packet arrived rather than that someone saw it.
+    """
     SERIAL_APP: _PortNum.ValueType  # 64
     """
     Provides a hardware serial interface to send and receive from the Meshtastic network.
@@ -211,7 +219,7 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     LORAWAN_BRIDGE: _PortNum.ValueType  # 75
     """
     LoraWAN Payload Transport
-    ENCODING: compact binary LoRaWAN uplink (10-byte RF metadata + PHY payload) - see LoRaWANBridgeModule
+    ENCODING: LoRaWANBridge protobuf, see lorawan_bridge.proto
     """
     RETICULUM_TUNNEL_APP: _PortNum.ValueType  # 76
     """
@@ -393,6 +401,14 @@ ENCODING: protobuf
 Periodically broadcast by nodes in beacon mode; received by nodes with MeshBeaconConfig.FLAG_LISTEN_ENABLED.
 Carries a text message plus optional channel/preset offers for client apps.
 """
+PAGING_APP: PortNum.ValueType  # 38
+"""
+Acknowledged paging: alerts a person is expected to physically acknowledge, and the
+acknowledgements themselves.
+ENCODING: protobuf PagingPacket
+Distinct from ALERT_APP, which is a text message the recipient never confirms, and from a
+routing or delivery ACK, which says the packet arrived rather than that someone saw it.
+"""
 SERIAL_APP: PortNum.ValueType  # 64
 """
 Provides a hardware serial interface to send and receive from the Meshtastic network.
@@ -462,7 +478,7 @@ PowerStress based monitoring support (for automated power consumption testing)
 LORAWAN_BRIDGE: PortNum.ValueType  # 75
 """
 LoraWAN Payload Transport
-ENCODING: compact binary LoRaWAN uplink (10-byte RF metadata + PHY payload) - see LoRaWANBridgeModule
+ENCODING: LoRaWANBridge protobuf, see lorawan_bridge.proto
 """
 RETICULUM_TUNNEL_APP: PortNum.ValueType  # 76
 """

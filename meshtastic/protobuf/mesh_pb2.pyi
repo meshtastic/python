@@ -634,6 +634,22 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Seeed Studio MeshPager X2
     """
+    T_CONNECT_PRO: _HardwareModel.ValueType  # 147
+    """
+    Lilygo T-CONNECT PRO
+    """
+    AXIOMETA_GENESIS_MINI: _HardwareModel.ValueType  # 148
+    """
+    Axiometa Axiometa Genesis Mini
+    """
+    MAKERFABS_NOMAD_TERMINAL: _HardwareModel.ValueType  # 149
+    """
+    MakerFabs Nomad Terminal
+    """
+    THINKNODE_MX: _HardwareModel.ValueType  # 150
+    """
+    Elecrow ThinkNode MX
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1251,6 +1267,22 @@ MESHPAGER_X2: HardwareModel.ValueType  # 146
 """
 Seeed Studio MeshPager X2
 """
+T_CONNECT_PRO: HardwareModel.ValueType  # 147
+"""
+Lilygo T-CONNECT PRO
+"""
+AXIOMETA_GENESIS_MINI: HardwareModel.ValueType  # 148
+"""
+Axiometa Axiometa Genesis Mini
+"""
+MAKERFABS_NOMAD_TERMINAL: HardwareModel.ValueType  # 149
+"""
+MakerFabs Nomad Terminal
+"""
+THINKNODE_MX: HardwareModel.ValueType  # 150
+"""
+Elecrow ThinkNode MX
+"""
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
 ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1597,6 +1629,22 @@ class _ExcludedModulesEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper
     """
     Network config (not technically a module, but used to indicate network capabilities)
     """
+    STATUSMESSAGE_CONFIG: _ExcludedModules.ValueType  # 32768
+    """
+    Status Message module
+    """
+    TRAFFICMANAGEMENT_CONFIG: _ExcludedModules.ValueType  # 65536
+    """
+    Traffic Management module
+    """
+    TAK_CONFIG: _ExcludedModules.ValueType  # 131072
+    """
+    TAK module
+    """
+    MESHBEACON_CONFIG: _ExcludedModules.ValueType  # 262144
+    """
+    Mesh Beacon module
+    """
 
 class ExcludedModules(_ExcludedModules, metaclass=_ExcludedModulesEnumTypeWrapper):
     """
@@ -1668,6 +1716,22 @@ Bluetooth config (not technically a module, but used to indicate bluetooth capab
 NETWORK_CONFIG: ExcludedModules.ValueType  # 16384
 """
 Network config (not technically a module, but used to indicate network capabilities)
+"""
+STATUSMESSAGE_CONFIG: ExcludedModules.ValueType  # 32768
+"""
+Status Message module
+"""
+TRAFFICMANAGEMENT_CONFIG: ExcludedModules.ValueType  # 65536
+"""
+Traffic Management module
+"""
+TAK_CONFIG: ExcludedModules.ValueType  # 131072
+"""
+TAK module
+"""
+MESHBEACON_CONFIG: ExcludedModules.ValueType  # 262144
+"""
+Mesh Beacon module
 """
 global___ExcludedModules = ExcludedModules
 
@@ -2289,10 +2353,38 @@ class Routing(google.protobuf.message.Message):
     ROUTE_REQUEST_FIELD_NUMBER: builtins.int
     ROUTE_REPLY_FIELD_NUMBER: builtins.int
     ERROR_REASON_FIELD_NUMBER: builtins.int
+    ACK_PROOF_FIELD_NUMBER: builtins.int
     error_reason: global___Routing.Error.ValueType
     """
     A failure in delivering a message (usually used for routing control messages, but might be provided
     in addition to ack.fail_id to provide details on the type of failure).
+    """
+    ack_proof: builtins.bytes
+    """
+    Optional proof that this ack/nak was produced by the node that actually received the packet
+    identified by Data.request_id, rather than by anyone holding the channel key.
+
+    Explicit acks are usually sent on the channel, and channel traffic is encrypted but not
+    authenticated, so such an ack can be forged by any listener holding the PSK. When the
+    acknowledged packet WAS PKI encrypted, the two endpoints already share a Curve25519 secret, so
+    the receiver can prove receipt cheaply rather than signing the ack:
+
+      ack_proof = HMAC-SHA256(shared_key,
+                              "ack" | LE32(from) | LE32(to) | LE32(request_id) | routing)[0..8)
+
+    where shared_key is the same SHA256(X25519(sender_private, receiver_public)) used for PKI
+    packet encryption, and `routing` is this encoded Routing message without the ack_proof field.
+
+    Each input is load-bearing. request_id stops a captured proof being replayed against a
+    different outstanding packet. The Routing bytes stop a bit-flip turning a proven success into a
+    failure: an ack and a nak for one packet otherwise share every other input, and channel
+    encryption is CTR with no integrity check. Integers are little-endian so the value is a
+    property of the protocol rather than of the host that computed it.
+
+    Unset when no pairwise key is available, including the PKI_UNKNOWN_PUBKEY and NO_CHANNEL naks,
+    which are emitted precisely because the packet could not be decrypted. Receivers that do not
+    understand this field ignore it. It does not replace xeddsa_signature, which remains the only
+    option for traffic with no pairwise key and the only proof a third party can check.
     """
     @property
     def route_request(self) -> global___RouteDiscovery:
@@ -2312,9 +2404,10 @@ class Routing(google.protobuf.message.Message):
         route_request: global___RouteDiscovery | None = ...,
         route_reply: global___RouteDiscovery | None = ...,
         error_reason: global___Routing.Error.ValueType = ...,
+        ack_proof: builtins.bytes = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["error_reason", b"error_reason", "route_reply", b"route_reply", "route_request", b"route_request", "variant", b"variant"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["error_reason", b"error_reason", "route_reply", b"route_reply", "route_request", b"route_request", "variant", b"variant"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["ack_proof", b"ack_proof", "error_reason", b"error_reason", "route_reply", b"route_reply", "route_request", b"route_request", "variant", b"variant"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["variant", b"variant"]) -> typing.Literal["route_request", "route_reply", "error_reason"] | None: ...
 
 global___Routing = Routing
@@ -3169,6 +3262,133 @@ class MeshPacket(google.protobuf.message.Message):
     Arrived via Unicast UDP
     """
 
+    class _AckProofStatus:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _AckProofStatusEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[MeshPacket._AckProofStatus.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        ACK_PROOF_ABSENT: MeshPacket._AckProofStatus.ValueType  # 0
+        """
+        No verdict. The default, and what every ack from firmware predating Routing.ack_proof looks
+        like, so an absent field and an absent proof read the same.
+
+        Also reported when a proof was carried but not checked: the ack came from a node other than
+        the one the packet was addressed to (a nak from an intermediate, for example), the packet was
+        no longer awaiting an ack, or the proof was malformed. A build without PKI never checks one.
+        A proof is only checked while the packet it acknowledges is still pending, so on a multi-hop
+        path an overheard relay can settle the packet first and leave a genuine receipt reading ABSENT.
+        """
+        ACK_PROOF_VALID: MeshPacket._AckProofStatus.ValueType  # 1
+        """
+        A proof was carried and verified against the public key of the node the acknowledged packet
+        was addressed to. The only value that means "the recipient received it".
+
+        Verifying against the key of whoever the ack claims to be from is NOT sufficient: the proof
+        only shows its author holds a pairwise secret with us, and every keyed peer holds one, so
+        any of them could otherwise mint a receipt for a packet addressed to someone else.
+        """
+        ACK_PROOF_INVALID: MeshPacket._AckProofStatus.ValueType  # 2
+        """
+        A proof was carried and did not verify. Someone produced an ack for an outstanding packet
+        without holding the pairwise secret, so this is an attempted forgery rather than a quiet
+        absence, and is worth surfacing differently from ACK_PROOF_ABSENT.
+        """
+        ACK_PROOF_NO_KEY: MeshPacket._AckProofStatus.ValueType  # 3
+        """
+        A proof was carried but no authoritative public key was available to check it against, so
+        the ack is neither proven nor disproven.
+        """
+
+    class AckProofStatus(_AckProofStatus, metaclass=_AckProofStatusEnumTypeWrapper):
+        """
+        Outcome of checking Routing.ack_proof on a received ack or nak.
+
+        Reported, never enforced: an ack without a usable proof is acted on exactly as it was before
+        proofs existed. The value exists so a client can tell a proven delivery receipt from an
+        unproven one, and can tell "nobody proved this" from "somebody tried and failed".
+        """
+
+    ACK_PROOF_ABSENT: MeshPacket.AckProofStatus.ValueType  # 0
+    """
+    No verdict. The default, and what every ack from firmware predating Routing.ack_proof looks
+    like, so an absent field and an absent proof read the same.
+
+    Also reported when a proof was carried but not checked: the ack came from a node other than
+    the one the packet was addressed to (a nak from an intermediate, for example), the packet was
+    no longer awaiting an ack, or the proof was malformed. A build without PKI never checks one.
+    A proof is only checked while the packet it acknowledges is still pending, so on a multi-hop
+    path an overheard relay can settle the packet first and leave a genuine receipt reading ABSENT.
+    """
+    ACK_PROOF_VALID: MeshPacket.AckProofStatus.ValueType  # 1
+    """
+    A proof was carried and verified against the public key of the node the acknowledged packet
+    was addressed to. The only value that means "the recipient received it".
+
+    Verifying against the key of whoever the ack claims to be from is NOT sufficient: the proof
+    only shows its author holds a pairwise secret with us, and every keyed peer holds one, so
+    any of them could otherwise mint a receipt for a packet addressed to someone else.
+    """
+    ACK_PROOF_INVALID: MeshPacket.AckProofStatus.ValueType  # 2
+    """
+    A proof was carried and did not verify. Someone produced an ack for an outstanding packet
+    without holding the pairwise secret, so this is an attempted forgery rather than a quiet
+    absence, and is worth surfacing differently from ACK_PROOF_ABSENT.
+    """
+    ACK_PROOF_NO_KEY: MeshPacket.AckProofStatus.ValueType  # 3
+    """
+    A proof was carried but no authoritative public key was available to check it against, so
+    the ack is neither proven nor disproven.
+    """
+
+    class _SlotParity:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _SlotParityEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[MeshPacket._SlotParity.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        SLOT_PARITY_UNSET: MeshPacket._SlotParity.ValueType  # 0
+        """
+        No parity asked for: the ordinary backoff draw over the whole contention window.
+        """
+        SLOT_PARITY_EVEN: MeshPacket._SlotParity.ValueType  # 1
+        """
+        Only even-numbered slots, counted from the end of the last frame on air.
+        """
+        SLOT_PARITY_ODD: MeshPacket._SlotParity.ValueType  # 2
+        """
+        Only odd-numbered slots, counted from the end of the last frame on air.
+        """
+
+    class SlotParity(_SlotParity, metaclass=_SlotParityEnumTypeWrapper):
+        """
+        Which slots of the CSMA backoff grid a transmission may draw from.
+
+        Never sent over the radio links. Like priority, it steers how the local node schedules the
+        packet: a module sets it on a packet it is queueing, and the radio driver reads it when it
+        draws the backoff for that packet.
+
+        A node normally draws any slot of the contention window, counted from the moment it draws.
+        A packet that asks for a parity instead has its slots counted from the end of the last frame
+        this node sent or heard, and only slots of that parity are taken, so two senders on opposite
+        parities that redraw after the same frame never land on the same slot, and so are always at
+        least a slot apart. Useful for a pair of nodes exchanging a stream, where the two ends
+        otherwise collide with each other far more often than with the rest of the mesh.
+        """
+
+    SLOT_PARITY_UNSET: MeshPacket.SlotParity.ValueType  # 0
+    """
+    No parity asked for: the ordinary backoff draw over the whole contention window.
+    """
+    SLOT_PARITY_EVEN: MeshPacket.SlotParity.ValueType  # 1
+    """
+    Only even-numbered slots, counted from the end of the last frame on air.
+    """
+    SLOT_PARITY_ODD: MeshPacket.SlotParity.ValueType  # 2
+    """
+    Only odd-numbered slots, counted from the end of the last frame on air.
+    """
+
     FROM_FIELD_NUMBER: builtins.int
     TO_FIELD_NUMBER: builtins.int
     CHANNEL_FIELD_NUMBER: builtins.int
@@ -3191,6 +3411,8 @@ class MeshPacket(google.protobuf.message.Message):
     TX_AFTER_FIELD_NUMBER: builtins.int
     TRANSPORT_MECHANISM_FIELD_NUMBER: builtins.int
     XEDDSA_SIGNED_FIELD_NUMBER: builtins.int
+    ACK_PROOF_STATUS_FIELD_NUMBER: builtins.int
+    SLOT_PARITY_FIELD_NUMBER: builtins.int
     to: builtins.int
     """
     The (immediate) destination for this packet
@@ -3323,6 +3545,24 @@ class MeshPacket(google.protobuf.message.Message):
     """
     Indicates whether the packet has a valid signature
     """
+    ack_proof_status: global___MeshPacket.AckProofStatus.ValueType
+    """
+    *Never* sent over the radio links.
+    Set by the firmware on a received ack or nak, reporting whether its Routing.ack_proof proved
+    that the node we addressed is the one acknowledging. Clients are not supposed to set this, and
+    the firmware clears whatever arrives here before evaluating a packet - an inbound value is
+    attacker-controlled, since MQTT and the client API both carry whole MeshPacket protobufs.
+
+    Distinct from xeddsa_signed, which is an identity signature any holder of the sender's public
+    key can check. This is a pairwise MAC that only the original sender can check, and it attests
+    to delivery rather than to authorship.
+    """
+    slot_parity: global___MeshPacket.SlotParity.ValueType
+    """
+    Never sent over the radio links.
+    Which parity of the CSMA backoff slot grid this packet may be sent in; see SlotParity.
+    Set by whoever queues the packet, and read by the radio driver when it draws the backoff.
+    """
     @property
     def decoded(self) -> global___Data:
         """
@@ -3353,9 +3593,11 @@ class MeshPacket(google.protobuf.message.Message):
         tx_after: builtins.int = ...,
         transport_mechanism: global___MeshPacket.TransportMechanism.ValueType = ...,
         xeddsa_signed: builtins.bool = ...,
+        ack_proof_status: global___MeshPacket.AckProofStatus.ValueType = ...,
+        slot_parity: global___MeshPacket.SlotParity.ValueType = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["_rx_rssi", b"_rx_rssi", "_rx_time", b"_rx_time", "decoded", b"decoded", "encrypted", b"encrypted", "payload_variant", b"payload_variant", "rx_rssi", b"rx_rssi", "rx_time", b"rx_time"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_rx_rssi", b"_rx_rssi", "_rx_time", b"_rx_time", "channel", b"channel", "decoded", b"decoded", "delayed", b"delayed", "encrypted", b"encrypted", "from", b"from", "hop_limit", b"hop_limit", "hop_start", b"hop_start", "id", b"id", "next_hop", b"next_hop", "payload_variant", b"payload_variant", "pki_encrypted", b"pki_encrypted", "priority", b"priority", "public_key", b"public_key", "relay_node", b"relay_node", "rx_rssi", b"rx_rssi", "rx_snr", b"rx_snr", "rx_time", b"rx_time", "to", b"to", "transport_mechanism", b"transport_mechanism", "tx_after", b"tx_after", "via_mqtt", b"via_mqtt", "want_ack", b"want_ack", "xeddsa_signed", b"xeddsa_signed"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["_rx_rssi", b"_rx_rssi", "_rx_time", b"_rx_time", "ack_proof_status", b"ack_proof_status", "channel", b"channel", "decoded", b"decoded", "delayed", b"delayed", "encrypted", b"encrypted", "from", b"from", "hop_limit", b"hop_limit", "hop_start", b"hop_start", "id", b"id", "next_hop", b"next_hop", "payload_variant", b"payload_variant", "pki_encrypted", b"pki_encrypted", "priority", b"priority", "public_key", b"public_key", "relay_node", b"relay_node", "rx_rssi", b"rx_rssi", "rx_snr", b"rx_snr", "rx_time", b"rx_time", "slot_parity", b"slot_parity", "to", b"to", "transport_mechanism", b"transport_mechanism", "tx_after", b"tx_after", "via_mqtt", b"via_mqtt", "want_ack", b"want_ack", "xeddsa_signed", b"xeddsa_signed"]) -> None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_rx_rssi", b"_rx_rssi"]) -> typing.Literal["rx_rssi"] | None: ...
     @typing.overload
@@ -3402,6 +3644,7 @@ class NodeInfo(google.protobuf.message.Message):
     IS_KEY_MANUALLY_VERIFIED_FIELD_NUMBER: builtins.int
     IS_MUTED_FIELD_NUMBER: builtins.int
     HAS_XEDDSA_SIGNED_FIELD_NUMBER: builtins.int
+    HEARD_ON_CURRENT_LORA_FIELD_NUMBER: builtins.int
     num: builtins.int
     """
     The node number
@@ -3460,6 +3703,23 @@ class NodeInfo(google.protobuf.message.Message):
     Persists between NodeDB internal clean ups
     LSB 1 of the bitfield
     """
+    heard_on_current_lora: builtins.bool
+    """
+    True if we have heard this node over RF on the LoRa configuration the
+    radio is using right now. Derived on the device rather than stored: each
+    node records the frequency slot it was last heard on, and this reports
+    whether that slot matches the one the radio is currently committed to.
+    The slot covers the region, modem preset (or the custom bandwidth/spread
+    factor/coding rate when use_preset is false), override_frequency,
+    channel_num and the primary channel name.
+    Because it is derived, leaving a configuration and returning to it
+    restores the previous answers, so a client sweeping through presets to
+    listen for traffic does not disturb them.
+    Not set for nodes heard only over MQTT, which reach us over the internet
+    rather than over our own radio - see via_mqtt - nor for nodes added as a
+    shared contact, which have never been heard over RF at all.
+    Derived from LSB 11 and bits 12..23 of NodeInfoLite.bitfield.
+    """
     @property
     def user(self) -> global___User:
         """
@@ -3496,9 +3756,10 @@ class NodeInfo(google.protobuf.message.Message):
         is_key_manually_verified: builtins.bool = ...,
         is_muted: builtins.bool = ...,
         has_xeddsa_signed: builtins.bool = ...,
+        heard_on_current_lora: builtins.bool = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "device_metrics", b"device_metrics", "hops_away", b"hops_away", "position", b"position", "user", b"user"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "channel", b"channel", "device_metrics", b"device_metrics", "has_xeddsa_signed", b"has_xeddsa_signed", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "is_ignored", b"is_ignored", "is_key_manually_verified", b"is_key_manually_verified", "is_muted", b"is_muted", "last_heard", b"last_heard", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["_hops_away", b"_hops_away", "channel", b"channel", "device_metrics", b"device_metrics", "has_xeddsa_signed", b"has_xeddsa_signed", "heard_on_current_lora", b"heard_on_current_lora", "hops_away", b"hops_away", "is_favorite", b"is_favorite", "is_ignored", b"is_ignored", "is_key_manually_verified", b"is_key_manually_verified", "is_muted", b"is_muted", "last_heard", b"last_heard", "num", b"num", "position", b"position", "snr", b"snr", "user", b"user", "via_mqtt", b"via_mqtt"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["_hops_away", b"_hops_away"]) -> typing.Literal["hops_away"] | None: ...
 
 global___NodeInfo = NodeInfo
@@ -3988,15 +4249,15 @@ class LockdownStatus(google.protobuf.message.Message):
     lock_reason: builtins.str
     """
     For LOCKED: machine-readable reason. Known values:
-      "needs_auth"        — storage already unlocked, client must auth
-      "token_missing"     — no boot token on flash
-      "token_expired"     — boot token wall-clock TTL elapsed
-      "token_boots_zero"  — boot token boot-count TTL exhausted
-      "token_hmac_fail"   — token tampered or wrong device
-      "token_dek_fail"    — token DEK decrypt failed
-      "token_wrong_size"  — token file corrupted
-      "token_bad_magic"   — token file corrupted
-      "not_provisioned"   — should generally use NEEDS_PROVISION state instead
+      "needs_auth"        - storage already unlocked, client must auth
+      "token_missing"     - no boot token on flash
+      "token_expired"     - boot token wall-clock TTL elapsed
+      "token_boots_zero"  - boot token boot-count TTL exhausted
+      "token_hmac_fail"   - token tampered or wrong device
+      "token_dek_fail"    - token DEK decrypt failed
+      "token_wrong_size"  - token file corrupted
+      "token_bad_magic"   - token file corrupted
+      "not_provisioned"   - should generally use NEEDS_PROVISION state instead
     Other values may be added; clients should treat unknown values as
     "locked, ask for passphrase".
     """

@@ -46,6 +46,7 @@ class ChannelSettings(google.protobuf.message.Message):
     UPLINK_ENABLED_FIELD_NUMBER: builtins.int
     DOWNLINK_ENABLED_FIELD_NUMBER: builtins.int
     MODULE_SETTINGS_FIELD_NUMBER: builtins.int
+    USE_AEAD_FIELD_NUMBER: builtins.int
     channel_num: builtins.int
     """
     Deprecated in favor of LoraConfig.channel_num
@@ -96,6 +97,14 @@ class ChannelSettings(google.protobuf.message.Message):
     """
     If true, messages seen on the internet will be forwarded to the local mesh.
     """
+    use_aead: builtins.bool
+    """
+    Enable authenticated encryption (AES-CCM) for this channel.
+    When true, messages include a 12-byte authentication tag that prevents
+    forgery and bit-flipping attacks. All nodes on the channel must have
+    this enabled - unauthenticated (AES-CTR) packets are rejected.
+    Experimental. Default: false (standard AES-CTR encryption).
+    """
     @property
     def module_settings(self) -> global___ModuleSettings:
         """
@@ -112,9 +121,10 @@ class ChannelSettings(google.protobuf.message.Message):
         uplink_enabled: builtins.bool = ...,
         downlink_enabled: builtins.bool = ...,
         module_settings: global___ModuleSettings | None = ...,
+        use_aead: builtins.bool = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["module_settings", b"module_settings"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel_num", b"channel_num", "downlink_enabled", b"downlink_enabled", "id", b"id", "module_settings", b"module_settings", "name", b"name", "psk", b"psk", "uplink_enabled", b"uplink_enabled"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["channel_num", b"channel_num", "downlink_enabled", b"downlink_enabled", "id", b"id", "module_settings", b"module_settings", "name", b"name", "psk", b"psk", "uplink_enabled", b"uplink_enabled", "use_aead", b"use_aead"]) -> None: ...
 
 global___ChannelSettings = ChannelSettings
 

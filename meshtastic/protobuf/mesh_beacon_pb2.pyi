@@ -18,7 +18,7 @@ class MeshBeacon(google.protobuf.message.Message):
     Payload for MESH_BEACON_APP packets.
     Periodically broadcast by nodes in beacon mode.
     Listeners deliver the text message to the local inbox and cache any offered
-    channel/preset for the client app to act on — the firmware never auto-applies them.
+    channel/preset for the client app to act on - the firmware never auto-applies them.
     """
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -27,6 +27,7 @@ class MeshBeacon(google.protobuf.message.Message):
     OFFER_CHANNEL_FIELD_NUMBER: builtins.int
     OFFER_REGION_FIELD_NUMBER: builtins.int
     OFFER_PRESET_FIELD_NUMBER: builtins.int
+    OFFER_FREQUENCY_SLOT_FIELD_NUMBER: builtins.int
     message: builtins.str
     """
     Human-readable beacon message. Max 100 bytes enforced by firmware on send.
@@ -39,6 +40,16 @@ class MeshBeacon(google.protobuf.message.Message):
     """
     Optional modem preset being advertised.
     Combined with offer_region, tells a client "there is a mesh on this preset/region".
+    """
+    offer_frequency_slot: builtins.int
+    """
+    Frequency slot this mesh uses, 1-based, matching Config.LoRaConfig.channel_num.
+    OMITTED when a receiver can derive the slot itself from offer_region, offer_channel's
+    name and offer_preset - an unset offer_preset means the region's default preset. That
+    covers both a region with a mandated slot and a mesh on the default name hash.
+    PRESENT means this mesh deliberately deviates from what derivation would produce; a
+    client should still validate the result against its own region before offering to join.
+    Do not send 0 - it is the same as omitting the field.
     """
     @property
     def offer_channel(self) -> meshtastic.protobuf.channel_pb2.ChannelSettings:
@@ -54,9 +65,13 @@ class MeshBeacon(google.protobuf.message.Message):
         offer_channel: meshtastic.protobuf.channel_pb2.ChannelSettings | None = ...,
         offer_region: meshtastic.protobuf.config_pb2.Config.LoRaConfig.RegionCode.ValueType = ...,
         offer_preset: meshtastic.protobuf.config_pb2.Config.LoRaConfig.ModemPreset.ValueType | None = ...,
+        offer_frequency_slot: builtins.int | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_offer_preset", b"_offer_preset", "offer_channel", b"offer_channel", "offer_preset", b"offer_preset"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_offer_preset", b"_offer_preset", "message", b"message", "offer_channel", b"offer_channel", "offer_preset", b"offer_preset", "offer_region", b"offer_region"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_offer_frequency_slot", b"_offer_frequency_slot", "_offer_preset", b"_offer_preset", "offer_channel", b"offer_channel", "offer_frequency_slot", b"offer_frequency_slot", "offer_preset", b"offer_preset"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_offer_frequency_slot", b"_offer_frequency_slot", "_offer_preset", b"_offer_preset", "message", b"message", "offer_channel", b"offer_channel", "offer_frequency_slot", b"offer_frequency_slot", "offer_preset", b"offer_preset", "offer_region", b"offer_region"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_offer_frequency_slot", b"_offer_frequency_slot"]) -> typing.Literal["offer_frequency_slot"] | None: ...
+    @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_offer_preset", b"_offer_preset"]) -> typing.Literal["offer_preset"] | None: ...
 
 global___MeshBeacon = MeshBeacon

@@ -173,6 +173,14 @@ class _LanguageEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumT
     """
     Danish
     """
+    HUNGARIAN: _Language.ValueType  # 20
+    """
+    Hungarian
+    """
+    AZERBAIJANI: _Language.ValueType  # 21
+    """
+    Azerbaijani
+    """
     SIMPLIFIED_CHINESE: _Language.ValueType  # 30
     """
     Simplified Chinese (experimental)
@@ -266,6 +274,14 @@ Czech
 DANISH: Language.ValueType  # 19
 """
 Danish
+"""
+HUNGARIAN: Language.ValueType  # 20
+"""
+Hungarian
+"""
+AZERBAIJANI: Language.ValueType  # 21
+"""
+Azerbaijani
 """
 SIMPLIFIED_CHINESE: Language.ValueType  # 30
 """
