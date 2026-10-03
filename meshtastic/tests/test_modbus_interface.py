@@ -102,9 +102,17 @@ def test_parseModbusSpec():
     assert parseModbusSpec("/dev/ttyUSB0:10") == ("/dev/ttyUSB0", 10, 9600)
     assert parseModbusSpec("COM5::19200") == ("COM5", 240, 19200)
     assert parseModbusSpec("COM5:241:19200") == ("COM5", 241, 19200)
-    for bad in ["", ":240", "COM5:0", "COM5:248", "COM5:1:2:3", "COM5:x"]:
+    for bad in ["", "COM5:0", "COM5:248"]:
         with pytest.raises(ValueError):
             parseModbusSpec(bad)
+
+
+@pytest.mark.unit
+def test_parseModbusSpec_keeps_colons_in_device_paths():
+    """Only trailing numeric fields are ADDR and BAUD; by-path names keep their colons"""
+    path = "/dev/serial/by-path/pci-0000:00:14.0-usb-0:1:1.0-port0"
+    assert parseModbusSpec(path) == (path, 240, 9600)
+    assert parseModbusSpec(path + ":10:19200") == (path, 10, 19200)
 
 
 @pytest.mark.unit
@@ -135,6 +143,28 @@ def test_writeBytes_splits_into_tunnel_frames():
     iface._writeBytes(data)
     assert [r[3] for r in node.requests] == [240, 240, 32]
     assert node.received == data
+
+
+@pytest.mark.unit
+def test_write_ack_beyond_chunk_raises():
+    """An acknowledgement for more bytes than were sent must not skip unsent data"""
+    node = FakeNode(answer=withCrc(bytes((240, FC_WRITE, 0x11, 5))))
+    iface = makeInterface(node)
+    iface._seq = 0x10
+    with pytest.raises(MeshInterface.MeshInterfaceError, match="accepted 5 bytes of a 3-byte write"):
+        iface._writeBytes(b"abc")
+
+
+@pytest.mark.unit
+def test_failed_read_poll_keeps_reader_running():
+    """An unanswered poll returns no data and waits for the next poll instead of ending the reader"""
+    node = FakeNode(output=b"abc", silent=1 + RETRIES)
+    iface = makeInterface(node)
+    with patch("meshtastic.modbus_interface.time.monotonic", return_value=1000.0), patch("time.sleep"):
+        assert iface._readBytes(1) == b""
+        assert iface._nextPoll > 1000.0
+        iface._nextPoll = 0
+        assert iface._readBytes(3) == b"abc"
 
 
 @pytest.mark.unit

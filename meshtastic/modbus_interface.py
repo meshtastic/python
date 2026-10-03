@@ -12,6 +12,7 @@ answer and does not apply the data twice.
 # pylint: disable=R0917
 import logging
 import os
+import re
 import threading
 import time
 from typing import Optional, Tuple
@@ -51,15 +52,20 @@ def withCrc(frame: bytes) -> bytes:
 
 
 def parseModbusSpec(spec: str) -> Tuple[str, int, int]:
-    """Split a DEVICE[:ADDR[:BAUD]] connection spec"""
-    parts = spec.split(":")
-    if len(parts) > 3 or not parts[0]:
+    """Split a DEVICE[:ADDR[:BAUD]] connection spec
+
+    Only trailing numeric fields count as ADDR and BAUD, so device paths with colons
+    (/dev/serial/by-path/...) stay intact.
+    """
+    match = re.fullmatch(r"(.+?)(?::(\d*)(?::(\d+))?)?", spec)
+    if not match:
         raise ValueError(f"Invalid Modbus connection '{spec}', expected DEVICE[:ADDR[:BAUD]]")
-    address = int(parts[1]) if len(parts) > 1 and parts[1] else DEFAULT_MODBUS_ADDRESS
-    baudrate = int(parts[2]) if len(parts) > 2 and parts[2] else DEFAULT_MODBUS_BAUDRATE
+    device, addressText, baudText = match.groups()
+    address = int(addressText) if addressText else DEFAULT_MODBUS_ADDRESS
+    baudrate = int(baudText) if baudText else DEFAULT_MODBUS_BAUDRATE
     if not 1 <= address <= 247:
         raise ValueError(f"Invalid Modbus address {address}, expected 1..247")
-    return parts[0], address, baudrate
+    return device, address, baudrate
 
 
 class ModbusInterface(StreamInterface):
@@ -161,9 +167,12 @@ class ModbusInterface(StreamInterface):
     def _writeBytes(self, b: bytes) -> None:
         """Send API bytes to the node in tunnel writes"""
         while b and self.stream is not None:
-            accepted = self._transact(FC_WRITE, b[:MAX_DATA])[0]
-            if not accepted:
-                raise MeshInterface.MeshInterfaceError(f"Modbus address {self.address} accepted no data")
+            chunk = b[:MAX_DATA]
+            accepted = self._transact(FC_WRITE, chunk)[0]
+            if not 0 < accepted <= len(chunk):
+                raise MeshInterface.MeshInterfaceError(
+                    f"Modbus address {self.address} accepted {accepted} bytes of a {len(chunk)}-byte write"
+                )
             b = b[accepted:]
 
     def _readBytes(self, length) -> Optional[bytes]:
@@ -176,7 +185,13 @@ class ModbusInterface(StreamInterface):
             if wait > 0:
                 time.sleep(wait)
                 return b""
-            self._pending = self._transact(FC_READ)
+            try:
+                self._pending = self._transact(FC_READ)
+            except MeshInterface.MeshInterfaceError as ex:
+                # An unanswered poll is a read timeout, not a lost link: keep the reader running.
+                logger.warning(f"Modbus read poll failed: {ex}")
+                self._nextPoll = time.monotonic() + POLL_INTERVAL
+                return b""
             # A full read means more is waiting, so poll again straight away.
             self._nextPoll = time.monotonic() + (0 if len(self._pending) == MAX_DATA else POLL_INTERVAL)
         out, self._pending = self._pending[:length], self._pending[length:]
