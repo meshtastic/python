@@ -41,6 +41,7 @@ except ImportError as e:
 
 import meshtastic.ota
 import meshtastic.util
+import meshtastic.modbus_interface
 import meshtastic.serial_interface
 import meshtastic.tcp_interface
 
@@ -1718,6 +1719,20 @@ def common():
                     )
                 except Exception as ex:
                     meshtastic.util.our_exit(f"Error connecting to {args.host}:{ex}", 1)
+            elif args.modbus:
+                try:
+                    modbus_port, modbus_address, modbus_baudrate = meshtastic.modbus_interface.parseModbusSpec(args.modbus)
+                    client = meshtastic.modbus_interface.ModbusInterface(
+                        modbus_port,
+                        address=modbus_address,
+                        baudrate=modbus_baudrate,
+                        debugOut=logfile,
+                        noProto=args.noproto,
+                        noNodes=args.no_nodes,
+                        timeout=args.timeout,
+                    )
+                except Exception as ex:
+                    meshtastic.util.our_exit(f"Error connecting to {args.modbus}:{ex}", 1)
             else:
                 try:
                     client = meshtastic.serial_interface.SerialInterface(
@@ -1835,6 +1850,14 @@ def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
         default=None,
         const="localhost",
         metavar="HOST[:PORT]",
+    )
+
+    group.add_argument(
+        "--modbus",
+        help=("Connect through a USB-RS485 adapter to a node's Modbus API tunnel. The node's slave address "
+              "(default 240) and the bus baud rate (default 9600) may follow, e.g. COM5:240:9600."),
+        default=None,
+        metavar="DEVICE[:ADDR[:BAUD]]",
     )
 
     group.add_argument(

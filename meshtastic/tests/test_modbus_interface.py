@@ -1,9 +1,13 @@
 """Meshtastic unit tests for modbus_interface.py"""
 
-from unittest.mock import patch
+import re
+import sys
+from unittest.mock import MagicMock, patch
 
 import pytest
 
+from .. import mt_config
+from ..__main__ import main
 from ..mesh_interface import MeshInterface
 from ..modbus_interface import (
     FC_READ,
@@ -199,3 +203,27 @@ def test_exception_answer_raises_without_retry():
     with pytest.raises(MeshInterface.MeshInterfaceError, match="rejected"):
         iface._writeBytes(b"x")
     assert len(node.requests) == 1
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_info_with_modbus_interface(capsys):
+    """--modbus DEVICE:ADDR:BAUD connects through ModbusInterface"""
+    sys.argv = ["", "--info", "--modbus", "COM5:241:19200"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=ModbusInterface)
+
+    def mock_showInfo():
+        print("inside mocked showInfo")
+
+    iface.showInfo.side_effect = mock_showInfo
+    with patch("meshtastic.modbus_interface.ModbusInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(r"inside mocked showInfo", out, re.MULTILINE)
+        assert err == ""
+        assert mo.call_args.args == ("COM5",)
+        assert mo.call_args.kwargs["address"] == 241
+        assert mo.call_args.kwargs["baudrate"] == 19200
