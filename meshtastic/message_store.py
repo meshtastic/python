@@ -257,36 +257,36 @@ class MessageLog:
         self.dir = _data_dir(directory)
         self.path = self.dir / LOG_NAME
 
-        def append(self, msg: Message) -> bool:
-            """Append one record as a single JSON line. Never raises."""
+    def append(self, msg: Message) -> bool:
+        """Append one record as a single JSON line. Never raises."""
+        try:
+            path = Path(os.path.abspath(self.path))
+            # Refuse before creating anything, so no directories get made through a link
+            for parent in (path, *path.parents):
+                if parent.is_symlink():
+                    raise OSError(f"refusing to log: symlink in path ({parent})")
+            _ensure_dir(self.dir)
+
+            line = json.dumps(msg.to_dict(), ensure_ascii=False, separators=(",", ":")) + "\n"
+
+            flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT
+            if hasattr(os, "O_NOFOLLOW"):
+                flags |= os.O_NOFOLLOW
+
+            fd = os.open(str(path), flags, 0o600)
             try:
-                path = Path(os.path.abspath(self.path))
-                # Refuse before creating anything, so no directories get made through a link
-                for parent in (path, *path.parents):
-                    if parent.is_symlink():
-                        raise OSError(f"refusing to log: symlink in path ({parent})")
-                _ensure_dir(self.dir)
+                f = os.fdopen(fd, "ab")
+            except Exception:
+                os.close(fd)  # fdopen failed, so nothing else owns the descriptor
+                raise
+            with f:  # f owns the descriptor from here; it closes exactly once
+                _tighten_permissions(f.fileno())
+                f.write(line.encode("utf-8"))
+            return True
 
-                line = json.dumps(msg.to_dict(), ensure_ascii=False, separators=(",", ":")) + "\n"
-
-                flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT
-                if hasattr(os, "O_NOFOLLOW"):
-                    flags |= os.O_NOFOLLOW
-
-                fd = os.open(str(path), flags, 0o600)
-                try:
-                    f = os.fdopen(fd, "ab")
-                except Exception:
-                    os.close(fd)  # fdopen failed, so nothing else owns the descriptor
-                    raise
-                with f:  # f owns the descriptor from here; it closes exactly once
-                    _tighten_permissions(f.fileno())
-                    f.write(line.encode("utf-8"))
-                return True
-
-            except (OSError, TypeError, ValueError) as e:
-                _warn(f"could not log message ({e})")
-                return False
+        except (OSError, TypeError, ValueError) as e:
+            _warn(f"could not log message ({e})")
+            return False    
         
     def iter_messages(self) -> Iterator[Message]:
         """Yield stored messages in file order, skipping unreadable lines."""
