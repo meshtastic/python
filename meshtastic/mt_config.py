@@ -20,7 +20,7 @@ def reset():
     Restore the namespace to pristine condition.
     """
     # pylint: disable=W0603
-    global args, parser, channel_index, logfile, tunnelInstance, camel_case
+    global args, parser, channel_index, logfile, tunnelInstance, camel_case, message_store
     args = None
     parser = None
     channel_index = None
@@ -28,6 +28,7 @@ def reset():
     tunnelInstance = None
     # TODO: to migrate to camel_case for v1.3 change this value to True
     camel_case = False
+    message_store = None
 
 # These assignments are used instead of calling reset()
 # purely to shut pylint up.
@@ -36,4 +37,5 @@ parser = None
 channel_index = None
 logfile = None
 tunnelInstance: Optional[Any] = None
+message_store: Optional[Any] = None
 camel_case = False
