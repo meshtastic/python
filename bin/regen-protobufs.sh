@@ -69,6 +69,13 @@ done
 # Generate the python files
 ./nanopb-0.4.8/generator-bin/protoc -I=$TMPDIR/in --python_out "${OUTDIR}" "--mypy_out=${PYIDIR}" $INDIR/*.proto
 
+# Name the bits of every packed bitfield, from the unmodified schema with its comments
+./nanopb-0.4.8/generator-bin/protoc -I=./protobufs --include_source_info "--descriptor_set_out=${TMPDIR}/descriptor.binpb" ./protobufs/meshtastic/*.proto
+python3 ./bin/gen_bitfields.py "${TMPDIR}/descriptor.binpb" "${OUTDIR}/meshtastic/protobuf/bitfields.py"
+
+# Hardware model names are registry data, not schema
+cp ./protobufs/registry/generated/hw_devices.json "${OUTDIR}/meshtastic/protobuf/"
+
 # Change "from meshtastic.protobuf import" to "from . import"
 $SEDCMD 's/^from meshtastic.protobuf import/from . import/' "${OUTDIR}"/meshtastic/protobuf/*pb2*.py[i]
 
@@ -77,7 +84,7 @@ touch "${OUTDIR}/meshtastic/protobuf/__init__.py"
 
 # Copy to the source controlled tree
 mkdir -p meshtastic/protobuf
-rm -rf meshtastic/protobuf/*pb2*.py
+rm -rf meshtastic/protobuf/*pb2*.py meshtastic/protobuf/*pb2*.pyi
 cp "${OUTDIR}/meshtastic/protobuf"/* meshtastic/protobuf
 
 exit 0

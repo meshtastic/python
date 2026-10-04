@@ -8,6 +8,7 @@ Cleanup/error handling: closes interface on exit and prints clear errors on fail
 """
 
 import meshtastic.serial_interface
+from meshtastic.util import hw_model_name
 
 
 def main() -> int:
@@ -33,7 +34,7 @@ def main() -> int:
                 "Name: "
                 f"{user.get('longName', 'unknown')} ({user.get('shortName', 'unknown')})"
             )
-            print(f"Hardware model: {user.get('hwModel', 'unknown')}")
+            print(f"Hardware model: {hw_model_name(user.get('hwModel', 0))}")
     except KeyboardInterrupt:
         return 0
     except Exception as exc:

@@ -3,7 +3,7 @@
 import pytest
 
 from ..mesh_interface import MeshInterface
-from ..protobuf import mesh_pb2
+from ..protobuf import api_pb2
 
 
 @pytest.mark.unit
@@ -11,9 +11,9 @@ from ..protobuf import mesh_pb2
 def test_handleFromRadio_with_traffic_management_module_config():
     """Test _handleFromRadio with moduleConfig.traffic_management."""
     iface = MeshInterface(noProto=True)
-    from_radio = mesh_pb2.FromRadio()
-    from_radio.moduleConfig.traffic_management.position_min_interval_secs = 30
-    from_radio.moduleConfig.traffic_management.rate_limit_window_secs = 60
+    from_radio = api_pb2.FromRadio()
+    from_radio.module_config.traffic_management.position_min_interval_secs = 30
+    from_radio.module_config.traffic_management.rate_limit_window_secs = 60
 
     iface._handleFromRadio(from_radio.SerializeToString())
 

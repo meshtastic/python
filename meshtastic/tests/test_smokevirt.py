@@ -25,7 +25,8 @@ import time
 
 import pytest
 
-from meshtastic.protobuf import channel_pb2, config_pb2
+from meshtastic.node import channel_role
+from meshtastic.protobuf import common_pb2, config_pb2
 
 from .fw_helpers import (
     PAUSE_AFTER_CLI,
@@ -235,10 +236,7 @@ def _channel(iface, idx):
 def _assert_channel_role(iface, idx, expected_role):
     ch = _channel(iface, idx)
     assert ch is not None, f"channel {idx} missing"
-    assert ch.role == expected_role, (
-        f"channel {idx} role: {channel_pb2.Channel.Role.Name(ch.role)} "
-        f"!= {channel_pb2.Channel.Role.Name(expected_role)}"
-    )
+    assert channel_role(ch) == expected_role, f"channel {idx} role: {channel_role(ch)} != {expected_role}"
 
 
 def _set_and_verify(port, args, verifier, expect_rc=0):
@@ -262,14 +260,14 @@ def test_smokevirt_ch_set_name(firmware_node):
 
 
 _CH_PRESETS = [
-    ("--ch-longmod", config_pb2.Config.LoRaConfig.ModemPreset.LONG_MODERATE),
-    ("--ch-longfast", config_pb2.Config.LoRaConfig.ModemPreset.LONG_FAST),
-    ("--ch-longturbo", config_pb2.Config.LoRaConfig.ModemPreset.LONG_TURBO),
-    ("--ch-medslow", config_pb2.Config.LoRaConfig.ModemPreset.MEDIUM_SLOW),
-    ("--ch-medfast", config_pb2.Config.LoRaConfig.ModemPreset.MEDIUM_FAST),
-    ("--ch-shortslow", config_pb2.Config.LoRaConfig.ModemPreset.SHORT_SLOW),
-    ("--ch-shortfast", config_pb2.Config.LoRaConfig.ModemPreset.SHORT_FAST),
-    ("--ch-shortturbo", config_pb2.Config.LoRaConfig.ModemPreset.SHORT_TURBO),
+    ("--ch-longmod", common_pb2.ModemPreset.MODEM_LONG_MODERATE),
+    ("--ch-longfast", common_pb2.ModemPreset.MODEM_LONG_FAST),
+    ("--ch-longturbo", common_pb2.ModemPreset.MODEM_LONG_TURBO),
+    ("--ch-medslow", common_pb2.ModemPreset.MODEM_MEDIUM_SLOW),
+    ("--ch-medfast", common_pb2.ModemPreset.MODEM_MEDIUM_FAST),
+    ("--ch-shortslow", common_pb2.ModemPreset.MODEM_SHORT_SLOW),
+    ("--ch-shortfast", common_pb2.ModemPreset.MODEM_SHORT_FAST),
+    ("--ch-shortturbo", common_pb2.ModemPreset.MODEM_SHORT_TURBO),
 ]
 
 
@@ -280,8 +278,8 @@ def test_smokevirt_ch_preset(firmware_node, flag, expected_preset):
     def check(iface):
         actual = iface.localNode.localConfig.lora.modem_preset
         assert actual == expected_preset, (
-            f"modem_preset: {config_pb2.Config.LoRaConfig.ModemPreset.Name(actual)} "
-            f"!= {config_pb2.Config.LoRaConfig.ModemPreset.Name(expected_preset)}"
+            f"modem_preset: {common_pb2.ModemPreset.Name(actual)} "
+            f"!= {common_pb2.ModemPreset.Name(expected_preset)}"
         )
 
     cli_then_verify(firmware_node.port, [flag], check)
@@ -333,7 +331,7 @@ def test_smokevirt_ch_add_then_del(firmware_node):
     def check_added(iface):
         ch = _channel(iface, 1)
         assert ch is not None, "secondary channel missing after --ch-add"
-        assert ch.role == channel_pb2.Channel.Role.SECONDARY, ch
+        assert channel_role(ch) == "SECONDARY", ch
         assert ch.settings.name == "testing", ch
 
     cli_then_verify(
@@ -344,8 +342,8 @@ def test_smokevirt_ch_add_then_del(firmware_node):
 
     def check_deleted(iface):
         ch = _channel(iface, 1)
-        assert ch is None or ch.role == channel_pb2.Channel.Role.DISABLED, (
-            f"channel 1 still present after --ch-del: role={ch.role}"
+        assert ch is None or channel_role(ch) == "DISABLED", (
+            f"channel 1 still present after --ch-del: role={channel_role(ch)}"
         )
 
     cli_then_verify(
@@ -365,7 +363,7 @@ def test_smokevirt_ch_enable_disable(firmware_node):
     time.sleep(PAUSE_AFTER_REBOOT)
 
     def check_disabled(iface):
-        _assert_channel_role(iface, 1, channel_pb2.Channel.Role.DISABLED)
+        _assert_channel_role(iface, 1, "DISABLED")
 
     cli_then_verify(
         firmware_node.port,
@@ -374,7 +372,7 @@ def test_smokevirt_ch_enable_disable(firmware_node):
     )
 
     def check_enabled(iface):
-        _assert_channel_role(iface, 1, channel_pb2.Channel.Role.SECONDARY)
+        _assert_channel_role(iface, 1, "SECONDARY")
 
     cli_then_verify(
         firmware_node.port,
@@ -549,7 +547,7 @@ def test_smokevirt_pos_fields(firmware_node):
     """--pos-fields should mount the requested bit flags in the position config."""
     def check(iface):
         flags = iface.localNode.localConfig.position.position_flags
-        PosFlags = config_pb2.Config.PositionConfig.PositionFlags
+        PosFlags = config_pb2.PositionConfig.PositionFlags
         for name in _POS_FIELDS_INPUT:
             assert flags & int(PosFlags.Value(name)), (
                 f"{name} bit not set in position_flags={flags:#x}"

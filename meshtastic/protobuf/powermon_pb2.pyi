@@ -3,36 +3,38 @@
 isort:skip_file
 """
 
-import builtins
-import google.protobuf.descriptor
-import google.protobuf.internal.enum_type_wrapper
-import google.protobuf.message
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+import builtins as _builtins
 import sys
-import typing
+import typing as _typing
 
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
 else:
-    import typing_extensions
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+DESCRIPTOR: _descriptor.FileDescriptor
 
-@typing.final
-class PowerMon(google.protobuf.message.Message):
+@_typing.final
+class PowerMon(_message.Message):
     """Note: There are no 'PowerMon' messages normally in use (PowerMons are sent only as structured logs - slogs).
     But we wrap our State enum in this message to effectively nest a namespace (without our linter yelling at us)
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
     class _State:
-        ValueType = typing.NewType("ValueType", builtins.int)
-        V: typing_extensions.TypeAlias = ValueType
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
 
-    class _StateEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[PowerMon._State.ValueType], builtins.type):
-        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    class _StateEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[PowerMon._State.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
         CPU_DeepSleep: PowerMon._State.ValueType  # 1
+        """CPU is in deep sleep mode (lowest power)"""
         CPU_LightSleep: PowerMon._State.ValueType  # 2
+        """CPU is in light sleep mode (reduced power, fast wake)"""
         Vext1_On: PowerMon._State.ValueType  # 4
         """
         The external Vext1 power is on.  Many boards have auxillary power rails that the CPU turns on only
@@ -45,13 +47,21 @@ class PowerMon(google.protobuf.message.Message):
         (We use a bitmask for states so that if a log message gets lost it won't be fatal)
         """
         Lora_RXOn: PowerMon._State.ValueType  # 8
+        """LoRa radio receiver is powered on"""
         Lora_TXOn: PowerMon._State.ValueType  # 16
+        """LoRa radio transmitter is powered on"""
         Lora_RXActive: PowerMon._State.ValueType  # 32
+        """LoRa radio is actively receiving a packet"""
         BT_On: PowerMon._State.ValueType  # 64
+        """Bluetooth radio is powered on"""
         LED_On: PowerMon._State.ValueType  # 128
+        """LED is powered on"""
         Screen_On: PowerMon._State.ValueType  # 256
+        """Display screen is powered on"""
         Screen_Drawing: PowerMon._State.ValueType  # 512
+        """Display screen is actively being drawn to"""
         Wifi_On: PowerMon._State.ValueType  # 1024
+        """WiFi radio is powered on"""
         GPS_Active: PowerMon._State.ValueType  # 2048
         """
         GPS is actively trying to find our location
@@ -64,7 +74,9 @@ class PowerMon(google.protobuf.message.Message):
         """
 
     CPU_DeepSleep: PowerMon.State.ValueType  # 1
+    """CPU is in deep sleep mode (lowest power)"""
     CPU_LightSleep: PowerMon.State.ValueType  # 2
+    """CPU is in light sleep mode (reduced power, fast wake)"""
     Vext1_On: PowerMon.State.ValueType  # 4
     """
     The external Vext1 power is on.  Many boards have auxillary power rails that the CPU turns on only
@@ -77,13 +89,21 @@ class PowerMon(google.protobuf.message.Message):
     (We use a bitmask for states so that if a log message gets lost it won't be fatal)
     """
     Lora_RXOn: PowerMon.State.ValueType  # 8
+    """LoRa radio receiver is powered on"""
     Lora_TXOn: PowerMon.State.ValueType  # 16
+    """LoRa radio transmitter is powered on"""
     Lora_RXActive: PowerMon.State.ValueType  # 32
+    """LoRa radio is actively receiving a packet"""
     BT_On: PowerMon.State.ValueType  # 64
+    """Bluetooth radio is powered on"""
     LED_On: PowerMon.State.ValueType  # 128
+    """LED is powered on"""
     Screen_On: PowerMon.State.ValueType  # 256
+    """Display screen is powered on"""
     Screen_Drawing: PowerMon.State.ValueType  # 512
+    """Display screen is actively being drawn to"""
     Wifi_On: PowerMon.State.ValueType  # 1024
+    """WiFi radio is powered on"""
     GPS_Active: PowerMon.State.ValueType  # 2048
     """
     GPS is actively trying to find our location
@@ -93,23 +113,28 @@ class PowerMon(google.protobuf.message.Message):
     def __init__(
         self,
     ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___PowerMon = PowerMon
+Global___PowerMon: _TypeAlias = PowerMon  # noqa: Y015
 
-@typing.final
-class PowerStressMessage(google.protobuf.message.Message):
+@_typing.final
+class PowerStressMessage(_message.Message):
     """
     PowerStress testing support via the C++ PowerStress module
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
     class _Opcode:
-        ValueType = typing.NewType("ValueType", builtins.int)
-        V: typing_extensions.TypeAlias = ValueType
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
 
-    class _OpcodeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[PowerStressMessage._Opcode.ValueType], builtins.type):
-        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    class _OpcodeEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[PowerStressMessage._Opcode.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
         UNSET: PowerStressMessage._Opcode.ValueType  # 0
         """
         Unset/unused
@@ -121,33 +146,33 @@ class PowerStressMessage(google.protobuf.message.Message):
         END_QUIET: PowerStressMessage._Opcode.ValueType  # 3
         """Stop powerstress processing - probably by just rebooting the board"""
         SCREEN_ON: PowerStressMessage._Opcode.ValueType  # 16
-        """Turn the screen on"""
+        """Turn the screen on for num_seconds"""
         SCREEN_OFF: PowerStressMessage._Opcode.ValueType  # 17
-        """Turn the screen off"""
+        """Turn the screen off for num_seconds"""
         CPU_IDLE: PowerStressMessage._Opcode.ValueType  # 32
-        """Let the CPU run but we assume mostly idling for num_seconds"""
+        """Let the CPU run but mostly idle for num_seconds"""
         CPU_DEEPSLEEP: PowerStressMessage._Opcode.ValueType  # 33
-        """Force deep sleep for FIXME seconds"""
+        """Force deep sleep for num_seconds"""
         CPU_FULLON: PowerStressMessage._Opcode.ValueType  # 34
-        """Spin the CPU as fast as possible for num_seconds"""
+        """Spin the CPU at full speed for num_seconds"""
         LED_ON: PowerStressMessage._Opcode.ValueType  # 48
-        """Turn the LED on for num_seconds (and leave it on - for baseline power measurement purposes)"""
+        """Turn the LED on for num_seconds (leave on for baseline power measurement)"""
         LED_OFF: PowerStressMessage._Opcode.ValueType  # 49
         """Force the LED off for num_seconds"""
         LORA_OFF: PowerStressMessage._Opcode.ValueType  # 64
-        """Completely turn off the LORA radio for num_seconds"""
+        """Completely turn off the LoRa radio for num_seconds"""
         LORA_TX: PowerStressMessage._Opcode.ValueType  # 65
-        """Send Lora packets for num_seconds"""
+        """Send LoRa packets for num_seconds"""
         LORA_RX: PowerStressMessage._Opcode.ValueType  # 66
-        """Receive Lora packets for num_seconds (node will be mostly just listening, unless an external agent is helping stress this by sending packets on the current channel)"""
+        """Receive LoRa packets for num_seconds"""
         BT_OFF: PowerStressMessage._Opcode.ValueType  # 80
-        """Turn off the BT radio for num_seconds"""
+        """Turn off the Bluetooth radio for num_seconds"""
         BT_ON: PowerStressMessage._Opcode.ValueType  # 81
-        """Turn on the BT radio for num_seconds"""
+        """Turn on the Bluetooth radio for num_seconds"""
         WIFI_OFF: PowerStressMessage._Opcode.ValueType  # 96
-        """Turn off the WIFI radio for num_seconds"""
+        """Turn off the WiFi radio for num_seconds"""
         WIFI_ON: PowerStressMessage._Opcode.ValueType  # 97
-        """Turn on the WIFI radio for num_seconds"""
+        """Turn on the WiFi radio for num_seconds"""
         GPS_OFF: PowerStressMessage._Opcode.ValueType  # 112
         """Turn off the GPS radio for num_seconds"""
         GPS_ON: PowerStressMessage._Opcode.ValueType  # 113
@@ -156,7 +181,7 @@ class PowerStressMessage(google.protobuf.message.Message):
     class Opcode(_Opcode, metaclass=_OpcodeEnumTypeWrapper):
         """
         What operation would we like the UUT to perform.
-        note: senders should probably set want_response in their request packets, so that they can know when the state
+        note: senders should probably set the WANT_RESPONSE bit of Data.bitfield in their request packets, so that they can know when the state
         machine has started processing their request
         """
 
@@ -171,51 +196,58 @@ class PowerStressMessage(google.protobuf.message.Message):
     END_QUIET: PowerStressMessage.Opcode.ValueType  # 3
     """Stop powerstress processing - probably by just rebooting the board"""
     SCREEN_ON: PowerStressMessage.Opcode.ValueType  # 16
-    """Turn the screen on"""
+    """Turn the screen on for num_seconds"""
     SCREEN_OFF: PowerStressMessage.Opcode.ValueType  # 17
-    """Turn the screen off"""
+    """Turn the screen off for num_seconds"""
     CPU_IDLE: PowerStressMessage.Opcode.ValueType  # 32
-    """Let the CPU run but we assume mostly idling for num_seconds"""
+    """Let the CPU run but mostly idle for num_seconds"""
     CPU_DEEPSLEEP: PowerStressMessage.Opcode.ValueType  # 33
-    """Force deep sleep for FIXME seconds"""
+    """Force deep sleep for num_seconds"""
     CPU_FULLON: PowerStressMessage.Opcode.ValueType  # 34
-    """Spin the CPU as fast as possible for num_seconds"""
+    """Spin the CPU at full speed for num_seconds"""
     LED_ON: PowerStressMessage.Opcode.ValueType  # 48
-    """Turn the LED on for num_seconds (and leave it on - for baseline power measurement purposes)"""
+    """Turn the LED on for num_seconds (leave on for baseline power measurement)"""
     LED_OFF: PowerStressMessage.Opcode.ValueType  # 49
     """Force the LED off for num_seconds"""
     LORA_OFF: PowerStressMessage.Opcode.ValueType  # 64
-    """Completely turn off the LORA radio for num_seconds"""
+    """Completely turn off the LoRa radio for num_seconds"""
     LORA_TX: PowerStressMessage.Opcode.ValueType  # 65
-    """Send Lora packets for num_seconds"""
+    """Send LoRa packets for num_seconds"""
     LORA_RX: PowerStressMessage.Opcode.ValueType  # 66
-    """Receive Lora packets for num_seconds (node will be mostly just listening, unless an external agent is helping stress this by sending packets on the current channel)"""
+    """Receive LoRa packets for num_seconds"""
     BT_OFF: PowerStressMessage.Opcode.ValueType  # 80
-    """Turn off the BT radio for num_seconds"""
+    """Turn off the Bluetooth radio for num_seconds"""
     BT_ON: PowerStressMessage.Opcode.ValueType  # 81
-    """Turn on the BT radio for num_seconds"""
+    """Turn on the Bluetooth radio for num_seconds"""
     WIFI_OFF: PowerStressMessage.Opcode.ValueType  # 96
-    """Turn off the WIFI radio for num_seconds"""
+    """Turn off the WiFi radio for num_seconds"""
     WIFI_ON: PowerStressMessage.Opcode.ValueType  # 97
-    """Turn on the WIFI radio for num_seconds"""
+    """Turn on the WiFi radio for num_seconds"""
     GPS_OFF: PowerStressMessage.Opcode.ValueType  # 112
     """Turn off the GPS radio for num_seconds"""
     GPS_ON: PowerStressMessage.Opcode.ValueType  # 113
     """Turn on the GPS radio for num_seconds"""
 
-    CMD_FIELD_NUMBER: builtins.int
-    NUM_SECONDS_FIELD_NUMBER: builtins.int
-    cmd: global___PowerStressMessage.Opcode.ValueType
+    CMD_FIELD_NUMBER: _builtins.int
+    NUM_SECONDS_FIELD_NUMBER: _builtins.int
+    cmd: Global___PowerStressMessage.Opcode.ValueType
     """
-    What type of HardwareMessage is this?
+    The power stress operation to perform
     """
-    num_seconds: builtins.float
+    num_seconds: _builtins.int
+    """
+    Duration in seconds
+    """
     def __init__(
         self,
         *,
-        cmd: global___PowerStressMessage.Opcode.ValueType = ...,
-        num_seconds: builtins.float = ...,
+        cmd: Global___PowerStressMessage.Opcode.ValueType = ...,
+        num_seconds: _builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["cmd", b"cmd", "num_seconds", b"num_seconds"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["cmd", b"cmd", "num_seconds", b"num_seconds"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___PowerStressMessage = PowerStressMessage
+Global___PowerStressMessage: _TypeAlias = PowerStressMessage  # noqa: Y015

@@ -3,31 +3,41 @@
 isort:skip_file
 """
 
-import builtins
-import google.protobuf.descriptor
-import google.protobuf.message
-import typing
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+import builtins as _builtins
+import sys
+import typing as _typing
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
+else:
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-@typing.final
-class CannedMessageModuleConfig(google.protobuf.message.Message):
+DESCRIPTOR: _descriptor.FileDescriptor
+
+@_typing.final
+class CannedMessageModuleConfig(_message.Message):
     """
     Canned message module configuration.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    MESSAGES_FIELD_NUMBER: builtins.int
-    messages: builtins.str
+    MESSAGES_FIELD_NUMBER: _builtins.int
+    messages: _builtins.str
     """
     Predefined messages for canned message module separated by '|' characters.
     """
     def __init__(
         self,
         *,
-        messages: builtins.str = ...,
+        messages: _builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["messages", b"messages"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["messages", b"messages"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___CannedMessageModuleConfig = CannedMessageModuleConfig
+Global___CannedMessageModuleConfig: _TypeAlias = CannedMessageModuleConfig  # noqa: Y015

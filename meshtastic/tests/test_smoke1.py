@@ -243,12 +243,10 @@ def test_smoke1_ch_set_modem_config():
 
 @pytest.mark.smoke1
 def test_smoke1_ch_values():
-    """Test --ch-vlongslow --ch-longslow, --ch-longfast, --ch-mediumslow, --ch-mediumsfast,
+    """Test --ch-longfast, --ch-mediumslow, --ch-mediumsfast,
     --ch-shortslow, and --ch-shortfast arguments
     """
     exp = {
-        "--ch-vlongslow": '{ "psk": "AQ==" }',
-        "--ch-longslow": "LongSlow",
         "--ch-longfast": "LongFast",
         "--ch-medslow": "MedSlow",
         "--ch-medfast": "MedFast",

@@ -21,7 +21,8 @@ from typing import Dict, List, Optional, Set
 
 from pubsub import pub  # type: ignore[import-untyped]
 
-from meshtastic import BROADCAST_NUM, mesh_pb2, portnums_pb2
+from meshtastic import BROADCAST_NUM, api_pb2, packet_pb2, portnums_pb2, wire_pb2
+from meshtastic.mesh_interface import DATA_PAYLOAD_MAX
 from meshtastic.tcp_interface import TCPInterface
 
 logger = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ logger = logging.getLogger(__name__)
 HW_ID_OFFSET = 16
 DEFAULT_BASE_PORT = 4404
 DEFAULT_RSSI = -50
-DEFAULT_SNR = 10.0
+DEFAULT_SNR = 20  # 10 dB, in the half-dB steps MeshPacket.rx_snr carries
 BOOT_TIMEOUT = 30
 CONNECT_TIMEOUT = 30
 
@@ -222,11 +223,10 @@ class SimMesh:
             iface = node.iface
             if iface is None:
                 continue
-            user = mesh_pb2.User()
-            user.id = f"!{node.node_num:08x}"
+            user = wire_pb2.User()
             user.long_name = f"Node {node.node_id}"
             user.short_name = f"{node.node_id:04d}"[:4]
-            user.hw_model = mesh_pb2.HardwareModel.PORTDUINO
+            user.hw_model = 0x0025  # PORTDUINO in the hardware registry
             try:
                 iface.sendData(
                     user,
@@ -303,7 +303,7 @@ class SimMesh:
         if hasattr(data, "SerializeToString"):
             data = data.SerializeToString()
 
-        if len(data) > mesh_pb2.Constants.DATA_PAYLOAD_LEN:
+        if len(data) > DATA_PAYLOAD_MAX:
             logger.warning("Simulator payload too big (%d bytes), dropping", len(data))
             return
 
@@ -315,7 +315,7 @@ class SimMesh:
                 continue
             mesh_packet.rx_rssi = DEFAULT_RSSI
             mesh_packet.rx_snr = DEFAULT_SNR
-            to_radio = mesh_pb2.ToRadio()
+            to_radio = api_pb2.ToRadio()
             to_radio.packet.CopyFrom(mesh_packet)
             try:
                 rx_iface._sendToRadio(to_radio)
@@ -330,28 +330,19 @@ class SimMesh:
         self.stop()
 
 
-def _build_mesh_packet(packet: dict, data: bytes) -> mesh_pb2.MeshPacket:
+def _build_mesh_packet(packet: dict, data: bytes) -> packet_pb2.MeshPacket:
     """Reconstruct a MeshPacket for SIMULATOR_APP injection."""
-    mp = mesh_pb2.MeshPacket()
+    raw = packet["raw"]
+    mp = packet_pb2.MeshPacket()
     mp.decoded.payload = data
     mp.decoded.portnum = portnums_pb2.PortNum.SIMULATOR_APP
-    mp.to = packet.get("to", BROADCAST_NUM)
-    setattr(mp, "from", packet.get("from", 0))
-    mp.id = packet.get("id", 0)
-    mp.want_ack = packet.get("wantAck", False)
-    mp.hop_limit = packet.get("hopLimit", 0)
-    mp.hop_start = packet.get("hopStart", 0)
-    mp.via_mqtt = packet.get("viaMQTT", False)
-    mp.relay_node = packet.get("relayNode", 0)
-    mp.next_hop = packet.get("nextHop", 0)
-    mp.channel = int(packet.get("channel", 0))
-
-    decoded = packet.get("decoded", {})
-    if "requestId" in decoded:
-        mp.decoded.request_id = decoded["requestId"]
-    if "wantResponse" in decoded:
-        mp.decoded.want_response = decoded["wantResponse"]
-    if "bitfield" in decoded:
-        mp.decoded.bitfield = decoded["bitfield"]
+    mp.to = raw.to if raw.to else BROADCAST_NUM
+    setattr(mp, "from", getattr(raw, "from"))
+    for field in ("id", "flags", "hop_limit", "hop_start", "relay_node", "next_hop", "channel",
+                  "channel_hash", "header_options", "path"):
+        setattr(mp, field, getattr(raw, field))
+    mp.decoded.request_id = raw.decoded.request_id
+    if raw.decoded.HasField("bitfield"):
+        mp.decoded.bitfield = raw.decoded.bitfield
 
     return mp

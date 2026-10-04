@@ -14,7 +14,8 @@ import pyarrow as pa
 from dash import Dash, dcc, html  # type: ignore[import-untyped]
 from pyarrow import feather
 
-from .. import mesh_pb2, powermon_pb2
+from .. import powermon_pb2
+from ..util import hw_model_name
 from ..slog import root_dir
 
 # Configure panda options
@@ -114,7 +115,7 @@ def get_board_info(dslog: pd.DataFrame) -> tuple:
     """
     board_info = dslog[dslog["sw_version"].notnull()]
     sw_version = board_info.iloc[0]["sw_version"]
-    board_id = mesh_pb2.HardwareModel.Name(board_info.iloc[0]["board_id"])
+    board_id = hw_model_name(int(board_info.iloc[0]["board_id"]))
     return (board_id, sw_version)
 
 

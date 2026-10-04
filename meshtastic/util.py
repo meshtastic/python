@@ -1,6 +1,8 @@
 """Utility functions.
 """
 import base64
+import functools
+import json
 import logging
 import os
 import platform
@@ -13,7 +15,7 @@ import traceback
 from queue import Queue
 from typing import Any, Dict, List, NoReturn, Optional, Set, Tuple, Union
 
-from google.protobuf.json_format import MessageToJson
+from google.protobuf.json_format import MessageToDict, MessageToJson
 from google.protobuf.message import Message
 
 import packaging.version as pkg_version
@@ -21,6 +23,8 @@ import requests
 import serial # type: ignore[import-untyped]
 import serial.tools.list_ports # type: ignore[import-untyped]
 
+from meshtastic.protobuf import telemetry_pb2
+from meshtastic.protobuf.bitfields import BITFIELDS
 from meshtastic.supported_device import supported_devices
 from meshtastic.version import get_active_version
 
@@ -714,10 +718,10 @@ def check_if_newer_version() -> Optional[str]:
 def message_to_json(message: Message, multiline: bool=False) -> str:
     """Return protobuf message as JSON. Always print all fields, even when not present in data."""
     try:
-        json = MessageToJson(message, always_print_fields_with_no_presence=True)
+        text = MessageToJson(message, always_print_fields_with_no_presence=True)
     except TypeError:
-        json = MessageToJson(message, including_default_value_fields=True) # type: ignore[call-arg] # pylint: disable=E1123
-    return stripnl(json) if not multiline else json
+        text = MessageToJson(message, including_default_value_fields=True) # type: ignore[call-arg] # pylint: disable=E1123
+    return stripnl(text) if not multiline else text
 
 
 def to_node_num(node_id: Union[int, str]) -> int:
@@ -775,3 +779,89 @@ def flags_from_list(flag_type, flags: List[str]) -> int:
             )
         result |= flag_type.Value(flag_name)
     return result
+
+
+def bitfield_bits(desc) -> Dict[str, Tuple[str, int]]:
+    """The named bits of a message type's packed bitfields: {bit name: (field, mask)}."""
+    return BITFIELDS.get(desc.full_name[len(desc.file.package) + 1:], {})
+
+
+def find_bit(desc, name: str) -> Optional[Tuple[str, int]]:
+    """Find a named bit of a message type's bitfields, ignoring case and underscores
+    (so a snake_case or camelCase spelling both match). Returns (field, mask) or None."""
+    key = name.replace("_", "").lower()
+    for bit, where in bitfield_bits(desc).items():
+        if bit.replace("_", "").lower() == key:
+            return where
+    return None
+
+
+def message_to_dict(message: Message, all_bits: bool=False) -> Dict[str, Any]:
+    """MessageToDict, with every packed bitfield replaced by one bool per named bit.
+    Only the bits that are set appear, as MessageToDict leaves out default values,
+    unless all_bits is True."""
+    d = MessageToDict(message)
+    _expand_bitfields(message, d, all_bits)
+    return d
+
+
+def _expand_bitfields(message: Message, d: Dict[str, Any], all_bits: bool) -> None:
+    desc = message.DESCRIPTOR
+    for bit, (field, mask) in bitfield_bits(desc).items():
+        word = getattr(message, field)
+        d.pop(desc.fields_by_name[field].json_name, None)
+        if all_bits or word & mask:
+            d[snake_to_camel(bit)] = bool(word & mask)
+    for fd, value in message.ListFields():
+        sub = d.get(fd.json_name)
+        if fd.message_type is None or sub is None:
+            continue
+        if isinstance(sub, list):
+            for m, s in zip(value, sub):
+                _expand_bitfields(m, s, all_bits)
+        elif isinstance(sub, dict) and isinstance(value, Message):
+            _expand_bitfields(value, sub, all_bits)
+
+
+@functools.lru_cache(maxsize=None)
+def _hw_models() -> Dict[int, str]:
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "protobuf", "hw_devices.json")
+    with open(path, encoding="utf-8") as f:
+        return {(d["vendor_id"] << 8) | d["device_id"]: d["slug"] for d in json.load(f)["devices"]}
+
+
+def hw_model_name(hw_model: int) -> str:
+    """Name a packed hardware model (vendor_id << 8 | device_id) from the hardware registry."""
+    if not hw_model:
+        return "UNSET"
+    return _hw_models().get(hw_model, f"0x{hw_model:04x}")
+
+
+def sensor_readings_to_list(readings: telemetry_pb2.SensorReadings, time0: int=0) -> List[Dict[str, Any]]:
+    """Decode a SensorReadings batch into one dict per sample, {"time": t, quantity: value},
+    with each value in its quantity's unit. A second sensor of the same quantity is QUANTITY#1."""
+    times = [time0]
+    interval = 0
+    for delta in readings.time_deltas:
+        interval += delta
+        times.append(times[-1] + interval)
+    samples: List[Dict[str, Any]] = [{"time": t} for t in times]
+    values = iter(readings.values)
+    quantity = telemetry_pb2.SensorReadings.Quantity
+    for k, key in enumerate(readings.keys):
+        q = key & 0x7F
+        name = quantity.Name(q) if q in quantity.values() else f"QUANTITY_{q}"  # type: ignore[arg-type]
+        scale = 100 if name.endswith("_CENTI") else 10 if name.endswith("_DECI") else 1
+        if key >> 8:
+            name += f"#{key >> 8}"
+        rows = [i for i in range(len(samples)) if not readings.present or readings.present[i] >> k & 1]
+        if key & 0x80:  # constant across the batch: one entry
+            v = next(values)
+            for i in rows:
+                samples[i][name] = v / scale if scale > 1 else v
+            continue
+        acc = 0
+        for i in rows:
+            acc += next(values)  # the first entry is absolute, the rest are deltas
+            samples[i][name] = acc / scale if scale > 1 else acc
+    return samples

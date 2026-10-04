@@ -11,7 +11,7 @@ import pytest
 from hypothesis import given, strategies as st
 
 from meshtastic.supported_device import SupportedDevice
-from meshtastic.protobuf import mesh_pb2, config_pb2
+from meshtastic.protobuf import api_pb2, common_pb2, config_pb2, packet_pb2, telemetry_pb2, wire_pb2
 from meshtastic.util import (
     DEFAULT_KEY,
     Timeout,
@@ -21,6 +21,7 @@ from meshtastic.util import (
     channel_hash,
     convert_mac_addr,
     eliminate_duplicate_port,
+    find_bit,
     findPorts,
     flags_from_list,
     flags_to_list,
@@ -30,6 +31,7 @@ from meshtastic.util import (
     generate_channel_hash,
     genPSK256,
     hexstr,
+    hw_model_name,
     ipstr,
     is_windows11,
     our_exit,
@@ -40,7 +42,9 @@ from meshtastic.util import (
     snake_to_camel,
     stripnl,
     support_info,
+    message_to_dict,
     message_to_json,
+    sensor_readings_to_list,
     to_node_num,
     Acknowledgment
 )
@@ -661,8 +665,9 @@ def test_active_ports_on_supported_devices_mac_duplicates_check(mock_platform, m
 @pytest.mark.unit
 def test_message_to_json_shows_all():
     """Test that message_to_json prints fields that aren't included in data passed in"""
-    actual = json.loads(message_to_json(mesh_pb2.MyNodeInfo()))
-    expected = { "myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0, "deviceId": "", "pioEnv": "", 'firmwareEdition': 'VANILLA', 'nodedbCount': 0 }
+    actual = json.loads(message_to_json(api_pb2.MyNodeInfo()))
+    expected = { "myNodeNum": 0, "rebootCount": 0, "minAppVersion": 0, "deviceId": "", "pioEnv": "",
+                 'firmwareEdition': 'EDITION_VANILLA', 'nodedbCount': 0 }
     assert actual == expected
 
 @pytest.mark.unit
@@ -879,34 +884,29 @@ def test_to_node_num_hypothesis_roundtrip(n):
     assert to_node_num(str(n)) == n
 
 
-_EXCLUDED_MODULES = mesh_pb2.ExcludedModules
-_POSITION_FLAGS = config_pb2.Config.PositionConfig.PositionFlags
-_NETWORK_PROTOCOLS = config_pb2.Config.NetworkConfig.ProtocolFlags
+_CAPABILITIES = common_pb2.DeviceMetadata.Capabilities
+_POSITION_FLAGS = config_pb2.PositionConfig.PositionFlags
+_NETWORK_PROTOCOLS = config_pb2.NetworkConfig.ProtocolFlags
 
 
 @pytest.mark.unit
 @pytest.mark.parametrize("flag_type,flags,expected", [
-    (_EXCLUDED_MODULES, 0, []),
-    (_EXCLUDED_MODULES, 1, ["MQTT_CONFIG"]),
-    (_EXCLUDED_MODULES, 3, ["MQTT_CONFIG", "SERIAL_CONFIG"]),
-    (_EXCLUDED_MODULES, 0x7FFF, [
-        "MQTT_CONFIG", "SERIAL_CONFIG", "EXTNOTIF_CONFIG", "STOREFORWARD_CONFIG",
-        "RANGETEST_CONFIG", "TELEMETRY_CONFIG", "CANNEDMSG_CONFIG", "AUDIO_CONFIG",
-        "REMOTEHARDWARE_CONFIG", "NEIGHBORINFO_CONFIG", "AMBIENTLIGHTING_CONFIG",
-        "DETECTIONSENSOR_CONFIG", "PAXCOUNTER_CONFIG", "BLUETOOTH_CONFIG",
-        "NETWORK_CONFIG",
+    (_CAPABILITIES, 0, []),
+    (_CAPABILITIES, 1, ["CAPABILITY_CAN_SHUTDOWN"]),
+    (_CAPABILITIES, 0x22, ["CAPABILITY_HAS_WIFI", "CAPABILITY_HAS_PKC"]),
+    (_CAPABILITIES, 0x7F, [
+        "CAPABILITY_CAN_SHUTDOWN", "CAPABILITY_HAS_WIFI", "CAPABILITY_HAS_BLUETOOTH",
+        "CAPABILITY_HAS_ETHERNET", "CAPABILITY_HAS_REMOTE_HARDWARE", "CAPABILITY_HAS_PKC",
+        "CAPABILITY_HAS_XEDDSA",
     ]),
-    (_EXCLUDED_MODULES, 0x8000, ["STATUSMESSAGE_CONFIG"]),
-    (_EXCLUDED_MODULES, 0x8001, ["MQTT_CONFIG", "STATUSMESSAGE_CONFIG"]),
-    # bit 27 is beyond every currently-defined ExcludedModules value, so it
-    # still exercises the unknown-remainder path
-    (_EXCLUDED_MODULES, 0x8000000, ["UNKNOWN_ADDITIONAL_FLAGS(134217728)"]),
-    (_EXCLUDED_MODULES, 0x8000001, ["MQTT_CONFIG", "UNKNOWN_ADDITIONAL_FLAGS(134217728)"]),
+    # bit 7 is beyond every currently-defined Capabilities value, so it
+    # exercises the unknown-remainder path
+    (_CAPABILITIES, 0x80, ["UNKNOWN_ADDITIONAL_FLAGS(128)"]),
+    (_CAPABILITIES, 0x81, ["CAPABILITY_CAN_SHUTDOWN", "UNKNOWN_ADDITIONAL_FLAGS(128)"]),
     (_POSITION_FLAGS, 0, []),
     (_POSITION_FLAGS, 0x09, ["ALTITUDE", "DOP"]),
-    (_POSITION_FLAGS, 0x1FF, [
-        "ALTITUDE", "ALTITUDE_MSL", "GEOIDAL_SEPARATION", "DOP", "HVDOP",
-        "SATINVIEW", "SEQ_NO", "TIMESTAMP", "HEADING",
+    (_POSITION_FLAGS, 0x36D, [
+        "ALTITUDE", "GEOIDAL_SEPARATION", "DOP", "SATINVIEW", "SEQ_NO", "HEADING", "SPEED",
     ]),
 ])
 def test_flags_to_list(flag_type, flags, expected):
@@ -922,11 +922,11 @@ def test_flags_to_list_conservation(flags):
     Every known bit that is set must appear as a name, and the leftover reported in
     UNKNOWN_ADDITIONAL_FLAGS(...) must together with the named bits reconstruct the input.
     """
-    for flag_type in (_EXCLUDED_MODULES, _POSITION_FLAGS):
+    for flag_type in (_CAPABILITIES, _POSITION_FLAGS):
         known_union = 0
         for key in flag_type.keys():
             value = flag_type.Value(key)
-            if key != "EXCLUDED_NONE" and value:
+            if value:
                 known_union |= value
 
         result = flags_to_list(flag_type, flags)
@@ -974,3 +974,65 @@ def test_flags_from_list_roundtrip(flags):
     # but for combinations of known non-zero flags it should return the same set of names.
     nonzero_flags = {f for f in flags if _POSITION_FLAGS.Value(f)}
     assert set(decoded) == nonzero_flags
+
+
+@pytest.mark.unit
+def test_sensor_readings_to_list():
+    """A SensorReadings batch decodes per SCHEMA.md §5: delta-coded columns, a constant column,
+    a present bitmap that a column's deltas step over, a second sensor's ordinal, and the
+    twice-differenced sample times."""
+    q = telemetry_pb2.SensorReadings
+    readings = q(
+        keys=[q.AIR_TEMPERATURE_C_CENTI, q.AIR_PRESSURE_PA | 0x80, (1 << 8) | q.AIR_TEMPERATURE_C_CENTI],
+        values=[1582, -34, 98801, 2000, 10],
+        time_deltas=[3600, 40],
+        present=[0b111, 0b011, 0b100],
+    )
+    assert sensor_readings_to_list(readings, 1000) == [
+        {"time": 1000, "AIR_TEMPERATURE_C_CENTI": 15.82, "AIR_PRESSURE_PA": 98801, "AIR_TEMPERATURE_C_CENTI#1": 20.0},
+        {"time": 4600, "AIR_TEMPERATURE_C_CENTI": 15.48, "AIR_PRESSURE_PA": 98801},
+        {"time": 8240, "AIR_TEMPERATURE_C_CENTI#1": 20.1},
+    ]
+
+
+@pytest.mark.unit
+def test_sensor_readings_unknown_quantity_is_stepped_over():
+    """A quantity this build does not know still consumes its column, so the rest decode."""
+    q = telemetry_pb2.SensorReadings
+    readings = q(keys=[127, q.AIR_PRESSURE_PA], values=[5, 6, 100, 1], time_deltas=[60])
+    assert sensor_readings_to_list(readings) == [
+        {"time": 0, "QUANTITY_127": 5, "AIR_PRESSURE_PA": 100},
+        {"time": 60, "QUANTITY_127": 11, "AIR_PRESSURE_PA": 101},
+    ]
+
+
+@pytest.mark.unit
+def test_message_to_dict_expands_bitfields():
+    """Packed bitfields read as one bool per named bit, nested messages included; only
+    the set bits unless all_bits."""
+    p = packet_pb2.MeshPacket(flags=packet_pb2.MeshPacket.PACKET_WANT_ACK | packet_pb2.MeshPacket.PACKET_PKI_ENCRYPTED)
+    p.decoded.bitfield = wire_pb2.Data.BITFIELD_WANT_RESPONSE
+    d = message_to_dict(p)
+    assert "flags" not in d and d["wantAck"] is True and d["pkiEncrypted"] is True and "viaMqtt" not in d
+    assert d["decoded"]["wantResponse"] is True and "bitfield" not in d["decoded"]
+    d = message_to_dict(p, all_bits=True)
+    assert d["viaMqtt"] is False and d["decoded"]["okToMqtt"] is False
+
+
+@pytest.mark.unit
+def test_find_bit_ignores_case_and_underscores():
+    """A bit is found by its snake_case name, a camelCase spelling, or one that lost an underscore."""
+    lora = config_pb2.LoRaConfig.DESCRIPTOR
+    flag = ("flags", config_pb2.LoRaConfig.LORA_TX_ENABLED)
+    assert find_bit(lora, "tx_enabled") == flag
+    assert find_bit(lora, "txEnabled") == flag
+    assert find_bit(config_pb2.DisplayConfig.DESCRIPTOR, "use12_h_clock") == ("flags", config_pb2.DisplayConfig.DISPLAY_USE_12H_CLOCK)
+    assert find_bit(lora, "hop_limit") is None
+
+
+@pytest.mark.unit
+def test_hw_model_name():
+    """Hardware names come from the bundled registry: (vendor_id << 8) | device_id."""
+    assert hw_model_name(0) == "UNSET"
+    assert hw_model_name(9) == "RAK4631"
+    assert hw_model_name(0x3FFE) == "0x3ffe"

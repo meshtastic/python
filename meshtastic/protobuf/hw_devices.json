@@ -1,0 +1,893 @@
+{
+  "revision": 148,
+  "devices": [
+    {
+      "vendor_id": 0,
+      "device_id": 1,
+      "slug": "TLORA_V2",
+      "name": "LILYGO T-LoRa V2"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 2,
+      "slug": "TLORA_V1",
+      "name": "LILYGO T-LoRa V1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 3,
+      "slug": "TLORA_V2_1_1P6",
+      "name": "LILYGO T-LoRa V2.1-1.6"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 4,
+      "slug": "TBEAM",
+      "name": "LILYGO T-Beam"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 5,
+      "slug": "HELTEC_V2_0",
+      "name": "Heltec V2.0"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 6,
+      "slug": "TBEAM_V0P7",
+      "name": "LILYGO T-Beam V0.7"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 7,
+      "slug": "T_ECHO",
+      "name": "LILYGO T-Echo"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 8,
+      "slug": "TLORA_V1_1P3",
+      "name": "TLORA_V1_1P3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 9,
+      "slug": "RAK4631",
+      "name": "RAK WisBlock 4631"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 10,
+      "slug": "HELTEC_V2_1",
+      "name": "Heltec V2.1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 11,
+      "slug": "HELTEC_V1",
+      "name": "Heltec V1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 12,
+      "slug": "LILYGO_TBEAM_S3_CORE",
+      "name": "LILYGO T-Beam Supreme"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 13,
+      "slug": "RAK11200",
+      "name": "RAK WisBlock 11200"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 14,
+      "slug": "NANO_G1",
+      "name": "Nano G1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 15,
+      "slug": "TLORA_V2_1_1P8",
+      "name": "LILYGO T-LoRa V2.1-1.8"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 16,
+      "slug": "TLORA_T3_S3",
+      "name": "LILYGO T-LoRa T3-S3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 17,
+      "slug": "NANO_G1_EXPLORER",
+      "name": "Nano G1 Explorer"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 18,
+      "slug": "NANO_G2_ULTRA",
+      "name": "Nano G2 Ultra"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 19,
+      "slug": "LORA_TYPE",
+      "name": "LORA_TYPE"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 20,
+      "slug": "WIPHONE",
+      "name": "WIPHONE"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 21,
+      "slug": "WIO_WM1110",
+      "name": "Seeed Wio WM1110 Tracker"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 22,
+      "slug": "RAK2560",
+      "name": "RAK WisMesh Repeater"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 23,
+      "slug": "HELTEC_HRU_3601",
+      "name": "HELTEC_HRU_3601"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 24,
+      "slug": "HELTEC_WIRELESS_BRIDGE",
+      "name": "HELTEC_WIRELESS_BRIDGE"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 25,
+      "slug": "STATION_G1",
+      "name": "Station G1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 26,
+      "slug": "RAK11310",
+      "name": "RAK WisBlock 11310"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 27,
+      "slug": "MAKERFABS_TRACKER",
+      "name": "MAKERFABS_TRACKER"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 28,
+      "slug": "MAKERFABS_RESERVED",
+      "name": "MAKERFABS_RESERVED"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 29,
+      "slug": "CANARYONE",
+      "name": "Canary One"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 30,
+      "slug": "RP2040_LORA",
+      "name": "RP2040 LoRa"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 31,
+      "slug": "STATION_G2",
+      "name": "Station G2"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 32,
+      "slug": "LORA_RELAY_V1",
+      "name": "LORA_RELAY_V1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 33,
+      "slug": "T_ECHO_PLUS",
+      "name": "LILYGO T-Echo Plus"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 34,
+      "slug": "PPR",
+      "name": "PPR"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 35,
+      "slug": "GENIEBLOCKS",
+      "name": "GENIEBLOCKS"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 36,
+      "slug": "NRF52_UNKNOWN",
+      "name": "NRF52_UNKNOWN"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 37,
+      "slug": "PORTDUINO",
+      "name": "PORTDUINO"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 38,
+      "slug": "ANDROID_SIM",
+      "name": "ANDROID_SIM"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 39,
+      "slug": "DIY_V1",
+      "name": "DIY V1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 40,
+      "slug": "NRF52840_PCA10059",
+      "name": "NRF52840_PCA10059"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 41,
+      "slug": "DR_DEV",
+      "name": "DR-DEV"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 42,
+      "slug": "M5STACK",
+      "name": "M5 Stack"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 43,
+      "slug": "HELTEC_V3",
+      "name": "Heltec V3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 44,
+      "slug": "HELTEC_WSL_V3",
+      "name": "Heltec Wireless Stick Lite V3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 45,
+      "slug": "BETAFPV_2400_TX",
+      "name": "BETAFPV_2400_TX"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 46,
+      "slug": "BETAFPV_900_NANO_TX",
+      "name": "BETAFPV_900_NANO_TX"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 47,
+      "slug": "RPI_PICO",
+      "name": "Raspberry Pi Pico"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 48,
+      "slug": "HELTEC_WIRELESS_TRACKER",
+      "name": "Heltec Wireless Tracker V1.1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 49,
+      "slug": "HELTEC_WIRELESS_PAPER",
+      "name": "Heltec Wireless Paper"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 50,
+      "slug": "T_DECK",
+      "name": "LILYGO T-Deck"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 51,
+      "slug": "T_WATCH_S3",
+      "name": "LILYGO T-Watch S3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 52,
+      "slug": "PICOMPUTER_S3",
+      "name": "Pi Computer S3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 53,
+      "slug": "HELTEC_HT62",
+      "name": "Heltec HT62"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 54,
+      "slug": "EBYTE_ESP32_S3",
+      "name": "EBYTE_ESP32_S3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 55,
+      "slug": "ESP32_S3_PICO",
+      "name": "ESP32_S3_PICO"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 56,
+      "slug": "CHATTER_2",
+      "name": "CHATTER_2"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 57,
+      "slug": "HELTEC_WIRELESS_PAPER_V1_0",
+      "name": "Heltec Wireless Paper V1.0"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 58,
+      "slug": "HELTEC_WIRELESS_TRACKER_V1_0",
+      "name": "Heltec Wireless Tracker V1.0"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 59,
+      "slug": "UNPHONE",
+      "name": "unPhone"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 60,
+      "slug": "TD_LORAC",
+      "name": "TD_LORAC"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 61,
+      "slug": "CDEBYTE_EORA_S3",
+      "name": "EBYTE EoRa-S3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 62,
+      "slug": "TWC_MESH_V4",
+      "name": "TWC_MESH_V4"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 63,
+      "slug": "NRF52_PROMICRO_DIY",
+      "name": "NRF52 Pro-micro DIY"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 64,
+      "slug": "RADIOMASTER_900_BANDIT_NANO",
+      "name": "RadioMaster 900 Bandit Nano"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 65,
+      "slug": "HELTEC_CAPSULE_SENSOR_V3",
+      "name": "HELTEC_CAPSULE_SENSOR_V3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 66,
+      "slug": "HELTEC_VISION_MASTER_T190",
+      "name": "Heltec Vision Master T190"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 67,
+      "slug": "HELTEC_VISION_MASTER_E213",
+      "name": "Heltec Vision Master E213"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 68,
+      "slug": "HELTEC_VISION_MASTER_E290",
+      "name": "Heltec Vision Master E290"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 69,
+      "slug": "HELTEC_MESH_NODE_T114",
+      "name": "Heltec Mesh Node T114"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 70,
+      "slug": "SENSECAP_INDICATOR",
+      "name": "Seeed SenseCAP Indicator"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 71,
+      "slug": "TRACKER_T1000_E",
+      "name": "Seeed SenseCAP T1000-E"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 72,
+      "slug": "RAK3172",
+      "name": "RAK3172"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 73,
+      "slug": "WIO_E5",
+      "name": "WIO_E5"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 74,
+      "slug": "RADIOMASTER_900_BANDIT",
+      "name": "RADIOMASTER_900_BANDIT"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 75,
+      "slug": "ME25LS01_4Y10TD",
+      "name": "ME25LS01_4Y10TD"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 76,
+      "slug": "RP2040_FEATHER_RFM95",
+      "name": "RP2040_FEATHER_RFM95"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 77,
+      "slug": "M5STACK_COREBASIC",
+      "name": "M5STACK_COREBASIC"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 78,
+      "slug": "M5STACK_CORE2",
+      "name": "M5STACK_CORE2"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 79,
+      "slug": "RPI_PICO2",
+      "name": "RPI_PICO2"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 80,
+      "slug": "M5STACK_CORES3",
+      "name": "M5STACK_CORES3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 81,
+      "slug": "SEEED_XIAO_S3",
+      "name": "Seeed Xiao ESP32-S3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 82,
+      "slug": "MS24SF1",
+      "name": "MS24SF1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 83,
+      "slug": "TLORA_C6",
+      "name": "LilyGo T3-C6"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 84,
+      "slug": "WISMESH_TAP",
+      "name": "RAK WisMesh Tap"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 85,
+      "slug": "ROUTASTIC",
+      "name": "ROUTASTIC"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 86,
+      "slug": "MESH_TAB",
+      "name": "MESH_TAB"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 87,
+      "slug": "MESHLINK",
+      "name": "MESHLINK"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 88,
+      "slug": "XIAO_NRF52_KIT",
+      "name": "Seeed Xiao NRF52840 Kit"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 89,
+      "slug": "THINKNODE_M1",
+      "name": "ThinkNode M1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 90,
+      "slug": "THINKNODE_M2",
+      "name": "ThinkNode M2"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 91,
+      "slug": "T_ETH_ELITE",
+      "name": "T_ETH_ELITE"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 92,
+      "slug": "HELTEC_SENSOR_HUB",
+      "name": "HELTEC_SENSOR_HUB"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 93,
+      "slug": "MUZI_BASE",
+      "name": "muzi BASE"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 94,
+      "slug": "HELTEC_MESH_POCKET",
+      "name": "Heltec Mesh Pocket"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 95,
+      "slug": "SEEED_SOLAR_NODE",
+      "name": "Seeed SenseCAP Solar Node"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 96,
+      "slug": "NOMADSTAR_METEOR_PRO",
+      "name": "NomadStar Meteor Pro"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 97,
+      "slug": "CROWPANEL",
+      "name": "Crowpanel Adv 3.5 TFT"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 98,
+      "slug": "LINK_32",
+      "name": "LINK_32"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 99,
+      "slug": "SEEED_WIO_TRACKER_L1",
+      "name": "Seeed Wio Tracker L1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 100,
+      "slug": "SEEED_WIO_TRACKER_L1_EINK",
+      "name": "Seeed Wio Tracker L1 E-Ink"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 101,
+      "slug": "MUZI_R1_NEO",
+      "name": "muzi R1 Neo"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 102,
+      "slug": "T_DECK_PRO",
+      "name": "LILYGO T-Deck Pro"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 103,
+      "slug": "T_LORA_PAGER",
+      "name": "LILYGO T-LoRa Pager"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 104,
+      "slug": "M5STACK_RESERVED",
+      "name": "M5STACK_RESERVED"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 105,
+      "slug": "WISMESH_TAG",
+      "name": "RAK WisMesh Tag"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 106,
+      "slug": "RAK3312",
+      "name": "RAK3312"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 107,
+      "slug": "THINKNODE_M5",
+      "name": "ThinkNode M5"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 108,
+      "slug": "HELTEC_MESH_SOLAR",
+      "name": "Heltec MeshSolar"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 109,
+      "slug": "T_ECHO_LITE",
+      "name": "LILYGO T-Echo Lite"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 110,
+      "slug": "HELTEC_V4",
+      "name": "Heltec V4"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 111,
+      "slug": "M5STACK_C6L",
+      "name": "M5Stack Unit C6L"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 112,
+      "slug": "M5STACK_CARDPUTER_ADV",
+      "name": "M5STACK_CARDPUTER_ADV"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 113,
+      "slug": "HELTEC_WIRELESS_TRACKER_V2",
+      "name": "Heltec Wireless Tracker V2"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 114,
+      "slug": "T_WATCH_ULTRA",
+      "name": "T-Watch Ultra"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 115,
+      "slug": "THINKNODE_M3",
+      "name": "Elecrow ThinkNode M3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 116,
+      "slug": "WISMESH_TAP_V2",
+      "name": "RAK WisMesh Tap V2"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 117,
+      "slug": "RAK3401",
+      "name": "RAK3401 1W"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 118,
+      "slug": "RAK6421",
+      "name": "RAK6421"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 119,
+      "slug": "THINKNODE_M4",
+      "name": "THINKNODE_M4"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 120,
+      "slug": "THINKNODE_M6",
+      "name": "ThinkNode M6"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 121,
+      "slug": "MESHSTICK_1262",
+      "name": "MESHSTICK_1262"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 122,
+      "slug": "TBEAM_1_WATT",
+      "name": "LILYGO T-Beam 1W"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 123,
+      "slug": "T5_S3_EPAPER_PRO",
+      "name": "T5_S3_EPAPER_PRO"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 124,
+      "slug": "TBEAM_BPF",
+      "name": "LILYGO T-Beam BPF"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 125,
+      "slug": "MINI_EPAPER_S3",
+      "name": "LILYGO Mini ePaper S3 E-Ink"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 126,
+      "slug": "TDISPLAY_S3_PRO",
+      "name": "TDISPLAY_S3_PRO"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 127,
+      "slug": "HELTEC_MESH_NODE_T096",
+      "name": "Heltec Mesh Node 096"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 128,
+      "slug": "MESH_TRACKER_X1",
+      "name": "Seeed SenseCAP Mesh-Tracker-X1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 129,
+      "slug": "THINKNODE_M7",
+      "name": "THINKNODE_M7"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 130,
+      "slug": "THINKNODE_M8",
+      "name": "Elecrow ThinkNode M8"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 131,
+      "slug": "THINKNODE_M9",
+      "name": "ThinkNode M9"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 132,
+      "slug": "HELTEC_V4_R8",
+      "name": "Heltec V4 R8"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 133,
+      "slug": "HELTEC_MESH_NODE_T1",
+      "name": "Heltec Mesh Node T1"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 134,
+      "slug": "STATION_G3",
+      "name": "Station G3"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 135,
+      "slug": "T_IMPULSE_PLUS",
+      "name": "LILYGO T-Impulse Plus"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 136,
+      "slug": "T_ECHO_CARD",
+      "name": "T_ECHO_CARD"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 137,
+      "slug": "SEEED_WIO_TRACKER_L2",
+      "name": "Seeed Wio Tracker L2"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 138,
+      "slug": "CROWPANEL_P4",
+      "name": "CROWPANEL_P4"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 139,
+      "slug": "HELTEC_MESH_TOWER_V2",
+      "name": "Heltec MeshTower V2"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 140,
+      "slug": "MESHNOLOGY_W10",
+      "name": "Meshnology W10"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 141,
+      "slug": "HELTEC_RC32",
+      "name": "Heltec RC32"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 142,
+      "slug": "HELTEC_RC52",
+      "name": "Heltec RC52"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 143,
+      "slug": "HELTEC_RCC6",
+      "name": "Heltec RCC6"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 144,
+      "slug": "SEEED_WIO_TRACKER_L1_PRO_1W",
+      "name": "Seeed Wio Tracker L1 Pro 1W"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 145,
+      "slug": "MESHNOLOGY_W12",
+      "name": "MESHNOLOGY_W12"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 146,
+      "slug": "MESHPAGER_X2",
+      "name": "MESHPAGER_X2"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 147,
+      "slug": "T_CONNECT_PRO",
+      "name": "T_CONNECT_PRO"
+    },
+    {
+      "vendor_id": 0,
+      "device_id": 148,
+      "slug": "AXIOMETA_GENESIS_MINI",
+      "name": "Axiometa Genesis Mini"
+    }
+  ]
+}

@@ -3,31 +3,31 @@
 isort:skip_file
 """
 
-import builtins
-import collections.abc
-import google.protobuf.descriptor
-import google.protobuf.internal.containers
-import google.protobuf.internal.enum_type_wrapper
-import google.protobuf.message
-import meshtastic.protobuf.atak_pb2
-import meshtastic.protobuf.channel_pb2
-import meshtastic.protobuf.config_pb2
+from collections import abc as _abc
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from . import atak_pb2 as _atak_pb2
+from . import channel_pb2 as _channel_pb2
+from . import common_pb2 as _common_pb2
+import builtins as _builtins
 import sys
-import typing
+import typing as _typing
 
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
 else:
-    import typing_extensions
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+DESCRIPTOR: _descriptor.FileDescriptor
 
 class _RemoteHardwarePinType:
-    ValueType = typing.NewType("ValueType", builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
+    ValueType = _typing.NewType("ValueType", _builtins.int)
+    V: _TypeAlias = ValueType  # noqa: Y015
 
-class _RemoteHardwarePinTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_RemoteHardwarePinType.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+class _RemoteHardwarePinTypeEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_RemoteHardwarePinType.ValueType], _builtins.type):
+    DESCRIPTOR: _descriptor.EnumDescriptor
     UNKNOWN: _RemoteHardwarePinType.ValueType  # 0
     """
     Unset/unused
@@ -55,1634 +55,1726 @@ DIGITAL_WRITE: RemoteHardwarePinType.ValueType  # 2
 """
 GPIO pin can be written to (high / low)
 """
-global___RemoteHardwarePinType = RemoteHardwarePinType
+Global___RemoteHardwarePinType: _TypeAlias = RemoteHardwarePinType  # noqa: Y015
 
-@typing.final
-class ModuleConfig(google.protobuf.message.Message):
+@_typing.final
+class MQTTConfig(_message.Message):
     """
-    Module Config
+    MQTT Client Config
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    @typing.final
-    class MQTTConfig(google.protobuf.message.Message):
-        """
-        MQTT Client Config
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        ENABLED_FIELD_NUMBER: builtins.int
-        ADDRESS_FIELD_NUMBER: builtins.int
-        USERNAME_FIELD_NUMBER: builtins.int
-        PASSWORD_FIELD_NUMBER: builtins.int
-        ENCRYPTION_ENABLED_FIELD_NUMBER: builtins.int
-        JSON_ENABLED_FIELD_NUMBER: builtins.int
-        TLS_ENABLED_FIELD_NUMBER: builtins.int
-        ROOT_FIELD_NUMBER: builtins.int
-        PROXY_TO_CLIENT_ENABLED_FIELD_NUMBER: builtins.int
-        MAP_REPORTING_ENABLED_FIELD_NUMBER: builtins.int
-        MAP_REPORT_SETTINGS_FIELD_NUMBER: builtins.int
-        enabled: builtins.bool
-        """
-        If a meshtastic node is able to reach the internet it will normally attempt to gateway any channels that are marked as
-        is_uplink_enabled or is_downlink_enabled.
-        """
-        address: builtins.str
-        """
-        The server to use for our MQTT global message gateway feature.
-        If not set, the default server will be used
-        """
-        username: builtins.str
-        """
-        MQTT username to use (most useful for a custom MQTT server).
-        If using a custom server, this will be honoured even if empty.
-        If using the default server, this will only be honoured if set, otherwise the device will use the default username
-        """
-        password: builtins.str
-        """
-        MQTT password to use (most useful for a custom MQTT server).
-        If using a custom server, this will be honoured even if empty.
-        If using the default server, this will only be honoured if set, otherwise the device will use the default password
-        """
-        encryption_enabled: builtins.bool
-        """
-        Whether to send encrypted or decrypted packets to MQTT.
-        This parameter is only honoured if you also set server
-        (the default official mqtt.meshtastic.org server can handle encrypted packets)
-        Decrypted packets may be useful for external systems that want to consume meshtastic packets
-        """
-        json_enabled: builtins.bool
-        """
-        Deprecated: JSON packet support on MQTT was removed, and this field is ignored.
-        """
-        tls_enabled: builtins.bool
-        """
-        If true, we attempt to establish a secure connection using TLS
-        """
-        root: builtins.str
-        """
-        The root topic to use for MQTT messages. Default is "msh".
-        This is useful if you want to use a single MQTT server for multiple meshtastic networks and separate them via ACLs
-        """
-        proxy_to_client_enabled: builtins.bool
-        """
-        If true, we can use the connected phone / client to proxy messages to MQTT instead of a direct connection
-        """
-        map_reporting_enabled: builtins.bool
-        """
-        If true, we will periodically report unencrypted information about our node to a map via MQTT
-        """
-        @property
-        def map_report_settings(self) -> global___ModuleConfig.MapReportSettings:
-            """
-            Settings for reporting information about our node to a map via MQTT
-            """
-
-        def __init__(
-            self,
-            *,
-            enabled: builtins.bool = ...,
-            address: builtins.str = ...,
-            username: builtins.str = ...,
-            password: builtins.str = ...,
-            encryption_enabled: builtins.bool = ...,
-            json_enabled: builtins.bool = ...,
-            tls_enabled: builtins.bool = ...,
-            root: builtins.str = ...,
-            proxy_to_client_enabled: builtins.bool = ...,
-            map_reporting_enabled: builtins.bool = ...,
-            map_report_settings: global___ModuleConfig.MapReportSettings | None = ...,
-        ) -> None: ...
-        def HasField(self, field_name: typing.Literal["map_report_settings", b"map_report_settings"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing.Literal["address", b"address", "enabled", b"enabled", "encryption_enabled", b"encryption_enabled", "json_enabled", b"json_enabled", "map_report_settings", b"map_report_settings", "map_reporting_enabled", b"map_reporting_enabled", "password", b"password", "proxy_to_client_enabled", b"proxy_to_client_enabled", "root", b"root", "tls_enabled", b"tls_enabled", "username", b"username"]) -> None: ...
-
-    @typing.final
-    class MapReportSettings(google.protobuf.message.Message):
-        """
-        Settings for reporting unencrypted information about our node to a map via MQTT
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        PUBLISH_INTERVAL_SECS_FIELD_NUMBER: builtins.int
-        POSITION_PRECISION_FIELD_NUMBER: builtins.int
-        SHOULD_REPORT_LOCATION_FIELD_NUMBER: builtins.int
-        publish_interval_secs: builtins.int
-        """
-        How often we should report our info to the map (in seconds)
-        """
-        position_precision: builtins.int
-        """
-        Bits of precision for the location sent (default of 32 is full precision).
-        """
-        should_report_location: builtins.bool
-        """
-        Whether we have opted-in to report our location to the map
-        """
-        def __init__(
-            self,
-            *,
-            publish_interval_secs: builtins.int = ...,
-            position_precision: builtins.int = ...,
-            should_report_location: builtins.bool = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["position_precision", b"position_precision", "publish_interval_secs", b"publish_interval_secs", "should_report_location", b"should_report_location"]) -> None: ...
-
-    @typing.final
-    class RemoteHardwareConfig(google.protobuf.message.Message):
-        """
-        RemoteHardwareModule Config
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        ENABLED_FIELD_NUMBER: builtins.int
-        ALLOW_UNDEFINED_PIN_ACCESS_FIELD_NUMBER: builtins.int
-        AVAILABLE_PINS_FIELD_NUMBER: builtins.int
-        enabled: builtins.bool
-        """
-        Whether the Module is enabled
-        """
-        allow_undefined_pin_access: builtins.bool
-        """
-        Whether the Module allows consumers to read / write to pins not defined in available_pins
-        """
-        @property
-        def available_pins(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___RemoteHardwarePin]:
-            """
-            Exposes the available pins to the mesh for reading and writing
-            """
-
-        def __init__(
-            self,
-            *,
-            enabled: builtins.bool = ...,
-            allow_undefined_pin_access: builtins.bool = ...,
-            available_pins: collections.abc.Iterable[global___RemoteHardwarePin] | None = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["allow_undefined_pin_access", b"allow_undefined_pin_access", "available_pins", b"available_pins", "enabled", b"enabled"]) -> None: ...
-
-    @typing.final
-    class NeighborInfoConfig(google.protobuf.message.Message):
-        """
-        NeighborInfoModule Config
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        ENABLED_FIELD_NUMBER: builtins.int
-        UPDATE_INTERVAL_FIELD_NUMBER: builtins.int
-        TRANSMIT_OVER_LORA_FIELD_NUMBER: builtins.int
-        enabled: builtins.bool
-        """
-        Whether the Module is enabled
-        """
-        update_interval: builtins.int
-        """
-        Interval in seconds of how often we should try to send our
-        Neighbor Info (minimum is 14400, i.e., 4 hours)
-        """
-        transmit_over_lora: builtins.bool
-        """
-        Whether in addition to sending it to MQTT and the PhoneAPI, our NeighborInfo should be transmitted over LoRa.
-        Note that this is not available on a channel with default key and name.
-        """
-        def __init__(
-            self,
-            *,
-            enabled: builtins.bool = ...,
-            update_interval: builtins.int = ...,
-            transmit_over_lora: builtins.bool = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["enabled", b"enabled", "transmit_over_lora", b"transmit_over_lora", "update_interval", b"update_interval"]) -> None: ...
-
-    @typing.final
-    class DetectionSensorConfig(google.protobuf.message.Message):
-        """
-        Detection Sensor Module Config
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        class _TriggerType:
-            ValueType = typing.NewType("ValueType", builtins.int)
-            V: typing_extensions.TypeAlias = ValueType
-
-        class _TriggerTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ModuleConfig.DetectionSensorConfig._TriggerType.ValueType], builtins.type):
-            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-            LOGIC_LOW: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 0
-            """Event is triggered if pin is low"""
-            LOGIC_HIGH: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 1
-            """Event is triggered if pin is high"""
-            FALLING_EDGE: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 2
-            """Event is triggered when pin goes high to low"""
-            RISING_EDGE: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 3
-            """Event is triggered when pin goes low to high"""
-            EITHER_EDGE_ACTIVE_LOW: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 4
-            """Event is triggered on every pin state change, low is considered to be
-            "active"
-            """
-            EITHER_EDGE_ACTIVE_HIGH: ModuleConfig.DetectionSensorConfig._TriggerType.ValueType  # 5
-            """Event is triggered on every pin state change, high is considered to be
-            "active"
-            """
-
-        class TriggerType(_TriggerType, metaclass=_TriggerTypeEnumTypeWrapper): ...
-        LOGIC_LOW: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 0
-        """Event is triggered if pin is low"""
-        LOGIC_HIGH: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 1
-        """Event is triggered if pin is high"""
-        FALLING_EDGE: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 2
-        """Event is triggered when pin goes high to low"""
-        RISING_EDGE: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 3
-        """Event is triggered when pin goes low to high"""
-        EITHER_EDGE_ACTIVE_LOW: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 4
-        """Event is triggered on every pin state change, low is considered to be
-        "active"
-        """
-        EITHER_EDGE_ACTIVE_HIGH: ModuleConfig.DetectionSensorConfig.TriggerType.ValueType  # 5
-        """Event is triggered on every pin state change, high is considered to be
-        "active"
-        """
-
-        ENABLED_FIELD_NUMBER: builtins.int
-        MINIMUM_BROADCAST_SECS_FIELD_NUMBER: builtins.int
-        STATE_BROADCAST_SECS_FIELD_NUMBER: builtins.int
-        SEND_BELL_FIELD_NUMBER: builtins.int
-        NAME_FIELD_NUMBER: builtins.int
-        MONITOR_PIN_FIELD_NUMBER: builtins.int
-        DETECTION_TRIGGER_TYPE_FIELD_NUMBER: builtins.int
-        USE_PULLUP_FIELD_NUMBER: builtins.int
-        enabled: builtins.bool
-        """
-        Whether the Module is enabled
-        """
-        minimum_broadcast_secs: builtins.int
-        """
-        Interval in seconds of how often we can send a message to the mesh when a
-        trigger event is detected
-        """
-        state_broadcast_secs: builtins.int
-        """
-        Interval in seconds of how often we should send a message to the mesh
-        with the current state regardless of trigger events When set to 0, only
-        trigger events will be broadcasted Works as a sort of status heartbeat
-        for peace of mind
-        """
-        send_bell: builtins.bool
-        """
-        Send ASCII bell with alert message
-        Useful for triggering ext. notification on bell
-        """
-        name: builtins.str
-        """
-        Friendly name used to format message sent to mesh
-        Example: A name "Motion" would result in a message "Motion detected"
-        Maximum length of 20 characters
-        """
-        monitor_pin: builtins.int
-        """
-        GPIO pin to monitor for state changes
-        """
-        detection_trigger_type: global___ModuleConfig.DetectionSensorConfig.TriggerType.ValueType
-        """
-        The type of trigger event to be used
-        """
-        use_pullup: builtins.bool
-        """
-        Whether or not use INPUT_PULLUP mode for GPIO pin
-        Only applicable if the board uses pull-up resistors on the pin
-        """
-        def __init__(
-            self,
-            *,
-            enabled: builtins.bool = ...,
-            minimum_broadcast_secs: builtins.int = ...,
-            state_broadcast_secs: builtins.int = ...,
-            send_bell: builtins.bool = ...,
-            name: builtins.str = ...,
-            monitor_pin: builtins.int = ...,
-            detection_trigger_type: global___ModuleConfig.DetectionSensorConfig.TriggerType.ValueType = ...,
-            use_pullup: builtins.bool = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["detection_trigger_type", b"detection_trigger_type", "enabled", b"enabled", "minimum_broadcast_secs", b"minimum_broadcast_secs", "monitor_pin", b"monitor_pin", "name", b"name", "send_bell", b"send_bell", "state_broadcast_secs", b"state_broadcast_secs", "use_pullup", b"use_pullup"]) -> None: ...
-
-    @typing.final
-    class AudioConfig(google.protobuf.message.Message):
-        """
-        Audio Config for codec2 voice
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        class _Audio_Baud:
-            ValueType = typing.NewType("ValueType", builtins.int)
-            V: typing_extensions.TypeAlias = ValueType
-
-        class _Audio_BaudEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ModuleConfig.AudioConfig._Audio_Baud.ValueType], builtins.type):
-            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-            CODEC2_DEFAULT: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 0
-            CODEC2_3200: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 1
-            CODEC2_2400: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 2
-            CODEC2_1600: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 3
-            CODEC2_1400: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 4
-            CODEC2_1300: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 5
-            CODEC2_1200: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 6
-            CODEC2_700: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 7
-            """
-            Removed from libcodec2 upstream. A device configured to one of these
-            falls back to CODEC2_700C.
-            """
-            CODEC2_700B: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 8
-            CODEC2_700C: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 9
-            """
-            Replaces CODEC2_700. Default for new configurations.
-            """
-            CODEC2_450: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 10
-            """
-            Lowest rate, and the only one usable on slower modem presets.
-            """
-
-        class Audio_Baud(_Audio_Baud, metaclass=_Audio_BaudEnumTypeWrapper):
-            """
-            Baudrate for codec2 voice
-            """
-
-        CODEC2_DEFAULT: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 0
-        CODEC2_3200: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 1
-        CODEC2_2400: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 2
-        CODEC2_1600: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 3
-        CODEC2_1400: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 4
-        CODEC2_1300: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 5
-        CODEC2_1200: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 6
-        CODEC2_700: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 7
-        """
-        Removed from libcodec2 upstream. A device configured to one of these
-        falls back to CODEC2_700C.
-        """
-        CODEC2_700B: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 8
-        CODEC2_700C: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 9
-        """
-        Replaces CODEC2_700. Default for new configurations.
-        """
-        CODEC2_450: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 10
-        """
-        Lowest rate, and the only one usable on slower modem presets.
-        """
-
-        CODEC2_ENABLED_FIELD_NUMBER: builtins.int
-        PTT_PIN_FIELD_NUMBER: builtins.int
-        BITRATE_FIELD_NUMBER: builtins.int
-        I2S_WS_FIELD_NUMBER: builtins.int
-        I2S_SD_FIELD_NUMBER: builtins.int
-        I2S_DIN_FIELD_NUMBER: builtins.int
-        I2S_SCK_FIELD_NUMBER: builtins.int
-        codec2_enabled: builtins.bool
-        """
-        Whether Audio is enabled
-        """
-        ptt_pin: builtins.int
-        """
-        PTT Pin
-        """
-        bitrate: global___ModuleConfig.AudioConfig.Audio_Baud.ValueType
-        """
-        The codec2 bitrate to encode at. Sample rate is always 8 kHz.
-        """
-        i2s_ws: builtins.int
-        """
-        I2S Word Select
-        """
-        i2s_sd: builtins.int
-        """
-        I2S Data IN
-        """
-        i2s_din: builtins.int
-        """
-        I2S Data OUT
-        """
-        i2s_sck: builtins.int
-        """
-        I2S Clock
-        """
-        def __init__(
-            self,
-            *,
-            codec2_enabled: builtins.bool = ...,
-            ptt_pin: builtins.int = ...,
-            bitrate: global___ModuleConfig.AudioConfig.Audio_Baud.ValueType = ...,
-            i2s_ws: builtins.int = ...,
-            i2s_sd: builtins.int = ...,
-            i2s_din: builtins.int = ...,
-            i2s_sck: builtins.int = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["bitrate", b"bitrate", "codec2_enabled", b"codec2_enabled", "i2s_din", b"i2s_din", "i2s_sck", b"i2s_sck", "i2s_sd", b"i2s_sd", "i2s_ws", b"i2s_ws", "ptt_pin", b"ptt_pin"]) -> None: ...
-
-    @typing.final
-    class PaxcounterConfig(google.protobuf.message.Message):
-        """
-        Config for the Paxcounter Module
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        ENABLED_FIELD_NUMBER: builtins.int
-        PAXCOUNTER_UPDATE_INTERVAL_FIELD_NUMBER: builtins.int
-        WIFI_THRESHOLD_FIELD_NUMBER: builtins.int
-        BLE_THRESHOLD_FIELD_NUMBER: builtins.int
-        enabled: builtins.bool
-        """
-        Enable the Paxcounter Module
-        """
-        paxcounter_update_interval: builtins.int
-        """
-        Interval in seconds of how often we should try to send our
-        metrics to the mesh
-        """
-        wifi_threshold: builtins.int
-        """
-        WiFi RSSI threshold. Defaults to -80
-        """
-        ble_threshold: builtins.int
-        """
-        BLE RSSI threshold. Defaults to -80
-        """
-        def __init__(
-            self,
-            *,
-            enabled: builtins.bool = ...,
-            paxcounter_update_interval: builtins.int = ...,
-            wifi_threshold: builtins.int = ...,
-            ble_threshold: builtins.int = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["ble_threshold", b"ble_threshold", "enabled", b"enabled", "paxcounter_update_interval", b"paxcounter_update_interval", "wifi_threshold", b"wifi_threshold"]) -> None: ...
-
-    @typing.final
-    class TrafficManagementConfig(google.protobuf.message.Message):
-        """
-        Config for the Traffic Management module.
-        Provides packet inspection and traffic shaping to help reduce channel utilization.
-        Every field uses the proto3 zero value to mean "disabled"; there is no
-        "use the firmware default" sentinel. Firmware installs its own defaults when it
-        first creates this config, and a client that writes 0 turns that feature off.
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        POSITION_MIN_INTERVAL_SECS_FIELD_NUMBER: builtins.int
-        NODEINFO_DIRECT_RESPONSE_MAX_HOPS_FIELD_NUMBER: builtins.int
-        RATE_LIMIT_WINDOW_SECS_FIELD_NUMBER: builtins.int
-        RATE_LIMIT_MAX_PACKETS_FIELD_NUMBER: builtins.int
-        UNKNOWN_PACKET_THRESHOLD_FIELD_NUMBER: builtins.int
-        position_min_interval_secs: builtins.int
-        """
-        Minimum interval in seconds between position updates from the same node.
-        A non-zero value implicitly enables the suppression window; 0 disables it.
-        Firmware default: 21600 (6 hours), installed when this config is first created.
-        """
-        nodeinfo_direct_response_max_hops: builtins.int
-        """
-        Maximum hop distance from the requestor at which direct NodeInfo responses
-        are served from the local cache. A non-zero value implicitly enables direct
-        response; 0 disables it.
-        """
-        rate_limit_window_secs: builtins.int
-        """
-        Time window in seconds for per-node rate limiting.
-        A non-zero value implicitly enables rate limiting; 0 disables it.
-        """
-        rate_limit_max_packets: builtins.int
-        """
-        Maximum packets allowed per node within the rate limit window.
-        A non-zero value implicitly enables rate limiting; 0 disables it.
-        """
-        unknown_packet_threshold: builtins.int
-        """
-        Maximum unknown/undecryptable packets per rate window before the source
-        is dropped. A non-zero value implicitly enables unknown-packet filtering;
-        0 disables it.
-        """
-        def __init__(
-            self,
-            *,
-            position_min_interval_secs: builtins.int = ...,
-            nodeinfo_direct_response_max_hops: builtins.int = ...,
-            rate_limit_window_secs: builtins.int = ...,
-            rate_limit_max_packets: builtins.int = ...,
-            unknown_packet_threshold: builtins.int = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["nodeinfo_direct_response_max_hops", b"nodeinfo_direct_response_max_hops", "position_min_interval_secs", b"position_min_interval_secs", "rate_limit_max_packets", b"rate_limit_max_packets", "rate_limit_window_secs", b"rate_limit_window_secs", "unknown_packet_threshold", b"unknown_packet_threshold"]) -> None: ...
-
-    @typing.final
-    class SerialConfig(google.protobuf.message.Message):
-        """
-        Serial Config
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        class _Serial_Baud:
-            ValueType = typing.NewType("ValueType", builtins.int)
-            V: typing_extensions.TypeAlias = ValueType
-
-        class _Serial_BaudEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ModuleConfig.SerialConfig._Serial_Baud.ValueType], builtins.type):
-            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-            BAUD_DEFAULT: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 0
-            BAUD_110: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 1
-            BAUD_300: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 2
-            BAUD_600: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 3
-            BAUD_1200: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 4
-            BAUD_2400: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 5
-            BAUD_4800: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 6
-            BAUD_9600: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 7
-            BAUD_19200: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 8
-            BAUD_38400: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 9
-            BAUD_57600: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 10
-            BAUD_115200: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 11
-            BAUD_230400: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 12
-            BAUD_460800: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 13
-            BAUD_576000: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 14
-            BAUD_921600: ModuleConfig.SerialConfig._Serial_Baud.ValueType  # 15
-
-        class Serial_Baud(_Serial_Baud, metaclass=_Serial_BaudEnumTypeWrapper):
-            """
-            TODO: REPLACE
-            """
-
-        BAUD_DEFAULT: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 0
-        BAUD_110: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 1
-        BAUD_300: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 2
-        BAUD_600: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 3
-        BAUD_1200: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 4
-        BAUD_2400: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 5
-        BAUD_4800: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 6
-        BAUD_9600: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 7
-        BAUD_19200: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 8
-        BAUD_38400: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 9
-        BAUD_57600: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 10
-        BAUD_115200: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 11
-        BAUD_230400: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 12
-        BAUD_460800: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 13
-        BAUD_576000: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 14
-        BAUD_921600: ModuleConfig.SerialConfig.Serial_Baud.ValueType  # 15
-
-        class _Serial_Mode:
-            ValueType = typing.NewType("ValueType", builtins.int)
-            V: typing_extensions.TypeAlias = ValueType
-
-        class _Serial_ModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ModuleConfig.SerialConfig._Serial_Mode.ValueType], builtins.type):
-            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-            DEFAULT: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 0
-            SIMPLE: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 1
-            PROTO: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 2
-            TEXTMSG: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 3
-            NMEA: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 4
-            CALTOPO: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 5
-            """NMEA messages specifically tailored for CalTopo"""
-            WS85: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 6
-            """Ecowitt WS85 weather station"""
-            VE_DIRECT: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 7
-            """VE.Direct is a serial protocol used by Victron Energy products
-            https://beta.ivc.no/wiki/index.php/Victron_VE_Direct_DIY_Cable
-            """
-            MS_CONFIG: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 8
-            """Used to configure and view some parameters of MeshSolar.
-            https://heltec.org/project/meshsolar/
-            """
-            LOG: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 9
-            """Logs mesh traffic to the serial pins, ideal for logging via openLog or similar.
-            includes other packets
-            """
-            LOGTEXT: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 10
-            """only text (channel & DM)"""
-
-        class Serial_Mode(_Serial_Mode, metaclass=_Serial_ModeEnumTypeWrapper):
-            """
-            TODO: REPLACE
-            """
-
-        DEFAULT: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 0
-        SIMPLE: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 1
-        PROTO: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 2
-        TEXTMSG: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 3
-        NMEA: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 4
-        CALTOPO: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 5
-        """NMEA messages specifically tailored for CalTopo"""
-        WS85: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 6
-        """Ecowitt WS85 weather station"""
-        VE_DIRECT: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 7
-        """VE.Direct is a serial protocol used by Victron Energy products
-        https://beta.ivc.no/wiki/index.php/Victron_VE_Direct_DIY_Cable
-        """
-        MS_CONFIG: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 8
-        """Used to configure and view some parameters of MeshSolar.
-        https://heltec.org/project/meshsolar/
-        """
-        LOG: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 9
-        """Logs mesh traffic to the serial pins, ideal for logging via openLog or similar.
-        includes other packets
-        """
-        LOGTEXT: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 10
-        """only text (channel & DM)"""
-
-        ENABLED_FIELD_NUMBER: builtins.int
-        ECHO_FIELD_NUMBER: builtins.int
-        RXD_FIELD_NUMBER: builtins.int
-        TXD_FIELD_NUMBER: builtins.int
-        BAUD_FIELD_NUMBER: builtins.int
-        TIMEOUT_FIELD_NUMBER: builtins.int
-        MODE_FIELD_NUMBER: builtins.int
-        OVERRIDE_CONSOLE_SERIAL_PORT_FIELD_NUMBER: builtins.int
-        enabled: builtins.bool
-        """
-        Preferences for the SerialModule
-        """
-        echo: builtins.bool
-        """
-        TODO: REPLACE
-        """
-        rxd: builtins.int
-        """
-        RX pin (should match Arduino gpio pin number)
-        """
-        txd: builtins.int
-        """
-        TX pin (should match Arduino gpio pin number)
-        """
-        baud: global___ModuleConfig.SerialConfig.Serial_Baud.ValueType
-        """
-        Serial baud rate
-        """
-        timeout: builtins.int
-        """
-        TODO: REPLACE
-        """
-        mode: global___ModuleConfig.SerialConfig.Serial_Mode.ValueType
-        """
-        Mode for serial module operation
-        """
-        override_console_serial_port: builtins.bool
-        """
-        Overrides the platform's defacto Serial port instance to use with Serial module config settings
-        This is currently only usable in output modes like NMEA / CalTopo and may behave strangely or not work at all in other modes
-        Existing logging over the Serial Console will still be present
-        """
-        def __init__(
-            self,
-            *,
-            enabled: builtins.bool = ...,
-            echo: builtins.bool = ...,
-            rxd: builtins.int = ...,
-            txd: builtins.int = ...,
-            baud: global___ModuleConfig.SerialConfig.Serial_Baud.ValueType = ...,
-            timeout: builtins.int = ...,
-            mode: global___ModuleConfig.SerialConfig.Serial_Mode.ValueType = ...,
-            override_console_serial_port: builtins.bool = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["baud", b"baud", "echo", b"echo", "enabled", b"enabled", "mode", b"mode", "override_console_serial_port", b"override_console_serial_port", "rxd", b"rxd", "timeout", b"timeout", "txd", b"txd"]) -> None: ...
-
-    @typing.final
-    class ExternalNotificationConfig(google.protobuf.message.Message):
-        """
-        External Notifications Config
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        ENABLED_FIELD_NUMBER: builtins.int
-        OUTPUT_MS_FIELD_NUMBER: builtins.int
-        OUTPUT_FIELD_NUMBER: builtins.int
-        OUTPUT_VIBRA_FIELD_NUMBER: builtins.int
-        OUTPUT_BUZZER_FIELD_NUMBER: builtins.int
-        ACTIVE_FIELD_NUMBER: builtins.int
-        ALERT_MESSAGE_FIELD_NUMBER: builtins.int
-        ALERT_MESSAGE_VIBRA_FIELD_NUMBER: builtins.int
-        ALERT_MESSAGE_BUZZER_FIELD_NUMBER: builtins.int
-        ALERT_BELL_FIELD_NUMBER: builtins.int
-        ALERT_BELL_VIBRA_FIELD_NUMBER: builtins.int
-        ALERT_BELL_BUZZER_FIELD_NUMBER: builtins.int
-        USE_PWM_FIELD_NUMBER: builtins.int
-        NAG_TIMEOUT_FIELD_NUMBER: builtins.int
-        USE_I2S_AS_BUZZER_FIELD_NUMBER: builtins.int
-        enabled: builtins.bool
-        """
-        Enable the ExternalNotificationModule
-        """
-        output_ms: builtins.int
-        """
-        When using in On/Off mode, keep the output on for this many
-        milliseconds. Default 1000ms (1 second).
-        """
-        output: builtins.int
-        """
-        Define the output pin GPIO setting Defaults to
-        EXT_NOTIFY_OUT if set for the board.
-        In standalone devices this pin should drive the LED to match the UI.
-        """
-        output_vibra: builtins.int
-        """
-        Optional: Define a secondary output pin for a vibra motor
-        This is used in standalone devices to match the UI.
-        """
-        output_buzzer: builtins.int
-        """
-        Optional: Define a tertiary output pin for an active buzzer
-        This is used in standalone devices to to match the UI.
-        """
-        active: builtins.bool
-        """
-        IF this is true, the 'output' Pin will be pulled active high, false
-        means active low.
-        """
-        alert_message: builtins.bool
-        """
-        True: Alert when a text message arrives (output)
-        """
-        alert_message_vibra: builtins.bool
-        """
-        True: Alert when a text message arrives (output_vibra)
-        """
-        alert_message_buzzer: builtins.bool
-        """
-        True: Alert when a text message arrives (output_buzzer)
-        """
-        alert_bell: builtins.bool
-        """
-        True: Alert when the bell character is received (output)
-        """
-        alert_bell_vibra: builtins.bool
-        """
-        True: Alert when the bell character is received (output_vibra)
-        """
-        alert_bell_buzzer: builtins.bool
-        """
-        True: Alert when the bell character is received (output_buzzer)
-        """
-        use_pwm: builtins.bool
-        """
-        use a PWM output instead of a simple on/off output. This will ignore
-        the 'output', 'output_ms' and 'active' settings and use the
-        device.buzzer_gpio instead.
-        """
-        nag_timeout: builtins.int
-        """
-        The notification will toggle with 'output_ms' for this time of seconds.
-        Default is 0 which means don't repeat at all. 60 would mean blink
-        and/or beep for 60 seconds
-        """
-        use_i2s_as_buzzer: builtins.bool
-        """
-        When true, enables devices with native I2S audio output to use the RTTTL over speaker like a buzzer
-        T-Watch S3 and T-Deck for example have this capability
-        """
-        def __init__(
-            self,
-            *,
-            enabled: builtins.bool = ...,
-            output_ms: builtins.int = ...,
-            output: builtins.int = ...,
-            output_vibra: builtins.int = ...,
-            output_buzzer: builtins.int = ...,
-            active: builtins.bool = ...,
-            alert_message: builtins.bool = ...,
-            alert_message_vibra: builtins.bool = ...,
-            alert_message_buzzer: builtins.bool = ...,
-            alert_bell: builtins.bool = ...,
-            alert_bell_vibra: builtins.bool = ...,
-            alert_bell_buzzer: builtins.bool = ...,
-            use_pwm: builtins.bool = ...,
-            nag_timeout: builtins.int = ...,
-            use_i2s_as_buzzer: builtins.bool = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["active", b"active", "alert_bell", b"alert_bell", "alert_bell_buzzer", b"alert_bell_buzzer", "alert_bell_vibra", b"alert_bell_vibra", "alert_message", b"alert_message", "alert_message_buzzer", b"alert_message_buzzer", "alert_message_vibra", b"alert_message_vibra", "enabled", b"enabled", "nag_timeout", b"nag_timeout", "output", b"output", "output_buzzer", b"output_buzzer", "output_ms", b"output_ms", "output_vibra", b"output_vibra", "use_i2s_as_buzzer", b"use_i2s_as_buzzer", "use_pwm", b"use_pwm"]) -> None: ...
-
-    @typing.final
-    class StoreForwardConfig(google.protobuf.message.Message):
-        """
-        Store and Forward Module Config
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        ENABLED_FIELD_NUMBER: builtins.int
-        HEARTBEAT_FIELD_NUMBER: builtins.int
-        RECORDS_FIELD_NUMBER: builtins.int
-        HISTORY_RETURN_MAX_FIELD_NUMBER: builtins.int
-        HISTORY_RETURN_WINDOW_FIELD_NUMBER: builtins.int
-        IS_SERVER_FIELD_NUMBER: builtins.int
-        enabled: builtins.bool
-        """
-        Enable the Store and Forward Module
-        """
-        heartbeat: builtins.bool
-        """
-        TODO: REPLACE
-        """
-        records: builtins.int
-        """
-        TODO: REPLACE
-        """
-        history_return_max: builtins.int
-        """
-        TODO: REPLACE
-        """
-        history_return_window: builtins.int
-        """
-        TODO: REPLACE
-        """
-        is_server: builtins.bool
-        """
-        Set to true to let this node act as a server that stores received messages and resends them upon request.
-        """
-        def __init__(
-            self,
-            *,
-            enabled: builtins.bool = ...,
-            heartbeat: builtins.bool = ...,
-            records: builtins.int = ...,
-            history_return_max: builtins.int = ...,
-            history_return_window: builtins.int = ...,
-            is_server: builtins.bool = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["enabled", b"enabled", "heartbeat", b"heartbeat", "history_return_max", b"history_return_max", "history_return_window", b"history_return_window", "is_server", b"is_server", "records", b"records"]) -> None: ...
-
-    @typing.final
-    class RangeTestConfig(google.protobuf.message.Message):
-        """
-        Preferences for the RangeTestModule
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        ENABLED_FIELD_NUMBER: builtins.int
-        SENDER_FIELD_NUMBER: builtins.int
-        SAVE_FIELD_NUMBER: builtins.int
-        CLEAR_ON_REBOOT_FIELD_NUMBER: builtins.int
-        enabled: builtins.bool
-        """
-        Enable the Range Test Module
-        """
-        sender: builtins.int
-        """
-        Send out range test messages from this node
-        """
-        save: builtins.bool
-        """
-        Bool value indicating that this node should save a RangeTest.csv file.
-        ESP32 Only
-        """
-        clear_on_reboot: builtins.bool
-        """
-        Bool indicating that the node should cleanup / destroy it's RangeTest.csv file.
-        ESP32 Only
-        """
-        def __init__(
-            self,
-            *,
-            enabled: builtins.bool = ...,
-            sender: builtins.int = ...,
-            save: builtins.bool = ...,
-            clear_on_reboot: builtins.bool = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["clear_on_reboot", b"clear_on_reboot", "enabled", b"enabled", "save", b"save", "sender", b"sender"]) -> None: ...
-
-    @typing.final
-    class TelemetryConfig(google.protobuf.message.Message):
-        """
-        Configuration for both device and environment metrics
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        DEVICE_UPDATE_INTERVAL_FIELD_NUMBER: builtins.int
-        ENVIRONMENT_UPDATE_INTERVAL_FIELD_NUMBER: builtins.int
-        ENVIRONMENT_MEASUREMENT_ENABLED_FIELD_NUMBER: builtins.int
-        ENVIRONMENT_SCREEN_ENABLED_FIELD_NUMBER: builtins.int
-        ENVIRONMENT_DISPLAY_FAHRENHEIT_FIELD_NUMBER: builtins.int
-        AIR_QUALITY_ENABLED_FIELD_NUMBER: builtins.int
-        AIR_QUALITY_INTERVAL_FIELD_NUMBER: builtins.int
-        POWER_MEASUREMENT_ENABLED_FIELD_NUMBER: builtins.int
-        POWER_UPDATE_INTERVAL_FIELD_NUMBER: builtins.int
-        POWER_SCREEN_ENABLED_FIELD_NUMBER: builtins.int
-        HEALTH_MEASUREMENT_ENABLED_FIELD_NUMBER: builtins.int
-        HEALTH_UPDATE_INTERVAL_FIELD_NUMBER: builtins.int
-        HEALTH_SCREEN_ENABLED_FIELD_NUMBER: builtins.int
-        DEVICE_TELEMETRY_ENABLED_FIELD_NUMBER: builtins.int
-        AIR_QUALITY_SCREEN_ENABLED_FIELD_NUMBER: builtins.int
-        device_update_interval: builtins.int
-        """
-        Interval in seconds of how often we should try to send our
-        device metrics to the mesh
-        """
-        environment_update_interval: builtins.int
-        """
-        Interval in seconds of how often we should try to send our
-        environment measurements to the mesh
-        """
-        environment_measurement_enabled: builtins.bool
-        """
-        Preferences for the Telemetry Module (Environment)
-        Enable/Disable the telemetry measurement module measurement collection
-        """
-        environment_screen_enabled: builtins.bool
-        """
-        Enable/Disable the telemetry measurement module on-device display
-        """
-        environment_display_fahrenheit: builtins.bool
-        """
-        We'll always read the sensor in Celsius, but sometimes we might want to
-        display the results in Fahrenheit as a "user preference".
-        """
-        air_quality_enabled: builtins.bool
-        """
-        Enable/Disable the air quality metrics
-        """
-        air_quality_interval: builtins.int
-        """
-        Interval in seconds of how often we should try to send our
-        air quality metrics to the mesh
-        """
-        power_measurement_enabled: builtins.bool
-        """
-        Enable/disable Power metrics
-        """
-        power_update_interval: builtins.int
-        """
-        Interval in seconds of how often we should try to send our
-        power metrics to the mesh
-        """
-        power_screen_enabled: builtins.bool
-        """
-        Enable/Disable the power measurement module on-device display
-        """
-        health_measurement_enabled: builtins.bool
-        """
-        Preferences for the (Health) Telemetry Module
-        Enable/Disable the telemetry measurement module measurement collection
-        """
-        health_update_interval: builtins.int
-        """
-        Interval in seconds of how often we should try to send our
-        health metrics to the mesh
-        """
-        health_screen_enabled: builtins.bool
-        """
-        Enable/Disable the health telemetry module on-device display
-        """
-        device_telemetry_enabled: builtins.bool
-        """
-        Enable/Disable the device telemetry module to send metrics to the mesh
-        Note: We will still send telemtry to the connected phone / client every minute over the API
-        """
-        air_quality_screen_enabled: builtins.bool
-        """
-        Enable/Disable the air quality telemetry measurement module on-device display
-        """
-        def __init__(
-            self,
-            *,
-            device_update_interval: builtins.int = ...,
-            environment_update_interval: builtins.int = ...,
-            environment_measurement_enabled: builtins.bool = ...,
-            environment_screen_enabled: builtins.bool = ...,
-            environment_display_fahrenheit: builtins.bool = ...,
-            air_quality_enabled: builtins.bool = ...,
-            air_quality_interval: builtins.int = ...,
-            power_measurement_enabled: builtins.bool = ...,
-            power_update_interval: builtins.int = ...,
-            power_screen_enabled: builtins.bool = ...,
-            health_measurement_enabled: builtins.bool = ...,
-            health_update_interval: builtins.int = ...,
-            health_screen_enabled: builtins.bool = ...,
-            device_telemetry_enabled: builtins.bool = ...,
-            air_quality_screen_enabled: builtins.bool = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["air_quality_enabled", b"air_quality_enabled", "air_quality_interval", b"air_quality_interval", "air_quality_screen_enabled", b"air_quality_screen_enabled", "device_telemetry_enabled", b"device_telemetry_enabled", "device_update_interval", b"device_update_interval", "environment_display_fahrenheit", b"environment_display_fahrenheit", "environment_measurement_enabled", b"environment_measurement_enabled", "environment_screen_enabled", b"environment_screen_enabled", "environment_update_interval", b"environment_update_interval", "health_measurement_enabled", b"health_measurement_enabled", "health_screen_enabled", b"health_screen_enabled", "health_update_interval", b"health_update_interval", "power_measurement_enabled", b"power_measurement_enabled", "power_screen_enabled", b"power_screen_enabled", "power_update_interval", b"power_update_interval"]) -> None: ...
-
-    @typing.final
-    class CannedMessageConfig(google.protobuf.message.Message):
-        """
-        Canned Messages Module Config
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        class _InputEventChar:
-            ValueType = typing.NewType("ValueType", builtins.int)
-            V: typing_extensions.TypeAlias = ValueType
-
-        class _InputEventCharEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ModuleConfig.CannedMessageConfig._InputEventChar.ValueType], builtins.type):
-            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-            NONE: ModuleConfig.CannedMessageConfig._InputEventChar.ValueType  # 0
-            """
-            TODO: REPLACE
-            """
-            UP: ModuleConfig.CannedMessageConfig._InputEventChar.ValueType  # 17
-            """
-            TODO: REPLACE
-            """
-            DOWN: ModuleConfig.CannedMessageConfig._InputEventChar.ValueType  # 18
-            """
-            TODO: REPLACE
-            """
-            LEFT: ModuleConfig.CannedMessageConfig._InputEventChar.ValueType  # 19
-            """
-            TODO: REPLACE
-            """
-            RIGHT: ModuleConfig.CannedMessageConfig._InputEventChar.ValueType  # 20
-            """
-            TODO: REPLACE
-            """
-            SELECT: ModuleConfig.CannedMessageConfig._InputEventChar.ValueType  # 10
-            """
-            '\\n'
-            """
-            BACK: ModuleConfig.CannedMessageConfig._InputEventChar.ValueType  # 27
-            """
-            TODO: REPLACE
-            """
-            CANCEL: ModuleConfig.CannedMessageConfig._InputEventChar.ValueType  # 24
-            """
-            TODO: REPLACE
-            """
-
-        class InputEventChar(_InputEventChar, metaclass=_InputEventCharEnumTypeWrapper):
-            """
-            TODO: REPLACE
-            """
-
-        NONE: ModuleConfig.CannedMessageConfig.InputEventChar.ValueType  # 0
-        """
-        TODO: REPLACE
-        """
-        UP: ModuleConfig.CannedMessageConfig.InputEventChar.ValueType  # 17
-        """
-        TODO: REPLACE
-        """
-        DOWN: ModuleConfig.CannedMessageConfig.InputEventChar.ValueType  # 18
-        """
-        TODO: REPLACE
-        """
-        LEFT: ModuleConfig.CannedMessageConfig.InputEventChar.ValueType  # 19
-        """
-        TODO: REPLACE
-        """
-        RIGHT: ModuleConfig.CannedMessageConfig.InputEventChar.ValueType  # 20
-        """
-        TODO: REPLACE
-        """
-        SELECT: ModuleConfig.CannedMessageConfig.InputEventChar.ValueType  # 10
-        """
-        '\\n'
-        """
-        BACK: ModuleConfig.CannedMessageConfig.InputEventChar.ValueType  # 27
-        """
-        TODO: REPLACE
-        """
-        CANCEL: ModuleConfig.CannedMessageConfig.InputEventChar.ValueType  # 24
-        """
-        TODO: REPLACE
-        """
-
-        ROTARY1_ENABLED_FIELD_NUMBER: builtins.int
-        INPUTBROKER_PIN_A_FIELD_NUMBER: builtins.int
-        INPUTBROKER_PIN_B_FIELD_NUMBER: builtins.int
-        INPUTBROKER_PIN_PRESS_FIELD_NUMBER: builtins.int
-        INPUTBROKER_EVENT_CW_FIELD_NUMBER: builtins.int
-        INPUTBROKER_EVENT_CCW_FIELD_NUMBER: builtins.int
-        INPUTBROKER_EVENT_PRESS_FIELD_NUMBER: builtins.int
-        UPDOWN1_ENABLED_FIELD_NUMBER: builtins.int
-        ENABLED_FIELD_NUMBER: builtins.int
-        ALLOW_INPUT_SOURCE_FIELD_NUMBER: builtins.int
-        SEND_BELL_FIELD_NUMBER: builtins.int
-        rotary1_enabled: builtins.bool
-        """
-        Enable the rotary encoder #1. This is a 'dumb' encoder sending pulses on both A and B pins while rotating.
-        """
-        inputbroker_pin_a: builtins.int
-        """
-        GPIO pin for rotary encoder A port.
-        """
-        inputbroker_pin_b: builtins.int
-        """
-        GPIO pin for rotary encoder B port.
-        """
-        inputbroker_pin_press: builtins.int
-        """
-        GPIO pin for rotary encoder Press port.
-        """
-        inputbroker_event_cw: global___ModuleConfig.CannedMessageConfig.InputEventChar.ValueType
-        """
-        Generate input event on CW of this kind.
-        """
-        inputbroker_event_ccw: global___ModuleConfig.CannedMessageConfig.InputEventChar.ValueType
-        """
-        Generate input event on CCW of this kind.
-        """
-        inputbroker_event_press: global___ModuleConfig.CannedMessageConfig.InputEventChar.ValueType
-        """
-        Generate input event on Press of this kind.
-        """
-        updown1_enabled: builtins.bool
-        """
-        Enable the Up/Down/Select input device. Can be RAK rotary encoder or 3 buttons. Uses the a/b/press definitions from inputbroker.
-        """
-        enabled: builtins.bool
-        """
-        Enable/disable CannedMessageModule.
-        """
-        allow_input_source: builtins.str
-        """
-        Input event origin accepted by the canned message module.
-        Can be e.g. "rotEnc1", "upDownEnc1", "scanAndSelect", "cardkb", "serialkb", or keyword "_any"
-        """
-        send_bell: builtins.bool
-        """
-        CannedMessageModule also sends a bell character with the messages.
-        ExternalNotificationModule can benefit from this feature.
-        """
-        def __init__(
-            self,
-            *,
-            rotary1_enabled: builtins.bool = ...,
-            inputbroker_pin_a: builtins.int = ...,
-            inputbroker_pin_b: builtins.int = ...,
-            inputbroker_pin_press: builtins.int = ...,
-            inputbroker_event_cw: global___ModuleConfig.CannedMessageConfig.InputEventChar.ValueType = ...,
-            inputbroker_event_ccw: global___ModuleConfig.CannedMessageConfig.InputEventChar.ValueType = ...,
-            inputbroker_event_press: global___ModuleConfig.CannedMessageConfig.InputEventChar.ValueType = ...,
-            updown1_enabled: builtins.bool = ...,
-            enabled: builtins.bool = ...,
-            allow_input_source: builtins.str = ...,
-            send_bell: builtins.bool = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["allow_input_source", b"allow_input_source", "enabled", b"enabled", "inputbroker_event_ccw", b"inputbroker_event_ccw", "inputbroker_event_cw", b"inputbroker_event_cw", "inputbroker_event_press", b"inputbroker_event_press", "inputbroker_pin_a", b"inputbroker_pin_a", "inputbroker_pin_b", b"inputbroker_pin_b", "inputbroker_pin_press", b"inputbroker_pin_press", "rotary1_enabled", b"rotary1_enabled", "send_bell", b"send_bell", "updown1_enabled", b"updown1_enabled"]) -> None: ...
-
-    @typing.final
-    class AmbientLightingConfig(google.protobuf.message.Message):
-        """
-        Ambient Lighting Module - Settings for control of onboard LEDs to allow users to adjust the brightness levels and respective color levels.
-        Initially created for the RAK14001 RGB LED module.
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        LED_STATE_FIELD_NUMBER: builtins.int
-        CURRENT_FIELD_NUMBER: builtins.int
-        RED_FIELD_NUMBER: builtins.int
-        GREEN_FIELD_NUMBER: builtins.int
-        BLUE_FIELD_NUMBER: builtins.int
-        led_state: builtins.bool
-        """
-        Sets LED to on or off.
-        """
-        current: builtins.int
-        """
-        Sets the current for the LED output. Default is 10.
-        """
-        red: builtins.int
-        """
-        Sets the red LED level. Values are 0-255.
-        """
-        green: builtins.int
-        """
-        Sets the green LED level. Values are 0-255.
-        """
-        blue: builtins.int
-        """
-        Sets the blue LED level. Values are 0-255.
-        """
-        def __init__(
-            self,
-            *,
-            led_state: builtins.bool = ...,
-            current: builtins.int = ...,
-            red: builtins.int = ...,
-            green: builtins.int = ...,
-            blue: builtins.int = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["blue", b"blue", "current", b"current", "green", b"green", "led_state", b"led_state", "red", b"red"]) -> None: ...
-
-    @typing.final
-    class StatusMessageConfig(google.protobuf.message.Message):
-        """
-        StatusMessage config - Allows setting a status message for a node to periodically rebroadcast
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        NODE_STATUS_FIELD_NUMBER: builtins.int
-        node_status: builtins.str
-        """
-        The actual status string
-        """
-        def __init__(
-            self,
-            *,
-            node_status: builtins.str = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["node_status", b"node_status"]) -> None: ...
-
-    @typing.final
-    class MeshBeaconConfig(google.protobuf.message.Message):
-        """
-        MeshBeacon module config
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        class _Flags:
-            ValueType = typing.NewType("ValueType", builtins.int)
-            V: typing_extensions.TypeAlias = ValueType
-
-        class _FlagsEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ModuleConfig.MeshBeaconConfig._Flags.ValueType], builtins.type):
-            DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-            FLAG_NONE: ModuleConfig.MeshBeaconConfig._Flags.ValueType  # 0
-            """
-            No options enabled.
-            """
-            FLAG_LISTEN_ENABLED: ModuleConfig.MeshBeaconConfig._Flags.ValueType  # 1
-            """
-            Enable receiving MESH_BEACON_APP packets from other nodes.
-            The text portion is delivered to the local message inbox.
-            Offered channel/preset are stored for the client app to act on.
-            """
-            FLAG_BROADCAST_ENABLED: ModuleConfig.MeshBeaconConfig._Flags.ValueType  # 2
-            """
-            Enable periodically broadcasting MESH_BEACON_APP packets from this node.
-            """
-            FLAG_LEGACY_SPLIT: ModuleConfig.MeshBeaconConfig._Flags.ValueType  # 4
-            """
-            When both text and offer content are present, split the beacon into a separate
-            MESH_BEACON_APP (offer only) and TEXT_MESSAGE_APP (text only) packet, so firmware
-            that only decodes TEXT_MESSAGE_APP still receives the human-readable text.
-            """
-
-        class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
-            """
-            Boolean options for the beacon module, packed into the `flags` bitfield below.
-            OR the FLAG_* values together; a flag is on when its bit is set.
-            """
-
-        FLAG_NONE: ModuleConfig.MeshBeaconConfig.Flags.ValueType  # 0
-        """
-        No options enabled.
-        """
-        FLAG_LISTEN_ENABLED: ModuleConfig.MeshBeaconConfig.Flags.ValueType  # 1
-        """
-        Enable receiving MESH_BEACON_APP packets from other nodes.
-        The text portion is delivered to the local message inbox.
-        Offered channel/preset are stored for the client app to act on.
-        """
-        FLAG_BROADCAST_ENABLED: ModuleConfig.MeshBeaconConfig.Flags.ValueType  # 2
-        """
-        Enable periodically broadcasting MESH_BEACON_APP packets from this node.
-        """
-        FLAG_LEGACY_SPLIT: ModuleConfig.MeshBeaconConfig.Flags.ValueType  # 4
-        """
-        When both text and offer content are present, split the beacon into a separate
-        MESH_BEACON_APP (offer only) and TEXT_MESSAGE_APP (text only) packet, so firmware
-        that only decodes TEXT_MESSAGE_APP still receives the human-readable text.
-        """
-
-        @typing.final
-        class BroadcastTarget(google.protobuf.message.Message):
-            """
-            One entry in the broadcast destination list.
-            Each entry names one set of radio settings to send a beacon copy on.
-            """
-
-            DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-            PRESET_FIELD_NUMBER: builtins.int
-            REGION_FIELD_NUMBER: builtins.int
-            CHANNEL_INDEX_FIELD_NUMBER: builtins.int
-            FREQUENCY_SLOT_FIELD_NUMBER: builtins.int
-            preset: meshtastic.protobuf.config_pb2.Config.LoRaConfig.ModemPreset.ValueType
-            """
-            Modem preset to use for this target.
-            Falls back to the running config preset if unset.
-            """
-            region: meshtastic.protobuf.config_pb2.Config.LoRaConfig.RegionCode.ValueType
-            """
-            Region to use for this target. UNSET means use the running config region.
-            """
-            channel_index: builtins.int
-            """Tag 3 was an embedded ChannelSettings; replaced by channel_index (tag 4) to keep
-            ModuleConfig within the BLE FromRadio size budget. Branch unreleased, so tag 3 is a gap.
-
-
-            Index into the device's channel table (0..MAX_NUM_CHANNELS-1) of the channel to
-            transmit this target's beacon on. The referenced channel must already be configured
-            on the node (its key is needed to encrypt). If unset, the default channel for the
-            preset is used.
-            """
-            frequency_slot: builtins.int
-            """
-            Frequency slot to transmit this target's beacon on, 1-based, matching
-            Config.LoRaConfig.channel_num. Unset means derive it the way any node on this
-            channel would: the region's override slot if it has one, otherwise the hash of the
-            target channel's name. Do not send 0 - it is the same as unset.
-            """
-            def __init__(
-                self,
-                *,
-                preset: meshtastic.protobuf.config_pb2.Config.LoRaConfig.ModemPreset.ValueType | None = ...,
-                region: meshtastic.protobuf.config_pb2.Config.LoRaConfig.RegionCode.ValueType = ...,
-                channel_index: builtins.int | None = ...,
-                frequency_slot: builtins.int | None = ...,
-            ) -> None: ...
-            def HasField(self, field_name: typing.Literal["_channel_index", b"_channel_index", "_frequency_slot", b"_frequency_slot", "_preset", b"_preset", "channel_index", b"channel_index", "frequency_slot", b"frequency_slot", "preset", b"preset"]) -> builtins.bool: ...
-            def ClearField(self, field_name: typing.Literal["_channel_index", b"_channel_index", "_frequency_slot", b"_frequency_slot", "_preset", b"_preset", "channel_index", b"channel_index", "frequency_slot", b"frequency_slot", "preset", b"preset", "region", b"region"]) -> None: ...
-            @typing.overload
-            def WhichOneof(self, oneof_group: typing.Literal["_channel_index", b"_channel_index"]) -> typing.Literal["channel_index"] | None: ...
-            @typing.overload
-            def WhichOneof(self, oneof_group: typing.Literal["_frequency_slot", b"_frequency_slot"]) -> typing.Literal["frequency_slot"] | None: ...
-            @typing.overload
-            def WhichOneof(self, oneof_group: typing.Literal["_preset", b"_preset"]) -> typing.Literal["preset"] | None: ...
-
-        FLAGS_FIELD_NUMBER: builtins.int
-        BROADCAST_OFFER_FREQUENCY_SLOT_FIELD_NUMBER: builtins.int
-        BROADCAST_MESSAGE_FIELD_NUMBER: builtins.int
-        BROADCAST_OFFER_CHANNEL_FIELD_NUMBER: builtins.int
-        BROADCAST_OFFER_REGION_FIELD_NUMBER: builtins.int
-        BROADCAST_OFFER_PRESET_FIELD_NUMBER: builtins.int
-        BROADCAST_INTERVAL_SECS_FIELD_NUMBER: builtins.int
-        BROADCAST_TARGETS_FIELD_NUMBER: builtins.int
-        flags: builtins.int
-        """
-        Bitwise-OR of Flags values (listen / broadcast / legacy-split toggles).
-        """
-        broadcast_offer_frequency_slot: builtins.int
-        """
-        Frequency slot to advertise, 1-based, matching Config.LoRaConfig.channel_num.
-        Unset means the receiver derives it from the advertised region, channel name and
-        preset, which covers a region that mandates a slot and a mesh on the default hash.
-        Set it only where the mesh deliberately pins a non-default slot. Do not send 0.
-        """
-        broadcast_message: builtins.str
-        """
-        Message to include in each beacon broadcast.
-        Every beacon copy carries this on the air, so it is the largest single cost in both
-        this config and the packet it produces. Held to 60 bytes for that reason. The nanopb
-        max_size is 61 because it counts the terminator, which is what leaves a client a
-        round 60.
-        """
-        broadcast_offer_region: meshtastic.protobuf.config_pb2.Config.LoRaConfig.RegionCode.ValueType
-        """
-        Optional region to advertise in the MeshBeacon offer_region field.
-        """
-        broadcast_offer_preset: meshtastic.protobuf.config_pb2.Config.LoRaConfig.ModemPreset.ValueType
-        """
-        Optional modem preset to advertise in the MeshBeacon offer_preset field.
-        """
-        broadcast_interval_secs: builtins.int
-        """
-        How often to broadcast, in seconds. Min 3600 (1 h), default 3600.
-        """
-        @property
-        def broadcast_offer_channel(self) -> meshtastic.protobuf.channel_pb2.ChannelSettings:
-            """
-            Optional channel (name + PSK) to advertise in the MeshBeacon offer_channel field.
-            """
-
-        @property
-        def broadcast_targets(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ModuleConfig.MeshBeaconConfig.BroadcastTarget]:
-            """
-            Broadcast destination list.
-            The broadcaster sends one beacon copy per distinct destination, in sequence, temporarily
-            switching the radio to that entry's preset/region/channel for each.
-            When empty, a single beacon is sent on the node's running preset and region over the
-            primary channel.
-            Entries that resolve to the same effective preset, region and channel are deduplicated, so
-            a duplicate entry does not produce a second transmission.
-            """
-
-        def __init__(
-            self,
-            *,
-            flags: builtins.int = ...,
-            broadcast_offer_frequency_slot: builtins.int | None = ...,
-            broadcast_message: builtins.str = ...,
-            broadcast_offer_channel: meshtastic.protobuf.channel_pb2.ChannelSettings | None = ...,
-            broadcast_offer_region: meshtastic.protobuf.config_pb2.Config.LoRaConfig.RegionCode.ValueType = ...,
-            broadcast_offer_preset: meshtastic.protobuf.config_pb2.Config.LoRaConfig.ModemPreset.ValueType | None = ...,
-            broadcast_interval_secs: builtins.int = ...,
-            broadcast_targets: collections.abc.Iterable[global___ModuleConfig.MeshBeaconConfig.BroadcastTarget] | None = ...,
-        ) -> None: ...
-        def HasField(self, field_name: typing.Literal["_broadcast_offer_frequency_slot", b"_broadcast_offer_frequency_slot", "_broadcast_offer_preset", b"_broadcast_offer_preset", "broadcast_offer_channel", b"broadcast_offer_channel", "broadcast_offer_frequency_slot", b"broadcast_offer_frequency_slot", "broadcast_offer_preset", b"broadcast_offer_preset"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing.Literal["_broadcast_offer_frequency_slot", b"_broadcast_offer_frequency_slot", "_broadcast_offer_preset", b"_broadcast_offer_preset", "broadcast_interval_secs", b"broadcast_interval_secs", "broadcast_message", b"broadcast_message", "broadcast_offer_channel", b"broadcast_offer_channel", "broadcast_offer_frequency_slot", b"broadcast_offer_frequency_slot", "broadcast_offer_preset", b"broadcast_offer_preset", "broadcast_offer_region", b"broadcast_offer_region", "broadcast_targets", b"broadcast_targets", "flags", b"flags"]) -> None: ...
-        @typing.overload
-        def WhichOneof(self, oneof_group: typing.Literal["_broadcast_offer_frequency_slot", b"_broadcast_offer_frequency_slot"]) -> typing.Literal["broadcast_offer_frequency_slot"] | None: ...
-        @typing.overload
-        def WhichOneof(self, oneof_group: typing.Literal["_broadcast_offer_preset", b"_broadcast_offer_preset"]) -> typing.Literal["broadcast_offer_preset"] | None: ...
-
-    @typing.final
-    class TAKConfig(google.protobuf.message.Message):
-        """
-        TAK team/role configuration
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        TEAM_FIELD_NUMBER: builtins.int
-        ROLE_FIELD_NUMBER: builtins.int
-        team: meshtastic.protobuf.atak_pb2.Team.ValueType
-        """
-        Team color.
-        Default Unspecifed_Color -> firmware uses Cyan
-        """
-        role: meshtastic.protobuf.atak_pb2.MemberRole.ValueType
-        """
-        Member role.
-        Default Unspecifed -> firmware uses TeamMember
-        """
-        def __init__(
-            self,
-            *,
-            team: meshtastic.protobuf.atak_pb2.Team.ValueType = ...,
-            role: meshtastic.protobuf.atak_pb2.MemberRole.ValueType = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["role", b"role", "team", b"team"]) -> None: ...
-
-    MQTT_FIELD_NUMBER: builtins.int
-    SERIAL_FIELD_NUMBER: builtins.int
-    EXTERNAL_NOTIFICATION_FIELD_NUMBER: builtins.int
-    STORE_FORWARD_FIELD_NUMBER: builtins.int
-    RANGE_TEST_FIELD_NUMBER: builtins.int
-    TELEMETRY_FIELD_NUMBER: builtins.int
-    CANNED_MESSAGE_FIELD_NUMBER: builtins.int
-    AUDIO_FIELD_NUMBER: builtins.int
-    REMOTE_HARDWARE_FIELD_NUMBER: builtins.int
-    NEIGHBOR_INFO_FIELD_NUMBER: builtins.int
-    AMBIENT_LIGHTING_FIELD_NUMBER: builtins.int
-    DETECTION_SENSOR_FIELD_NUMBER: builtins.int
-    PAXCOUNTER_FIELD_NUMBER: builtins.int
-    STATUSMESSAGE_FIELD_NUMBER: builtins.int
-    TRAFFIC_MANAGEMENT_FIELD_NUMBER: builtins.int
-    TAK_FIELD_NUMBER: builtins.int
-    MESH_BEACON_FIELD_NUMBER: builtins.int
-    @property
-    def mqtt(self) -> global___ModuleConfig.MQTTConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def serial(self) -> global___ModuleConfig.SerialConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def external_notification(self) -> global___ModuleConfig.ExternalNotificationConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def store_forward(self) -> global___ModuleConfig.StoreForwardConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def range_test(self) -> global___ModuleConfig.RangeTestConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def telemetry(self) -> global___ModuleConfig.TelemetryConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def canned_message(self) -> global___ModuleConfig.CannedMessageConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def audio(self) -> global___ModuleConfig.AudioConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def remote_hardware(self) -> global___ModuleConfig.RemoteHardwareConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def neighbor_info(self) -> global___ModuleConfig.NeighborInfoConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def ambient_lighting(self) -> global___ModuleConfig.AmbientLightingConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def detection_sensor(self) -> global___ModuleConfig.DetectionSensorConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def paxcounter(self) -> global___ModuleConfig.PaxcounterConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def statusmessage(self) -> global___ModuleConfig.StatusMessageConfig:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def traffic_management(self) -> global___ModuleConfig.TrafficManagementConfig:
-        """
-        Traffic management module config for mesh network optimization
-        """
-
-    @property
-    def tak(self) -> global___ModuleConfig.TAKConfig:
-        """
-        TAK team/role configuration for TAK_TRACKER
-        """
-
-    @property
-    def mesh_beacon(self) -> global___ModuleConfig.MeshBeaconConfig:
-        """
-        MeshBeacon module config
+    DESCRIPTOR: _descriptor.Descriptor
+
+    class _Flags:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _FlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[MQTTConfig._Flags.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        MQTT_NONE: MQTTConfig._Flags.ValueType  # 0
+        """Nothing enabled"""
+        MQTT_ENABLED: MQTTConfig._Flags.ValueType  # 1
+        """
+        Gateway any channels marked is_uplink_enabled or is_downlink_enabled, when
+        this node can reach the internet.
+        """
+        MQTT_ENCRYPTION: MQTTConfig._Flags.ValueType  # 2
+        """
+        Send encrypted rather than decrypted packets. Only honoured when a custom
+        server is set; the default mqtt.meshtastic.org server handles encrypted
+        packets. Decrypted packets suit external systems consuming meshtastic traffic.
+        """
+        MQTT_TLS: MQTTConfig._Flags.ValueType  # 4
+        """Establish the connection using TLS"""
+        MQTT_PROXY_TO_CLIENT: MQTTConfig._Flags.ValueType  # 8
+        """Proxy messages via the connected phone or client instead of connecting directly"""
+        MQTT_MAP_REPORTING: MQTTConfig._Flags.ValueType  # 16
+        """Periodically report unencrypted information about this node to a map"""
+
+    class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
+        """
+        MQTT behaviour toggles: a bitwise OR of Flags values.
+        """
+
+    MQTT_NONE: MQTTConfig.Flags.ValueType  # 0
+    """Nothing enabled"""
+    MQTT_ENABLED: MQTTConfig.Flags.ValueType  # 1
+    """
+    Gateway any channels marked is_uplink_enabled or is_downlink_enabled, when
+    this node can reach the internet.
+    """
+    MQTT_ENCRYPTION: MQTTConfig.Flags.ValueType  # 2
+    """
+    Send encrypted rather than decrypted packets. Only honoured when a custom
+    server is set; the default mqtt.meshtastic.org server handles encrypted
+    packets. Decrypted packets suit external systems consuming meshtastic traffic.
+    """
+    MQTT_TLS: MQTTConfig.Flags.ValueType  # 4
+    """Establish the connection using TLS"""
+    MQTT_PROXY_TO_CLIENT: MQTTConfig.Flags.ValueType  # 8
+    """Proxy messages via the connected phone or client instead of connecting directly"""
+    MQTT_MAP_REPORTING: MQTTConfig.Flags.ValueType  # 16
+    """Periodically report unencrypted information about this node to a map"""
+
+    FLAGS_FIELD_NUMBER: _builtins.int
+    ADDRESS_FIELD_NUMBER: _builtins.int
+    USERNAME_FIELD_NUMBER: _builtins.int
+    PASSWORD_FIELD_NUMBER: _builtins.int
+    ROOT_FIELD_NUMBER: _builtins.int
+    MAP_REPORT_SETTINGS_FIELD_NUMBER: _builtins.int
+    flags: _builtins.int
+    """
+    Bitwise OR of Flags values.
+    """
+    address: _builtins.str
+    """
+    The server to use for our MQTT global message gateway feature.
+    If not set, the default server will be used
+    """
+    username: _builtins.str
+    """
+    MQTT username to use (most useful for a custom MQTT server).
+    If using a custom server, this will be honoured even if empty.
+    If using the default server, this will only be honoured if set, otherwise the device will use the default username
+    """
+    password: _builtins.str
+    """
+    MQTT password to use (most useful for a custom MQTT server).
+    If using a custom server, this will be honoured even if empty.
+    If using the default server, this will only be honoured if set, otherwise the device will use the default password
+    """
+    root: _builtins.str
+    """
+    The root topic to use for MQTT messages. Default is "msh".
+    This is useful if you want to use a single MQTT server for multiple meshtastic networks and separate them via ACLs
+    """
+    @_builtins.property
+    def map_report_settings(self) -> Global___MapReportSettings:
+        """
+        Settings for reporting information about our node to a map via MQTT
         """
 
     def __init__(
         self,
         *,
-        mqtt: global___ModuleConfig.MQTTConfig | None = ...,
-        serial: global___ModuleConfig.SerialConfig | None = ...,
-        external_notification: global___ModuleConfig.ExternalNotificationConfig | None = ...,
-        store_forward: global___ModuleConfig.StoreForwardConfig | None = ...,
-        range_test: global___ModuleConfig.RangeTestConfig | None = ...,
-        telemetry: global___ModuleConfig.TelemetryConfig | None = ...,
-        canned_message: global___ModuleConfig.CannedMessageConfig | None = ...,
-        audio: global___ModuleConfig.AudioConfig | None = ...,
-        remote_hardware: global___ModuleConfig.RemoteHardwareConfig | None = ...,
-        neighbor_info: global___ModuleConfig.NeighborInfoConfig | None = ...,
-        ambient_lighting: global___ModuleConfig.AmbientLightingConfig | None = ...,
-        detection_sensor: global___ModuleConfig.DetectionSensorConfig | None = ...,
-        paxcounter: global___ModuleConfig.PaxcounterConfig | None = ...,
-        statusmessage: global___ModuleConfig.StatusMessageConfig | None = ...,
-        traffic_management: global___ModuleConfig.TrafficManagementConfig | None = ...,
-        tak: global___ModuleConfig.TAKConfig | None = ...,
-        mesh_beacon: global___ModuleConfig.MeshBeaconConfig | None = ...,
+        flags: _builtins.int = ...,
+        address: _builtins.str = ...,
+        username: _builtins.str = ...,
+        password: _builtins.str = ...,
+        root: _builtins.str = ...,
+        map_report_settings: Global___MapReportSettings | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mesh_beacon", b"mesh_beacon", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mesh_beacon", b"mesh_beacon", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["mqtt", "serial", "external_notification", "store_forward", "range_test", "telemetry", "canned_message", "audio", "remote_hardware", "neighbor_info", "ambient_lighting", "detection_sensor", "paxcounter", "statusmessage", "traffic_management", "tak", "mesh_beacon"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["map_report_settings", b"map_report_settings"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["address", b"address", "flags", b"flags", "map_report_settings", b"map_report_settings", "password", b"password", "root", b"root", "username", b"username"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___ModuleConfig = ModuleConfig
+Global___MQTTConfig: _TypeAlias = MQTTConfig  # noqa: Y015
 
-@typing.final
-class RemoteHardwarePin(google.protobuf.message.Message):
+@_typing.final
+class MapReportSettings(_message.Message):
+    """
+    Settings for reporting unencrypted information about our node to a map via MQTT
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    PUBLISH_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
+    POSITION_PRECISION_FIELD_NUMBER: _builtins.int
+    SHOULD_REPORT_LOCATION_FIELD_NUMBER: _builtins.int
+    publish_interval_secs: _builtins.int
+    """
+    How often we should report our info to the map (in seconds)
+    """
+    position_precision: _builtins.int
+    """
+    Bits of precision for the location sent (default of 32 is full precision).
+    """
+    should_report_location: _builtins.bool
+    """
+    Whether we have opted-in to report our location to the map
+    """
+    def __init__(
+        self,
+        *,
+        publish_interval_secs: _builtins.int = ...,
+        position_precision: _builtins.int = ...,
+        should_report_location: _builtins.bool = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["position_precision", b"position_precision", "publish_interval_secs", b"publish_interval_secs", "should_report_location", b"should_report_location"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___MapReportSettings: _TypeAlias = MapReportSettings  # noqa: Y015
+
+@_typing.final
+class RemoteHardwareConfig(_message.Message):
+    """
+    RemoteHardwareModule Config
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    ENABLED_FIELD_NUMBER: _builtins.int
+    ALLOW_UNDEFINED_PIN_ACCESS_FIELD_NUMBER: _builtins.int
+    AVAILABLE_PINS_FIELD_NUMBER: _builtins.int
+    AUTHORIZED_KEY_FIELD_NUMBER: _builtins.int
+    enabled: _builtins.bool
+    """
+    Whether the Module is enabled
+    """
+    allow_undefined_pin_access: _builtins.bool
+    """
+    Whether the Module allows consumers to read / write to pins not defined in available_pins
+    """
+    @_builtins.property
+    def available_pins(self) -> _containers.RepeatedCompositeFieldContainer[Global___RemoteHardwarePin]:
+        """
+        Exposes the available pins to the mesh for reading and writing
+        """
+
+    @_builtins.property
+    def authorized_key(self) -> _containers.RepeatedScalarFieldContainer[_builtins.bytes]:
+        """
+        Public keys authorized to drive this node's GPIO.
+
+        A HardwareMessage is accepted only as a PKI direct message from a key in
+        this list, the same rule AdminMessage follows. A channel key is shared by
+        everyone on the channel, so authorising by channel authorises everyone on
+        it; authority has to belong to a named entity instead.
+
+        Empty means no remote entity is authorized, which is what an enabled module
+        with no configuration should do.
+        """
+
+    def __init__(
+        self,
+        *,
+        enabled: _builtins.bool = ...,
+        allow_undefined_pin_access: _builtins.bool = ...,
+        available_pins: _abc.Iterable[Global___RemoteHardwarePin] | None = ...,
+        authorized_key: _abc.Iterable[_builtins.bytes] | None = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["allow_undefined_pin_access", b"allow_undefined_pin_access", "authorized_key", b"authorized_key", "available_pins", b"available_pins", "enabled", b"enabled"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___RemoteHardwareConfig: _TypeAlias = RemoteHardwareConfig  # noqa: Y015
+
+@_typing.final
+class NeighborInfoConfig(_message.Message):
+    """
+    NeighborInfoModule Config
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    ENABLED_FIELD_NUMBER: _builtins.int
+    UPDATE_INTERVAL_FIELD_NUMBER: _builtins.int
+    TRANSMIT_OVER_LORA_FIELD_NUMBER: _builtins.int
+    enabled: _builtins.bool
+    """
+    Whether the Module is enabled
+    """
+    update_interval: _builtins.int
+    """
+    Interval in seconds of how often we should try to send our
+    Neighbor Info (minimum is 14400, i.e., 4 hours)
+    """
+    transmit_over_lora: _builtins.bool
+    """
+    Whether in addition to sending it to MQTT and the PhoneAPI, our NeighborInfo should be transmitted over LoRa.
+    Note that this is not available on a channel with default key and name.
+    """
+    def __init__(
+        self,
+        *,
+        enabled: _builtins.bool = ...,
+        update_interval: _builtins.int = ...,
+        transmit_over_lora: _builtins.bool = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["enabled", b"enabled", "transmit_over_lora", b"transmit_over_lora", "update_interval", b"update_interval"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___NeighborInfoConfig: _TypeAlias = NeighborInfoConfig  # noqa: Y015
+
+@_typing.final
+class DetectionSensorConfig(_message.Message):
+    """
+    Detection Sensor Module Config
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    class _TriggerType:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _TriggerTypeEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[DetectionSensorConfig._TriggerType.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        LOGIC_LOW: DetectionSensorConfig._TriggerType.ValueType  # 0
+        """Event is triggered if pin is low"""
+        LOGIC_HIGH: DetectionSensorConfig._TriggerType.ValueType  # 1
+        """Event is triggered if pin is high"""
+        FALLING_EDGE: DetectionSensorConfig._TriggerType.ValueType  # 2
+        """Event is triggered when pin goes high to low"""
+        RISING_EDGE: DetectionSensorConfig._TriggerType.ValueType  # 3
+        """Event is triggered when pin goes low to high"""
+        EITHER_EDGE_ACTIVE_LOW: DetectionSensorConfig._TriggerType.ValueType  # 4
+        """Event is triggered on every pin state change, low is considered to be
+        "active"
+        """
+        EITHER_EDGE_ACTIVE_HIGH: DetectionSensorConfig._TriggerType.ValueType  # 5
+        """Event is triggered on every pin state change, high is considered to be
+        "active"
+        """
+
+    class TriggerType(_TriggerType, metaclass=_TriggerTypeEnumTypeWrapper): ...
+    LOGIC_LOW: DetectionSensorConfig.TriggerType.ValueType  # 0
+    """Event is triggered if pin is low"""
+    LOGIC_HIGH: DetectionSensorConfig.TriggerType.ValueType  # 1
+    """Event is triggered if pin is high"""
+    FALLING_EDGE: DetectionSensorConfig.TriggerType.ValueType  # 2
+    """Event is triggered when pin goes high to low"""
+    RISING_EDGE: DetectionSensorConfig.TriggerType.ValueType  # 3
+    """Event is triggered when pin goes low to high"""
+    EITHER_EDGE_ACTIVE_LOW: DetectionSensorConfig.TriggerType.ValueType  # 4
+    """Event is triggered on every pin state change, low is considered to be
+    "active"
+    """
+    EITHER_EDGE_ACTIVE_HIGH: DetectionSensorConfig.TriggerType.ValueType  # 5
+    """Event is triggered on every pin state change, high is considered to be
+    "active"
+    """
+
+    class _Flags:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _FlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[DetectionSensorConfig._Flags.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        DETECTION_NONE: DetectionSensorConfig._Flags.ValueType  # 0
+        """Nothing enabled"""
+        DETECTION_ENABLED: DetectionSensorConfig._Flags.ValueType  # 1
+        """The module is enabled"""
+        DETECTION_SEND_BELL: DetectionSensorConfig._Flags.ValueType  # 2
+        """
+        Send an ASCII bell with the alert message, useful for triggering an
+        external notification on bell.
+        """
+        DETECTION_USE_PULLUP: DetectionSensorConfig._Flags.ValueType  # 4
+        """
+        Use INPUT_PULLUP mode for the GPIO pin. Only applicable when the board has
+        pull-up resistors on that pin.
+        """
+
+    class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
+        """
+        Detection sensor toggles: a bitwise OR of Flags values.
+        """
+
+    DETECTION_NONE: DetectionSensorConfig.Flags.ValueType  # 0
+    """Nothing enabled"""
+    DETECTION_ENABLED: DetectionSensorConfig.Flags.ValueType  # 1
+    """The module is enabled"""
+    DETECTION_SEND_BELL: DetectionSensorConfig.Flags.ValueType  # 2
+    """
+    Send an ASCII bell with the alert message, useful for triggering an
+    external notification on bell.
+    """
+    DETECTION_USE_PULLUP: DetectionSensorConfig.Flags.ValueType  # 4
+    """
+    Use INPUT_PULLUP mode for the GPIO pin. Only applicable when the board has
+    pull-up resistors on that pin.
+    """
+
+    FLAGS_FIELD_NUMBER: _builtins.int
+    MINIMUM_BROADCAST_SECS_FIELD_NUMBER: _builtins.int
+    STATE_BROADCAST_SECS_FIELD_NUMBER: _builtins.int
+    NAME_FIELD_NUMBER: _builtins.int
+    MONITOR_PIN_FIELD_NUMBER: _builtins.int
+    DETECTION_TRIGGER_TYPE_FIELD_NUMBER: _builtins.int
+    flags: _builtins.int
+    """
+    Bitwise OR of Flags values.
+    """
+    minimum_broadcast_secs: _builtins.int
+    """
+    Interval in seconds of how often we can send a message to the mesh when a
+    trigger event is detected
+    """
+    state_broadcast_secs: _builtins.int
+    """
+    Interval in seconds of how often we should send a message to the mesh
+    with the current state regardless of trigger events When set to 0, only
+    trigger events will be broadcasted Works as a sort of status heartbeat
+    for peace of mind
+    """
+    name: _builtins.str
+    """
+    Friendly name used to format message sent to mesh
+    Example: A name "Motion" would result in a message "Motion detected"
+    Limited to 19 bytes
+    """
+    monitor_pin: _builtins.int
+    """
+    GPIO pin to monitor for state changes
+    """
+    detection_trigger_type: Global___DetectionSensorConfig.TriggerType.ValueType
+    """
+    The type of trigger event to be used
+    """
+    def __init__(
+        self,
+        *,
+        flags: _builtins.int = ...,
+        minimum_broadcast_secs: _builtins.int = ...,
+        state_broadcast_secs: _builtins.int = ...,
+        name: _builtins.str = ...,
+        monitor_pin: _builtins.int = ...,
+        detection_trigger_type: Global___DetectionSensorConfig.TriggerType.ValueType = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["detection_trigger_type", b"detection_trigger_type", "flags", b"flags", "minimum_broadcast_secs", b"minimum_broadcast_secs", "monitor_pin", b"monitor_pin", "name", b"name", "state_broadcast_secs", b"state_broadcast_secs"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___DetectionSensorConfig: _TypeAlias = DetectionSensorConfig  # noqa: Y015
+
+@_typing.final
+class AudioConfig(_message.Message):
+    """
+    Audio Config for codec2 voice
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    class _Audio_Baud:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _Audio_BaudEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[AudioConfig._Audio_Baud.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        CODEC2_DEFAULT: AudioConfig._Audio_Baud.ValueType  # 0
+        """Default codec2 bitrate"""
+        CODEC2_3200: AudioConfig._Audio_Baud.ValueType  # 1
+        """3200 bps - highest quality"""
+        CODEC2_2400: AudioConfig._Audio_Baud.ValueType  # 2
+        """2400 bps"""
+        CODEC2_1600: AudioConfig._Audio_Baud.ValueType  # 3
+        """1600 bps"""
+        CODEC2_1400: AudioConfig._Audio_Baud.ValueType  # 4
+        """1400 bps"""
+        CODEC2_1300: AudioConfig._Audio_Baud.ValueType  # 5
+        """1300 bps"""
+        CODEC2_1200: AudioConfig._Audio_Baud.ValueType  # 6
+        """1200 bps"""
+        CODEC2_700C: AudioConfig._Audio_Baud.ValueType  # 7
+        """700C bps - replaces the withdrawn 700 and 700B modes"""
+        CODEC2_450: AudioConfig._Audio_Baud.ValueType  # 8
+        """450 bps - lowest rate, and the only one usable on slower modem presets"""
+
+    class Audio_Baud(_Audio_Baud, metaclass=_Audio_BaudEnumTypeWrapper):
+        """
+        Baudrate for codec2 voice
+        """
+
+    CODEC2_DEFAULT: AudioConfig.Audio_Baud.ValueType  # 0
+    """Default codec2 bitrate"""
+    CODEC2_3200: AudioConfig.Audio_Baud.ValueType  # 1
+    """3200 bps - highest quality"""
+    CODEC2_2400: AudioConfig.Audio_Baud.ValueType  # 2
+    """2400 bps"""
+    CODEC2_1600: AudioConfig.Audio_Baud.ValueType  # 3
+    """1600 bps"""
+    CODEC2_1400: AudioConfig.Audio_Baud.ValueType  # 4
+    """1400 bps"""
+    CODEC2_1300: AudioConfig.Audio_Baud.ValueType  # 5
+    """1300 bps"""
+    CODEC2_1200: AudioConfig.Audio_Baud.ValueType  # 6
+    """1200 bps"""
+    CODEC2_700C: AudioConfig.Audio_Baud.ValueType  # 7
+    """700C bps - replaces the withdrawn 700 and 700B modes"""
+    CODEC2_450: AudioConfig.Audio_Baud.ValueType  # 8
+    """450 bps - lowest rate, and the only one usable on slower modem presets"""
+
+    CODEC2_ENABLED_FIELD_NUMBER: _builtins.int
+    PTT_PIN_FIELD_NUMBER: _builtins.int
+    BITRATE_FIELD_NUMBER: _builtins.int
+    I2S_WS_FIELD_NUMBER: _builtins.int
+    I2S_SD_FIELD_NUMBER: _builtins.int
+    I2S_DIN_FIELD_NUMBER: _builtins.int
+    I2S_SCK_FIELD_NUMBER: _builtins.int
+    codec2_enabled: _builtins.bool
+    """
+    Whether Audio is enabled
+    """
+    ptt_pin: _builtins.int
+    """
+    PTT Pin
+    """
+    bitrate: Global___AudioConfig.Audio_Baud.ValueType
+    """
+    The codec2 bitrate to encode at. Sample rate is always 8 kHz.
+    """
+    i2s_ws: _builtins.int
+    """
+    I2S Word Select
+    """
+    i2s_sd: _builtins.int
+    """
+    I2S Data IN
+    """
+    i2s_din: _builtins.int
+    """
+    I2S Data OUT
+    """
+    i2s_sck: _builtins.int
+    """
+    I2S Clock
+    """
+    def __init__(
+        self,
+        *,
+        codec2_enabled: _builtins.bool = ...,
+        ptt_pin: _builtins.int = ...,
+        bitrate: Global___AudioConfig.Audio_Baud.ValueType = ...,
+        i2s_ws: _builtins.int = ...,
+        i2s_sd: _builtins.int = ...,
+        i2s_din: _builtins.int = ...,
+        i2s_sck: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["bitrate", b"bitrate", "codec2_enabled", b"codec2_enabled", "i2s_din", b"i2s_din", "i2s_sck", b"i2s_sck", "i2s_sd", b"i2s_sd", "i2s_ws", b"i2s_ws", "ptt_pin", b"ptt_pin"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___AudioConfig: _TypeAlias = AudioConfig  # noqa: Y015
+
+@_typing.final
+class PaxcounterConfig(_message.Message):
+    """
+    Config for the Paxcounter Module
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    ENABLED_FIELD_NUMBER: _builtins.int
+    PAXCOUNTER_UPDATE_INTERVAL_FIELD_NUMBER: _builtins.int
+    WIFI_THRESHOLD_FIELD_NUMBER: _builtins.int
+    BLE_THRESHOLD_FIELD_NUMBER: _builtins.int
+    enabled: _builtins.bool
+    """
+    Enable the Paxcounter Module
+    """
+    paxcounter_update_interval: _builtins.int
+    """
+    Interval in seconds of how often we should try to send our
+    metrics to the mesh
+    """
+    wifi_threshold: _builtins.int
+    """
+    WiFi RSSI threshold. Defaults to -80
+    """
+    ble_threshold: _builtins.int
+    """
+    BLE RSSI threshold. Defaults to -80
+    """
+    def __init__(
+        self,
+        *,
+        enabled: _builtins.bool = ...,
+        paxcounter_update_interval: _builtins.int = ...,
+        wifi_threshold: _builtins.int = ...,
+        ble_threshold: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["ble_threshold", b"ble_threshold", "enabled", b"enabled", "paxcounter_update_interval", b"paxcounter_update_interval", "wifi_threshold", b"wifi_threshold"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___PaxcounterConfig: _TypeAlias = PaxcounterConfig  # noqa: Y015
+
+@_typing.final
+class TrafficManagementConfig(_message.Message):
+    """
+    Config for the Traffic Management module.
+    Provides packet inspection and traffic shaping to help reduce channel utilization.
+    Every field uses the proto3 zero value to mean "disabled"; there is no
+    "use the firmware default" sentinel. Firmware installs its own defaults when it
+    first creates this config, and a client that writes 0 turns that feature off.
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    POSITION_MIN_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
+    NODEINFO_DIRECT_RESPONSE_MAX_HOPS_FIELD_NUMBER: _builtins.int
+    RATE_LIMIT_WINDOW_SECS_FIELD_NUMBER: _builtins.int
+    RATE_LIMIT_MAX_PACKETS_FIELD_NUMBER: _builtins.int
+    UNKNOWN_PACKET_THRESHOLD_FIELD_NUMBER: _builtins.int
+    position_min_interval_secs: _builtins.int
+    """
+    Minimum interval in seconds between position updates from the same node.
+    A non-zero value implicitly enables the suppression window; 0 disables it.
+    Firmware default: 21600 (6 hours), installed when this config is first created.
+    """
+    nodeinfo_direct_response_max_hops: _builtins.int
+    """
+    Maximum hop distance from the requestor at which direct NodeInfo responses
+    are served from the local cache. A non-zero value implicitly enables direct
+    response; 0 disables it.
+    """
+    rate_limit_window_secs: _builtins.int
+    """
+    Time window in seconds for per-node rate limiting.
+    A non-zero value implicitly enables rate limiting; 0 disables it.
+    """
+    rate_limit_max_packets: _builtins.int
+    """
+    Maximum packets allowed per node within the rate limit window.
+    A non-zero value implicitly enables rate limiting; 0 disables it.
+    """
+    unknown_packet_threshold: _builtins.int
+    """
+    Maximum unknown/undecryptable packets per rate window before the source
+    is dropped. A non-zero value implicitly enables unknown-packet filtering;
+    0 disables it.
+    """
+    def __init__(
+        self,
+        *,
+        position_min_interval_secs: _builtins.int = ...,
+        nodeinfo_direct_response_max_hops: _builtins.int = ...,
+        rate_limit_window_secs: _builtins.int = ...,
+        rate_limit_max_packets: _builtins.int = ...,
+        unknown_packet_threshold: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["nodeinfo_direct_response_max_hops", b"nodeinfo_direct_response_max_hops", "position_min_interval_secs", b"position_min_interval_secs", "rate_limit_max_packets", b"rate_limit_max_packets", "rate_limit_window_secs", b"rate_limit_window_secs", "unknown_packet_threshold", b"unknown_packet_threshold"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___TrafficManagementConfig: _TypeAlias = TrafficManagementConfig  # noqa: Y015
+
+@_typing.final
+class SerialConfig(_message.Message):
+    """
+    Serial Config
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    class _Serial_Baud:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _Serial_BaudEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[SerialConfig._Serial_Baud.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        BAUD_DEFAULT: SerialConfig._Serial_Baud.ValueType  # 0
+        BAUD_110: SerialConfig._Serial_Baud.ValueType  # 1
+        BAUD_300: SerialConfig._Serial_Baud.ValueType  # 2
+        BAUD_600: SerialConfig._Serial_Baud.ValueType  # 3
+        BAUD_1200: SerialConfig._Serial_Baud.ValueType  # 4
+        BAUD_2400: SerialConfig._Serial_Baud.ValueType  # 5
+        BAUD_4800: SerialConfig._Serial_Baud.ValueType  # 6
+        BAUD_9600: SerialConfig._Serial_Baud.ValueType  # 7
+        BAUD_19200: SerialConfig._Serial_Baud.ValueType  # 8
+        BAUD_38400: SerialConfig._Serial_Baud.ValueType  # 9
+        BAUD_57600: SerialConfig._Serial_Baud.ValueType  # 10
+        BAUD_115200: SerialConfig._Serial_Baud.ValueType  # 11
+        BAUD_230400: SerialConfig._Serial_Baud.ValueType  # 12
+        BAUD_460800: SerialConfig._Serial_Baud.ValueType  # 13
+        BAUD_576000: SerialConfig._Serial_Baud.ValueType  # 14
+        BAUD_921600: SerialConfig._Serial_Baud.ValueType  # 15
+
+    class Serial_Baud(_Serial_Baud, metaclass=_Serial_BaudEnumTypeWrapper):
+        """
+        Baud rate for serial module communication
+        """
+
+    BAUD_DEFAULT: SerialConfig.Serial_Baud.ValueType  # 0
+    BAUD_110: SerialConfig.Serial_Baud.ValueType  # 1
+    BAUD_300: SerialConfig.Serial_Baud.ValueType  # 2
+    BAUD_600: SerialConfig.Serial_Baud.ValueType  # 3
+    BAUD_1200: SerialConfig.Serial_Baud.ValueType  # 4
+    BAUD_2400: SerialConfig.Serial_Baud.ValueType  # 5
+    BAUD_4800: SerialConfig.Serial_Baud.ValueType  # 6
+    BAUD_9600: SerialConfig.Serial_Baud.ValueType  # 7
+    BAUD_19200: SerialConfig.Serial_Baud.ValueType  # 8
+    BAUD_38400: SerialConfig.Serial_Baud.ValueType  # 9
+    BAUD_57600: SerialConfig.Serial_Baud.ValueType  # 10
+    BAUD_115200: SerialConfig.Serial_Baud.ValueType  # 11
+    BAUD_230400: SerialConfig.Serial_Baud.ValueType  # 12
+    BAUD_460800: SerialConfig.Serial_Baud.ValueType  # 13
+    BAUD_576000: SerialConfig.Serial_Baud.ValueType  # 14
+    BAUD_921600: SerialConfig.Serial_Baud.ValueType  # 15
+
+    class _Serial_Mode:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _Serial_ModeEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[SerialConfig._Serial_Mode.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        DEFAULT: SerialConfig._Serial_Mode.ValueType  # 0
+        SIMPLE: SerialConfig._Serial_Mode.ValueType  # 1
+        PROTO: SerialConfig._Serial_Mode.ValueType  # 2
+        TEXTMSG: SerialConfig._Serial_Mode.ValueType  # 3
+        NMEA: SerialConfig._Serial_Mode.ValueType  # 4
+        CALTOPO: SerialConfig._Serial_Mode.ValueType  # 5
+        """NMEA messages specifically tailored for CalTopo"""
+        WS85: SerialConfig._Serial_Mode.ValueType  # 6
+        """Ecowitt WS85 weather station"""
+        VE_DIRECT: SerialConfig._Serial_Mode.ValueType  # 7
+        """VE.Direct is a serial protocol used by Victron Energy products
+        https://beta.ivc.no/wiki/index.php/Victron_VE_Direct_DIY_Cable
+        """
+        MS_CONFIG: SerialConfig._Serial_Mode.ValueType  # 8
+        """Used to configure and view some parameters of MeshSolar.
+        https://heltec.org/project/meshsolar/
+        """
+        LOG: SerialConfig._Serial_Mode.ValueType  # 9
+        """Logs mesh traffic to the serial pins, ideal for logging via openLog or similar.
+        includes other packets
+        """
+        LOGTEXT: SerialConfig._Serial_Mode.ValueType  # 10
+        """only text (channel & DM)"""
+
+    class Serial_Mode(_Serial_Mode, metaclass=_Serial_ModeEnumTypeWrapper):
+        """
+        Operating mode for the serial module
+        """
+
+    DEFAULT: SerialConfig.Serial_Mode.ValueType  # 0
+    SIMPLE: SerialConfig.Serial_Mode.ValueType  # 1
+    PROTO: SerialConfig.Serial_Mode.ValueType  # 2
+    TEXTMSG: SerialConfig.Serial_Mode.ValueType  # 3
+    NMEA: SerialConfig.Serial_Mode.ValueType  # 4
+    CALTOPO: SerialConfig.Serial_Mode.ValueType  # 5
+    """NMEA messages specifically tailored for CalTopo"""
+    WS85: SerialConfig.Serial_Mode.ValueType  # 6
+    """Ecowitt WS85 weather station"""
+    VE_DIRECT: SerialConfig.Serial_Mode.ValueType  # 7
+    """VE.Direct is a serial protocol used by Victron Energy products
+    https://beta.ivc.no/wiki/index.php/Victron_VE_Direct_DIY_Cable
+    """
+    MS_CONFIG: SerialConfig.Serial_Mode.ValueType  # 8
+    """Used to configure and view some parameters of MeshSolar.
+    https://heltec.org/project/meshsolar/
+    """
+    LOG: SerialConfig.Serial_Mode.ValueType  # 9
+    """Logs mesh traffic to the serial pins, ideal for logging via openLog or similar.
+    includes other packets
+    """
+    LOGTEXT: SerialConfig.Serial_Mode.ValueType  # 10
+    """only text (channel & DM)"""
+
+    class _Flags:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _FlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[SerialConfig._Flags.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        SERIAL_NONE: SerialConfig._Flags.ValueType  # 0
+        """Nothing enabled"""
+        SERIAL_ENABLED: SerialConfig._Flags.ValueType  # 1
+        """The module is enabled"""
+        SERIAL_ECHO: SerialConfig._Flags.ValueType  # 2
+        """Echo received serial data back to the sender"""
+        SERIAL_OVERRIDE_CONSOLE_PORT: SerialConfig._Flags.ValueType  # 4
+        """
+        Override the platform's defacto Serial port instance and use the console
+        port for the serial module. Currently only usable in output modes like
+        NMEA / CalTopo, and may behave strangely or not at all in other modes.
+        Existing logging over the serial console is still present.
+        """
+
+    class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
+        """
+        Serial module toggles: a bitwise OR of Flags values.
+        """
+
+    SERIAL_NONE: SerialConfig.Flags.ValueType  # 0
+    """Nothing enabled"""
+    SERIAL_ENABLED: SerialConfig.Flags.ValueType  # 1
+    """The module is enabled"""
+    SERIAL_ECHO: SerialConfig.Flags.ValueType  # 2
+    """Echo received serial data back to the sender"""
+    SERIAL_OVERRIDE_CONSOLE_PORT: SerialConfig.Flags.ValueType  # 4
+    """
+    Override the platform's defacto Serial port instance and use the console
+    port for the serial module. Currently only usable in output modes like
+    NMEA / CalTopo, and may behave strangely or not at all in other modes.
+    Existing logging over the serial console is still present.
+    """
+
+    FLAGS_FIELD_NUMBER: _builtins.int
+    RXD_FIELD_NUMBER: _builtins.int
+    TXD_FIELD_NUMBER: _builtins.int
+    BAUD_FIELD_NUMBER: _builtins.int
+    TIMEOUT_FIELD_NUMBER: _builtins.int
+    MODE_FIELD_NUMBER: _builtins.int
+    flags: _builtins.int
+    """
+    Bitwise OR of Flags values.
+    """
+    rxd: _builtins.int
+    """
+    RX pin (should match Arduino gpio pin number)
+    """
+    txd: _builtins.int
+    """
+    TX pin (should match Arduino gpio pin number)
+    """
+    baud: Global___SerialConfig.Serial_Baud.ValueType
+    """
+    Serial baud rate
+    """
+    timeout: _builtins.int
+    """
+    Timeout in seconds for serial module operations (0 = no timeout)
+    """
+    mode: Global___SerialConfig.Serial_Mode.ValueType
+    """
+    Mode for serial module operation
+    """
+    def __init__(
+        self,
+        *,
+        flags: _builtins.int = ...,
+        rxd: _builtins.int = ...,
+        txd: _builtins.int = ...,
+        baud: Global___SerialConfig.Serial_Baud.ValueType = ...,
+        timeout: _builtins.int = ...,
+        mode: Global___SerialConfig.Serial_Mode.ValueType = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["baud", b"baud", "flags", b"flags", "mode", b"mode", "rxd", b"rxd", "timeout", b"timeout", "txd", b"txd"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___SerialConfig: _TypeAlias = SerialConfig  # noqa: Y015
+
+@_typing.final
+class ExternalNotificationConfig(_message.Message):
+    """
+    External Notifications Config
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    class _AlertFlags:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _AlertFlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[ExternalNotificationConfig._AlertFlags.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        ALERT_NONE: ExternalNotificationConfig._AlertFlags.ValueType  # 0
+        """Nothing enabled"""
+        ALERT_ACTIVE: ExternalNotificationConfig._AlertFlags.ValueType  # 1
+        """Output pin is pulled active high; clear means active low"""
+        ALERT_MESSAGE: ExternalNotificationConfig._AlertFlags.ValueType  # 2
+        """Alert on an incoming text message, via `output`"""
+        ALERT_MESSAGE_VIBRA: ExternalNotificationConfig._AlertFlags.ValueType  # 4
+        """Alert on an incoming text message, via `output_vibra`"""
+        ALERT_MESSAGE_BUZZER: ExternalNotificationConfig._AlertFlags.ValueType  # 8
+        """Alert on an incoming text message, via `output_buzzer`"""
+        ALERT_BELL: ExternalNotificationConfig._AlertFlags.ValueType  # 16
+        """Alert on a received bell character, via `output`"""
+        ALERT_BELL_VIBRA: ExternalNotificationConfig._AlertFlags.ValueType  # 32
+        """Alert on a received bell character, via `output_vibra`"""
+        ALERT_BELL_BUZZER: ExternalNotificationConfig._AlertFlags.ValueType  # 64
+        """Alert on a received bell character, via `output_buzzer`"""
+        ALERT_USE_PWM: ExternalNotificationConfig._AlertFlags.ValueType  # 128
+        """Drive the output with PWM instead of simple on/off"""
+        ALERT_USE_I2S_AS_BUZZER: ExternalNotificationConfig._AlertFlags.ValueType  # 256
+        """Use I2S audio output as the buzzer (e.g. T-Watch S3, T-Deck)"""
+
+    class AlertFlags(_AlertFlags, metaclass=_AlertFlagsEnumTypeWrapper):
+        """
+        External notification behaviour: a bitwise OR of AlertFlags values.
+        """
+
+    ALERT_NONE: ExternalNotificationConfig.AlertFlags.ValueType  # 0
+    """Nothing enabled"""
+    ALERT_ACTIVE: ExternalNotificationConfig.AlertFlags.ValueType  # 1
+    """Output pin is pulled active high; clear means active low"""
+    ALERT_MESSAGE: ExternalNotificationConfig.AlertFlags.ValueType  # 2
+    """Alert on an incoming text message, via `output`"""
+    ALERT_MESSAGE_VIBRA: ExternalNotificationConfig.AlertFlags.ValueType  # 4
+    """Alert on an incoming text message, via `output_vibra`"""
+    ALERT_MESSAGE_BUZZER: ExternalNotificationConfig.AlertFlags.ValueType  # 8
+    """Alert on an incoming text message, via `output_buzzer`"""
+    ALERT_BELL: ExternalNotificationConfig.AlertFlags.ValueType  # 16
+    """Alert on a received bell character, via `output`"""
+    ALERT_BELL_VIBRA: ExternalNotificationConfig.AlertFlags.ValueType  # 32
+    """Alert on a received bell character, via `output_vibra`"""
+    ALERT_BELL_BUZZER: ExternalNotificationConfig.AlertFlags.ValueType  # 64
+    """Alert on a received bell character, via `output_buzzer`"""
+    ALERT_USE_PWM: ExternalNotificationConfig.AlertFlags.ValueType  # 128
+    """Drive the output with PWM instead of simple on/off"""
+    ALERT_USE_I2S_AS_BUZZER: ExternalNotificationConfig.AlertFlags.ValueType  # 256
+    """Use I2S audio output as the buzzer (e.g. T-Watch S3, T-Deck)"""
+
+    ENABLED_FIELD_NUMBER: _builtins.int
+    OUTPUT_MS_FIELD_NUMBER: _builtins.int
+    OUTPUT_FIELD_NUMBER: _builtins.int
+    ALERT_FLAGS_FIELD_NUMBER: _builtins.int
+    OUTPUT_VIBRA_FIELD_NUMBER: _builtins.int
+    OUTPUT_BUZZER_FIELD_NUMBER: _builtins.int
+    NAG_TIMEOUT_FIELD_NUMBER: _builtins.int
+    enabled: _builtins.bool
+    """
+    Enable the ExternalNotificationModule
+    """
+    output_ms: _builtins.int
+    """
+    When using in On/Off mode, keep the output on for this many
+    milliseconds. Default 1000ms (1 second).
+    """
+    output: _builtins.int
+    """
+    Define the output pin GPIO setting Defaults to
+    EXT_NOTIFY_OUT if set for the board.
+    In standalone devices this pin should drive the LED to match the UI.
+    """
+    alert_flags: _builtins.int
+    """
+    Bitwise OR of AlertFlags values.
+    """
+    output_vibra: _builtins.int
+    """
+    Optional: Define a secondary output pin for a vibra motor
+    This is used in standalone devices to match the UI.
+    """
+    output_buzzer: _builtins.int
+    """
+    Optional: GPIO an active (on/off) buzzer is connected to, driven when
+    ALERT_USE_PWM is clear. 0 is GPIO0, not "unset": the ALERT_*_BUZZER flags say
+    whether it sounds. In standalone devices it matches the UI.
+    """
+    nag_timeout: _builtins.int
+    """
+    The notification will toggle with 'output_ms' for this time of seconds.
+    Default is 0 which means don't repeat at all. 60 would mean blink
+    and/or beep for 60 seconds
+    """
+    def __init__(
+        self,
+        *,
+        enabled: _builtins.bool = ...,
+        output_ms: _builtins.int = ...,
+        output: _builtins.int = ...,
+        alert_flags: _builtins.int = ...,
+        output_vibra: _builtins.int = ...,
+        output_buzzer: _builtins.int = ...,
+        nag_timeout: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["alert_flags", b"alert_flags", "enabled", b"enabled", "nag_timeout", b"nag_timeout", "output", b"output", "output_buzzer", b"output_buzzer", "output_ms", b"output_ms", "output_vibra", b"output_vibra"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___ExternalNotificationConfig: _TypeAlias = ExternalNotificationConfig  # noqa: Y015
+
+@_typing.final
+class StoreForwardConfig(_message.Message):
+    """
+    Store and Forward Module Config
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    class _Flags:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _FlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[StoreForwardConfig._Flags.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        STOREFORWARD_NONE: StoreForwardConfig._Flags.ValueType  # 0
+        """Nothing enabled"""
+        STOREFORWARD_ENABLED: StoreForwardConfig._Flags.ValueType  # 1
+        """The module is enabled"""
+        STOREFORWARD_HEARTBEAT: StoreForwardConfig._Flags.ValueType  # 2
+        """The server sends its ANNOUNCE pip periodically, so clients can find it"""
+        STOREFORWARD_IS_SERVER: StoreForwardConfig._Flags.ValueType  # 4
+        """
+        Act as a server that stores the frames it hears and replays them on request,
+        rather than as a client.
+        """
+        STOREFORWARD_KEEP_FILLER: StoreForwardConfig._Flags.ValueType  # 8
+        """
+        Also store frames without HOP_STORE, as evictable filler. Clear means only
+        flagged frames are written.
+        """
+        STOREFORWARD_NO_DIRECT: StoreForwardConfig._Flags.ValueType  # 16
+        """
+        Do not store or replay direct messages. Clear means a server also keeps the
+        UCAST ciphertext it hears, which it cannot read.
+        """
+
+    class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
+        """
+        Store and forward toggles: a bitwise OR of Flags values.
+        """
+
+    STOREFORWARD_NONE: StoreForwardConfig.Flags.ValueType  # 0
+    """Nothing enabled"""
+    STOREFORWARD_ENABLED: StoreForwardConfig.Flags.ValueType  # 1
+    """The module is enabled"""
+    STOREFORWARD_HEARTBEAT: StoreForwardConfig.Flags.ValueType  # 2
+    """The server sends its ANNOUNCE pip periodically, so clients can find it"""
+    STOREFORWARD_IS_SERVER: StoreForwardConfig.Flags.ValueType  # 4
+    """
+    Act as a server that stores the frames it hears and replays them on request,
+    rather than as a client.
+    """
+    STOREFORWARD_KEEP_FILLER: StoreForwardConfig.Flags.ValueType  # 8
+    """
+    Also store frames without HOP_STORE, as evictable filler. Clear means only
+    flagged frames are written.
+    """
+    STOREFORWARD_NO_DIRECT: StoreForwardConfig.Flags.ValueType  # 16
+    """
+    Do not store or replay direct messages. Clear means a server also keeps the
+    UCAST ciphertext it hears, which it cannot read.
+    """
+
+    FLAGS_FIELD_NUMBER: _builtins.int
+    STORAGE_BYTES_FIELD_NUMBER: _builtins.int
+    MAX_PER_SYNC_FIELD_NUMBER: _builtins.int
+    ANNOUNCE_SECS_FIELD_NUMBER: _builtins.int
+    SERVED_HASHES_FIELD_NUMBER: _builtins.int
+    DISCOVERY_MAX_RECORDS_FIELD_NUMBER: _builtins.int
+    RECORD_TTL_SECS_FIELD_NUMBER: _builtins.int
+    DISCOVERY_ADMIT_PER_HOUR_FIELD_NUMBER: _builtins.int
+    flags: _builtins.int
+    """
+    Bitwise OR of Flags values.
+    """
+    storage_bytes: _builtins.int
+    """
+    Bytes of backing store to use. 0 takes everything the platform offers.
+    """
+    max_per_sync: _builtins.int
+    """
+    Frames the server sends in one sync round before ending it. Default 32.
+    """
+    announce_secs: _builtins.int
+    """
+    Seconds between ANNOUNCE pips while STOREFORWARD_HEARTBEAT is set. Default 3600.
+    """
+    discovery_max_records: _builtins.int
+    """
+    Node discovery records to hold, when DeviceConfig sets DISCOVERY_SERVE. A record is about
+    135 bytes encoded and 150 with the index, so 1000 records is 150 kB of the same backing
+    store the frame log uses. 0 takes what the platform offers.
+    """
+    record_ttl_secs: _builtins.int
+    """
+    Seconds a discovery record survives without a refresh, after which it is evicted. This is
+    also how an identity retires: there is no tombstone to replay, so a node that stops
+    announcing simply ages out. 0 takes the default of 30 days.
+    """
+    discovery_admit_per_hour: _builtins.int
+    """
+    New records the server files per hour from what it hears over RF. A newer seq or a refresh
+    of a record already held does not count. This bounds how fast one transmitter can push real
+    records out with invented ones, at the cost of a slower start for a new server: a record
+    turned away is published again at its owner's next announce. 0 takes the default of 60.
+    """
+    @_builtins.property
+    def served_hashes(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
+        """
+        Channel hashes to retain. Empty keeps every hash the node hears.
+        """
+
+    def __init__(
+        self,
+        *,
+        flags: _builtins.int = ...,
+        storage_bytes: _builtins.int = ...,
+        max_per_sync: _builtins.int = ...,
+        announce_secs: _builtins.int = ...,
+        served_hashes: _abc.Iterable[_builtins.int] | None = ...,
+        discovery_max_records: _builtins.int = ...,
+        record_ttl_secs: _builtins.int = ...,
+        discovery_admit_per_hour: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["announce_secs", b"announce_secs", "discovery_admit_per_hour", b"discovery_admit_per_hour", "discovery_max_records", b"discovery_max_records", "flags", b"flags", "max_per_sync", b"max_per_sync", "record_ttl_secs", b"record_ttl_secs", "served_hashes", b"served_hashes", "storage_bytes", b"storage_bytes"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___StoreForwardConfig: _TypeAlias = StoreForwardConfig  # noqa: Y015
+
+@_typing.final
+class TelemetryConfig(_message.Message):
+    """
+    Configuration for both device and environment metrics
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    class _Flags:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _FlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[TelemetryConfig._Flags.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        TELEMETRY_NONE: TelemetryConfig._Flags.ValueType  # 0
+        """Nothing enabled"""
+        TELEMETRY_ENVIRONMENT_MEASUREMENT: TelemetryConfig._Flags.ValueType  # 1
+        """Collect environment measurements"""
+        TELEMETRY_ENVIRONMENT_SCREEN: TelemetryConfig._Flags.ValueType  # 2
+        """Show environment measurements on the device screen"""
+        TELEMETRY_AIR_QUALITY: TelemetryConfig._Flags.ValueType  # 8
+        """Collect air quality metrics"""
+        TELEMETRY_AIR_QUALITY_SCREEN: TelemetryConfig._Flags.ValueType  # 16
+        """Show air quality metrics on the device screen"""
+        TELEMETRY_POWER_MEASUREMENT: TelemetryConfig._Flags.ValueType  # 32
+        """Collect power metrics"""
+        TELEMETRY_POWER_SCREEN: TelemetryConfig._Flags.ValueType  # 64
+        """Show power metrics on the device screen"""
+        TELEMETRY_HEALTH_MEASUREMENT: TelemetryConfig._Flags.ValueType  # 128
+        """Collect health metrics"""
+        TELEMETRY_HEALTH_SCREEN: TelemetryConfig._Flags.ValueType  # 256
+        """Show health metrics on the device screen"""
+        TELEMETRY_DEVICE: TelemetryConfig._Flags.ValueType  # 512
+        """
+        Send device telemetry to the mesh. Telemetry still goes to the connected
+        phone or client over the API every minute regardless.
+        """
+
+    class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
+        """
+        Which telemetry sources are collected, sent and shown on screen:
+        a bitwise OR of Flags values.
+        """
+
+    TELEMETRY_NONE: TelemetryConfig.Flags.ValueType  # 0
+    """Nothing enabled"""
+    TELEMETRY_ENVIRONMENT_MEASUREMENT: TelemetryConfig.Flags.ValueType  # 1
+    """Collect environment measurements"""
+    TELEMETRY_ENVIRONMENT_SCREEN: TelemetryConfig.Flags.ValueType  # 2
+    """Show environment measurements on the device screen"""
+    TELEMETRY_AIR_QUALITY: TelemetryConfig.Flags.ValueType  # 8
+    """Collect air quality metrics"""
+    TELEMETRY_AIR_QUALITY_SCREEN: TelemetryConfig.Flags.ValueType  # 16
+    """Show air quality metrics on the device screen"""
+    TELEMETRY_POWER_MEASUREMENT: TelemetryConfig.Flags.ValueType  # 32
+    """Collect power metrics"""
+    TELEMETRY_POWER_SCREEN: TelemetryConfig.Flags.ValueType  # 64
+    """Show power metrics on the device screen"""
+    TELEMETRY_HEALTH_MEASUREMENT: TelemetryConfig.Flags.ValueType  # 128
+    """Collect health metrics"""
+    TELEMETRY_HEALTH_SCREEN: TelemetryConfig.Flags.ValueType  # 256
+    """Show health metrics on the device screen"""
+    TELEMETRY_DEVICE: TelemetryConfig.Flags.ValueType  # 512
+    """
+    Send device telemetry to the mesh. Telemetry still goes to the connected
+    phone or client over the API every minute regardless.
+    """
+
+    FLAGS_FIELD_NUMBER: _builtins.int
+    DEVICE_UPDATE_INTERVAL_FIELD_NUMBER: _builtins.int
+    SENSOR_UPDATE_INTERVAL_FIELD_NUMBER: _builtins.int
+    flags: _builtins.int
+    """
+    Bitwise OR of Flags values.
+    """
+    device_update_interval: _builtins.int
+    """
+    Interval in seconds of how often we should try to send our
+    device metrics to the mesh
+    """
+    sensor_update_interval: _builtins.int
+    """
+    Interval in seconds of how often we should try to send sensor readings to the
+    mesh. One interval covers every sensor category, since they now travel together
+    in a single SensorReadings list rather than one packet per category.
+    Which categories are collected at all is set by the flags above.
+    """
+    def __init__(
+        self,
+        *,
+        flags: _builtins.int = ...,
+        device_update_interval: _builtins.int = ...,
+        sensor_update_interval: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["device_update_interval", b"device_update_interval", "flags", b"flags", "sensor_update_interval", b"sensor_update_interval"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___TelemetryConfig: _TypeAlias = TelemetryConfig  # noqa: Y015
+
+@_typing.final
+class CannedMessageConfig(_message.Message):
+    """
+    Canned Messages Module Config
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    class _Flags:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _FlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[CannedMessageConfig._Flags.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        CANNEDMSG_NONE: CannedMessageConfig._Flags.ValueType  # 0
+        """Nothing enabled"""
+        CANNEDMSG_ROTARY1: CannedMessageConfig._Flags.ValueType  # 1
+        """
+        Enable rotary encoder #1: a 'dumb' encoder sending pulses on both A and B
+        pins while rotating.
+        """
+        CANNEDMSG_UPDOWN1: CannedMessageConfig._Flags.ValueType  # 2
+        """
+        Enable the Up/Down/Select input device. Can be a RAK rotary encoder or three
+        buttons, using the a/b/press definitions from inputbroker.
+        """
+        CANNEDMSG_SEND_BELL: CannedMessageConfig._Flags.ValueType  # 4
+        """
+        Also send a bell character with the messages, which
+        ExternalNotificationModule can act on.
+        """
+
+    class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
+        """
+        Canned message input toggles: a bitwise OR of Flags values.
+        """
+
+    CANNEDMSG_NONE: CannedMessageConfig.Flags.ValueType  # 0
+    """Nothing enabled"""
+    CANNEDMSG_ROTARY1: CannedMessageConfig.Flags.ValueType  # 1
+    """
+    Enable rotary encoder #1: a 'dumb' encoder sending pulses on both A and B
+    pins while rotating.
+    """
+    CANNEDMSG_UPDOWN1: CannedMessageConfig.Flags.ValueType  # 2
+    """
+    Enable the Up/Down/Select input device. Can be a RAK rotary encoder or three
+    buttons, using the a/b/press definitions from inputbroker.
+    """
+    CANNEDMSG_SEND_BELL: CannedMessageConfig.Flags.ValueType  # 4
+    """
+    Also send a bell character with the messages, which
+    ExternalNotificationModule can act on.
+    """
+
+    FLAGS_FIELD_NUMBER: _builtins.int
+    INPUTBROKER_PIN_A_FIELD_NUMBER: _builtins.int
+    INPUTBROKER_PIN_B_FIELD_NUMBER: _builtins.int
+    INPUTBROKER_PIN_PRESS_FIELD_NUMBER: _builtins.int
+    INPUTBROKER_EVENT_CW_FIELD_NUMBER: _builtins.int
+    INPUTBROKER_EVENT_CCW_FIELD_NUMBER: _builtins.int
+    INPUTBROKER_EVENT_PRESS_FIELD_NUMBER: _builtins.int
+    flags: _builtins.int
+    """
+    Bitwise OR of Flags values.
+    """
+    inputbroker_pin_a: _builtins.int
+    """
+    GPIO pin for rotary encoder A port.
+    """
+    inputbroker_pin_b: _builtins.int
+    """
+    GPIO pin for rotary encoder B port.
+    """
+    inputbroker_pin_press: _builtins.int
+    """
+    GPIO pin for rotary encoder Press port.
+    """
+    inputbroker_event_cw: _common_pb2.InputBrokerEvent.ValueType
+    """
+    Generate input event on CW of this kind.
+    """
+    inputbroker_event_ccw: _common_pb2.InputBrokerEvent.ValueType
+    """
+    Generate input event on CCW of this kind.
+    """
+    inputbroker_event_press: _common_pb2.InputBrokerEvent.ValueType
+    """
+    Generate input event on Press of this kind.
+    """
+    def __init__(
+        self,
+        *,
+        flags: _builtins.int = ...,
+        inputbroker_pin_a: _builtins.int = ...,
+        inputbroker_pin_b: _builtins.int = ...,
+        inputbroker_pin_press: _builtins.int = ...,
+        inputbroker_event_cw: _common_pb2.InputBrokerEvent.ValueType = ...,
+        inputbroker_event_ccw: _common_pb2.InputBrokerEvent.ValueType = ...,
+        inputbroker_event_press: _common_pb2.InputBrokerEvent.ValueType = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["flags", b"flags", "inputbroker_event_ccw", b"inputbroker_event_ccw", "inputbroker_event_cw", b"inputbroker_event_cw", "inputbroker_event_press", b"inputbroker_event_press", "inputbroker_pin_a", b"inputbroker_pin_a", "inputbroker_pin_b", b"inputbroker_pin_b", "inputbroker_pin_press", b"inputbroker_pin_press"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___CannedMessageConfig: _TypeAlias = CannedMessageConfig  # noqa: Y015
+
+@_typing.final
+class AmbientLightingConfig(_message.Message):
+    """
+    Ambient Lighting Module - Settings for control of onboard LEDs to allow users to adjust the brightness levels and respective color levels.
+    Initially created for the RAK14001 RGB LED module.
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    LED_STATE_FIELD_NUMBER: _builtins.int
+    CURRENT_FIELD_NUMBER: _builtins.int
+    RED_FIELD_NUMBER: _builtins.int
+    GREEN_FIELD_NUMBER: _builtins.int
+    BLUE_FIELD_NUMBER: _builtins.int
+    led_state: _builtins.bool
+    """
+    Sets LED to on or off.
+    """
+    current: _builtins.int
+    """
+    Sets the current for the LED output. Default is 10.
+    """
+    red: _builtins.int
+    """
+    Sets the red LED level. Values are 0-255.
+    """
+    green: _builtins.int
+    """
+    Sets the green LED level. Values are 0-255.
+    """
+    blue: _builtins.int
+    """
+    Sets the blue LED level. Values are 0-255.
+    """
+    def __init__(
+        self,
+        *,
+        led_state: _builtins.bool = ...,
+        current: _builtins.int = ...,
+        red: _builtins.int = ...,
+        green: _builtins.int = ...,
+        blue: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["blue", b"blue", "current", b"current", "green", b"green", "led_state", b"led_state", "red", b"red"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___AmbientLightingConfig: _TypeAlias = AmbientLightingConfig  # noqa: Y015
+
+@_typing.final
+class StatusMessageConfig(_message.Message):
+    """
+    StatusMessage config - Allows setting a status message for a node to periodically rebroadcast
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    NODE_STATUS_FIELD_NUMBER: _builtins.int
+    node_status: _builtins.str
+    """
+    The actual status string
+    """
+    def __init__(
+        self,
+        *,
+        node_status: _builtins.str = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["node_status", b"node_status"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___StatusMessageConfig: _TypeAlias = StatusMessageConfig  # noqa: Y015
+
+@_typing.final
+class MeshBeaconConfig(_message.Message):
+    """
+    MeshBeacon module config
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    class _Flags:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _FlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[MeshBeaconConfig._Flags.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        FLAG_NONE: MeshBeaconConfig._Flags.ValueType  # 0
+        """
+        No options enabled.
+        """
+        FLAG_LISTEN_ENABLED: MeshBeaconConfig._Flags.ValueType  # 1
+        """
+        Enable receiving MESH_BEACON_APP packets from other nodes.
+        The text portion is delivered to the local message inbox.
+        Offered channel/preset are stored for the client app to act on.
+        """
+        FLAG_BROADCAST_ENABLED: MeshBeaconConfig._Flags.ValueType  # 2
+        """
+        Enable periodically broadcasting MESH_BEACON_APP packets from this node.
+        """
+        FLAG_TEXT_SPLIT: MeshBeaconConfig._Flags.ValueType  # 4
+        """
+        When both text and offer content are present, split the beacon into a separate
+        MESH_BEACON_APP (offer only) and TEXT_MESSAGE_APP (text only) packet, so a receiver
+        that only decodes TEXT_MESSAGE_APP still gets the human-readable text.
+        """
+
+    class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
+        """
+        Boolean options for the beacon module, packed into the `flags` bitfield below.
+        OR the FLAG_* values together; a flag is on when its bit is set.
+        """
+
+    FLAG_NONE: MeshBeaconConfig.Flags.ValueType  # 0
+    """
+    No options enabled.
+    """
+    FLAG_LISTEN_ENABLED: MeshBeaconConfig.Flags.ValueType  # 1
+    """
+    Enable receiving MESH_BEACON_APP packets from other nodes.
+    The text portion is delivered to the local message inbox.
+    Offered channel/preset are stored for the client app to act on.
+    """
+    FLAG_BROADCAST_ENABLED: MeshBeaconConfig.Flags.ValueType  # 2
+    """
+    Enable periodically broadcasting MESH_BEACON_APP packets from this node.
+    """
+    FLAG_TEXT_SPLIT: MeshBeaconConfig.Flags.ValueType  # 4
+    """
+    When both text and offer content are present, split the beacon into a separate
+    MESH_BEACON_APP (offer only) and TEXT_MESSAGE_APP (text only) packet, so a receiver
+    that only decodes TEXT_MESSAGE_APP still gets the human-readable text.
+    """
+
+    @_typing.final
+    class BroadcastTarget(_message.Message):
+        """
+        One entry in the broadcast destination list.
+        Each entry names one set of radio settings to send a beacon copy on.
+        """
+
+        DESCRIPTOR: _descriptor.Descriptor
+
+        PRESET_FIELD_NUMBER: _builtins.int
+        REGION_FIELD_NUMBER: _builtins.int
+        CHANNEL_INDEX_FIELD_NUMBER: _builtins.int
+        preset: _common_pb2.ModemPreset.ValueType
+        """
+        Modem preset to use for this target.
+        Falls back to the running config preset if unset.
+        """
+        region: _common_pb2.RegionCode.ValueType
+        """
+        Region to use for this target. REGION_UNSET means use the running config region.
+        """
+        channel_index: _builtins.int
+        """
+        Index into the device's channel table (0..MAX_NUM_CHANNELS-1) of the channel to
+        transmit this target's beacon on. The referenced channel must already be configured
+        on the node (its key is needed to encrypt). If unset, the default channel for the
+        preset is used.
+        """
+        def __init__(
+            self,
+            *,
+            preset: _common_pb2.ModemPreset.ValueType | None = ...,
+            region: _common_pb2.RegionCode.ValueType = ...,
+            channel_index: _builtins.int | None = ...,
+        ) -> None: ...
+        _HasFieldArgType: _TypeAlias = _typing.Literal["_channel_index", b"_channel_index", "_preset", b"_preset", "channel_index", b"channel_index", "preset", b"preset"]  # noqa: Y015
+        def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["_channel_index", b"_channel_index", "_preset", b"_preset", "channel_index", b"channel_index", "preset", b"preset", "region", b"region"]  # noqa: Y015
+        def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+        _WhichOneofReturnType__channel_index: _TypeAlias = _typing.Literal["channel_index"]  # noqa: Y015
+        _WhichOneofArgType__channel_index: _TypeAlias = _typing.Literal["_channel_index", b"_channel_index"]  # noqa: Y015
+        _WhichOneofReturnType__preset: _TypeAlias = _typing.Literal["preset"]  # noqa: Y015
+        _WhichOneofArgType__preset: _TypeAlias = _typing.Literal["_preset", b"_preset"]  # noqa: Y015
+        @_typing.overload
+        def WhichOneof(self, oneof_group: _WhichOneofArgType__channel_index) -> _WhichOneofReturnType__channel_index | None: ...
+        @_typing.overload
+        def WhichOneof(self, oneof_group: _WhichOneofArgType__preset) -> _WhichOneofReturnType__preset | None: ...
+
+    FLAGS_FIELD_NUMBER: _builtins.int
+    BROADCAST_MESSAGE_FIELD_NUMBER: _builtins.int
+    BROADCAST_OFFER_CHANNEL_FIELD_NUMBER: _builtins.int
+    BROADCAST_OFFER_REGION_FIELD_NUMBER: _builtins.int
+    BROADCAST_OFFER_PRESET_FIELD_NUMBER: _builtins.int
+    BROADCAST_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
+    BROADCAST_TARGETS_FIELD_NUMBER: _builtins.int
+    flags: _builtins.int
+    """
+    Bitwise OR of Flags values (listen, broadcast and text-split toggles).
+    """
+    broadcast_message: _builtins.str
+    """
+    Message to include in each beacon broadcast. Max 100 bytes enforced by firmware.
+    """
+    broadcast_offer_region: _common_pb2.RegionCode.ValueType
+    """
+    Optional region to advertise in the MeshBeacon offer_region field.
+    """
+    broadcast_offer_preset: _common_pb2.ModemPreset.ValueType
+    """
+    Optional modem preset to advertise in the MeshBeacon offer_preset field.
+    """
+    broadcast_interval_secs: _builtins.int
+    """
+    How often to broadcast, in seconds. Min 3600 (1 h), default 3600.
+    """
+    @_builtins.property
+    def broadcast_offer_channel(self) -> _channel_pb2.ChannelSettings:
+        """
+        Optional channel (name + PSK) to advertise in the MeshBeacon offer_channel field.
+        """
+
+    @_builtins.property
+    def broadcast_targets(self) -> _containers.RepeatedCompositeFieldContainer[Global___MeshBeaconConfig.BroadcastTarget]:
+        """
+        Broadcast destination list.
+        The broadcaster sends one beacon copy per distinct destination, in sequence, temporarily
+        switching the radio to that entry's preset/region/channel for each.
+        When empty, a single beacon is sent on the node's running preset and region over the
+        primary channel.
+        Entries that resolve to the same effective preset, region and channel are deduplicated, so
+        a duplicate entry does not produce a second transmission.
+        """
+
+    def __init__(
+        self,
+        *,
+        flags: _builtins.int = ...,
+        broadcast_message: _builtins.str = ...,
+        broadcast_offer_channel: _channel_pb2.ChannelSettings | None = ...,
+        broadcast_offer_region: _common_pb2.RegionCode.ValueType = ...,
+        broadcast_offer_preset: _common_pb2.ModemPreset.ValueType | None = ...,
+        broadcast_interval_secs: _builtins.int = ...,
+        broadcast_targets: _abc.Iterable[Global___MeshBeaconConfig.BroadcastTarget] | None = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_broadcast_offer_preset", b"_broadcast_offer_preset", "broadcast_offer_channel", b"broadcast_offer_channel", "broadcast_offer_preset", b"broadcast_offer_preset"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_broadcast_offer_preset", b"_broadcast_offer_preset", "broadcast_interval_secs", b"broadcast_interval_secs", "broadcast_message", b"broadcast_message", "broadcast_offer_channel", b"broadcast_offer_channel", "broadcast_offer_preset", b"broadcast_offer_preset", "broadcast_offer_region", b"broadcast_offer_region", "broadcast_targets", b"broadcast_targets", "flags", b"flags"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__broadcast_offer_preset: _TypeAlias = _typing.Literal["broadcast_offer_preset"]  # noqa: Y015
+    _WhichOneofArgType__broadcast_offer_preset: _TypeAlias = _typing.Literal["_broadcast_offer_preset", b"_broadcast_offer_preset"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__broadcast_offer_preset) -> _WhichOneofReturnType__broadcast_offer_preset | None: ...
+
+Global___MeshBeaconConfig: _TypeAlias = MeshBeaconConfig  # noqa: Y015
+
+@_typing.final
+class TAKConfig(_message.Message):
+    """
+    TAK team/role configuration
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    TEAM_FIELD_NUMBER: _builtins.int
+    ROLE_FIELD_NUMBER: _builtins.int
+    team: _atak_pb2.Team.ValueType
+    """
+    Team color.
+    Default Unspecifed_Color -> firmware uses Cyan
+    """
+    role: _atak_pb2.MemberRole.ValueType
+    """
+    Member role.
+    Default Unspecifed -> firmware uses TeamMember
+    """
+    def __init__(
+        self,
+        *,
+        team: _atak_pb2.Team.ValueType = ...,
+        role: _atak_pb2.MemberRole.ValueType = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["role", b"role", "team", b"team"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___TAKConfig: _TypeAlias = TAKConfig  # noqa: Y015
+
+@_typing.final
+class RemoteHardwarePin(_message.Message):
     """
     A GPIO pin definition for remote hardware module
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    GPIO_PIN_FIELD_NUMBER: builtins.int
-    NAME_FIELD_NUMBER: builtins.int
-    TYPE_FIELD_NUMBER: builtins.int
-    gpio_pin: builtins.int
+    GPIO_PIN_FIELD_NUMBER: _builtins.int
+    NAME_FIELD_NUMBER: _builtins.int
+    TYPE_FIELD_NUMBER: _builtins.int
+    gpio_pin: _builtins.int
     """
-    GPIO Pin number (must match Arduino)
+    GPIO pin number, 0 to 63, matching Arduino's numbering. The upper bound is
+    HardwareMessage.gpio_mask: a pin with no bit in a 64-bit mask cannot be addressed.
     """
-    name: builtins.str
+    name: _builtins.str
     """
     Name for the GPIO pin (i.e. Front gate, mailbox, etc)
     """
-    type: global___RemoteHardwarePinType.ValueType
+    type: Global___RemoteHardwarePinType.ValueType
     """
     Type of GPIO access available to consumers on the mesh
     """
     def __init__(
         self,
         *,
-        gpio_pin: builtins.int = ...,
-        name: builtins.str = ...,
-        type: global___RemoteHardwarePinType.ValueType = ...,
+        gpio_pin: _builtins.int = ...,
+        name: _builtins.str = ...,
+        type: Global___RemoteHardwarePinType.ValueType = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["gpio_pin", b"gpio_pin", "name", b"name", "type", b"type"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["gpio_pin", b"gpio_pin", "name", b"name", "type", b"type"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___RemoteHardwarePin = RemoteHardwarePin
+Global___RemoteHardwarePin: _TypeAlias = RemoteHardwarePin  # noqa: Y015
+
+@_typing.final
+class NodeRemoteHardwarePin(_message.Message):
+    """
+    RemoteHardwarePins associated with a node
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    NODE_NUM_FIELD_NUMBER: _builtins.int
+    PIN_FIELD_NUMBER: _builtins.int
+    node_num: _builtins.int
+    """
+    The node_num exposing the available gpio pin
+    """
+    @_builtins.property
+    def pin(self) -> Global___RemoteHardwarePin:
+        """
+        The available gpio pin for usage with RemoteHardware module
+        """
+
+    def __init__(
+        self,
+        *,
+        node_num: _builtins.int = ...,
+        pin: Global___RemoteHardwarePin | None = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["pin", b"pin"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["node_num", b"node_num", "pin", b"pin"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___NodeRemoteHardwarePin: _TypeAlias = NodeRemoteHardwarePin  # noqa: Y015
+
+@_typing.final
+class ModuleConfigPayload(_message.Message):
+    """
+    Wrapper message for admin transport of module configuration
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    MQTT_FIELD_NUMBER: _builtins.int
+    SERIAL_FIELD_NUMBER: _builtins.int
+    EXTERNAL_NOTIFICATION_FIELD_NUMBER: _builtins.int
+    STORE_FORWARD_FIELD_NUMBER: _builtins.int
+    TELEMETRY_FIELD_NUMBER: _builtins.int
+    CANNED_MESSAGE_FIELD_NUMBER: _builtins.int
+    AUDIO_FIELD_NUMBER: _builtins.int
+    REMOTE_HARDWARE_FIELD_NUMBER: _builtins.int
+    NEIGHBOR_INFO_FIELD_NUMBER: _builtins.int
+    AMBIENT_LIGHTING_FIELD_NUMBER: _builtins.int
+    DETECTION_SENSOR_FIELD_NUMBER: _builtins.int
+    PAXCOUNTER_FIELD_NUMBER: _builtins.int
+    STATUSMESSAGE_FIELD_NUMBER: _builtins.int
+    TRAFFIC_MANAGEMENT_FIELD_NUMBER: _builtins.int
+    TAK_FIELD_NUMBER: _builtins.int
+    MESH_BEACON_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def mqtt(self) -> Global___MQTTConfig: ...
+    @_builtins.property
+    def serial(self) -> Global___SerialConfig: ...
+    @_builtins.property
+    def external_notification(self) -> Global___ExternalNotificationConfig: ...
+    @_builtins.property
+    def store_forward(self) -> Global___StoreForwardConfig: ...
+    @_builtins.property
+    def telemetry(self) -> Global___TelemetryConfig: ...
+    @_builtins.property
+    def canned_message(self) -> Global___CannedMessageConfig: ...
+    @_builtins.property
+    def audio(self) -> Global___AudioConfig: ...
+    @_builtins.property
+    def remote_hardware(self) -> Global___RemoteHardwareConfig: ...
+    @_builtins.property
+    def neighbor_info(self) -> Global___NeighborInfoConfig: ...
+    @_builtins.property
+    def ambient_lighting(self) -> Global___AmbientLightingConfig: ...
+    @_builtins.property
+    def detection_sensor(self) -> Global___DetectionSensorConfig: ...
+    @_builtins.property
+    def paxcounter(self) -> Global___PaxcounterConfig: ...
+    @_builtins.property
+    def statusmessage(self) -> Global___StatusMessageConfig: ...
+    @_builtins.property
+    def traffic_management(self) -> Global___TrafficManagementConfig: ...
+    @_builtins.property
+    def tak(self) -> Global___TAKConfig: ...
+    @_builtins.property
+    def mesh_beacon(self) -> Global___MeshBeaconConfig: ...
+    def __init__(
+        self,
+        *,
+        mqtt: Global___MQTTConfig | None = ...,
+        serial: Global___SerialConfig | None = ...,
+        external_notification: Global___ExternalNotificationConfig | None = ...,
+        store_forward: Global___StoreForwardConfig | None = ...,
+        telemetry: Global___TelemetryConfig | None = ...,
+        canned_message: Global___CannedMessageConfig | None = ...,
+        audio: Global___AudioConfig | None = ...,
+        remote_hardware: Global___RemoteHardwareConfig | None = ...,
+        neighbor_info: Global___NeighborInfoConfig | None = ...,
+        ambient_lighting: Global___AmbientLightingConfig | None = ...,
+        detection_sensor: Global___DetectionSensorConfig | None = ...,
+        paxcounter: Global___PaxcounterConfig | None = ...,
+        statusmessage: Global___StatusMessageConfig | None = ...,
+        traffic_management: Global___TrafficManagementConfig | None = ...,
+        tak: Global___TAKConfig | None = ...,
+        mesh_beacon: Global___MeshBeaconConfig | None = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mesh_beacon", b"mesh_beacon", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mesh_beacon", b"mesh_beacon", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "payload_variant", b"payload_variant", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType_payload_variant: _TypeAlias = _typing.Literal["mqtt", "serial", "external_notification", "store_forward", "telemetry", "canned_message", "audio", "remote_hardware", "neighbor_info", "ambient_lighting", "detection_sensor", "paxcounter", "statusmessage", "traffic_management", "tak", "mesh_beacon"]  # noqa: Y015
+    _WhichOneofArgType_payload_variant: _TypeAlias = _typing.Literal["payload_variant", b"payload_variant"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType_payload_variant) -> _WhichOneofReturnType_payload_variant | None: ...
+
+Global___ModuleConfigPayload: _TypeAlias = ModuleConfigPayload  # noqa: Y015

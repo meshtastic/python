@@ -3,28 +3,28 @@
 isort:skip_file
 """
 
-import builtins
-import google.protobuf.descriptor
-import google.protobuf.internal.enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+import builtins as _builtins
 import sys
-import typing
+import typing as _typing
 
 if sys.version_info >= (3, 10):
-    import typing as typing_extensions
+    from typing import TypeAlias as _TypeAlias
 else:
-    import typing_extensions
+    from typing_extensions import TypeAlias as _TypeAlias
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+DESCRIPTOR: _descriptor.FileDescriptor
 
 class _PortNum:
-    ValueType = typing.NewType("ValueType", builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
+    ValueType = _typing.NewType("ValueType", _builtins.int)
+    V: _TypeAlias = ValueType  # noqa: Y015
 
-class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_PortNum.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+class _PortNumEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_PortNum.ValueType], _builtins.type):
+    DESCRIPTOR: _descriptor.EnumDescriptor
     UNKNOWN_APP: _PortNum.ValueType  # 0
     """
-    Deprecated: do not use in new code (formerly called OPAQUE)
+    Deprecated: do not use in new code.
     A message sent from a device outside of the mesh, in a form the mesh does not understand
     NOTE: This must be 0, because it is documented in IMeshService.aidl to be so
     ENCODING: binary undefined
@@ -32,9 +32,10 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     TEXT_MESSAGE_APP: _PortNum.ValueType  # 1
     """
     A simple UTF-8 text message, which even the little micros in the mesh
-    can understand and show on their screen eventually in some circumstances
-    even signal might send messages in this form (see below)
-    ENCODING: UTF-8 Plaintext (?)
+    can understand and show on their screen. Every payload on this port is
+    Unishox2-compressed, without exception, so there is no second port and no
+    flag to say which form a payload is in: a receiver always decompresses.
+    ENCODING: Unishox2-compressed UTF-8 text
     """
     REMOTE_HARDWARE_APP: _PortNum.ValueType  # 2
     """
@@ -66,21 +67,13 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     Payload is a AdminMessage message.
     ENCODING: Protobuf
     """
-    TEXT_MESSAGE_COMPRESSED_APP: _PortNum.ValueType  # 7
-    """
-    Compressed TEXT_MESSAGE payloads.
-    ENCODING: UTF-8 Plaintext (?) with Unishox2 Compression
-    NOTE: The Device Firmware converts a TEXT_MESSAGE_APP to TEXT_MESSAGE_COMPRESSED_APP if the compressed
-    payload is shorter. There's no need for app developers to do this themselves. Also the firmware will decompress
-    any incoming TEXT_MESSAGE_COMPRESSED_APP payload and convert to TEXT_MESSAGE_APP.
-    """
-    WAYPOINT_APP: _PortNum.ValueType  # 8
+    WAYPOINT_APP: _PortNum.ValueType  # 7
     """
     Waypoint payloads.
     Payload is a Waypoint message.
     ENCODING: Protobuf
     """
-    AUDIO_APP: _PortNum.ValueType  # 9
+    AUDIO_APP: _PortNum.ValueType  # 8
     """
     Audio Payloads.
     Encapsulated codec2 packets. On 2.4 GHZ Bandwidths only for now
@@ -88,20 +81,20 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     NOTE: audio frames contain a 3 byte header (0xc0 0xde 0xc2) and a one byte marker for the decompressed bitrate.
     This marker comes from the 'moduleConfig.audio.bitrate' enum minus one.
     """
-    DETECTION_SENSOR_APP: _PortNum.ValueType  # 10
+    DETECTION_SENSOR_APP: _PortNum.ValueType  # 9
     """
     Same as Text Message but originating from Detection Sensor Module.
-    NOTE: This portnum traffic is not sent to the public MQTT starting at firmware version 2.2.9
+    NOTE: This portnum traffic is not sent to the public MQTT broker.
     """
-    ALERT_APP: _PortNum.ValueType  # 11
+    ALERT_APP: _PortNum.ValueType  # 10
     """
     Same as Text Message but used for critical alerts.
     """
-    KEY_VERIFICATION_APP: _PortNum.ValueType  # 12
+    KEY_VERIFICATION_APP: _PortNum.ValueType  # 11
     """
     Module/port for handling key verification requests.
     """
-    REMOTE_SHELL_APP: _PortNum.ValueType  # 13
+    REMOTE_SHELL_APP: _PortNum.ValueType  # 12
     """
     Module/port for handling primitive remote shell access.
     """
@@ -121,28 +114,21 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     Paxcounter lib included in the firmware
     ENCODING: protobuf
     """
-    STORE_FORWARD_PLUSPLUS_APP: _PortNum.ValueType  # 35
-    """
-    Store and Forward++ module included in the firmware
-    ENCODING: protobuf
-    This module is specifically for Native Linux nodes, and provides a Git-style
-    chain of messages.
-    """
-    NODE_STATUS_APP: _PortNum.ValueType  # 36
+    NODE_STATUS_APP: _PortNum.ValueType  # 35
     """
     Node Status module
     ENCODING: protobuf
     This module allows setting an extra string of status for a node.
     Broadcasts on change and on a timer, possibly once a day.
     """
-    MESH_BEACON_APP: _PortNum.ValueType  # 37
+    MESH_BEACON_APP: _PortNum.ValueType  # 36
     """
     Beacon module broadcast packets.
     ENCODING: protobuf
     Periodically broadcast by nodes in beacon mode; received by nodes with MeshBeaconConfig.FLAG_LISTEN_ENABLED.
     Carries a text message plus optional channel/preset offers for client apps.
     """
-    PAGING_APP: _PortNum.ValueType  # 38
+    PAGING_APP: _PortNum.ValueType  # 37
     """
     Acknowledged paging: alerts a person is expected to physically acknowledge, and the
     acknowledgements themselves.
@@ -150,95 +136,86 @@ class _PortNumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTy
     Distinct from ALERT_APP, which is a text message the recipient never confirms, and from a
     routing or delivery ACK, which says the packet arrived rather than that someone saw it.
     """
+    NODE_DISCOVERY_APP: _PortNum.ValueType  # 38
+    """
+    Node discovery: a signed identity record, and the queries a server answers with it.
+    Payload is a DiscoveryMessage from discovery.proto.
+    ENCODING: Protobuf
+    """
     SERIAL_APP: _PortNum.ValueType  # 64
     """
     Provides a hardware serial interface to send and receive from the Meshtastic network.
     Connect to the RX/TX pins of a device with 38400 8N1. Packets received from the Meshtastic
     network is forwarded to the RX pin while sending a packet to TX will go out to the Mesh network.
-    Maximum packet size of 240 bytes.
+    A packet carries at most the room one frame leaves (SCHEMA.md §8, Payload room).
     Module is disabled by default can be turned on by setting SERIAL_MODULE_ENABLED = 1 in SerialPlugh.cpp.
     ENCODING: binary undefined
     """
     STORE_FORWARD_APP: _PortNum.ValueType  # 65
     """
-    STORE_FORWARD_APP (Work in Progress)
-    Maintained by Jm Casler (MC Hamster) : jm@casler.org
+    Store and forward: a server replays the ciphertext frames it kept while a client was
+    away, and the client verifies each one itself. Payload is a StoreAndForward message
+    from storeforward.proto.
     ENCODING: Protobuf
     """
-    RANGE_TEST_APP: _PortNum.ValueType  # 66
-    """
-    Optional port for messages for the range test module.
-    ENCODING: ASCII Plaintext
-    NOTE: This portnum traffic is not sent to the public MQTT starting at firmware version 2.2.9
-    """
-    TELEMETRY_APP: _PortNum.ValueType  # 67
+    TELEMETRY_APP: _PortNum.ValueType  # 66
     """
     Provides a format to send and receive telemetry data from the Meshtastic network.
     Maintained by Charles Crossan (crossan007) : crossan007@gmail.com
     ENCODING: Protobuf
     """
-    ZPS_APP: _PortNum.ValueType  # 68
+    ZPS_APP: _PortNum.ValueType  # 67
     """
     Experimental tools for estimating node position without a GPS
     Maintained by Github user a-f-G-U-C (a Meshtastic contributor)
     Project files at https://github.com/a-f-G-U-C/Meshtastic-ZPS
     ENCODING: arrays of int64 fields
     """
-    SIMULATOR_APP: _PortNum.ValueType  # 69
+    SIMULATOR_APP: _PortNum.ValueType  # 68
     """
     Used to let multiple instances of Linux native applications communicate
-    as if they did using their LoRa chip.
+    as if they did using their LoRa chip. Payload is an InjectedFrame.
     Maintained by GitHub user GUVWAF.
     Project files at https://github.com/GUVWAF/Meshtasticator
-    ENCODING: Protobuf (?)
-    """
-    TRACEROUTE_APP: _PortNum.ValueType  # 70
-    """
-    Provides a traceroute functionality to show the route a packet towards
-    a certain destination would take on the mesh. Contains a RouteDiscovery message as payload.
     ENCODING: Protobuf
     """
-    NEIGHBORINFO_APP: _PortNum.ValueType  # 71
+    NEIGHBORINFO_APP: _PortNum.ValueType  # 69
     """
     Aggregates edge info for the network by sending out a list of each node's neighbors
     ENCODING: Protobuf
     """
-    ATAK_PLUGIN: _PortNum.ValueType  # 72
-    """
-    ATAK Plugin
-    Portnum for payloads from the official Meshtastic ATAK plugin
-    """
-    MAP_REPORT_APP: _PortNum.ValueType  # 73
+    MAP_REPORT_APP: _PortNum.ValueType  # 70
     """
     Provides unencrypted information about a node for consumption by a map via MQTT
     """
-    POWERSTRESS_APP: _PortNum.ValueType  # 74
+    POWERSTRESS_APP: _PortNum.ValueType  # 71
     """
     PowerStress based monitoring support (for automated power consumption testing)
     """
-    LORAWAN_BRIDGE: _PortNum.ValueType  # 75
+    LORAWAN_BRIDGE: _PortNum.ValueType  # 72
     """
     LoraWAN Payload Transport
     ENCODING: LoRaWANBridge protobuf, see lorawan_bridge.proto
     """
-    RETICULUM_TUNNEL_APP: _PortNum.ValueType  # 76
+    RETICULUM_TUNNEL_APP: _PortNum.ValueType  # 73
     """
     Reticulum Network Stack Tunnel App
     ENCODING: Fragmented RNS Packet. Handled by Meshtastic RNS interface
     """
-    CAYENNE_APP: _PortNum.ValueType  # 77
+    CAYENNE_APP: _PortNum.ValueType  # 74
     """
     App for transporting Cayenne Low Power Payload, popular for LoRaWAN sensor nodes. Offers ability to send
     arbitrary telemetry over meshtastic that is not covered by telemetry.proto
     ENCODING: CayenneLLP
     """
-    ATAK_PLUGIN_V2: _PortNum.ValueType  # 78
+    ATAK_PLUGIN: _PortNum.ValueType  # 75
     """
-    ATAK Plugin V2
-    Portnum for payloads from the official Meshtastic ATAK plugin using
-    TAKPacketV2 with zstd dictionary compression.
+    ATAK Plugin
+    Cursor on Target events from the Meshtastic ATAK plugin, the apps and TAK tracker
+    nodes: a flags byte, then a TAKPacket (atak.proto).
+    ENCODING: Protobuf, optionally zstd dictionary-compressed
     """
-    LORA_OTA_APP: _PortNum.ValueType  # 79
+    LORA_OTA_APP: _PortNum.ValueType  # 76
     """signed firmware updates over lora.
 
     ENCODING: binary (ota-common transport frames)
@@ -276,14 +253,11 @@ class PortNum(_PortNum, metaclass=_PortNumEnumTypeWrapper):
     64-127 Registered 3rd party apps, send in a pull request that adds a new entry to portnums.proto to  register your application
     256-511 Use one of these portnums for your private applications that you don't want to register publically
     All other values are reserved.
-    Note: This was formerly a Type enum named 'typ' with the same id #
-    We have change to this 'portnum' based scheme for specifying app handlers for particular payloads.
-    This change is backwards compatible by treating the legacy OPAQUE/CLEAR_TEXT values identically.
     """
 
 UNKNOWN_APP: PortNum.ValueType  # 0
 """
-Deprecated: do not use in new code (formerly called OPAQUE)
+Deprecated: do not use in new code.
 A message sent from a device outside of the mesh, in a form the mesh does not understand
 NOTE: This must be 0, because it is documented in IMeshService.aidl to be so
 ENCODING: binary undefined
@@ -291,9 +265,10 @@ ENCODING: binary undefined
 TEXT_MESSAGE_APP: PortNum.ValueType  # 1
 """
 A simple UTF-8 text message, which even the little micros in the mesh
-can understand and show on their screen eventually in some circumstances
-even signal might send messages in this form (see below)
-ENCODING: UTF-8 Plaintext (?)
+can understand and show on their screen. Every payload on this port is
+Unishox2-compressed, without exception, so there is no second port and no
+flag to say which form a payload is in: a receiver always decompresses.
+ENCODING: Unishox2-compressed UTF-8 text
 """
 REMOTE_HARDWARE_APP: PortNum.ValueType  # 2
 """
@@ -325,21 +300,13 @@ Admin control packets.
 Payload is a AdminMessage message.
 ENCODING: Protobuf
 """
-TEXT_MESSAGE_COMPRESSED_APP: PortNum.ValueType  # 7
-"""
-Compressed TEXT_MESSAGE payloads.
-ENCODING: UTF-8 Plaintext (?) with Unishox2 Compression
-NOTE: The Device Firmware converts a TEXT_MESSAGE_APP to TEXT_MESSAGE_COMPRESSED_APP if the compressed
-payload is shorter. There's no need for app developers to do this themselves. Also the firmware will decompress
-any incoming TEXT_MESSAGE_COMPRESSED_APP payload and convert to TEXT_MESSAGE_APP.
-"""
-WAYPOINT_APP: PortNum.ValueType  # 8
+WAYPOINT_APP: PortNum.ValueType  # 7
 """
 Waypoint payloads.
 Payload is a Waypoint message.
 ENCODING: Protobuf
 """
-AUDIO_APP: PortNum.ValueType  # 9
+AUDIO_APP: PortNum.ValueType  # 8
 """
 Audio Payloads.
 Encapsulated codec2 packets. On 2.4 GHZ Bandwidths only for now
@@ -347,20 +314,20 @@ ENCODING: codec2 audio frames
 NOTE: audio frames contain a 3 byte header (0xc0 0xde 0xc2) and a one byte marker for the decompressed bitrate.
 This marker comes from the 'moduleConfig.audio.bitrate' enum minus one.
 """
-DETECTION_SENSOR_APP: PortNum.ValueType  # 10
+DETECTION_SENSOR_APP: PortNum.ValueType  # 9
 """
 Same as Text Message but originating from Detection Sensor Module.
-NOTE: This portnum traffic is not sent to the public MQTT starting at firmware version 2.2.9
+NOTE: This portnum traffic is not sent to the public MQTT broker.
 """
-ALERT_APP: PortNum.ValueType  # 11
+ALERT_APP: PortNum.ValueType  # 10
 """
 Same as Text Message but used for critical alerts.
 """
-KEY_VERIFICATION_APP: PortNum.ValueType  # 12
+KEY_VERIFICATION_APP: PortNum.ValueType  # 11
 """
 Module/port for handling key verification requests.
 """
-REMOTE_SHELL_APP: PortNum.ValueType  # 13
+REMOTE_SHELL_APP: PortNum.ValueType  # 12
 """
 Module/port for handling primitive remote shell access.
 """
@@ -380,28 +347,21 @@ PAXCOUNTER_APP: PortNum.ValueType  # 34
 Paxcounter lib included in the firmware
 ENCODING: protobuf
 """
-STORE_FORWARD_PLUSPLUS_APP: PortNum.ValueType  # 35
-"""
-Store and Forward++ module included in the firmware
-ENCODING: protobuf
-This module is specifically for Native Linux nodes, and provides a Git-style
-chain of messages.
-"""
-NODE_STATUS_APP: PortNum.ValueType  # 36
+NODE_STATUS_APP: PortNum.ValueType  # 35
 """
 Node Status module
 ENCODING: protobuf
 This module allows setting an extra string of status for a node.
 Broadcasts on change and on a timer, possibly once a day.
 """
-MESH_BEACON_APP: PortNum.ValueType  # 37
+MESH_BEACON_APP: PortNum.ValueType  # 36
 """
 Beacon module broadcast packets.
 ENCODING: protobuf
 Periodically broadcast by nodes in beacon mode; received by nodes with MeshBeaconConfig.FLAG_LISTEN_ENABLED.
 Carries a text message plus optional channel/preset offers for client apps.
 """
-PAGING_APP: PortNum.ValueType  # 38
+PAGING_APP: PortNum.ValueType  # 37
 """
 Acknowledged paging: alerts a person is expected to physically acknowledge, and the
 acknowledgements themselves.
@@ -409,95 +369,86 @@ ENCODING: protobuf PagingPacket
 Distinct from ALERT_APP, which is a text message the recipient never confirms, and from a
 routing or delivery ACK, which says the packet arrived rather than that someone saw it.
 """
+NODE_DISCOVERY_APP: PortNum.ValueType  # 38
+"""
+Node discovery: a signed identity record, and the queries a server answers with it.
+Payload is a DiscoveryMessage from discovery.proto.
+ENCODING: Protobuf
+"""
 SERIAL_APP: PortNum.ValueType  # 64
 """
 Provides a hardware serial interface to send and receive from the Meshtastic network.
 Connect to the RX/TX pins of a device with 38400 8N1. Packets received from the Meshtastic
 network is forwarded to the RX pin while sending a packet to TX will go out to the Mesh network.
-Maximum packet size of 240 bytes.
+A packet carries at most the room one frame leaves (SCHEMA.md §8, Payload room).
 Module is disabled by default can be turned on by setting SERIAL_MODULE_ENABLED = 1 in SerialPlugh.cpp.
 ENCODING: binary undefined
 """
 STORE_FORWARD_APP: PortNum.ValueType  # 65
 """
-STORE_FORWARD_APP (Work in Progress)
-Maintained by Jm Casler (MC Hamster) : jm@casler.org
+Store and forward: a server replays the ciphertext frames it kept while a client was
+away, and the client verifies each one itself. Payload is a StoreAndForward message
+from storeforward.proto.
 ENCODING: Protobuf
 """
-RANGE_TEST_APP: PortNum.ValueType  # 66
-"""
-Optional port for messages for the range test module.
-ENCODING: ASCII Plaintext
-NOTE: This portnum traffic is not sent to the public MQTT starting at firmware version 2.2.9
-"""
-TELEMETRY_APP: PortNum.ValueType  # 67
+TELEMETRY_APP: PortNum.ValueType  # 66
 """
 Provides a format to send and receive telemetry data from the Meshtastic network.
 Maintained by Charles Crossan (crossan007) : crossan007@gmail.com
 ENCODING: Protobuf
 """
-ZPS_APP: PortNum.ValueType  # 68
+ZPS_APP: PortNum.ValueType  # 67
 """
 Experimental tools for estimating node position without a GPS
 Maintained by Github user a-f-G-U-C (a Meshtastic contributor)
 Project files at https://github.com/a-f-G-U-C/Meshtastic-ZPS
 ENCODING: arrays of int64 fields
 """
-SIMULATOR_APP: PortNum.ValueType  # 69
+SIMULATOR_APP: PortNum.ValueType  # 68
 """
 Used to let multiple instances of Linux native applications communicate
-as if they did using their LoRa chip.
+as if they did using their LoRa chip. Payload is an InjectedFrame.
 Maintained by GitHub user GUVWAF.
 Project files at https://github.com/GUVWAF/Meshtasticator
-ENCODING: Protobuf (?)
-"""
-TRACEROUTE_APP: PortNum.ValueType  # 70
-"""
-Provides a traceroute functionality to show the route a packet towards
-a certain destination would take on the mesh. Contains a RouteDiscovery message as payload.
 ENCODING: Protobuf
 """
-NEIGHBORINFO_APP: PortNum.ValueType  # 71
+NEIGHBORINFO_APP: PortNum.ValueType  # 69
 """
 Aggregates edge info for the network by sending out a list of each node's neighbors
 ENCODING: Protobuf
 """
-ATAK_PLUGIN: PortNum.ValueType  # 72
-"""
-ATAK Plugin
-Portnum for payloads from the official Meshtastic ATAK plugin
-"""
-MAP_REPORT_APP: PortNum.ValueType  # 73
+MAP_REPORT_APP: PortNum.ValueType  # 70
 """
 Provides unencrypted information about a node for consumption by a map via MQTT
 """
-POWERSTRESS_APP: PortNum.ValueType  # 74
+POWERSTRESS_APP: PortNum.ValueType  # 71
 """
 PowerStress based monitoring support (for automated power consumption testing)
 """
-LORAWAN_BRIDGE: PortNum.ValueType  # 75
+LORAWAN_BRIDGE: PortNum.ValueType  # 72
 """
 LoraWAN Payload Transport
 ENCODING: LoRaWANBridge protobuf, see lorawan_bridge.proto
 """
-RETICULUM_TUNNEL_APP: PortNum.ValueType  # 76
+RETICULUM_TUNNEL_APP: PortNum.ValueType  # 73
 """
 Reticulum Network Stack Tunnel App
 ENCODING: Fragmented RNS Packet. Handled by Meshtastic RNS interface
 """
-CAYENNE_APP: PortNum.ValueType  # 77
+CAYENNE_APP: PortNum.ValueType  # 74
 """
 App for transporting Cayenne Low Power Payload, popular for LoRaWAN sensor nodes. Offers ability to send
 arbitrary telemetry over meshtastic that is not covered by telemetry.proto
 ENCODING: CayenneLLP
 """
-ATAK_PLUGIN_V2: PortNum.ValueType  # 78
+ATAK_PLUGIN: PortNum.ValueType  # 75
 """
-ATAK Plugin V2
-Portnum for payloads from the official Meshtastic ATAK plugin using
-TAKPacketV2 with zstd dictionary compression.
+ATAK Plugin
+Cursor on Target events from the Meshtastic ATAK plugin, the apps and TAK tracker
+nodes: a flags byte, then a TAKPacket (atak.proto).
+ENCODING: Protobuf, optionally zstd dictionary-compressed
 """
-LORA_OTA_APP: PortNum.ValueType  # 79
+LORA_OTA_APP: PortNum.ValueType  # 76
 """signed firmware updates over lora.
 
 ENCODING: binary (ota-common transport frames)
@@ -523,4 +474,4 @@ MAX: PortNum.ValueType  # 511
 """
 Currently we limit port nums to no higher than this value
 """
-global___PortNum = PortNum
+Global___PortNum: _TypeAlias = PortNum  # noqa: Y015

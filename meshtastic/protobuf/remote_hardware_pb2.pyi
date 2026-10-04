@@ -3,42 +3,43 @@
 isort:skip_file
 """
 
-import builtins
-import google.protobuf.descriptor
-import google.protobuf.internal.enum_type_wrapper
-import google.protobuf.message
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+import builtins as _builtins
 import sys
-import typing
+import typing as _typing
 
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
 else:
-    import typing_extensions
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+DESCRIPTOR: _descriptor.FileDescriptor
 
-@typing.final
-class HardwareMessage(google.protobuf.message.Message):
+@_typing.final
+class HardwareMessage(_message.Message):
     """
     An example app to show off the module system. This message is used for
     REMOTE_HARDWARE_APP PortNums.
     Also provides easy remote access to any GPIO.
     In the future other remote hardware operations can be added based on user interest
     (i.e. serial output, spi/i2c input/output).
-    FIXME - currently this feature is turned on by default which is dangerous
-    because no security yet (beyond the channel mechanism).
-    It should be off by default and then protected based on some TBD mechanism
-    (a special channel once multichannel support is included?)
+
+    The module is off by default, and a node that enables it must reject any HardwareMessage
+    that did not arrive as a PKI direct message from a key listed in
+    RemoteHardwareConfig.authorized_key. A channel key authorises everyone on the channel, which
+    for remote GPIO is no authorisation at all.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
     class _Type:
-        ValueType = typing.NewType("ValueType", builtins.int)
-        V: typing_extensions.TypeAlias = ValueType
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
 
-    class _TypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[HardwareMessage._Type.ValueType], builtins.type):
-        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    class _TypeEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[HardwareMessage._Type.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
         UNSET: HardwareMessage._Type.ValueType  # 0
         """
         Unset/unused
@@ -68,7 +69,7 @@ class HardwareMessage(google.protobuf.message.Message):
 
     class Type(_Type, metaclass=_TypeEnumTypeWrapper):
         """
-        TODO: REPLACE
+        The type of remote hardware GPIO operation being requested or reported
         """
 
     UNSET: HardwareMessage.Type.ValueType  # 0
@@ -98,18 +99,20 @@ class HardwareMessage(google.protobuf.message.Message):
     A reply to READ_GPIOS. gpio_mask and gpio_value will be populated
     """
 
-    TYPE_FIELD_NUMBER: builtins.int
-    GPIO_MASK_FIELD_NUMBER: builtins.int
-    GPIO_VALUE_FIELD_NUMBER: builtins.int
-    type: global___HardwareMessage.Type.ValueType
+    TYPE_FIELD_NUMBER: _builtins.int
+    GPIO_MASK_FIELD_NUMBER: _builtins.int
+    GPIO_VALUE_FIELD_NUMBER: _builtins.int
+    type: Global___HardwareMessage.Type.ValueType
     """
     What type of HardwareMessage is this?
     """
-    gpio_mask: builtins.int
+    gpio_mask: _builtins.int
     """
-    What gpios are we changing. Not used for all MessageTypes, see MessageType for details
+    What gpios are we changing. Not used for all MessageTypes, see MessageType for details.
+    Bit N is pin N, so an addressable pin number is 0 to 63 - the bound that
+    RemoteHardwarePin.gpio_pin carries.
     """
-    gpio_value: builtins.int
+    gpio_value: _builtins.int
     """
     For gpios that were listed in gpio_mask as valid, what are the signal levels for those gpios.
     Not used for all MessageTypes, see MessageType for details
@@ -117,10 +120,14 @@ class HardwareMessage(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        type: global___HardwareMessage.Type.ValueType = ...,
-        gpio_mask: builtins.int = ...,
-        gpio_value: builtins.int = ...,
+        type: Global___HardwareMessage.Type.ValueType = ...,
+        gpio_mask: _builtins.int = ...,
+        gpio_value: _builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["gpio_mask", b"gpio_mask", "gpio_value", b"gpio_value", "type", b"type"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["gpio_mask", b"gpio_mask", "gpio_value", b"gpio_value", "type", b"type"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___HardwareMessage = HardwareMessage
+Global___HardwareMessage: _TypeAlias = HardwareMessage  # noqa: Y015

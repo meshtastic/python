@@ -15,7 +15,7 @@ def test_TCPInterface(capsys):
     """Test that we can instantiate a TCPInterface"""
     with patch("socket.socket") as mock_socket:
         iface = TCPInterface(hostname="localhost", noProto=True)
-        iface.localNode.localConfig.lora.CopyFrom(config_pb2.Config.LoRaConfig())
+        iface.localNode.localConfig.lora.CopyFrom(config_pb2.LoRaConfig())
         iface.myConnect()
         iface.showInfo()
         iface.localNode.showInfo()

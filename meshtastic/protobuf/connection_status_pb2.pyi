@@ -3,41 +3,47 @@
 isort:skip_file
 """
 
-import builtins
-import google.protobuf.descriptor
-import google.protobuf.message
-import typing
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+import builtins as _builtins
+import sys
+import typing as _typing
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
+else:
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-@typing.final
-class DeviceConnectionStatus(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+DESCRIPTOR: _descriptor.FileDescriptor
 
-    WIFI_FIELD_NUMBER: builtins.int
-    ETHERNET_FIELD_NUMBER: builtins.int
-    BLUETOOTH_FIELD_NUMBER: builtins.int
-    SERIAL_FIELD_NUMBER: builtins.int
-    @property
-    def wifi(self) -> global___WifiConnectionStatus:
+@_typing.final
+class DeviceConnectionStatus(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
+
+    WIFI_FIELD_NUMBER: _builtins.int
+    ETHERNET_FIELD_NUMBER: _builtins.int
+    BLUETOOTH_FIELD_NUMBER: _builtins.int
+    SERIAL_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def wifi(self) -> Global___WifiConnectionStatus:
         """
         WiFi Status
         """
 
-    @property
-    def ethernet(self) -> global___EthernetConnectionStatus:
+    @_builtins.property
+    def ethernet(self) -> Global___EthernetConnectionStatus:
         """
         WiFi Status
         """
 
-    @property
-    def bluetooth(self) -> global___BluetoothConnectionStatus:
+    @_builtins.property
+    def bluetooth(self) -> Global___BluetoothConnectionStatus:
         """
         Bluetooth Status
         """
 
-    @property
-    def serial(self) -> global___SerialConnectionStatus:
+    @_builtins.property
+    def serial(self) -> Global___SerialConnectionStatus:
         """
         Serial Status
         """
@@ -45,45 +51,55 @@ class DeviceConnectionStatus(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        wifi: global___WifiConnectionStatus | None = ...,
-        ethernet: global___EthernetConnectionStatus | None = ...,
-        bluetooth: global___BluetoothConnectionStatus | None = ...,
-        serial: global___SerialConnectionStatus | None = ...,
+        wifi: Global___WifiConnectionStatus | None = ...,
+        ethernet: Global___EthernetConnectionStatus | None = ...,
+        bluetooth: Global___BluetoothConnectionStatus | None = ...,
+        serial: Global___SerialConnectionStatus | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_bluetooth", b"_bluetooth", "_ethernet", b"_ethernet", "_serial", b"_serial", "_wifi", b"_wifi", "bluetooth", b"bluetooth", "ethernet", b"ethernet", "serial", b"serial", "wifi", b"wifi"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_bluetooth", b"_bluetooth", "_ethernet", b"_ethernet", "_serial", b"_serial", "_wifi", b"_wifi", "bluetooth", b"bluetooth", "ethernet", b"ethernet", "serial", b"serial", "wifi", b"wifi"]) -> None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_bluetooth", b"_bluetooth"]) -> typing.Literal["bluetooth"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ethernet", b"_ethernet"]) -> typing.Literal["ethernet"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_serial", b"_serial"]) -> typing.Literal["serial"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_wifi", b"_wifi"]) -> typing.Literal["wifi"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_bluetooth", b"_bluetooth", "_ethernet", b"_ethernet", "_serial", b"_serial", "_wifi", b"_wifi", "bluetooth", b"bluetooth", "ethernet", b"ethernet", "serial", b"serial", "wifi", b"wifi"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_bluetooth", b"_bluetooth", "_ethernet", b"_ethernet", "_serial", b"_serial", "_wifi", b"_wifi", "bluetooth", b"bluetooth", "ethernet", b"ethernet", "serial", b"serial", "wifi", b"wifi"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__bluetooth: _TypeAlias = _typing.Literal["bluetooth"]  # noqa: Y015
+    _WhichOneofArgType__bluetooth: _TypeAlias = _typing.Literal["_bluetooth", b"_bluetooth"]  # noqa: Y015
+    _WhichOneofReturnType__ethernet: _TypeAlias = _typing.Literal["ethernet"]  # noqa: Y015
+    _WhichOneofArgType__ethernet: _TypeAlias = _typing.Literal["_ethernet", b"_ethernet"]  # noqa: Y015
+    _WhichOneofReturnType__serial: _TypeAlias = _typing.Literal["serial"]  # noqa: Y015
+    _WhichOneofArgType__serial: _TypeAlias = _typing.Literal["_serial", b"_serial"]  # noqa: Y015
+    _WhichOneofReturnType__wifi: _TypeAlias = _typing.Literal["wifi"]  # noqa: Y015
+    _WhichOneofArgType__wifi: _TypeAlias = _typing.Literal["_wifi", b"_wifi"]  # noqa: Y015
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__bluetooth) -> _WhichOneofReturnType__bluetooth | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__ethernet) -> _WhichOneofReturnType__ethernet | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__serial) -> _WhichOneofReturnType__serial | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__wifi) -> _WhichOneofReturnType__wifi | None: ...
 
-global___DeviceConnectionStatus = DeviceConnectionStatus
+Global___DeviceConnectionStatus: _TypeAlias = DeviceConnectionStatus  # noqa: Y015
 
-@typing.final
-class WifiConnectionStatus(google.protobuf.message.Message):
+@_typing.final
+class WifiConnectionStatus(_message.Message):
     """
     WiFi connection status
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    STATUS_FIELD_NUMBER: builtins.int
-    SSID_FIELD_NUMBER: builtins.int
-    RSSI_FIELD_NUMBER: builtins.int
-    ssid: builtins.str
+    STATUS_FIELD_NUMBER: _builtins.int
+    SSID_FIELD_NUMBER: _builtins.int
+    RSSI_FIELD_NUMBER: _builtins.int
+    ssid: _builtins.str
     """
     WiFi access point SSID
     """
-    rssi: builtins.int
+    rssi: _builtins.int
     """
-    RSSI of wireless connection
+    RSSI of the WiFi connection in whole dBm, negative in practice.
     """
-    @property
-    def status(self) -> global___NetworkConnectionStatus:
+    @_builtins.property
+    def status(self) -> Global___NetworkConnectionStatus:
         """
         Connection status
         """
@@ -91,26 +107,29 @@ class WifiConnectionStatus(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        status: global___NetworkConnectionStatus | None = ...,
-        ssid: builtins.str = ...,
-        rssi: builtins.int = ...,
+        status: Global___NetworkConnectionStatus | None = ...,
+        ssid: _builtins.str = ...,
+        rssi: _builtins.int = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["status", b"status"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["rssi", b"rssi", "ssid", b"ssid", "status", b"status"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["status", b"status"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["rssi", b"rssi", "ssid", b"ssid", "status", b"status"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___WifiConnectionStatus = WifiConnectionStatus
+Global___WifiConnectionStatus: _TypeAlias = WifiConnectionStatus  # noqa: Y015
 
-@typing.final
-class EthernetConnectionStatus(google.protobuf.message.Message):
+@_typing.final
+class EthernetConnectionStatus(_message.Message):
     """
     Ethernet connection status
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    STATUS_FIELD_NUMBER: builtins.int
-    @property
-    def status(self) -> global___NetworkConnectionStatus:
+    STATUS_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def status(self) -> Global___NetworkConnectionStatus:
         """
         Connection status
         """
@@ -118,111 +137,126 @@ class EthernetConnectionStatus(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        status: global___NetworkConnectionStatus | None = ...,
+        status: Global___NetworkConnectionStatus | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["status", b"status"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["status", b"status"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["status", b"status"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["status", b"status"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___EthernetConnectionStatus = EthernetConnectionStatus
+Global___EthernetConnectionStatus: _TypeAlias = EthernetConnectionStatus  # noqa: Y015
 
-@typing.final
-class NetworkConnectionStatus(google.protobuf.message.Message):
+@_typing.final
+class NetworkConnectionStatus(_message.Message):
     """
     Ethernet or WiFi connection status
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    IP_ADDRESS_FIELD_NUMBER: builtins.int
-    IS_CONNECTED_FIELD_NUMBER: builtins.int
-    IS_MQTT_CONNECTED_FIELD_NUMBER: builtins.int
-    IS_SYSLOG_CONNECTED_FIELD_NUMBER: builtins.int
-    ip_address: builtins.int
+    IP_ADDRESS_FIELD_NUMBER: _builtins.int
+    IS_CONNECTED_FIELD_NUMBER: _builtins.int
+    IS_MQTT_CONNECTED_FIELD_NUMBER: _builtins.int
+    IS_SYSLOG_CONNECTED_FIELD_NUMBER: _builtins.int
+    ip_address: _builtins.int
     """
     IP address of device
     """
-    is_connected: builtins.bool
+    is_connected: _builtins.bool
     """
     Whether the device has an active connection or not
     """
-    is_mqtt_connected: builtins.bool
+    is_mqtt_connected: _builtins.bool
     """
     Whether the device has an active connection to an MQTT broker or not
     """
-    is_syslog_connected: builtins.bool
+    is_syslog_connected: _builtins.bool
     """
     Whether the device is actively remote syslogging or not
     """
     def __init__(
         self,
         *,
-        ip_address: builtins.int = ...,
-        is_connected: builtins.bool = ...,
-        is_mqtt_connected: builtins.bool = ...,
-        is_syslog_connected: builtins.bool = ...,
+        ip_address: _builtins.int = ...,
+        is_connected: _builtins.bool = ...,
+        is_mqtt_connected: _builtins.bool = ...,
+        is_syslog_connected: _builtins.bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["ip_address", b"ip_address", "is_connected", b"is_connected", "is_mqtt_connected", b"is_mqtt_connected", "is_syslog_connected", b"is_syslog_connected"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["ip_address", b"ip_address", "is_connected", b"is_connected", "is_mqtt_connected", b"is_mqtt_connected", "is_syslog_connected", b"is_syslog_connected"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___NetworkConnectionStatus = NetworkConnectionStatus
+Global___NetworkConnectionStatus: _TypeAlias = NetworkConnectionStatus  # noqa: Y015
 
-@typing.final
-class BluetoothConnectionStatus(google.protobuf.message.Message):
+@_typing.final
+class BluetoothConnectionStatus(_message.Message):
     """
     Bluetooth connection status
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    PIN_FIELD_NUMBER: builtins.int
-    RSSI_FIELD_NUMBER: builtins.int
-    IS_CONNECTED_FIELD_NUMBER: builtins.int
-    pin: builtins.int
+    PIN_FIELD_NUMBER: _builtins.int
+    RSSI_FIELD_NUMBER: _builtins.int
+    IS_CONNECTED_FIELD_NUMBER: _builtins.int
+    pin: _builtins.int
     """
     The pairing PIN for bluetooth
     """
-    rssi: builtins.int
+    rssi: _builtins.int
     """
-    RSSI of bluetooth connection
+    RSSI of the Bluetooth connection in whole dBm, negative in practice.
     """
-    is_connected: builtins.bool
+    is_connected: _builtins.bool
     """
     Whether the device has an active connection or not
     """
     def __init__(
         self,
         *,
-        pin: builtins.int = ...,
-        rssi: builtins.int = ...,
-        is_connected: builtins.bool = ...,
+        pin: _builtins.int = ...,
+        rssi: _builtins.int = ...,
+        is_connected: _builtins.bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["is_connected", b"is_connected", "pin", b"pin", "rssi", b"rssi"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["is_connected", b"is_connected", "pin", b"pin", "rssi", b"rssi"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___BluetoothConnectionStatus = BluetoothConnectionStatus
+Global___BluetoothConnectionStatus: _TypeAlias = BluetoothConnectionStatus  # noqa: Y015
 
-@typing.final
-class SerialConnectionStatus(google.protobuf.message.Message):
+@_typing.final
+class SerialConnectionStatus(_message.Message):
     """
     Serial connection status
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    BAUD_FIELD_NUMBER: builtins.int
-    IS_CONNECTED_FIELD_NUMBER: builtins.int
-    baud: builtins.int
+    BAUD_FIELD_NUMBER: _builtins.int
+    IS_CONNECTED_FIELD_NUMBER: _builtins.int
+    baud: _builtins.int
     """
     Serial baud rate
     """
-    is_connected: builtins.bool
+    is_connected: _builtins.bool
     """
     Whether the device has an active connection or not
     """
     def __init__(
         self,
         *,
-        baud: builtins.int = ...,
-        is_connected: builtins.bool = ...,
+        baud: _builtins.int = ...,
+        is_connected: _builtins.bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["baud", b"baud", "is_connected", b"is_connected"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["baud", b"baud", "is_connected", b"is_connected"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___SerialConnectionStatus = SerialConnectionStatus
+Global___SerialConnectionStatus: _TypeAlias = SerialConnectionStatus  # noqa: Y015

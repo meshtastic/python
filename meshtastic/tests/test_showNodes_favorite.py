@@ -17,8 +17,7 @@ def _iface_with_favorite_nodes():
                 "id": "!9388f81c",
                 "longName": "Favorite Node",
                 "shortName": "FAV1",
-                "macaddr": "RBeTiPgc",
-                "hwModel": "TBEAM",
+                "hwModel": 4,  # TBEAM
             },
             "position": {},
             "lastHeard": 1640204888,
@@ -30,8 +29,7 @@ def _iface_with_favorite_nodes():
                 "id": "!12345678",
                 "longName": "Regular Node",
                 "shortName": "REG1",
-                "macaddr": "ABCDEFGH",
-                "hwModel": "TLORA_V2",
+                "hwModel": 1,  # TLORA_V2
             },
             "position": {},
             "lastHeard": 1640204999,
@@ -43,8 +41,7 @@ def _iface_with_favorite_nodes():
                 "id": "!abcdef00",
                 "longName": "Legacy Node",
                 "shortName": "LEG1",
-                "macaddr": "XYZABC00",
-                "hwModel": "HELTEC_V3",
+                "hwModel": 43,  # HELTEC_V3
             },
             "position": {},
             "lastHeard": 1640205000,
@@ -59,8 +56,7 @@ def _iface_with_favorite_nodes():
                 "id": "!9388f81c",
                 "longName": "Favorite Node",
                 "shortName": "FAV1",
-                "macaddr": "RBeTiPgc",
-                "hwModel": "TBEAM",
+                "hwModel": 4,  # TBEAM
             },
             "position": {"time": 1640206266},
             "lastHeard": 1640206266,
@@ -72,8 +68,7 @@ def _iface_with_favorite_nodes():
                 "id": "!12345678",
                 "longName": "Regular Node",
                 "shortName": "REG1",
-                "macaddr": "ABCDEFGH",
-                "hwModel": "TLORA_V2",
+                "hwModel": 1,  # TLORA_V2
             },
             "position": {"time": 1640206200},
             "lastHeard": 1640206200,
@@ -85,8 +80,7 @@ def _iface_with_favorite_nodes():
                 "id": "!abcdef00",
                 "longName": "Legacy Node",
                 "shortName": "LEG1",
-                "macaddr": "XYZABC00",
-                "hwModel": "HELTEC_V3",
+                "hwModel": 43,  # HELTEC_V3
             },
             "position": {"time": 1640206100},
             "lastHeard": 1640206100,

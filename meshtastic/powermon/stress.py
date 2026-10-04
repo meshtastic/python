@@ -41,7 +41,7 @@ class PowerStressClient:
         """Client goo for talking with the device side agent."""
         r = powermon_pb2.PowerStressMessage()
         r.cmd = cmd
-        r.num_seconds = num_seconds
+        r.num_seconds = round(num_seconds)  # whole seconds on the wire
 
         return self.iface.sendData(
             r,

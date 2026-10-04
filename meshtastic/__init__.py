@@ -90,17 +90,21 @@ from meshtastic.util import DeferredExecution, Timeout, catchAndIgnore, fixme, s
 
 from .protobuf import (
     admin_pb2,
+    api_pb2,
     apponly_pb2,
     channel_pb2,
+    common_pb2,
     config_pb2,
-    mesh_pb2,
+    discovery_pb2,
     mqtt_pb2,
+    packet_pb2,
     paxcount_pb2,
     portnums_pb2,
     remote_hardware_pb2,
     storeforward_pb2,
     telemetry_pb2,
-    powermon_pb2
+    powermon_pb2,
+    wire_pb2,
 )
 from . import (
     util,
@@ -214,6 +218,7 @@ def _onNodeInfoReceive(iface, asDict):
             # decode user protobufs and update nodedb, provide decoded version as "position" in the published msg
             # update node DB as needed
             n = iface._getOrCreateByNum(asDict["from"])
+            p["id"] = f"!{asDict['from']:08x}"  # 3.0 User carries no id: it is the NodeNum
             n["user"] = p
             # We now have a node ID, make sure it is up-to-date in that table
             iface.nodes[p["id"]] = n
@@ -225,24 +230,19 @@ def _onTelemetryReceive(iface, asDict):
     if "from" not in asDict:
         return
 
-    toUpdate = None
-
     telemetry = asDict.get("decoded", {}).get("telemetry", {})
     node = iface._getOrCreateByNum(asDict["from"])
-    if "deviceMetrics" in telemetry:
-        toUpdate = "deviceMetrics"
-    elif "environmentMetrics" in telemetry:
-        toUpdate = "environmentMetrics"
-    elif "airQualityMetrics" in telemetry:
-        toUpdate = "airQualityMetrics"
-    elif "powerMetrics" in telemetry:
-        toUpdate = "powerMetrics"
-    elif "localStats" in telemetry:
-        toUpdate = "localStats"
+    if "sensorReadings" in telemetry:
+        # Keyed columns, not fields: keep the latest value of each quantity
+        raw = telemetry["raw"]
+        toUpdate = "sensorReadings"
+        updateObj = util.sensor_readings_to_list(raw.sensor_readings, raw.time)[-1]
     else:
-        return
-
-    updateObj = telemetry.get(toUpdate)
+        toUpdate = next((k for k in ("deviceMetrics", "localStats", "hostMetrics", "trafficManagementStats")
+                         if k in telemetry), None)
+        if toUpdate is None:
+            return
+        updateObj = telemetry.get(toUpdate)
     newMetrics = node.get(toUpdate, {})
     newMetrics.update(updateObj)
     logger.debug(f"updating {toUpdate} metrics for {asDict['from']} to {newMetrics}")
@@ -267,39 +267,33 @@ protocols = {
     portnums_pb2.PortNum.TEXT_MESSAGE_APP: KnownProtocol(
         "text", onReceive=_onTextReceive
     ),
-    portnums_pb2.PortNum.RANGE_TEST_APP: KnownProtocol(
-        "rangetest", onReceive=_onTextReceive
-    ),
     portnums_pb2.PortNum.DETECTION_SENSOR_APP: KnownProtocol(
         "detectionsensor", onReceive=_onTextReceive
     ),
 
     portnums_pb2.PortNum.POSITION_APP: KnownProtocol(
-        "position", mesh_pb2.Position, _onPositionReceive
+        "position", wire_pb2.Position, _onPositionReceive
     ),
     portnums_pb2.PortNum.NODEINFO_APP: KnownProtocol(
-        "user", mesh_pb2.User, _onNodeInfoReceive
+        "user", wire_pb2.User, _onNodeInfoReceive
     ),
     portnums_pb2.PortNum.ADMIN_APP: KnownProtocol(
         "admin", admin_pb2.AdminMessage, _onAdminReceive
     ),
-    portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", mesh_pb2.Routing),
+    portnums_pb2.PortNum.ROUTING_APP: KnownProtocol("routing", wire_pb2.Routing),
     portnums_pb2.PortNum.TELEMETRY_APP: KnownProtocol(
         "telemetry", telemetry_pb2.Telemetry, _onTelemetryReceive
     ),
     portnums_pb2.PortNum.REMOTE_HARDWARE_APP: KnownProtocol(
         "remotehw", remote_hardware_pb2.HardwareMessage
     ),
-    portnums_pb2.PortNum.SIMULATOR_APP: KnownProtocol("simulator", mesh_pb2.Compressed),
-    portnums_pb2.PortNum.TRACEROUTE_APP: KnownProtocol(
-        "traceroute", mesh_pb2.RouteDiscovery
-    ),
     portnums_pb2.PortNum.POWERSTRESS_APP: KnownProtocol(
         "powerstress", powermon_pb2.PowerStressMessage
     ),
-    portnums_pb2.PortNum.WAYPOINT_APP: KnownProtocol("waypoint", mesh_pb2.Waypoint),
+    portnums_pb2.PortNum.WAYPOINT_APP: KnownProtocol("waypoint", wire_pb2.Waypoint),
     portnums_pb2.PortNum.PAXCOUNTER_APP: KnownProtocol("paxcounter", paxcount_pb2.Paxcount),
     portnums_pb2.PortNum.STORE_FORWARD_APP: KnownProtocol("storeforward", storeforward_pb2.StoreAndForward),
-    portnums_pb2.PortNum.NEIGHBORINFO_APP: KnownProtocol("neighborinfo", mesh_pb2.NeighborInfo),
+    portnums_pb2.PortNum.NEIGHBORINFO_APP: KnownProtocol("neighborinfo", wire_pb2.NeighborInfo),
+    portnums_pb2.PortNum.NODE_DISCOVERY_APP: KnownProtocol("discovery", discovery_pb2.DiscoveryMessage),
     portnums_pb2.PortNum.MAP_REPORT_APP: KnownProtocol("mapreport", mqtt_pb2.MapReport),
 }

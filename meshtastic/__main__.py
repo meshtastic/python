@@ -30,7 +30,6 @@ except ImportError as e:
     pyqrcode = None
 
 import yaml
-from google.protobuf.json_format import MessageToDict
 from pubsub import pub  # type: ignore[import-untyped]
 
 try:
@@ -47,6 +46,7 @@ import meshtastic.tcp_interface
 from meshtastic import BROADCAST_ADDR, mt_config, remote_hardware
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
+from meshtastic.node import channel_role
 try:
     from meshtastic.powermon import (
         PowerMeter,
@@ -63,7 +63,7 @@ except ImportError as e:
     have_powermon = False
     powermon_exception = e
     meter = None
-from meshtastic.protobuf import admin_pb2, channel_pb2, clientonly_pb2, config_pb2, portnums_pb2, mesh_pb2
+from meshtastic.protobuf import admin_pb2, channel_pb2, clientonly_pb2, common_pb2, config_pb2, portnums_pb2
 from meshtastic.version import get_active_version
 
 logger = logging.getLogger(__name__)
@@ -72,8 +72,8 @@ logger = logging.getLogger(__name__)
 # These fields are stored as uint32 bitmasks in the protobuf but have an
 # associated enum that names the individual flags.
 BITFIELD_ENUMS = {
-    "network.enabled_protocols": config_pb2.Config.NetworkConfig.ProtocolFlags,
-    "position.position_flags": config_pb2.Config.PositionConfig.PositionFlags,
+    "network.enabled_protocols": config_pb2.NetworkConfig.ProtocolFlags,
+    "position.position_flags": config_pb2.PositionConfig.PositionFlags,
 }
 
 def onReceive(packet, interface) -> None:
@@ -99,7 +99,7 @@ def onReceive(packet, interface) -> None:
                 rxChannel = packet.get("channel", 0)
                 targetChannel = int(args.ch_index or 0)
                 if rxChannel == targetChannel:
-                    rxSnr = packet["rxSnr"]
+                    rxSnr = packet.get("rxSnr", 0) / 2
                     hopLimit = packet["hopLimit"]
                     print(f"message: {msg}")
                     reply = f"got msg '{msg}' with rxSnr: {rxSnr} and hopLimit: {hopLimit}"
@@ -121,7 +121,7 @@ def checkChannel(interface: MeshInterface, channelIndex: int) -> bool:
     """Given an interface and channel index, return True if that channel is non-disabled on the local node"""
     ch = interface.localNode.getChannelByChannelIndex(channelIndex)
     logger.debug(f"ch:{ch}")
-    return ch and ch.role != channel_pb2.Channel.Role.DISABLED
+    return ch and channel_role(ch) != "DISABLED"
 
 
 def getPref(node, comp_name) -> bool:
@@ -153,9 +153,12 @@ def getPref(node, comp_name) -> bool:
         objDesc = config.DESCRIPTOR
         config_type = objDesc.fields_by_name.get(name[0])
         pref = ""		#FIXME - is this correct to leave as an empty string if not found?
+        bit = None
         if config_type:
             pref = config_type.message_type.fields_by_name.get(snake_name)
-            if pref or wholeField:
+            if not pref and not wholeField:
+                bit = meshtastic.util.find_bit(config_type.message_type, snake_name)
+            if pref or bit or wholeField:
                 found = True
                 break
 
@@ -172,14 +175,22 @@ def getPref(node, comp_name) -> bool:
     if len(config.ListFields()) != 0 and not isinstance(pref, str): # if str, it's still the empty string, I think
         # read the value
         config_values = getattr(config, config_type.name)
-        if not wholeField:
+        if bit:
+            _printSetting(config_type, uni_name, bool(getattr(config_values, bit[0]) & bit[1]), False)
+        elif not wholeField:
             pref_value = getattr(config_values, pref.name)
             repeated = _is_repeated_field(pref)
             _printSetting(config_type, uni_name, pref_value, repeated)
         else:
+            bits = meshtastic.util.bitfield_bits(config_values.DESCRIPTOR)
+            bitfield_names = {f for f, _ in bits.values()}
             for field in config_values.ListFields():
+                if field[0].name in bitfield_names:
+                    continue  # shown bit by bit below
                 repeated = _is_repeated_field(field[0])
                 _printSetting(config_type, field[0].name, field[1], repeated)
+            for bit_name, (field_name, mask) in bits.items():
+                _printSetting(config_type, bit_name, bool(getattr(config_values, field_name) & mask), False)
     else:
         # Always show whole field for remote node
         node.requestConfig(config_type)
@@ -209,7 +220,7 @@ def traverseConfig(config_root, config, interface_config) -> bool:
     return True
 
 
-def setPref(config, comp_name, raw_val) -> bool:
+def setPref(config, comp_name, raw_val) -> bool:  # pylint: disable=R0911
     """Set a channel or preferences value"""
 
     name = splitCompoundName(comp_name)
@@ -234,6 +245,16 @@ def setPref(config, comp_name, raw_val) -> bool:
     # Others like ChannelSettings are standalone
     elif config_type:
         pref = config_type
+
+    if not pref and config_type and config_type.message_type is not None:
+        bit = meshtastic.util.find_bit(config_type.message_type, snake_name)
+        if bit:
+            val = meshtastic.util.fromStr(raw_val) if isinstance(raw_val, str) else raw_val
+            config_values = getattr(config_part, config_type.name)
+            word = getattr(config_values, bit[0])
+            setattr(config_values, bit[0], word | bit[1] if val else word & ~bit[1])
+            print(f"Set {'.'.join(name[0:-1])}.{uni_name} to {raw_val}")
+            return True
 
     if (not pref) or (not config_type):
         return False
@@ -413,7 +434,7 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
             node = interface.getNode(args.dest, False, **getNode_kwargs)
-            if node.module_available(mesh_pb2.CANNEDMSG_CONFIG):
+            if node.module_available(admin_pb2.AdminMessage.CANNEDMSG_CONFIG):
                 print(f"Setting canned plugin message to {args.set_canned_message}")
                 node.set_canned_message(args.set_canned_message)
             else:
@@ -423,7 +444,7 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
             node = interface.getNode(args.dest, False, **getNode_kwargs)
-            if node.module_available(mesh_pb2.EXTNOTIF_CONFIG):
+            if node.module_available(admin_pb2.AdminMessage.EXTNOTIF_CONFIG):
                 print(f"Setting ringtone to {args.set_ringtone}")
                 node.set_ringtone(args.set_ringtone)
             else:
@@ -477,11 +498,6 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
             interface.getNode(args.dest, False, **getNode_kwargs).reboot()
-
-        if args.reboot_ota:
-            closeNow = True
-            waitForAckNak = True
-            interface.getNode(args.dest, False, **getNode_kwargs).rebootOTA()
 
         if args.ota_update:
             closeNow = True
@@ -622,14 +638,19 @@ def onConnected(interface):
             else:
                 channelIndex = mt_config.channel_index or 0
                 if checkChannel(interface, channelIndex):
+                    # 3.0 carries environment, air quality, power and health as one SensorReadings list
                     telemMap = {
                         "device": "device_metrics",
-                        "environment": "environment_metrics",
-                        "air_quality": "air_quality_metrics",
-                        "airquality": "air_quality_metrics",
-                        "power": "power_metrics",
+                        "sensors": "sensor_readings",
+                        "environment": "sensor_readings",
+                        "air_quality": "sensor_readings",
+                        "airquality": "sensor_readings",
+                        "power": "sensor_readings",
+                        "health": "sensor_readings",
                         "localstats": "local_stats",
                         "local_stats": "local_stats",
+                        "host": "host_metrics",
+                        "traffic": "traffic_management_stats",
                     }
                     telemType = telemMap.get(args.request_telemetry, "device_metrics")
                     print(
@@ -815,8 +836,8 @@ def onConnected(interface):
                     and profile.config.position.fixed_position
                 ):
                     pos = profile.fixed_position
-                    lat = float(pos.latitude_i * Decimal("1e-7")) if pos.latitude_i else 0.0
-                    lon = float(pos.longitude_i * Decimal("1e-7")) if pos.longitude_i else 0.0
+                    lat = float(pos.latitude * Decimal("1e-7")) if pos.latitude else 0.0
+                    lon = float(pos.longitude * Decimal("1e-7")) if pos.longitude else 0.0
                     alt = pos.altitude if pos.altitude else 0
                     print(f"Fixing altitude at {alt} meters")
                     print(f"Fixing latitude at {lat} degrees")
@@ -922,7 +943,6 @@ def onConnected(interface):
                 chs.psk = meshtastic.util.genPSK256()
                 chs.name = args.ch_add
                 ch.settings.CopyFrom(chs)
-                ch.role = channel_pb2.Channel.Role.SECONDARY
                 print(f"Writing modified channels to device")
                 n.writeChannel(ch.index)
                 if channelIndex is None:
@@ -963,35 +983,29 @@ def onConnected(interface):
             node.writeConfig("lora")
 
         # handle the simple radio set commands
-        if args.ch_vlongslow:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.VERY_LONG_SLOW)
-
-        if args.ch_longslow:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_SLOW)
-
         if args.ch_longmod:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_MODERATE)
+            setSimpleConfig(common_pb2.ModemPreset.MODEM_LONG_MODERATE)
 
         if args.ch_longfast:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_FAST)
+            setSimpleConfig(common_pb2.ModemPreset.MODEM_LONG_FAST)
 
         if args.ch_longturbo:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.LONG_TURBO)
+            setSimpleConfig(common_pb2.ModemPreset.MODEM_LONG_TURBO)
 
         if args.ch_medslow:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MEDIUM_SLOW)
+            setSimpleConfig(common_pb2.ModemPreset.MODEM_MEDIUM_SLOW)
 
         if args.ch_medfast:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.MEDIUM_FAST)
+            setSimpleConfig(common_pb2.ModemPreset.MODEM_MEDIUM_FAST)
 
         if args.ch_shortslow:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.SHORT_SLOW)
+            setSimpleConfig(common_pb2.ModemPreset.MODEM_SHORT_SLOW)
 
         if args.ch_shortfast:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.SHORT_FAST)
+            setSimpleConfig(common_pb2.ModemPreset.MODEM_SHORT_FAST)
 
         if args.ch_shortturbo:
-            setSimpleConfig(config_pb2.Config.LoRaConfig.ModemPreset.SHORT_TURBO)
+            setSimpleConfig(common_pb2.ModemPreset.MODEM_SHORT_TURBO)
 
         if args.ch_set or args.ch_enable or args.ch_disable:
             closeNow = True
@@ -1048,14 +1062,11 @@ def onConnected(interface):
 
                 enable = True  # If we set any pref, assume the user wants to enable the channel
 
+            # 3.0 channels have no role: a channel with settings is enabled
             if enable:
-                ch.role = (
-                    channel_pb2.Channel.Role.PRIMARY
-                    if (channelIndex == 0)
-                    else channel_pb2.Channel.Role.SECONDARY
-                )
+                ch.settings.SetInParent()
             else:
-                ch.role = channel_pb2.Channel.Role.DISABLED
+                ch.ClearField("settings")
 
             print(f"Writing modified channels to device")
             node.writeChannel(channelIndex)
@@ -1215,8 +1226,9 @@ def printConfig(config) -> None:
             config = objDesc.fields_by_name.get(config_section.name)
             print(f"{config_section.name}:")
             names = []
-            for field in config.message_type.fields:
-                tmp_name = f"{config_section.name}.{field.name}"
+            bit_names = list(meshtastic.util.bitfield_bits(config.message_type))
+            for field_name in [f.name for f in config.message_type.fields] + bit_names:
+                tmp_name = f"{config_section.name}.{field_name}"
                 if mt_config.camel_case:
                     tmp_name = meshtastic.util.snake_to_camel(tmp_name)
                 names.append(tmp_name)
@@ -1262,18 +1274,11 @@ def export_config(interface) -> str:
     """used in --export-config"""
     configObj = {}
 
-    # A list of configuration keys that should be set to False if they are missing
+    # A list of configuration keys that should be set to False if they are missing. Bitfield
+    # bits need none: they are all exported, set or not.
     config_true_defaults = {
         ("bluetooth", "enabled"),
-        ("lora", "sx126xRxBoostedGain"),
-        ("lora", "txEnabled"),
-        ("lora", "usePreset"),
         ("position", "positionBroadcastSmartEnabled"),
-        ("security", "serialEnabled"),
-    }
-
-    module_true_defaults = {
-        ("mqtt", "encryptionEnabled"),
     }
 
     owner = interface.getLongName()
@@ -1310,7 +1315,7 @@ def export_config(interface) -> str:
         if alt:
             configObj["location"]["alt"] = alt
 
-    config = MessageToDict(interface.localNode.localConfig)	#checkme - Used as a dictionary here and a string below
+    config = meshtastic.util.message_to_dict(interface.localNode.localConfig, all_bits=True)	#checkme - Used as a dictionary here and a string below
                                                                         #was used as a string here and a Dictionary above
     if config:
         # Convert inner keys to correct snake/camelCase
@@ -1326,6 +1331,8 @@ def export_config(interface) -> str:
                     prefs[pref]['privateKey'] = 'base64:' + prefs[pref]['privateKey']
                 if 'publicKey' in prefs[pref]:
                     prefs[pref]['publicKey'] = 'base64:' + prefs[pref]['publicKey']
+                if 'groupPrivateKey' in prefs[pref]:
+                    prefs[pref]['groupPrivateKey'] = 'base64:' + prefs[pref]['groupPrivateKey']
                 if 'adminKey' in prefs[pref]:
                     for i in range(len(prefs[pref]['adminKey'])):
                         prefs[pref]['adminKey'][i] = 'base64:' + prefs[pref]['adminKey'][i]
@@ -1336,7 +1343,7 @@ def export_config(interface) -> str:
 
         set_missing_flags_false(configObj["config"], config_true_defaults)
 
-    module_config = MessageToDict(interface.localNode.moduleConfig)
+    module_config = meshtastic.util.message_to_dict(interface.localNode.moduleConfig, all_bits=True)
     if module_config:
         # Convert inner keys to correct snake/camelCase
         prefs = {}
@@ -1347,8 +1354,6 @@ def export_config(interface) -> str:
             configObj["module_config"] = prefs
         else:
             configObj["module_config"] = prefs
-
-        set_missing_flags_false(configObj["module_config"], module_true_defaults)
 
     config_txt = "# start of Meshtastic configure yaml\n"		#checkme - "config" (now changed to config_out)
                                                                         #was used as a string here and a Dictionary above
@@ -1394,8 +1399,8 @@ def _profile_from_yaml(
         lon = float(loc.get("lon", 0) or 0)
         alt = int(loc.get("alt", 0) or 0)
         if lat or lon or alt:
-            profile.fixed_position.latitude_i = int(Decimal(str(lat)) * Decimal("1e7"))
-            profile.fixed_position.longitude_i = int(Decimal(str(lon)) * Decimal("1e7"))
+            profile.fixed_position.latitude = int(Decimal(str(lat)) * Decimal("1e7"))
+            profile.fixed_position.longitude = int(Decimal(str(lon)) * Decimal("1e7"))
             profile.fixed_position.altitude = alt
     if "config" in configuration:
         for section in configuration["config"]:
@@ -1503,9 +1508,9 @@ def export_profile(interface) -> bytes:
 
             if lat or lon or alt:
                 if lat:
-                    profile.fixed_position.latitude_i = int(Decimal(str(lat)) * Decimal("1e7"))
+                    profile.fixed_position.latitude = int(Decimal(str(lat)) * Decimal("1e7"))
                 if lon:
-                    profile.fixed_position.longitude_i = int(Decimal(str(lon)) * Decimal("1e7"))
+                    profile.fixed_position.longitude = int(Decimal(str(lon)) * Decimal("1e7"))
                 if alt:
                     profile.fixed_position.altitude = int(alt)
 
@@ -1593,7 +1598,7 @@ def common():
         # OTA (WiFi/BLE) only needs the local node to send the admin request and then
         # streams the firmware directly; it never reads the node DB. Skip fetching it so a
         # large node DB dump can't stall/close the connection before the OTA request lands.
-        if getattr(args, "ota_update", None) or getattr(args, "reboot_ota", False):
+        if getattr(args, "ota_update", None):
             args.no_nodes = True
 
         if have_powermon:
@@ -1974,18 +1979,6 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     )
 
     group.add_argument(
-        "--ch-vlongslow",
-        help="Change to the VERY_LONG_SLOW modem preset. Deprecated since 2.5 firmware.",
-        action="store_true",
-    )
-
-    group.add_argument(
-        "--ch-longslow",
-        help="Change to the LONG_SLOW modem preset. Deprecated since 2.7 firmware.",
-        action="store_true",
-    )
-
-    group.add_argument(
         "--ch-longmod", "--ch-longmoderate",
         help="Change to the LONG_MODERATE modem preset",
         action="store_true",
@@ -2248,16 +2241,17 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
 
     group.add_argument(
         "--traceroute",
-        help="Traceroute from connected node to a destination. "
+        help="Trace the route back to the connected node from a destination. "
         "You need pass the destination ID as argument, like "
-        "this: '--traceroute !ba4bf9d0' | '--traceroute 0xba4bf9d0'"
+        "this: '--traceroute !ba4bf9d0' | '--traceroute 0xba4bf9d0'. "
         "Only nodes with a shared channel can be traced.",
         metavar="!xxxxxxxx",
     )
 
     group.add_argument(
         "--request-telemetry",
-        help="Request telemetry from a node. With an argument, requests that specific type of telemetry.  "
+        help="Request telemetry from a node. With an argument, requests that specific type of telemetry: "
+        "device, sensors (environment, air quality, power and health), local_stats, host or traffic. "
         "You need to pass the destination ID as argument with '--dest'. "
         "For repeaters, the nodeNum is required.",
         action="store",
@@ -2296,12 +2290,6 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
 
     group.add_argument(
         "--reboot", help="Tell the destination node to reboot", action="store_true"
-    )
-
-    group.add_argument(
-        "--reboot-ota",
-        help="Tell the destination node to reboot into factory firmware (ESP32, firmware version <2.7.18)",
-        action="store_true",
     )
 
     group.add_argument(

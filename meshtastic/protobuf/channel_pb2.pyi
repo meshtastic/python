@@ -3,22 +3,22 @@
 isort:skip_file
 trunk-ignore(buf-lint/PACKAGE_DIRECTORY_MATCH)"""
 
-import builtins
-import google.protobuf.descriptor
-import google.protobuf.internal.enum_type_wrapper
-import google.protobuf.message
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+import builtins as _builtins
 import sys
-import typing
+import typing as _typing
 
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
 else:
-    import typing_extensions
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+DESCRIPTOR: _descriptor.FileDescriptor
 
-@typing.final
-class ChannelSettings(google.protobuf.message.Message):
+@_typing.final
+class ChannelSettings(_message.Message):
     """
     This information can be encoded as a QRcode/url so that other users can configure
     their radio to join the same channel.
@@ -32,26 +32,74 @@ class ChannelSettings(google.protobuf.message.Message):
     The PSK is hashed into this letter by "0x41 + [xor all bytes of the psk ] modulo 26"
     This also allows the option of someday if people have the PSK off (zero), the
     users COULD type in a channel name and be able to talk.
-    FIXME: Add description of multi-channel support and how primary vs secondary channels are used.
-    FIXME: explain how apps use channels for security.
-    explain how remote settings and remote gpio are managed as an example
+
+    A node holds up to sixteen channels. Index 0 is the primary: its name feeds the frequency
+    slot hash, so it decides where the radio listens, and every other index is an additional key
+    for traffic on that same frequency. An index with no settings is disabled. Position and
+    presence carry that distinction, so there is no role field.
+
+    What a channel key buys is confidentiality and integrity for everyone who holds it, and
+    nothing more. It cannot say which member sent a frame, so per-sender attribution is XEdDSA
+    (Data.xeddsa_signature), and anything that must be authorised to one node rather than to a
+    group travels as a PKI direct message instead: remote administration and remote hardware
+    both work that way.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    CHANNEL_NUM_FIELD_NUMBER: builtins.int
-    PSK_FIELD_NUMBER: builtins.int
-    NAME_FIELD_NUMBER: builtins.int
-    ID_FIELD_NUMBER: builtins.int
-    UPLINK_ENABLED_FIELD_NUMBER: builtins.int
-    DOWNLINK_ENABLED_FIELD_NUMBER: builtins.int
-    MODULE_SETTINGS_FIELD_NUMBER: builtins.int
-    USE_AEAD_FIELD_NUMBER: builtins.int
-    channel_num: builtins.int
-    """
-    Deprecated in favor of LoraConfig.channel_num
-    """
-    psk: builtins.bytes
+    class _Scope:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _ScopeEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[ChannelSettings._Scope.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        SCOPE_UNSET: ChannelSettings._Scope.ValueType  # 0
+        """Treated as REGIONAL"""
+        SCOPE_LOCAL: ChannelSettings._Scope.ValueType  # 1
+        """One or two hops: a site, an event, a household"""
+        SCOPE_REGIONAL: ChannelSettings._Scope.ValueType  # 2
+        """The region's default hop cap"""
+        SCOPE_GLOBAL: ChannelSettings._Scope.ValueType  # 3
+        """Up to the full 15-hop budget, and the only scope that may uplink"""
+
+    class Scope(_Scope, metaclass=_ScopeEnumTypeWrapper):
+        """
+        Intended reach of this channel. It travels in the channel URL, so everyone who
+        joins the channel launches its traffic the same way.
+
+        Scope caps the hop_start a node launches with on this channel, decides whether
+        uplink_enabled may be set, and tells congestion control whether it may raise that
+        cap. It is a sender-side rule: a relay cannot read it, and enforces reach with
+        RelayConfig instead.
+
+        | scope    | launch hop_start | uplink_enabled | congestion control may raise |
+        |----------|------------------|----------------|------------------------------|
+        | LOCAL    | 2                | refused        | no                           |
+        | REGIONAL | region default   | refused        | yes, to the region maximum   |
+        | GLOBAL   | 15               | allowed        | yes                          |
+
+        A direct message launches with the sender's primary-channel scope unless the client
+        sets hop_start itself; after the first flood it steers by next_hop, so the same
+        rule bounds its reach.
+        """
+
+    SCOPE_UNSET: ChannelSettings.Scope.ValueType  # 0
+    """Treated as REGIONAL"""
+    SCOPE_LOCAL: ChannelSettings.Scope.ValueType  # 1
+    """One or two hops: a site, an event, a household"""
+    SCOPE_REGIONAL: ChannelSettings.Scope.ValueType  # 2
+    """The region's default hop cap"""
+    SCOPE_GLOBAL: ChannelSettings.Scope.ValueType  # 3
+    """Up to the full 15-hop budget, and the only scope that may uplink"""
+
+    PSK_FIELD_NUMBER: _builtins.int
+    NAME_FIELD_NUMBER: _builtins.int
+    ID_FIELD_NUMBER: _builtins.int
+    UPLINK_ENABLED_FIELD_NUMBER: _builtins.int
+    DOWNLINK_ENABLED_FIELD_NUMBER: _builtins.int
+    MODULE_SETTINGS_FIELD_NUMBER: _builtins.int
+    SCOPE_FIELD_NUMBER: _builtins.int
+    psk: _builtins.bytes
     """
     A simple pre-shared key for now for crypto.
     Must be either 0 bytes (no crypto), 16 bytes (AES128), or 32 bytes (AES256).
@@ -64,18 +112,17 @@ class ChannelSettings(google.protobuf.message.Message):
     `2` through 10 = The default channel key, except with 1 through 9 added to the last byte.
     Shown to user as simple1 through 10
     """
-    name: builtins.str
+    name: _builtins.str
     """
-    A SHORT name that will be packed into the URL.
+    A short name for end users to call the channel by, packed into the sharing URL.
     Less than 12 bytes.
-    Something for end users to call the channel
-    If this is the empty string it is assumed that this channel
-    is the special (minimally secure) "Default"channel.
-    In user interfaces it should be rendered as a local language translation of "X".
-    For channel_num hashing empty string will be treated as "X".
-    Where "X" is selected based on the English words listed above for ModemPreset
+
+    Empty means the minimally secure default channel: it is named by the modem preset
+    (ModemPresetInfo.name), which is also the name hashed for the frequency slot when
+    LoRaConfig.channel_num is 0. A user interface renders that name, translated where
+    it has a translation.
     """
-    id: builtins.int
+    id: _builtins.int
     """
     Used to construct a globally unique channel ID.
     The full globally unique ID will be: "name.id" where ID is shown as base36.
@@ -84,29 +131,23 @@ class ChannelSettings(google.protobuf.message.Message):
     And the penalty for collision is low as well, it just means that anyone trying to decrypt channel messages might need to
     try multiple candidate channels.
     Any time a non wire compatible change is made to a channel, this field should be regenerated.
-    There are a small number of 'special' globally known (and fairly) insecure standard channels.
-    Those channels do not have a numeric id included in the settings, but instead it is pulled from
-    a table of well known IDs.
-    (see Well Known Channels FIXME)
+    A channel shared by name alone, with no id and the default PSK, is as insecure as its name
+    is public; a sender that wants privacy generates both.
     """
-    uplink_enabled: builtins.bool
+    uplink_enabled: _builtins.bool
     """
     If true, messages on the mesh will be sent to the *public* internet by any gateway ndoe
     """
-    downlink_enabled: builtins.bool
+    downlink_enabled: _builtins.bool
     """
     If true, messages seen on the internet will be forwarded to the local mesh.
     """
-    use_aead: builtins.bool
+    scope: Global___ChannelSettings.Scope.ValueType
     """
-    Enable authenticated encryption (AES-CCM) for this channel.
-    When true, messages include a 12-byte authentication tag that prevents
-    forgery and bit-flipping attacks. All nodes on the channel must have
-    this enabled - unauthenticated (AES-CTR) packets are rejected.
-    Experimental. Default: false (standard AES-CTR encryption).
+    Intended reach of this channel, enforced by senders.
     """
-    @property
-    def module_settings(self) -> global___ModuleSettings:
+    @_builtins.property
+    def module_settings(self) -> Global___ModuleSettings:
         """
         Per-channel module settings.
         """
@@ -114,35 +155,37 @@ class ChannelSettings(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        channel_num: builtins.int = ...,
-        psk: builtins.bytes = ...,
-        name: builtins.str = ...,
-        id: builtins.int = ...,
-        uplink_enabled: builtins.bool = ...,
-        downlink_enabled: builtins.bool = ...,
-        module_settings: global___ModuleSettings | None = ...,
-        use_aead: builtins.bool = ...,
+        psk: _builtins.bytes = ...,
+        name: _builtins.str = ...,
+        id: _builtins.int = ...,
+        uplink_enabled: _builtins.bool = ...,
+        downlink_enabled: _builtins.bool = ...,
+        module_settings: Global___ModuleSettings | None = ...,
+        scope: Global___ChannelSettings.Scope.ValueType = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["module_settings", b"module_settings"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel_num", b"channel_num", "downlink_enabled", b"downlink_enabled", "id", b"id", "module_settings", b"module_settings", "name", b"name", "psk", b"psk", "uplink_enabled", b"uplink_enabled", "use_aead", b"use_aead"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["module_settings", b"module_settings"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["downlink_enabled", b"downlink_enabled", "id", b"id", "module_settings", b"module_settings", "name", b"name", "psk", b"psk", "scope", b"scope", "uplink_enabled", b"uplink_enabled"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___ChannelSettings = ChannelSettings
+Global___ChannelSettings: _TypeAlias = ChannelSettings  # noqa: Y015
 
-@typing.final
-class ModuleSettings(google.protobuf.message.Message):
+@_typing.final
+class ModuleSettings(_message.Message):
     """
     This message is specifically for modules to store per-channel configuration data.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    POSITION_PRECISION_FIELD_NUMBER: builtins.int
-    IS_MUTED_FIELD_NUMBER: builtins.int
-    position_precision: builtins.int
+    POSITION_PRECISION_FIELD_NUMBER: _builtins.int
+    IS_MUTED_FIELD_NUMBER: _builtins.int
+    position_precision: _builtins.int
     """
     Bits of precision for the location sent in position packets.
     """
-    is_muted: builtins.bool
+    is_muted: _builtins.bool
     """
     Controls whether or not the client / device should mute the current channel
     Useful for noisy public channels you don't necessarily want to disable
@@ -150,95 +193,53 @@ class ModuleSettings(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        position_precision: builtins.int = ...,
-        is_muted: builtins.bool = ...,
+        position_precision: _builtins.int = ...,
+        is_muted: _builtins.bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["is_muted", b"is_muted", "position_precision", b"position_precision"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["is_muted", b"is_muted", "position_precision", b"position_precision"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___ModuleSettings = ModuleSettings
+Global___ModuleSettings: _TypeAlias = ModuleSettings  # noqa: Y015
 
-@typing.final
-class Channel(google.protobuf.message.Message):
+@_typing.final
+class Channel(_message.Message):
     """
     A pair of a channel number, mode and the (sharable) settings for that channel
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    class _Role:
-        ValueType = typing.NewType("ValueType", builtins.int)
-        V: typing_extensions.TypeAlias = ValueType
+    INDEX_FIELD_NUMBER: _builtins.int
+    SETTINGS_FIELD_NUMBER: _builtins.int
+    index: _builtins.int
+    """
+    The index of this channel in the channel table, 0 to MAX_NUM_CHANNELS-1.
+    MAX_NUM_CHANNELS is 16 in 3.0, up from 8.
 
-    class _RoleEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Channel._Role.ValueType], builtins.type):
-        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-        DISABLED: Channel._Role.ValueType  # 0
+    Index 0 is the primary channel: it is the one whose name LoRaConfig.channel_num
+    can hash, so it decides where the radio listens. Every other index is a key for
+    decrypting traffic on that same frequency. Position carries this distinction, so
+    no role field states it.
+    """
+    @_builtins.property
+    def settings(self) -> Global___ChannelSettings:
         """
-        This channel is not in use right now
-        """
-        PRIMARY: Channel._Role.ValueType  # 1
-        """
-        This channel is used to set the frequency for the radio - all other enabled channels must be SECONDARY
-        """
-        SECONDARY: Channel._Role.ValueType  # 2
-        """
-        Secondary channels are only used for encryption/decryption/authentication purposes.
-        Their radio settings (freq etc) are ignored, only psk is used.
-        """
-
-    class Role(_Role, metaclass=_RoleEnumTypeWrapper):
-        """
-        How this channel is being used (or not).
-        Note: this field is an enum to give us options for the future.
-        In particular, someday we might make a 'SCANNING' option.
-        SCANNING channels could have different frequencies and the radio would
-        occasionally check that freq to see if anything is being transmitted.
-        For devices that have multiple physical radios attached, we could keep multiple PRIMARY/SCANNING channels active at once to allow
-        cross band routing as needed.
-        If a device has only a single radio (the common case) only one channel can be PRIMARY at a time
-        (but any number of SECONDARY channels can't be sent received on that common frequency)
-        """
-
-    DISABLED: Channel.Role.ValueType  # 0
-    """
-    This channel is not in use right now
-    """
-    PRIMARY: Channel.Role.ValueType  # 1
-    """
-    This channel is used to set the frequency for the radio - all other enabled channels must be SECONDARY
-    """
-    SECONDARY: Channel.Role.ValueType  # 2
-    """
-    Secondary channels are only used for encryption/decryption/authentication purposes.
-    Their radio settings (freq etc) are ignored, only psk is used.
-    """
-
-    INDEX_FIELD_NUMBER: builtins.int
-    SETTINGS_FIELD_NUMBER: builtins.int
-    ROLE_FIELD_NUMBER: builtins.int
-    index: builtins.int
-    """
-    The index of this channel in the channel table (from 0 to MAX_NUM_CHANNELS-1)
-    (Someday - not currently implemented) An index of -1 could be used to mean "set by name",
-    in which case the target node will find and set the channel by settings.name.
-    """
-    role: global___Channel.Role.ValueType
-    """
-    TODO: REPLACE
-    """
-    @property
-    def settings(self) -> global___ChannelSettings:
-        """
-        The new settings, or NULL to disable that channel
+        The settings for this channel. Absent means the channel is disabled.
         """
 
     def __init__(
         self,
         *,
-        index: builtins.int = ...,
-        settings: global___ChannelSettings | None = ...,
-        role: global___Channel.Role.ValueType = ...,
+        index: _builtins.int = ...,
+        settings: Global___ChannelSettings | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["settings", b"settings"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["index", b"index", "role", b"role", "settings", b"settings"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["settings", b"settings"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["index", b"index", "settings", b"settings"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___Channel = Channel
+Global___Channel: _TypeAlias = Channel  # noqa: Y015

@@ -3,28 +3,28 @@
 isort:skip_file
 """
 
-import builtins
-import collections.abc
-import google.protobuf.descriptor
-import google.protobuf.internal.containers
-import google.protobuf.internal.enum_type_wrapper
-import google.protobuf.message
+from collections import abc as _abc
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+import builtins as _builtins
 import sys
-import typing
+import typing as _typing
 
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
 else:
-    import typing_extensions
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+DESCRIPTOR: _descriptor.FileDescriptor
 
 class _TelemetrySensorType:
-    ValueType = typing.NewType("ValueType", builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
+    ValueType = _typing.NewType("ValueType", _builtins.int)
+    V: _TypeAlias = ValueType  # noqa: Y015
 
-class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_TelemetrySensorType.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+class _TelemetrySensorTypeEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_TelemetrySensorType.ValueType], _builtins.type):
+    DESCRIPTOR: _descriptor.EnumDescriptor
     SENSOR_UNSET: _TelemetrySensorType.ValueType  # 0
     """
     No external telemetry sensor explicitly set
@@ -53,207 +53,192 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     High accuracy temperature and pressure
     """
-    SHTC3: _TelemetrySensorType.ValueType  # 7
-    """
-    TODO - REMOVE High accuracy temperature and humidity
-    """
-    LPS22: _TelemetrySensorType.ValueType  # 8
+    LPS22: _TelemetrySensorType.ValueType  # 7
     """
     High accuracy pressure
     """
-    QMC6310: _TelemetrySensorType.ValueType  # 9
+    QMC6310: _TelemetrySensorType.ValueType  # 8
     """
     3-Axis magnetic sensor
     """
-    QMI8658: _TelemetrySensorType.ValueType  # 10
+    QMI8658: _TelemetrySensorType.ValueType  # 9
     """
     6-Axis inertial measurement sensor
     """
-    QMC5883L: _TelemetrySensorType.ValueType  # 11
+    QMC5883L: _TelemetrySensorType.ValueType  # 10
     """
     3-Axis magnetic sensor
     """
-    SHT31: _TelemetrySensorType.ValueType  # 12
-    """
-    TODO - REMOVE High accuracy temperature and humidity
-    """
-    PMSA003I: _TelemetrySensorType.ValueType  # 13
+    PMSA003I: _TelemetrySensorType.ValueType  # 11
     """
     PM2.5 air quality sensor
     """
-    INA3221: _TelemetrySensorType.ValueType  # 14
+    INA3221: _TelemetrySensorType.ValueType  # 12
     """
     INA3221 3 Channel Voltage / Current Sensor
     """
-    BMP085: _TelemetrySensorType.ValueType  # 15
+    BMP085: _TelemetrySensorType.ValueType  # 13
     """
     BMP085/BMP180 High accuracy temperature and pressure (older Version of BMP280)
     """
-    RCWL9620: _TelemetrySensorType.ValueType  # 16
+    RCWL9620: _TelemetrySensorType.ValueType  # 14
     """
     RCWL-9620 Doppler Radar Distance Sensor, used for water level detection
     """
-    SHT4X: _TelemetrySensorType.ValueType  # 17
-    """
-    TODO - REMOVE Sensirion High accuracy temperature and humidity
-    """
-    VEML7700: _TelemetrySensorType.ValueType  # 18
+    VEML7700: _TelemetrySensorType.ValueType  # 15
     """
     VEML7700 high accuracy ambient light(Lux) digital 16-bit resolution sensor.
     """
-    MLX90632: _TelemetrySensorType.ValueType  # 19
+    MLX90632: _TelemetrySensorType.ValueType  # 16
     """
     MLX90632 non-contact IR temperature sensor.
     """
-    OPT3001: _TelemetrySensorType.ValueType  # 20
+    OPT3001: _TelemetrySensorType.ValueType  # 17
     """
     TI OPT3001 Ambient Light Sensor
     """
-    LTR390UV: _TelemetrySensorType.ValueType  # 21
+    LTR390UV: _TelemetrySensorType.ValueType  # 18
     """
     Lite On LTR-390UV-01 UV Light Sensor
     """
-    TSL25911FN: _TelemetrySensorType.ValueType  # 22
+    TSL25911FN: _TelemetrySensorType.ValueType  # 19
     """
     AMS TSL25911FN RGB Light Sensor
     """
-    AHT10: _TelemetrySensorType.ValueType  # 23
+    AHT10: _TelemetrySensorType.ValueType  # 20
     """
     AHT10 Integrated temperature and humidity sensor
     """
-    DFROBOT_LARK: _TelemetrySensorType.ValueType  # 24
+    DFROBOT_LARK: _TelemetrySensorType.ValueType  # 21
     """
     DFRobot Lark Weather station (temperature, humidity, pressure, wind speed and direction)
     """
-    NAU7802: _TelemetrySensorType.ValueType  # 25
+    NAU7802: _TelemetrySensorType.ValueType  # 22
     """
     NAU7802 Scale Chip or compatible
     """
-    BMP3XX: _TelemetrySensorType.ValueType  # 26
+    BMP3XX: _TelemetrySensorType.ValueType  # 23
     """
     BMP3XX High accuracy temperature and pressure
     """
-    ICM20948: _TelemetrySensorType.ValueType  # 27
+    ICM20948: _TelemetrySensorType.ValueType  # 24
     """
     ICM-20948 9-Axis digital motion processor
     """
-    MAX17048: _TelemetrySensorType.ValueType  # 28
+    MAX17048: _TelemetrySensorType.ValueType  # 25
     """
     MAX17048 1S lipo battery sensor (voltage, state of charge, time to go)
     """
-    CUSTOM_SENSOR: _TelemetrySensorType.ValueType  # 29
+    CUSTOM_SENSOR: _TelemetrySensorType.ValueType  # 26
     """
     Custom I2C sensor implementation based on https://github.com/meshtastic/i2c-sensor
     """
-    MAX30102: _TelemetrySensorType.ValueType  # 30
+    MAX30102: _TelemetrySensorType.ValueType  # 27
     """
     MAX30102 Pulse Oximeter and Heart-Rate Sensor
     """
-    MLX90614: _TelemetrySensorType.ValueType  # 31
+    MLX90614: _TelemetrySensorType.ValueType  # 28
     """
     MLX90614 non-contact IR temperature sensor
     """
-    SCD4X: _TelemetrySensorType.ValueType  # 32
+    SCD4X: _TelemetrySensorType.ValueType  # 29
     """
     SCD40/SCD41 CO2, humidity, temperature sensor
     """
-    RADSENS: _TelemetrySensorType.ValueType  # 33
+    RADSENS: _TelemetrySensorType.ValueType  # 30
     """
     ClimateGuard RadSens, radiation, Geiger-Muller Tube
     """
-    INA226: _TelemetrySensorType.ValueType  # 34
+    INA226: _TelemetrySensorType.ValueType  # 31
     """
     High accuracy current and voltage
     """
-    DFROBOT_RAIN: _TelemetrySensorType.ValueType  # 35
+    DFROBOT_RAIN: _TelemetrySensorType.ValueType  # 32
     """
     DFRobot Gravity tipping bucket rain gauge
     """
-    DPS310: _TelemetrySensorType.ValueType  # 36
+    DPS310: _TelemetrySensorType.ValueType  # 33
     """
     Infineon DPS310 High accuracy pressure and temperature
     """
-    RAK12035: _TelemetrySensorType.ValueType  # 37
+    RAK12035: _TelemetrySensorType.ValueType  # 34
     """
     RAKWireless RAK12035 Soil Moisture Sensor Module
     """
-    MAX17261: _TelemetrySensorType.ValueType  # 38
+    MAX17261: _TelemetrySensorType.ValueType  # 35
     """
     MAX17261 lipo battery gauge
     """
-    PCT2075: _TelemetrySensorType.ValueType  # 39
+    PCT2075: _TelemetrySensorType.ValueType  # 36
     """
     PCT2075 Temperature Sensor
     """
-    ADS1X15: _TelemetrySensorType.ValueType  # 40
+    ADS1X15: _TelemetrySensorType.ValueType  # 37
     """
     ADS1X15 ADC
     """
-    ADS1X15_ALT: _TelemetrySensorType.ValueType  # 41
+    ADS1X15_ALT: _TelemetrySensorType.ValueType  # 38
     """
     ADS1X15 ADC_ALT
     """
-    SFA30: _TelemetrySensorType.ValueType  # 42
+    SFA30: _TelemetrySensorType.ValueType  # 39
     """
     Sensirion SFA30 Formaldehyde sensor
     """
-    SEN5X: _TelemetrySensorType.ValueType  # 43
+    SEN5X: _TelemetrySensorType.ValueType  # 40
     """
     SEN5X PM SENSORS
     """
-    TSL2561: _TelemetrySensorType.ValueType  # 44
+    TSL2561: _TelemetrySensorType.ValueType  # 41
     """
     TSL2561 light sensor
     """
-    BH1750: _TelemetrySensorType.ValueType  # 45
+    BH1750: _TelemetrySensorType.ValueType  # 42
     """
     BH1750 light sensor
     """
-    HDC1080: _TelemetrySensorType.ValueType  # 46
+    HDC1080: _TelemetrySensorType.ValueType  # 43
     """
     HDC1080 Temperature and Humidity Sensor
     """
-    SHT21: _TelemetrySensorType.ValueType  # 47
-    """
-    TODO - REMOVE STH21 Temperature and R. Humidity sensor
-    """
-    STC31: _TelemetrySensorType.ValueType  # 48
+    STC31: _TelemetrySensorType.ValueType  # 44
     """
     Sensirion STC31 CO2 sensor
     """
-    SCD30: _TelemetrySensorType.ValueType  # 49
+    SCD30: _TelemetrySensorType.ValueType  # 45
     """
     SCD30 CO2, humidity, temperature sensor
     """
-    SHTXX: _TelemetrySensorType.ValueType  # 50
+    SHTXX: _TelemetrySensorType.ValueType  # 46
     """
-    SHT family of sensors for temperature and humidity
+    Sensirion SHT family for temperature and humidity: SHTC3, SHT21, SHT31, SHT4X and the
+    rest. One value, because the driver is one.
     """
-    DS248X: _TelemetrySensorType.ValueType  # 51
+    DS248X: _TelemetrySensorType.ValueType  # 47
     """
     DS248X Bridge for one-wire temperature sensors
     """
-    MMC5983MA: _TelemetrySensorType.ValueType  # 52
+    MMC5983MA: _TelemetrySensorType.ValueType  # 48
     """
     MMC5983MA 3-Axis Digital Magnetic Sensor
     """
-    ICM42607P: _TelemetrySensorType.ValueType  # 53
+    ICM42607P: _TelemetrySensorType.ValueType  # 49
     """
     ICM-42607-P 6-Axis IMU
     """
-    SPA06: _TelemetrySensorType.ValueType  # 54
+    SPA06: _TelemetrySensorType.ValueType  # 50
     """
     SPA06 pressure and temperature
     """
-    HM330X: _TelemetrySensorType.ValueType  # 55
+    HM330X: _TelemetrySensorType.ValueType  # 51
     """
     HM330X PM SENSOR
     """
-    SEN6X: _TelemetrySensorType.ValueType  # 56
+    SEN6X: _TelemetrySensorType.ValueType  # 52
     """
     Sensirion SEN6X PM/RHT/VOC/NOx/CO2/HCHO sensor family (SEN62, SEN63C, SEN65, SEN66, SEN68, SEN69C)
     """
-    AS3935: _TelemetrySensorType.ValueType  # 57
+    AS3935: _TelemetrySensorType.ValueType  # 53
     """
     AS3935 Franklin lightning sensor
     """
@@ -291,1387 +276,559 @@ BMP280: TelemetrySensorType.ValueType  # 6
 """
 High accuracy temperature and pressure
 """
-SHTC3: TelemetrySensorType.ValueType  # 7
-"""
-TODO - REMOVE High accuracy temperature and humidity
-"""
-LPS22: TelemetrySensorType.ValueType  # 8
+LPS22: TelemetrySensorType.ValueType  # 7
 """
 High accuracy pressure
 """
-QMC6310: TelemetrySensorType.ValueType  # 9
+QMC6310: TelemetrySensorType.ValueType  # 8
 """
 3-Axis magnetic sensor
 """
-QMI8658: TelemetrySensorType.ValueType  # 10
+QMI8658: TelemetrySensorType.ValueType  # 9
 """
 6-Axis inertial measurement sensor
 """
-QMC5883L: TelemetrySensorType.ValueType  # 11
+QMC5883L: TelemetrySensorType.ValueType  # 10
 """
 3-Axis magnetic sensor
 """
-SHT31: TelemetrySensorType.ValueType  # 12
-"""
-TODO - REMOVE High accuracy temperature and humidity
-"""
-PMSA003I: TelemetrySensorType.ValueType  # 13
+PMSA003I: TelemetrySensorType.ValueType  # 11
 """
 PM2.5 air quality sensor
 """
-INA3221: TelemetrySensorType.ValueType  # 14
+INA3221: TelemetrySensorType.ValueType  # 12
 """
 INA3221 3 Channel Voltage / Current Sensor
 """
-BMP085: TelemetrySensorType.ValueType  # 15
+BMP085: TelemetrySensorType.ValueType  # 13
 """
 BMP085/BMP180 High accuracy temperature and pressure (older Version of BMP280)
 """
-RCWL9620: TelemetrySensorType.ValueType  # 16
+RCWL9620: TelemetrySensorType.ValueType  # 14
 """
 RCWL-9620 Doppler Radar Distance Sensor, used for water level detection
 """
-SHT4X: TelemetrySensorType.ValueType  # 17
-"""
-TODO - REMOVE Sensirion High accuracy temperature and humidity
-"""
-VEML7700: TelemetrySensorType.ValueType  # 18
+VEML7700: TelemetrySensorType.ValueType  # 15
 """
 VEML7700 high accuracy ambient light(Lux) digital 16-bit resolution sensor.
 """
-MLX90632: TelemetrySensorType.ValueType  # 19
+MLX90632: TelemetrySensorType.ValueType  # 16
 """
 MLX90632 non-contact IR temperature sensor.
 """
-OPT3001: TelemetrySensorType.ValueType  # 20
+OPT3001: TelemetrySensorType.ValueType  # 17
 """
 TI OPT3001 Ambient Light Sensor
 """
-LTR390UV: TelemetrySensorType.ValueType  # 21
+LTR390UV: TelemetrySensorType.ValueType  # 18
 """
 Lite On LTR-390UV-01 UV Light Sensor
 """
-TSL25911FN: TelemetrySensorType.ValueType  # 22
+TSL25911FN: TelemetrySensorType.ValueType  # 19
 """
 AMS TSL25911FN RGB Light Sensor
 """
-AHT10: TelemetrySensorType.ValueType  # 23
+AHT10: TelemetrySensorType.ValueType  # 20
 """
 AHT10 Integrated temperature and humidity sensor
 """
-DFROBOT_LARK: TelemetrySensorType.ValueType  # 24
+DFROBOT_LARK: TelemetrySensorType.ValueType  # 21
 """
 DFRobot Lark Weather station (temperature, humidity, pressure, wind speed and direction)
 """
-NAU7802: TelemetrySensorType.ValueType  # 25
+NAU7802: TelemetrySensorType.ValueType  # 22
 """
 NAU7802 Scale Chip or compatible
 """
-BMP3XX: TelemetrySensorType.ValueType  # 26
+BMP3XX: TelemetrySensorType.ValueType  # 23
 """
 BMP3XX High accuracy temperature and pressure
 """
-ICM20948: TelemetrySensorType.ValueType  # 27
+ICM20948: TelemetrySensorType.ValueType  # 24
 """
 ICM-20948 9-Axis digital motion processor
 """
-MAX17048: TelemetrySensorType.ValueType  # 28
+MAX17048: TelemetrySensorType.ValueType  # 25
 """
 MAX17048 1S lipo battery sensor (voltage, state of charge, time to go)
 """
-CUSTOM_SENSOR: TelemetrySensorType.ValueType  # 29
+CUSTOM_SENSOR: TelemetrySensorType.ValueType  # 26
 """
 Custom I2C sensor implementation based on https://github.com/meshtastic/i2c-sensor
 """
-MAX30102: TelemetrySensorType.ValueType  # 30
+MAX30102: TelemetrySensorType.ValueType  # 27
 """
 MAX30102 Pulse Oximeter and Heart-Rate Sensor
 """
-MLX90614: TelemetrySensorType.ValueType  # 31
+MLX90614: TelemetrySensorType.ValueType  # 28
 """
 MLX90614 non-contact IR temperature sensor
 """
-SCD4X: TelemetrySensorType.ValueType  # 32
+SCD4X: TelemetrySensorType.ValueType  # 29
 """
 SCD40/SCD41 CO2, humidity, temperature sensor
 """
-RADSENS: TelemetrySensorType.ValueType  # 33
+RADSENS: TelemetrySensorType.ValueType  # 30
 """
 ClimateGuard RadSens, radiation, Geiger-Muller Tube
 """
-INA226: TelemetrySensorType.ValueType  # 34
+INA226: TelemetrySensorType.ValueType  # 31
 """
 High accuracy current and voltage
 """
-DFROBOT_RAIN: TelemetrySensorType.ValueType  # 35
+DFROBOT_RAIN: TelemetrySensorType.ValueType  # 32
 """
 DFRobot Gravity tipping bucket rain gauge
 """
-DPS310: TelemetrySensorType.ValueType  # 36
+DPS310: TelemetrySensorType.ValueType  # 33
 """
 Infineon DPS310 High accuracy pressure and temperature
 """
-RAK12035: TelemetrySensorType.ValueType  # 37
+RAK12035: TelemetrySensorType.ValueType  # 34
 """
 RAKWireless RAK12035 Soil Moisture Sensor Module
 """
-MAX17261: TelemetrySensorType.ValueType  # 38
+MAX17261: TelemetrySensorType.ValueType  # 35
 """
 MAX17261 lipo battery gauge
 """
-PCT2075: TelemetrySensorType.ValueType  # 39
+PCT2075: TelemetrySensorType.ValueType  # 36
 """
 PCT2075 Temperature Sensor
 """
-ADS1X15: TelemetrySensorType.ValueType  # 40
+ADS1X15: TelemetrySensorType.ValueType  # 37
 """
 ADS1X15 ADC
 """
-ADS1X15_ALT: TelemetrySensorType.ValueType  # 41
+ADS1X15_ALT: TelemetrySensorType.ValueType  # 38
 """
 ADS1X15 ADC_ALT
 """
-SFA30: TelemetrySensorType.ValueType  # 42
+SFA30: TelemetrySensorType.ValueType  # 39
 """
 Sensirion SFA30 Formaldehyde sensor
 """
-SEN5X: TelemetrySensorType.ValueType  # 43
+SEN5X: TelemetrySensorType.ValueType  # 40
 """
 SEN5X PM SENSORS
 """
-TSL2561: TelemetrySensorType.ValueType  # 44
+TSL2561: TelemetrySensorType.ValueType  # 41
 """
 TSL2561 light sensor
 """
-BH1750: TelemetrySensorType.ValueType  # 45
+BH1750: TelemetrySensorType.ValueType  # 42
 """
 BH1750 light sensor
 """
-HDC1080: TelemetrySensorType.ValueType  # 46
+HDC1080: TelemetrySensorType.ValueType  # 43
 """
 HDC1080 Temperature and Humidity Sensor
 """
-SHT21: TelemetrySensorType.ValueType  # 47
-"""
-TODO - REMOVE STH21 Temperature and R. Humidity sensor
-"""
-STC31: TelemetrySensorType.ValueType  # 48
+STC31: TelemetrySensorType.ValueType  # 44
 """
 Sensirion STC31 CO2 sensor
 """
-SCD30: TelemetrySensorType.ValueType  # 49
+SCD30: TelemetrySensorType.ValueType  # 45
 """
 SCD30 CO2, humidity, temperature sensor
 """
-SHTXX: TelemetrySensorType.ValueType  # 50
+SHTXX: TelemetrySensorType.ValueType  # 46
 """
-SHT family of sensors for temperature and humidity
+Sensirion SHT family for temperature and humidity: SHTC3, SHT21, SHT31, SHT4X and the
+rest. One value, because the driver is one.
 """
-DS248X: TelemetrySensorType.ValueType  # 51
+DS248X: TelemetrySensorType.ValueType  # 47
 """
 DS248X Bridge for one-wire temperature sensors
 """
-MMC5983MA: TelemetrySensorType.ValueType  # 52
+MMC5983MA: TelemetrySensorType.ValueType  # 48
 """
 MMC5983MA 3-Axis Digital Magnetic Sensor
 """
-ICM42607P: TelemetrySensorType.ValueType  # 53
+ICM42607P: TelemetrySensorType.ValueType  # 49
 """
 ICM-42607-P 6-Axis IMU
 """
-SPA06: TelemetrySensorType.ValueType  # 54
+SPA06: TelemetrySensorType.ValueType  # 50
 """
 SPA06 pressure and temperature
 """
-HM330X: TelemetrySensorType.ValueType  # 55
+HM330X: TelemetrySensorType.ValueType  # 51
 """
 HM330X PM SENSOR
 """
-SEN6X: TelemetrySensorType.ValueType  # 56
+SEN6X: TelemetrySensorType.ValueType  # 52
 """
 Sensirion SEN6X PM/RHT/VOC/NOx/CO2/HCHO sensor family (SEN62, SEN63C, SEN65, SEN66, SEN68, SEN69C)
 """
-AS3935: TelemetrySensorType.ValueType  # 57
+AS3935: TelemetrySensorType.ValueType  # 53
 """
 AS3935 Franklin lightning sensor
 """
-global___TelemetrySensorType = TelemetrySensorType
+Global___TelemetrySensorType: _TypeAlias = TelemetrySensorType  # noqa: Y015
 
-@typing.final
-class DeviceMetrics(google.protobuf.message.Message):
+@_typing.final
+class DeviceMetrics(_message.Message):
     """
     Key native device metrics such as battery level
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    BATTERY_LEVEL_FIELD_NUMBER: builtins.int
-    VOLTAGE_FIELD_NUMBER: builtins.int
-    CHANNEL_UTILIZATION_FIELD_NUMBER: builtins.int
-    AIR_UTIL_TX_FIELD_NUMBER: builtins.int
-    UPTIME_SECONDS_FIELD_NUMBER: builtins.int
-    battery_level: builtins.int
+    BATTERY_LEVEL_FIELD_NUMBER: _builtins.int
+    VOLTAGE_FIELD_NUMBER: _builtins.int
+    CHANNEL_UTILIZATION_FIELD_NUMBER: _builtins.int
+    AIR_UTIL_TX_FIELD_NUMBER: _builtins.int
+    UPTIME_SECONDS_FIELD_NUMBER: _builtins.int
+    battery_level: _builtins.int
     """
     0-100 (>100 means powered)
     """
-    voltage: builtins.float
+    voltage: _builtins.int
     """
-    Voltage measured
+    Voltage in mV (millivolts)
     """
-    channel_utilization: builtins.float
+    channel_utilization: _builtins.int
     """
-    Utilization for the current channel, including well formed TX, RX and malformed RX (aka noise).
+    Channel utilization x100 (e.g. 2550 = 25.50%)
     """
-    air_util_tx: builtins.float
+    air_util_tx: _builtins.int
     """
-    Percent of airtime for transmission used within the last hour.
+    Percent of airtime for TX x100 (e.g. 1025 = 10.25%)
     """
-    uptime_seconds: builtins.int
+    uptime_seconds: _builtins.int
     """
     How long the device has been running since the last reboot (in seconds)
     """
     def __init__(
         self,
         *,
-        battery_level: builtins.int | None = ...,
-        voltage: builtins.float | None = ...,
-        channel_utilization: builtins.float | None = ...,
-        air_util_tx: builtins.float | None = ...,
-        uptime_seconds: builtins.int | None = ...,
+        battery_level: _builtins.int | None = ...,
+        voltage: _builtins.int | None = ...,
+        channel_utilization: _builtins.int | None = ...,
+        air_util_tx: _builtins.int | None = ...,
+        uptime_seconds: _builtins.int | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_air_util_tx", b"_air_util_tx", "_battery_level", b"_battery_level", "_channel_utilization", b"_channel_utilization", "_uptime_seconds", b"_uptime_seconds", "_voltage", b"_voltage", "air_util_tx", b"air_util_tx", "battery_level", b"battery_level", "channel_utilization", b"channel_utilization", "uptime_seconds", b"uptime_seconds", "voltage", b"voltage"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_air_util_tx", b"_air_util_tx", "_battery_level", b"_battery_level", "_channel_utilization", b"_channel_utilization", "_uptime_seconds", b"_uptime_seconds", "_voltage", b"_voltage", "air_util_tx", b"air_util_tx", "battery_level", b"battery_level", "channel_utilization", b"channel_utilization", "uptime_seconds", b"uptime_seconds", "voltage", b"voltage"]) -> None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_air_util_tx", b"_air_util_tx"]) -> typing.Literal["air_util_tx"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_battery_level", b"_battery_level"]) -> typing.Literal["battery_level"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_channel_utilization", b"_channel_utilization"]) -> typing.Literal["channel_utilization"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_uptime_seconds", b"_uptime_seconds"]) -> typing.Literal["uptime_seconds"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_voltage", b"_voltage"]) -> typing.Literal["voltage"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_air_util_tx", b"_air_util_tx", "_battery_level", b"_battery_level", "_channel_utilization", b"_channel_utilization", "_uptime_seconds", b"_uptime_seconds", "_voltage", b"_voltage", "air_util_tx", b"air_util_tx", "battery_level", b"battery_level", "channel_utilization", b"channel_utilization", "uptime_seconds", b"uptime_seconds", "voltage", b"voltage"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_air_util_tx", b"_air_util_tx", "_battery_level", b"_battery_level", "_channel_utilization", b"_channel_utilization", "_uptime_seconds", b"_uptime_seconds", "_voltage", b"_voltage", "air_util_tx", b"air_util_tx", "battery_level", b"battery_level", "channel_utilization", b"channel_utilization", "uptime_seconds", b"uptime_seconds", "voltage", b"voltage"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__air_util_tx: _TypeAlias = _typing.Literal["air_util_tx"]  # noqa: Y015
+    _WhichOneofArgType__air_util_tx: _TypeAlias = _typing.Literal["_air_util_tx", b"_air_util_tx"]  # noqa: Y015
+    _WhichOneofReturnType__battery_level: _TypeAlias = _typing.Literal["battery_level"]  # noqa: Y015
+    _WhichOneofArgType__battery_level: _TypeAlias = _typing.Literal["_battery_level", b"_battery_level"]  # noqa: Y015
+    _WhichOneofReturnType__channel_utilization: _TypeAlias = _typing.Literal["channel_utilization"]  # noqa: Y015
+    _WhichOneofArgType__channel_utilization: _TypeAlias = _typing.Literal["_channel_utilization", b"_channel_utilization"]  # noqa: Y015
+    _WhichOneofReturnType__uptime_seconds: _TypeAlias = _typing.Literal["uptime_seconds"]  # noqa: Y015
+    _WhichOneofArgType__uptime_seconds: _TypeAlias = _typing.Literal["_uptime_seconds", b"_uptime_seconds"]  # noqa: Y015
+    _WhichOneofReturnType__voltage: _TypeAlias = _typing.Literal["voltage"]  # noqa: Y015
+    _WhichOneofArgType__voltage: _TypeAlias = _typing.Literal["_voltage", b"_voltage"]  # noqa: Y015
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__air_util_tx) -> _WhichOneofReturnType__air_util_tx | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__battery_level) -> _WhichOneofReturnType__battery_level | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__channel_utilization) -> _WhichOneofReturnType__channel_utilization | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__uptime_seconds) -> _WhichOneofReturnType__uptime_seconds | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__voltage) -> _WhichOneofReturnType__voltage | None: ...
 
-global___DeviceMetrics = DeviceMetrics
+Global___DeviceMetrics: _TypeAlias = DeviceMetrics  # noqa: Y015
 
-@typing.final
-class EnvironmentMetrics(google.protobuf.message.Message):
-    """
-    Weather station or other environmental metrics
-    """
-
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    TEMPERATURE_FIELD_NUMBER: builtins.int
-    RELATIVE_HUMIDITY_FIELD_NUMBER: builtins.int
-    BAROMETRIC_PRESSURE_FIELD_NUMBER: builtins.int
-    GAS_RESISTANCE_FIELD_NUMBER: builtins.int
-    VOLTAGE_FIELD_NUMBER: builtins.int
-    CURRENT_FIELD_NUMBER: builtins.int
-    IAQ_FIELD_NUMBER: builtins.int
-    DISTANCE_FIELD_NUMBER: builtins.int
-    LUX_FIELD_NUMBER: builtins.int
-    WHITE_LUX_FIELD_NUMBER: builtins.int
-    IR_LUX_FIELD_NUMBER: builtins.int
-    UV_LUX_FIELD_NUMBER: builtins.int
-    WIND_DIRECTION_FIELD_NUMBER: builtins.int
-    WIND_SPEED_FIELD_NUMBER: builtins.int
-    WEIGHT_FIELD_NUMBER: builtins.int
-    WIND_GUST_FIELD_NUMBER: builtins.int
-    WIND_LULL_FIELD_NUMBER: builtins.int
-    RADIATION_FIELD_NUMBER: builtins.int
-    RAINFALL_1H_FIELD_NUMBER: builtins.int
-    RAINFALL_24H_FIELD_NUMBER: builtins.int
-    SOIL_MOISTURE_FIELD_NUMBER: builtins.int
-    SOIL_TEMPERATURE_FIELD_NUMBER: builtins.int
-    ONE_WIRE_TEMPERATURE_FIELD_NUMBER: builtins.int
-    ADC_VOLTAGE_CH0_FIELD_NUMBER: builtins.int
-    ADC_VOLTAGE_CH1_FIELD_NUMBER: builtins.int
-    ADC_VOLTAGE_CH2_FIELD_NUMBER: builtins.int
-    ADC_VOLTAGE_CH3_FIELD_NUMBER: builtins.int
-    ADC_VOLTAGE_CH4_FIELD_NUMBER: builtins.int
-    ADC_VOLTAGE_CH5_FIELD_NUMBER: builtins.int
-    ADC_VOLTAGE_CH6_FIELD_NUMBER: builtins.int
-    ADC_VOLTAGE_CH7_FIELD_NUMBER: builtins.int
-    ONE_WIRE_TEMPERATURE_CH0_FIELD_NUMBER: builtins.int
-    ONE_WIRE_TEMPERATURE_CH1_FIELD_NUMBER: builtins.int
-    ONE_WIRE_TEMPERATURE_CH2_FIELD_NUMBER: builtins.int
-    ONE_WIRE_TEMPERATURE_CH3_FIELD_NUMBER: builtins.int
-    ONE_WIRE_TEMPERATURE_CH4_FIELD_NUMBER: builtins.int
-    ONE_WIRE_TEMPERATURE_CH5_FIELD_NUMBER: builtins.int
-    ONE_WIRE_TEMPERATURE_CH6_FIELD_NUMBER: builtins.int
-    ONE_WIRE_TEMPERATURE_CH7_FIELD_NUMBER: builtins.int
-    LIGHTNING_STRIKE_COUNT_1H_FIELD_NUMBER: builtins.int
-    LIGHTNING_DISTANCE_KM_FIELD_NUMBER: builtins.int
-    temperature: builtins.float
-    """
-    Temperature measured
-    """
-    relative_humidity: builtins.float
-    """
-    Relative humidity percent measured
-    """
-    barometric_pressure: builtins.float
-    """
-    Barometric pressure in hPA measured
-    """
-    gas_resistance: builtins.float
-    """
-    Gas resistance in MOhm measured
-    """
-    voltage: builtins.float
-    """
-    Voltage measured (To be depreciated in favor of PowerMetrics in Meshtastic 3.x)
-    """
-    current: builtins.float
-    """
-    Current measured (To be depreciated in favor of PowerMetrics in Meshtastic 3.x)
-    """
-    iaq: builtins.int
-    """
-    relative scale IAQ value as measured by Bosch BME680 . value 0-500.
-    Belongs to Air Quality but is not particle but VOC measurement. Other VOC values can also be put in here.
-    """
-    distance: builtins.float
-    """
-    RCWL9620 Doppler Radar Distance Sensor, used for water level detection. Float value in mm.
-    """
-    lux: builtins.float
-    """
-    VEML7700 high accuracy ambient light(Lux) digital 16-bit resolution sensor.
-    """
-    white_lux: builtins.float
-    """
-    VEML7700 high accuracy white light(irradiance) not calibrated digital 16-bit resolution sensor.
-    """
-    ir_lux: builtins.float
-    """
-    Infrared lux
-    """
-    uv_lux: builtins.float
-    """
-    Ultraviolet lux
-    """
-    wind_direction: builtins.int
-    """
-    Wind direction in degrees
-    0 degrees = North, 90 = East, etc...
-    """
-    wind_speed: builtins.float
-    """
-    Wind speed in m/s
-    """
-    weight: builtins.float
-    """
-    Weight in KG
-    """
-    wind_gust: builtins.float
-    """
-    Wind gust in m/s
-    """
-    wind_lull: builtins.float
-    """
-    Wind lull in m/s
-    """
-    radiation: builtins.float
-    """
-    Radiation in µR/h
-    """
-    rainfall_1h: builtins.float
-    """
-    Rainfall in the last hour in mm
-    """
-    rainfall_24h: builtins.float
-    """
-    Rainfall in the last 24 hours in mm
-    """
-    soil_moisture: builtins.int
-    """
-    Soil moisture measured (% 1-100)
-    """
-    soil_temperature: builtins.float
-    """
-    Soil temperature measured (*C)
-    """
-    adc_voltage_ch0: builtins.float
-    """
-    Multi-channel ADC Voltage Channel 0 (V)
-    """
-    adc_voltage_ch1: builtins.float
-    """
-    Multi-channel ADC Voltage Channel 1 (V)
-    """
-    adc_voltage_ch2: builtins.float
-    """
-    Multi-channel ADC Voltage Channel 2 (V)
-    """
-    adc_voltage_ch3: builtins.float
-    """
-    Multi-channel ADC Voltage Channel 3 (V)
-    """
-    adc_voltage_ch4: builtins.float
-    """
-    Multi-channel ADC Voltage Channel 4 (V)
-    """
-    adc_voltage_ch5: builtins.float
-    """
-    Multi-channel ADC Voltage Channel 5 (V)
-    """
-    adc_voltage_ch6: builtins.float
-    """
-    Multi-channel ADC Voltage Channel 6 (V)
-    """
-    adc_voltage_ch7: builtins.float
-    """
-    Multi-channel ADC Voltage Channel 7 (V)
-    """
-    one_wire_temperature_ch0: builtins.float
-    """
-    Multi-channel One-Wire Temperature Channel 0 (*C)
-    """
-    one_wire_temperature_ch1: builtins.float
-    """
-    Multi-channel One-Wire Temperature Channel 1 (*C)
-    """
-    one_wire_temperature_ch2: builtins.float
-    """
-    Multi-channel One-Wire Temperature Channel 2 (*C)
-    """
-    one_wire_temperature_ch3: builtins.float
-    """
-    Multi-channel One-Wire Temperature Channel 3 (*C)
-    """
-    one_wire_temperature_ch4: builtins.float
-    """
-    Multi-channel One-Wire Temperature Channel 4 (*C)
-    """
-    one_wire_temperature_ch5: builtins.float
-    """
-    Multi-channel One-Wire Temperature Channel 5 (*C)
-    """
-    one_wire_temperature_ch6: builtins.float
-    """
-    Multi-channel One-Wire Temperature Channel 6 (*C)
-    """
-    one_wire_temperature_ch7: builtins.float
-    """
-    Multi-channel One-Wire Temperature Channel 7 (*C)
-    """
-    lightning_strike_count_1h: builtins.int
-    """
-    Lightning strikes detected in the last hour
-    """
-    lightning_distance_km: builtins.float
-    """
-    Estimated distance to the leading edge of the storm, in km
-    """
-    @property
-    def one_wire_temperature(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]:
-        """
-        Never implemented, but Voltage may be mis-interpreted by old clients as temperature
-        """
-
-    def __init__(
-        self,
-        *,
-        temperature: builtins.float | None = ...,
-        relative_humidity: builtins.float | None = ...,
-        barometric_pressure: builtins.float | None = ...,
-        gas_resistance: builtins.float | None = ...,
-        voltage: builtins.float | None = ...,
-        current: builtins.float | None = ...,
-        iaq: builtins.int | None = ...,
-        distance: builtins.float | None = ...,
-        lux: builtins.float | None = ...,
-        white_lux: builtins.float | None = ...,
-        ir_lux: builtins.float | None = ...,
-        uv_lux: builtins.float | None = ...,
-        wind_direction: builtins.int | None = ...,
-        wind_speed: builtins.float | None = ...,
-        weight: builtins.float | None = ...,
-        wind_gust: builtins.float | None = ...,
-        wind_lull: builtins.float | None = ...,
-        radiation: builtins.float | None = ...,
-        rainfall_1h: builtins.float | None = ...,
-        rainfall_24h: builtins.float | None = ...,
-        soil_moisture: builtins.int | None = ...,
-        soil_temperature: builtins.float | None = ...,
-        one_wire_temperature: collections.abc.Iterable[builtins.float] | None = ...,
-        adc_voltage_ch0: builtins.float | None = ...,
-        adc_voltage_ch1: builtins.float | None = ...,
-        adc_voltage_ch2: builtins.float | None = ...,
-        adc_voltage_ch3: builtins.float | None = ...,
-        adc_voltage_ch4: builtins.float | None = ...,
-        adc_voltage_ch5: builtins.float | None = ...,
-        adc_voltage_ch6: builtins.float | None = ...,
-        adc_voltage_ch7: builtins.float | None = ...,
-        one_wire_temperature_ch0: builtins.float | None = ...,
-        one_wire_temperature_ch1: builtins.float | None = ...,
-        one_wire_temperature_ch2: builtins.float | None = ...,
-        one_wire_temperature_ch3: builtins.float | None = ...,
-        one_wire_temperature_ch4: builtins.float | None = ...,
-        one_wire_temperature_ch5: builtins.float | None = ...,
-        one_wire_temperature_ch6: builtins.float | None = ...,
-        one_wire_temperature_ch7: builtins.float | None = ...,
-        lightning_strike_count_1h: builtins.int | None = ...,
-        lightning_distance_km: builtins.float | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_adc_voltage_ch0", b"_adc_voltage_ch0", "_adc_voltage_ch1", b"_adc_voltage_ch1", "_adc_voltage_ch2", b"_adc_voltage_ch2", "_adc_voltage_ch3", b"_adc_voltage_ch3", "_adc_voltage_ch4", b"_adc_voltage_ch4", "_adc_voltage_ch5", b"_adc_voltage_ch5", "_adc_voltage_ch6", b"_adc_voltage_ch6", "_adc_voltage_ch7", b"_adc_voltage_ch7", "_barometric_pressure", b"_barometric_pressure", "_current", b"_current", "_distance", b"_distance", "_gas_resistance", b"_gas_resistance", "_iaq", b"_iaq", "_ir_lux", b"_ir_lux", "_lightning_distance_km", b"_lightning_distance_km", "_lightning_strike_count_1h", b"_lightning_strike_count_1h", "_lux", b"_lux", "_one_wire_temperature_ch0", b"_one_wire_temperature_ch0", "_one_wire_temperature_ch1", b"_one_wire_temperature_ch1", "_one_wire_temperature_ch2", b"_one_wire_temperature_ch2", "_one_wire_temperature_ch3", b"_one_wire_temperature_ch3", "_one_wire_temperature_ch4", b"_one_wire_temperature_ch4", "_one_wire_temperature_ch5", b"_one_wire_temperature_ch5", "_one_wire_temperature_ch6", b"_one_wire_temperature_ch6", "_one_wire_temperature_ch7", b"_one_wire_temperature_ch7", "_radiation", b"_radiation", "_rainfall_1h", b"_rainfall_1h", "_rainfall_24h", b"_rainfall_24h", "_relative_humidity", b"_relative_humidity", "_soil_moisture", b"_soil_moisture", "_soil_temperature", b"_soil_temperature", "_temperature", b"_temperature", "_uv_lux", b"_uv_lux", "_voltage", b"_voltage", "_weight", b"_weight", "_white_lux", b"_white_lux", "_wind_direction", b"_wind_direction", "_wind_gust", b"_wind_gust", "_wind_lull", b"_wind_lull", "_wind_speed", b"_wind_speed", "adc_voltage_ch0", b"adc_voltage_ch0", "adc_voltage_ch1", b"adc_voltage_ch1", "adc_voltage_ch2", b"adc_voltage_ch2", "adc_voltage_ch3", b"adc_voltage_ch3", "adc_voltage_ch4", b"adc_voltage_ch4", "adc_voltage_ch5", b"adc_voltage_ch5", "adc_voltage_ch6", b"adc_voltage_ch6", "adc_voltage_ch7", b"adc_voltage_ch7", "barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "ir_lux", b"ir_lux", "lightning_distance_km", b"lightning_distance_km", "lightning_strike_count_1h", b"lightning_strike_count_1h", "lux", b"lux", "one_wire_temperature_ch0", b"one_wire_temperature_ch0", "one_wire_temperature_ch1", b"one_wire_temperature_ch1", "one_wire_temperature_ch2", b"one_wire_temperature_ch2", "one_wire_temperature_ch3", b"one_wire_temperature_ch3", "one_wire_temperature_ch4", b"one_wire_temperature_ch4", "one_wire_temperature_ch5", b"one_wire_temperature_ch5", "one_wire_temperature_ch6", b"one_wire_temperature_ch6", "one_wire_temperature_ch7", b"one_wire_temperature_ch7", "radiation", b"radiation", "rainfall_1h", b"rainfall_1h", "rainfall_24h", b"rainfall_24h", "relative_humidity", b"relative_humidity", "soil_moisture", b"soil_moisture", "soil_temperature", b"soil_temperature", "temperature", b"temperature", "uv_lux", b"uv_lux", "voltage", b"voltage", "weight", b"weight", "white_lux", b"white_lux", "wind_direction", b"wind_direction", "wind_gust", b"wind_gust", "wind_lull", b"wind_lull", "wind_speed", b"wind_speed"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_adc_voltage_ch0", b"_adc_voltage_ch0", "_adc_voltage_ch1", b"_adc_voltage_ch1", "_adc_voltage_ch2", b"_adc_voltage_ch2", "_adc_voltage_ch3", b"_adc_voltage_ch3", "_adc_voltage_ch4", b"_adc_voltage_ch4", "_adc_voltage_ch5", b"_adc_voltage_ch5", "_adc_voltage_ch6", b"_adc_voltage_ch6", "_adc_voltage_ch7", b"_adc_voltage_ch7", "_barometric_pressure", b"_barometric_pressure", "_current", b"_current", "_distance", b"_distance", "_gas_resistance", b"_gas_resistance", "_iaq", b"_iaq", "_ir_lux", b"_ir_lux", "_lightning_distance_km", b"_lightning_distance_km", "_lightning_strike_count_1h", b"_lightning_strike_count_1h", "_lux", b"_lux", "_one_wire_temperature_ch0", b"_one_wire_temperature_ch0", "_one_wire_temperature_ch1", b"_one_wire_temperature_ch1", "_one_wire_temperature_ch2", b"_one_wire_temperature_ch2", "_one_wire_temperature_ch3", b"_one_wire_temperature_ch3", "_one_wire_temperature_ch4", b"_one_wire_temperature_ch4", "_one_wire_temperature_ch5", b"_one_wire_temperature_ch5", "_one_wire_temperature_ch6", b"_one_wire_temperature_ch6", "_one_wire_temperature_ch7", b"_one_wire_temperature_ch7", "_radiation", b"_radiation", "_rainfall_1h", b"_rainfall_1h", "_rainfall_24h", b"_rainfall_24h", "_relative_humidity", b"_relative_humidity", "_soil_moisture", b"_soil_moisture", "_soil_temperature", b"_soil_temperature", "_temperature", b"_temperature", "_uv_lux", b"_uv_lux", "_voltage", b"_voltage", "_weight", b"_weight", "_white_lux", b"_white_lux", "_wind_direction", b"_wind_direction", "_wind_gust", b"_wind_gust", "_wind_lull", b"_wind_lull", "_wind_speed", b"_wind_speed", "adc_voltage_ch0", b"adc_voltage_ch0", "adc_voltage_ch1", b"adc_voltage_ch1", "adc_voltage_ch2", b"adc_voltage_ch2", "adc_voltage_ch3", b"adc_voltage_ch3", "adc_voltage_ch4", b"adc_voltage_ch4", "adc_voltage_ch5", b"adc_voltage_ch5", "adc_voltage_ch6", b"adc_voltage_ch6", "adc_voltage_ch7", b"adc_voltage_ch7", "barometric_pressure", b"barometric_pressure", "current", b"current", "distance", b"distance", "gas_resistance", b"gas_resistance", "iaq", b"iaq", "ir_lux", b"ir_lux", "lightning_distance_km", b"lightning_distance_km", "lightning_strike_count_1h", b"lightning_strike_count_1h", "lux", b"lux", "one_wire_temperature", b"one_wire_temperature", "one_wire_temperature_ch0", b"one_wire_temperature_ch0", "one_wire_temperature_ch1", b"one_wire_temperature_ch1", "one_wire_temperature_ch2", b"one_wire_temperature_ch2", "one_wire_temperature_ch3", b"one_wire_temperature_ch3", "one_wire_temperature_ch4", b"one_wire_temperature_ch4", "one_wire_temperature_ch5", b"one_wire_temperature_ch5", "one_wire_temperature_ch6", b"one_wire_temperature_ch6", "one_wire_temperature_ch7", b"one_wire_temperature_ch7", "radiation", b"radiation", "rainfall_1h", b"rainfall_1h", "rainfall_24h", b"rainfall_24h", "relative_humidity", b"relative_humidity", "soil_moisture", b"soil_moisture", "soil_temperature", b"soil_temperature", "temperature", b"temperature", "uv_lux", b"uv_lux", "voltage", b"voltage", "weight", b"weight", "white_lux", b"white_lux", "wind_direction", b"wind_direction", "wind_gust", b"wind_gust", "wind_lull", b"wind_lull", "wind_speed", b"wind_speed"]) -> None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_adc_voltage_ch0", b"_adc_voltage_ch0"]) -> typing.Literal["adc_voltage_ch0"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_adc_voltage_ch1", b"_adc_voltage_ch1"]) -> typing.Literal["adc_voltage_ch1"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_adc_voltage_ch2", b"_adc_voltage_ch2"]) -> typing.Literal["adc_voltage_ch2"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_adc_voltage_ch3", b"_adc_voltage_ch3"]) -> typing.Literal["adc_voltage_ch3"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_adc_voltage_ch4", b"_adc_voltage_ch4"]) -> typing.Literal["adc_voltage_ch4"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_adc_voltage_ch5", b"_adc_voltage_ch5"]) -> typing.Literal["adc_voltage_ch5"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_adc_voltage_ch6", b"_adc_voltage_ch6"]) -> typing.Literal["adc_voltage_ch6"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_adc_voltage_ch7", b"_adc_voltage_ch7"]) -> typing.Literal["adc_voltage_ch7"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_barometric_pressure", b"_barometric_pressure"]) -> typing.Literal["barometric_pressure"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_current", b"_current"]) -> typing.Literal["current"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_distance", b"_distance"]) -> typing.Literal["distance"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_gas_resistance", b"_gas_resistance"]) -> typing.Literal["gas_resistance"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_iaq", b"_iaq"]) -> typing.Literal["iaq"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ir_lux", b"_ir_lux"]) -> typing.Literal["ir_lux"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_lightning_distance_km", b"_lightning_distance_km"]) -> typing.Literal["lightning_distance_km"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_lightning_strike_count_1h", b"_lightning_strike_count_1h"]) -> typing.Literal["lightning_strike_count_1h"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_lux", b"_lux"]) -> typing.Literal["lux"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_one_wire_temperature_ch0", b"_one_wire_temperature_ch0"]) -> typing.Literal["one_wire_temperature_ch0"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_one_wire_temperature_ch1", b"_one_wire_temperature_ch1"]) -> typing.Literal["one_wire_temperature_ch1"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_one_wire_temperature_ch2", b"_one_wire_temperature_ch2"]) -> typing.Literal["one_wire_temperature_ch2"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_one_wire_temperature_ch3", b"_one_wire_temperature_ch3"]) -> typing.Literal["one_wire_temperature_ch3"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_one_wire_temperature_ch4", b"_one_wire_temperature_ch4"]) -> typing.Literal["one_wire_temperature_ch4"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_one_wire_temperature_ch5", b"_one_wire_temperature_ch5"]) -> typing.Literal["one_wire_temperature_ch5"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_one_wire_temperature_ch6", b"_one_wire_temperature_ch6"]) -> typing.Literal["one_wire_temperature_ch6"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_one_wire_temperature_ch7", b"_one_wire_temperature_ch7"]) -> typing.Literal["one_wire_temperature_ch7"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_radiation", b"_radiation"]) -> typing.Literal["radiation"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_rainfall_1h", b"_rainfall_1h"]) -> typing.Literal["rainfall_1h"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_rainfall_24h", b"_rainfall_24h"]) -> typing.Literal["rainfall_24h"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_relative_humidity", b"_relative_humidity"]) -> typing.Literal["relative_humidity"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_soil_moisture", b"_soil_moisture"]) -> typing.Literal["soil_moisture"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_soil_temperature", b"_soil_temperature"]) -> typing.Literal["soil_temperature"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_temperature", b"_temperature"]) -> typing.Literal["temperature"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_uv_lux", b"_uv_lux"]) -> typing.Literal["uv_lux"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_voltage", b"_voltage"]) -> typing.Literal["voltage"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_weight", b"_weight"]) -> typing.Literal["weight"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_white_lux", b"_white_lux"]) -> typing.Literal["white_lux"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_wind_direction", b"_wind_direction"]) -> typing.Literal["wind_direction"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_wind_gust", b"_wind_gust"]) -> typing.Literal["wind_gust"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_wind_lull", b"_wind_lull"]) -> typing.Literal["wind_lull"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_wind_speed", b"_wind_speed"]) -> typing.Literal["wind_speed"] | None: ...
-
-global___EnvironmentMetrics = EnvironmentMetrics
-
-@typing.final
-class SoilWaterMetrics(google.protobuf.message.Message):
-    """
-    Soil and water probe metrics.
-
-    Chemistry reported by soil probes (RS-485/SDI-12 NPK probes) and by
-    water-quality sondes. Split out of EnvironmentMetrics so that message stays
-    within the mesh payload budget.
-    """
-
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    SOIL_PH_FIELD_NUMBER: builtins.int
-    PH_FIELD_NUMBER: builtins.int
-    ELECTRICAL_CONDUCTIVITY_FIELD_NUMBER: builtins.int
-    SALINITY_FIELD_NUMBER: builtins.int
-    NITROGEN_FIELD_NUMBER: builtins.int
-    PHOSPHORUS_FIELD_NUMBER: builtins.int
-    POTASSIUM_FIELD_NUMBER: builtins.int
-    DISSOLVED_OXYGEN_FIELD_NUMBER: builtins.int
-    ORP_FIELD_NUMBER: builtins.int
-    CHEMICAL_OXYGEN_DEMAND_FIELD_NUMBER: builtins.int
-    TURBIDITY_FIELD_NUMBER: builtins.int
-    NITRATE_FIELD_NUMBER: builtins.int
-    AMMONIUM_FIELD_NUMBER: builtins.int
-    BIOCHEMICAL_OXYGEN_DEMAND_FIELD_NUMBER: builtins.int
-    SOLAR_IRRADIANCE_FIELD_NUMBER: builtins.int
-    soil_ph: builtins.float
-    """
-    Soil pH, 0-14
-    """
-    ph: builtins.float
-    """
-    pH of water or other solution, 0-14
-    """
-    electrical_conductivity: builtins.float
-    """
-    Electrical conductivity in mS/cm
-    """
-    salinity: builtins.float
-    """
-    Salinity in mg/l
-    """
-    nitrogen: builtins.float
-    """
-    Nitrogen concentration in mg/kg
-    """
-    phosphorus: builtins.float
-    """
-    Phosphorus concentration in mg/kg
-    """
-    potassium: builtins.float
-    """
-    Potassium concentration in mg/kg
-    """
-    dissolved_oxygen: builtins.float
-    """
-    Dissolved oxygen in mg/l
-    """
-    orp: builtins.float
-    """
-    Oxidation-reduction potential (ORP) in mV
-    """
-    chemical_oxygen_demand: builtins.float
-    """
-    Chemical oxygen demand in mg/l
-    """
-    turbidity: builtins.float
-    """
-    Turbidity in NTU
-    """
-    nitrate: builtins.float
-    """
-    Nitrate concentration in ppm
-    """
-    ammonium: builtins.float
-    """
-    Ammonium concentration in ppm
-    """
-    biochemical_oxygen_demand: builtins.float
-    """
-    Biochemical oxygen demand in mg/l
-    """
-    solar_irradiance: builtins.float
-    """
-    Solar irradiance in W/m^2 (distinct from the radiation field's uR/h)
-    """
-    def __init__(
-        self,
-        *,
-        soil_ph: builtins.float | None = ...,
-        ph: builtins.float | None = ...,
-        electrical_conductivity: builtins.float | None = ...,
-        salinity: builtins.float | None = ...,
-        nitrogen: builtins.float | None = ...,
-        phosphorus: builtins.float | None = ...,
-        potassium: builtins.float | None = ...,
-        dissolved_oxygen: builtins.float | None = ...,
-        orp: builtins.float | None = ...,
-        chemical_oxygen_demand: builtins.float | None = ...,
-        turbidity: builtins.float | None = ...,
-        nitrate: builtins.float | None = ...,
-        ammonium: builtins.float | None = ...,
-        biochemical_oxygen_demand: builtins.float | None = ...,
-        solar_irradiance: builtins.float | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_ammonium", b"_ammonium", "_biochemical_oxygen_demand", b"_biochemical_oxygen_demand", "_chemical_oxygen_demand", b"_chemical_oxygen_demand", "_dissolved_oxygen", b"_dissolved_oxygen", "_electrical_conductivity", b"_electrical_conductivity", "_nitrate", b"_nitrate", "_nitrogen", b"_nitrogen", "_orp", b"_orp", "_ph", b"_ph", "_phosphorus", b"_phosphorus", "_potassium", b"_potassium", "_salinity", b"_salinity", "_soil_ph", b"_soil_ph", "_solar_irradiance", b"_solar_irradiance", "_turbidity", b"_turbidity", "ammonium", b"ammonium", "biochemical_oxygen_demand", b"biochemical_oxygen_demand", "chemical_oxygen_demand", b"chemical_oxygen_demand", "dissolved_oxygen", b"dissolved_oxygen", "electrical_conductivity", b"electrical_conductivity", "nitrate", b"nitrate", "nitrogen", b"nitrogen", "orp", b"orp", "ph", b"ph", "phosphorus", b"phosphorus", "potassium", b"potassium", "salinity", b"salinity", "soil_ph", b"soil_ph", "solar_irradiance", b"solar_irradiance", "turbidity", b"turbidity"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_ammonium", b"_ammonium", "_biochemical_oxygen_demand", b"_biochemical_oxygen_demand", "_chemical_oxygen_demand", b"_chemical_oxygen_demand", "_dissolved_oxygen", b"_dissolved_oxygen", "_electrical_conductivity", b"_electrical_conductivity", "_nitrate", b"_nitrate", "_nitrogen", b"_nitrogen", "_orp", b"_orp", "_ph", b"_ph", "_phosphorus", b"_phosphorus", "_potassium", b"_potassium", "_salinity", b"_salinity", "_soil_ph", b"_soil_ph", "_solar_irradiance", b"_solar_irradiance", "_turbidity", b"_turbidity", "ammonium", b"ammonium", "biochemical_oxygen_demand", b"biochemical_oxygen_demand", "chemical_oxygen_demand", b"chemical_oxygen_demand", "dissolved_oxygen", b"dissolved_oxygen", "electrical_conductivity", b"electrical_conductivity", "nitrate", b"nitrate", "nitrogen", b"nitrogen", "orp", b"orp", "ph", b"ph", "phosphorus", b"phosphorus", "potassium", b"potassium", "salinity", b"salinity", "soil_ph", b"soil_ph", "solar_irradiance", b"solar_irradiance", "turbidity", b"turbidity"]) -> None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ammonium", b"_ammonium"]) -> typing.Literal["ammonium"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_biochemical_oxygen_demand", b"_biochemical_oxygen_demand"]) -> typing.Literal["biochemical_oxygen_demand"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_chemical_oxygen_demand", b"_chemical_oxygen_demand"]) -> typing.Literal["chemical_oxygen_demand"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_dissolved_oxygen", b"_dissolved_oxygen"]) -> typing.Literal["dissolved_oxygen"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_electrical_conductivity", b"_electrical_conductivity"]) -> typing.Literal["electrical_conductivity"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_nitrate", b"_nitrate"]) -> typing.Literal["nitrate"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_nitrogen", b"_nitrogen"]) -> typing.Literal["nitrogen"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_orp", b"_orp"]) -> typing.Literal["orp"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ph", b"_ph"]) -> typing.Literal["ph"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_phosphorus", b"_phosphorus"]) -> typing.Literal["phosphorus"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_potassium", b"_potassium"]) -> typing.Literal["potassium"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_salinity", b"_salinity"]) -> typing.Literal["salinity"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_soil_ph", b"_soil_ph"]) -> typing.Literal["soil_ph"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_solar_irradiance", b"_solar_irradiance"]) -> typing.Literal["solar_irradiance"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_turbidity", b"_turbidity"]) -> typing.Literal["turbidity"] | None: ...
-
-global___SoilWaterMetrics = SoilWaterMetrics
-
-@typing.final
-class PowerMetrics(google.protobuf.message.Message):
-    """
-    Power Metrics (voltage / current / etc)
-    """
-
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    CH1_VOLTAGE_FIELD_NUMBER: builtins.int
-    CH1_CURRENT_FIELD_NUMBER: builtins.int
-    CH2_VOLTAGE_FIELD_NUMBER: builtins.int
-    CH2_CURRENT_FIELD_NUMBER: builtins.int
-    CH3_VOLTAGE_FIELD_NUMBER: builtins.int
-    CH3_CURRENT_FIELD_NUMBER: builtins.int
-    CH4_VOLTAGE_FIELD_NUMBER: builtins.int
-    CH4_CURRENT_FIELD_NUMBER: builtins.int
-    CH5_VOLTAGE_FIELD_NUMBER: builtins.int
-    CH5_CURRENT_FIELD_NUMBER: builtins.int
-    CH6_VOLTAGE_FIELD_NUMBER: builtins.int
-    CH6_CURRENT_FIELD_NUMBER: builtins.int
-    CH7_VOLTAGE_FIELD_NUMBER: builtins.int
-    CH7_CURRENT_FIELD_NUMBER: builtins.int
-    CH8_VOLTAGE_FIELD_NUMBER: builtins.int
-    CH8_CURRENT_FIELD_NUMBER: builtins.int
-    ch1_voltage: builtins.float
-    """
-    Voltage (Ch1)
-    """
-    ch1_current: builtins.float
-    """
-    Current (Ch1)
-    """
-    ch2_voltage: builtins.float
-    """
-    Voltage (Ch2)
-    """
-    ch2_current: builtins.float
-    """
-    Current (Ch2)
-    """
-    ch3_voltage: builtins.float
-    """
-    Voltage (Ch3)
-    """
-    ch3_current: builtins.float
-    """
-    Current (Ch3)
-    """
-    ch4_voltage: builtins.float
-    """
-    Voltage (Ch4) - TODO Remove
-    """
-    ch4_current: builtins.float
-    """
-    Current (Ch4) - TODO Remove
-    """
-    ch5_voltage: builtins.float
-    """
-    Voltage (Ch5) - TODO Remove
-    """
-    ch5_current: builtins.float
-    """
-    Current (Ch5) - TODO Remove
-    """
-    ch6_voltage: builtins.float
-    """
-    Voltage (Ch6) - TODO Remove
-    """
-    ch6_current: builtins.float
-    """
-    Current (Ch6) - TODO Remove
-    """
-    ch7_voltage: builtins.float
-    """
-    Voltage (Ch7) - TODO Remove
-    """
-    ch7_current: builtins.float
-    """
-    Current (Ch7) - TODO Remove
-    """
-    ch8_voltage: builtins.float
-    """
-    Voltage (Ch8) - TODO Remove
-    """
-    ch8_current: builtins.float
-    """
-    Current (Ch8) - TODO Remove
-    """
-    def __init__(
-        self,
-        *,
-        ch1_voltage: builtins.float | None = ...,
-        ch1_current: builtins.float | None = ...,
-        ch2_voltage: builtins.float | None = ...,
-        ch2_current: builtins.float | None = ...,
-        ch3_voltage: builtins.float | None = ...,
-        ch3_current: builtins.float | None = ...,
-        ch4_voltage: builtins.float | None = ...,
-        ch4_current: builtins.float | None = ...,
-        ch5_voltage: builtins.float | None = ...,
-        ch5_current: builtins.float | None = ...,
-        ch6_voltage: builtins.float | None = ...,
-        ch6_current: builtins.float | None = ...,
-        ch7_voltage: builtins.float | None = ...,
-        ch7_current: builtins.float | None = ...,
-        ch8_voltage: builtins.float | None = ...,
-        ch8_current: builtins.float | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_ch1_current", b"_ch1_current", "_ch1_voltage", b"_ch1_voltage", "_ch2_current", b"_ch2_current", "_ch2_voltage", b"_ch2_voltage", "_ch3_current", b"_ch3_current", "_ch3_voltage", b"_ch3_voltage", "_ch4_current", b"_ch4_current", "_ch4_voltage", b"_ch4_voltage", "_ch5_current", b"_ch5_current", "_ch5_voltage", b"_ch5_voltage", "_ch6_current", b"_ch6_current", "_ch6_voltage", b"_ch6_voltage", "_ch7_current", b"_ch7_current", "_ch7_voltage", b"_ch7_voltage", "_ch8_current", b"_ch8_current", "_ch8_voltage", b"_ch8_voltage", "ch1_current", b"ch1_current", "ch1_voltage", b"ch1_voltage", "ch2_current", b"ch2_current", "ch2_voltage", b"ch2_voltage", "ch3_current", b"ch3_current", "ch3_voltage", b"ch3_voltage", "ch4_current", b"ch4_current", "ch4_voltage", b"ch4_voltage", "ch5_current", b"ch5_current", "ch5_voltage", b"ch5_voltage", "ch6_current", b"ch6_current", "ch6_voltage", b"ch6_voltage", "ch7_current", b"ch7_current", "ch7_voltage", b"ch7_voltage", "ch8_current", b"ch8_current", "ch8_voltage", b"ch8_voltage"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_ch1_current", b"_ch1_current", "_ch1_voltage", b"_ch1_voltage", "_ch2_current", b"_ch2_current", "_ch2_voltage", b"_ch2_voltage", "_ch3_current", b"_ch3_current", "_ch3_voltage", b"_ch3_voltage", "_ch4_current", b"_ch4_current", "_ch4_voltage", b"_ch4_voltage", "_ch5_current", b"_ch5_current", "_ch5_voltage", b"_ch5_voltage", "_ch6_current", b"_ch6_current", "_ch6_voltage", b"_ch6_voltage", "_ch7_current", b"_ch7_current", "_ch7_voltage", b"_ch7_voltage", "_ch8_current", b"_ch8_current", "_ch8_voltage", b"_ch8_voltage", "ch1_current", b"ch1_current", "ch1_voltage", b"ch1_voltage", "ch2_current", b"ch2_current", "ch2_voltage", b"ch2_voltage", "ch3_current", b"ch3_current", "ch3_voltage", b"ch3_voltage", "ch4_current", b"ch4_current", "ch4_voltage", b"ch4_voltage", "ch5_current", b"ch5_current", "ch5_voltage", b"ch5_voltage", "ch6_current", b"ch6_current", "ch6_voltage", b"ch6_voltage", "ch7_current", b"ch7_current", "ch7_voltage", b"ch7_voltage", "ch8_current", b"ch8_current", "ch8_voltage", b"ch8_voltage"]) -> None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch1_current", b"_ch1_current"]) -> typing.Literal["ch1_current"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch1_voltage", b"_ch1_voltage"]) -> typing.Literal["ch1_voltage"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch2_current", b"_ch2_current"]) -> typing.Literal["ch2_current"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch2_voltage", b"_ch2_voltage"]) -> typing.Literal["ch2_voltage"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch3_current", b"_ch3_current"]) -> typing.Literal["ch3_current"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch3_voltage", b"_ch3_voltage"]) -> typing.Literal["ch3_voltage"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch4_current", b"_ch4_current"]) -> typing.Literal["ch4_current"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch4_voltage", b"_ch4_voltage"]) -> typing.Literal["ch4_voltage"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch5_current", b"_ch5_current"]) -> typing.Literal["ch5_current"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch5_voltage", b"_ch5_voltage"]) -> typing.Literal["ch5_voltage"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch6_current", b"_ch6_current"]) -> typing.Literal["ch6_current"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch6_voltage", b"_ch6_voltage"]) -> typing.Literal["ch6_voltage"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch7_current", b"_ch7_current"]) -> typing.Literal["ch7_current"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch7_voltage", b"_ch7_voltage"]) -> typing.Literal["ch7_voltage"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch8_current", b"_ch8_current"]) -> typing.Literal["ch8_current"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_ch8_voltage", b"_ch8_voltage"]) -> typing.Literal["ch8_voltage"] | None: ...
-
-global___PowerMetrics = PowerMetrics
-
-@typing.final
-class AirQualityMetrics(google.protobuf.message.Message):
-    """
-    Air quality metrics
-    """
-
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    PM10_STANDARD_FIELD_NUMBER: builtins.int
-    PM25_STANDARD_FIELD_NUMBER: builtins.int
-    PM100_STANDARD_FIELD_NUMBER: builtins.int
-    PM10_ENVIRONMENTAL_FIELD_NUMBER: builtins.int
-    PM25_ENVIRONMENTAL_FIELD_NUMBER: builtins.int
-    PM100_ENVIRONMENTAL_FIELD_NUMBER: builtins.int
-    PARTICLES_03UM_FIELD_NUMBER: builtins.int
-    PARTICLES_05UM_FIELD_NUMBER: builtins.int
-    PARTICLES_10UM_FIELD_NUMBER: builtins.int
-    PARTICLES_25UM_FIELD_NUMBER: builtins.int
-    PARTICLES_50UM_FIELD_NUMBER: builtins.int
-    PARTICLES_100UM_FIELD_NUMBER: builtins.int
-    CO2_FIELD_NUMBER: builtins.int
-    CO2_TEMPERATURE_FIELD_NUMBER: builtins.int
-    CO2_HUMIDITY_FIELD_NUMBER: builtins.int
-    FORM_FORMALDEHYDE_FIELD_NUMBER: builtins.int
-    FORM_HUMIDITY_FIELD_NUMBER: builtins.int
-    FORM_TEMPERATURE_FIELD_NUMBER: builtins.int
-    PM40_STANDARD_FIELD_NUMBER: builtins.int
-    PARTICLES_40UM_FIELD_NUMBER: builtins.int
-    PM_TEMPERATURE_FIELD_NUMBER: builtins.int
-    PM_HUMIDITY_FIELD_NUMBER: builtins.int
-    PM_VOC_IDX_FIELD_NUMBER: builtins.int
-    PM_NOX_IDX_FIELD_NUMBER: builtins.int
-    PARTICLES_TPS_FIELD_NUMBER: builtins.int
-    PM_STATUS_FLAGS_FIELD_NUMBER: builtins.int
-    pm10_standard: builtins.int
-    """
-    Concentration Units Standard PM1.0 in ug/m3
-    """
-    pm25_standard: builtins.int
-    """
-    Concentration Units Standard PM2.5 in ug/m3
-    """
-    pm100_standard: builtins.int
-    """
-    Concentration Units Standard PM10.0 in ug/m3
-    """
-    pm10_environmental: builtins.int
-    """
-    Concentration Units Environmental PM1.0 in ug/m3
-    """
-    pm25_environmental: builtins.int
-    """
-    Concentration Units Environmental PM2.5 in ug/m3
-    """
-    pm100_environmental: builtins.int
-    """
-    Concentration Units Environmental PM10.0 in ug/m3
-    """
-    particles_03um: builtins.int
-    """
-    0.3um Particle Count in #/0.1l
-    """
-    particles_05um: builtins.int
-    """
-    0.5um Particle Count in #/0.1l
-    """
-    particles_10um: builtins.int
-    """
-    1.0um Particle Count in #/0.1l
-    """
-    particles_25um: builtins.int
-    """
-    2.5um Particle Count in #/0.1l
-    """
-    particles_50um: builtins.int
-    """
-    5.0um Particle Count in #/0.1l
-    """
-    particles_100um: builtins.int
-    """
-    10.0um Particle Count in #/0.1l
-    """
-    co2: builtins.int
-    """
-    CO2 concentration in ppm
-    """
-    co2_temperature: builtins.float
-    """
-    CO2 sensor temperature in degC
-    """
-    co2_humidity: builtins.float
-    """
-    CO2 sensor relative humidity in %
-    """
-    form_formaldehyde: builtins.float
-    """
-    Formaldehyde sensor formaldehyde concentration in ppb
-    """
-    form_humidity: builtins.float
-    """
-    Formaldehyde sensor relative humidity in %RH
-    """
-    form_temperature: builtins.float
-    """
-    Formaldehyde sensor temperature in degrees Celsius
-    """
-    pm40_standard: builtins.int
-    """
-    Concentration Units Standard PM4.0 in ug/m3
-    """
-    particles_40um: builtins.int
-    """
-    4.0um Particle Count in #/0.1l
-    """
-    pm_temperature: builtins.float
-    """
-    PM Sensor Temperature
-    """
-    pm_humidity: builtins.float
-    """
-    PM Sensor humidity
-    """
-    pm_voc_idx: builtins.float
-    """
-    PM Sensor VOC Index
-    """
-    pm_nox_idx: builtins.float
-    """
-    PM Sensor NOx Index
-    """
-    particles_tps: builtins.float
-    """
-    Typical Particle Size in um
-    """
-    pm_status_flags: builtins.int
-    """
-    Raw PM sensor device status/error register bitmask, as defined by the sensor's own datasheet
-    (currently populated by the SEN6X family: bit 4 fan error, bit 6 RH&T error, bit 7 gas/VOC-NOx
-    error, bit 9 CO2 error (SEN66), bit 10 HCHO error, bit 11 PM error, bit 12 CO2 error (SEN63C/SEN69C),
-    bit 21 fan speed warning)
-    """
-    def __init__(
-        self,
-        *,
-        pm10_standard: builtins.int | None = ...,
-        pm25_standard: builtins.int | None = ...,
-        pm100_standard: builtins.int | None = ...,
-        pm10_environmental: builtins.int | None = ...,
-        pm25_environmental: builtins.int | None = ...,
-        pm100_environmental: builtins.int | None = ...,
-        particles_03um: builtins.int | None = ...,
-        particles_05um: builtins.int | None = ...,
-        particles_10um: builtins.int | None = ...,
-        particles_25um: builtins.int | None = ...,
-        particles_50um: builtins.int | None = ...,
-        particles_100um: builtins.int | None = ...,
-        co2: builtins.int | None = ...,
-        co2_temperature: builtins.float | None = ...,
-        co2_humidity: builtins.float | None = ...,
-        form_formaldehyde: builtins.float | None = ...,
-        form_humidity: builtins.float | None = ...,
-        form_temperature: builtins.float | None = ...,
-        pm40_standard: builtins.int | None = ...,
-        particles_40um: builtins.int | None = ...,
-        pm_temperature: builtins.float | None = ...,
-        pm_humidity: builtins.float | None = ...,
-        pm_voc_idx: builtins.float | None = ...,
-        pm_nox_idx: builtins.float | None = ...,
-        particles_tps: builtins.float | None = ...,
-        pm_status_flags: builtins.int | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_co2", b"_co2", "_co2_humidity", b"_co2_humidity", "_co2_temperature", b"_co2_temperature", "_form_formaldehyde", b"_form_formaldehyde", "_form_humidity", b"_form_humidity", "_form_temperature", b"_form_temperature", "_particles_03um", b"_particles_03um", "_particles_05um", b"_particles_05um", "_particles_100um", b"_particles_100um", "_particles_10um", b"_particles_10um", "_particles_25um", b"_particles_25um", "_particles_40um", b"_particles_40um", "_particles_50um", b"_particles_50um", "_particles_tps", b"_particles_tps", "_pm100_environmental", b"_pm100_environmental", "_pm100_standard", b"_pm100_standard", "_pm10_environmental", b"_pm10_environmental", "_pm10_standard", b"_pm10_standard", "_pm25_environmental", b"_pm25_environmental", "_pm25_standard", b"_pm25_standard", "_pm40_standard", b"_pm40_standard", "_pm_humidity", b"_pm_humidity", "_pm_nox_idx", b"_pm_nox_idx", "_pm_status_flags", b"_pm_status_flags", "_pm_temperature", b"_pm_temperature", "_pm_voc_idx", b"_pm_voc_idx", "co2", b"co2", "co2_humidity", b"co2_humidity", "co2_temperature", b"co2_temperature", "form_formaldehyde", b"form_formaldehyde", "form_humidity", b"form_humidity", "form_temperature", b"form_temperature", "particles_03um", b"particles_03um", "particles_05um", b"particles_05um", "particles_100um", b"particles_100um", "particles_10um", b"particles_10um", "particles_25um", b"particles_25um", "particles_40um", b"particles_40um", "particles_50um", b"particles_50um", "particles_tps", b"particles_tps", "pm100_environmental", b"pm100_environmental", "pm100_standard", b"pm100_standard", "pm10_environmental", b"pm10_environmental", "pm10_standard", b"pm10_standard", "pm25_environmental", b"pm25_environmental", "pm25_standard", b"pm25_standard", "pm40_standard", b"pm40_standard", "pm_humidity", b"pm_humidity", "pm_nox_idx", b"pm_nox_idx", "pm_status_flags", b"pm_status_flags", "pm_temperature", b"pm_temperature", "pm_voc_idx", b"pm_voc_idx"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_co2", b"_co2", "_co2_humidity", b"_co2_humidity", "_co2_temperature", b"_co2_temperature", "_form_formaldehyde", b"_form_formaldehyde", "_form_humidity", b"_form_humidity", "_form_temperature", b"_form_temperature", "_particles_03um", b"_particles_03um", "_particles_05um", b"_particles_05um", "_particles_100um", b"_particles_100um", "_particles_10um", b"_particles_10um", "_particles_25um", b"_particles_25um", "_particles_40um", b"_particles_40um", "_particles_50um", b"_particles_50um", "_particles_tps", b"_particles_tps", "_pm100_environmental", b"_pm100_environmental", "_pm100_standard", b"_pm100_standard", "_pm10_environmental", b"_pm10_environmental", "_pm10_standard", b"_pm10_standard", "_pm25_environmental", b"_pm25_environmental", "_pm25_standard", b"_pm25_standard", "_pm40_standard", b"_pm40_standard", "_pm_humidity", b"_pm_humidity", "_pm_nox_idx", b"_pm_nox_idx", "_pm_status_flags", b"_pm_status_flags", "_pm_temperature", b"_pm_temperature", "_pm_voc_idx", b"_pm_voc_idx", "co2", b"co2", "co2_humidity", b"co2_humidity", "co2_temperature", b"co2_temperature", "form_formaldehyde", b"form_formaldehyde", "form_humidity", b"form_humidity", "form_temperature", b"form_temperature", "particles_03um", b"particles_03um", "particles_05um", b"particles_05um", "particles_100um", b"particles_100um", "particles_10um", b"particles_10um", "particles_25um", b"particles_25um", "particles_40um", b"particles_40um", "particles_50um", b"particles_50um", "particles_tps", b"particles_tps", "pm100_environmental", b"pm100_environmental", "pm100_standard", b"pm100_standard", "pm10_environmental", b"pm10_environmental", "pm10_standard", b"pm10_standard", "pm25_environmental", b"pm25_environmental", "pm25_standard", b"pm25_standard", "pm40_standard", b"pm40_standard", "pm_humidity", b"pm_humidity", "pm_nox_idx", b"pm_nox_idx", "pm_status_flags", b"pm_status_flags", "pm_temperature", b"pm_temperature", "pm_voc_idx", b"pm_voc_idx"]) -> None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_co2", b"_co2"]) -> typing.Literal["co2"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_co2_humidity", b"_co2_humidity"]) -> typing.Literal["co2_humidity"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_co2_temperature", b"_co2_temperature"]) -> typing.Literal["co2_temperature"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_form_formaldehyde", b"_form_formaldehyde"]) -> typing.Literal["form_formaldehyde"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_form_humidity", b"_form_humidity"]) -> typing.Literal["form_humidity"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_form_temperature", b"_form_temperature"]) -> typing.Literal["form_temperature"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_particles_03um", b"_particles_03um"]) -> typing.Literal["particles_03um"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_particles_05um", b"_particles_05um"]) -> typing.Literal["particles_05um"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_particles_100um", b"_particles_100um"]) -> typing.Literal["particles_100um"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_particles_10um", b"_particles_10um"]) -> typing.Literal["particles_10um"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_particles_25um", b"_particles_25um"]) -> typing.Literal["particles_25um"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_particles_40um", b"_particles_40um"]) -> typing.Literal["particles_40um"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_particles_50um", b"_particles_50um"]) -> typing.Literal["particles_50um"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_particles_tps", b"_particles_tps"]) -> typing.Literal["particles_tps"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm100_environmental", b"_pm100_environmental"]) -> typing.Literal["pm100_environmental"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm100_standard", b"_pm100_standard"]) -> typing.Literal["pm100_standard"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm10_environmental", b"_pm10_environmental"]) -> typing.Literal["pm10_environmental"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm10_standard", b"_pm10_standard"]) -> typing.Literal["pm10_standard"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm25_environmental", b"_pm25_environmental"]) -> typing.Literal["pm25_environmental"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm25_standard", b"_pm25_standard"]) -> typing.Literal["pm25_standard"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm40_standard", b"_pm40_standard"]) -> typing.Literal["pm40_standard"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm_humidity", b"_pm_humidity"]) -> typing.Literal["pm_humidity"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm_nox_idx", b"_pm_nox_idx"]) -> typing.Literal["pm_nox_idx"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm_status_flags", b"_pm_status_flags"]) -> typing.Literal["pm_status_flags"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm_temperature", b"_pm_temperature"]) -> typing.Literal["pm_temperature"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_pm_voc_idx", b"_pm_voc_idx"]) -> typing.Literal["pm_voc_idx"] | None: ...
-
-global___AirQualityMetrics = AirQualityMetrics
-
-@typing.final
-class LocalStats(google.protobuf.message.Message):
+@_typing.final
+class LocalStats(_message.Message):
     """
     Local device mesh statistics
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    UPTIME_SECONDS_FIELD_NUMBER: builtins.int
-    CHANNEL_UTILIZATION_FIELD_NUMBER: builtins.int
-    AIR_UTIL_TX_FIELD_NUMBER: builtins.int
-    NUM_PACKETS_TX_FIELD_NUMBER: builtins.int
-    NUM_PACKETS_RX_FIELD_NUMBER: builtins.int
-    NUM_PACKETS_RX_BAD_FIELD_NUMBER: builtins.int
-    NUM_ONLINE_NODES_FIELD_NUMBER: builtins.int
-    NUM_TOTAL_NODES_FIELD_NUMBER: builtins.int
-    NUM_RX_DUPE_FIELD_NUMBER: builtins.int
-    NUM_TX_RELAY_FIELD_NUMBER: builtins.int
-    NUM_TX_RELAY_CANCELED_FIELD_NUMBER: builtins.int
-    HEAP_TOTAL_BYTES_FIELD_NUMBER: builtins.int
-    HEAP_FREE_BYTES_FIELD_NUMBER: builtins.int
-    NUM_TX_DROPPED_FIELD_NUMBER: builtins.int
-    NOISE_FLOOR_FIELD_NUMBER: builtins.int
-    uptime_seconds: builtins.int
+    class _DiscoveryStage:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _DiscoveryStageEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[LocalStats._DiscoveryStage.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        DISCOVERY_STAGE_UNSET: LocalStats._DiscoveryStage.ValueType  # 0
+        """
+        Not reported.
+        """
+        DISCOVERY_STAGE_ANNOUNCE: LocalStats._DiscoveryStage.ValueType  # 1
+        """
+        Full-budget NodeInfo at node_info_broadcast_secs: no discovery server, few nodes.
+        """
+        DISCOVERY_STAGE_TAPER: LocalStats._DiscoveryStage.ValueType  # 2
+        """
+        Interval times taper_factor: a discovery server heard, or discovery_node_threshold nodes.
+        """
+        DISCOVERY_STAGE_SERVE: LocalStats._DiscoveryStage.ValueType  # 3
+        """
+        Enough servers heard for long enough: NodeInfo at hop_limit 1, plus one full-budget
+        announce per full_announce_secs.
+        """
+
+    class DiscoveryStage(_DiscoveryStage, metaclass=_DiscoveryStageEnumTypeWrapper):
+        """
+        Where this node stands on the node discovery cadence ladder (SCHEMA.md section 8).
+        """
+
+    DISCOVERY_STAGE_UNSET: LocalStats.DiscoveryStage.ValueType  # 0
+    """
+    Not reported.
+    """
+    DISCOVERY_STAGE_ANNOUNCE: LocalStats.DiscoveryStage.ValueType  # 1
+    """
+    Full-budget NodeInfo at node_info_broadcast_secs: no discovery server, few nodes.
+    """
+    DISCOVERY_STAGE_TAPER: LocalStats.DiscoveryStage.ValueType  # 2
+    """
+    Interval times taper_factor: a discovery server heard, or discovery_node_threshold nodes.
+    """
+    DISCOVERY_STAGE_SERVE: LocalStats.DiscoveryStage.ValueType  # 3
+    """
+    Enough servers heard for long enough: NodeInfo at hop_limit 1, plus one full-budget
+    announce per full_announce_secs.
+    """
+
+    UPTIME_SECONDS_FIELD_NUMBER: _builtins.int
+    CHANNEL_UTILIZATION_FIELD_NUMBER: _builtins.int
+    AIR_UTIL_TX_FIELD_NUMBER: _builtins.int
+    NUM_PACKETS_TX_FIELD_NUMBER: _builtins.int
+    NUM_PACKETS_RX_FIELD_NUMBER: _builtins.int
+    NUM_PACKETS_RX_BAD_FIELD_NUMBER: _builtins.int
+    NUM_ONLINE_NODES_FIELD_NUMBER: _builtins.int
+    NUM_TOTAL_NODES_FIELD_NUMBER: _builtins.int
+    NUM_RX_DUPE_FIELD_NUMBER: _builtins.int
+    NUM_TX_RELAY_FIELD_NUMBER: _builtins.int
+    NUM_TX_RELAY_CANCELED_FIELD_NUMBER: _builtins.int
+    HEAP_TOTAL_BYTES_FIELD_NUMBER: _builtins.int
+    HEAP_FREE_BYTES_FIELD_NUMBER: _builtins.int
+    NUM_TX_DROPPED_FIELD_NUMBER: _builtins.int
+    NOISE_FLOOR_FIELD_NUMBER: _builtins.int
+    NUM_TX_RELAY_SUPPRESSED_FIELD_NUMBER: _builtins.int
+    DISCOVERY_STAGE_FIELD_NUMBER: _builtins.int
+    DISCOVERY_SERVERS_FIELD_NUMBER: _builtins.int
+    uptime_seconds: _builtins.int
     """
     How long the device has been running since the last reboot (in seconds)
     """
-    channel_utilization: builtins.float
+    channel_utilization: _builtins.int
     """
-    Utilization for the current channel, including well formed TX, RX and malformed RX (aka noise).
+    Channel utilization x100
     """
-    air_util_tx: builtins.float
+    air_util_tx: _builtins.int
     """
-    Percent of airtime for transmission used within the last hour.
+    Percent of airtime for TX x100
     """
-    num_packets_tx: builtins.int
+    num_packets_tx: _builtins.int
     """
     Number of packets sent
     """
-    num_packets_rx: builtins.int
+    num_packets_rx: _builtins.int
     """
     Number of packets received (both good and bad)
     """
-    num_packets_rx_bad: builtins.int
+    num_packets_rx_bad: _builtins.int
     """
     Number of packets received that are malformed or violate the protocol
     """
-    num_online_nodes: builtins.int
+    num_online_nodes: _builtins.int
     """
     Number of nodes online (in the past 2 hours)
     """
-    num_total_nodes: builtins.int
+    num_total_nodes: _builtins.int
     """
     Number of nodes total
     """
-    num_rx_dupe: builtins.int
+    num_rx_dupe: _builtins.int
     """
     Number of received packets that were duplicates (due to multiple nodes relaying).
-    If this number is high, there are nodes in the mesh relaying packets when it's unnecessary, for example due to the ROUTER/REPEATER role.
+    If this number is high, there are nodes in the mesh relaying packets when it is
+    unnecessary, for example because too many of them carry a relaying role.
     """
-    num_tx_relay: builtins.int
+    num_tx_relay: _builtins.int
     """
     Number of packets we transmitted that were a relay for others (not originating from ourselves).
     """
-    num_tx_relay_canceled: builtins.int
+    num_tx_relay_canceled: _builtins.int
     """
     Number of times we canceled a packet to be relayed, because someone else did it before us.
-    This will always be zero for ROUTERs/REPEATERs. If this number is high, some other node(s) is/are relaying faster than you.
+    This is always zero on a node that relays without waiting, which is what a ROUTER
+    does. If this number is high, other nodes are relaying faster than you.
     """
-    heap_total_bytes: builtins.int
+    heap_total_bytes: _builtins.int
     """
     Number of bytes used in the heap
     """
-    heap_free_bytes: builtins.int
+    heap_free_bytes: _builtins.int
     """
     Number of bytes free in the heap
     """
-    num_tx_dropped: builtins.int
+    num_tx_dropped: _builtins.int
     """
     Number of packets that were dropped because the transmit queue was full.
     """
-    noise_floor: builtins.int
+    noise_floor: _builtins.int
     """
-    Noise floor value measured in dBm
+    Noise floor in dBm (negative)
+    """
+    num_tx_relay_suppressed: _builtins.int
+    """
+    Broadcasts this node did not relay because client auto-mute was in force
+    (DeviceConfig.auto_mute_router_count).
+    """
+    discovery_stage: Global___LocalStats.DiscoveryStage.ValueType
+    """
+    The stage, and below it the reason: how many discovery servers this node hears.
+    num_online_nodes is the other input.
+    """
+    discovery_servers: _builtins.int
+    """
+    Distinct discovery servers heard within the last three hours.
     """
     def __init__(
         self,
         *,
-        uptime_seconds: builtins.int = ...,
-        channel_utilization: builtins.float = ...,
-        air_util_tx: builtins.float = ...,
-        num_packets_tx: builtins.int = ...,
-        num_packets_rx: builtins.int = ...,
-        num_packets_rx_bad: builtins.int = ...,
-        num_online_nodes: builtins.int = ...,
-        num_total_nodes: builtins.int = ...,
-        num_rx_dupe: builtins.int = ...,
-        num_tx_relay: builtins.int = ...,
-        num_tx_relay_canceled: builtins.int = ...,
-        heap_total_bytes: builtins.int = ...,
-        heap_free_bytes: builtins.int = ...,
-        num_tx_dropped: builtins.int = ...,
-        noise_floor: builtins.int = ...,
+        uptime_seconds: _builtins.int = ...,
+        channel_utilization: _builtins.int = ...,
+        air_util_tx: _builtins.int = ...,
+        num_packets_tx: _builtins.int = ...,
+        num_packets_rx: _builtins.int = ...,
+        num_packets_rx_bad: _builtins.int = ...,
+        num_online_nodes: _builtins.int = ...,
+        num_total_nodes: _builtins.int = ...,
+        num_rx_dupe: _builtins.int = ...,
+        num_tx_relay: _builtins.int = ...,
+        num_tx_relay_canceled: _builtins.int = ...,
+        heap_total_bytes: _builtins.int = ...,
+        heap_free_bytes: _builtins.int = ...,
+        num_tx_dropped: _builtins.int = ...,
+        noise_floor: _builtins.int = ...,
+        num_tx_relay_suppressed: _builtins.int = ...,
+        discovery_stage: Global___LocalStats.DiscoveryStage.ValueType = ...,
+        discovery_servers: _builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["air_util_tx", b"air_util_tx", "channel_utilization", b"channel_utilization", "heap_free_bytes", b"heap_free_bytes", "heap_total_bytes", b"heap_total_bytes", "noise_floor", b"noise_floor", "num_online_nodes", b"num_online_nodes", "num_packets_rx", b"num_packets_rx", "num_packets_rx_bad", b"num_packets_rx_bad", "num_packets_tx", b"num_packets_tx", "num_rx_dupe", b"num_rx_dupe", "num_total_nodes", b"num_total_nodes", "num_tx_dropped", b"num_tx_dropped", "num_tx_relay", b"num_tx_relay", "num_tx_relay_canceled", b"num_tx_relay_canceled", "uptime_seconds", b"uptime_seconds"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["air_util_tx", b"air_util_tx", "channel_utilization", b"channel_utilization", "discovery_servers", b"discovery_servers", "discovery_stage", b"discovery_stage", "heap_free_bytes", b"heap_free_bytes", "heap_total_bytes", b"heap_total_bytes", "noise_floor", b"noise_floor", "num_online_nodes", b"num_online_nodes", "num_packets_rx", b"num_packets_rx", "num_packets_rx_bad", b"num_packets_rx_bad", "num_packets_tx", b"num_packets_tx", "num_rx_dupe", b"num_rx_dupe", "num_total_nodes", b"num_total_nodes", "num_tx_dropped", b"num_tx_dropped", "num_tx_relay", b"num_tx_relay", "num_tx_relay_canceled", b"num_tx_relay_canceled", "num_tx_relay_suppressed", b"num_tx_relay_suppressed", "uptime_seconds", b"uptime_seconds"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___LocalStats = LocalStats
+Global___LocalStats: _TypeAlias = LocalStats  # noqa: Y015
 
-@typing.final
-class TrafficManagementStats(google.protobuf.message.Message):
+@_typing.final
+class TrafficManagementStats(_message.Message):
     """
     Traffic management statistics for mesh network optimization
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    PACKETS_INSPECTED_FIELD_NUMBER: builtins.int
-    POSITION_DEDUP_DROPS_FIELD_NUMBER: builtins.int
-    NODEINFO_CACHE_HITS_FIELD_NUMBER: builtins.int
-    RATE_LIMIT_DROPS_FIELD_NUMBER: builtins.int
-    UNKNOWN_PACKET_DROPS_FIELD_NUMBER: builtins.int
-    HOP_EXHAUSTED_PACKETS_FIELD_NUMBER: builtins.int
-    ROUTER_HOPS_PRESERVED_FIELD_NUMBER: builtins.int
-    packets_inspected: builtins.int
+    PACKETS_INSPECTED_FIELD_NUMBER: _builtins.int
+    POSITION_DEDUP_DROPS_FIELD_NUMBER: _builtins.int
+    NODEINFO_CACHE_HITS_FIELD_NUMBER: _builtins.int
+    RATE_LIMIT_DROPS_FIELD_NUMBER: _builtins.int
+    UNKNOWN_PACKET_DROPS_FIELD_NUMBER: _builtins.int
+    HOP_EXHAUSTED_PACKETS_FIELD_NUMBER: _builtins.int
+    ROUTER_HOPS_PRESERVED_FIELD_NUMBER: _builtins.int
+    packets_inspected: _builtins.int
     """
     Total number of packets inspected by traffic management
     """
-    position_dedup_drops: builtins.int
+    position_dedup_drops: _builtins.int
     """
     Number of position packets dropped due to deduplication
     """
-    nodeinfo_cache_hits: builtins.int
+    nodeinfo_cache_hits: _builtins.int
     """
     Number of NodeInfo requests answered from cache
     """
-    rate_limit_drops: builtins.int
+    rate_limit_drops: _builtins.int
     """
     Number of packets dropped due to rate limiting
     """
-    unknown_packet_drops: builtins.int
+    unknown_packet_drops: _builtins.int
     """
     Number of unknown/undecryptable packets dropped
     """
-    hop_exhausted_packets: builtins.int
+    hop_exhausted_packets: _builtins.int
     """
     Number of packets with hop_limit exhausted for local-only broadcast
     """
-    router_hops_preserved: builtins.int
+    router_hops_preserved: _builtins.int
     """
     Number of times router hop preservation was applied
     """
     def __init__(
         self,
         *,
-        packets_inspected: builtins.int = ...,
-        position_dedup_drops: builtins.int = ...,
-        nodeinfo_cache_hits: builtins.int = ...,
-        rate_limit_drops: builtins.int = ...,
-        unknown_packet_drops: builtins.int = ...,
-        hop_exhausted_packets: builtins.int = ...,
-        router_hops_preserved: builtins.int = ...,
+        packets_inspected: _builtins.int = ...,
+        position_dedup_drops: _builtins.int = ...,
+        nodeinfo_cache_hits: _builtins.int = ...,
+        rate_limit_drops: _builtins.int = ...,
+        unknown_packet_drops: _builtins.int = ...,
+        hop_exhausted_packets: _builtins.int = ...,
+        router_hops_preserved: _builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["hop_exhausted_packets", b"hop_exhausted_packets", "nodeinfo_cache_hits", b"nodeinfo_cache_hits", "packets_inspected", b"packets_inspected", "position_dedup_drops", b"position_dedup_drops", "rate_limit_drops", b"rate_limit_drops", "router_hops_preserved", b"router_hops_preserved", "unknown_packet_drops", b"unknown_packet_drops"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["hop_exhausted_packets", b"hop_exhausted_packets", "nodeinfo_cache_hits", b"nodeinfo_cache_hits", "packets_inspected", b"packets_inspected", "position_dedup_drops", b"position_dedup_drops", "rate_limit_drops", b"rate_limit_drops", "router_hops_preserved", b"router_hops_preserved", "unknown_packet_drops", b"unknown_packet_drops"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___TrafficManagementStats = TrafficManagementStats
+Global___TrafficManagementStats: _TypeAlias = TrafficManagementStats  # noqa: Y015
 
-@typing.final
-class HealthMetrics(google.protobuf.message.Message):
-    """
-    Health telemetry metrics
-    """
-
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    HEART_BPM_FIELD_NUMBER: builtins.int
-    SPO2_FIELD_NUMBER: builtins.int
-    TEMPERATURE_FIELD_NUMBER: builtins.int
-    heart_bpm: builtins.int
-    """
-    Heart rate (beats per minute)
-    """
-    spO2: builtins.int
-    """
-    SpO2 (blood oxygen saturation) level
-    """
-    temperature: builtins.float
-    """
-    Body temperature in degrees Celsius
-    """
-    def __init__(
-        self,
-        *,
-        heart_bpm: builtins.int | None = ...,
-        spO2: builtins.int | None = ...,
-        temperature: builtins.float | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_heart_bpm", b"_heart_bpm", "_spO2", b"_spO2", "_temperature", b"_temperature", "heart_bpm", b"heart_bpm", "spO2", b"spO2", "temperature", b"temperature"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_heart_bpm", b"_heart_bpm", "_spO2", b"_spO2", "_temperature", b"_temperature", "heart_bpm", b"heart_bpm", "spO2", b"spO2", "temperature", b"temperature"]) -> None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_heart_bpm", b"_heart_bpm"]) -> typing.Literal["heart_bpm"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_spO2", b"_spO2"]) -> typing.Literal["spO2"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_temperature", b"_temperature"]) -> typing.Literal["temperature"] | None: ...
-
-global___HealthMetrics = HealthMetrics
-
-@typing.final
-class HostMetrics(google.protobuf.message.Message):
+@_typing.final
+class HostMetrics(_message.Message):
     """
     Linux host metrics
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    UPTIME_SECONDS_FIELD_NUMBER: builtins.int
-    FREEMEM_BYTES_FIELD_NUMBER: builtins.int
-    DISKFREE1_BYTES_FIELD_NUMBER: builtins.int
-    DISKFREE2_BYTES_FIELD_NUMBER: builtins.int
-    DISKFREE3_BYTES_FIELD_NUMBER: builtins.int
-    LOAD1_FIELD_NUMBER: builtins.int
-    LOAD5_FIELD_NUMBER: builtins.int
-    LOAD15_FIELD_NUMBER: builtins.int
-    USER_STRING_FIELD_NUMBER: builtins.int
-    uptime_seconds: builtins.int
+    UPTIME_SECONDS_FIELD_NUMBER: _builtins.int
+    FREEMEM_BYTES_FIELD_NUMBER: _builtins.int
+    DISKFREE1_BYTES_FIELD_NUMBER: _builtins.int
+    DISKFREE2_BYTES_FIELD_NUMBER: _builtins.int
+    DISKFREE3_BYTES_FIELD_NUMBER: _builtins.int
+    LOAD1_FIELD_NUMBER: _builtins.int
+    LOAD5_FIELD_NUMBER: _builtins.int
+    LOAD15_FIELD_NUMBER: _builtins.int
+    USER_STRING_FIELD_NUMBER: _builtins.int
+    uptime_seconds: _builtins.int
     """
     Host system uptime
     """
-    freemem_bytes: builtins.int
+    freemem_bytes: _builtins.int
     """
     Host system free memory
     """
-    diskfree1_bytes: builtins.int
+    diskfree1_bytes: _builtins.int
     """
     Host system disk space free for /
     """
-    diskfree2_bytes: builtins.int
+    diskfree2_bytes: _builtins.int
     """
     Secondary system disk space free
     """
-    diskfree3_bytes: builtins.int
+    diskfree3_bytes: _builtins.int
     """
     Tertiary disk space free
     """
-    load1: builtins.int
+    load1: _builtins.int
     """
     Host system one minute load in 1/100ths
     """
-    load5: builtins.int
+    load5: _builtins.int
     """
     Host system five minute load  in 1/100ths
     """
-    load15: builtins.int
+    load15: _builtins.int
     """
     Host system fifteen minute load  in 1/100ths
     """
-    user_string: builtins.str
+    user_string: _builtins.str
     """
     Optional User-provided string for arbitrary host system information
     that doesn't make sense as a dedicated entry.
@@ -1679,161 +836,727 @@ class HostMetrics(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        uptime_seconds: builtins.int = ...,
-        freemem_bytes: builtins.int = ...,
-        diskfree1_bytes: builtins.int = ...,
-        diskfree2_bytes: builtins.int | None = ...,
-        diskfree3_bytes: builtins.int | None = ...,
-        load1: builtins.int = ...,
-        load5: builtins.int = ...,
-        load15: builtins.int = ...,
-        user_string: builtins.str | None = ...,
+        uptime_seconds: _builtins.int = ...,
+        freemem_bytes: _builtins.int = ...,
+        diskfree1_bytes: _builtins.int = ...,
+        diskfree2_bytes: _builtins.int | None = ...,
+        diskfree3_bytes: _builtins.int | None = ...,
+        load1: _builtins.int = ...,
+        load5: _builtins.int = ...,
+        load15: _builtins.int = ...,
+        user_string: _builtins.str | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_diskfree2_bytes", b"_diskfree2_bytes", "_diskfree3_bytes", b"_diskfree3_bytes", "_user_string", b"_user_string", "diskfree2_bytes", b"diskfree2_bytes", "diskfree3_bytes", b"diskfree3_bytes", "user_string", b"user_string"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_diskfree2_bytes", b"_diskfree2_bytes", "_diskfree3_bytes", b"_diskfree3_bytes", "_user_string", b"_user_string", "diskfree1_bytes", b"diskfree1_bytes", "diskfree2_bytes", b"diskfree2_bytes", "diskfree3_bytes", b"diskfree3_bytes", "freemem_bytes", b"freemem_bytes", "load1", b"load1", "load15", b"load15", "load5", b"load5", "uptime_seconds", b"uptime_seconds", "user_string", b"user_string"]) -> None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_diskfree2_bytes", b"_diskfree2_bytes"]) -> typing.Literal["diskfree2_bytes"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_diskfree3_bytes", b"_diskfree3_bytes"]) -> typing.Literal["diskfree3_bytes"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_user_string", b"_user_string"]) -> typing.Literal["user_string"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_diskfree2_bytes", b"_diskfree2_bytes", "_diskfree3_bytes", b"_diskfree3_bytes", "_user_string", b"_user_string", "diskfree2_bytes", b"diskfree2_bytes", "diskfree3_bytes", b"diskfree3_bytes", "user_string", b"user_string"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_diskfree2_bytes", b"_diskfree2_bytes", "_diskfree3_bytes", b"_diskfree3_bytes", "_user_string", b"_user_string", "diskfree1_bytes", b"diskfree1_bytes", "diskfree2_bytes", b"diskfree2_bytes", "diskfree3_bytes", b"diskfree3_bytes", "freemem_bytes", b"freemem_bytes", "load1", b"load1", "load15", b"load15", "load5", b"load5", "uptime_seconds", b"uptime_seconds", "user_string", b"user_string"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__diskfree2_bytes: _TypeAlias = _typing.Literal["diskfree2_bytes"]  # noqa: Y015
+    _WhichOneofArgType__diskfree2_bytes: _TypeAlias = _typing.Literal["_diskfree2_bytes", b"_diskfree2_bytes"]  # noqa: Y015
+    _WhichOneofReturnType__diskfree3_bytes: _TypeAlias = _typing.Literal["diskfree3_bytes"]  # noqa: Y015
+    _WhichOneofArgType__diskfree3_bytes: _TypeAlias = _typing.Literal["_diskfree3_bytes", b"_diskfree3_bytes"]  # noqa: Y015
+    _WhichOneofReturnType__user_string: _TypeAlias = _typing.Literal["user_string"]  # noqa: Y015
+    _WhichOneofArgType__user_string: _TypeAlias = _typing.Literal["_user_string", b"_user_string"]  # noqa: Y015
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__diskfree2_bytes) -> _WhichOneofReturnType__diskfree2_bytes | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__diskfree3_bytes) -> _WhichOneofReturnType__diskfree3_bytes | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__user_string) -> _WhichOneofReturnType__user_string | None: ...
 
-global___HostMetrics = HostMetrics
+Global___HostMetrics: _TypeAlias = HostMetrics  # noqa: Y015
 
-@typing.final
-class Telemetry(google.protobuf.message.Message):
+@_typing.final
+class SensorReadings(_message.Message):
     """
-    Types of Measurements the telemetry module is equipped to handle
+    A list of sensor readings.
+
+    Replaces the fixed typed metric messages. Those declared one field per quantity,
+    which meant most of the message was absent on any given node, a node could never
+    report two of the same quantity, and every new sensor needed a schema change. Six
+    separate temperature fields and three channel-indexed voltage pairs were the
+    symptom.
+
+    The layout is columnar and delta coded. `keys` names the quantity set once;
+    `values` holds one column per key, each column delta coded down the samples;
+    `time_deltas` carries the sample times differenced twice; `present` carries one
+    bitmap per sample; `sensors` carries one entry per key. Nothing repeats a quantity
+    name or a timestamp per reading.
+
+    That is the whole compression story, and it is ordinary packed protobuf: no bit
+    packing, no separate codec, nothing a generated decoder cannot already read. On a
+    captured 21-hour corpus of public broker traffic, eight buffered samples cost
+    about 71 bytes here against 200 as one message per reading.
+
+    A single sample is the live broadcast: one entry per column, no deltas, no times.
+    Send as many samples as the payload allows, then start another message.
+
+    On size: a reading costs one key byte plus one to three value bytes, against a
+    typed field's one to two tag bytes plus the same value. That is slightly larger for
+    a three-reading BME280 broadcast and slightly smaller once a quantity would need a
+    two-byte tag, which a catalogue this size reaches quickly. What it buys is unbounded
+    quantities, repeated quantities and no schema churn per sensor.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    TIME_FIELD_NUMBER: builtins.int
-    DEVICE_METRICS_FIELD_NUMBER: builtins.int
-    ENVIRONMENT_METRICS_FIELD_NUMBER: builtins.int
-    AIR_QUALITY_METRICS_FIELD_NUMBER: builtins.int
-    POWER_METRICS_FIELD_NUMBER: builtins.int
-    LOCAL_STATS_FIELD_NUMBER: builtins.int
-    HEALTH_METRICS_FIELD_NUMBER: builtins.int
-    HOST_METRICS_FIELD_NUMBER: builtins.int
-    TRAFFIC_MANAGEMENT_STATS_FIELD_NUMBER: builtins.int
-    SOIL_WATER_METRICS_FIELD_NUMBER: builtins.int
-    time: builtins.int
+    class _Quantity:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _QuantityEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[SensorReadings._Quantity.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        QUANTITY_UNSET: SensorReadings._Quantity.ValueType  # 0
+        """Not set; never valid in a key"""
+        AIR_TEMPERATURE_C_CENTI: SensorReadings._Quantity.ValueType  # 1
+        """--- Atmosphere ---
+
+        Air temperature, centi-degrees Celsius (2350 = 23.50 C)
+        """
+        AIR_HUMIDITY_PCT_CENTI: SensorReadings._Quantity.ValueType  # 2
+        """Relative humidity, centi-percent (6550 = 65.50 %)"""
+        AIR_PRESSURE_PA: SensorReadings._Quantity.ValueType  # 3
+        """Barometric pressure, pascals (101325)"""
+        WIND_DIRECTION_DEG: SensorReadings._Quantity.ValueType  # 4
+        """Wind direction, degrees true, 0..359"""
+        WIND_SPEED_CMS: SensorReadings._Quantity.ValueType  # 5
+        """Wind speed, centimetres per second"""
+        WIND_GUST_CMS: SensorReadings._Quantity.ValueType  # 6
+        """Wind gust, centimetres per second"""
+        WIND_LULL_CMS: SensorReadings._Quantity.ValueType  # 7
+        """Wind lull, centimetres per second"""
+        RAINFALL_1H_MM: SensorReadings._Quantity.ValueType  # 8
+        """Rainfall in the last hour, millimetres"""
+        RAINFALL_24H_MM: SensorReadings._Quantity.ValueType  # 9
+        """Rainfall in the last 24 hours, millimetres"""
+        RADIATION_URH: SensorReadings._Quantity.ValueType  # 10
+        """Ionising radiation, microroentgen per hour"""
+        LIGHTNING_STRIKES_1H: SensorReadings._Quantity.ValueType  # 11
+        """Lightning strikes detected in the last hour"""
+        LIGHTNING_DISTANCE_KM: SensorReadings._Quantity.ValueType  # 12
+        """Distance to the leading edge of the storm, kilometres"""
+        ILLUMINANCE_LUX_DECI: SensorReadings._Quantity.ValueType  # 13
+        """--- Light ---
+
+
+        Ambient illuminance, deci-lux (12345 = 1234.5 lx).
+
+        Deci and not centi: the best ambient light sensors in use resolve about
+        0.004 lx at maximum gain and most resolve 1 lx, while readings run to six
+        figures in daylight. A hundredth of a lux is finer than any of them and
+        multiplies every delta by ten for it, which costs a byte per sample on a
+        column that moves at all.
+        """
+        ILLUMINANCE_WHITE_LUX_DECI: SensorReadings._Quantity.ValueType  # 14
+        """White-channel illuminance, deci-lux"""
+        ILLUMINANCE_IR_LUX_DECI: SensorReadings._Quantity.ValueType  # 15
+        """Infrared illuminance, deci-lux"""
+        ILLUMINANCE_UV_LUX_DECI: SensorReadings._Quantity.ValueType  # 16
+        """Ultraviolet illuminance, deci-lux"""
+        SOLAR_IRRADIANCE_WM2: SensorReadings._Quantity.ValueType  # 17
+        """Solar irradiance, watts per square metre"""
+        VOLTAGE_MV: SensorReadings._Quantity.ValueType  # 18
+        """--- Electrical ---
+
+        Voltage, millivolts. Ordinal selects the channel.
+        """
+        CURRENT_MA: SensorReadings._Quantity.ValueType  # 19
+        """Current, milliamps, negative when discharging. Ordinal selects the channel."""
+        VOLTAGE_UV: SensorReadings._Quantity.ValueType  # 20
+        """
+        Voltage, microvolts. For electrochemical sensor outputs, whose signal sits in
+        the microvolt range. Supply rails and battery voltages use VOLTAGE_MV: a rail
+        carried here is four bytes absolute and inflates every delta a thousandfold.
+        Ordinal selects the channel.
+        """
+        DISTANCE_MM: SensorReadings._Quantity.ValueType  # 21
+        """--- Distance and mass ---
+
+        Distance, millimetres
+        """
+        WEIGHT_G: SensorReadings._Quantity.ValueType  # 22
+        """Weight, grams"""
+        SOIL_TEMPERATURE_C_CENTI: SensorReadings._Quantity.ValueType  # 23
+        """--- Soil ---
+
+        Soil temperature, centi-degrees Celsius
+        """
+        SOIL_MOISTURE_PCT: SensorReadings._Quantity.ValueType  # 24
+        """Soil moisture, percent"""
+        SOIL_PH_CENTI: SensorReadings._Quantity.ValueType  # 25
+        """Soil pH, centi-pH (725 = pH 7.25)"""
+        SOIL_CONDUCTIVITY_USCM: SensorReadings._Quantity.ValueType  # 26
+        """Electrical conductivity, microsiemens per centimetre"""
+        SOIL_NITROGEN_MGKG: SensorReadings._Quantity.ValueType  # 27
+        """Nitrogen, milligrams per kilogram"""
+        SOIL_PHOSPHORUS_MGKG: SensorReadings._Quantity.ValueType  # 28
+        """Phosphorus, milligrams per kilogram"""
+        SOIL_POTASSIUM_MGKG: SensorReadings._Quantity.ValueType  # 29
+        """Potassium, milligrams per kilogram"""
+        WATER_PH_CENTI: SensorReadings._Quantity.ValueType  # 30
+        """--- Water ---
+
+        pH of water or solution, centi-pH
+        """
+        WATER_CONDUCTIVITY_USCM: SensorReadings._Quantity.ValueType  # 31
+        """Electrical conductivity, microsiemens per centimetre"""
+        WATER_SALINITY_MGL: SensorReadings._Quantity.ValueType  # 32
+        """Salinity, milligrams per litre"""
+        WATER_DISSOLVED_OXYGEN_MGL_CENTI: SensorReadings._Quantity.ValueType  # 33
+        """Dissolved oxygen, centi-milligrams per litre"""
+        WATER_ORP_MV: SensorReadings._Quantity.ValueType  # 34
+        """Oxidation-reduction potential, millivolts, may be negative"""
+        WATER_COD_MGL: SensorReadings._Quantity.ValueType  # 35
+        """Chemical oxygen demand, milligrams per litre"""
+        WATER_BOD_MGL: SensorReadings._Quantity.ValueType  # 36
+        """Biochemical oxygen demand, milligrams per litre"""
+        WATER_TURBIDITY_NTU_CENTI: SensorReadings._Quantity.ValueType  # 37
+        """Turbidity, centi-NTU"""
+        WATER_NITRATE_PPM_CENTI: SensorReadings._Quantity.ValueType  # 38
+        """Nitrate, centi-ppm"""
+        WATER_AMMONIUM_PPM_CENTI: SensorReadings._Quantity.ValueType  # 39
+        """Ammonium, centi-ppm"""
+        PM1_0_STD_UGM3_DECI: SensorReadings._Quantity.ValueType  # 40
+        """--- Air Quality ---
+
+        PM1.0, standard conditions deci-ug/m3 (235 = 23.5 ug/m3)
+        """
+        PM2_5_STD_UGM3_DECI: SensorReadings._Quantity.ValueType  # 41
+        """PM2.5, standard conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+        PM4_0_STD_UGM3_DECI: SensorReadings._Quantity.ValueType  # 42
+        """PM4.0, standard conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+        PM10_0_STD_UGM3_DECI: SensorReadings._Quantity.ValueType  # 43
+        """PM10.0, standard conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+        PM1_0_ENV_UGM3_DECI: SensorReadings._Quantity.ValueType  # 44
+        """PM1.0, ambient conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+        PM2_5_ENV_UGM3_DECI: SensorReadings._Quantity.ValueType  # 45
+        """PM2.5, ambient conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+        PM10_0_ENV_UGM3_DECI: SensorReadings._Quantity.ValueType  # 46
+        """PM10.0, ambient conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+        PARTICLES_0_3UM: SensorReadings._Quantity.ValueType  # 47
+        """Particles at least 0.3 um (#/0.1l)"""
+        PARTICLES_0_5UM: SensorReadings._Quantity.ValueType  # 48
+        """Particles at least 0.5 um (#/0.1l)"""
+        PARTICLES_1_0UM: SensorReadings._Quantity.ValueType  # 49
+        """Particles at least 1.0 um (#/0.1l)"""
+        PARTICLES_2_5UM: SensorReadings._Quantity.ValueType  # 50
+        """Particles at least 2.5 um (#/0.1l)"""
+        PARTICLES_4_0UM: SensorReadings._Quantity.ValueType  # 51
+        """Particles at least 4.0 um (#/0.1l)"""
+        PARTICLES_5_0UM: SensorReadings._Quantity.ValueType  # 52
+        """Particles at least 5.0 um (#/0.1l)"""
+        PARTICLES_10_0UM: SensorReadings._Quantity.ValueType  # 53
+        """Particles at least 10.0 um (#/0.1l)"""
+        PARTICLE_SIZE_UM_CENTI: SensorReadings._Quantity.ValueType  # 54
+        """Typical particle size, centi-micrometres (235 = 2.35 um)"""
+        CO2_PPM: SensorReadings._Quantity.ValueType  # 55
+        """Carbon dioxide, parts per million"""
+        HCHO_PPB: SensorReadings._Quantity.ValueType  # 56
+        """Formaldehyde, parts per billion"""
+        VOC_INDEX: SensorReadings._Quantity.ValueType  # 57
+        """VOC index"""
+        NOX_INDEX: SensorReadings._Quantity.ValueType  # 58
+        """NOx index"""
+        IAQ_INDEX: SensorReadings._Quantity.ValueType  # 59
+        """Indoor air quality index, 0..500"""
+        SENSOR_GAS_RESISTANCE_KOHM: SensorReadings._Quantity.ValueType  # 60
+        """Metal Oxyde Sensor Gas resistance, kilo-ohms"""
+        PM_STATUS_FLAGS: SensorReadings._Quantity.ValueType  # 61
+        """
+        Raw PM sensor status/error register, as defined by the sensor's own datasheet.
+        A bitmask rather than a measurement; see the sensor named in `sensors`.
+        """
+        SENSOR_TEMPERATURE_C_CENTI: SensorReadings._Quantity.ValueType  # 62
+        """--- Compensation channels ---
+
+        A gas or particulate sensor reports its own temperature and humidity so a
+        reading can be corrected for them. These are NOT ambient conditions: the part
+        sits in an enclosure and self-heats, so the value runs warm and averaging it
+        with AIR_TEMPERATURE_C_CENTI corrupts both. They are separate quantities for
+        that reason and not per sensor family: what makes them distinct is being a
+        compensation channel, so name the part in `sensors` and use the ordinal to
+        separate two of the same kind.
+
+        Sensor-internal temperature, centi-degrees Celsius (2350 = 23.50 C)
+        """
+        SENSOR_HUMIDITY_PCT_CENTI: SensorReadings._Quantity.ValueType  # 63
+        """Sensor-internal humidity, centi-percent (6550 = 65.50 %)"""
+        BODY_HEART_RATE_BPM: SensorReadings._Quantity.ValueType  # 64
+        """--- Body ---
+
+        Heart rate, beats per minute
+        """
+        BODY_SPO2_PCT: SensorReadings._Quantity.ValueType  # 65
+        """Blood oxygen saturation, percent"""
+        BODY_TEMPERATURE_C_CENTI: SensorReadings._Quantity.ValueType  # 66
+        """Body temperature, centi-degrees Celsius"""
+
+    class Quantity(_Quantity, metaclass=_QuantityEnumTypeWrapper):
+        """
+        What a reading measures, including the unit and scale it is reported in.
+
+        The unit is part of the quantity rather than a separate field: it costs nothing
+        per reading, and two nodes can never report the same quantity in different
+        units. Where one measurand spans ranges no single scale serves, each range is its
+        own quantity chosen to suit the sensor - a supply rail in VOLTAGE_MV against an
+        electrochemical cell's output in VOLTAGE_UV - and a sensor reports under the one
+        that matches what it measures. Values are 1..127 so a key with ordinal 0 fits in a
+        single byte.
+
+        Every quantity names a fixed-point scale, so a value is always an integer and
+        never a float. `_CENTI` means hundredths of the named unit: 23.50 C is 2350 under
+        TEMPERATURE_C_CENTI. A quantity that needs no fraction, like CO2_PPM, is a plain
+        integer. This is deliberate - a float is always four bytes on the wire where a
+        scaled varint is one to three, spends its precision on significant digits no
+        sensor has, and costs software floating point on an FPU-less MCU. If a quantity
+        ever needs finer resolution, its enum value gets a finer scale; the encoding
+        never changes per reading.
+
+        Fields of measurement (AIR, WATER, SOIL, and more) are prefixes to the metric
+        to indicate the field of application. This is important to distinguish between different
+        fields and explicitly express what each quantity refers to.
+
+        Where one quantity is measured by several sensors on one node - air temperature
+        from two BME280s at different points on a mast - use one quantity and separate
+        them by ordinal, naming each in `sensors` where it matters.
+
+        A reading is a different quantity only when it measures a different thing, not
+        when a different part produced it. The temperature a CO2 or PM sensor reports for
+        its own compensation is one of those: it describes the inside of an enclosure
+        rather than the air, so it is SENSOR_TEMPERATURE_C_CENTI and not an ordinal of
+        AIR_TEMPERATURE_C_CENTI. Two ordinary sensors disagreeing about the same air are
+        not.
+        """
+
+    QUANTITY_UNSET: SensorReadings.Quantity.ValueType  # 0
+    """Not set; never valid in a key"""
+    AIR_TEMPERATURE_C_CENTI: SensorReadings.Quantity.ValueType  # 1
+    """--- Atmosphere ---
+
+    Air temperature, centi-degrees Celsius (2350 = 23.50 C)
     """
-    Seconds since 1970 - or 0 for unknown/unset
+    AIR_HUMIDITY_PCT_CENTI: SensorReadings.Quantity.ValueType  # 2
+    """Relative humidity, centi-percent (6550 = 65.50 %)"""
+    AIR_PRESSURE_PA: SensorReadings.Quantity.ValueType  # 3
+    """Barometric pressure, pascals (101325)"""
+    WIND_DIRECTION_DEG: SensorReadings.Quantity.ValueType  # 4
+    """Wind direction, degrees true, 0..359"""
+    WIND_SPEED_CMS: SensorReadings.Quantity.ValueType  # 5
+    """Wind speed, centimetres per second"""
+    WIND_GUST_CMS: SensorReadings.Quantity.ValueType  # 6
+    """Wind gust, centimetres per second"""
+    WIND_LULL_CMS: SensorReadings.Quantity.ValueType  # 7
+    """Wind lull, centimetres per second"""
+    RAINFALL_1H_MM: SensorReadings.Quantity.ValueType  # 8
+    """Rainfall in the last hour, millimetres"""
+    RAINFALL_24H_MM: SensorReadings.Quantity.ValueType  # 9
+    """Rainfall in the last 24 hours, millimetres"""
+    RADIATION_URH: SensorReadings.Quantity.ValueType  # 10
+    """Ionising radiation, microroentgen per hour"""
+    LIGHTNING_STRIKES_1H: SensorReadings.Quantity.ValueType  # 11
+    """Lightning strikes detected in the last hour"""
+    LIGHTNING_DISTANCE_KM: SensorReadings.Quantity.ValueType  # 12
+    """Distance to the leading edge of the storm, kilometres"""
+    ILLUMINANCE_LUX_DECI: SensorReadings.Quantity.ValueType  # 13
+    """--- Light ---
+
+
+    Ambient illuminance, deci-lux (12345 = 1234.5 lx).
+
+    Deci and not centi: the best ambient light sensors in use resolve about
+    0.004 lx at maximum gain and most resolve 1 lx, while readings run to six
+    figures in daylight. A hundredth of a lux is finer than any of them and
+    multiplies every delta by ten for it, which costs a byte per sample on a
+    column that moves at all.
     """
-    @property
-    def device_metrics(self) -> global___DeviceMetrics:
+    ILLUMINANCE_WHITE_LUX_DECI: SensorReadings.Quantity.ValueType  # 14
+    """White-channel illuminance, deci-lux"""
+    ILLUMINANCE_IR_LUX_DECI: SensorReadings.Quantity.ValueType  # 15
+    """Infrared illuminance, deci-lux"""
+    ILLUMINANCE_UV_LUX_DECI: SensorReadings.Quantity.ValueType  # 16
+    """Ultraviolet illuminance, deci-lux"""
+    SOLAR_IRRADIANCE_WM2: SensorReadings.Quantity.ValueType  # 17
+    """Solar irradiance, watts per square metre"""
+    VOLTAGE_MV: SensorReadings.Quantity.ValueType  # 18
+    """--- Electrical ---
+
+    Voltage, millivolts. Ordinal selects the channel.
+    """
+    CURRENT_MA: SensorReadings.Quantity.ValueType  # 19
+    """Current, milliamps, negative when discharging. Ordinal selects the channel."""
+    VOLTAGE_UV: SensorReadings.Quantity.ValueType  # 20
+    """
+    Voltage, microvolts. For electrochemical sensor outputs, whose signal sits in
+    the microvolt range. Supply rails and battery voltages use VOLTAGE_MV: a rail
+    carried here is four bytes absolute and inflates every delta a thousandfold.
+    Ordinal selects the channel.
+    """
+    DISTANCE_MM: SensorReadings.Quantity.ValueType  # 21
+    """--- Distance and mass ---
+
+    Distance, millimetres
+    """
+    WEIGHT_G: SensorReadings.Quantity.ValueType  # 22
+    """Weight, grams"""
+    SOIL_TEMPERATURE_C_CENTI: SensorReadings.Quantity.ValueType  # 23
+    """--- Soil ---
+
+    Soil temperature, centi-degrees Celsius
+    """
+    SOIL_MOISTURE_PCT: SensorReadings.Quantity.ValueType  # 24
+    """Soil moisture, percent"""
+    SOIL_PH_CENTI: SensorReadings.Quantity.ValueType  # 25
+    """Soil pH, centi-pH (725 = pH 7.25)"""
+    SOIL_CONDUCTIVITY_USCM: SensorReadings.Quantity.ValueType  # 26
+    """Electrical conductivity, microsiemens per centimetre"""
+    SOIL_NITROGEN_MGKG: SensorReadings.Quantity.ValueType  # 27
+    """Nitrogen, milligrams per kilogram"""
+    SOIL_PHOSPHORUS_MGKG: SensorReadings.Quantity.ValueType  # 28
+    """Phosphorus, milligrams per kilogram"""
+    SOIL_POTASSIUM_MGKG: SensorReadings.Quantity.ValueType  # 29
+    """Potassium, milligrams per kilogram"""
+    WATER_PH_CENTI: SensorReadings.Quantity.ValueType  # 30
+    """--- Water ---
+
+    pH of water or solution, centi-pH
+    """
+    WATER_CONDUCTIVITY_USCM: SensorReadings.Quantity.ValueType  # 31
+    """Electrical conductivity, microsiemens per centimetre"""
+    WATER_SALINITY_MGL: SensorReadings.Quantity.ValueType  # 32
+    """Salinity, milligrams per litre"""
+    WATER_DISSOLVED_OXYGEN_MGL_CENTI: SensorReadings.Quantity.ValueType  # 33
+    """Dissolved oxygen, centi-milligrams per litre"""
+    WATER_ORP_MV: SensorReadings.Quantity.ValueType  # 34
+    """Oxidation-reduction potential, millivolts, may be negative"""
+    WATER_COD_MGL: SensorReadings.Quantity.ValueType  # 35
+    """Chemical oxygen demand, milligrams per litre"""
+    WATER_BOD_MGL: SensorReadings.Quantity.ValueType  # 36
+    """Biochemical oxygen demand, milligrams per litre"""
+    WATER_TURBIDITY_NTU_CENTI: SensorReadings.Quantity.ValueType  # 37
+    """Turbidity, centi-NTU"""
+    WATER_NITRATE_PPM_CENTI: SensorReadings.Quantity.ValueType  # 38
+    """Nitrate, centi-ppm"""
+    WATER_AMMONIUM_PPM_CENTI: SensorReadings.Quantity.ValueType  # 39
+    """Ammonium, centi-ppm"""
+    PM1_0_STD_UGM3_DECI: SensorReadings.Quantity.ValueType  # 40
+    """--- Air Quality ---
+
+    PM1.0, standard conditions deci-ug/m3 (235 = 23.5 ug/m3)
+    """
+    PM2_5_STD_UGM3_DECI: SensorReadings.Quantity.ValueType  # 41
+    """PM2.5, standard conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+    PM4_0_STD_UGM3_DECI: SensorReadings.Quantity.ValueType  # 42
+    """PM4.0, standard conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+    PM10_0_STD_UGM3_DECI: SensorReadings.Quantity.ValueType  # 43
+    """PM10.0, standard conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+    PM1_0_ENV_UGM3_DECI: SensorReadings.Quantity.ValueType  # 44
+    """PM1.0, ambient conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+    PM2_5_ENV_UGM3_DECI: SensorReadings.Quantity.ValueType  # 45
+    """PM2.5, ambient conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+    PM10_0_ENV_UGM3_DECI: SensorReadings.Quantity.ValueType  # 46
+    """PM10.0, ambient conditions deci-ug/m3 (235 = 23.5 ug/m3)"""
+    PARTICLES_0_3UM: SensorReadings.Quantity.ValueType  # 47
+    """Particles at least 0.3 um (#/0.1l)"""
+    PARTICLES_0_5UM: SensorReadings.Quantity.ValueType  # 48
+    """Particles at least 0.5 um (#/0.1l)"""
+    PARTICLES_1_0UM: SensorReadings.Quantity.ValueType  # 49
+    """Particles at least 1.0 um (#/0.1l)"""
+    PARTICLES_2_5UM: SensorReadings.Quantity.ValueType  # 50
+    """Particles at least 2.5 um (#/0.1l)"""
+    PARTICLES_4_0UM: SensorReadings.Quantity.ValueType  # 51
+    """Particles at least 4.0 um (#/0.1l)"""
+    PARTICLES_5_0UM: SensorReadings.Quantity.ValueType  # 52
+    """Particles at least 5.0 um (#/0.1l)"""
+    PARTICLES_10_0UM: SensorReadings.Quantity.ValueType  # 53
+    """Particles at least 10.0 um (#/0.1l)"""
+    PARTICLE_SIZE_UM_CENTI: SensorReadings.Quantity.ValueType  # 54
+    """Typical particle size, centi-micrometres (235 = 2.35 um)"""
+    CO2_PPM: SensorReadings.Quantity.ValueType  # 55
+    """Carbon dioxide, parts per million"""
+    HCHO_PPB: SensorReadings.Quantity.ValueType  # 56
+    """Formaldehyde, parts per billion"""
+    VOC_INDEX: SensorReadings.Quantity.ValueType  # 57
+    """VOC index"""
+    NOX_INDEX: SensorReadings.Quantity.ValueType  # 58
+    """NOx index"""
+    IAQ_INDEX: SensorReadings.Quantity.ValueType  # 59
+    """Indoor air quality index, 0..500"""
+    SENSOR_GAS_RESISTANCE_KOHM: SensorReadings.Quantity.ValueType  # 60
+    """Metal Oxyde Sensor Gas resistance, kilo-ohms"""
+    PM_STATUS_FLAGS: SensorReadings.Quantity.ValueType  # 61
+    """
+    Raw PM sensor status/error register, as defined by the sensor's own datasheet.
+    A bitmask rather than a measurement; see the sensor named in `sensors`.
+    """
+    SENSOR_TEMPERATURE_C_CENTI: SensorReadings.Quantity.ValueType  # 62
+    """--- Compensation channels ---
+
+    A gas or particulate sensor reports its own temperature and humidity so a
+    reading can be corrected for them. These are NOT ambient conditions: the part
+    sits in an enclosure and self-heats, so the value runs warm and averaging it
+    with AIR_TEMPERATURE_C_CENTI corrupts both. They are separate quantities for
+    that reason and not per sensor family: what makes them distinct is being a
+    compensation channel, so name the part in `sensors` and use the ordinal to
+    separate two of the same kind.
+
+    Sensor-internal temperature, centi-degrees Celsius (2350 = 23.50 C)
+    """
+    SENSOR_HUMIDITY_PCT_CENTI: SensorReadings.Quantity.ValueType  # 63
+    """Sensor-internal humidity, centi-percent (6550 = 65.50 %)"""
+    BODY_HEART_RATE_BPM: SensorReadings.Quantity.ValueType  # 64
+    """--- Body ---
+
+    Heart rate, beats per minute
+    """
+    BODY_SPO2_PCT: SensorReadings.Quantity.ValueType  # 65
+    """Blood oxygen saturation, percent"""
+    BODY_TEMPERATURE_C_CENTI: SensorReadings.Quantity.ValueType  # 66
+    """Body temperature, centi-degrees Celsius"""
+
+    KEYS_FIELD_NUMBER: _builtins.int
+    VALUES_FIELD_NUMBER: _builtins.int
+    TIME_DELTAS_FIELD_NUMBER: _builtins.int
+    PRESENT_FIELD_NUMBER: _builtins.int
+    SENSORS_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def keys(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
         """
-        Key native device metrics such as battery level
+        The quantities this message carries, written once for the whole message rather
+        than once per reading: `(ordinal << 8) | (constant << 7) | quantity` each.
+
+        The ordinal distinguishes several sensors reporting the same quantity on one
+        node and is 0 for the first or only one, so an ordinary quantity is a single
+        byte. A second sensor of the same quantity pushes its key to two.
+
+        `constant` says the column never changes across the batch, so it contributes
+        exactly one entry to `values` instead of one per sample. A batch that carries
+        rainfall, lightning counts or a status word usually carries several columns
+        that never move, and each of them otherwise spends a byte per sample saying
+        nothing. Setting the bit costs one byte on the key - it pushes the key above
+        127, which an ordinal of 1 or more does anyway - and saves one byte for every
+        sample after the first, so it pays from three samples up.
+
+        A single-sample message never sets it: there is nothing to collapse.
         """
 
-    @property
-    def environment_metrics(self) -> global___EnvironmentMetrics:
+    @_builtins.property
+    def values(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
         """
-        Weather station or other environmental metrics
+        The readings, quantity-major and delta coded.
+
+        Laid out one column per entry in `keys`, in that order. A column holds the
+        samples that actually carry its quantity, oldest first: the first entry is the
+        absolute value, and every entry after it is the difference from the previous
+        entry *in the same column*. A column whose key sets the constant bit holds one
+        entry and no deltas.
+
+        Column-major and not sample-major because consecutive numbers are then one
+        sensor moving over time rather than unrelated quantities side by side, and a
+        sensor moves slowly. Air temperature drifting 0.3 C between samples is one byte
+        as a delta against two or three absolute. On a captured 21-hour corpus this is
+        where nearly all of the batching win comes from.
+
+        A message holding one sample has one entry per column and no deltas arise, so a
+        live broadcast reads as plain values. Deltas only appear once a message carries
+        a batch, which is the case that is already being reconstructed from
+        `time_deltas` and `present`.
+
+          keys        = [TEMPERATURE_C_CENTI, PRESSURE_PA]
+          samples     = 3
+          temperature = 1582, 1548, 1514  ->  1582, -34, -34
+          pressure    = 98801, 98814, 98857  ->  98801, 13, 43
+          values      = [1582, -34, -34, 98801, 13, 43]
         """
 
-    @property
-    def air_quality_metrics(self) -> global___AirQualityMetrics:
+    @_builtins.property
+    def time_deltas(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
         """
-        Air quality metrics
+        Sample times, one entry per sample after the first, differenced twice.
+
+        `Telemetry.time` is the first sample's time. Entry 0 is the interval from the
+        first sample to the second. Every entry after that is the change in interval:
+        the gap before this sample minus the gap before the previous one.
+
+        A node reporting on a fixed cadence therefore emits one interval and then zeros,
+        one byte each, however far back the batch reaches and whatever the cadence is.
+        Differencing once would spend two bytes per sample restating the same interval;
+        not differencing at all would spend three once the batch spans more than a few
+        hours.
+
+        Absent means the message holds a single sample, taken at `Telemetry.time`. That
+        is the live case and costs nothing.
+
+          Telemetry.time = 1000, samples at 1000, 4600, 8200, 11800 (hourly)
+          intervals      =        3600, 3600, 3600
+          time_deltas    = [3600, 0, 0]
+
+          the same node late by 40 s on the last sample:
+          intervals      =        3600, 3600, 3640
+          time_deltas    = [3600, 0, 40]
+
+        Reconstruct by running both sums: interval += entry, time += interval.
         """
 
-    @property
-    def power_metrics(self) -> global___PowerMetrics:
+    @_builtins.property
+    def present(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
         """
-        Power Metrics
+        One bitmap per sample, oldest first: bit k set when that sample carries keys[k].
+
+        It is what tells a reader how long each column in `values` is, and which samples
+        a column's deltas step between - a column skips absent samples rather than
+        holding a gap, so "the previous entry in the column" is the previous sample that
+        carried the quantity, not simply the sample before.
+
+        Absent means every sample carries every key, which is the common case: a node's
+        sensor set rarely changes between samples. Then every non-constant column is one
+        entry per sample.
+
+        The sample count is never derived from `values`. It is `time_deltas` length plus
+        one, or one when `time_deltas` is absent, which stays true whatever mix of
+        constant, ragged and ordinary columns the message holds.
         """
 
-    @property
-    def local_stats(self) -> global___LocalStats:
+    @_builtins.property
+    def sensors(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
         """
-        Local device mesh statistics
-        """
+        Optional, one per key rather than per reading: the TelemetrySensorType behind
+        that quantity. Provenance belongs to the quantity and ordinal, not to each
+        sample, so it is written once however many samples the message holds.
 
-    @property
-    def health_metrics(self) -> global___HealthMetrics:
-        """
-        Health telemetry metrics
-        """
-
-    @property
-    def host_metrics(self) -> global___HostMetrics:
-        """
-        Linux host metrics
-        """
-
-    @property
-    def traffic_management_stats(self) -> global___TrafficManagementStats:
-        """
-        Traffic management statistics
-        """
-
-    @property
-    def soil_water_metrics(self) -> global___SoilWaterMetrics:
-        """
-        Soil and water probe metrics
+        Omit unless it matters - telling two temperature sensors apart, or attributing a
+        calibration or a status register. Costs nothing when absent.
         """
 
     def __init__(
         self,
         *,
-        time: builtins.int = ...,
-        device_metrics: global___DeviceMetrics | None = ...,
-        environment_metrics: global___EnvironmentMetrics | None = ...,
-        air_quality_metrics: global___AirQualityMetrics | None = ...,
-        power_metrics: global___PowerMetrics | None = ...,
-        local_stats: global___LocalStats | None = ...,
-        health_metrics: global___HealthMetrics | None = ...,
-        host_metrics: global___HostMetrics | None = ...,
-        traffic_management_stats: global___TrafficManagementStats | None = ...,
-        soil_water_metrics: global___SoilWaterMetrics | None = ...,
+        keys: _abc.Iterable[_builtins.int] | None = ...,
+        values: _abc.Iterable[_builtins.int] | None = ...,
+        time_deltas: _abc.Iterable[_builtins.int] | None = ...,
+        present: _abc.Iterable[_builtins.int] | None = ...,
+        sensors: _abc.Iterable[_builtins.int] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "soil_water_metrics", b"soil_water_metrics", "traffic_management_stats", b"traffic_management_stats", "variant", b"variant"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "soil_water_metrics", b"soil_water_metrics", "time", b"time", "traffic_management_stats", b"traffic_management_stats", "variant", b"variant"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["variant", b"variant"]) -> typing.Literal["device_metrics", "environment_metrics", "air_quality_metrics", "power_metrics", "local_stats", "health_metrics", "host_metrics", "traffic_management_stats", "soil_water_metrics"] | None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["keys", b"keys", "present", b"present", "sensors", b"sensors", "time_deltas", b"time_deltas", "values", b"values"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___Telemetry = Telemetry
+Global___SensorReadings: _TypeAlias = SensorReadings  # noqa: Y015
 
-@typing.final
-class Nau7802Config(google.protobuf.message.Message):
+@_typing.final
+class Telemetry(_message.Message):
+    """
+    Types of Measurements the telemetry module is equipped to handle
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    TIME_FIELD_NUMBER: _builtins.int
+    DEVICE_METRICS_FIELD_NUMBER: _builtins.int
+    SENSOR_READINGS_FIELD_NUMBER: _builtins.int
+    LOCAL_STATS_FIELD_NUMBER: _builtins.int
+    HOST_METRICS_FIELD_NUMBER: _builtins.int
+    TRAFFIC_MANAGEMENT_STATS_FIELD_NUMBER: _builtins.int
+    time: _builtins.int
+    """
+    Seconds since 1970 - or 0 for unknown/unset
+    """
+    @_builtins.property
+    def device_metrics(self) -> Global___DeviceMetrics:
+        """
+        Key native device metrics such as battery level
+        """
+
+    @_builtins.property
+    def sensor_readings(self) -> Global___SensorReadings:
+        """
+        Sensor readings: environment, air quality, power and health, as a list rather
+        than four messages of fixed typed fields.
+        """
+
+    @_builtins.property
+    def local_stats(self) -> Global___LocalStats:
+        """
+        Local device mesh statistics
+        """
+
+    @_builtins.property
+    def host_metrics(self) -> Global___HostMetrics:
+        """
+        Linux host metrics
+        """
+
+    @_builtins.property
+    def traffic_management_stats(self) -> Global___TrafficManagementStats:
+        """
+        Traffic management statistics
+        """
+
+    def __init__(
+        self,
+        *,
+        time: _builtins.int = ...,
+        device_metrics: Global___DeviceMetrics | None = ...,
+        sensor_readings: Global___SensorReadings | None = ...,
+        local_stats: Global___LocalStats | None = ...,
+        host_metrics: Global___HostMetrics | None = ...,
+        traffic_management_stats: Global___TrafficManagementStats | None = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["device_metrics", b"device_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "sensor_readings", b"sensor_readings", "traffic_management_stats", b"traffic_management_stats", "variant", b"variant"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["device_metrics", b"device_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "sensor_readings", b"sensor_readings", "time", b"time", "traffic_management_stats", b"traffic_management_stats", "variant", b"variant"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType_variant: _TypeAlias = _typing.Literal["device_metrics", "sensor_readings", "local_stats", "host_metrics", "traffic_management_stats"]  # noqa: Y015
+    _WhichOneofArgType_variant: _TypeAlias = _typing.Literal["variant", b"variant"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType_variant) -> _WhichOneofReturnType_variant | None: ...
+
+Global___Telemetry: _TypeAlias = Telemetry  # noqa: Y015
+
+@_typing.final
+class Nau7802Config(_message.Message):
     """
     NAU7802 Telemetry configuration, for saving to flash
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    ZEROOFFSET_FIELD_NUMBER: builtins.int
-    CALIBRATIONFACTOR_FIELD_NUMBER: builtins.int
-    zeroOffset: builtins.int
+    ZEROOFFSET_FIELD_NUMBER: _builtins.int
+    CALIBRATIONFACTOR_FIELD_NUMBER: _builtins.int
+    zeroOffset: _builtins.int
     """
-    The offset setting for the NAU7802
+    The offset setting for the NAU7802.
+
+    sint32 because a tare against a 24-bit ADC is routinely negative, and a
+    negative plain int32 costs ten bytes whatever its magnitude.
     """
-    calibrationFactor: builtins.float
+    calibrationFactor: _builtins.float
     """
     The calibration factor for the NAU7802
     """
     def __init__(
         self,
         *,
-        zeroOffset: builtins.int = ...,
-        calibrationFactor: builtins.float = ...,
+        zeroOffset: _builtins.int = ...,
+        calibrationFactor: _builtins.float = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["calibrationFactor", b"calibrationFactor", "zeroOffset", b"zeroOffset"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["calibrationFactor", b"calibrationFactor", "zeroOffset", b"zeroOffset"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___Nau7802Config = Nau7802Config
+Global___Nau7802Config: _TypeAlias = Nau7802Config  # noqa: Y015
 
-@typing.final
-class AS3935State(google.protobuf.message.Message):
+@_typing.final
+class AS3935State(_message.Message):
     """
     AS3935 lightning sensor state, for saving to flash
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    TUNING_CAP_PF_FIELD_NUMBER: builtins.int
-    tuning_cap_pf: builtins.int
+    TUNING_CAP_PF_FIELD_NUMBER: _builtins.int
+    tuning_cap_pf: _builtins.int
     """
     Antenna tuning capacitance in pF, 0 to 120 in steps of 8. The chip does not retain
     this across power loss, so it is stored here and re-applied on every boot.
@@ -1841,126 +1564,146 @@ class AS3935State(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        tuning_cap_pf: builtins.int = ...,
+        tuning_cap_pf: _builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["tuning_cap_pf", b"tuning_cap_pf"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["tuning_cap_pf", b"tuning_cap_pf"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___AS3935State = AS3935State
+Global___AS3935State: _TypeAlias = AS3935State  # noqa: Y015
 
-@typing.final
-class SEN5XState(google.protobuf.message.Message):
+@_typing.final
+class SEN5XState(_message.Message):
     """
     SEN5X State, for saving to flash (to be merged with SEN6XState)
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    LAST_CLEANING_TIME_FIELD_NUMBER: builtins.int
-    LAST_CLEANING_VALID_FIELD_NUMBER: builtins.int
-    ONE_SHOT_MODE_FIELD_NUMBER: builtins.int
-    VOC_STATE_TIME_FIELD_NUMBER: builtins.int
-    VOC_STATE_VALID_FIELD_NUMBER: builtins.int
-    VOC_STATE_ARRAY_FIELD_NUMBER: builtins.int
-    last_cleaning_time: builtins.int
+    LAST_CLEANING_TIME_FIELD_NUMBER: _builtins.int
+    LAST_CLEANING_VALID_FIELD_NUMBER: _builtins.int
+    ONE_SHOT_MODE_FIELD_NUMBER: _builtins.int
+    VOC_STATE_TIME_FIELD_NUMBER: _builtins.int
+    VOC_STATE_VALID_FIELD_NUMBER: _builtins.int
+    VOC_STATE_ARRAY_FIELD_NUMBER: _builtins.int
+    last_cleaning_time: _builtins.int
     """
     Last cleaning time for SEN5X
     """
-    last_cleaning_valid: builtins.bool
+    last_cleaning_valid: _builtins.bool
     """
     Last cleaning time for SEN5X - valid flag
     """
-    one_shot_mode: builtins.bool
+    one_shot_mode: _builtins.bool
     """
     Config flag for one-shot mode (see admin.proto)
     """
-    voc_state_time: builtins.int
+    voc_state_time: _builtins.int
     """
     Last VOC state time for SEN55
     """
-    voc_state_valid: builtins.bool
+    voc_state_valid: _builtins.bool
     """
     Last VOC state validity flag for SEN55
     """
-    voc_state_array: builtins.int
+    voc_state_array: _builtins.int
     """
     VOC state array (8x uint8t) for SEN55
     """
     def __init__(
         self,
         *,
-        last_cleaning_time: builtins.int = ...,
-        last_cleaning_valid: builtins.bool = ...,
-        one_shot_mode: builtins.bool = ...,
-        voc_state_time: builtins.int | None = ...,
-        voc_state_valid: builtins.bool | None = ...,
-        voc_state_array: builtins.int | None = ...,
+        last_cleaning_time: _builtins.int = ...,
+        last_cleaning_valid: _builtins.bool = ...,
+        one_shot_mode: _builtins.bool = ...,
+        voc_state_time: _builtins.int | None = ...,
+        voc_state_valid: _builtins.bool | None = ...,
+        voc_state_array: _builtins.int | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_voc_state_array", b"_voc_state_array", "_voc_state_time", b"_voc_state_time", "_voc_state_valid", b"_voc_state_valid", "voc_state_array", b"voc_state_array", "voc_state_time", b"voc_state_time", "voc_state_valid", b"voc_state_valid"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_voc_state_array", b"_voc_state_array", "_voc_state_time", b"_voc_state_time", "_voc_state_valid", b"_voc_state_valid", "last_cleaning_time", b"last_cleaning_time", "last_cleaning_valid", b"last_cleaning_valid", "one_shot_mode", b"one_shot_mode", "voc_state_array", b"voc_state_array", "voc_state_time", b"voc_state_time", "voc_state_valid", b"voc_state_valid"]) -> None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_voc_state_array", b"_voc_state_array"]) -> typing.Literal["voc_state_array"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_voc_state_time", b"_voc_state_time"]) -> typing.Literal["voc_state_time"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_voc_state_valid", b"_voc_state_valid"]) -> typing.Literal["voc_state_valid"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_voc_state_array", b"_voc_state_array", "_voc_state_time", b"_voc_state_time", "_voc_state_valid", b"_voc_state_valid", "voc_state_array", b"voc_state_array", "voc_state_time", b"voc_state_time", "voc_state_valid", b"voc_state_valid"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_voc_state_array", b"_voc_state_array", "_voc_state_time", b"_voc_state_time", "_voc_state_valid", b"_voc_state_valid", "last_cleaning_time", b"last_cleaning_time", "last_cleaning_valid", b"last_cleaning_valid", "one_shot_mode", b"one_shot_mode", "voc_state_array", b"voc_state_array", "voc_state_time", b"voc_state_time", "voc_state_valid", b"voc_state_valid"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__voc_state_array: _TypeAlias = _typing.Literal["voc_state_array"]  # noqa: Y015
+    _WhichOneofArgType__voc_state_array: _TypeAlias = _typing.Literal["_voc_state_array", b"_voc_state_array"]  # noqa: Y015
+    _WhichOneofReturnType__voc_state_time: _TypeAlias = _typing.Literal["voc_state_time"]  # noqa: Y015
+    _WhichOneofArgType__voc_state_time: _TypeAlias = _typing.Literal["_voc_state_time", b"_voc_state_time"]  # noqa: Y015
+    _WhichOneofReturnType__voc_state_valid: _TypeAlias = _typing.Literal["voc_state_valid"]  # noqa: Y015
+    _WhichOneofArgType__voc_state_valid: _TypeAlias = _typing.Literal["_voc_state_valid", b"_voc_state_valid"]  # noqa: Y015
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__voc_state_array) -> _WhichOneofReturnType__voc_state_array | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__voc_state_time) -> _WhichOneofReturnType__voc_state_time | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__voc_state_valid) -> _WhichOneofReturnType__voc_state_valid | None: ...
 
-global___SEN5XState = SEN5XState
+Global___SEN5XState: _TypeAlias = SEN5XState  # noqa: Y015
 
-@typing.final
-class SEN6XState(google.protobuf.message.Message):
+@_typing.final
+class SEN6XState(_message.Message):
     """
     SEN6X State, for saving to flash
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    LAST_CLEANING_TIME_FIELD_NUMBER: builtins.int
-    LAST_CLEANING_VALID_FIELD_NUMBER: builtins.int
-    ONE_SHOT_MODE_FIELD_NUMBER: builtins.int
-    VOC_STATE_TIME_FIELD_NUMBER: builtins.int
-    VOC_STATE_VALID_FIELD_NUMBER: builtins.int
-    VOC_STATE_ARRAY_FIELD_NUMBER: builtins.int
-    last_cleaning_time: builtins.int
+    LAST_CLEANING_TIME_FIELD_NUMBER: _builtins.int
+    LAST_CLEANING_VALID_FIELD_NUMBER: _builtins.int
+    ONE_SHOT_MODE_FIELD_NUMBER: _builtins.int
+    VOC_STATE_TIME_FIELD_NUMBER: _builtins.int
+    VOC_STATE_VALID_FIELD_NUMBER: _builtins.int
+    VOC_STATE_ARRAY_FIELD_NUMBER: _builtins.int
+    last_cleaning_time: _builtins.int
     """
     Last cleaning time for SEN6X
     """
-    last_cleaning_valid: builtins.bool
+    last_cleaning_valid: _builtins.bool
     """
     Last cleaning time for SEN6X - valid flag
     """
-    one_shot_mode: builtins.bool
+    one_shot_mode: _builtins.bool
     """
     Config flag for one-shot mode (see admin.proto)
     """
-    voc_state_time: builtins.int
+    voc_state_time: _builtins.int
     """
     Last VOC state time, for models with a VOC sensor (SEN65, SEN66, SEN68, SEN69C)
     """
-    voc_state_valid: builtins.bool
+    voc_state_valid: _builtins.bool
     """
     Last VOC state validity flag, for models with a VOC sensor (SEN65, SEN66, SEN68, SEN69C)
     """
-    voc_state_array: builtins.int
+    voc_state_array: _builtins.int
     """
     VOC state array (8x uint8t), for models with a VOC sensor (SEN65, SEN66, SEN68, SEN69C)
     """
     def __init__(
         self,
         *,
-        last_cleaning_time: builtins.int = ...,
-        last_cleaning_valid: builtins.bool = ...,
-        one_shot_mode: builtins.bool = ...,
-        voc_state_time: builtins.int | None = ...,
-        voc_state_valid: builtins.bool | None = ...,
-        voc_state_array: builtins.int | None = ...,
+        last_cleaning_time: _builtins.int = ...,
+        last_cleaning_valid: _builtins.bool = ...,
+        one_shot_mode: _builtins.bool = ...,
+        voc_state_time: _builtins.int | None = ...,
+        voc_state_valid: _builtins.bool | None = ...,
+        voc_state_array: _builtins.int | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_voc_state_array", b"_voc_state_array", "_voc_state_time", b"_voc_state_time", "_voc_state_valid", b"_voc_state_valid", "voc_state_array", b"voc_state_array", "voc_state_time", b"voc_state_time", "voc_state_valid", b"voc_state_valid"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_voc_state_array", b"_voc_state_array", "_voc_state_time", b"_voc_state_time", "_voc_state_valid", b"_voc_state_valid", "last_cleaning_time", b"last_cleaning_time", "last_cleaning_valid", b"last_cleaning_valid", "one_shot_mode", b"one_shot_mode", "voc_state_array", b"voc_state_array", "voc_state_time", b"voc_state_time", "voc_state_valid", b"voc_state_valid"]) -> None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_voc_state_array", b"_voc_state_array"]) -> typing.Literal["voc_state_array"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_voc_state_time", b"_voc_state_time"]) -> typing.Literal["voc_state_time"] | None: ...
-    @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["_voc_state_valid", b"_voc_state_valid"]) -> typing.Literal["voc_state_valid"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_voc_state_array", b"_voc_state_array", "_voc_state_time", b"_voc_state_time", "_voc_state_valid", b"_voc_state_valid", "voc_state_array", b"voc_state_array", "voc_state_time", b"voc_state_time", "voc_state_valid", b"voc_state_valid"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_voc_state_array", b"_voc_state_array", "_voc_state_time", b"_voc_state_time", "_voc_state_valid", b"_voc_state_valid", "last_cleaning_time", b"last_cleaning_time", "last_cleaning_valid", b"last_cleaning_valid", "one_shot_mode", b"one_shot_mode", "voc_state_array", b"voc_state_array", "voc_state_time", b"voc_state_time", "voc_state_valid", b"voc_state_valid"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__voc_state_array: _TypeAlias = _typing.Literal["voc_state_array"]  # noqa: Y015
+    _WhichOneofArgType__voc_state_array: _TypeAlias = _typing.Literal["_voc_state_array", b"_voc_state_array"]  # noqa: Y015
+    _WhichOneofReturnType__voc_state_time: _TypeAlias = _typing.Literal["voc_state_time"]  # noqa: Y015
+    _WhichOneofArgType__voc_state_time: _TypeAlias = _typing.Literal["_voc_state_time", b"_voc_state_time"]  # noqa: Y015
+    _WhichOneofReturnType__voc_state_valid: _TypeAlias = _typing.Literal["voc_state_valid"]  # noqa: Y015
+    _WhichOneofArgType__voc_state_valid: _TypeAlias = _typing.Literal["_voc_state_valid", b"_voc_state_valid"]  # noqa: Y015
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__voc_state_array) -> _WhichOneofReturnType__voc_state_array | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__voc_state_time) -> _WhichOneofReturnType__voc_state_time | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__voc_state_valid) -> _WhichOneofReturnType__voc_state_valid | None: ...
 
-global___SEN6XState = SEN6XState
+Global___SEN6XState: _TypeAlias = SEN6XState  # noqa: Y015

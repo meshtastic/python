@@ -19,13 +19,14 @@ from hypothesis import given, strategies as st
 
 from meshtastic.protobuf import (
     atak_pb2,
+    common_pb2,
     config_pb2,
     field_metadata_pb2,
     interdevice_pb2,
-    mesh_pb2,
     mqtt_pb2,
     nanopb_pb2,
-    telemetry_pb2,
+    packet_pb2,
+    wire_pb2,
 )
 
 # ---------------------------------------------------------------------------
@@ -764,63 +765,60 @@ def _field_opts(descriptor, *path):
 
 @pytest.mark.unit
 def test_descriptor_user_long_name():
-    """User.long_name has max_size = 40 from mesh.options."""
-    opts = _field_opts(mesh_pb2.DESCRIPTOR.message_types_by_name["User"], "long_name")
-    assert opts.max_size == 40
+    """User.long_name has max_size = 25 from wire.options."""
+    opts = _field_opts(wire_pb2.DESCRIPTOR.message_types_by_name["User"], "long_name")
+    assert opts.max_size == 25
 
 
 @pytest.mark.unit
 def test_descriptor_user_short_name():
-    """User.short_name has max_size = 5 from mesh.options."""
-    opts = _field_opts(mesh_pb2.DESCRIPTOR.message_types_by_name["User"], "short_name")
+    """User.short_name has max_size = 5 from wire.options."""
+    opts = _field_opts(wire_pb2.DESCRIPTOR.message_types_by_name["User"], "short_name")
     assert opts.max_size == 5
 
 
 @pytest.mark.unit
-def test_descriptor_wildcard_macaddr():
-    """Wildcard option from mesh.options applied to User.macaddr."""
-    opts = _field_opts(mesh_pb2.DESCRIPTOR.message_types_by_name["User"], "macaddr")
-    assert opts.max_size == 6
-    assert opts.fixed_length is True
+def test_descriptor_wildcard_public_key():
+    """Wildcard option from wire.options applied to User.public_key."""
+    opts = _field_opts(wire_pb2.DESCRIPTOR.message_types_by_name["User"], "public_key")
+    assert opts.max_size == 32
 
 
 @pytest.mark.unit
 def test_descriptor_meshpacket_hop_limit():
-    """MeshPacket.hop_limit has int_size = IS_8 from mesh.options."""
-    opts = _field_opts(mesh_pb2.DESCRIPTOR.message_types_by_name["MeshPacket"], "hop_limit")
+    """MeshPacket.hop_limit has int_size = IS_8 from packet.options."""
+    opts = _field_opts(packet_pb2.DESCRIPTOR.message_types_by_name["MeshPacket"], "hop_limit")
     assert opts.int_size == nanopb_pb2.IS_8
 
 
 @pytest.mark.unit
-def test_descriptor_routediscovery_snr_towards():
-    """RouteDiscovery.snr_towards has max_count = 8 and int_size = IS_8 from mesh.options."""
+def test_descriptor_neighborinfo_neighbor_snr():
+    """NeighborInfo.neighbor_snr has max_count = 10 and int_size = IS_8 from wire.options."""
     opts = _field_opts(
-        mesh_pb2.DESCRIPTOR.message_types_by_name["RouteDiscovery"], "snr_towards"
+        wire_pb2.DESCRIPTOR.message_types_by_name["NeighborInfo"], "neighbor_snr"
     )
-    assert opts.max_count == 8
+    assert opts.max_count == 10
     assert opts.int_size == nanopb_pb2.IS_8
 
 
 @pytest.mark.unit
 def test_descriptor_data_payload():
-    """Data.payload has max_size = 233 from mesh.options."""
-    opts = _field_opts(mesh_pb2.DESCRIPTOR.message_types_by_name["Data"], "payload")
-    assert opts.max_size == 233
+    """Data.payload has max_size = 256 from wire.options."""
+    opts = _field_opts(wire_pb2.DESCRIPTOR.message_types_by_name["Data"], "payload")
+    assert opts.max_size == 256
 
 
 @pytest.mark.unit
 def test_descriptor_nested_deviceconfig_tzdef():
-    """Config.DeviceConfig.tzdef — option on a field inside a nested message."""
-    config = config_pb2.DESCRIPTOR.message_types_by_name["Config"]
-    opts = _field_opts(config, "DeviceConfig", "tzdef")
+    """DeviceConfig.tzdef — option on a field of a top-level config section."""
+    opts = _field_opts(config_pb2.DESCRIPTOR.message_types_by_name["DeviceConfig"], "tzdef")
     assert opts.max_size == 65
 
 
 @pytest.mark.unit
 def test_descriptor_nested_securityconfig_admin_key():
-    """Config.SecurityConfig.admin_key — two options merged from two .options lines."""
-    config = config_pb2.DESCRIPTOR.message_types_by_name["Config"]
-    opts = _field_opts(config, "SecurityConfig", "admin_key")
+    """SecurityConfig.admin_key — two options merged from two .options lines."""
+    opts = _field_opts(config_pb2.DESCRIPTOR.message_types_by_name["SecurityConfig"], "admin_key")
     assert opts.max_size == 32
     assert opts.max_count == 3
 
@@ -831,14 +829,6 @@ def test_descriptor_multilevel_nested_route_link_uid():
     route = atak_pb2.DESCRIPTOR.message_types_by_name["Route"]
     opts = _field_opts(route, "Link", "uid")
     assert opts.max_size == 48
-
-
-@pytest.mark.unit
-def test_descriptor_telemetry_environment_one_wire_temperature():
-    """EnvironmentMetrics.one_wire_temperature has type = FT_IGNORE from telemetry.options."""
-    env = telemetry_pb2.DESCRIPTOR.message_types_by_name["EnvironmentMetrics"]
-    opts = _field_opts(env, "one_wire_temperature")
-    assert opts.type == nanopb_pb2.FT_IGNORE
 
 
 @pytest.mark.unit
@@ -853,9 +843,8 @@ def test_descriptor_mqtt_service_envelope_pointer_fields():
 def test_descriptor_deviceconfig_tzdef_metadata_preserved():
     """tzdef keeps its nanopb max_size AND its field_metadata despite the
     multi-line options block (regression: options were silently dropped)."""
-    config = config_pb2.DESCRIPTOR.message_types_by_name["Config"]
-    device = config.nested_types_by_name["DeviceConfig"]
-    opts = _field_opts(config, "DeviceConfig", "tzdef")
+    device = config_pb2.DESCRIPTOR.message_types_by_name["DeviceConfig"]
+    opts = _field_opts(device, "tzdef")
     assert opts.max_size == 65
     meta = device.fields_by_name["tzdef"].GetOptions().Extensions[
         field_metadata_pb2.field_metadata
@@ -867,9 +856,8 @@ def test_descriptor_deviceconfig_tzdef_metadata_preserved():
 def test_descriptor_deviceconfig_buzzer_mode():
     """buzzer_mode carries int_size = IS_8 and its since_firmware metadata
     (regression: enum Role's multi-line values corrupted the context)."""
-    config = config_pb2.DESCRIPTOR.message_types_by_name["Config"]
-    device = config.nested_types_by_name["DeviceConfig"]
-    assert _field_opts(config, "DeviceConfig", "buzzer_mode").int_size == nanopb_pb2.IS_8
+    device = config_pb2.DESCRIPTOR.message_types_by_name["DeviceConfig"]
+    assert _field_opts(device, "buzzer_mode").int_size == nanopb_pb2.IS_8
     meta = device.fields_by_name["buzzer_mode"].GetOptions().Extensions[
         field_metadata_pb2.field_metadata
     ]
@@ -898,8 +886,7 @@ def test_descriptor_interdevice_trailing_comment_fields():
 def test_descriptor_enum_value_metadata_label():
     """Role.CLIENT carries its enum_value_metadata label through the whole
     pipeline, proving the enum value metadata options resolve and embed."""
-    config = config_pb2.DESCRIPTOR.message_types_by_name["Config"]
-    role = config.nested_types_by_name["DeviceConfig"].enum_types_by_name["Role"]
+    role = common_pb2.DESCRIPTOR.enum_types_by_name["Role"]
     meta = role.values_by_name["CLIENT"].GetOptions().Extensions[
         field_metadata_pb2.enum_value_metadata
     ]

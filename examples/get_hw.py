@@ -11,6 +11,7 @@ import argparse
 import sys
 
 import meshtastic.serial_interface
+from meshtastic.util import hw_model_name
 
 
 def main() -> int:
@@ -28,7 +29,7 @@ def main() -> int:
             if iface.nodes:
                 for node in iface.nodes.values():
                     if node["num"] == iface.myInfo.my_node_num:
-                        print(node["user"]["hwModel"])
+                        print(hw_model_name(node["user"].get("hwModel", 0)))
                         break
     except KeyboardInterrupt:
         return 0

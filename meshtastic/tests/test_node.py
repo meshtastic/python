@@ -9,9 +9,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from hypothesis import given, strategies as st
 
-from ..protobuf import admin_pb2, localonly_pb2, config_pb2, mesh_pb2, nanopb_pb2
+from ..protobuf import admin_pb2, common_pb2, config_pb2, localonly_pb2, nanopb_pb2, wire_pb2
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
-from ..node import Node
+from ..node import MAX_CHANNELS, Node, channel_role
 from ..serial_interface import SerialInterface
 from ..mesh_interface import MeshInterface
 from ..util import to_node_num
@@ -25,7 +25,7 @@ from ..util import to_node_num
 # Extract nanopb max_size constraints from the User protobuf descriptor
 _USER_NANOPB = {
     field.name: field.GetOptions().Extensions[nanopb_pb2.nanopb]
-    for field in mesh_pb2.User.DESCRIPTOR.fields
+    for field in wire_pb2.User.DESCRIPTOR.fields
 }
 
 @pytest.mark.unit
@@ -38,7 +38,7 @@ def test_node(capsys):
         anode = Node(mo, "bar", noProto=True)
         lc = localonly_pb2.LocalConfig()
         anode.localConfig = lc
-        lc.lora.CopyFrom(config_pb2.Config.LoRaConfig())
+        lc.lora.CopyFrom(config_pb2.LoRaConfig())
         anode.moduleConfig = localonly_pb2.LocalModuleConfig()
         anode.showInfo()
         out, err = capsys.readouterr()
@@ -354,11 +354,9 @@ def test_setURL_valid_URL_but_no_settings(capsys):
         {
             "num": 2198819370,
             "user": {
-                "id": "!830f522a",
                 "longName": "Roadrunner Ridge",
                 "shortName": "RKSN",
-                "macaddr": "AAAAAAAAAAA=",
-                "hwModel": "RAK4631",
+                "hwModel": 9,  # RAK4631
                 "role": "ROUTER",
                 "publicKey": "Rx8XD96uBAiFGoFusdqwti3eBT4DLyGuG7g5Wcg9Bw==",
                 "isLicensed": True,
@@ -374,11 +372,9 @@ def test_setURL_valid_URL_but_no_settings(capsys):
         {
             "num": 305419896,
             "user": {
-                "id": "!12345678",
                 "longName": "Test Node",
                 "shortName": "TN",
-                "macaddr": "QkVTVEVWRVI=",
-                "hwModel": "TBEAM",
+                "hwModel": 4,  # TBEAM
             },
         },
         False,
@@ -390,11 +386,9 @@ def test_setURL_valid_URL_but_no_settings(capsys):
         {
             "num": 305419896,
             "user": {
-                "id": "!12345678",
                 "longName": "Another Node",
                 "shortName": "AN",
-                "macaddr": "QkVTVEVWRVI=",
-                "hwModel": "HELTEC_V3",
+                "hwModel": 43,  # HELTEC_V3
                 "role": "CLIENT",
                 "publicKey": "AAAAAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
                 "isLicensed": False,
@@ -409,11 +403,9 @@ def test_setURL_valid_URL_but_no_settings(capsys):
         {
             "num": 3735928559,
             "user": {
-                "id": "!deadbeef",
                 "longName": "Minimal Contact",
                 "shortName": "MC",
-                "macaddr": "BQYHCAkKCw==",
-                "hwModel": "UNSET",
+                "hwModel": 0,
                 "role": "CLIENT_MUTE",
             },
         },
@@ -426,11 +418,9 @@ def test_setURL_valid_URL_but_no_settings(capsys):
         {
             "num": 439041101,
             "user": {
-                "id": "!1a2b3c4d",
                 "longName": "Licensed Node",
                 "shortName": "LN",
-                "macaddr": "DA0ODxAREg==",
-                "hwModel": "NANO_G1",
+                "hwModel": 14,  # NANO_G1
                 "isLicensed": True,
                 "isUnmessagable": True,
             },
@@ -464,15 +454,11 @@ def test_contact_url_roundtrip(node_id, node_data, should_ignore, manually_verif
     u = node_data["user"]
 
     assert contact.node_num == node_num
-    assert contact.user.id == u["id"]
     assert contact.user.long_name == u["longName"]
     assert contact.user.short_name == u["shortName"]
-    assert contact.user.macaddr == base64.b64decode(u["macaddr"])
-
-    if u.get("hwModel") and u["hwModel"] != "UNSET":
-        assert contact.user.hw_model == mesh_pb2.HardwareModel.Value(u["hwModel"])
+    assert contact.user.hw_model == u["hwModel"]
     if u.get("role"):
-        assert contact.user.role == config_pb2.Config.DeviceConfig.Role.Value(u["role"])
+        assert contact.user.role == common_pb2.Role.Value(u["role"])
     if u.get("publicKey"):
         assert contact.user.public_key == base64.b64decode(u["publicKey"])
     if u.get("isLicensed"):
@@ -491,12 +477,10 @@ def contact_url_roundtrip_params(draw):
     manually_verified = draw(st.booleans())
 
     node_num = draw(st.integers(min_value=6, max_value=2**32 - 2))
-    node_id = f"!{node_num:08x}"
-
-    hw_model = draw(st.sampled_from(list(mesh_pb2.HardwareModel.keys())))
+    hw_model = draw(st.integers(min_value=0, max_value=0x3FFF))  # (vendor_id << 8) | device_id
     role = draw(st.one_of(
         st.none(),
-        st.sampled_from(list(config_pb2.Config.DeviceConfig.Role.keys())),
+        st.sampled_from(list(common_pb2.Role.keys())),
     ))
 
     long_name = draw(st.text(
@@ -505,12 +489,6 @@ def contact_url_roundtrip_params(draw):
     short_name = draw(st.text(
         min_size=1, max_size=_USER_NANOPB['short_name'].max_size
     ))
-
-    macaddr_bytes = draw(st.binary(
-        min_size=_USER_NANOPB['macaddr'].max_size,
-        max_size=_USER_NANOPB['macaddr'].max_size,
-    ))
-    macaddr_b64 = base64.b64encode(macaddr_bytes).decode("ascii")
 
     has_public_key = draw(st.booleans())
     public_key_b64 = None
@@ -527,10 +505,8 @@ def contact_url_roundtrip_params(draw):
     node_data = {
         "num": node_num,
         "user": {
-            "id": node_id,
             "longName": long_name,
             "shortName": short_name,
-            "macaddr": macaddr_b64,
             "hwModel": hw_model,
             "isLicensed": is_licensed,
             "isUnmessagable": is_unmessagable,
@@ -573,14 +549,12 @@ def test_contact_url_roundtrip_hypothesis(params):
     u = node_data["user"]
 
     assert contact.node_num == node_num
-    assert contact.user.id == u["id"]
     assert contact.user.long_name == u["longName"]
     assert contact.user.short_name == u["shortName"]
-    assert contact.user.macaddr == base64.b64decode(u["macaddr"])
-    assert contact.user.hw_model == mesh_pb2.HardwareModel.Value(u["hwModel"])
+    assert contact.user.hw_model == u["hwModel"]
 
     if "role" in u:
-        assert contact.user.role == config_pb2.Config.DeviceConfig.Role.Value(u["role"])
+        assert contact.user.role == common_pb2.Role.Value(u["role"])
     if "publicKey" in u:
         assert contact.user.public_key == base64.b64decode(u["publicKey"])
     assert contact.user.is_licensed == u["isLicensed"]
@@ -599,20 +573,20 @@ def test_contact_url_roundtrip_hypothesis(params):
 #    # role: 0=Disabled, 1=Primary, 2=Secondary
 #    # modem_config: 0-5
 #    # role: 0=Disabled, 1=Primary, 2=Secondary
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
-#    channel2 = Channel(index=2, role=2)
+#    channel2 = Channel(index=2)
 #    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
 #    channel2.settings.name = 'testing'
 #
-#    channel3 = Channel(index=3, role=0)
-#    channel4 = Channel(index=4, role=0)
-#    channel5 = Channel(index=5, role=0)
-#    channel6 = Channel(index=6, role=0)
-#    channel7 = Channel(index=7, role=0)
-#    channel8 = Channel(index=8, role=0)
+#    channel3 = Channel(index=3)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -636,14 +610,14 @@ def test_getChannelByChannelIndex():
     """Test getChannelByChannelIndex()"""
     anode = Node("foo", "bar")
 
-    channel1 = Channel(index=1, role=1)  # primary channel
-    channel2 = Channel(index=2, role=2)  # secondary channel
-    channel3 = Channel(index=3, role=0)
-    channel4 = Channel(index=4, role=0)
-    channel5 = Channel(index=5, role=0)
-    channel6 = Channel(index=6, role=0)
-    channel7 = Channel(index=7, role=0)
-    channel8 = Channel(index=8, role=0)
+    channel1 = Channel(index=1)  # primary channel
+    channel2 = Channel(index=2)  # secondary channel
+    channel3 = Channel(index=3)
+    channel4 = Channel(index=4)
+    channel5 = Channel(index=5)
+    channel6 = Channel(index=6)
+    channel7 = Channel(index=7)
+    channel8 = Channel(index=8)
 
     channels = [
         channel1,
@@ -670,23 +644,19 @@ def test_getChannelByChannelIndex():
 
 
 def _build_channels(highest_secondary_index: int):
-    """Build an 8-slot channel table with contiguous active channels.
+    """Build a full channel table with contiguous active channels.
 
     Slot 0 is PRIMARY. Slots 1..highest_secondary_index are SECONDARY.
-    Remaining slots are DISABLED.
+    Remaining slots are DISABLED: no settings.
     """
     channels = []
-    for idx in range(8):
+    for idx in range(MAX_CHANNELS):
         ch = Channel()
         ch.index = idx
         if idx == 0:
-            ch.role = Channel.Role.PRIMARY
             ch.settings.name = "primary"
         elif idx <= highest_secondary_index:
-            ch.role = Channel.Role.SECONDARY
             ch.settings.name = f"ch{idx}"
-        else:
-            ch.role = Channel.Role.DISABLED
         channels.append(ch)
     return channels
 
@@ -747,18 +717,18 @@ def test_delete_channel_rejects_primary():
 #    """Try to delete primary channel."""
 #    anode = Node('foo', 'bar')
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
 #    # no secondary channels
-#    channel2 = Channel(index=2, role=0)
-#    channel3 = Channel(index=3, role=0)
-#    channel4 = Channel(index=4, role=0)
-#    channel5 = Channel(index=5, role=0)
-#    channel6 = Channel(index=6, role=0)
-#    channel7 = Channel(index=7, role=0)
-#    channel8 = Channel(index=8, role=0)
+#    channel2 = Channel(index=2)
+#    channel3 = Channel(index=3)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -777,20 +747,20 @@ def test_delete_channel_rejects_primary():
 # def test_deleteChannel_secondary():
 #    """Try to delete a secondary channel."""
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
-#    channel2 = Channel(index=2, role=2)
+#    channel2 = Channel(index=2)
 #    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
 #    channel2.settings.name = 'testing'
 #
-#    channel3 = Channel(index=3, role=0)
-#    channel4 = Channel(index=4, role=0)
-#    channel5 = Channel(index=5, role=0)
-#    channel6 = Channel(index=6, role=0)
-#    channel7 = Channel(index=7, role=0)
-#    channel8 = Channel(index=8, role=0)
+#    channel3 = Channel(index=3)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -830,22 +800,22 @@ def test_delete_channel_rejects_primary():
 # def test_deleteChannel_secondary_with_admin_channel_after_testing():
 #    """Try to delete a secondary channel where there is an admin channel."""
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
-#    channel2 = Channel(index=2, role=2)
+#    channel2 = Channel(index=2)
 #    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
 #    channel2.settings.name = 'testing'
 #
-#    channel3 = Channel(index=3, role=2)
+#    channel3 = Channel(index=3)
 #    channel3.settings.name = 'admin'
 #
-#    channel4 = Channel(index=4, role=0)
-#    channel5 = Channel(index=5, role=0)
-#    channel6 = Channel(index=6, role=0)
-#    channel7 = Channel(index=7, role=0)
-#    channel8 = Channel(index=8, role=0)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -890,22 +860,22 @@ def test_delete_channel_rejects_primary():
 # def test_deleteChannel_secondary_with_admin_channel_before_testing():
 #    """Try to delete a secondary channel where there is an admin channel."""
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
-#    channel2 = Channel(index=2, role=2)
+#    channel2 = Channel(index=2)
 #    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
 #    channel2.settings.name = 'admin'
 #
-#    channel3 = Channel(index=3, role=2)
+#    channel3 = Channel(index=3)
 #    channel3.settings.name = 'testing'
 #
-#    channel4 = Channel(index=4, role=0)
-#    channel5 = Channel(index=5, role=0)
-#    channel6 = Channel(index=6, role=0)
-#    channel7 = Channel(index=7, role=0)
-#    channel8 = Channel(index=8, role=0)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -945,20 +915,20 @@ def test_delete_channel_rejects_primary():
 #    """Get a channel by the name."""
 #    anode = Node('foo', 'bar')
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
-#    channel2 = Channel(index=2, role=2)
+#    channel2 = Channel(index=2)
 #    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
 #    channel2.settings.name = 'admin'
 #
-#    channel3 = Channel(index=3, role=0)
-#    channel4 = Channel(index=4, role=0)
-#    channel5 = Channel(index=5, role=0)
-#    channel6 = Channel(index=6, role=0)
-#    channel7 = Channel(index=7, role=0)
-#    channel8 = Channel(index=8, role=0)
+#    channel3 = Channel(index=3)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -973,20 +943,20 @@ def test_delete_channel_rejects_primary():
 #    """Get a channel by the name but one that is not present."""
 #    anode = Node('foo', 'bar')
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
-#    channel2 = Channel(index=2, role=2)
+#    channel2 = Channel(index=2)
 #    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
 #    channel2.settings.name = 'admin'
 #
-#    channel3 = Channel(index=3, role=0)
-#    channel4 = Channel(index=4, role=0)
-#    channel5 = Channel(index=5, role=0)
-#    channel6 = Channel(index=6, role=0)
-#    channel7 = Channel(index=7, role=0)
-#    channel8 = Channel(index=8, role=0)
+#    channel3 = Channel(index=3)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -1000,23 +970,23 @@ def test_delete_channel_rejects_primary():
 #    """Get the first disabled channel."""
 #    anode = Node('foo', 'bar')
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
-#    channel2 = Channel(index=2, role=2)
+#    channel2 = Channel(index=2)
 #    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
 #    channel2.settings.name = 'testingA'
 #
-#    channel3 = Channel(index=3, role=2)
+#    channel3 = Channel(index=3)
 #    channel3.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
 #    channel3.settings.name = 'testingB'
 #
-#    channel4 = Channel(index=4, role=0)
-#    channel5 = Channel(index=5, role=0)
-#    channel6 = Channel(index=6, role=0)
-#    channel7 = Channel(index=7, role=0)
-#    channel8 = Channel(index=8, role=0)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -1031,17 +1001,17 @@ def test_delete_channel_rejects_primary():
 #    """Get the first disabled channel."""
 #    anode = Node('foo', 'bar')
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
-#    channel2 = Channel(index=2, role=2)
-#    channel3 = Channel(index=3, role=2)
-#    channel4 = Channel(index=4, role=2)
-#    channel5 = Channel(index=5, role=2)
-#    channel6 = Channel(index=6, role=2)
-#    channel7 = Channel(index=7, role=2)
-#    channel8 = Channel(index=8, role=2)
+#    channel2 = Channel(index=2)
+#    channel3 = Channel(index=3)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -1056,20 +1026,20 @@ def test_delete_channel_rejects_primary():
 #    """Get the 'admin' channel index."""
 #    anode = Node('foo', 'bar')
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
-#    channel2 = Channel(index=2, role=2)
+#    channel2 = Channel(index=2)
 #    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
 #    channel2.settings.name = 'admin'
 #
-#    channel3 = Channel(index=3, role=0)
-#    channel4 = Channel(index=4, role=0)
-#    channel5 = Channel(index=5, role=0)
-#    channel6 = Channel(index=6, role=0)
-#    channel7 = Channel(index=7, role=0)
-#    channel8 = Channel(index=8, role=0)
+#    channel3 = Channel(index=3)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -1084,17 +1054,17 @@ def test_delete_channel_rejects_primary():
 #    """Get the 'admin' channel when there is not one."""
 #    anode = Node('foo', 'bar')
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
-#    channel2 = Channel(index=2, role=0)
-#    channel3 = Channel(index=3, role=0)
-#    channel4 = Channel(index=4, role=0)
-#    channel5 = Channel(index=5, role=0)
-#    channel6 = Channel(index=6, role=0)
-#    channel7 = Channel(index=7, role=0)
-#    channel8 = Channel(index=8, role=0)
+#    channel2 = Channel(index=2)
+#    channel3 = Channel(index=3)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -1110,18 +1080,18 @@ def test_delete_channel_rejects_primary():
 #    """Turn off encryption when there is a psk."""
 #    anode = Node('foo', 'bar', noProto=True)
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    # value from using "--ch-set psk 0x1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b1a1a1a1a2b2b2b2b "
 #    channel1.settings.psk = b'\x1a\x1a\x1a\x1a++++\x1a\x1a\x1a\x1a++++\x1a\x1a\x1a\x1a++++\x1a\x1a\x1a\x1a++++'
 #
-#    channel2 = Channel(index=2, role=0)
-#    channel3 = Channel(index=3, role=0)
-#    channel4 = Channel(index=4, role=0)
-#    channel5 = Channel(index=5, role=0)
-#    channel6 = Channel(index=6, role=0)
-#    channel7 = Channel(index=7, role=0)
-#    channel8 = Channel(index=8, role=0)
+#    channel2 = Channel(index=2)
+#    channel3 = Channel(index=3)
+#    channel4 = Channel(index=4)
+#    channel5 = Channel(index=5)
+#    channel6 = Channel(index=6)
+#    channel7 = Channel(index=7)
+#    channel8 = Channel(index=8)
 #
 #    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
 #
@@ -1599,7 +1569,7 @@ def test_requestChannels_non_localNode_starting_index(caplog):
 # def test_onResponseRequestChannel(caplog):
 #    """Test onResponseRequestChannel()"""
 #
-#    channel1 = Channel(index=1, role=1)
+#    channel1 = Channel(index=1)
 #    channel1.settings.modem_config = 3
 #    channel1.settings.psk = b'\x01'
 #
@@ -1607,7 +1577,7 @@ def test_requestChannels_non_localNode_starting_index(caplog):
 #    msg1.get_channel_response = channel1
 #
 #    msg2 = MagicMock(autospec=AdminMessage)
-#    channel2 = Channel(index=2, role=0) # disabled
+#    channel2 = Channel(index=2) # disabled
 #    msg2.get_channel_response = channel2
 #
 #    # default primary channel
@@ -1972,3 +1942,13 @@ def test_start_ota_remote_node_raises_error():
 #    anode._timeout = Timeout(0.01)
 #    result = anode.waitForConfig()
 #    assert not result
+
+
+@pytest.mark.unit
+def test_channel_role():
+    """3.0 channels have no role field: index 0 is primary, settings make a channel secondary."""
+    assert channel_role(Channel(index=0)) == "PRIMARY"
+    assert channel_role(Channel(index=3)) == "DISABLED"
+    ch = Channel(index=3)
+    ch.settings.name = "x"
+    assert channel_role(ch) == "SECONDARY"

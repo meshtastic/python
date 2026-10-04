@@ -3,231 +3,258 @@
 isort:skip_file
 """
 
-import builtins
-import google.protobuf.descriptor
-import google.protobuf.message
-import meshtastic.protobuf.config_pb2
-import meshtastic.protobuf.module_config_pb2
-import typing
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from . import config_pb2 as _config_pb2
+from . import module_config_pb2 as _module_config_pb2
+import builtins as _builtins
+import sys
+import typing as _typing
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
+else:
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-@typing.final
-class LocalConfig(google.protobuf.message.Message):
+DESCRIPTOR: _descriptor.FileDescriptor
+
+@_typing.final
+class LocalConfig(_message.Message):
     """
     Protobuf structures common to apponly.proto and deviceonly.proto
     This is never sent over the wire, only for local use
+
+
+    Every config section, stored. A section's field number is its ConfigPayload tag;
+    the session key is not stored, and version sits above every section tag.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    DEVICE_FIELD_NUMBER: builtins.int
-    POSITION_FIELD_NUMBER: builtins.int
-    POWER_FIELD_NUMBER: builtins.int
-    NETWORK_FIELD_NUMBER: builtins.int
-    DISPLAY_FIELD_NUMBER: builtins.int
-    LORA_FIELD_NUMBER: builtins.int
-    BLUETOOTH_FIELD_NUMBER: builtins.int
-    VERSION_FIELD_NUMBER: builtins.int
-    SECURITY_FIELD_NUMBER: builtins.int
-    version: builtins.int
+    DEVICE_FIELD_NUMBER: _builtins.int
+    POSITION_FIELD_NUMBER: _builtins.int
+    POWER_FIELD_NUMBER: _builtins.int
+    NETWORK_FIELD_NUMBER: _builtins.int
+    DISPLAY_FIELD_NUMBER: _builtins.int
+    LORA_FIELD_NUMBER: _builtins.int
+    BLUETOOTH_FIELD_NUMBER: _builtins.int
+    SECURITY_FIELD_NUMBER: _builtins.int
+    RELAY_FIELD_NUMBER: _builtins.int
+    GROUP_FIELD_NUMBER: _builtins.int
+    VERSION_FIELD_NUMBER: _builtins.int
+    version: _builtins.int
     """
     A version integer used to invalidate old save files when we make
     incompatible changes This integer is set at build time and is private to
     NodeDB.cpp in the device code.
     """
-    @property
-    def device(self) -> meshtastic.protobuf.config_pb2.Config.DeviceConfig:
+    @_builtins.property
+    def device(self) -> _config_pb2.DeviceConfig:
         """
         The part of the config that is specific to the Device
         """
 
-    @property
-    def position(self) -> meshtastic.protobuf.config_pb2.Config.PositionConfig:
+    @_builtins.property
+    def position(self) -> _config_pb2.PositionConfig:
         """
         The part of the config that is specific to the GPS Position
         """
 
-    @property
-    def power(self) -> meshtastic.protobuf.config_pb2.Config.PowerConfig:
+    @_builtins.property
+    def power(self) -> _config_pb2.PowerConfig:
         """
         The part of the config that is specific to the Power settings
         """
 
-    @property
-    def network(self) -> meshtastic.protobuf.config_pb2.Config.NetworkConfig:
+    @_builtins.property
+    def network(self) -> _config_pb2.NetworkConfig:
         """
         The part of the config that is specific to the Wifi Settings
         """
 
-    @property
-    def display(self) -> meshtastic.protobuf.config_pb2.Config.DisplayConfig:
+    @_builtins.property
+    def display(self) -> _config_pb2.DisplayConfig:
         """
         The part of the config that is specific to the Display
         """
 
-    @property
-    def lora(self) -> meshtastic.protobuf.config_pb2.Config.LoRaConfig:
+    @_builtins.property
+    def lora(self) -> _config_pb2.LoRaConfig:
         """
         The part of the config that is specific to the Lora Radio
         """
 
-    @property
-    def bluetooth(self) -> meshtastic.protobuf.config_pb2.Config.BluetoothConfig:
+    @_builtins.property
+    def bluetooth(self) -> _config_pb2.BluetoothConfig:
         """
         The part of the config that is specific to the Bluetooth settings
         """
 
-    @property
-    def security(self) -> meshtastic.protobuf.config_pb2.Config.SecurityConfig:
+    @_builtins.property
+    def security(self) -> _config_pb2.SecurityConfig:
         """
         The part of the config that is specific to Security settings
+        """
+
+    @_builtins.property
+    def relay(self) -> _config_pb2.RelayConfig:
+        """
+        The part of the config that decides how this node relays per channel hash
+        """
+
+    @_builtins.property
+    def group(self) -> _config_pb2.GroupConfig:
+        """
+        The part of the config that holds the anycast groups this node sends to or serves
         """
 
     def __init__(
         self,
         *,
-        device: meshtastic.protobuf.config_pb2.Config.DeviceConfig | None = ...,
-        position: meshtastic.protobuf.config_pb2.Config.PositionConfig | None = ...,
-        power: meshtastic.protobuf.config_pb2.Config.PowerConfig | None = ...,
-        network: meshtastic.protobuf.config_pb2.Config.NetworkConfig | None = ...,
-        display: meshtastic.protobuf.config_pb2.Config.DisplayConfig | None = ...,
-        lora: meshtastic.protobuf.config_pb2.Config.LoRaConfig | None = ...,
-        bluetooth: meshtastic.protobuf.config_pb2.Config.BluetoothConfig | None = ...,
-        version: builtins.int = ...,
-        security: meshtastic.protobuf.config_pb2.Config.SecurityConfig | None = ...,
+        device: _config_pb2.DeviceConfig | None = ...,
+        position: _config_pb2.PositionConfig | None = ...,
+        power: _config_pb2.PowerConfig | None = ...,
+        network: _config_pb2.NetworkConfig | None = ...,
+        display: _config_pb2.DisplayConfig | None = ...,
+        lora: _config_pb2.LoRaConfig | None = ...,
+        bluetooth: _config_pb2.BluetoothConfig | None = ...,
+        security: _config_pb2.SecurityConfig | None = ...,
+        relay: _config_pb2.RelayConfig | None = ...,
+        group: _config_pb2.GroupConfig | None = ...,
+        version: _builtins.int = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "position", b"position", "power", b"power", "security", b"security"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "lora", b"lora", "network", b"network", "position", b"position", "power", b"power", "security", b"security", "version", b"version"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "group", b"group", "lora", b"lora", "network", b"network", "position", b"position", "power", b"power", "relay", b"relay", "security", b"security"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["bluetooth", b"bluetooth", "device", b"device", "display", b"display", "group", b"group", "lora", b"lora", "network", b"network", "position", b"position", "power", b"power", "relay", b"relay", "security", b"security", "version", b"version"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___LocalConfig = LocalConfig
+Global___LocalConfig: _TypeAlias = LocalConfig  # noqa: Y015
 
-@typing.final
-class LocalModuleConfig(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+@_typing.final
+class LocalModuleConfig(_message.Message):
+    """
+    Every module config section, stored. A section's field number is its
+    ModuleConfigPayload tag, and version sits above every section tag.
+    """
 
-    MQTT_FIELD_NUMBER: builtins.int
-    SERIAL_FIELD_NUMBER: builtins.int
-    EXTERNAL_NOTIFICATION_FIELD_NUMBER: builtins.int
-    STORE_FORWARD_FIELD_NUMBER: builtins.int
-    RANGE_TEST_FIELD_NUMBER: builtins.int
-    TELEMETRY_FIELD_NUMBER: builtins.int
-    CANNED_MESSAGE_FIELD_NUMBER: builtins.int
-    AUDIO_FIELD_NUMBER: builtins.int
-    REMOTE_HARDWARE_FIELD_NUMBER: builtins.int
-    NEIGHBOR_INFO_FIELD_NUMBER: builtins.int
-    AMBIENT_LIGHTING_FIELD_NUMBER: builtins.int
-    DETECTION_SENSOR_FIELD_NUMBER: builtins.int
-    PAXCOUNTER_FIELD_NUMBER: builtins.int
-    STATUSMESSAGE_FIELD_NUMBER: builtins.int
-    TRAFFIC_MANAGEMENT_FIELD_NUMBER: builtins.int
-    TAK_FIELD_NUMBER: builtins.int
-    MESH_BEACON_FIELD_NUMBER: builtins.int
-    VERSION_FIELD_NUMBER: builtins.int
-    version: builtins.int
+    DESCRIPTOR: _descriptor.Descriptor
+
+    MQTT_FIELD_NUMBER: _builtins.int
+    SERIAL_FIELD_NUMBER: _builtins.int
+    EXTERNAL_NOTIFICATION_FIELD_NUMBER: _builtins.int
+    STORE_FORWARD_FIELD_NUMBER: _builtins.int
+    TELEMETRY_FIELD_NUMBER: _builtins.int
+    CANNED_MESSAGE_FIELD_NUMBER: _builtins.int
+    AUDIO_FIELD_NUMBER: _builtins.int
+    REMOTE_HARDWARE_FIELD_NUMBER: _builtins.int
+    NEIGHBOR_INFO_FIELD_NUMBER: _builtins.int
+    AMBIENT_LIGHTING_FIELD_NUMBER: _builtins.int
+    DETECTION_SENSOR_FIELD_NUMBER: _builtins.int
+    PAXCOUNTER_FIELD_NUMBER: _builtins.int
+    STATUSMESSAGE_FIELD_NUMBER: _builtins.int
+    TRAFFIC_MANAGEMENT_FIELD_NUMBER: _builtins.int
+    TAK_FIELD_NUMBER: _builtins.int
+    MESH_BEACON_FIELD_NUMBER: _builtins.int
+    VERSION_FIELD_NUMBER: _builtins.int
+    version: _builtins.int
     """
     A version integer used to invalidate old save files when we make
     incompatible changes This integer is set at build time and is private to
     NodeDB.cpp in the device code.
     """
-    @property
-    def mqtt(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.MQTTConfig:
+    @_builtins.property
+    def mqtt(self) -> _module_config_pb2.MQTTConfig:
         """
         The part of the config that is specific to the MQTT module
         """
 
-    @property
-    def serial(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.SerialConfig:
+    @_builtins.property
+    def serial(self) -> _module_config_pb2.SerialConfig:
         """
         The part of the config that is specific to the Serial module
         """
 
-    @property
-    def external_notification(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.ExternalNotificationConfig:
+    @_builtins.property
+    def external_notification(self) -> _module_config_pb2.ExternalNotificationConfig:
         """
         The part of the config that is specific to the ExternalNotification module
         """
 
-    @property
-    def store_forward(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.StoreForwardConfig:
+    @_builtins.property
+    def store_forward(self) -> _module_config_pb2.StoreForwardConfig:
         """
         The part of the config that is specific to the Store & Forward module
         """
 
-    @property
-    def range_test(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.RangeTestConfig:
-        """
-        The part of the config that is specific to the RangeTest module
-        """
-
-    @property
-    def telemetry(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.TelemetryConfig:
+    @_builtins.property
+    def telemetry(self) -> _module_config_pb2.TelemetryConfig:
         """
         The part of the config that is specific to the Telemetry module
         """
 
-    @property
-    def canned_message(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.CannedMessageConfig:
+    @_builtins.property
+    def canned_message(self) -> _module_config_pb2.CannedMessageConfig:
         """
         The part of the config that is specific to the Canned Message module
         """
 
-    @property
-    def audio(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.AudioConfig:
+    @_builtins.property
+    def audio(self) -> _module_config_pb2.AudioConfig:
         """
         The part of the config that is specific to the Audio module
         """
 
-    @property
-    def remote_hardware(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.RemoteHardwareConfig:
+    @_builtins.property
+    def remote_hardware(self) -> _module_config_pb2.RemoteHardwareConfig:
         """
         The part of the config that is specific to the Remote Hardware module
         """
 
-    @property
-    def neighbor_info(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.NeighborInfoConfig:
+    @_builtins.property
+    def neighbor_info(self) -> _module_config_pb2.NeighborInfoConfig:
         """
         The part of the config that is specific to the Neighbor Info module
         """
 
-    @property
-    def ambient_lighting(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.AmbientLightingConfig:
+    @_builtins.property
+    def ambient_lighting(self) -> _module_config_pb2.AmbientLightingConfig:
         """
         The part of the config that is specific to the Ambient Lighting module
         """
 
-    @property
-    def detection_sensor(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.DetectionSensorConfig:
+    @_builtins.property
+    def detection_sensor(self) -> _module_config_pb2.DetectionSensorConfig:
         """
         The part of the config that is specific to the Detection Sensor module
         """
 
-    @property
-    def paxcounter(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.PaxcounterConfig:
+    @_builtins.property
+    def paxcounter(self) -> _module_config_pb2.PaxcounterConfig:
         """
         Paxcounter Config
         """
 
-    @property
-    def statusmessage(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.StatusMessageConfig:
+    @_builtins.property
+    def statusmessage(self) -> _module_config_pb2.StatusMessageConfig:
         """
         StatusMessage Config
         """
 
-    @property
-    def traffic_management(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.TrafficManagementConfig:
+    @_builtins.property
+    def traffic_management(self) -> _module_config_pb2.TrafficManagementConfig:
         """
         The part of the config that is specific to the Traffic Management module
         """
 
-    @property
-    def tak(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.TAKConfig:
+    @_builtins.property
+    def tak(self) -> _module_config_pb2.TAKConfig:
         """
         TAK Config
         """
 
-    @property
-    def mesh_beacon(self) -> meshtastic.protobuf.module_config_pb2.ModuleConfig.MeshBeaconConfig:
+    @_builtins.property
+    def mesh_beacon(self) -> _module_config_pb2.MeshBeaconConfig:
         """
         MeshBeacon Config
         """
@@ -235,26 +262,28 @@ class LocalModuleConfig(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        mqtt: meshtastic.protobuf.module_config_pb2.ModuleConfig.MQTTConfig | None = ...,
-        serial: meshtastic.protobuf.module_config_pb2.ModuleConfig.SerialConfig | None = ...,
-        external_notification: meshtastic.protobuf.module_config_pb2.ModuleConfig.ExternalNotificationConfig | None = ...,
-        store_forward: meshtastic.protobuf.module_config_pb2.ModuleConfig.StoreForwardConfig | None = ...,
-        range_test: meshtastic.protobuf.module_config_pb2.ModuleConfig.RangeTestConfig | None = ...,
-        telemetry: meshtastic.protobuf.module_config_pb2.ModuleConfig.TelemetryConfig | None = ...,
-        canned_message: meshtastic.protobuf.module_config_pb2.ModuleConfig.CannedMessageConfig | None = ...,
-        audio: meshtastic.protobuf.module_config_pb2.ModuleConfig.AudioConfig | None = ...,
-        remote_hardware: meshtastic.protobuf.module_config_pb2.ModuleConfig.RemoteHardwareConfig | None = ...,
-        neighbor_info: meshtastic.protobuf.module_config_pb2.ModuleConfig.NeighborInfoConfig | None = ...,
-        ambient_lighting: meshtastic.protobuf.module_config_pb2.ModuleConfig.AmbientLightingConfig | None = ...,
-        detection_sensor: meshtastic.protobuf.module_config_pb2.ModuleConfig.DetectionSensorConfig | None = ...,
-        paxcounter: meshtastic.protobuf.module_config_pb2.ModuleConfig.PaxcounterConfig | None = ...,
-        statusmessage: meshtastic.protobuf.module_config_pb2.ModuleConfig.StatusMessageConfig | None = ...,
-        traffic_management: meshtastic.protobuf.module_config_pb2.ModuleConfig.TrafficManagementConfig | None = ...,
-        tak: meshtastic.protobuf.module_config_pb2.ModuleConfig.TAKConfig | None = ...,
-        mesh_beacon: meshtastic.protobuf.module_config_pb2.ModuleConfig.MeshBeaconConfig | None = ...,
-        version: builtins.int = ...,
+        mqtt: _module_config_pb2.MQTTConfig | None = ...,
+        serial: _module_config_pb2.SerialConfig | None = ...,
+        external_notification: _module_config_pb2.ExternalNotificationConfig | None = ...,
+        store_forward: _module_config_pb2.StoreForwardConfig | None = ...,
+        telemetry: _module_config_pb2.TelemetryConfig | None = ...,
+        canned_message: _module_config_pb2.CannedMessageConfig | None = ...,
+        audio: _module_config_pb2.AudioConfig | None = ...,
+        remote_hardware: _module_config_pb2.RemoteHardwareConfig | None = ...,
+        neighbor_info: _module_config_pb2.NeighborInfoConfig | None = ...,
+        ambient_lighting: _module_config_pb2.AmbientLightingConfig | None = ...,
+        detection_sensor: _module_config_pb2.DetectionSensorConfig | None = ...,
+        paxcounter: _module_config_pb2.PaxcounterConfig | None = ...,
+        statusmessage: _module_config_pb2.StatusMessageConfig | None = ...,
+        traffic_management: _module_config_pb2.TrafficManagementConfig | None = ...,
+        tak: _module_config_pb2.TAKConfig | None = ...,
+        mesh_beacon: _module_config_pb2.MeshBeaconConfig | None = ...,
+        version: _builtins.int = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mesh_beacon", b"mesh_beacon", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mesh_beacon", b"mesh_beacon", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "range_test", b"range_test", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management", "version", b"version"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mesh_beacon", b"mesh_beacon", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["ambient_lighting", b"ambient_lighting", "audio", b"audio", "canned_message", b"canned_message", "detection_sensor", b"detection_sensor", "external_notification", b"external_notification", "mesh_beacon", b"mesh_beacon", "mqtt", b"mqtt", "neighbor_info", b"neighbor_info", "paxcounter", b"paxcounter", "remote_hardware", b"remote_hardware", "serial", b"serial", "statusmessage", b"statusmessage", "store_forward", b"store_forward", "tak", b"tak", "telemetry", b"telemetry", "traffic_management", b"traffic_management", "version", b"version"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___LocalModuleConfig = LocalModuleConfig
+Global___LocalModuleConfig: _TypeAlias = LocalModuleConfig  # noqa: Y015

@@ -263,14 +263,6 @@ class PacketCollector:
         ]
 
     @property
-    def traceroutes(self) -> List[dict]:
-        """Return TRACEROUTE_APP packets."""
-        return [
-            p for p in self.packets
-            if p.get("decoded", {}).get("portnum") == "TRACEROUTE_APP"
-        ]
-
-    @property
     def telemetries(self) -> List[dict]:
         """Return TELEMETRY_APP packets."""
         return [
@@ -313,11 +305,6 @@ def _subscribe_topic(
 def subscribe_texts(iface: TCPInterface) -> PacketCollector:
     """Subscribe to ``meshtastic.receive.text`` filtered to *iface*."""
     return _subscribe_topic(iface, "meshtastic.receive.text")
-
-
-def subscribe_traceroutes(iface: TCPInterface) -> PacketCollector:
-    """Subscribe to ``meshtastic.receive.traceroute`` filtered to *iface*."""
-    return _subscribe_topic(iface, "meshtastic.receive.traceroute")
 
 
 def subscribe_telemetries(iface: TCPInterface) -> PacketCollector:
@@ -368,7 +355,6 @@ __all__ = [
     "subscribe_positions",
     "subscribe_telemetries",
     "subscribe_texts",
-    "subscribe_traceroutes",
     "unsubscribe_all",
     "verify_state",
 ]

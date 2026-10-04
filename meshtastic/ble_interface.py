@@ -16,7 +16,7 @@ from bleak.exc import BleakDBusError, BleakError
 
 from meshtastic.mesh_interface import MeshInterface
 
-from .protobuf import mesh_pb2
+from .protobuf import api_pb2
 
 SERVICE_UUID = "6ba1b218-15a8-461f-9fa8-5dcae273eafd"
 TORADIO_UUID = "f75c76d2-129e-4dad-a1dd-7866124401e7"
@@ -116,7 +116,7 @@ class BLEInterface(MeshInterface):
         self.should_read = True
 
     async def log_radio_handler(self, _, b):  # pylint: disable=C0116
-        log_record = mesh_pb2.LogRecord()
+        log_record = api_pb2.LogRecord()
         try:
             log_record.ParseFromString(bytes(b))
 

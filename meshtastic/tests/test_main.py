@@ -17,6 +17,7 @@ import meshtastic.__main__ as mt_main
 from meshtastic.__main__ import (
     export_config,
     export_profile,
+    getPref,
     initParser,
     main,
     onConnection,
@@ -28,9 +29,10 @@ from meshtastic.__main__ import (
     _profile_from_yaml,
 )
 from meshtastic import mt_config
+from meshtastic.util import find_bit
 
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
-from ..protobuf.config_pb2 import Config # pylint: disable=E0611
+from ..protobuf.config_pb2 import ConfigPayload as Config # pylint: disable=E0611
 from ..protobuf.clientonly_pb2 import DeviceProfile # pylint: disable=E0611
 from ..protobuf.localonly_pb2 import LocalConfig, LocalModuleConfig # pylint: disable=E0611
 
@@ -1851,7 +1853,7 @@ def test_main_onReceive_with_text_replies_on_target_channel(caplog, capsys):
         "id": 334776977,
         "hop_limit": 3,
         "want_ack": True,
-        "rxSnr": 6.0,
+        "rxSnr": 6,
         "hopLimit": 3,
         "raw": "faked",
         "fromId": "!28b5465c",
@@ -1868,7 +1870,7 @@ def test_main_onReceive_with_text_replies_on_target_channel(caplog, capsys):
         out, err = capsys.readouterr()
         assert re.search(r"Sending reply", out, re.MULTILINE)
         iface.sendText.assert_called_once_with(
-            "got msg 'faked' with rxSnr: 6.0 and hopLimit: 3", channelIndex=0
+            "got msg 'faked' with rxSnr: 3.0 and hopLimit: 3", channelIndex=0
         )
         assert err == ""
 
@@ -1885,7 +1887,7 @@ def test_main_onReceive_with_text_ignores_non_target_channel(caplog, capsys):
         "id": 334776977,
         "hop_limit": 3,
         "want_ack": True,
-        "rxSnr": 6.0,
+        "rxSnr": 6,
         "hopLimit": 3,
         "raw": "faked",
         "fromId": "!28b5465c",
@@ -1920,7 +1922,7 @@ def test_main_onReceive_with_text_replies_on_explicit_matching_channel(caplog, c
         "id": 334776977,
         "hop_limit": 3,
         "want_ack": True,
-        "rxSnr": 6.0,
+        "rxSnr": 6,
         "hopLimit": 3,
         "raw": "faked",
         "fromId": "!28b5465c",
@@ -1937,12 +1939,12 @@ def test_main_onReceive_with_text_replies_on_explicit_matching_channel(caplog, c
         assert re.search(r"in onReceive", caplog.text, re.MULTILINE)
         out, err = capsys.readouterr()
         assert re.search(
-            r"Received channel 2\. Sending reply: got msg 'faked' with rxSnr: 6.0 and hopLimit: 3",
+            r"Received channel 2\. Sending reply: got msg 'faked' with rxSnr: 3.0 and hopLimit: 3",
             out,
             re.MULTILINE,
         )
         iface.sendText.assert_called_once_with(
-            "got msg 'faked' with rxSnr: 6.0 and hopLimit: 3", channelIndex=2
+            "got msg 'faked' with rxSnr: 3.0 and hopLimit: 3", channelIndex=2
         )
         assert err == ""
 
@@ -2044,8 +2046,8 @@ def test_export_profile_serializes_deviceprofile():
     assert profile.canned_messages == "Hi|Bye"
     assert profile.ringtone == "24:d=32,o=5"
     assert profile.HasField("fixed_position")
-    assert profile.fixed_position.latitude_i == 358888800
-    assert profile.fixed_position.longitude_i == -938888800
+    assert profile.fixed_position.latitude == 358888800
+    assert profile.fixed_position.longitude == -938888800
     assert profile.fixed_position.altitude == 304
 
 
@@ -2120,8 +2122,8 @@ def test_export_profile_converts_precisely():
 
     profile = DeviceProfile()
     profile.ParseFromString(raw)
-    assert profile.fixed_position.latitude_i == -498220700
-    assert profile.fixed_position.longitude_i == 0
+    assert profile.fixed_position.latitude == -498220700
+    assert profile.fixed_position.longitude == 0
 
 
 @pytest.mark.unit
@@ -2146,8 +2148,8 @@ def test_profile_from_yaml_maps_all_fields():
     assert profile.canned_messages == "Hi|Bye"
     assert profile.ringtone == "24:d=32,o=5"
     assert profile.HasField("fixed_position")
-    assert profile.fixed_position.latitude_i == 358888800
-    assert profile.fixed_position.longitude_i == -938888800
+    assert profile.fixed_position.latitude == 358888800
+    assert profile.fixed_position.longitude == -938888800
     assert profile.fixed_position.altitude == 304
     assert profile.HasField("config")
     assert profile.config.bluetooth.enabled is True
@@ -2182,8 +2184,8 @@ def test_profile_from_yaml_converts_precisely():
     }
     profile = _profile_from_yaml(configuration)
 
-    assert profile.fixed_position.latitude_i == -498220700
-    assert profile.fixed_position.longitude_i == 0
+    assert profile.fixed_position.latitude == -498220700
+    assert profile.fixed_position.longitude == 0
 
 
 @pytest.mark.unit
@@ -2359,8 +2361,8 @@ def test_main_export_config_binary_round_trip(tmp_path, capsys):
     assert profile.long_name == "Round Trip"
     assert profile.short_name == "RT"
     assert profile.HasField("fixed_position")
-    assert profile.fixed_position.latitude_i == int(1.0 * 1e7)
-    assert profile.fixed_position.longitude_i == int(2.0 * 1e7)
+    assert profile.fixed_position.latitude == int(1.0 * 1e7)
+    assert profile.fixed_position.longitude == int(2.0 * 1e7)
     assert profile.fixed_position.altitude == 3
 
     # Re-import the file we just wrote
@@ -2557,18 +2559,34 @@ _TRUE_DEFAULTS = [
 ]
 
 _MOD_TRUE_DEFAULTS = [
-    "mqtt.encryption_enabled",
+    "mqtt.encryption",
 ]
+
+
+def _get_bool(msg, name):
+    """A bool field, or a named bit of one of the message's packed bitfields."""
+    if name in msg.DESCRIPTOR.fields_by_name:
+        return getattr(msg, name)
+    field, mask = find_bit(msg.DESCRIPTOR, name)
+    return bool(getattr(msg, field) & mask)
+
+
+def _set_bool(msg, name, value):
+    if name in msg.DESCRIPTOR.fields_by_name:
+        setattr(msg, name, value)
+        return
+    field, mask = find_bit(msg.DESCRIPTOR, name)
+    setattr(msg, field, getattr(msg, field) | mask if value else getattr(msg, field) & ~mask)
 
 
 def _set_config_bool(lc, path, value):
     section, field = path.split(".")
-    setattr(getattr(lc, section), field, value)
+    _set_bool(getattr(lc, section), field, value)
 
 
 def _assert_config_bool(profile, path, expected):
     section, field = path.split(".")
-    assert getattr(getattr(profile.config, section), field) is expected
+    assert _get_bool(getattr(profile.config, section), field) is expected
 
 
 @pytest.mark.unit
@@ -2607,7 +2625,7 @@ def test_round_trip_preserves_config_true_defaults(fmt, value):
         _assert_config_bool(profile, path, value)
     for path in _MOD_TRUE_DEFAULTS:
         section, field = path.split(".")
-        assert getattr(getattr(profile.module_config, section), field) is value
+        assert _get_bool(getattr(profile.module_config, section), field) is value
 
 
 @pytest.mark.unit
@@ -2627,14 +2645,14 @@ def test_binary_and_yaml_export_consistent():
     lc = iface.localNode.localConfig
     lc.bluetooth.enabled = True
     lc.bluetooth.fixed_pin = 123456
-    lc.lora.sx126x_rx_boosted_gain = False
-    lc.lora.tx_enabled = True
-    lc.lora.use_preset = True
+    _set_bool(lc.lora, "sx126x_rx_boosted_gain", False)
+    _set_bool(lc.lora, "tx_enabled", True)
+    _set_bool(lc.lora, "use_preset", True)
     lc.position.position_broadcast_smart_enabled = False
-    lc.security.serial_enabled = True
+    _set_bool(lc.security, "serial_enabled", True)
 
     lc_mod = iface.localNode.moduleConfig
-    lc_mod.mqtt.encryption_enabled = True
+    _set_bool(lc_mod.mqtt, "encryption", True)
 
     # Binary path
     raw = export_profile(iface)
@@ -2653,12 +2671,10 @@ def test_binary_and_yaml_export_consistent():
     # Compare individual field values
     assert binary_profile.config.bluetooth.enabled == yaml_profile.config.bluetooth.enabled
     assert binary_profile.config.bluetooth.fixed_pin == yaml_profile.config.bluetooth.fixed_pin
-    assert binary_profile.config.lora.sx126x_rx_boosted_gain == yaml_profile.config.lora.sx126x_rx_boosted_gain
-    assert binary_profile.config.lora.tx_enabled == yaml_profile.config.lora.tx_enabled
-    assert binary_profile.config.lora.use_preset == yaml_profile.config.lora.use_preset
+    assert binary_profile.config.lora.flags == yaml_profile.config.lora.flags
     assert binary_profile.config.position.position_broadcast_smart_enabled == yaml_profile.config.position.position_broadcast_smart_enabled
-    assert binary_profile.config.security.serial_enabled == yaml_profile.config.security.serial_enabled
-    assert binary_profile.module_config.mqtt.encryption_enabled == yaml_profile.module_config.mqtt.encryption_enabled
+    assert binary_profile.config.security.flags == yaml_profile.config.security.flags
+    assert binary_profile.module_config.mqtt.flags == yaml_profile.module_config.mqtt.flags
 
     # Owner fields also match
     assert binary_profile.long_name == yaml_profile.long_name
@@ -2726,7 +2742,7 @@ def test_main_gpio_rd_no_dest(capsys):
     sys.argv = ["", "--gpio-rd", "0x2000"]
     mt_config.args = sys.argv
 
-    channel = Channel(index=2, role=2)
+    channel = Channel(index=2)
     channel.settings.psk = b"\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84"
     channel.settings.name = "gpio"
 
@@ -3839,3 +3855,27 @@ def test_main_setPref_bitfield_invalid_name(capsys):
     assert "Unknown flag 'TCP'" in out
     assert "NO_BROADCAST" in out
     assert "UDP_BROADCAST" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_setPref_and_getPref_bitfield_bit(capsys):
+    """A named bit of a packed bitfield sets and reads as if it were a bool field."""
+    config = LocalConfig()
+    config.lora.flags = config.lora.LORA_USE_PRESET
+    assert setPref(config, "lora.tx_enabled", "true") is True
+    assert config.lora.flags == config.lora.LORA_USE_PRESET | config.lora.LORA_TX_ENABLED
+    assert setPref(config, "lora.usePreset", "false") is True
+    assert config.lora.flags == config.lora.LORA_TX_ENABLED
+    out, _ = capsys.readouterr()
+    assert "Set lora.tx_enabled to true" in out
+
+    node = MagicMock()
+    node.localConfig = config
+    node.moduleConfig = LocalModuleConfig()
+    assert getPref(node, "lora.tx_enabled") is True
+    assert getPref(node, "lora") is True
+    out, _ = capsys.readouterr()
+    assert "lora.tx_enabled: True" in out
+    assert "lora.use_preset: False" in out
+    assert "lora.flags" not in out

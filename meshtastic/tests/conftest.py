@@ -110,8 +110,7 @@ def iface_with_nodes():
                 "id": "!9388f81c",
                 "longName": "Unknown f81c",
                 "shortName": "?1C",
-                "macaddr": "RBeTiPgc",
-                "hwModel": "TBEAM",
+                "hwModel": 4,  # TBEAM
             },
             "position": {},
             "lastHeard": 1640204888,
@@ -125,8 +124,7 @@ def iface_with_nodes():
                 "id": "!9388f81c",
                 "longName": "Unknown f81c",
                 "shortName": "?1C",
-                "macaddr": "RBeTiPgc",
-                "hwModel": "TBEAM",
+                "hwModel": 4,  # TBEAM
             },
             "position": {"time": 1640206266},
             "lastHeard": 1640206266,

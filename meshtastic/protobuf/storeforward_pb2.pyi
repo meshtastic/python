@@ -3,349 +3,451 @@
 isort:skip_file
 """
 
-import builtins
-import google.protobuf.descriptor
-import google.protobuf.internal.enum_type_wrapper
-import google.protobuf.message
+from collections import abc as _abc
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+import builtins as _builtins
 import sys
-import typing
+import typing as _typing
 
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
 else:
-    import typing_extensions
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+DESCRIPTOR: _descriptor.FileDescriptor
 
-@typing.final
-class StoreAndForward(google.protobuf.message.Message):
+@_typing.final
+class StoredFrame(_message.Message):
     """
-    TODO: REPLACE
-    """
-
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    class _RequestResponse:
-        ValueType = typing.NewType("ValueType", builtins.int)
-        V: typing_extensions.TypeAlias = ValueType
-
-    class _RequestResponseEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[StoreAndForward._RequestResponse.ValueType], builtins.type):
-        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-        UNSET: StoreAndForward._RequestResponse.ValueType  # 0
-        """
-        Unset/unused
-        """
-        ROUTER_ERROR: StoreAndForward._RequestResponse.ValueType  # 1
-        """
-        Router is an in error state.
-        """
-        ROUTER_HEARTBEAT: StoreAndForward._RequestResponse.ValueType  # 2
-        """
-        Router heartbeat
-        """
-        ROUTER_PING: StoreAndForward._RequestResponse.ValueType  # 3
-        """
-        Router has requested the client respond. This can work as a
-        "are you there" message.
-        """
-        ROUTER_PONG: StoreAndForward._RequestResponse.ValueType  # 4
-        """
-        The response to a "Ping"
-        """
-        ROUTER_BUSY: StoreAndForward._RequestResponse.ValueType  # 5
-        """
-        Router is currently busy. Please try again later.
-        """
-        ROUTER_HISTORY: StoreAndForward._RequestResponse.ValueType  # 6
-        """
-        Router is responding to a request for history.
-        """
-        ROUTER_STATS: StoreAndForward._RequestResponse.ValueType  # 7
-        """
-        Router is responding to a request for stats.
-        """
-        ROUTER_TEXT_DIRECT: StoreAndForward._RequestResponse.ValueType  # 8
-        """
-        Router sends a text message from its history that was a direct message.
-        """
-        ROUTER_TEXT_BROADCAST: StoreAndForward._RequestResponse.ValueType  # 9
-        """
-        Router sends a text message from its history that was a broadcast.
-        """
-        CLIENT_ERROR: StoreAndForward._RequestResponse.ValueType  # 64
-        """
-        Client is an in error state.
-        """
-        CLIENT_HISTORY: StoreAndForward._RequestResponse.ValueType  # 65
-        """
-        Client has requested a replay from the router.
-        """
-        CLIENT_STATS: StoreAndForward._RequestResponse.ValueType  # 66
-        """
-        Client has requested stats from the router.
-        """
-        CLIENT_PING: StoreAndForward._RequestResponse.ValueType  # 67
-        """
-        Client has requested the router respond. This can work as a
-        "are you there" message.
-        """
-        CLIENT_PONG: StoreAndForward._RequestResponse.ValueType  # 68
-        """
-        The response to a "Ping"
-        """
-        CLIENT_ABORT: StoreAndForward._RequestResponse.ValueType  # 106
-        """
-        Client has requested that the router abort processing the client's request
-        """
-
-    class RequestResponse(_RequestResponse, metaclass=_RequestResponseEnumTypeWrapper):
-        """
-        001 - 063 = From Router
-        064 - 127 = From Client
-        """
-
-    UNSET: StoreAndForward.RequestResponse.ValueType  # 0
-    """
-    Unset/unused
-    """
-    ROUTER_ERROR: StoreAndForward.RequestResponse.ValueType  # 1
-    """
-    Router is an in error state.
-    """
-    ROUTER_HEARTBEAT: StoreAndForward.RequestResponse.ValueType  # 2
-    """
-    Router heartbeat
-    """
-    ROUTER_PING: StoreAndForward.RequestResponse.ValueType  # 3
-    """
-    Router has requested the client respond. This can work as a
-    "are you there" message.
-    """
-    ROUTER_PONG: StoreAndForward.RequestResponse.ValueType  # 4
-    """
-    The response to a "Ping"
-    """
-    ROUTER_BUSY: StoreAndForward.RequestResponse.ValueType  # 5
-    """
-    Router is currently busy. Please try again later.
-    """
-    ROUTER_HISTORY: StoreAndForward.RequestResponse.ValueType  # 6
-    """
-    Router is responding to a request for history.
-    """
-    ROUTER_STATS: StoreAndForward.RequestResponse.ValueType  # 7
-    """
-    Router is responding to a request for stats.
-    """
-    ROUTER_TEXT_DIRECT: StoreAndForward.RequestResponse.ValueType  # 8
-    """
-    Router sends a text message from its history that was a direct message.
-    """
-    ROUTER_TEXT_BROADCAST: StoreAndForward.RequestResponse.ValueType  # 9
-    """
-    Router sends a text message from its history that was a broadcast.
-    """
-    CLIENT_ERROR: StoreAndForward.RequestResponse.ValueType  # 64
-    """
-    Client is an in error state.
-    """
-    CLIENT_HISTORY: StoreAndForward.RequestResponse.ValueType  # 65
-    """
-    Client has requested a replay from the router.
-    """
-    CLIENT_STATS: StoreAndForward.RequestResponse.ValueType  # 66
-    """
-    Client has requested stats from the router.
-    """
-    CLIENT_PING: StoreAndForward.RequestResponse.ValueType  # 67
-    """
-    Client has requested the router respond. This can work as a
-    "are you there" message.
-    """
-    CLIENT_PONG: StoreAndForward.RequestResponse.ValueType  # 68
-    """
-    The response to a "Ping"
-    """
-    CLIENT_ABORT: StoreAndForward.RequestResponse.ValueType  # 106
-    """
-    Client has requested that the router abort processing the client's request
+    A frame as a store-and-forward server kept it: the v3 header fields the AEAD's
+    additional authenticated data covers, plus the ciphertext and tag. The server decrypts
+    nothing and holds no channel key. A client rebuilds the AAD from these fields, verifies
+    the tag with its own keys, and treats what comes out exactly as a live receive - which
+    is also why a replayed frame keeps its XEdDSA signature and its original sender.
     """
 
-    @typing.final
-    class Statistics(google.protobuf.message.Message):
-        """
-        TODO: REPLACE
-        """
+    DESCRIPTOR: _descriptor.Descriptor
 
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        MESSAGES_TOTAL_FIELD_NUMBER: builtins.int
-        MESSAGES_SAVED_FIELD_NUMBER: builtins.int
-        MESSAGES_MAX_FIELD_NUMBER: builtins.int
-        UP_TIME_FIELD_NUMBER: builtins.int
-        REQUESTS_FIELD_NUMBER: builtins.int
-        REQUESTS_HISTORY_FIELD_NUMBER: builtins.int
-        HEARTBEAT_FIELD_NUMBER: builtins.int
-        RETURN_MAX_FIELD_NUMBER: builtins.int
-        RETURN_WINDOW_FIELD_NUMBER: builtins.int
-        messages_total: builtins.int
-        """
-        Number of messages we have ever seen
-        """
-        messages_saved: builtins.int
-        """
-        Number of messages we have currently saved our history.
-        """
-        messages_max: builtins.int
-        """
-        Maximum number of messages we will save
-        """
-        up_time: builtins.int
-        """
-        Router uptime in seconds
-        """
-        requests: builtins.int
-        """
-        Number of times any client sent a request to the S&F.
-        """
-        requests_history: builtins.int
-        """
-        Number of times the history was requested.
-        """
-        heartbeat: builtins.bool
-        """
-        Is the heartbeat enabled on the server?
-        """
-        return_max: builtins.int
-        """
-        Maximum number of messages the server will return.
-        """
-        return_window: builtins.int
-        """
-        Maximum history window in minutes the server will return messages from.
-        """
-        def __init__(
-            self,
-            *,
-            messages_total: builtins.int = ...,
-            messages_saved: builtins.int = ...,
-            messages_max: builtins.int = ...,
-            up_time: builtins.int = ...,
-            requests: builtins.int = ...,
-            requests_history: builtins.int = ...,
-            heartbeat: builtins.bool = ...,
-            return_max: builtins.int = ...,
-            return_window: builtins.int = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["heartbeat", b"heartbeat", "messages_max", b"messages_max", "messages_saved", b"messages_saved", "messages_total", b"messages_total", "requests", b"requests", "requests_history", b"requests_history", "return_max", b"return_max", "return_window", b"return_window", "up_time", b"up_time"]) -> None: ...
-
-    @typing.final
-    class History(google.protobuf.message.Message):
-        """
-        TODO: REPLACE
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        HISTORY_MESSAGES_FIELD_NUMBER: builtins.int
-        WINDOW_FIELD_NUMBER: builtins.int
-        LAST_REQUEST_FIELD_NUMBER: builtins.int
-        history_messages: builtins.int
-        """
-        Number of that will be sent to the client
-        """
-        window: builtins.int
-        """
-        The window of messages that was used to filter the history client requested
-        """
-        last_request: builtins.int
-        """
-        Index in the packet history of the last message sent in a previous request to the server.
-        Will be sent to the client before sending the history and can be set in a subsequent request to avoid getting packets the server already sent to the client.
-        """
-        def __init__(
-            self,
-            *,
-            history_messages: builtins.int = ...,
-            window: builtins.int = ...,
-            last_request: builtins.int = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["history_messages", b"history_messages", "last_request", b"last_request", "window", b"window"]) -> None: ...
-
-    @typing.final
-    class Heartbeat(google.protobuf.message.Message):
-        """
-        TODO: REPLACE
-        """
-
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-        PERIOD_FIELD_NUMBER: builtins.int
-        SECONDARY_FIELD_NUMBER: builtins.int
-        period: builtins.int
-        """
-        Period in seconds that the heartbeat is sent out that will be sent to the client
-        """
-        secondary: builtins.int
-        """
-        If set, this is not the primary Store & Forward router on the mesh
-        """
-        def __init__(
-            self,
-            *,
-            period: builtins.int = ...,
-            secondary: builtins.int = ...,
-        ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["period", b"period", "secondary", b"secondary"]) -> None: ...
-
-    RR_FIELD_NUMBER: builtins.int
-    STATS_FIELD_NUMBER: builtins.int
-    HISTORY_FIELD_NUMBER: builtins.int
-    HEARTBEAT_FIELD_NUMBER: builtins.int
-    TEXT_FIELD_NUMBER: builtins.int
-    ORIGINAL_ID_FIELD_NUMBER: builtins.int
-    rr: global___StoreAndForward.RequestResponse.ValueType
+    FROM_FIELD_NUMBER: _builtins.int
+    ID_FIELD_NUMBER: _builtins.int
+    CHANNEL_HASH_FIELD_NUMBER: _builtins.int
+    TO_FIELD_NUMBER: _builtins.int
+    HOP_START_FIELD_NUMBER: _builtins.int
+    FLAGS_FIELD_NUMBER: _builtins.int
+    HEADER_OPTIONS_FIELD_NUMBER: _builtins.int
+    CIPHERTEXT_FIELD_NUMBER: _builtins.int
+    RX_TIME_FIELD_NUMBER: _builtins.int
+    id: _builtins.int
     """
-    TODO: REPLACE
+    Header id, as launched. The cursor is (rx_time, id).
     """
-    text: builtins.bytes
+    channel_hash: _builtins.int
     """
-    Text from history message.
+    Header chan on a stored BCAST frame; absent on a stored UCAST frame.
     """
-    original_id: builtins.int
+    to: _builtins.int
     """
-    Contains the original ID of the contained message.
+    Header to on a stored UCAST frame; absent on a stored BCAST frame.
     """
-    @property
-    def stats(self) -> global___StoreAndForward.Statistics:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def history(self) -> global___StoreAndForward.History:
-        """
-        TODO: REPLACE
-        """
-
-    @property
-    def heartbeat(self) -> global___StoreAndForward.Heartbeat:
-        """
-        TODO: REPLACE
-        """
-
+    hop_start: _builtins.int
+    """
+    Header flags.hop_start as launched, which the AAD covers.
+    """
+    flags: _builtins.int
+    """
+    Originator flags as launched: a bitwise OR of MeshPacket.Flags values, limited to
+    the bits the header carries and the AAD covers - PACKET_RECORD_PATH and
+    PACKET_WANT_ACK. PACKET_VIA_MQTT is outside the AAD and is not stored.
+    """
+    header_options: _builtins.bytes
+    """
+    The frame's options block, verbatim. Never decoded and re-encoded: nanopb drops
+    unknown fields, and a re-encode would break the tag (SCHEMA.md §8). A server drops
+    rather than stores a frame whose block exceeds the 64-byte cap here, which is
+    deliberately below the 255 a frame allows.
+    """
+    ciphertext: _builtins.bytes
+    """
+    Frame ciphertext and authentication tag, exactly as received.
+    """
+    rx_time: _builtins.int
+    """
+    Server receive time, epoch seconds. With id, this is the cursor.
+    """
     def __init__(
         self,
         *,
-        rr: global___StoreAndForward.RequestResponse.ValueType = ...,
-        stats: global___StoreAndForward.Statistics | None = ...,
-        history: global___StoreAndForward.History | None = ...,
-        heartbeat: global___StoreAndForward.Heartbeat | None = ...,
-        text: builtins.bytes = ...,
-        original_id: builtins.int = ...,
+        id: _builtins.int = ...,
+        channel_hash: _builtins.int | None = ...,
+        to: _builtins.int | None = ...,
+        hop_start: _builtins.int = ...,
+        flags: _builtins.int = ...,
+        header_options: _builtins.bytes = ...,
+        ciphertext: _builtins.bytes = ...,
+        rx_time: _builtins.int = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["heartbeat", b"heartbeat", "history", b"history", "stats", b"stats", "text", b"text", "variant", b"variant"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["heartbeat", b"heartbeat", "history", b"history", "original_id", b"original_id", "rr", b"rr", "stats", b"stats", "text", b"text", "variant", b"variant"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["variant", b"variant"]) -> typing.Literal["stats", "history", "heartbeat", "text"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_channel_hash", b"_channel_hash", "_to", b"_to", "channel_hash", b"channel_hash", "to", b"to"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_channel_hash", b"_channel_hash", "_to", b"_to", "channel_hash", b"channel_hash", "ciphertext", b"ciphertext", "flags", b"flags", "from", b"from", "header_options", b"header_options", "hop_start", b"hop_start", "id", b"id", "rx_time", b"rx_time", "to", b"to"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__channel_hash: _TypeAlias = _typing.Literal["channel_hash"]  # noqa: Y015
+    _WhichOneofArgType__channel_hash: _TypeAlias = _typing.Literal["_channel_hash", b"_channel_hash"]  # noqa: Y015
+    _WhichOneofReturnType__to: _TypeAlias = _typing.Literal["to"]  # noqa: Y015
+    _WhichOneofArgType__to: _TypeAlias = _typing.Literal["_to", b"_to"]  # noqa: Y015
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__channel_hash) -> _WhichOneofReturnType__channel_hash | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__to) -> _WhichOneofReturnType__to | None: ...
 
-global___StoreAndForward = StoreAndForward
+Global___StoredFrame: _TypeAlias = StoredFrame  # noqa: Y015
+
+@_typing.final
+class StoreAndForward(_message.Message):
+    """
+    Store and forward control and replay, all of it on STORE_FORWARD_APP.
+
+    ANNOUNCE is a broadcast; everything else is a PKI direct message between one client
+    and one server. A server replays one frame per packet with want_ack and advances the
+    client's cursor only when that ack arrives, so a lost replay is resent rather than
+    silently skipped.
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    class _Type:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _TypeEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[StoreAndForward._Type.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        UNSET: StoreAndForward._Type.ValueType  # 0
+        """
+        Unset/unused
+        """
+        ANNOUNCE: StoreAndForward._Type.ValueType  # 1
+        """
+        Server: what it keeps and how far back. Unlike every other message here, an
+        ANNOUNCE does not travel as an addressed packet on this port: it rides the MINI
+        header profile, a five-byte anonymous frame - a pip - because a beacon nobody
+        replies to has no business paying for addressing. The MINI frame carries no
+        `from`, so Announce.server names the node to sync with.
+        """
+        SYNC: StoreAndForward._Type.ValueType  # 2
+        """
+        Client to server: where each of the client's streams stands.
+        """
+        FRAME: StoreAndForward._Type.ValueType  # 3
+        """
+        Server to client: one StoredFrame, sent with want_ack.
+        """
+        SYNC_DONE: StoreAndForward._Type.ValueType  # 4
+        """
+        Server to client: end of this sync round, with the cursors it reached.
+        """
+        ABORT: StoreAndForward._Type.ValueType  # 5
+        """
+        Client to server: stop sending. The server keeps the acked positions.
+        """
+        REFUSED: StoreAndForward._Type.ValueType  # 6
+        """
+        Server to client: refused, because it is busy, rate limiting, or does not serve
+        this client.
+        """
+
+    class Type(_Type, metaclass=_TypeEnumTypeWrapper):
+        """
+        Which message this is.
+        """
+
+    UNSET: StoreAndForward.Type.ValueType  # 0
+    """
+    Unset/unused
+    """
+    ANNOUNCE: StoreAndForward.Type.ValueType  # 1
+    """
+    Server: what it keeps and how far back. Unlike every other message here, an
+    ANNOUNCE does not travel as an addressed packet on this port: it rides the MINI
+    header profile, a five-byte anonymous frame - a pip - because a beacon nobody
+    replies to has no business paying for addressing. The MINI frame carries no
+    `from`, so Announce.server names the node to sync with.
+    """
+    SYNC: StoreAndForward.Type.ValueType  # 2
+    """
+    Client to server: where each of the client's streams stands.
+    """
+    FRAME: StoreAndForward.Type.ValueType  # 3
+    """
+    Server to client: one StoredFrame, sent with want_ack.
+    """
+    SYNC_DONE: StoreAndForward.Type.ValueType  # 4
+    """
+    Server to client: end of this sync round, with the cursors it reached.
+    """
+    ABORT: StoreAndForward.Type.ValueType  # 5
+    """
+    Client to server: stop sending. The server keeps the acked positions.
+    """
+    REFUSED: StoreAndForward.Type.ValueType  # 6
+    """
+    Server to client: refused, because it is busy, rate limiting, or does not serve
+    this client.
+    """
+
+    @_typing.final
+    class Cursor(_message.Message):
+        """
+        Position in one stream. A stream is one channel hash, or the client's own direct
+        messages when channel_hash is absent.
+        """
+
+        DESCRIPTOR: _descriptor.Descriptor
+
+        CHANNEL_HASH_FIELD_NUMBER: _builtins.int
+        SINCE_TIME_FIELD_NUMBER: _builtins.int
+        LAST_ID_FIELD_NUMBER: _builtins.int
+        channel_hash: _builtins.int
+        """
+        The channel hash this cursor is for; absent for the direct message stream.
+        """
+        since_time: _builtins.int
+        """
+        rx_time of the last frame the client holds from this stream. 0 asks from the start
+        of what the server still has.
+        """
+        last_id: _builtins.int
+        """
+        id of that frame, which separates two frames that share an rx_time.
+        """
+        def __init__(
+            self,
+            *,
+            channel_hash: _builtins.int | None = ...,
+            since_time: _builtins.int = ...,
+            last_id: _builtins.int = ...,
+        ) -> None: ...
+        _HasFieldArgType: _TypeAlias = _typing.Literal["_channel_hash", b"_channel_hash", "channel_hash", b"channel_hash"]  # noqa: Y015
+        def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["_channel_hash", b"_channel_hash", "channel_hash", b"channel_hash", "last_id", b"last_id", "since_time", b"since_time"]  # noqa: Y015
+        def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+        _WhichOneofReturnType__channel_hash: _TypeAlias = _typing.Literal["channel_hash"]  # noqa: Y015
+        _WhichOneofArgType__channel_hash: _TypeAlias = _typing.Literal["_channel_hash", b"_channel_hash"]  # noqa: Y015
+        def WhichOneof(self, oneof_group: _WhichOneofArgType__channel_hash) -> _WhichOneofReturnType__channel_hash | None: ...
+
+    @_typing.final
+    class Announce(_message.Message):
+        """
+        What a server broadcasts about itself, as the payload of a MINI pip rather than an
+        addressed packet. Keep it small: the point of the profile is that a beacon costs five
+        header bytes instead of twelve.
+        """
+
+        DESCRIPTOR: _descriptor.Descriptor
+
+        class _Flags:
+            ValueType = _typing.NewType("ValueType", _builtins.int)
+            V: _TypeAlias = ValueType  # noqa: Y015
+
+        class _FlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[StoreAndForward.Announce._Flags.ValueType], _builtins.type):
+            DESCRIPTOR: _descriptor.EnumDescriptor
+            ANNOUNCE_NONE: StoreAndForward.Announce._Flags.ValueType  # 0
+            """Nothing set"""
+            ANNOUNCE_SERVES_DISCOVERY: StoreAndForward.Announce._Flags.ValueType  # 1
+            """
+            This server also serves node discovery records on NODE_DISCOVERY_APP, so one pip tells
+            a client where to find both.
+            """
+
+        class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
+            """
+            What else this server does: a bitwise OR of Flags values.
+            """
+
+        ANNOUNCE_NONE: StoreAndForward.Announce.Flags.ValueType  # 0
+        """Nothing set"""
+        ANNOUNCE_SERVES_DISCOVERY: StoreAndForward.Announce.Flags.ValueType  # 1
+        """
+        This server also serves node discovery records on NODE_DISCOVERY_APP, so one pip tells
+        a client where to find both.
+        """
+
+        SERVER_FIELD_NUMBER: _builtins.int
+        SERVED_HASHES_FIELD_NUMBER: _builtins.int
+        OLDEST_RX_TIME_FIELD_NUMBER: _builtins.int
+        MAX_PER_SYNC_FIELD_NUMBER: _builtins.int
+        CAPACITY_FIELD_NUMBER: _builtins.int
+        HELD_FIELD_NUMBER: _builtins.int
+        FLAGS_FIELD_NUMBER: _builtins.int
+        server: _builtins.int
+        """
+        The server to sync with. Explicit because a MINI frame has no `from` field.
+        """
+        oldest_rx_time: _builtins.int
+        """
+        rx_time of the oldest frame still held, so a client can tell which server reaches
+        furthest back.
+        """
+        max_per_sync: _builtins.int
+        """
+        Frames the server sends in one sync round before ending it with truncated set.
+        """
+        capacity: _builtins.int
+        """
+        Capacity in frames, for display.
+        """
+        held: _builtins.int
+        """
+        Frames held, for display.
+        """
+        flags: _builtins.int
+        """
+        Bitwise OR of Flags values.
+        """
+        @_builtins.property
+        def served_hashes(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
+            """
+            Channel hashes retained. Empty means every hash it hears.
+            """
+
+        def __init__(
+            self,
+            *,
+            server: _builtins.int = ...,
+            served_hashes: _abc.Iterable[_builtins.int] | None = ...,
+            oldest_rx_time: _builtins.int = ...,
+            max_per_sync: _builtins.int = ...,
+            capacity: _builtins.int = ...,
+            held: _builtins.int = ...,
+            flags: _builtins.int = ...,
+        ) -> None: ...
+        _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+        def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["capacity", b"capacity", "flags", b"flags", "held", b"held", "max_per_sync", b"max_per_sync", "oldest_rx_time", b"oldest_rx_time", "served_hashes", b"served_hashes", "server", b"server"]  # noqa: Y015
+        def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+        def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+    @_typing.final
+    class Sync(_message.Message):
+        """
+        What a client asks for.
+        """
+
+        DESCRIPTOR: _descriptor.Descriptor
+
+        CURSORS_FIELD_NUMBER: _builtins.int
+        MAX_FRAMES_FIELD_NUMBER: _builtins.int
+        FLAGGED_ONLY_FIELD_NUMBER: _builtins.int
+        max_frames: _builtins.int
+        """
+        Client's own cap for this round, to spend less receive time. 0 takes the server's
+        max_per_sync.
+        """
+        flagged_only: _builtins.bool
+        """
+        Send only frames flagged HOP_STORE and skip the filler.
+        """
+        @_builtins.property
+        def cursors(self) -> _containers.RepeatedCompositeFieldContainer[Global___StoreAndForward.Cursor]:
+            """
+            One cursor per stream the client wants, the direct message stream included.
+            """
+
+        def __init__(
+            self,
+            *,
+            cursors: _abc.Iterable[Global___StoreAndForward.Cursor] | None = ...,
+            max_frames: _builtins.int = ...,
+            flagged_only: _builtins.bool = ...,
+        ) -> None: ...
+        _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+        def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["cursors", b"cursors", "flagged_only", b"flagged_only", "max_frames", b"max_frames"]  # noqa: Y015
+        def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+        def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+    @_typing.final
+    class SyncDone(_message.Message):
+        """
+        How the round ended.
+        """
+
+        DESCRIPTOR: _descriptor.Descriptor
+
+        CURSORS_FIELD_NUMBER: _builtins.int
+        TRUNCATED_FIELD_NUMBER: _builtins.int
+        GAP_HASHES_FIELD_NUMBER: _builtins.int
+        truncated: _builtins.bool
+        """
+        The round hit a cap. Sync again to continue.
+        """
+        @_builtins.property
+        def cursors(self) -> _containers.RepeatedCompositeFieldContainer[Global___StoreAndForward.Cursor]:
+            """
+            Where each stream stands after the last acked frame.
+            """
+
+        @_builtins.property
+        def gap_hashes(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
+            """
+            Streams whose requested cursor is older than what the server still holds, so
+            history was lost between them. A hash appears here at most once per round.
+            """
+
+        def __init__(
+            self,
+            *,
+            cursors: _abc.Iterable[Global___StoreAndForward.Cursor] | None = ...,
+            truncated: _builtins.bool = ...,
+            gap_hashes: _abc.Iterable[_builtins.int] | None = ...,
+        ) -> None: ...
+        _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+        def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["cursors", b"cursors", "gap_hashes", b"gap_hashes", "truncated", b"truncated"]  # noqa: Y015
+        def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+        def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+    TYPE_FIELD_NUMBER: _builtins.int
+    ANNOUNCE_FIELD_NUMBER: _builtins.int
+    SYNC_FIELD_NUMBER: _builtins.int
+    FRAME_FIELD_NUMBER: _builtins.int
+    SYNC_DONE_FIELD_NUMBER: _builtins.int
+    REMAINING_FIELD_NUMBER: _builtins.int
+    type: Global___StoreAndForward.Type.ValueType
+    """
+    Which message this is. Carried separately from the variant so ABORT and REFUSED,
+    which have no body, still say what they are.
+    """
+    remaining: _builtins.int
+    """
+    On FRAME: how many frames are left in this round after this one, for a progress
+    display.
+    """
+    @_builtins.property
+    def announce(self) -> Global___StoreAndForward.Announce: ...
+    @_builtins.property
+    def sync(self) -> Global___StoreAndForward.Sync: ...
+    @_builtins.property
+    def frame(self) -> Global___StoredFrame: ...
+    @_builtins.property
+    def sync_done(self) -> Global___StoreAndForward.SyncDone: ...
+    def __init__(
+        self,
+        *,
+        type: Global___StoreAndForward.Type.ValueType = ...,
+        announce: Global___StoreAndForward.Announce | None = ...,
+        sync: Global___StoreAndForward.Sync | None = ...,
+        frame: Global___StoredFrame | None = ...,
+        sync_done: Global___StoreAndForward.SyncDone | None = ...,
+        remaining: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["announce", b"announce", "frame", b"frame", "sync", b"sync", "sync_done", b"sync_done", "variant", b"variant"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["announce", b"announce", "frame", b"frame", "remaining", b"remaining", "sync", b"sync", "sync_done", b"sync_done", "type", b"type", "variant", b"variant"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType_variant: _TypeAlias = _typing.Literal["announce", "sync", "frame", "sync_done"]  # noqa: Y015
+    _WhichOneofArgType_variant: _TypeAlias = _typing.Literal["variant", b"variant"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType_variant) -> _WhichOneofReturnType_variant | None: ...
+
+Global___StoreAndForward: _TypeAlias = StoreAndForward  # noqa: Y015

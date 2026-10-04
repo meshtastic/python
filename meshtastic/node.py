@@ -7,7 +7,7 @@ import time
 
 from typing import Optional, Union, List
 
-from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, config_pb2, localonly_pb2, mesh_pb2, portnums_pb2
+from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, common_pb2, config_pb2, localonly_pb2, portnums_pb2, wire_pb2
 from meshtastic.util import (
     Timeout,
     camel_to_snake,
@@ -17,11 +17,24 @@ from meshtastic.util import (
     stripnl,
     message_to_json,
     generate_channel_hash,
+    hw_model_name,
     to_node_num,
     flags_to_list,
 )
 
 logger = logging.getLogger(__name__)
+
+MAX_CHANNELS = 16
+"""Channels a 3.0 node holds"""
+
+
+def channel_role(ch: channel_pb2.Channel) -> str:
+    """A 3.0 channel has no role field: index 0 is the primary, and a channel without
+    settings is disabled."""
+    if ch.index == 0:
+        return "PRIMARY"
+    return "SECONDARY" if ch.HasField("settings") else "DISABLED"
+
 
 class Node:
     """A model of a (local or remote) node in the mesh
@@ -58,20 +71,21 @@ class Node:
     @staticmethod
     def position_flags_list(position_flags: int) -> List[str]:
         "Return a list of position flags from the given flags integer"
-        return flags_to_list(config_pb2.Config.PositionConfig.PositionFlags, position_flags)
+        return flags_to_list(config_pb2.PositionConfig.PositionFlags, position_flags)
 
     @staticmethod
     def excluded_modules_list(excluded_modules: int) -> List[str]:
-        "Return a list of excluded modules from the given flags integer"
-        return flags_to_list(mesh_pb2.ExcludedModules, excluded_modules)
+        "Return the excluded modules: bit N of the integer is AdminMessage.ModuleConfigType N"
+        module_type = admin_pb2.AdminMessage.ModuleConfigType
+        return [name for name, n in module_type.items() if excluded_modules >> n & 1]
 
-    def module_available(self, excluded_bit: int) -> bool:
-        """Check DeviceMetadata.excluded_modules to see if a module is available."""
+    def module_available(self, module_type: int) -> bool:
+        """Check DeviceMetadata.excluded_modules to see if a module (an AdminMessage.ModuleConfigType) is available."""
         meta = getattr(self.iface, "metadata", None)
         if meta is None:
             return True
         try:
-            return (meta.excluded_modules & excluded_bit) == 0
+            return not meta.excluded_modules >> module_type & 1
         except Exception:
             return True
 
@@ -83,9 +97,9 @@ class Node:
             for c in self.channels:
                 cStr = message_to_json(c.settings)
                 # don't show disabled channels
-                if channel_pb2.Channel.Role.Name(c.role) != "DISABLED":
+                if channel_role(c) != "DISABLED":
                     print(
-                        f"  Index {c.index}: {channel_pb2.Channel.Role.Name(c.role)} psk={pskToString(c.settings.psk)} {cStr}"
+                        f"  Index {c.index}: {channel_role(c)} psk={pskToString(c.settings.psk)} {cStr}"
                     )
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)
@@ -196,56 +210,10 @@ class Node:
 
         p = admin_pb2.AdminMessage()
 
-        if config_name == "device":
-            p.set_config.device.CopyFrom(self.localConfig.device)
-        elif config_name == "position":
-            p.set_config.position.CopyFrom(self.localConfig.position)
-        elif config_name == "power":
-            p.set_config.power.CopyFrom(self.localConfig.power)
-        elif config_name == "network":
-            p.set_config.network.CopyFrom(self.localConfig.network)
-        elif config_name == "display":
-            p.set_config.display.CopyFrom(self.localConfig.display)
-        elif config_name == "lora":
-            p.set_config.lora.CopyFrom(self.localConfig.lora)
-        elif config_name == "bluetooth":
-            p.set_config.bluetooth.CopyFrom(self.localConfig.bluetooth)
-        elif config_name == "security":
-            p.set_config.security.CopyFrom(self.localConfig.security)
-        elif config_name == "mqtt":
-            p.set_module_config.mqtt.CopyFrom(self.moduleConfig.mqtt)
-        elif config_name == "serial":
-            p.set_module_config.serial.CopyFrom(self.moduleConfig.serial)
-        elif config_name == "external_notification":
-            p.set_module_config.external_notification.CopyFrom(
-                self.moduleConfig.external_notification
-            )
-        elif config_name == "store_forward":
-            p.set_module_config.store_forward.CopyFrom(self.moduleConfig.store_forward)
-        elif config_name == "range_test":
-            p.set_module_config.range_test.CopyFrom(self.moduleConfig.range_test)
-        elif config_name == "telemetry":
-            p.set_module_config.telemetry.CopyFrom(self.moduleConfig.telemetry)
-        elif config_name == "canned_message":
-            p.set_module_config.canned_message.CopyFrom(
-                self.moduleConfig.canned_message
-            )
-        elif config_name == "audio":
-            p.set_module_config.audio.CopyFrom(self.moduleConfig.audio)
-        elif config_name == "remote_hardware":
-            p.set_module_config.remote_hardware.CopyFrom(
-                self.moduleConfig.remote_hardware
-            )
-        elif config_name == "neighbor_info":
-            p.set_module_config.neighbor_info.CopyFrom(self.moduleConfig.neighbor_info)
-        elif config_name == "detection_sensor":
-            p.set_module_config.detection_sensor.CopyFrom(self.moduleConfig.detection_sensor)
-        elif config_name == "ambient_lighting":
-            p.set_module_config.ambient_lighting.CopyFrom(self.moduleConfig.ambient_lighting)
-        elif config_name == "paxcounter":
-            p.set_module_config.paxcounter.CopyFrom(self.moduleConfig.paxcounter)
-        elif config_name == "traffic_management":
-            p.set_module_config.traffic_management.CopyFrom(self.moduleConfig.traffic_management)
+        if config_name in self.localConfig.DESCRIPTOR.fields_by_name and config_name != "version":
+            getattr(p.set_config, config_name).CopyFrom(getattr(self.localConfig, config_name))
+        elif config_name in self.moduleConfig.DESCRIPTOR.fields_by_name and config_name != "version":
+            getattr(p.set_module_config, config_name).CopyFrom(getattr(self.moduleConfig, config_name))
         else:
             our_exit(f"Error: No valid config with name {config_name}")
 
@@ -276,11 +244,7 @@ class Node:
 
     def deleteChannel(self, channelIndex):
         """Delete the specified channelIndex and shift other channels up"""
-        ch = self.channels[channelIndex]
-        if ch.role not in (
-            channel_pb2.Channel.Role.SECONDARY,
-            channel_pb2.Channel.Role.DISABLED,
-        ):
+        if channelIndex == 0:
             our_exit("Warning: Only SECONDARY channels can be deleted")
 
         # we are careful here because if we move the "admin" channel the channelIndex we need to use
@@ -297,7 +261,7 @@ class Node:
         ]
 
         self.channels.pop(channelIndex)
-        self._fixupChannels()  # expand back to 8 channels
+        self._fixupChannels()  # expand back to MAX_CHANNELS channels
 
         index = channelIndex
         for old_ch in old_channels:
@@ -322,7 +286,7 @@ class Node:
     def getDisabledChannel(self):
         """Return the first channel that is disabled (i.e. available for some new use)"""
         for c in self.channels:
-            if c.role == channel_pb2.Channel.Role.DISABLED:
+            if channel_role(c) == "DISABLED":
                 return c
         return None
 
@@ -377,8 +341,8 @@ class Node:
         channelSet = apponly_pb2.ChannelSet()
         if self.channels:
             for c in self.channels:
-                if c.role == channel_pb2.Channel.Role.PRIMARY or (
-                    includeAll and c.role == channel_pb2.Channel.Role.SECONDARY
+                if channel_role(c) == "PRIMARY" or (
+                    includeAll and channel_role(c) == "SECONDARY"
                 ):
                     channelSet.settings.append(c.settings)
 
@@ -402,18 +366,14 @@ class Node:
         contact.node_num = nodeNum
 
         u = node["user"]
-        if u.get("id"):
-            contact.user.id = u["id"]
-        if u.get("macaddr"):
-            contact.user.macaddr = base64.b64decode(u["macaddr"])
         if u.get("longName"):
             contact.user.long_name = u["longName"]
         if u.get("shortName"):
             contact.user.short_name = u["shortName"]
-        if u.get("hwModel") and u["hwModel"] != "UNSET":
-            contact.user.hw_model = mesh_pb2.HardwareModel.Value(u["hwModel"])
+        if u.get("hwModel"):
+            contact.user.hw_model = u["hwModel"]
         if u.get("role"):
-            contact.user.role = config_pb2.Config.DeviceConfig.Role.Value(u["role"])
+            contact.user.role = common_pb2.Role.Value(u["role"])
         if u.get("publicKey"):
             contact.user.public_key = base64.b64decode(u["publicKey"])
         if u.get("isLicensed"):
@@ -471,18 +431,12 @@ class Node:
                 if not ch:
                     our_exit("Warning: No free channels were found")
                 ch.settings.CopyFrom(chs)
-                ch.role = channel_pb2.Channel.Role.SECONDARY
                 print(f"Adding new channel '{chs.name}' to device")
                 self.writeChannel(ch.index)
         else:
             i = 0
             for chs in channelSet.settings:
                 ch = channel_pb2.Channel()
-                ch.role = (
-                    channel_pb2.Channel.Role.PRIMARY
-                    if i == 0
-                    else channel_pb2.Channel.Role.SECONDARY
-                )
                 ch.index = i
                 ch.settings.CopyFrom(chs)
                 self.channels[ch.index] = ch
@@ -542,7 +496,7 @@ class Node:
     def get_ringtone(self):
         """Get the ringtone. Concatenate all pieces together and return a single string."""
         logger.debug(f"in get_ringtone()")
-        if not self.module_available(mesh_pb2.EXTNOTIF_CONFIG):
+        if not self.module_available(admin_pb2.AdminMessage.EXTNOTIF_CONFIG):
             logging.warning("External Notification module not present (excluded by firmware)")
             return None
 
@@ -567,7 +521,7 @@ class Node:
 
     def set_ringtone(self, ringtone):
         """Set the ringtone. The ringtone length must be less than 230 character."""
-        if not self.module_available(mesh_pb2.EXTNOTIF_CONFIG):
+        if not self.module_available(admin_pb2.AdminMessage.EXTNOTIF_CONFIG):
             logging.warning("External Notification module not present (excluded by firmware)")
             return None
 
@@ -620,7 +574,7 @@ class Node:
     def get_canned_message(self):
         """Get the canned message string. Concatenate all pieces together and return a single string."""
         logger.debug(f"in get_canned_message()")
-        if not self.module_available(mesh_pb2.CANNEDMSG_CONFIG):
+        if not self.module_available(admin_pb2.AdminMessage.CANNEDMSG_CONFIG):
             logging.warning("Canned Message module not present (excluded by firmware)")
             return None
         if not self.cannedPluginMessage:
@@ -648,7 +602,7 @@ class Node:
 
     def set_canned_message(self, message):
         """Set the canned message. The canned messages length must be less than 200 character."""
-        if not self.module_available(mesh_pb2.CANNEDMSG_CONFIG):
+        if not self.module_available(admin_pb2.AdminMessage.CANNEDMSG_CONFIG):
             logging.warning("Canned Message module not present (excluded by firmware)")
             return None
 
@@ -722,20 +676,6 @@ class Node:
         p = admin_pb2.AdminMessage()
         p.commit_edit_settings = True
         logger.info(f"Telling node to commit open transaction for editing settings")
-
-        # If sending to a remote node, wait for ACK/NAK
-        if self == self.iface.localNode:
-            onResponse = None
-        else:
-            onResponse = self.onAckNak
-        return self._sendAdmin(p, onResponse=onResponse)
-
-    def rebootOTA(self, secs: int = 10):
-        """Tell the node to reboot into factory firmware (firmware < 2.7.18)."""
-        self.ensureSessionKey()
-        p = admin_pb2.AdminMessage()
-        p.reboot_ota_seconds = secs
-        logger.info(f"Telling node to reboot to OTA in {secs} seconds")
 
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
@@ -905,16 +845,16 @@ class Node:
         """Tell the node to set fixed position to the provided value and enable the fixed position setting"""
         self.ensureSessionKey()
 
-        p = mesh_pb2.Position()
+        p = wire_pb2.Position()
         if isinstance(lat, float) and lat != 0.0:
-            p.latitude_i = int(lat / 1e-7)
+            p.latitude = int(lat / 1e-7)
         elif isinstance(lat, int) and lat != 0:
-            p.latitude_i = lat
+            p.latitude = lat
 
         if isinstance(lon, float) and lon != 0.0:
-            p.longitude_i = int(lon / 1e-7)
+            p.longitude = int(lon / 1e-7)
         elif isinstance(lon, int) and lon != 0:
-            p.longitude_i = lon
+            p.longitude = lon
 
         if alt != 0:
             p.altitude = alt
@@ -971,9 +911,8 @@ class Node:
 
         # Add extra disabled channels as needed
         index = len(self.channels)
-        while index < 8:
+        while index < MAX_CHANNELS:
             ch = channel_pb2.Channel()
-            ch.role = channel_pb2.Channel.Role.DISABLED
             ch.index = index
             self.channels.append(ch)
             index += 1
@@ -1006,16 +945,13 @@ class Node:
             logger.debug(f"Received metadata {stripnl(c)}")
             print(f"\nfirmware_version: {c.firmware_version}")
             print(f"device_state_version: {c.device_state_version}")
-            if c.role in config_pb2.Config.DeviceConfig.Role.values():
-                print(f"role: {config_pb2.Config.DeviceConfig.Role.Name(c.role)}")
+            if c.role in common_pb2.Role.values():
+                print(f"role: {common_pb2.Role.Name(c.role)}")
             else:
                 print(f"role: {c.role}")
             print(f"position_flags: {self.position_flags_list(c.position_flags)}")
-            if c.hw_model in mesh_pb2.HardwareModel.values():
-                print(f"hw_model: {mesh_pb2.HardwareModel.Name(c.hw_model)}")
-            else:
-                print(f"hw_model: {c.hw_model}")
-            print(f"hasPKC: {c.hasPKC}")
+            print(f"hw_model: {hw_model_name(c.hw_model)}")
+            print(f"capabilities: {flags_to_list(common_pb2.DeviceMetadata.Capabilities, c.capabilities)}")
             if c.excluded_modules > 0:
                 print(f"excluded_modules: {self.excluded_modules_list(c.excluded_modules)}")
 
@@ -1045,7 +981,7 @@ class Node:
         logger.debug(f"Received channel {stripnl(c)}")
         index = c.index
 
-        if index >= 8 - 1:
+        if index >= MAX_CHANNELS - 1:
             logger.debug("Finished downloading channels")
 
             self.channels = self.partialChannels
@@ -1147,7 +1083,7 @@ class Node:
                     hash_val = None
                 result.append({
                     "index": c.index,
-                    "role": channel_pb2.Channel.Role.Name(c.role),
+                    "role": channel_role(c),
                     "name": c.settings.name if c.settings and hasattr(c.settings, "name") else "",
                     "hash": hash_val,
                 })

@@ -3,38 +3,44 @@
 isort:skip_file
 """
 
-import builtins
-import google.protobuf.descriptor
-import google.protobuf.message
-import meshtastic.protobuf.config_pb2
-import meshtastic.protobuf.mesh_pb2
-import typing
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from . import common_pb2 as _common_pb2
+from . import packet_pb2 as _packet_pb2
+import builtins as _builtins
+import sys
+import typing as _typing
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
+else:
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-@typing.final
-class ServiceEnvelope(google.protobuf.message.Message):
+DESCRIPTOR: _descriptor.FileDescriptor
+
+@_typing.final
+class ServiceEnvelope(_message.Message):
     """
     This message wraps a MeshPacket with extra metadata about the sender and how it arrived.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    PACKET_FIELD_NUMBER: builtins.int
-    CHANNEL_ID_FIELD_NUMBER: builtins.int
-    GATEWAY_ID_FIELD_NUMBER: builtins.int
-    channel_id: builtins.str
+    PACKET_FIELD_NUMBER: _builtins.int
+    CHANNEL_ID_FIELD_NUMBER: _builtins.int
+    GATEWAY_ID_FIELD_NUMBER: _builtins.int
+    channel_id: _builtins.str
     """
     The global channel ID it was sent on
     """
-    gateway_id: builtins.str
+    gateway_id: _builtins.str
     """
     The sending gateway node ID. Can we use this to authenticate/prevent fake
     nodeid impersonation for senders? - i.e. use gateway/mesh id (which is authenticated) + local node id as
     the globally trusted nodenum
     """
-    @property
-    def packet(self) -> meshtastic.protobuf.mesh_pb2.MeshPacket:
+    @_builtins.property
+    def packet(self) -> _packet_pb2.MeshPacket:
         """
         The (probably encrypted) packet
         """
@@ -42,92 +48,95 @@ class ServiceEnvelope(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        packet: meshtastic.protobuf.mesh_pb2.MeshPacket | None = ...,
-        channel_id: builtins.str = ...,
-        gateway_id: builtins.str = ...,
+        packet: _packet_pb2.MeshPacket | None = ...,
+        channel_id: _builtins.str = ...,
+        gateway_id: _builtins.str = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["packet", b"packet"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel_id", b"channel_id", "gateway_id", b"gateway_id", "packet", b"packet"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["packet", b"packet"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["channel_id", b"channel_id", "gateway_id", b"gateway_id", "packet", b"packet"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___ServiceEnvelope = ServiceEnvelope
+Global___ServiceEnvelope: _TypeAlias = ServiceEnvelope  # noqa: Y015
 
-@typing.final
-class MapReport(google.protobuf.message.Message):
+@_typing.final
+class MapReport(_message.Message):
     """
     Information about a node intended to be reported unencrypted to a map using MQTT.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    LONG_NAME_FIELD_NUMBER: builtins.int
-    SHORT_NAME_FIELD_NUMBER: builtins.int
-    ROLE_FIELD_NUMBER: builtins.int
-    HW_MODEL_FIELD_NUMBER: builtins.int
-    FIRMWARE_VERSION_FIELD_NUMBER: builtins.int
-    REGION_FIELD_NUMBER: builtins.int
-    MODEM_PRESET_FIELD_NUMBER: builtins.int
-    HAS_DEFAULT_CHANNEL_FIELD_NUMBER: builtins.int
-    LATITUDE_I_FIELD_NUMBER: builtins.int
-    LONGITUDE_I_FIELD_NUMBER: builtins.int
-    ALTITUDE_FIELD_NUMBER: builtins.int
-    POSITION_PRECISION_FIELD_NUMBER: builtins.int
-    NUM_ONLINE_LOCAL_NODES_FIELD_NUMBER: builtins.int
-    HAS_OPTED_REPORT_LOCATION_FIELD_NUMBER: builtins.int
-    long_name: builtins.str
+    LONG_NAME_FIELD_NUMBER: _builtins.int
+    SHORT_NAME_FIELD_NUMBER: _builtins.int
+    ROLE_FIELD_NUMBER: _builtins.int
+    HW_MODEL_FIELD_NUMBER: _builtins.int
+    FIRMWARE_VERSION_FIELD_NUMBER: _builtins.int
+    REGION_FIELD_NUMBER: _builtins.int
+    MODEM_PRESET_FIELD_NUMBER: _builtins.int
+    HAS_DEFAULT_CHANNEL_FIELD_NUMBER: _builtins.int
+    LATITUDE_I_FIELD_NUMBER: _builtins.int
+    LONGITUDE_I_FIELD_NUMBER: _builtins.int
+    ALTITUDE_FIELD_NUMBER: _builtins.int
+    POSITION_PRECISION_FIELD_NUMBER: _builtins.int
+    NUM_ONLINE_LOCAL_NODES_FIELD_NUMBER: _builtins.int
+    HAS_OPTED_REPORT_LOCATION_FIELD_NUMBER: _builtins.int
+    long_name: _builtins.str
     """
     A full name for this user, i.e. "Kevin Hester"
     """
-    short_name: builtins.str
+    short_name: _builtins.str
     """
     A VERY short name, ideally two characters.
     Suitable for a tiny OLED screen
     """
-    role: meshtastic.protobuf.config_pb2.Config.DeviceConfig.Role.ValueType
+    role: _common_pb2.Role.ValueType
     """
     Role of the node that applies specific settings for a particular use-case
     """
-    hw_model: meshtastic.protobuf.mesh_pb2.HardwareModel.ValueType
+    hw_model: _builtins.int
     """
-    Hardware model of the node, i.e. T-Beam, Heltec V3, etc...
+    Hardware model, packed as (vendor_id << 8 | device_id)
     """
-    firmware_version: builtins.str
+    firmware_version: _builtins.str
     """
     Device firmware version string
     """
-    region: meshtastic.protobuf.config_pb2.Config.LoRaConfig.RegionCode.ValueType
+    region: _common_pb2.RegionCode.ValueType
     """
     The region code for the radio (US, CN, EU433, etc...)
     """
-    modem_preset: meshtastic.protobuf.config_pb2.Config.LoRaConfig.ModemPreset.ValueType
+    modem_preset: _common_pb2.ModemPreset.ValueType
     """
     Modem preset used by the radio (LongFast, MediumSlow, etc...)
     """
-    has_default_channel: builtins.bool
+    has_default_channel: _builtins.bool
     """
     Whether the node has a channel with default PSK and name (LongFast, MediumSlow, etc...)
     and it uses the default frequency slot given the region and modem preset.
     """
-    latitude_i: builtins.int
+    latitude_i: _builtins.int
     """
     Latitude: multiply by 1e-7 to get degrees in floating point
     """
-    longitude_i: builtins.int
+    longitude_i: _builtins.int
     """
     Longitude: multiply by 1e-7 to get degrees in floating point
     """
-    altitude: builtins.int
+    altitude: _builtins.int
     """
     Altitude in meters above MSL
     """
-    position_precision: builtins.int
+    position_precision: _builtins.int
     """
     Indicates the bits of precision for latitude and longitude set by the sending node
     """
-    num_online_local_nodes: builtins.int
+    num_online_local_nodes: _builtins.int
     """
     Number of online nodes (heard in the last 2 hours) this node has in its list that were received locally (not via MQTT)
     """
-    has_opted_report_location: builtins.bool
+    has_opted_report_location: _builtins.bool
     """
     User has opted in to share their location (map report) with the mqtt server
     Controlled by map_report.should_report_location
@@ -135,21 +144,25 @@ class MapReport(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        long_name: builtins.str = ...,
-        short_name: builtins.str = ...,
-        role: meshtastic.protobuf.config_pb2.Config.DeviceConfig.Role.ValueType = ...,
-        hw_model: meshtastic.protobuf.mesh_pb2.HardwareModel.ValueType = ...,
-        firmware_version: builtins.str = ...,
-        region: meshtastic.protobuf.config_pb2.Config.LoRaConfig.RegionCode.ValueType = ...,
-        modem_preset: meshtastic.protobuf.config_pb2.Config.LoRaConfig.ModemPreset.ValueType = ...,
-        has_default_channel: builtins.bool = ...,
-        latitude_i: builtins.int = ...,
-        longitude_i: builtins.int = ...,
-        altitude: builtins.int = ...,
-        position_precision: builtins.int = ...,
-        num_online_local_nodes: builtins.int = ...,
-        has_opted_report_location: builtins.bool = ...,
+        long_name: _builtins.str = ...,
+        short_name: _builtins.str = ...,
+        role: _common_pb2.Role.ValueType = ...,
+        hw_model: _builtins.int = ...,
+        firmware_version: _builtins.str = ...,
+        region: _common_pb2.RegionCode.ValueType = ...,
+        modem_preset: _common_pb2.ModemPreset.ValueType = ...,
+        has_default_channel: _builtins.bool = ...,
+        latitude_i: _builtins.int = ...,
+        longitude_i: _builtins.int = ...,
+        altitude: _builtins.int = ...,
+        position_precision: _builtins.int = ...,
+        num_online_local_nodes: _builtins.int = ...,
+        has_opted_report_location: _builtins.bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["altitude", b"altitude", "firmware_version", b"firmware_version", "has_default_channel", b"has_default_channel", "has_opted_report_location", b"has_opted_report_location", "hw_model", b"hw_model", "latitude_i", b"latitude_i", "long_name", b"long_name", "longitude_i", b"longitude_i", "modem_preset", b"modem_preset", "num_online_local_nodes", b"num_online_local_nodes", "position_precision", b"position_precision", "region", b"region", "role", b"role", "short_name", b"short_name"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["altitude", b"altitude", "firmware_version", b"firmware_version", "has_default_channel", b"has_default_channel", "has_opted_report_location", b"has_opted_report_location", "hw_model", b"hw_model", "latitude_i", b"latitude_i", "long_name", b"long_name", "longitude_i", b"longitude_i", "modem_preset", b"modem_preset", "num_online_local_nodes", b"num_online_local_nodes", "position_precision", b"position_precision", "region", b"region", "role", b"role", "short_name", b"short_name"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___MapReport = MapReport
+Global___MapReport: _TypeAlias = MapReport  # noqa: Y015

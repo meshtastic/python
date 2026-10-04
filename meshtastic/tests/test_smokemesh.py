@@ -9,10 +9,12 @@ import time
 
 import pytest
 
+from meshtastic.protobuf import packet_pb2
+
 from .fw_helpers import (
     RECEIVE_TIMEOUT,
     subscribe_texts,
-    subscribe_traceroutes,
+    subscribe_telemetries,
     unsubscribe_all,
 )
 
@@ -101,11 +103,9 @@ def test_smokemesh_show_nodes(firmware_mesh):
 
 @pytest.mark.smokemesh
 def test_smokemesh_traceroute_across_relay(firmware_mesh):
-    """Traceroute from A to C should show route via B in both directions."""
-    col_a = subscribe_traceroutes(firmware_mesh.get_iface(0))
-    col_c = subscribe_traceroutes(firmware_mesh.get_iface(2))
+    """A traceroute from A to C: the reply records its way back, through B."""
+    col_a = subscribe_telemetries(firmware_mesh.get_iface(0))
     try:
-        src_a = firmware_mesh.get_node(0).node_num
         dest_c = firmware_mesh.get_node(2).node_num
         node_b = firmware_mesh.get_node(1).node_num
 
@@ -113,16 +113,11 @@ def test_smokemesh_traceroute_across_relay(firmware_mesh):
 
         time.sleep(2)
 
-        assert len(col_a.traceroutes) >= 1, "A did not receive traceroute response"
-        a_resp = col_a.traceroutes[0]
-        assert a_resp["from"] == dest_c, "response source should be C"
-
-        route = a_resp["decoded"]["traceroute"]
-        assert route.get("route") == [node_b], "forward route should be A→B→C"
-        assert route.get("routeBack") == [node_b], "return route should be C→B→A"
-
-        assert len(col_c.traceroutes) >= 1, "C did not receive traceroute request"
-        c_req = col_c.traceroutes[0]
-        assert c_req["from"] == src_a, "request source should be A"
+        replies = [p for p in col_a.telemetries if p["from"] == dest_c]
+        assert replies, "A did not receive the reply from C"
+        raw = replies[0]["raw"]
+        assert raw.flags & packet_pb2.MeshPacket.PACKET_RECORD_PATH, "the reply should record its path"
+        assert raw.hop_start - raw.hop_limit == 1, "the reply should take one relay hop"
+        assert raw.relay_node == (node_b & 0xFF or 1), "the reply should be relayed by B"
     finally:
-        unsubscribe_all("meshtastic.receive.traceroute")
+        unsubscribe_all("meshtastic.receive.telemetry")

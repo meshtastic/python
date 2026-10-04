@@ -3,31 +3,41 @@
 isort:skip_file
 """
 
-import builtins
-import google.protobuf.descriptor
-import google.protobuf.message
-import typing
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+import builtins as _builtins
+import sys
+import typing as _typing
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
+else:
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-@typing.final
-class RTTTLConfig(google.protobuf.message.Message):
+DESCRIPTOR: _descriptor.FileDescriptor
+
+@_typing.final
+class RTTTLConfig(_message.Message):
     """
-    Canned message module configuration.
+    Ringtone module configuration.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    RINGTONE_FIELD_NUMBER: builtins.int
-    ringtone: builtins.str
+    RINGTONE_FIELD_NUMBER: _builtins.int
+    ringtone: _builtins.str
     """
     Ringtone for PWM Buzzer in RTTTL Format.
     """
     def __init__(
         self,
         *,
-        ringtone: builtins.str = ...,
+        ringtone: _builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["ringtone", b"ringtone"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["ringtone", b"ringtone"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___RTTTLConfig = RTTTLConfig
+Global___RTTTLConfig: _TypeAlias = RTTTLConfig  # noqa: Y015

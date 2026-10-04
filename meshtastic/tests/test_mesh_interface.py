@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from hypothesis import given, strategies as st
 
-from ..protobuf import mesh_pb2, config_pb2
+from ..protobuf import config_pb2, packet_pb2
 from .. import BROADCAST_ADDR, LOCAL_ADDR
 from ..mesh_interface import MeshInterface, _timeago
 from ..node import Node
@@ -37,8 +37,7 @@ def test_MeshInterface(capsys):
                 "id": NODE_ID,
                 "longName": "Unknown f81c",
                 "shortName": "?1C",
-                "macaddr": "RBeTiPgc",
-                "hwModel": "TBEAM",
+                "hwModel": 4,  # TBEAM
             },
             "position": {},
             "lastHeard": 1640204888,
@@ -51,7 +50,7 @@ def test_MeshInterface(capsys):
     myInfo = MagicMock()
     iface.myInfo = myInfo
 
-    iface.localNode.localConfig.lora.CopyFrom(config_pb2.Config.LoRaConfig())
+    iface.localNode.localConfig.lora.CopyFrom(config_pb2.LoRaConfig())
 
     # Also get some coverage of the structured logging/power meter stuff by turning it on as well
     log_set = LogSet(iface, None, SimPowerSupply())
@@ -107,7 +106,7 @@ def test_getShortName(iface_with_nodes):
 def test_handlePacketFromRadio_no_from(capsys):
     """Test _handlePacketFromRadio with no 'from' in the mesh packet."""
     iface = MeshInterface(noProto=True)
-    meshPacket = mesh_pb2.MeshPacket()
+    meshPacket = packet_pb2.MeshPacket()
     iface._handlePacketFromRadio(meshPacket)
     out, err = capsys.readouterr()
     assert re.search(r"Device returned a packet we sent, ignoring", out, re.MULTILINE)
@@ -122,7 +121,7 @@ def test_handlePacketFromRadio_with_a_portnum(caplog):
     Had to implement a hack just to be able to test some code.
     """
     iface = MeshInterface(noProto=True)
-    meshPacket = mesh_pb2.MeshPacket()
+    meshPacket = packet_pb2.MeshPacket()
     meshPacket.decoded.payload = b""
     meshPacket.decoded.portnum = 1
     with caplog.at_level(logging.WARNING):
@@ -135,7 +134,7 @@ def test_handlePacketFromRadio_with_a_portnum(caplog):
 def test_handlePacketFromRadio_no_portnum(caplog):
     """Test _handlePacketFromRadio without a portnum"""
     iface = MeshInterface(noProto=True)
-    meshPacket = mesh_pb2.MeshPacket()
+    meshPacket = packet_pb2.MeshPacket()
     meshPacket.decoded.payload = b""
     with caplog.at_level(logging.WARNING):
         iface._handlePacketFromRadio(meshPacket, hack=True)
@@ -403,8 +402,8 @@ def test_sendPosition_with_a_position(caplog):
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
         iface.sendPosition(latitude=40.8, longitude=-111.86, altitude=201)
-        assert re.search(r"p.latitude_i:408", caplog.text, re.MULTILINE)
-        assert re.search(r"p.longitude_i:-11186", caplog.text, re.MULTILINE)
+        assert re.search(r"p.latitude:408", caplog.text, re.MULTILINE)
+        assert re.search(r"p.longitude:-11186", caplog.text, re.MULTILINE)
         assert re.search(r"p.altitude:201", caplog.text, re.MULTILINE)
 
 
@@ -428,7 +427,7 @@ def test_sendPacket_with_destination_as_int(caplog):
     """Test _sendPacket() with int as a destination"""
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
-        meshPacket = mesh_pb2.MeshPacket()
+        meshPacket = packet_pb2.MeshPacket()
         iface._sendPacket(meshPacket, destinationId=123)
         assert re.search(r"Not sending packet", caplog.text, re.MULTILINE)
 
@@ -439,7 +438,7 @@ def test_sendPacket_with_destination_starting_with_a_bang(caplog):
     """Test _sendPacket() with int as a destination"""
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
-        meshPacket = mesh_pb2.MeshPacket()
+        meshPacket = packet_pb2.MeshPacket()
         iface._sendPacket(meshPacket, destinationId="!1234")
         assert re.search(r"Not sending packet", caplog.text, re.MULTILINE)
 
@@ -450,7 +449,7 @@ def test_sendPacket_with_destination_as_BROADCAST_ADDR(caplog):
     """Test _sendPacket() with BROADCAST_ADDR as a destination"""
     iface = MeshInterface(noProto=True)
     with caplog.at_level(logging.DEBUG):
-        meshPacket = mesh_pb2.MeshPacket()
+        meshPacket = packet_pb2.MeshPacket()
         iface._sendPacket(meshPacket, destinationId=BROADCAST_ADDR)
         assert re.search(r"Not sending packet", caplog.text, re.MULTILINE)
 
@@ -461,7 +460,7 @@ def test_sendPacket_with_destination_as_LOCAL_ADDR_no_myInfo(capsys):
     """Test _sendPacket() with LOCAL_ADDR as a destination with no myInfo"""
     iface = MeshInterface(noProto=True)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        meshPacket = mesh_pb2.MeshPacket()
+        meshPacket = packet_pb2.MeshPacket()
         iface._sendPacket(meshPacket, destinationId=LOCAL_ADDR)
     out, err = capsys.readouterr()
     assert re.search(r"Warning: No myInfo", out, re.MULTILINE)
@@ -479,7 +478,7 @@ def test_sendPacket_with_destination_as_LOCAL_ADDR_with_myInfo(caplog):
     iface.myInfo = myInfo
     iface.myInfo.my_node_num = 1
     with caplog.at_level(logging.DEBUG):
-        meshPacket = mesh_pb2.MeshPacket()
+        meshPacket = packet_pb2.MeshPacket()
         iface._sendPacket(meshPacket, destinationId=LOCAL_ADDR)
         assert re.search(r"Not sending packet", caplog.text, re.MULTILINE)
 
@@ -489,7 +488,7 @@ def test_sendPacket_with_destination_as_LOCAL_ADDR_with_myInfo(caplog):
 def test_sendPacket_with_destination_is_blank_with_nodes(capsys, iface_with_nodes):
     """Test _sendPacket() with '' as a destination with myInfo"""
     iface = iface_with_nodes
-    meshPacket = mesh_pb2.MeshPacket()
+    meshPacket = packet_pb2.MeshPacket()
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         iface._sendPacket(meshPacket, destinationId="")
     assert pytest_wrapped_e.type == SystemExit
@@ -505,7 +504,7 @@ def test_sendPacket_with_destination_is_blank_without_nodes(caplog, iface_with_n
     """Test _sendPacket() with '' as a destination with myInfo"""
     iface = iface_with_nodes
     iface.nodes = None
-    meshPacket = mesh_pb2.MeshPacket()
+    meshPacket = packet_pb2.MeshPacket()
     with caplog.at_level(logging.WARNING):
         iface._sendPacket(meshPacket, destinationId="")
     assert re.search(r"Warning: There were no self.nodes.", caplog.text, re.MULTILINE)
@@ -637,7 +636,7 @@ def test_getOrCreateByNum_minimal(iface_with_nodes):
     iface = iface_with_nodes
     iface.myInfo.my_node_num = 2475227164
     tmp = iface._getOrCreateByNum(123)
-    assert tmp == {"num": 123, "user": {"hwModel": "UNSET", "id": "!0000007b", "shortName": "007b", "longName": "Meshtastic 007b"}}
+    assert tmp == {"num": 123, "user": {"hwModel": 0, "id": "!0000007b", "shortName": "007b", "longName": "Meshtastic 007b"}}
 
 
 @pytest.mark.unit
@@ -797,3 +796,49 @@ def test_onResponseTraceRoute_routing_none(capsys):
     assert iface._acknowledgment.receivedTraceRoute is True
     out, _ = capsys.readouterr()
     assert "Traceroute failed" not in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_fixupPosition_full_and_scaled():
+    """A client-link position (full latitude) and an over-the-air one (scaled by
+    precision_bits) both become latitudeI and degrees; a second pass changes nothing."""
+    iface = MeshInterface(noProto=True)
+    full = iface._fixupPosition({"latitude": 515000000, "longitude": -1200000})
+    assert full["latitudeI"] == 515000000 and full["latitude"] == 51.5
+    assert full["longitudeI"] == -1200000 and full["longitude"] == -0.12
+    assert iface._fixupPosition(dict(full)) == full
+
+    scaled = iface._fixupPosition({"latitudeScaled": 515000000 >> 11, "longitudeScaled": -1200000 >> 11,
+                                   "precisionBits": 21})
+    assert scaled["latitudeI"] == (515000000 >> 11) << 11
+    assert scaled["longitudeI"] == (-1200000 >> 11) << 11
+    assert abs(scaled["latitude"] - 51.5) < 1e-3
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_onResponseTraceRoute_prints_recorded_path(capsys):
+    """The reply's path tail is the route back: from, each recorded relay, the last relay, us.
+    A suffix names a node when exactly one known node ends in it."""
+    iface = MeshInterface(noProto=True)
+    iface.nodesByNum = {0x11111122: {}, 0x33333344: {}, 0x55555544: {}}
+    raw = packet_pb2.MeshPacket(to=0x0a0b0c0d, hop_start=5, hop_limit=2, relay_node=0x22,
+                                flags=packet_pb2.MeshPacket.PACKET_RECORD_PATH, path=bytes([0x44, 0x66]), rx_snr=-7)
+    setattr(raw, "from", 0x12345678)
+    iface.onResponseTraceRoute({"from": 0x12345678, "to": 0x0a0b0c0d, "decoded": {"portnum": "TELEMETRY_APP"}, "raw": raw})
+    out, _ = capsys.readouterr()
+    assert "!12345678 --> !??????44 --> !??????66 --> !11111122 --> !0a0b0c0d (-3.5dB)" in out
+    assert iface._acknowledgment.receivedTraceRoute is True
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_onResponseTraceRoute_without_recorded_path(capsys):
+    """A reply that did not record its path still reports how many hops it took."""
+    iface = MeshInterface(noProto=True)
+    iface.nodesByNum = {}
+    raw = packet_pb2.MeshPacket(hop_start=3, hop_limit=1)
+    iface.onResponseTraceRoute({"from": 1, "to": 2, "decoded": {"portnum": "TELEMETRY_APP"}, "raw": raw})
+    out, _ = capsys.readouterr()
+    assert "!00000001 --> (2 hops, path not recorded) --> !00000002" in out
