@@ -1505,7 +1505,7 @@ class SCD30_config(_message.Message):
     SET_TARGET_CO2_CONC_FIELD_NUMBER: _builtins.int
     SET_TEMPERATURE_FIELD_NUMBER: _builtins.int
     SET_ALTITUDE_FIELD_NUMBER: _builtins.int
-    SET_MEASUREMENT_INTERVAL_FIELD_NUMBER: _builtins.int
+    SET_MEASUREMENT_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
     SOFT_RESET_FIELD_NUMBER: _builtins.int
     set_asc: _builtins.bool
     """
@@ -1523,9 +1523,9 @@ class SCD30_config(_message.Message):
     """
     Altitude of sensor in meters above sea level. 0 - 3000m (overrides ambient pressure)
     """
-    set_measurement_interval: _builtins.int
+    set_measurement_interval_secs: _builtins.int
     """
-    Power mode for sensor (true for low power, false for normal)
+    Seconds between measurements, 2..1800
     """
     soft_reset: _builtins.bool
     """
@@ -1538,19 +1538,19 @@ class SCD30_config(_message.Message):
         set_target_co2_conc: _builtins.int | None = ...,
         set_temperature: _builtins.int | None = ...,
         set_altitude: _builtins.int | None = ...,
-        set_measurement_interval: _builtins.int | None = ...,
+        set_measurement_interval_secs: _builtins.int | None = ...,
         soft_reset: _builtins.bool | None = ...,
     ) -> None: ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal["_set_altitude", b"_set_altitude", "_set_asc", b"_set_asc", "_set_measurement_interval", b"_set_measurement_interval", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "_soft_reset", b"_soft_reset", "set_altitude", b"set_altitude", "set_asc", b"set_asc", "set_measurement_interval", b"set_measurement_interval", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature", "soft_reset", b"soft_reset"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_set_altitude", b"_set_altitude", "_set_asc", b"_set_asc", "_set_measurement_interval_secs", b"_set_measurement_interval_secs", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "_soft_reset", b"_soft_reset", "set_altitude", b"set_altitude", "set_asc", b"set_asc", "set_measurement_interval_secs", b"set_measurement_interval_secs", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature", "soft_reset", b"soft_reset"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["_set_altitude", b"_set_altitude", "_set_asc", b"_set_asc", "_set_measurement_interval", b"_set_measurement_interval", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "_soft_reset", b"_soft_reset", "set_altitude", b"set_altitude", "set_asc", b"set_asc", "set_measurement_interval", b"set_measurement_interval", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature", "soft_reset", b"soft_reset"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_set_altitude", b"_set_altitude", "_set_asc", b"_set_asc", "_set_measurement_interval_secs", b"_set_measurement_interval_secs", "_set_target_co2_conc", b"_set_target_co2_conc", "_set_temperature", b"_set_temperature", "_soft_reset", b"_soft_reset", "set_altitude", b"set_altitude", "set_asc", b"set_asc", "set_measurement_interval_secs", b"set_measurement_interval_secs", "set_target_co2_conc", b"set_target_co2_conc", "set_temperature", b"set_temperature", "soft_reset", b"soft_reset"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     _WhichOneofReturnType__set_altitude: _TypeAlias = _typing.Literal["set_altitude"]  # noqa: Y015
     _WhichOneofArgType__set_altitude: _TypeAlias = _typing.Literal["_set_altitude", b"_set_altitude"]  # noqa: Y015
     _WhichOneofReturnType__set_asc: _TypeAlias = _typing.Literal["set_asc"]  # noqa: Y015
     _WhichOneofArgType__set_asc: _TypeAlias = _typing.Literal["_set_asc", b"_set_asc"]  # noqa: Y015
-    _WhichOneofReturnType__set_measurement_interval: _TypeAlias = _typing.Literal["set_measurement_interval"]  # noqa: Y015
-    _WhichOneofArgType__set_measurement_interval: _TypeAlias = _typing.Literal["_set_measurement_interval", b"_set_measurement_interval"]  # noqa: Y015
+    _WhichOneofReturnType__set_measurement_interval_secs: _TypeAlias = _typing.Literal["set_measurement_interval_secs"]  # noqa: Y015
+    _WhichOneofArgType__set_measurement_interval_secs: _TypeAlias = _typing.Literal["_set_measurement_interval_secs", b"_set_measurement_interval_secs"]  # noqa: Y015
     _WhichOneofReturnType__set_target_co2_conc: _TypeAlias = _typing.Literal["set_target_co2_conc"]  # noqa: Y015
     _WhichOneofArgType__set_target_co2_conc: _TypeAlias = _typing.Literal["_set_target_co2_conc", b"_set_target_co2_conc"]  # noqa: Y015
     _WhichOneofReturnType__set_temperature: _TypeAlias = _typing.Literal["set_temperature"]  # noqa: Y015
@@ -1562,7 +1562,7 @@ class SCD30_config(_message.Message):
     @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__set_asc) -> _WhichOneofReturnType__set_asc | None: ...
     @_typing.overload
-    def WhichOneof(self, oneof_group: _WhichOneofArgType__set_measurement_interval) -> _WhichOneofReturnType__set_measurement_interval | None: ...
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__set_measurement_interval_secs) -> _WhichOneofReturnType__set_measurement_interval_secs | None: ...
     @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__set_target_co2_conc) -> _WhichOneofReturnType__set_target_co2_conc | None: ...
     @_typing.overload

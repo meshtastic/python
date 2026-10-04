@@ -428,7 +428,7 @@ class DeviceUIConfig(_message.Message):
 
     VERSION_FIELD_NUMBER: _builtins.int
     SCREEN_BRIGHTNESS_FIELD_NUMBER: _builtins.int
-    SCREEN_TIMEOUT_FIELD_NUMBER: _builtins.int
+    SCREEN_TIMEOUT_SECS_FIELD_NUMBER: _builtins.int
     FLAGS_FIELD_NUMBER: _builtins.int
     PIN_CODE_FIELD_NUMBER: _builtins.int
     THEME_FIELD_NUMBER: _builtins.int
@@ -449,9 +449,9 @@ class DeviceUIConfig(_message.Message):
     """
     TFT display brightness 1..255
     """
-    screen_timeout: _builtins.int
+    screen_timeout_secs: _builtins.int
     """
-    Screen timeout 0..900
+    Screen timeout in seconds, 0..900
     """
     flags: _builtins.int
     """
@@ -513,7 +513,7 @@ class DeviceUIConfig(_message.Message):
         *,
         version: _builtins.int = ...,
         screen_brightness: _builtins.int = ...,
-        screen_timeout: _builtins.int = ...,
+        screen_timeout_secs: _builtins.int = ...,
         flags: _builtins.int = ...,
         pin_code: _builtins.int = ...,
         theme: Global___Theme.ValueType = ...,
@@ -529,7 +529,7 @@ class DeviceUIConfig(_message.Message):
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _typing.Literal["map_data", b"map_data", "node_filter", b"node_filter", "node_highlight", b"node_highlight"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["calibration_data", b"calibration_data", "compass_mode", b"compass_mode", "flags", b"flags", "gps_format", b"gps_format", "language", b"language", "map_data", b"map_data", "node_filter", b"node_filter", "node_highlight", b"node_highlight", "pin_code", b"pin_code", "ring_tone_id", b"ring_tone_id", "screen_brightness", b"screen_brightness", "screen_rgb_color", b"screen_rgb_color", "screen_timeout", b"screen_timeout", "theme", b"theme", "version", b"version"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["calibration_data", b"calibration_data", "compass_mode", b"compass_mode", "flags", b"flags", "gps_format", b"gps_format", "language", b"language", "map_data", b"map_data", "node_filter", b"node_filter", "node_highlight", b"node_highlight", "pin_code", b"pin_code", "ring_tone_id", b"ring_tone_id", "screen_brightness", b"screen_brightness", "screen_rgb_color", b"screen_rgb_color", "screen_timeout_secs", b"screen_timeout_secs", "theme", b"theme", "version", b"version"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 

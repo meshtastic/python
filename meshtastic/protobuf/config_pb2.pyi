@@ -495,7 +495,7 @@ class PositionConfig(_message.Message):
     POSITION_BROADCAST_SECS_FIELD_NUMBER: _builtins.int
     POSITION_BROADCAST_SMART_ENABLED_FIELD_NUMBER: _builtins.int
     FIXED_POSITION_FIELD_NUMBER: _builtins.int
-    GPS_UPDATE_INTERVAL_FIELD_NUMBER: _builtins.int
+    GPS_UPDATE_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
     POSITION_FLAGS_FIELD_NUMBER: _builtins.int
     RX_GPIO_FIELD_NUMBER: _builtins.int
     TX_GPIO_FIELD_NUMBER: _builtins.int
@@ -518,7 +518,7 @@ class PositionConfig(_message.Message):
     We will generate GPS position updates at the regular interval, but use whatever the last lat/lon/alt we have for the node.
     The lat/lon/alt can be set by an internal GPS or with the help of the app.
     """
-    gps_update_interval: _builtins.int
+    gps_update_interval_secs: _builtins.int
     """
     How often should we try to get GPS position (in seconds)
     or zero for the default of once every 30 seconds
@@ -559,7 +559,7 @@ class PositionConfig(_message.Message):
         position_broadcast_secs: _builtins.int = ...,
         position_broadcast_smart_enabled: _builtins.bool = ...,
         fixed_position: _builtins.bool = ...,
-        gps_update_interval: _builtins.int = ...,
+        gps_update_interval_secs: _builtins.int = ...,
         position_flags: _builtins.int = ...,
         rx_gpio: _builtins.int = ...,
         tx_gpio: _builtins.int = ...,
@@ -570,7 +570,7 @@ class PositionConfig(_message.Message):
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["broadcast_smart_minimum_distance", b"broadcast_smart_minimum_distance", "broadcast_smart_minimum_interval_secs", b"broadcast_smart_minimum_interval_secs", "fixed_position", b"fixed_position", "gps_en_gpio", b"gps_en_gpio", "gps_mode", b"gps_mode", "gps_update_interval", b"gps_update_interval", "position_broadcast_secs", b"position_broadcast_secs", "position_broadcast_smart_enabled", b"position_broadcast_smart_enabled", "position_flags", b"position_flags", "rx_gpio", b"rx_gpio", "tx_gpio", b"tx_gpio"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["broadcast_smart_minimum_distance", b"broadcast_smart_minimum_distance", "broadcast_smart_minimum_interval_secs", b"broadcast_smart_minimum_interval_secs", "fixed_position", b"fixed_position", "gps_en_gpio", b"gps_en_gpio", "gps_mode", b"gps_mode", "gps_update_interval_secs", b"gps_update_interval_secs", "position_broadcast_secs", b"position_broadcast_secs", "position_broadcast_smart_enabled", b"position_broadcast_smart_enabled", "position_flags", b"position_flags", "rx_gpio", b"rx_gpio", "tx_gpio", b"tx_gpio"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 

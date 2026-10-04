@@ -275,13 +275,13 @@ class NeighborInfoConfig(_message.Message):
     DESCRIPTOR: _descriptor.Descriptor
 
     ENABLED_FIELD_NUMBER: _builtins.int
-    UPDATE_INTERVAL_FIELD_NUMBER: _builtins.int
+    UPDATE_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
     TRANSMIT_OVER_LORA_FIELD_NUMBER: _builtins.int
     enabled: _builtins.bool
     """
     Whether the Module is enabled
     """
-    update_interval: _builtins.int
+    update_interval_secs: _builtins.int
     """
     Interval in seconds of how often we should try to send our
     Neighbor Info (minimum is 14400, i.e., 4 hours)
@@ -295,12 +295,12 @@ class NeighborInfoConfig(_message.Message):
         self,
         *,
         enabled: _builtins.bool = ...,
-        update_interval: _builtins.int = ...,
+        update_interval_secs: _builtins.int = ...,
         transmit_over_lora: _builtins.bool = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["enabled", b"enabled", "transmit_over_lora", b"transmit_over_lora", "update_interval", b"update_interval"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["enabled", b"enabled", "transmit_over_lora", b"transmit_over_lora", "update_interval_secs", b"update_interval_secs"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -570,14 +570,14 @@ class PaxcounterConfig(_message.Message):
     DESCRIPTOR: _descriptor.Descriptor
 
     ENABLED_FIELD_NUMBER: _builtins.int
-    PAXCOUNTER_UPDATE_INTERVAL_FIELD_NUMBER: _builtins.int
+    PAXCOUNTER_UPDATE_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
     WIFI_THRESHOLD_FIELD_NUMBER: _builtins.int
     BLE_THRESHOLD_FIELD_NUMBER: _builtins.int
     enabled: _builtins.bool
     """
     Enable the Paxcounter Module
     """
-    paxcounter_update_interval: _builtins.int
+    paxcounter_update_interval_secs: _builtins.int
     """
     Interval in seconds of how often we should try to send our
     metrics to the mesh
@@ -594,13 +594,13 @@ class PaxcounterConfig(_message.Message):
         self,
         *,
         enabled: _builtins.bool = ...,
-        paxcounter_update_interval: _builtins.int = ...,
+        paxcounter_update_interval_secs: _builtins.int = ...,
         wifi_threshold: _builtins.int = ...,
         ble_threshold: _builtins.int = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["ble_threshold", b"ble_threshold", "enabled", b"enabled", "paxcounter_update_interval", b"paxcounter_update_interval", "wifi_threshold", b"wifi_threshold"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["ble_threshold", b"ble_threshold", "enabled", b"enabled", "paxcounter_update_interval_secs", b"paxcounter_update_interval_secs", "wifi_threshold", b"wifi_threshold"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -823,7 +823,7 @@ class SerialConfig(_message.Message):
     RXD_FIELD_NUMBER: _builtins.int
     TXD_FIELD_NUMBER: _builtins.int
     BAUD_FIELD_NUMBER: _builtins.int
-    TIMEOUT_FIELD_NUMBER: _builtins.int
+    TIMEOUT_MS_FIELD_NUMBER: _builtins.int
     MODE_FIELD_NUMBER: _builtins.int
     flags: _builtins.int
     """
@@ -841,9 +841,10 @@ class SerialConfig(_message.Message):
     """
     Serial baud rate
     """
-    timeout: _builtins.int
+    timeout_ms: _builtins.int
     """
-    Timeout in seconds for serial module operations (0 = no timeout)
+    Milliseconds the serial port waits for more input before it treats a packet as
+    complete. 0 takes the default of 250.
     """
     mode: Global___SerialConfig.Serial_Mode.ValueType
     """
@@ -856,12 +857,12 @@ class SerialConfig(_message.Message):
         rxd: _builtins.int = ...,
         txd: _builtins.int = ...,
         baud: Global___SerialConfig.Serial_Baud.ValueType = ...,
-        timeout: _builtins.int = ...,
+        timeout_ms: _builtins.int = ...,
         mode: Global___SerialConfig.Serial_Mode.ValueType = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["baud", b"baud", "flags", b"flags", "mode", b"mode", "rxd", b"rxd", "timeout", b"timeout", "txd", b"txd"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["baud", b"baud", "flags", b"flags", "mode", b"mode", "rxd", b"rxd", "timeout_ms", b"timeout_ms", "txd", b"txd"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -934,7 +935,7 @@ class ExternalNotificationConfig(_message.Message):
     ALERT_FLAGS_FIELD_NUMBER: _builtins.int
     OUTPUT_VIBRA_FIELD_NUMBER: _builtins.int
     OUTPUT_BUZZER_FIELD_NUMBER: _builtins.int
-    NAG_TIMEOUT_FIELD_NUMBER: _builtins.int
+    NAG_TIMEOUT_SECS_FIELD_NUMBER: _builtins.int
     enabled: _builtins.bool
     """
     Enable the ExternalNotificationModule
@@ -965,7 +966,7 @@ class ExternalNotificationConfig(_message.Message):
     ALERT_USE_PWM is clear. 0 is GPIO0, not "unset": the ALERT_*_BUZZER flags say
     whether it sounds. In standalone devices it matches the UI.
     """
-    nag_timeout: _builtins.int
+    nag_timeout_secs: _builtins.int
     """
     The notification will toggle with 'output_ms' for this time of seconds.
     Default is 0 which means don't repeat at all. 60 would mean blink
@@ -980,11 +981,11 @@ class ExternalNotificationConfig(_message.Message):
         alert_flags: _builtins.int = ...,
         output_vibra: _builtins.int = ...,
         output_buzzer: _builtins.int = ...,
-        nag_timeout: _builtins.int = ...,
+        nag_timeout_secs: _builtins.int = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["alert_flags", b"alert_flags", "enabled", b"enabled", "nag_timeout", b"nag_timeout", "output", b"output", "output_buzzer", b"output_buzzer", "output_ms", b"output_ms", "output_vibra", b"output_vibra"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["alert_flags", b"alert_flags", "enabled", b"enabled", "nag_timeout_secs", b"nag_timeout_secs", "output", b"output", "output_buzzer", b"output_buzzer", "output_ms", b"output_ms", "output_vibra", b"output_vibra"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -1191,18 +1192,18 @@ class TelemetryConfig(_message.Message):
     """
 
     FLAGS_FIELD_NUMBER: _builtins.int
-    DEVICE_UPDATE_INTERVAL_FIELD_NUMBER: _builtins.int
-    SENSOR_UPDATE_INTERVAL_FIELD_NUMBER: _builtins.int
+    DEVICE_UPDATE_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
+    SENSOR_UPDATE_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
     flags: _builtins.int
     """
     Bitwise OR of Flags values.
     """
-    device_update_interval: _builtins.int
+    device_update_interval_secs: _builtins.int
     """
     Interval in seconds of how often we should try to send our
     device metrics to the mesh
     """
-    sensor_update_interval: _builtins.int
+    sensor_update_interval_secs: _builtins.int
     """
     Interval in seconds of how often we should try to send sensor readings to the
     mesh. One interval covers every sensor category, since they now travel together
@@ -1213,12 +1214,12 @@ class TelemetryConfig(_message.Message):
         self,
         *,
         flags: _builtins.int = ...,
-        device_update_interval: _builtins.int = ...,
-        sensor_update_interval: _builtins.int = ...,
+        device_update_interval_secs: _builtins.int = ...,
+        sensor_update_interval_secs: _builtins.int = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["device_update_interval", b"device_update_interval", "flags", b"flags", "sensor_update_interval", b"sensor_update_interval"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["device_update_interval_secs", b"device_update_interval_secs", "flags", b"flags", "sensor_update_interval_secs", b"sensor_update_interval_secs"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 

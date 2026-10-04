@@ -756,9 +756,9 @@ class MeshInterface:  # pylint: disable=R0902
                         air_util_tx = metrics.get("airUtilTx")
                         if air_util_tx is not None:
                             r.device_metrics.air_util_tx = air_util_tx
-                        uptime_seconds = metrics.get("uptimeSeconds")
-                        if uptime_seconds is not None:
-                            r.device_metrics.uptime_seconds = uptime_seconds
+                        uptime_minutes = metrics.get("uptimeMinutes")
+                        if uptime_minutes is not None:
+                            r.device_metrics.uptime_minutes = uptime_minutes
 
         if wantResponse:
             onResponse = self.onResponseTelemetry
@@ -796,8 +796,8 @@ class MeshInterface:  # pylint: disable=R0902
                     print(f"Total channel utilization: {m.channel_utilization / 100:.2f}%")
                 if m.HasField("air_util_tx"):
                     print(f"Transmit air utilization: {m.air_util_tx / 100:.2f}%")
-                if m.HasField("uptime_seconds"):
-                    print(f"Uptime: {m.uptime_seconds} s")
+                if m.HasField("uptime_minutes"):
+                    print(f"Uptime: {m.uptime_minutes} min")
             elif telemetry.HasField("sensor_readings"):
                 for sample in sensor_readings_to_list(telemetry.sensor_readings, telemetry.time):
                     print(f"sensorReadings at {sample.pop('time')}:")

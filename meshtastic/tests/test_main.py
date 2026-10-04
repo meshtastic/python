@@ -2139,7 +2139,7 @@ def test_profile_from_yaml_maps_all_fields():
         "ringtone": "24:d=32,o=5",
         "location": {"lat": 35.88888, "lon": -93.88888, "alt": 304},
         "config": {"bluetooth": {"enabled": True, "fixedPin": 123456}},
-        "module_config": {"telemetry": {"deviceUpdateInterval": 900}},
+        "module_config": {"telemetry": {"deviceUpdateIntervalSecs": 900}},
     }
     profile = _profile_from_yaml(configuration)
 
@@ -2156,7 +2156,7 @@ def test_profile_from_yaml_maps_all_fields():
     assert profile.config.bluetooth.enabled is True
     assert profile.config.bluetooth.fixed_pin == 123456
     assert profile.HasField("module_config")
-    assert profile.module_config.telemetry.device_update_interval == 900
+    assert profile.module_config.telemetry.device_update_interval_secs == 900
 
 
 @pytest.mark.unit

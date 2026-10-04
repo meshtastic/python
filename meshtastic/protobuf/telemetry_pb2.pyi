@@ -479,7 +479,7 @@ class DeviceMetrics(_message.Message):
     VOLTAGE_FIELD_NUMBER: _builtins.int
     CHANNEL_UTILIZATION_FIELD_NUMBER: _builtins.int
     AIR_UTIL_TX_FIELD_NUMBER: _builtins.int
-    UPTIME_SECONDS_FIELD_NUMBER: _builtins.int
+    UPTIME_MINUTES_FIELD_NUMBER: _builtins.int
     battery_level: _builtins.int
     """
     0-100 (>100 means powered)
@@ -496,9 +496,11 @@ class DeviceMetrics(_message.Message):
     """
     Percent of airtime for TX x100 (e.g. 1025 = 10.25%)
     """
-    uptime_seconds: _builtins.int
+    uptime_minutes: _builtins.int
     """
-    How long the device has been running since the last reboot (in seconds)
+    How long the device has been running since the last reboot, in minutes. Sent on
+    the air with every device telemetry packet, where a second's resolution has no use
+    and minutes cost one byte less for any uptime from 4.5 hours to 11 days.
     """
     def __init__(
         self,
@@ -507,11 +509,11 @@ class DeviceMetrics(_message.Message):
         voltage: _builtins.int | None = ...,
         channel_utilization: _builtins.int | None = ...,
         air_util_tx: _builtins.int | None = ...,
-        uptime_seconds: _builtins.int | None = ...,
+        uptime_minutes: _builtins.int | None = ...,
     ) -> None: ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal["_air_util_tx", b"_air_util_tx", "_battery_level", b"_battery_level", "_channel_utilization", b"_channel_utilization", "_uptime_seconds", b"_uptime_seconds", "_voltage", b"_voltage", "air_util_tx", b"air_util_tx", "battery_level", b"battery_level", "channel_utilization", b"channel_utilization", "uptime_seconds", b"uptime_seconds", "voltage", b"voltage"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_air_util_tx", b"_air_util_tx", "_battery_level", b"_battery_level", "_channel_utilization", b"_channel_utilization", "_uptime_minutes", b"_uptime_minutes", "_voltage", b"_voltage", "air_util_tx", b"air_util_tx", "battery_level", b"battery_level", "channel_utilization", b"channel_utilization", "uptime_minutes", b"uptime_minutes", "voltage", b"voltage"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["_air_util_tx", b"_air_util_tx", "_battery_level", b"_battery_level", "_channel_utilization", b"_channel_utilization", "_uptime_seconds", b"_uptime_seconds", "_voltage", b"_voltage", "air_util_tx", b"air_util_tx", "battery_level", b"battery_level", "channel_utilization", b"channel_utilization", "uptime_seconds", b"uptime_seconds", "voltage", b"voltage"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_air_util_tx", b"_air_util_tx", "_battery_level", b"_battery_level", "_channel_utilization", b"_channel_utilization", "_uptime_minutes", b"_uptime_minutes", "_voltage", b"_voltage", "air_util_tx", b"air_util_tx", "battery_level", b"battery_level", "channel_utilization", b"channel_utilization", "uptime_minutes", b"uptime_minutes", "voltage", b"voltage"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     _WhichOneofReturnType__air_util_tx: _TypeAlias = _typing.Literal["air_util_tx"]  # noqa: Y015
     _WhichOneofArgType__air_util_tx: _TypeAlias = _typing.Literal["_air_util_tx", b"_air_util_tx"]  # noqa: Y015
@@ -519,8 +521,8 @@ class DeviceMetrics(_message.Message):
     _WhichOneofArgType__battery_level: _TypeAlias = _typing.Literal["_battery_level", b"_battery_level"]  # noqa: Y015
     _WhichOneofReturnType__channel_utilization: _TypeAlias = _typing.Literal["channel_utilization"]  # noqa: Y015
     _WhichOneofArgType__channel_utilization: _TypeAlias = _typing.Literal["_channel_utilization", b"_channel_utilization"]  # noqa: Y015
-    _WhichOneofReturnType__uptime_seconds: _TypeAlias = _typing.Literal["uptime_seconds"]  # noqa: Y015
-    _WhichOneofArgType__uptime_seconds: _TypeAlias = _typing.Literal["_uptime_seconds", b"_uptime_seconds"]  # noqa: Y015
+    _WhichOneofReturnType__uptime_minutes: _TypeAlias = _typing.Literal["uptime_minutes"]  # noqa: Y015
+    _WhichOneofArgType__uptime_minutes: _TypeAlias = _typing.Literal["_uptime_minutes", b"_uptime_minutes"]  # noqa: Y015
     _WhichOneofReturnType__voltage: _TypeAlias = _typing.Literal["voltage"]  # noqa: Y015
     _WhichOneofArgType__voltage: _TypeAlias = _typing.Literal["_voltage", b"_voltage"]  # noqa: Y015
     @_typing.overload
@@ -530,7 +532,7 @@ class DeviceMetrics(_message.Message):
     @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__channel_utilization) -> _WhichOneofReturnType__channel_utilization | None: ...
     @_typing.overload
-    def WhichOneof(self, oneof_group: _WhichOneofArgType__uptime_seconds) -> _WhichOneofReturnType__uptime_seconds | None: ...
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__uptime_minutes) -> _WhichOneofReturnType__uptime_minutes | None: ...
     @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__voltage) -> _WhichOneofReturnType__voltage | None: ...
 

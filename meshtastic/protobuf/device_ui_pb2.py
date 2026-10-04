@@ -12,10 +12,11 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
+from meshtastic.protobuf import field_metadata_pb2 as meshtastic_dot_protobuf_dot_field__metadata__pb2
 from meshtastic.protobuf import nanopb_pb2 as meshtastic_dot_protobuf_dot_nanopb__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#meshtastic/protobuf/device_ui.proto\x12\x13meshtastic.protobuf\x1a meshtastic/protobuf/nanopb.proto\"\xd1\x06\n\x0e\x44\x65viceUIConfig\x12\x0f\n\x07version\x18\x01 \x01(\r\x12 \n\x11screen_brightness\x18\x02 \x01(\rB\x05\x92?\x02\x38\x08\x12\x1d\n\x0escreen_timeout\x18\x03 \x01(\rB\x05\x92?\x02\x38\x10\x12\x14\n\x05\x66lags\x18\x04 \x01(\rB\x05\x92?\x02\x38\x08\x12\x10\n\x08pin_code\x18\x05 \x01(\r\x12)\n\x05theme\x18\x06 \x01(\x0e\x32\x1a.meshtastic.protobuf.Theme\x12\x1b\n\x0cring_tone_id\x18\x07 \x01(\rB\x05\x92?\x02\x38\x08\x12/\n\x08language\x18\x08 \x01(\x0e\x32\x1d.meshtastic.protobuf.Language\x12\x34\n\x0bnode_filter\x18\t \x01(\x0b\x32\x1f.meshtastic.protobuf.NodeFilter\x12:\n\x0enode_highlight\x18\n \x01(\x0b\x32\".meshtastic.protobuf.NodeHighlight\x12\x1f\n\x10\x63\x61libration_data\x18\x0b \x01(\x0c\x42\x05\x92?\x02\x08\x10\x12*\n\x08map_data\x18\x0c \x01(\x0b\x32\x18.meshtastic.protobuf.Map\x12=\n\x0c\x63ompass_mode\x18\r \x01(\x0e\x32 .meshtastic.protobuf.CompassModeB\x05\x92?\x02\x38\x08\x12\x18\n\x10screen_rgb_color\x18\x0e \x01(\r\x12R\n\ngps_format\x18\x0f \x01(\x0e\x32\x37.meshtastic.protobuf.DeviceUIConfig.GpsCoordinateFormatB\x05\x92?\x02\x38\x08\"\x87\x01\n\x05\x46lags\x12\x0b\n\x07UI_NONE\x10\x00\x12\x12\n\x0eUI_SCREEN_LOCK\x10\x01\x12\x14\n\x10UI_SETTINGS_LOCK\x10\x02\x12\x14\n\x10UI_ALERT_ENABLED\x10\x04\x12\x15\n\x11UI_BANNER_ENABLED\x10\x08\x12\x1a\n\x16UI_IS_CLOCKFACE_ANALOG\x10\x10\"V\n\x13GpsCoordinateFormat\x12\x07\n\x03\x44\x45\x43\x10\x00\x12\x07\n\x03\x44MS\x10\x01\x12\x07\n\x03UTM\x10\x02\x12\x08\n\x04MGRS\x10\x03\x12\x07\n\x03OLC\x10\x04\x12\x08\n\x04OSGR\x10\x05\x12\x07\n\x03MLS\x10\x06\"\xdc\x01\n\nNodeFilter\x12\x14\n\x05\x66lags\x18\x01 \x01(\rB\x05\x92?\x02\x38\x08\x12\x18\n\thops_away\x18\x02 \x01(\rB\x05\x92?\x02\x38\x08\x12\x18\n\tnode_name\x18\x03 \x01(\tB\x05\x92?\x02\x08\x10\x12\x16\n\x07\x63hannel\x18\x04 \x01(\rB\x05\x92?\x02\x38\x08\"l\n\x05\x46lags\x12\x0f\n\x0b\x46ILTER_NONE\x10\x00\x12\x12\n\x0e\x46ILTER_UNKNOWN\x10\x01\x12\x12\n\x0e\x46ILTER_OFFLINE\x10\x02\x12\x15\n\x11\x46ILTER_PUBLIC_KEY\x10\x04\x12\x13\n\x0f\x46ILTER_POSITION\x10\x08\"\xb4\x01\n\rNodeHighlight\x12\x14\n\x05\x66lags\x18\x01 \x01(\rB\x05\x92?\x02\x38\x08\x12\x18\n\tnode_name\x18\x02 \x01(\tB\x05\x92?\x02\x08\x10\"s\n\x05\x46lags\x12\x12\n\x0eHIGHLIGHT_NONE\x10\x00\x12\x12\n\x0eHIGHLIGHT_CHAT\x10\x01\x12\x16\n\x12HIGHLIGHT_POSITION\x10\x02\x12\x17\n\x13HIGHLIGHT_TELEMETRY\x10\x04\x12\x11\n\rHIGHLIGHT_IAQ\x10\x08\"D\n\x08GeoPoint\x12\x13\n\x04zoom\x18\x01 \x01(\rB\x05\x92?\x02\x38\x08\x12\x10\n\x08latitude\x18\x02 \x01(\x0f\x12\x11\n\tlongitude\x18\x03 \x01(\x0f\"\\\n\x03Map\x12+\n\x04home\x18\x01 \x01(\x0b\x32\x1d.meshtastic.protobuf.GeoPoint\x12\x14\n\x05style\x18\x02 \x01(\tB\x05\x92?\x02\x08\x14\x12\x12\n\nfollow_gps\x18\x03 \x01(\x08*>\n\x0b\x43ompassMode\x12\x0b\n\x07\x44YNAMIC\x10\x00\x12\x0e\n\nFIXED_RING\x10\x01\x12\x12\n\x0e\x46REEZE_HEADING\x10\x02*%\n\x05Theme\x12\x08\n\x04\x44\x41RK\x10\x00\x12\t\n\x05LIGHT\x10\x01\x12\x07\n\x03RED\x10\x02*\xe0\x02\n\x08Language\x12\x0b\n\x07\x45NGLISH\x10\x00\x12\n\n\x06\x46RENCH\x10\x01\x12\n\n\x06GERMAN\x10\x02\x12\x0b\n\x07ITALIAN\x10\x03\x12\x0e\n\nPORTUGUESE\x10\x04\x12\x0b\n\x07SPANISH\x10\x05\x12\x0b\n\x07SWEDISH\x10\x06\x12\x0b\n\x07\x46INNISH\x10\x07\x12\n\n\x06POLISH\x10\x08\x12\x0b\n\x07TURKISH\x10\t\x12\x0b\n\x07SERBIAN\x10\n\x12\x0b\n\x07RUSSIAN\x10\x0b\x12\t\n\x05\x44UTCH\x10\x0c\x12\t\n\x05GREEK\x10\r\x12\r\n\tNORWEGIAN\x10\x0e\x12\r\n\tSLOVENIAN\x10\x0f\x12\r\n\tUKRAINIAN\x10\x10\x12\r\n\tBULGARIAN\x10\x11\x12\t\n\x05\x43ZECH\x10\x12\x12\n\n\x06\x44\x41NISH\x10\x13\x12\r\n\tHUNGARIAN\x10\x14\x12\x0f\n\x0b\x41ZERBAIJANI\x10\x15\x12\x16\n\x12SIMPLIFIED_CHINESE\x10\x1e\x12\x17\n\x13TRADITIONAL_CHINESE\x10\x1f\x42\x64\n\x14org.meshtastic.protoB\x0e\x44\x65viceUIProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#meshtastic/protobuf/device_ui.proto\x12\x13meshtastic.protobuf\x1a(meshtastic/protobuf/field_metadata.proto\x1a meshtastic/protobuf/nanopb.proto\"\xdd\x06\n\x0e\x44\x65viceUIConfig\x12\x0f\n\x07version\x18\x01 \x01(\r\x12 \n\x11screen_brightness\x18\x02 \x01(\rB\x05\x92?\x02\x38\x08\x12)\n\x13screen_timeout_secs\x18\x03 \x01(\rB\x0c\x92?\x02\x38\x10\xca\xf3\x18\x03*\x01s\x12\x14\n\x05\x66lags\x18\x04 \x01(\rB\x05\x92?\x02\x38\x08\x12\x10\n\x08pin_code\x18\x05 \x01(\r\x12)\n\x05theme\x18\x06 \x01(\x0e\x32\x1a.meshtastic.protobuf.Theme\x12\x1b\n\x0cring_tone_id\x18\x07 \x01(\rB\x05\x92?\x02\x38\x08\x12/\n\x08language\x18\x08 \x01(\x0e\x32\x1d.meshtastic.protobuf.Language\x12\x34\n\x0bnode_filter\x18\t \x01(\x0b\x32\x1f.meshtastic.protobuf.NodeFilter\x12:\n\x0enode_highlight\x18\n \x01(\x0b\x32\".meshtastic.protobuf.NodeHighlight\x12\x1f\n\x10\x63\x61libration_data\x18\x0b \x01(\x0c\x42\x05\x92?\x02\x08\x10\x12*\n\x08map_data\x18\x0c \x01(\x0b\x32\x18.meshtastic.protobuf.Map\x12=\n\x0c\x63ompass_mode\x18\r \x01(\x0e\x32 .meshtastic.protobuf.CompassModeB\x05\x92?\x02\x38\x08\x12\x18\n\x10screen_rgb_color\x18\x0e \x01(\r\x12R\n\ngps_format\x18\x0f \x01(\x0e\x32\x37.meshtastic.protobuf.DeviceUIConfig.GpsCoordinateFormatB\x05\x92?\x02\x38\x08\"\x87\x01\n\x05\x46lags\x12\x0b\n\x07UI_NONE\x10\x00\x12\x12\n\x0eUI_SCREEN_LOCK\x10\x01\x12\x14\n\x10UI_SETTINGS_LOCK\x10\x02\x12\x14\n\x10UI_ALERT_ENABLED\x10\x04\x12\x15\n\x11UI_BANNER_ENABLED\x10\x08\x12\x1a\n\x16UI_IS_CLOCKFACE_ANALOG\x10\x10\"V\n\x13GpsCoordinateFormat\x12\x07\n\x03\x44\x45\x43\x10\x00\x12\x07\n\x03\x44MS\x10\x01\x12\x07\n\x03UTM\x10\x02\x12\x08\n\x04MGRS\x10\x03\x12\x07\n\x03OLC\x10\x04\x12\x08\n\x04OSGR\x10\x05\x12\x07\n\x03MLS\x10\x06\"\xdc\x01\n\nNodeFilter\x12\x14\n\x05\x66lags\x18\x01 \x01(\rB\x05\x92?\x02\x38\x08\x12\x18\n\thops_away\x18\x02 \x01(\rB\x05\x92?\x02\x38\x08\x12\x18\n\tnode_name\x18\x03 \x01(\tB\x05\x92?\x02\x08\x10\x12\x16\n\x07\x63hannel\x18\x04 \x01(\rB\x05\x92?\x02\x38\x08\"l\n\x05\x46lags\x12\x0f\n\x0b\x46ILTER_NONE\x10\x00\x12\x12\n\x0e\x46ILTER_UNKNOWN\x10\x01\x12\x12\n\x0e\x46ILTER_OFFLINE\x10\x02\x12\x15\n\x11\x46ILTER_PUBLIC_KEY\x10\x04\x12\x13\n\x0f\x46ILTER_POSITION\x10\x08\"\xb4\x01\n\rNodeHighlight\x12\x14\n\x05\x66lags\x18\x01 \x01(\rB\x05\x92?\x02\x38\x08\x12\x18\n\tnode_name\x18\x02 \x01(\tB\x05\x92?\x02\x08\x10\"s\n\x05\x46lags\x12\x12\n\x0eHIGHLIGHT_NONE\x10\x00\x12\x12\n\x0eHIGHLIGHT_CHAT\x10\x01\x12\x16\n\x12HIGHLIGHT_POSITION\x10\x02\x12\x17\n\x13HIGHLIGHT_TELEMETRY\x10\x04\x12\x11\n\rHIGHLIGHT_IAQ\x10\x08\"D\n\x08GeoPoint\x12\x13\n\x04zoom\x18\x01 \x01(\rB\x05\x92?\x02\x38\x08\x12\x10\n\x08latitude\x18\x02 \x01(\x0f\x12\x11\n\tlongitude\x18\x03 \x01(\x0f\"\\\n\x03Map\x12+\n\x04home\x18\x01 \x01(\x0b\x32\x1d.meshtastic.protobuf.GeoPoint\x12\x14\n\x05style\x18\x02 \x01(\tB\x05\x92?\x02\x08\x14\x12\x12\n\nfollow_gps\x18\x03 \x01(\x08*>\n\x0b\x43ompassMode\x12\x0b\n\x07\x44YNAMIC\x10\x00\x12\x0e\n\nFIXED_RING\x10\x01\x12\x12\n\x0e\x46REEZE_HEADING\x10\x02*%\n\x05Theme\x12\x08\n\x04\x44\x41RK\x10\x00\x12\t\n\x05LIGHT\x10\x01\x12\x07\n\x03RED\x10\x02*\xe0\x02\n\x08Language\x12\x0b\n\x07\x45NGLISH\x10\x00\x12\n\n\x06\x46RENCH\x10\x01\x12\n\n\x06GERMAN\x10\x02\x12\x0b\n\x07ITALIAN\x10\x03\x12\x0e\n\nPORTUGUESE\x10\x04\x12\x0b\n\x07SPANISH\x10\x05\x12\x0b\n\x07SWEDISH\x10\x06\x12\x0b\n\x07\x46INNISH\x10\x07\x12\n\n\x06POLISH\x10\x08\x12\x0b\n\x07TURKISH\x10\t\x12\x0b\n\x07SERBIAN\x10\n\x12\x0b\n\x07RUSSIAN\x10\x0b\x12\t\n\x05\x44UTCH\x10\x0c\x12\t\n\x05GREEK\x10\r\x12\r\n\tNORWEGIAN\x10\x0e\x12\r\n\tSLOVENIAN\x10\x0f\x12\r\n\tUKRAINIAN\x10\x10\x12\r\n\tBULGARIAN\x10\x11\x12\t\n\x05\x43ZECH\x10\x12\x12\n\n\x06\x44\x41NISH\x10\x13\x12\r\n\tHUNGARIAN\x10\x14\x12\x0f\n\x0b\x41ZERBAIJANI\x10\x15\x12\x16\n\x12SIMPLIFIED_CHINESE\x10\x1e\x12\x17\n\x13TRADITIONAL_CHINESE\x10\x1f\x42\x64\n\x14org.meshtastic.protoB\x0e\x44\x65viceUIProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -25,8 +26,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['DESCRIPTOR']._serialized_options = b'\n\024org.meshtastic.protoB\016DeviceUIProtosZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
   _globals['_DEVICEUICONFIG'].fields_by_name['screen_brightness']._options = None
   _globals['_DEVICEUICONFIG'].fields_by_name['screen_brightness']._serialized_options = b'\222?\0028\010'
-  _globals['_DEVICEUICONFIG'].fields_by_name['screen_timeout']._options = None
-  _globals['_DEVICEUICONFIG'].fields_by_name['screen_timeout']._serialized_options = b'\222?\0028\020'
+  _globals['_DEVICEUICONFIG'].fields_by_name['screen_timeout_secs']._options = None
+  _globals['_DEVICEUICONFIG'].fields_by_name['screen_timeout_secs']._serialized_options = b'\222?\0028\020\312\363\030\003*\001s'
   _globals['_DEVICEUICONFIG'].fields_by_name['flags']._options = None
   _globals['_DEVICEUICONFIG'].fields_by_name['flags']._serialized_options = b'\222?\0028\010'
   _globals['_DEVICEUICONFIG'].fields_by_name['ring_tone_id']._options = None
@@ -53,28 +54,28 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_GEOPOINT'].fields_by_name['zoom']._serialized_options = b'\222?\0028\010'
   _globals['_MAP'].fields_by_name['style']._options = None
   _globals['_MAP'].fields_by_name['style']._serialized_options = b'\222?\002\010\024'
-  _globals['_COMPASSMODE']._serialized_start=1516
-  _globals['_COMPASSMODE']._serialized_end=1578
-  _globals['_THEME']._serialized_start=1580
-  _globals['_THEME']._serialized_end=1617
-  _globals['_LANGUAGE']._serialized_start=1620
-  _globals['_LANGUAGE']._serialized_end=1972
-  _globals['_DEVICEUICONFIG']._serialized_start=95
-  _globals['_DEVICEUICONFIG']._serialized_end=944
-  _globals['_DEVICEUICONFIG_FLAGS']._serialized_start=721
-  _globals['_DEVICEUICONFIG_FLAGS']._serialized_end=856
-  _globals['_DEVICEUICONFIG_GPSCOORDINATEFORMAT']._serialized_start=858
-  _globals['_DEVICEUICONFIG_GPSCOORDINATEFORMAT']._serialized_end=944
-  _globals['_NODEFILTER']._serialized_start=947
-  _globals['_NODEFILTER']._serialized_end=1167
-  _globals['_NODEFILTER_FLAGS']._serialized_start=1059
-  _globals['_NODEFILTER_FLAGS']._serialized_end=1167
-  _globals['_NODEHIGHLIGHT']._serialized_start=1170
-  _globals['_NODEHIGHLIGHT']._serialized_end=1350
-  _globals['_NODEHIGHLIGHT_FLAGS']._serialized_start=1235
-  _globals['_NODEHIGHLIGHT_FLAGS']._serialized_end=1350
-  _globals['_GEOPOINT']._serialized_start=1352
-  _globals['_GEOPOINT']._serialized_end=1420
-  _globals['_MAP']._serialized_start=1422
-  _globals['_MAP']._serialized_end=1514
+  _globals['_COMPASSMODE']._serialized_start=1570
+  _globals['_COMPASSMODE']._serialized_end=1632
+  _globals['_THEME']._serialized_start=1634
+  _globals['_THEME']._serialized_end=1671
+  _globals['_LANGUAGE']._serialized_start=1674
+  _globals['_LANGUAGE']._serialized_end=2026
+  _globals['_DEVICEUICONFIG']._serialized_start=137
+  _globals['_DEVICEUICONFIG']._serialized_end=998
+  _globals['_DEVICEUICONFIG_FLAGS']._serialized_start=775
+  _globals['_DEVICEUICONFIG_FLAGS']._serialized_end=910
+  _globals['_DEVICEUICONFIG_GPSCOORDINATEFORMAT']._serialized_start=912
+  _globals['_DEVICEUICONFIG_GPSCOORDINATEFORMAT']._serialized_end=998
+  _globals['_NODEFILTER']._serialized_start=1001
+  _globals['_NODEFILTER']._serialized_end=1221
+  _globals['_NODEFILTER_FLAGS']._serialized_start=1113
+  _globals['_NODEFILTER_FLAGS']._serialized_end=1221
+  _globals['_NODEHIGHLIGHT']._serialized_start=1224
+  _globals['_NODEHIGHLIGHT']._serialized_end=1404
+  _globals['_NODEHIGHLIGHT_FLAGS']._serialized_start=1289
+  _globals['_NODEHIGHLIGHT_FLAGS']._serialized_end=1404
+  _globals['_GEOPOINT']._serialized_start=1406
+  _globals['_GEOPOINT']._serialized_end=1474
+  _globals['_MAP']._serialized_start=1476
+  _globals['_MAP']._serialized_end=1568
 # @@protoc_insertion_point(module_scope)

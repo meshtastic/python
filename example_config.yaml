@@ -30,7 +30,7 @@ config:
   position:
     gpsAttemptTime: 900
     gpsEnabled: true
-    gpsUpdateInterval: 120
+    gpsUpdateIntervalSecs: 120
     positionBroadcastSecs: 900
     positionBroadcastSmartEnabled: true
     positionFlags: 3
@@ -42,5 +42,5 @@ config:
 
 module_config:
   telemetry:
-    deviceUpdateInterval: 900
+    deviceUpdateIntervalSecs: 900
     environmentUpdateInterval: 900
