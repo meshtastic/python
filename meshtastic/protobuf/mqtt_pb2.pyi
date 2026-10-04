@@ -22,6 +22,7 @@ DESCRIPTOR: _descriptor.FileDescriptor
 class ServiceEnvelope(_message.Message):
     """
     This message wraps a MeshPacket with extra metadata about the sender and how it arrived.
+    Published on <root>/3/e/<channel_id>/<gateway_id> (SCHEMA.md "Links and MQTT topics").
     """
 
     DESCRIPTOR: _descriptor.Descriptor

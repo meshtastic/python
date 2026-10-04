@@ -583,27 +583,27 @@ def test_smoke1_seturl_default():
     time.sleep(PAUSE_AFTER_COMMAND)
     # ensure we no longer have a default primary channel
     return_value, out = subprocess.getstatusoutput("meshtastic --info")
-    assert not re.search("CgUYAyIBAQ", out, re.MULTILINE)
+    assert not re.search("CgMKAQE", out, re.MULTILINE)
     assert return_value == 0
-    url = "https://www.meshtastic.org/d/#CgUYAyIBAQ"
+    url = "https://meshtastic.org/f/#CgMKAQE"
     return_value, out = subprocess.getstatusoutput(f"meshtastic --seturl {url}")
     assert re.match(r"Connected to radio", out)
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput("meshtastic --info")
-    assert re.search("CgUYAyIBAQ", out, re.MULTILINE)
+    assert re.search("CgMKAQE", out, re.MULTILINE)
     assert return_value == 0
 
 
 @pytest.mark.smoke1
 def test_smoke1_seturl_invalid_url():
-    """Test --seturl with invalid url"""
-    # Note: This url is no longer a valid url.
+    """Test --seturl with a link from an older generation"""
+    # A 1.0 link: its letter is not the 3.0 /f/, so it is refused before decoding.
     url = "https://www.meshtastic.org/c/#GAMiENTxuzogKQdZ8Lz_q89Oab8qB0RlZmF1bHQ="
     return_value, out = subprocess.getstatusoutput(f"meshtastic --seturl {url}")
     assert re.match(r"Connected to radio", out)
-    assert re.search("Warning: There were no settings", out, re.MULTILINE)
+    assert re.search("not a Meshtastic 3.0 channel link", out, re.MULTILINE)
     assert return_value == 1
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)

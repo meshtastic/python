@@ -394,7 +394,7 @@ def test_smokevirt_ch_del_needs_ch_index(firmware_node):
 @pytest.mark.smokevirt
 def test_smokevirt_seturl_default(firmware_node):
     """--seturl applies a known channel URL."""
-    url = "https://www.meshtastic.org/d/#CgUYAyIBAQ"
+    url = "https://meshtastic.org/f/#CgMKAQE"
 
     # Use the fixture's already-connected TCPInterface so the same
     # connection handles the firmware restart after setURL.

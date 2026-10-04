@@ -1062,7 +1062,7 @@ def test_main_setalt(capsys):
 @pytest.mark.usefixtures("reset_mt_config")
 def test_main_seturl(capsys):
     """Test --seturl (url used below is what is generated after a factory_reset)"""
-    sys.argv = ["", "--seturl", "https://www.meshtastic.org/d/#CgUYAyIBAQ"]
+    sys.argv = ["", "--seturl", "https://meshtastic.org/f/#CgMKAQE"]
     mt_config.args = sys.argv
 
     iface = MagicMock(autospec=SerialInterface)
@@ -2027,7 +2027,7 @@ def test_export_profile_serializes_deviceprofile():
     iface = MagicMock(autospec=SerialInterface)
     iface.getLongName.return_value = "foo"
     iface.getShortName.return_value = "oof"
-    iface.localNode.getURL.return_value = "https://meshtastic.org/e/#test"
+    iface.localNode.getURL.return_value = "https://meshtastic.org/f/#test"
     iface.getCannedMessage.return_value = "Hi|Bye"
     iface.getRingtone.return_value = "24:d=32,o=5"
     iface.getMyNodeInfo.return_value = {
@@ -2043,7 +2043,7 @@ def test_export_profile_serializes_deviceprofile():
     profile.ParseFromString(raw)  # must not raise
     assert profile.long_name == "foo"
     assert profile.short_name == "oof"
-    assert profile.channel_url == "https://meshtastic.org/e/#test"
+    assert profile.channel_url == "https://meshtastic.org/f/#test"
     assert profile.canned_messages == "Hi|Bye"
     assert profile.ringtone == "24:d=32,o=5"
     assert profile.HasField("fixed_position")
@@ -2134,7 +2134,7 @@ def test_profile_from_yaml_maps_all_fields():
     configuration = {
         "owner": "YAML Owner",
         "owner_short": "YO",
-        "channel_url": "https://meshtastic.org/e/#test",
+        "channel_url": "https://meshtastic.org/f/#test",
         "canned_messages": "Hi|Bye",
         "ringtone": "24:d=32,o=5",
         "location": {"lat": 35.88888, "lon": -93.88888, "alt": 304},
@@ -2145,7 +2145,7 @@ def test_profile_from_yaml_maps_all_fields():
 
     assert profile.long_name == "YAML Owner"
     assert profile.short_name == "YO"
-    assert profile.channel_url == "https://meshtastic.org/e/#test"
+    assert profile.channel_url == "https://meshtastic.org/f/#test"
     assert profile.canned_messages == "Hi|Bye"
     assert profile.ringtone == "24:d=32,o=5"
     assert profile.HasField("fixed_position")
@@ -2165,12 +2165,12 @@ def test_profile_from_yaml_camelcase_keys():
     """_profile_from_yaml() handles camelCase YAML keys"""
     configuration = {
         "ownerShort": "CB",
-        "channelUrl": "https://meshtastic.org/e/#camel",
+        "channelUrl": "https://meshtastic.org/f/#camel",
     }
     profile = _profile_from_yaml(configuration)
 
     assert profile.short_name == "CB"
-    assert profile.channel_url == "https://meshtastic.org/e/#camel"
+    assert profile.channel_url == "https://meshtastic.org/f/#camel"
     assert not profile.HasField("long_name")
 
 
@@ -2340,7 +2340,7 @@ def test_main_export_config_binary_round_trip(tmp_path, capsys):
     iface = MagicMock(autospec=SerialInterface)
     iface.getLongName.return_value = "Round Trip"
     iface.getShortName.return_value = "RT"
-    iface.localNode.getURL.return_value = "https://meshtastic.org/e/#rt"
+    iface.localNode.getURL.return_value = "https://meshtastic.org/f/#rt"
     iface.getCannedMessage.return_value = "Yes|No"
     iface.getRingtone.return_value = None
     iface.getMyNodeInfo.return_value = {
@@ -3610,7 +3610,7 @@ def test_remove_ignored_node():
 @pytest.mark.usefixtures("reset_mt_config")
 def test_add_contact_url():
     """Test --add-contact with a shareable URL"""
-    url = "https://meshtastic.org/v/#CKqkvZgIElEKCSE4MzBmNTIyYRIQUm9hZHJ1bm5lciBSaWRnZRoEUktTTiIGAAAAAAAAKAk4AkIgRxo_Fw_ergQIhRqBbrHasLYy3gU-Ay8hrhu4OVnIPQc=" # pylint: disable=line-too-long
+    url = "https://meshtastic.org/u/#CKqkvZgIElEKCSE4MzBmNTIyYRIQUm9hZHJ1bm5lciBSaWRnZRoEUktTTiIGAAAAAAAAKAk4AkIgRxo_Fw_ergQIhRqBbrHasLYy3gU-Ay8hrhu4OVnIPQc=" # pylint: disable=line-too-long
     sys.argv = ["", "--add-contact", url]
     mt_config.args = sys.argv
     mocked_node = MagicMock(autospec=Node)

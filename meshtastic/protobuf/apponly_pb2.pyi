@@ -26,7 +26,8 @@ class ChannelSet(_message.Message):
     This is the most compact possible representation for a set of channels.
     The primary channel is first; the rest follow in table order.
     Disabled channels are not included.
-    This abstraction is used only on the the 'app side' of the world (ie python, javascript and android etc) to show a group of Channels as a (long) URL
+    This abstraction is used only on the the 'app side' of the world (ie python, javascript and android etc) to show a group of Channels as a (long) URL:
+    https://meshtastic.org/f/#<unpadded url-safe base64>, SCHEMA.md "Links and MQTT topics".
     """
 
     DESCRIPTOR: _descriptor.Descriptor

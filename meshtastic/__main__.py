@@ -2381,7 +2381,7 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
     group.add_argument(
         "--add-contact",
         help="Add a contact (User) to the NodeDB from a shareable URL. "
-        "Example: https://meshtastic.org/v/#<base64>",
+        "Example: https://meshtastic.org/u/#<base64>",
         metavar="URL",
     )
 

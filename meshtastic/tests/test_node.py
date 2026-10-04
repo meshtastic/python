@@ -11,7 +11,7 @@ from hypothesis import given, strategies as st
 
 from ..protobuf import admin_pb2, common_pb2, config_pb2, localonly_pb2, nanopb_pb2, wire_pb2
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
-from ..node import MAX_CHANNELS, Node, channel_role
+from ..node import CHANNEL_URL_LETTER, CONTACT_URL_LETTER, MAX_CHANNELS, Node, channel_role, link_payload
 from ..serial_interface import SerialInterface
 from ..mesh_interface import MeshInterface
 from ..util import to_node_num
@@ -335,7 +335,7 @@ def test_setURL_empty_url(capsys):
 def test_setURL_valid_URL_but_no_settings(capsys):
     """Test setURL"""
     iface = MagicMock(autospec=SerialInterface)
-    url = "https://www.meshtastic.org/d/#"
+    url = "https://meshtastic.org/f/#"
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         anode = Node(iface, "bar", noProto=True)
         anode.radioConfig = "baz"
@@ -345,6 +345,39 @@ def test_setURL_valid_URL_but_no_settings(capsys):
     out, err = capsys.readouterr()
     assert re.search(r"Warning: config or channels not loaded", out, re.MULTILINE)
     assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("url", [
+    # 2.x: parses under the 3.0 schema as a channel named 0x01 with a garbled LoRa config
+    "https://meshtastic.org/e/#CgMSAQESCDgBQANIAVAe",
+    # 1.2: parses under the 3.0 schema as one empty channel
+    "https://www.meshtastic.org/d/#CgUYAyIBAQ",
+])
+def test_channel_link_refuses_older_generations(capsys, url):
+    """An older link decodes into the wrong 3.0 fields without an error, so its letter is refused"""
+    with pytest.raises(SystemExit) as e:
+        link_payload(url, CHANNEL_URL_LETTER, "channel")
+    assert e.value.code == 1
+    assert "not a Meshtastic 3.0 channel link" in capsys.readouterr().out
+
+
+@pytest.mark.unit
+def test_contact_link_refuses_2x(capsys):
+    """A 2.x contact link (/v/) is refused; 3.0 contacts use /u/"""
+    with pytest.raises(SystemExit):
+        link_payload("https://meshtastic.org/v/#CKqkvZgIElEKCSE4MzBmNTIyYQ", CONTACT_URL_LETTER, "contact")
+    assert "not a Meshtastic 3.0 contact link" in capsys.readouterr().out
+
+
+@pytest.mark.unit
+def test_link_payload_restores_padding_and_reads_the_add_form():
+    """Links drop base64 padding; the add-only form carries ?add=true and is accepted only as such"""
+    expected = bytes([0x0A, 0x03, 0x0A, 0x01, 0x01])  # ChannelSet { settings { psk: 0x01 } }
+    assert link_payload("https://meshtastic.org/f/#CgMKAQE", CHANNEL_URL_LETTER, "channel") == expected
+    assert link_payload("https://meshtastic.org/f/?add=true#CgMKAQE", CHANNEL_URL_LETTER, "channel", True) == expected
+    with pytest.raises(SystemExit):
+        link_payload("https://meshtastic.org/f/#CgMKAQE", CHANNEL_URL_LETTER, "channel", True)
 
 
 @pytest.mark.unit
@@ -445,7 +478,7 @@ def test_contact_url_roundtrip(node_id, node_data, should_ignore, manually_verif
 
     with patch.object(anode, "_sendAdmin", side_effect=capture_send):
         url = anode.getContactURL(node_id, should_ignore=should_ignore, manually_verified=manually_verified)
-        assert url.startswith("https://meshtastic.org/v/#")
+        assert url.startswith("https://meshtastic.org/u/#")
 
         anode.addContactURL(url)
 

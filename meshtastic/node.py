@@ -3,6 +3,7 @@
 
 import base64
 import logging
+import re
 import time
 
 from typing import Optional, Union, List
@@ -26,6 +27,31 @@ logger = logging.getLogger(__name__)
 
 MAX_CHANNELS = 16
 """Channels a 3.0 node holds"""
+
+CHANNEL_URL_LETTER = "f"
+"""Path letter of a 3.0 channel link, https://meshtastic.org/f/#...; 2.x used e, 1.2 d, 1.0 c"""
+
+CONTACT_URL_LETTER = "u"
+"""Path letter of a 3.0 contact link, https://meshtastic.org/u/#...; 2.x used v"""
+
+_LINK_RE = re.compile(r"/([A-Za-z])/(\?add=true)?#([A-Za-z0-9_=-]*)$")
+
+
+def link_payload(url: str, letter: str, kind: str, addOnly: bool = False) -> bytes:
+    """The bytes a channel or contact link carries. A link with another generation's letter
+    is refused: its payload would parse into the wrong 3.0 fields without an error."""
+    m = _LINK_RE.search(url.strip())
+    if not m or bool(m.group(2)) != addOnly:
+        our_exit(f"Warning: Invalid URL '{url}'")
+    if m.group(1).lower() != letter:
+        our_exit(
+            f"Warning: '{url}' is not a Meshtastic 3.0 {kind} link; those read "
+            f"https://meshtastic.org/{letter}/#..."
+        )
+    b64 = m.group(3)
+    # Links drop the base64 padding; the decoder wants it back
+    b64 += "=" * (-len(b64) % 4)
+    return base64.urlsafe_b64decode(b64)
 
 
 def channel_role(ch: channel_pb2.Channel) -> str:
@@ -352,7 +378,7 @@ class Node:
         some_bytes = channelSet.SerializeToString()
         s = base64.urlsafe_b64encode(some_bytes).decode("ascii")
         s = s.replace("=", "").replace("+", "-").replace("/", "_")
-        return f"https://meshtastic.org/e/#{s}"
+        return f"https://meshtastic.org/{CHANNEL_URL_LETTER}/#{s}"
 
     def getContactURL(self, node_id: Union[int, str], should_ignore: bool = False, manually_verified: bool = False):
         """Generate a shareable contact URL for the specified node"""
@@ -388,31 +414,15 @@ class Node:
         data = contact.SerializeToString()
         s = base64.urlsafe_b64encode(data).decode("ascii")
         s = s.replace("=", "").replace("+", "-").replace("/", "_")
-        return f"https://meshtastic.org/v/#{s}"
+        return f"https://meshtastic.org/{CONTACT_URL_LETTER}/#{s}"
 
     def setURL(self, url: str, addOnly: bool = False):
         """Set mesh network URL"""
         if self.localConfig is None or self.channels is None:
             our_exit("Warning: config or channels not loaded")
 
-        # URLs are of the form https://meshtastic.org/d/#{base64_channel_set}
-        # Split on '/#' to find the base64 encoded channel settings
-        if addOnly:
-            splitURL = url.split("/?add=true#")
-        else:
-            splitURL = url.split("/#")
-        if len(splitURL) == 1:
-            our_exit(f"Warning: Invalid URL '{url}'")
-        b64 = splitURL[-1]
-
-        # We normally strip padding to make for a shorter URL, but the python parser doesn't like
-        # that.  So add back any missing padding
-        # per https://stackoverflow.com/a/9807138
-        missing_padding = len(b64) % 4
-        if missing_padding:
-            b64 += "=" * (4 - missing_padding)
-
-        decodedURL = base64.urlsafe_b64decode(b64)
+        # https://meshtastic.org/f/#{base64_channel_set}, or /f/?add=true#... to add channels
+        decodedURL = link_payload(url, CHANNEL_URL_LETTER, "channel", addOnly)
         channelSet = apponly_pb2.ChannelSet()
         channelSet.ParseFromString(decodedURL)
 
@@ -453,16 +463,7 @@ class Node:
         """Add a contact (User) to the NodeDB from a shareable URL"""
         self.ensureSessionKey()
 
-        splitURL = url.split("/#")
-        if len(splitURL) == 1:
-            our_exit(f"Warning: Invalid URL '{url}'")
-        b64 = splitURL[-1]
-
-        missing_padding = len(b64) % 4
-        if missing_padding:
-            b64 += "=" * (4 - missing_padding)
-
-        decodedURL = base64.urlsafe_b64decode(b64)
+        decodedURL = link_payload(url, CONTACT_URL_LETTER, "contact")
         contact = admin_pb2.SharedContact()
         contact.ParseFromString(decodedURL)
 

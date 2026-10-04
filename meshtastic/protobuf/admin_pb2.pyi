@@ -1063,6 +1063,11 @@ Global___NodeRemoteHardwarePinsResponse: _TypeAlias = NodeRemoteHardwarePinsResp
 
 @_typing.final
 class SharedContact(_message.Message):
+    """
+    A node shared as a contact, as a link or QR code:
+    https://meshtastic.org/u/#<unpadded url-safe base64> (SCHEMA.md "Links and MQTT topics").
+    """
+
     DESCRIPTOR: _descriptor.Descriptor
 
     NODE_NUM_FIELD_NUMBER: _builtins.int
