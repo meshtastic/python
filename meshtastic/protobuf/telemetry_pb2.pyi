@@ -729,7 +729,6 @@ class TrafficManagementStats(_message.Message):
 
     PACKETS_INSPECTED_FIELD_NUMBER: _builtins.int
     POSITION_DEDUP_DROPS_FIELD_NUMBER: _builtins.int
-    NODEINFO_CACHE_HITS_FIELD_NUMBER: _builtins.int
     RATE_LIMIT_DROPS_FIELD_NUMBER: _builtins.int
     UNKNOWN_PACKET_DROPS_FIELD_NUMBER: _builtins.int
     HOP_EXHAUSTED_PACKETS_FIELD_NUMBER: _builtins.int
@@ -741,10 +740,6 @@ class TrafficManagementStats(_message.Message):
     position_dedup_drops: _builtins.int
     """
     Number of position packets dropped due to deduplication
-    """
-    nodeinfo_cache_hits: _builtins.int
-    """
-    Number of NodeInfo requests answered from cache
     """
     rate_limit_drops: _builtins.int
     """
@@ -767,7 +762,6 @@ class TrafficManagementStats(_message.Message):
         *,
         packets_inspected: _builtins.int = ...,
         position_dedup_drops: _builtins.int = ...,
-        nodeinfo_cache_hits: _builtins.int = ...,
         rate_limit_drops: _builtins.int = ...,
         unknown_packet_drops: _builtins.int = ...,
         hop_exhausted_packets: _builtins.int = ...,
@@ -775,7 +769,7 @@ class TrafficManagementStats(_message.Message):
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["hop_exhausted_packets", b"hop_exhausted_packets", "nodeinfo_cache_hits", b"nodeinfo_cache_hits", "packets_inspected", b"packets_inspected", "position_dedup_drops", b"position_dedup_drops", "rate_limit_drops", b"rate_limit_drops", "router_hops_preserved", b"router_hops_preserved", "unknown_packet_drops", b"unknown_packet_drops"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["hop_exhausted_packets", b"hop_exhausted_packets", "packets_inspected", b"packets_inspected", "position_dedup_drops", b"position_dedup_drops", "rate_limit_drops", b"rate_limit_drops", "router_hops_preserved", b"router_hops_preserved", "unknown_packet_drops", b"unknown_packet_drops"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 

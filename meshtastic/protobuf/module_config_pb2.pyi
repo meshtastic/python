@@ -619,7 +619,6 @@ class TrafficManagementConfig(_message.Message):
     DESCRIPTOR: _descriptor.Descriptor
 
     POSITION_MIN_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
-    NODEINFO_DIRECT_RESPONSE_MAX_HOPS_FIELD_NUMBER: _builtins.int
     RATE_LIMIT_WINDOW_SECS_FIELD_NUMBER: _builtins.int
     RATE_LIMIT_MAX_PACKETS_FIELD_NUMBER: _builtins.int
     UNKNOWN_PACKET_THRESHOLD_FIELD_NUMBER: _builtins.int
@@ -628,12 +627,6 @@ class TrafficManagementConfig(_message.Message):
     Minimum interval in seconds between position updates from the same node.
     A non-zero value implicitly enables the suppression window; 0 disables it.
     Firmware default: 21600 (6 hours), installed when this config is first created.
-    """
-    nodeinfo_direct_response_max_hops: _builtins.int
-    """
-    Maximum hop distance from the requestor at which direct NodeInfo responses
-    are served from the local cache. A non-zero value implicitly enables direct
-    response; 0 disables it.
     """
     rate_limit_window_secs: _builtins.int
     """
@@ -655,14 +648,13 @@ class TrafficManagementConfig(_message.Message):
         self,
         *,
         position_min_interval_secs: _builtins.int = ...,
-        nodeinfo_direct_response_max_hops: _builtins.int = ...,
         rate_limit_window_secs: _builtins.int = ...,
         rate_limit_max_packets: _builtins.int = ...,
         unknown_packet_threshold: _builtins.int = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["nodeinfo_direct_response_max_hops", b"nodeinfo_direct_response_max_hops", "position_min_interval_secs", b"position_min_interval_secs", "rate_limit_max_packets", b"rate_limit_max_packets", "rate_limit_window_secs", b"rate_limit_window_secs", "unknown_packet_threshold", b"unknown_packet_threshold"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["position_min_interval_secs", b"position_min_interval_secs", "rate_limit_max_packets", b"rate_limit_max_packets", "rate_limit_window_secs", b"rate_limit_window_secs", "unknown_packet_threshold", b"unknown_packet_threshold"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
