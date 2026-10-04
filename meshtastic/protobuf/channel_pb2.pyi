@@ -67,12 +67,12 @@ class ChannelSettings(_message.Message):
         Intended reach of this channel. It travels in the channel URL, so everyone who
         joins the channel launches its traffic the same way.
 
-        Scope caps the hop_start a node launches with on this channel, decides whether
-        uplink_enabled may be set, and tells congestion control whether it may raise that
-        cap. It is a sender-side rule: a relay cannot read it, and enforces reach with
+        Scope caps the hop_start a node launches with on this channel, decides whether a
+        node may set CHANNEL_UPLINK on it, and tells congestion control whether it may raise
+        that cap. It is a sender-side rule: a relay cannot read it, and enforces reach with
         RelayConfig instead.
 
-        | scope    | launch hop_start | uplink_enabled | congestion control may raise |
+        | scope    | launch hop_start | CHANNEL_UPLINK | congestion control may raise |
         |----------|------------------|----------------|------------------------------|
         | LOCAL    | 2                | refused        | no                           |
         | REGIONAL | region default   | refused        | yes, to the region maximum   |
@@ -95,8 +95,6 @@ class ChannelSettings(_message.Message):
     PSK_FIELD_NUMBER: _builtins.int
     NAME_FIELD_NUMBER: _builtins.int
     ID_FIELD_NUMBER: _builtins.int
-    UPLINK_ENABLED_FIELD_NUMBER: _builtins.int
-    DOWNLINK_ENABLED_FIELD_NUMBER: _builtins.int
     MODULE_SETTINGS_FIELD_NUMBER: _builtins.int
     SCOPE_FIELD_NUMBER: _builtins.int
     psk: _builtins.bytes
@@ -134,14 +132,6 @@ class ChannelSettings(_message.Message):
     A channel shared by name alone, with no id and the default PSK, is as insecure as its name
     is public; a sender that wants privacy generates both.
     """
-    uplink_enabled: _builtins.bool
-    """
-    If true, messages on the mesh will be sent to the *public* internet by any gateway ndoe
-    """
-    downlink_enabled: _builtins.bool
-    """
-    If true, messages seen on the internet will be forwarded to the local mesh.
-    """
     scope: Global___ChannelSettings.Scope.ValueType
     """
     Intended reach of this channel, enforced by senders.
@@ -158,14 +148,12 @@ class ChannelSettings(_message.Message):
         psk: _builtins.bytes = ...,
         name: _builtins.str = ...,
         id: _builtins.int = ...,
-        uplink_enabled: _builtins.bool = ...,
-        downlink_enabled: _builtins.bool = ...,
         module_settings: Global___ModuleSettings | None = ...,
         scope: Global___ChannelSettings.Scope.ValueType = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _typing.Literal["module_settings", b"module_settings"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["downlink_enabled", b"downlink_enabled", "id", b"id", "module_settings", b"module_settings", "name", b"name", "psk", b"psk", "scope", b"scope", "uplink_enabled", b"uplink_enabled"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["id", b"id", "module_settings", b"module_settings", "name", b"name", "psk", b"psk", "scope", b"scope"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -212,8 +200,42 @@ class Channel(_message.Message):
 
     DESCRIPTOR: _descriptor.Descriptor
 
+    class _Flags:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _FlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[Channel._Flags.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        CHANNEL_NONE: Channel._Flags.ValueType  # 0
+        """Not bridged"""
+        CHANNEL_UPLINK: Channel._Flags.ValueType  # 1
+        """
+        Publish this channel's traffic to the MQTT broker. Only a SCOPE_GLOBAL channel may
+        set it.
+        """
+        CHANNEL_DOWNLINK: Channel._Flags.ValueType  # 2
+        """Forward this channel's traffic from the MQTT broker to the mesh"""
+
+    class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
+        """
+        What this node does with the channel on MQTT. These belong to the node, not the
+        channel: a channel URL carries settings only, so joining a channel never makes a node
+        a gateway for it.
+        """
+
+    CHANNEL_NONE: Channel.Flags.ValueType  # 0
+    """Not bridged"""
+    CHANNEL_UPLINK: Channel.Flags.ValueType  # 1
+    """
+    Publish this channel's traffic to the MQTT broker. Only a SCOPE_GLOBAL channel may
+    set it.
+    """
+    CHANNEL_DOWNLINK: Channel.Flags.ValueType  # 2
+    """Forward this channel's traffic from the MQTT broker to the mesh"""
+
     INDEX_FIELD_NUMBER: _builtins.int
     SETTINGS_FIELD_NUMBER: _builtins.int
+    FLAGS_FIELD_NUMBER: _builtins.int
     index: _builtins.int
     """
     The index of this channel in the channel table, 0 to MAX_NUM_CHANNELS-1.
@@ -223,6 +245,10 @@ class Channel(_message.Message):
     can hash, so it decides where the radio listens. Every other index is a key for
     decrypting traffic on that same frequency. Position carries this distinction, so
     no role field states it.
+    """
+    flags: _builtins.int
+    """
+    Bitwise OR of Flags values.
     """
     @_builtins.property
     def settings(self) -> Global___ChannelSettings:
@@ -235,10 +261,11 @@ class Channel(_message.Message):
         *,
         index: _builtins.int = ...,
         settings: Global___ChannelSettings | None = ...,
+        flags: _builtins.int = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _typing.Literal["settings", b"settings"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["index", b"index", "settings", b"settings"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["flags", b"flags", "index", b"index", "settings", b"settings"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 

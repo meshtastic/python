@@ -26,7 +26,7 @@ import time
 import pytest
 
 from meshtastic.node import channel_role
-from meshtastic.protobuf import common_pb2, config_pb2
+from meshtastic.protobuf import channel_pb2, common_pb2, config_pb2
 
 from .fw_helpers import (
     PAUSE_AFTER_CLI,
@@ -287,12 +287,14 @@ def test_smokevirt_ch_preset(firmware_node, flag, expected_preset):
 
 @pytest.mark.smokevirt
 def test_smokevirt_ch_set_downlink_uplink(firmware_node):
-    """--ch-set downlink_enabled/uplink_enabled flips both flags."""
+    """--ch-set downlink_enabled/uplink_enabled flips both Channel.flags bits (the node's own
+    MQTT choice, not part of the shared settings). Only a SCOPE_GLOBAL channel may uplink."""
+    bridged = channel_pb2.Channel.CHANNEL_UPLINK | channel_pb2.Channel.CHANNEL_DOWNLINK
+
     def check_disabled(iface):
         ch = _channel(iface, 0)
         assert ch is not None
-        assert ch.settings.downlink_enabled is False, ch
-        assert ch.settings.uplink_enabled is False, ch
+        assert ch.flags & bridged == 0, ch
 
     cli_then_verify(
         firmware_node.port,
@@ -307,12 +309,12 @@ def test_smokevirt_ch_set_downlink_uplink(firmware_node):
     def check_enabled(iface):
         ch = _channel(iface, 0)
         assert ch is not None
-        assert ch.settings.downlink_enabled is True, ch
-        assert ch.settings.uplink_enabled is True, ch
+        assert ch.flags & bridged == bridged, ch
 
     cli_then_verify(
         firmware_node.port,
         [
+            "--ch-set", "scope", "SCOPE_GLOBAL",
             "--ch-set", "downlink_enabled", "true",
             "--ch-set", "uplink_enabled", "true",
             "--ch-index", "0",

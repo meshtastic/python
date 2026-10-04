@@ -12,10 +12,11 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
+from meshtastic.protobuf import field_metadata_pb2 as meshtastic_dot_protobuf_dot_field__metadata__pb2
 from meshtastic.protobuf import nanopb_pb2 as meshtastic_dot_protobuf_dot_nanopb__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n!meshtastic/protobuf/channel.proto\x12\x13meshtastic.protobuf\x1a meshtastic/protobuf/nanopb.proto\"\xc2\x02\n\x0f\x43hannelSettings\x12\x12\n\x03psk\x18\x01 \x01(\x0c\x42\x05\x92?\x02\x08 \x12\x13\n\x04name\x18\x02 \x01(\tB\x05\x92?\x02\x08\x0c\x12\n\n\x02id\x18\x03 \x01(\x07\x12\x16\n\x0euplink_enabled\x18\x04 \x01(\x08\x12\x18\n\x10\x64ownlink_enabled\x18\x05 \x01(\x08\x12<\n\x0fmodule_settings\x18\x06 \x01(\x0b\x32#.meshtastic.protobuf.ModuleSettings\x12\x39\n\x05scope\x18\x07 \x01(\x0e\x32*.meshtastic.protobuf.ChannelSettings.Scope\"O\n\x05Scope\x12\x0f\n\x0bSCOPE_UNSET\x10\x00\x12\x0f\n\x0bSCOPE_LOCAL\x10\x01\x12\x12\n\x0eSCOPE_REGIONAL\x10\x02\x12\x10\n\x0cSCOPE_GLOBAL\x10\x03\">\n\x0eModuleSettings\x12\x1a\n\x12position_precision\x18\x01 \x01(\r\x12\x10\n\x08is_muted\x18\x02 \x01(\x08\"W\n\x07\x43hannel\x12\x14\n\x05index\x18\x01 \x01(\rB\x05\x92?\x02\x38\x08\x12\x36\n\x08settings\x18\x02 \x01(\x0b\x32$.meshtastic.protobuf.ChannelSettingsBc\n\x14org.meshtastic.protoB\rChannelProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n!meshtastic/protobuf/channel.proto\x12\x13meshtastic.protobuf\x1a(meshtastic/protobuf/field_metadata.proto\x1a meshtastic/protobuf/nanopb.proto\"\x90\x02\n\x0f\x43hannelSettings\x12\x12\n\x03psk\x18\x01 \x01(\x0c\x42\x05\x92?\x02\x08 \x12\x13\n\x04name\x18\x02 \x01(\tB\x05\x92?\x02\x08\x0c\x12\n\n\x02id\x18\x03 \x01(\x07\x12<\n\x0fmodule_settings\x18\x04 \x01(\x0b\x32#.meshtastic.protobuf.ModuleSettings\x12\x39\n\x05scope\x18\x05 \x01(\x0e\x32*.meshtastic.protobuf.ChannelSettings.Scope\"O\n\x05Scope\x12\x0f\n\x0bSCOPE_UNSET\x10\x00\x12\x0f\n\x0bSCOPE_LOCAL\x10\x01\x12\x12\n\x0eSCOPE_REGIONAL\x10\x02\x12\x10\n\x0cSCOPE_GLOBAL\x10\x03\">\n\x0eModuleSettings\x12\x1a\n\x12position_precision\x18\x01 \x01(\r\x12\x10\n\x08is_muted\x18\x02 \x01(\x08\"\xd4\x02\n\x07\x43hannel\x12\x14\n\x05index\x18\x01 \x01(\rB\x05\x92?\x02\x38\x08\x12\x36\n\x08settings\x18\x02 \x01(\x0b\x32$.meshtastic.protobuf.ChannelSettings\x12\x14\n\x05\x66lags\x18\x03 \x01(\rB\x05\x92?\x02\x38\x08\"\xe4\x01\n\x05\x46lags\x12\x10\n\x0c\x43HANNEL_NONE\x10\x00\x12Y\n\x0e\x43HANNEL_UPLINK\x10\x01\x1a\x45\xca\xf3\x18\x41:\x0eUplink EnabledB/Send this channel\'s messages to the MQTT broker\x12n\n\x10\x43HANNEL_DOWNLINK\x10\x02\x1aX\xca\xf3\x18T:\x10\x44ownlink EnabledB@Forward this channel\'s messages from the MQTT broker to the meshBc\n\x14org.meshtastic.protoB\rChannelProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -27,14 +28,22 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_CHANNELSETTINGS'].fields_by_name['psk']._serialized_options = b'\222?\002\010 '
   _globals['_CHANNELSETTINGS'].fields_by_name['name']._options = None
   _globals['_CHANNELSETTINGS'].fields_by_name['name']._serialized_options = b'\222?\002\010\014'
+  _globals['_CHANNEL_FLAGS'].values_by_name["CHANNEL_UPLINK"]._options = None
+  _globals['_CHANNEL_FLAGS'].values_by_name["CHANNEL_UPLINK"]._serialized_options = b'\312\363\030A:\016Uplink EnabledB/Send this channel\'s messages to the MQTT broker'
+  _globals['_CHANNEL_FLAGS'].values_by_name["CHANNEL_DOWNLINK"]._options = None
+  _globals['_CHANNEL_FLAGS'].values_by_name["CHANNEL_DOWNLINK"]._serialized_options = b'\312\363\030T:\020Downlink EnabledB@Forward this channel\'s messages from the MQTT broker to the mesh'
   _globals['_CHANNEL'].fields_by_name['index']._options = None
   _globals['_CHANNEL'].fields_by_name['index']._serialized_options = b'\222?\0028\010'
-  _globals['_CHANNELSETTINGS']._serialized_start=93
-  _globals['_CHANNELSETTINGS']._serialized_end=415
-  _globals['_CHANNELSETTINGS_SCOPE']._serialized_start=336
-  _globals['_CHANNELSETTINGS_SCOPE']._serialized_end=415
-  _globals['_MODULESETTINGS']._serialized_start=417
-  _globals['_MODULESETTINGS']._serialized_end=479
-  _globals['_CHANNEL']._serialized_start=481
-  _globals['_CHANNEL']._serialized_end=568
+  _globals['_CHANNEL'].fields_by_name['flags']._options = None
+  _globals['_CHANNEL'].fields_by_name['flags']._serialized_options = b'\222?\0028\010'
+  _globals['_CHANNELSETTINGS']._serialized_start=135
+  _globals['_CHANNELSETTINGS']._serialized_end=407
+  _globals['_CHANNELSETTINGS_SCOPE']._serialized_start=328
+  _globals['_CHANNELSETTINGS_SCOPE']._serialized_end=407
+  _globals['_MODULESETTINGS']._serialized_start=409
+  _globals['_MODULESETTINGS']._serialized_end=471
+  _globals['_CHANNEL']._serialized_start=474
+  _globals['_CHANNEL']._serialized_end=814
+  _globals['_CHANNEL_FLAGS']._serialized_start=586
+  _globals['_CHANNEL_FLAGS']._serialized_end=814
 # @@protoc_insertion_point(module_scope)

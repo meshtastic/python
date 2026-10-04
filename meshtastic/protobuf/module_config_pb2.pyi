@@ -75,8 +75,8 @@ class MQTTConfig(_message.Message):
         """Nothing enabled"""
         MQTT_ENABLED: MQTTConfig._Flags.ValueType  # 1
         """
-        Gateway any channels marked is_uplink_enabled or is_downlink_enabled, when
-        this node can reach the internet.
+        Gateway every channel whose Channel.flags has CHANNEL_UPLINK or CHANNEL_DOWNLINK,
+        when this node can reach the internet.
         """
         MQTT_ENCRYPTION: MQTTConfig._Flags.ValueType  # 2
         """
@@ -100,8 +100,8 @@ class MQTTConfig(_message.Message):
     """Nothing enabled"""
     MQTT_ENABLED: MQTTConfig.Flags.ValueType  # 1
     """
-    Gateway any channels marked is_uplink_enabled or is_downlink_enabled, when
-    this node can reach the internet.
+    Gateway every channel whose Channel.flags has CHANNEL_UPLINK or CHANNEL_DOWNLINK,
+    when this node can reach the internet.
     """
     MQTT_ENCRYPTION: MQTTConfig.Flags.ValueType  # 2
     """

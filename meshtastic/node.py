@@ -122,10 +122,13 @@ class Node:
             logger.debug(f"self.channels:{self.channels}")
             for c in self.channels:
                 cStr = message_to_json(c.settings)
+                # MQTT bridging is the node's own Channel.flags, not part of the shared settings
+                mqtt = ",".join(f.removeprefix("CHANNEL_").lower() for f in flags_to_list(channel_pb2.Channel.Flags, c.flags))
                 # don't show disabled channels
                 if channel_role(c) != "DISABLED":
                     print(
-                        f"  Index {c.index}: {channel_role(c)} psk={pskToString(c.settings.psk)} {cStr}"
+                        f"  Index {c.index}: {channel_role(c)} psk={pskToString(c.settings.psk)} "
+                        f"mqtt={mqtt or 'off'} {cStr}"
                     )
         publicURL = self.getURL(includeAll=False)
         adminURL = self.getURL(includeAll=True)

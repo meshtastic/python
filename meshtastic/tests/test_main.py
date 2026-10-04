@@ -3407,6 +3407,27 @@ def test_main_ch_set_psk_with_ch_index(capsys):
     mo.assert_called()
 
 
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_ch_set_uplink_sets_channel_flags(capsys):
+    """--ch-set uplink_enabled / downlink_enabled set the node's own Channel.flags, which a channel
+    link does not carry, rather than the shared settings"""
+    sys.argv = ["", "--ch-set", "uplink_enabled", "true", "--ch-set", "downlink_enabled", "true", "--ch-index", "0"]
+    mt_config.args = sys.argv
+    ch = Channel(index=0)
+    ch.settings.name = "bridge"
+    node = MagicMock(autospec=Node)
+    node.channels = [ch]
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = node
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+    out, _ = capsys.readouterr()
+    assert "Set uplink_enabled to true" in out
+    assert ch.flags == Channel.CHANNEL_UPLINK | Channel.CHANNEL_DOWNLINK
+    node.writeChannel.assert_called_once_with(0)
+
+
 # TODO
 # doesn't work properly with nested/module config stuff
 #@pytest.mark.unit

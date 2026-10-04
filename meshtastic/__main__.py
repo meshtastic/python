@@ -1046,6 +1046,15 @@ def onConnected(interface):
                 else:
                     found = setPref(ch.settings, pref[0], pref[1])
                 if not found:
+                    # MQTT bridging is the node's own Channel.flags, not the shared settings; the 2.x
+                    # names uplink_enabled / downlink_enabled still select those bits
+                    bit = meshtastic.util.find_bit(ch.DESCRIPTOR, pref[0].removesuffix("_enabled"))
+                    if bit:
+                        on = meshtastic.util.fromStr(pref[1])
+                        setattr(ch, bit[0], getattr(ch, bit[0]) | bit[1] if on else getattr(ch, bit[0]) & ~bit[1])
+                        print(f"Set {pref[0]} to {pref[1]}")
+                        found = True
+                if not found:
                     category_settings = ["module_settings"]
                     print(
                         f"{ch.settings.__class__.__name__} does not have an attribute {pref[0]}."
@@ -1065,6 +1074,8 @@ def onConnected(interface):
                                 names.append(tmp_name)
                             for temp_name in sorted(names):
                                 print(f"    {temp_name}")
+                    for bit_name in meshtastic.util.bitfield_bits(ch.DESCRIPTOR):
+                        print(f"{bit_name}_enabled")
 
                 enable = True  # If we set any pref, assume the user wants to enable the channel
 

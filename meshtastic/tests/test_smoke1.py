@@ -315,13 +315,12 @@ def test_smoke1_ch_set_downlink_and_uplink():
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput("meshtastic --info")
-    assert not re.search(r"uplinkEnabled", out, re.MULTILINE)
-    assert not re.search(r"downlinkEnabled", out, re.MULTILINE)
+    assert re.search(r"Index 0: PRIMARY .*mqtt=off", out, re.MULTILINE)
     assert return_value == 0
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput(
-        "meshtastic --ch-set downlink_enabled true --ch-set uplink_enabled true --ch-index 0"
+        "meshtastic --ch-set scope SCOPE_GLOBAL --ch-set downlink_enabled true --ch-set uplink_enabled true --ch-index 0"
     )
     assert re.match(r"Connected to radio", out)
     assert re.search(r"^Set downlink_enabled to true", out, re.MULTILINE)
@@ -330,8 +329,7 @@ def test_smoke1_ch_set_downlink_and_uplink():
     # pause for the radio
     time.sleep(PAUSE_AFTER_COMMAND)
     return_value, out = subprocess.getstatusoutput("meshtastic --info")
-    assert re.search(r"uplinkEnabled", out, re.MULTILINE)
-    assert re.search(r"downlinkEnabled", out, re.MULTILINE)
+    assert re.search(r"Index 0: PRIMARY .*mqtt=uplink,downlink", out, re.MULTILINE)
     assert return_value == 0
 
 
