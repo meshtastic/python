@@ -128,9 +128,8 @@ class NodeInfoLite(_message.Message):
     """
     SNR of the last received message: dB x 2, zigzag-encoded, the one SNR scale.
     Encode: snr = (int32_t)lroundf(snr_db * 2.0f). Decode: snr_db = snr / 2.0f.
-    A stored 0 does not by itself mean "unknown" - see NODEINFO_BITFIELD_HAS_SNR in
-    src/mesh/NodeDB.h for the presence bit that disambiguates a genuine 0 dB reading
-    from "never measured".
+    A stored 0 does not by itself mean "unknown" - NODE_FLAG_HAS_SNR in bitfield is
+    the presence bit that tells a genuine 0 dB reading from "never measured".
     """
     last_heard: _builtins.int
     """

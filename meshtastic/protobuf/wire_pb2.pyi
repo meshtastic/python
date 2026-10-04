@@ -251,9 +251,9 @@ class User(_message.Message):
     long_name: _builtins.str
     """
     A full name for this user, i.e. "Kevin Hester"
-    Limited to 24 bytes of UTF-8. Clients should enforce that in their UI; a
-    device truncates anything longer before storing or rebroadcasting, with
-    sanitizeUtf8 cleaning up a partial multi-byte sequence at the boundary.
+    Limited to 24 bytes of UTF-8, and clients must enforce that: a device decodes
+    into a fixed buffer, so a longer name fails the whole message carrying it. Cut
+    at a character boundary, never inside a multi-byte sequence.
     """
     short_name: _builtins.str
     """

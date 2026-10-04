@@ -680,8 +680,7 @@ class NodeFlags(_NodeFlags, metaclass=_NodeFlagsEnumTypeWrapper):
 
     One definition shared by the stored NodeInfoLite.bitfield and the client-facing
     NodeInfo.flags, so the two can never drift and firmware converts between them by
-    copying the word rather than shuffling bits. Values match NODEINFO_BITFIELD_* in
-    the firmware's src/mesh/NodeDB.h.
+    copying the word rather than shuffling bits.
 
     The HAS_* entries are presence bits: they say a value was actually observed, which
     a plain false cannot express. HAS_SNR in particular distinguishes a genuine 0 dB
