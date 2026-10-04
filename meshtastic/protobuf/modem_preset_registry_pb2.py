@@ -15,7 +15,7 @@ _sym_db = _symbol_database.Default()
 from meshtastic.protobuf import common_pb2 as meshtastic_dot_protobuf_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n/meshtastic/protobuf/modem_preset_registry.proto\x12\x13meshtastic.protobuf\x1a meshtastic/protobuf/common.proto\"\xb0\x01\n\x0fModemPresetInfo\x12\x30\n\x06preset\x18\x01 \x01(\x0e\x32 .meshtastic.protobuf.ModemPreset\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rbandwidth_khz\x18\x03 \x01(\r\x12\x1a\n\x12wide_bandwidth_khz\x18\x04 \x01(\r\x12\x15\n\rspread_factor\x18\x05 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x06 \x01(\r\"^\n\x13ModemPresetRegistry\x12\x35\n\x07presets\x18\x01 \x03(\x0b\x32$.meshtastic.protobuf.ModemPresetInfo\x12\x10\n\x08revision\x18\x02 \x01(\rBo\n\x14org.meshtastic.protoB\x19ModemPresetRegistryProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n/meshtastic/protobuf/modem_preset_registry.proto\x12\x13meshtastic.protobuf\x1a meshtastic/protobuf/common.proto\"\xae\x01\n\x0fModemPresetInfo\x12\x30\n\x06preset\x18\x01 \x01(\x0e\x32 .meshtastic.protobuf.ModemPreset\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x14\n\x0c\x62\x61ndwidth_hz\x18\x03 \x01(\r\x12\x19\n\x11wide_bandwidth_hz\x18\x04 \x01(\r\x12\x15\n\rspread_factor\x18\x05 \x01(\r\x12\x13\n\x0b\x63oding_rate\x18\x06 \x01(\r\"3\n\rBandwidthCode\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x14\n\x0c\x62\x61ndwidth_hz\x18\x02 \x01(\r\"\x9b\x01\n\x13ModemPresetRegistry\x12\x35\n\x07presets\x18\x01 \x03(\x0b\x32$.meshtastic.protobuf.ModemPresetInfo\x12\x10\n\x08revision\x18\x02 \x01(\r\x12;\n\x0f\x62\x61ndwidth_codes\x18\x03 \x03(\x0b\x32\".meshtastic.protobuf.BandwidthCodeBo\n\x14org.meshtastic.protoB\x19ModemPresetRegistryProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -24,7 +24,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['DESCRIPTOR']._options = None
   _globals['DESCRIPTOR']._serialized_options = b'\n\024org.meshtastic.protoB\031ModemPresetRegistryProtosZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
   _globals['_MODEMPRESETINFO']._serialized_start=107
-  _globals['_MODEMPRESETINFO']._serialized_end=283
-  _globals['_MODEMPRESETREGISTRY']._serialized_start=285
-  _globals['_MODEMPRESETREGISTRY']._serialized_end=379
+  _globals['_MODEMPRESETINFO']._serialized_end=281
+  _globals['_BANDWIDTHCODE']._serialized_start=283
+  _globals['_BANDWIDTHCODE']._serialized_end=334
+  _globals['_MODEMPRESETREGISTRY']._serialized_start=337
+  _globals['_MODEMPRESETREGISTRY']._serialized_end=492
 # @@protoc_insertion_point(module_scope)

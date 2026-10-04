@@ -1,0 +1,657 @@
+{
+  "revision": 3,
+  "regions": [
+    {
+      "region_code": "REGION_UNSET",
+      "profile": "STD",
+      "freq_start_hz": 902000000,
+      "freq_end_hz": 928000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_US",
+      "profile": "STD",
+      "freq_start_hz": 902000000,
+      "freq_end_hz": 928000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_EU_433",
+      "profile": "STD",
+      "freq_start_hz": 433050000,
+      "freq_end_hz": 434790000,
+      "duty_cycle_permille": 100,
+      "power_limit_dbm": 10,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_EU_868",
+      "profile": "EU868",
+      "freq_start_hz": 869400000,
+      "freq_end_hz": 869650000,
+      "duty_cycle_permille": 100,
+      "power_limit_dbm": 27,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_CN",
+      "profile": "STD",
+      "freq_start_hz": 470000000,
+      "freq_end_hz": 510000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 19,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_JP",
+      "profile": "JP",
+      "freq_start_hz": 920500000,
+      "freq_end_hz": 923500000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 13,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_ANZ",
+      "profile": "STD",
+      "freq_start_hz": 915000000,
+      "freq_end_hz": 928000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_KR",
+      "profile": "STD",
+      "freq_start_hz": 920000000,
+      "freq_end_hz": 923000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 23,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_TW",
+      "profile": "STD",
+      "freq_start_hz": 920000000,
+      "freq_end_hz": 925000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 27,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_RU",
+      "profile": "STD",
+      "freq_start_hz": 868700000,
+      "freq_end_hz": 869200000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 20,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_IN",
+      "profile": "STD",
+      "freq_start_hz": 865000000,
+      "freq_end_hz": 867000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_NZ_865",
+      "profile": "STD",
+      "freq_start_hz": 864000000,
+      "freq_end_hz": 868000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 36,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_TH",
+      "profile": "STD",
+      "freq_start_hz": 920000000,
+      "freq_end_hz": 925000000,
+      "duty_cycle_permille": 100,
+      "power_limit_dbm": 27,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_LORA_24",
+      "profile": "STD",
+      "freq_start_hz": 2400000000,
+      "freq_end_hz": 2483500000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 10,
+      "frequency_switching": false,
+      "wide_lora": true,
+      "override_slot": 0,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_MY_433",
+      "profile": "STD",
+      "freq_start_hz": 433000000,
+      "freq_end_hz": 435000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 20,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_MY_919",
+      "profile": "STD",
+      "freq_start_hz": 919000000,
+      "freq_end_hz": 924000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 27,
+      "frequency_switching": true,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_SG_923",
+      "profile": "STD",
+      "freq_start_hz": 917000000,
+      "freq_end_hz": 925000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 20,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_PH_433",
+      "profile": "STD",
+      "freq_start_hz": 433050000,
+      "freq_end_hz": 434790000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 10,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_PH_868",
+      "profile": "STD",
+      "freq_start_hz": 868000000,
+      "freq_end_hz": 869200000,
+      "sub_bands": [
+        {
+          "start_hz": 868000000,
+          "end_hz": 868600000
+        },
+        {
+          "start_hz": 868700000,
+          "end_hz": 869200000
+        }
+      ],
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 14,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_PH_915",
+      "profile": "STD",
+      "freq_start_hz": 915000000,
+      "freq_end_hz": 918000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 24,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_ANZ_433",
+      "profile": "STD",
+      "freq_start_hz": 433050000,
+      "freq_end_hz": 434790000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 14,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_KZ_433",
+      "profile": "STD",
+      "freq_start_hz": 433075000,
+      "freq_end_hz": 434775000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 10,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_KZ_863",
+      "profile": "STD",
+      "freq_start_hz": 863000000,
+      "freq_end_hz": 868000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_NP_865",
+      "profile": "STD",
+      "freq_start_hz": 865000000,
+      "freq_end_hz": 868000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_BR_902",
+      "profile": "STD",
+      "freq_start_hz": 902000000,
+      "freq_end_hz": 907500000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": true
+    },
+    {
+      "region_code": "REGION_ITU1_2M",
+      "profile": "HAM_20KHZ",
+      "freq_start_hz": 144000000,
+      "freq_end_hz": 146000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 26,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_ITU2_2M",
+      "profile": "HAM_20KHZ",
+      "freq_start_hz": 144000000,
+      "freq_end_hz": 148000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 51,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_EU_866",
+      "profile": "LITE",
+      "freq_start_hz": 865600000,
+      "freq_end_hz": 867600000,
+      "sub_bands": [
+        {
+          "start_hz": 865600000,
+          "end_hz": 865800000
+        },
+        {
+          "start_hz": 866200000,
+          "end_hz": 866400000
+        },
+        {
+          "start_hz": 866800000,
+          "end_hz": 867000000
+        },
+        {
+          "start_hz": 867400000,
+          "end_hz": 867600000
+        }
+      ],
+      "duty_cycle_permille": 25,
+      "power_limit_dbm": 27,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_EU_874",
+      "profile": "LITE_FLEX",
+      "freq_start_hz": 874000000,
+      "freq_end_hz": 874400000,
+      "duty_cycle_permille": 25,
+      "power_limit_dbm": 27,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_EU_917",
+      "profile": "LITE_FLEX",
+      "freq_start_hz": 917300000,
+      "freq_end_hz": 918900000,
+      "sub_bands": [
+        {
+          "start_hz": 917300000,
+          "end_hz": 917700000
+        },
+        {
+          "start_hz": 918500000,
+          "end_hz": 918900000
+        }
+      ],
+      "duty_cycle_permille": 25,
+      "power_limit_dbm": 27,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 0,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_EU_N_868",
+      "profile": "NARROW",
+      "freq_start_hz": 869400000,
+      "freq_end_hz": 869650000,
+      "duty_cycle_permille": 100,
+      "power_limit_dbm": 27,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 1,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_ITU3_2M",
+      "profile": "HAM_20KHZ",
+      "freq_start_hz": 144000000,
+      "freq_end_hz": 148000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 33,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_ITU1_70CM",
+      "profile": "HAM_100KHZ",
+      "freq_start_hz": 430000000,
+      "freq_end_hz": 440000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 37,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_ITU2_70CM",
+      "profile": "HAM_100KHZ",
+      "freq_start_hz": 420000000,
+      "freq_end_hz": 450000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 137,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_ITU3_70CM",
+      "profile": "HAM_100KHZ",
+      "freq_start_hz": 430000000,
+      "freq_end_hz": 450000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 37,
+      "edge_clearance": false
+    },
+    {
+      "region_code": "REGION_ITU2_125CM",
+      "profile": "HAM_100KHZ",
+      "freq_start_hz": 220000000,
+      "freq_end_hz": 225000000,
+      "duty_cycle_permille": 1000,
+      "power_limit_dbm": 30,
+      "frequency_switching": false,
+      "wide_lora": false,
+      "override_slot": 37,
+      "edge_clearance": false
+    }
+  ],
+  "profiles": [
+    {
+      "name": "STD",
+      "preset_list": "STD",
+      "default_preset": "MODEM_LONG_FAST",
+      "spacing_hz": 0,
+      "padding_hz": 0,
+      "unit_channel_hz": 0,
+      "max_bandwidth_hz": 0,
+      "position_throttle": 1,
+      "telemetry_throttle": 1,
+      "default_hop_start": 3,
+      "audio_permitted": true,
+      "licensed_only": false
+    },
+    {
+      "name": "EU868",
+      "preset_list": "EU_868",
+      "default_preset": "MODEM_LONG_FAST",
+      "spacing_hz": 0,
+      "padding_hz": 0,
+      "unit_channel_hz": 0,
+      "max_bandwidth_hz": 0,
+      "position_throttle": 1,
+      "telemetry_throttle": 1,
+      "default_hop_start": 3,
+      "audio_permitted": false,
+      "licensed_only": false
+    },
+    {
+      "name": "JP",
+      "preset_list": "JP",
+      "default_preset": "MODEM_LONG_FAST",
+      "spacing_hz": 0,
+      "unit_channel_hz": 200000,
+      "max_bandwidth_hz": 0,
+      "position_throttle": 1,
+      "telemetry_throttle": 1,
+      "default_hop_start": 3,
+      "audio_permitted": true,
+      "licensed_only": false
+    },
+    {
+      "name": "LITE",
+      "preset_list": "LITE",
+      "default_preset": "MODEM_LITE_FAST",
+      "spacing_hz": 0,
+      "unit_channel_hz": 200000,
+      "max_bandwidth_hz": 0,
+      "position_throttle": 10,
+      "telemetry_throttle": 10,
+      "default_hop_start": 3,
+      "audio_permitted": false,
+      "licensed_only": false
+    },
+    {
+      "name": "LITE_FLEX",
+      "preset_list": "LITE",
+      "default_preset": "MODEM_LITE_FAST",
+      "spacing_hz": 0,
+      "padding_hz": 0,
+      "unit_channel_hz": 0,
+      "max_bandwidth_hz": 200000,
+      "position_throttle": 10,
+      "telemetry_throttle": 10,
+      "default_hop_start": 3,
+      "audio_permitted": false,
+      "licensed_only": false
+    },
+    {
+      "name": "NARROW",
+      "preset_list": "NARROW",
+      "default_preset": "MODEM_NARROW_SLOW",
+      "spacing_hz": 0,
+      "padding_hz": 10400,
+      "unit_channel_hz": 0,
+      "max_bandwidth_hz": 0,
+      "position_throttle": 1,
+      "telemetry_throttle": 1,
+      "default_hop_start": 3,
+      "audio_permitted": true,
+      "licensed_only": false
+    },
+    {
+      "name": "HAM_20KHZ",
+      "preset_list": "TINY",
+      "default_preset": "MODEM_TINY_FAST",
+      "spacing_hz": 0,
+      "unit_channel_hz": 20000,
+      "max_bandwidth_hz": 0,
+      "position_throttle": 2,
+      "telemetry_throttle": 2,
+      "default_hop_start": 3,
+      "audio_permitted": false,
+      "licensed_only": true
+    },
+    {
+      "name": "HAM_100KHZ",
+      "preset_list": "NARROW",
+      "default_preset": "MODEM_NARROW_SLOW",
+      "spacing_hz": 0,
+      "unit_channel_hz": 100000,
+      "max_bandwidth_hz": 0,
+      "position_throttle": 1,
+      "telemetry_throttle": 1,
+      "default_hop_start": 3,
+      "audio_permitted": false,
+      "licensed_only": true
+    }
+  ],
+  "preset_lists": [
+    {
+      "name": "STD",
+      "presets": [
+        "MODEM_LONG_FAST",
+        "MODEM_MEDIUM_SLOW",
+        "MODEM_MEDIUM_FAST",
+        "MODEM_SHORT_SLOW",
+        "MODEM_SHORT_FAST",
+        "MODEM_LONG_MODERATE",
+        "MODEM_SHORT_TURBO",
+        "MODEM_LONG_TURBO",
+        "MODEM_MEDIUM_TURBO"
+      ]
+    },
+    {
+      "name": "EU_868",
+      "presets": [
+        "MODEM_LONG_FAST",
+        "MODEM_MEDIUM_SLOW",
+        "MODEM_MEDIUM_FAST",
+        "MODEM_SHORT_SLOW",
+        "MODEM_SHORT_FAST",
+        "MODEM_LONG_MODERATE"
+      ]
+    },
+    {
+      "name": "JP",
+      "presets": [
+        "MODEM_LONG_FAST",
+        "MODEM_MEDIUM_SLOW",
+        "MODEM_MEDIUM_FAST",
+        "MODEM_SHORT_SLOW",
+        "MODEM_SHORT_FAST",
+        "MODEM_SHORT_TURBO",
+        "MODEM_LONG_TURBO",
+        "MODEM_NARROW_FAST",
+        "MODEM_NARROW_SLOW",
+        "MODEM_MEDIUM_TURBO"
+      ]
+    },
+    {
+      "name": "LITE",
+      "presets": [
+        "MODEM_LITE_FAST",
+        "MODEM_LITE_SLOW"
+      ]
+    },
+    {
+      "name": "NARROW",
+      "presets": [
+        "MODEM_NARROW_FAST",
+        "MODEM_NARROW_SLOW"
+      ]
+    },
+    {
+      "name": "TINY",
+      "presets": [
+        "MODEM_TINY_FAST",
+        "MODEM_TINY_SLOW"
+      ]
+    }
+  ],
+  "swap_groups": [
+    {
+      "regions": [
+        "REGION_EU_868",
+        "REGION_EU_866",
+        "REGION_EU_N_868"
+      ]
+    }
+  ]
+}

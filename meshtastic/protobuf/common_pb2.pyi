@@ -213,57 +213,55 @@ class _RegionCodeEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_RegionCode
     """Thailand"""
     REGION_LORA_24: _RegionCode.ValueType  # 13
     """2.4 GHz wide LoRa (worldwide)"""
-    REGION_UA_433: _RegionCode.ValueType  # 14
-    """Ukraine 433 MHz band"""
-    REGION_MY_433: _RegionCode.ValueType  # 15
+    REGION_MY_433: _RegionCode.ValueType  # 14
     """Malaysia 433 MHz band"""
-    REGION_MY_919: _RegionCode.ValueType  # 16
+    REGION_MY_919: _RegionCode.ValueType  # 15
     """Malaysia 919 MHz band"""
-    REGION_SG_923: _RegionCode.ValueType  # 17
+    REGION_SG_923: _RegionCode.ValueType  # 16
     """Singapore 923 MHz band"""
-    REGION_PH_433: _RegionCode.ValueType  # 18
+    REGION_PH_433: _RegionCode.ValueType  # 17
     """Philippines 433 MHz band"""
-    REGION_PH_868: _RegionCode.ValueType  # 19
+    REGION_PH_868: _RegionCode.ValueType  # 18
     """Philippines 868 MHz band"""
-    REGION_PH_915: _RegionCode.ValueType  # 20
+    REGION_PH_915: _RegionCode.ValueType  # 19
     """Philippines 915 MHz band"""
-    REGION_ANZ_433: _RegionCode.ValueType  # 21
+    REGION_ANZ_433: _RegionCode.ValueType  # 20
     """Australia / New Zealand 433 MHz band"""
-    REGION_KZ_433: _RegionCode.ValueType  # 22
+    REGION_KZ_433: _RegionCode.ValueType  # 21
     """Kazakhstan 433 MHz band"""
-    REGION_KZ_863: _RegionCode.ValueType  # 23
+    REGION_KZ_863: _RegionCode.ValueType  # 22
     """Kazakhstan 863 MHz band"""
-    REGION_NP_865: _RegionCode.ValueType  # 24
+    REGION_NP_865: _RegionCode.ValueType  # 23
     """Nepal 865 MHz band"""
-    REGION_BR_902: _RegionCode.ValueType  # 25
+    REGION_BR_902: _RegionCode.ValueType  # 24
     """Brazil 902 MHz band"""
-    REGION_ITU1_2M: _RegionCode.ValueType  # 26
+    REGION_ITU1_2M: _RegionCode.ValueType  # 25
     """ITU Region 1 Amateur Radio 2m band (144-146 MHz)"""
-    REGION_ITU2_2M: _RegionCode.ValueType  # 27
+    REGION_ITU2_2M: _RegionCode.ValueType  # 26
     """ITU Region 2 Amateur Radio 2m band (144-148 MHz)"""
-    REGION_EU_866: _RegionCode.ValueType  # 28
+    REGION_EU_866: _RegionCode.ValueType  # 27
     """EU 866 MHz band (Band no. 47b of 2006/771/EC and subsequent amendments) for Non-specific short-range devices (SRD)"""
-    REGION_EU_874: _RegionCode.ValueType  # 29
+    REGION_EU_874: _RegionCode.ValueType  # 28
     """EU 874 MHz band (Band no. 1 of 2022/172/EC and subsequent amendments) for Non-specific short-range devices (SRD)"""
-    REGION_EU_917: _RegionCode.ValueType  # 30
+    REGION_EU_917: _RegionCode.ValueType  # 29
     """EU 917 MHz band (Band no. 4 of 2022/172/EC and subsequent amendments) for Non-specific short-range devices (SRD)"""
-    REGION_EU_N_868: _RegionCode.ValueType  # 31
+    REGION_EU_N_868: _RegionCode.ValueType  # 30
     """EU 868 MHz band, with narrow presets"""
-    REGION_ITU3_2M: _RegionCode.ValueType  # 32
+    REGION_ITU3_2M: _RegionCode.ValueType  # 31
     """ITU Region 3 Amateur Radio 2m band (144-148 MHz)"""
-    REGION_ITU1_70CM: _RegionCode.ValueType  # 33
+    REGION_ITU1_70CM: _RegionCode.ValueType  # 32
     """ITU Region 1 Amateur Radio 70cm band (430-440 MHz)"""
-    REGION_ITU2_70CM: _RegionCode.ValueType  # 34
+    REGION_ITU2_70CM: _RegionCode.ValueType  # 33
     """
     ITU Region 2 Amateur Radio 70cm band (420-450 MHz)
     Note: Some countries do not allocate 420-430 MHz or 440-450 MHz. Check local law!
     """
-    REGION_ITU3_70CM: _RegionCode.ValueType  # 35
+    REGION_ITU3_70CM: _RegionCode.ValueType  # 34
     """
     ITU Region 3 Amateur Radio 70cm band (430-450 MHz)
     Note: Some countries do not allocate 440-450 MHz. Check local law!
     """
-    REGION_ITU2_125CM: _RegionCode.ValueType  # 36
+    REGION_ITU2_125CM: _RegionCode.ValueType  # 35
     """
     ITU Region 2 Amateur Radio 1.25m '125cm' band (220-225 MHz)
     Note: Some countries do not allocate 220-222 MHz (Ex: USA/Canada). Check local law!
@@ -273,8 +271,8 @@ class RegionCode(_RegionCode, metaclass=_RegionCodeEnumTypeWrapper):
     """
     Regulatory region codes for LoRa radio configuration
 
-    Ukrainian law is harmonised with the EU, so a Ukrainian node uses REGION_EU_868 and
-    there is no separate 868 MHz Ukrainian region.
+    Ukrainian law is harmonised with the EU, so a Ukrainian node uses REGION_EU_868 or
+    REGION_EU_433 and there is no separate Ukrainian region.
     """
 
 REGION_UNSET: RegionCode.ValueType  # 0
@@ -305,57 +303,55 @@ REGION_TH: RegionCode.ValueType  # 12
 """Thailand"""
 REGION_LORA_24: RegionCode.ValueType  # 13
 """2.4 GHz wide LoRa (worldwide)"""
-REGION_UA_433: RegionCode.ValueType  # 14
-"""Ukraine 433 MHz band"""
-REGION_MY_433: RegionCode.ValueType  # 15
+REGION_MY_433: RegionCode.ValueType  # 14
 """Malaysia 433 MHz band"""
-REGION_MY_919: RegionCode.ValueType  # 16
+REGION_MY_919: RegionCode.ValueType  # 15
 """Malaysia 919 MHz band"""
-REGION_SG_923: RegionCode.ValueType  # 17
+REGION_SG_923: RegionCode.ValueType  # 16
 """Singapore 923 MHz band"""
-REGION_PH_433: RegionCode.ValueType  # 18
+REGION_PH_433: RegionCode.ValueType  # 17
 """Philippines 433 MHz band"""
-REGION_PH_868: RegionCode.ValueType  # 19
+REGION_PH_868: RegionCode.ValueType  # 18
 """Philippines 868 MHz band"""
-REGION_PH_915: RegionCode.ValueType  # 20
+REGION_PH_915: RegionCode.ValueType  # 19
 """Philippines 915 MHz band"""
-REGION_ANZ_433: RegionCode.ValueType  # 21
+REGION_ANZ_433: RegionCode.ValueType  # 20
 """Australia / New Zealand 433 MHz band"""
-REGION_KZ_433: RegionCode.ValueType  # 22
+REGION_KZ_433: RegionCode.ValueType  # 21
 """Kazakhstan 433 MHz band"""
-REGION_KZ_863: RegionCode.ValueType  # 23
+REGION_KZ_863: RegionCode.ValueType  # 22
 """Kazakhstan 863 MHz band"""
-REGION_NP_865: RegionCode.ValueType  # 24
+REGION_NP_865: RegionCode.ValueType  # 23
 """Nepal 865 MHz band"""
-REGION_BR_902: RegionCode.ValueType  # 25
+REGION_BR_902: RegionCode.ValueType  # 24
 """Brazil 902 MHz band"""
-REGION_ITU1_2M: RegionCode.ValueType  # 26
+REGION_ITU1_2M: RegionCode.ValueType  # 25
 """ITU Region 1 Amateur Radio 2m band (144-146 MHz)"""
-REGION_ITU2_2M: RegionCode.ValueType  # 27
+REGION_ITU2_2M: RegionCode.ValueType  # 26
 """ITU Region 2 Amateur Radio 2m band (144-148 MHz)"""
-REGION_EU_866: RegionCode.ValueType  # 28
+REGION_EU_866: RegionCode.ValueType  # 27
 """EU 866 MHz band (Band no. 47b of 2006/771/EC and subsequent amendments) for Non-specific short-range devices (SRD)"""
-REGION_EU_874: RegionCode.ValueType  # 29
+REGION_EU_874: RegionCode.ValueType  # 28
 """EU 874 MHz band (Band no. 1 of 2022/172/EC and subsequent amendments) for Non-specific short-range devices (SRD)"""
-REGION_EU_917: RegionCode.ValueType  # 30
+REGION_EU_917: RegionCode.ValueType  # 29
 """EU 917 MHz band (Band no. 4 of 2022/172/EC and subsequent amendments) for Non-specific short-range devices (SRD)"""
-REGION_EU_N_868: RegionCode.ValueType  # 31
+REGION_EU_N_868: RegionCode.ValueType  # 30
 """EU 868 MHz band, with narrow presets"""
-REGION_ITU3_2M: RegionCode.ValueType  # 32
+REGION_ITU3_2M: RegionCode.ValueType  # 31
 """ITU Region 3 Amateur Radio 2m band (144-148 MHz)"""
-REGION_ITU1_70CM: RegionCode.ValueType  # 33
+REGION_ITU1_70CM: RegionCode.ValueType  # 32
 """ITU Region 1 Amateur Radio 70cm band (430-440 MHz)"""
-REGION_ITU2_70CM: RegionCode.ValueType  # 34
+REGION_ITU2_70CM: RegionCode.ValueType  # 33
 """
 ITU Region 2 Amateur Radio 70cm band (420-450 MHz)
 Note: Some countries do not allocate 420-430 MHz or 440-450 MHz. Check local law!
 """
-REGION_ITU3_70CM: RegionCode.ValueType  # 35
+REGION_ITU3_70CM: RegionCode.ValueType  # 34
 """
 ITU Region 3 Amateur Radio 70cm band (430-450 MHz)
 Note: Some countries do not allocate 440-450 MHz. Check local law!
 """
-REGION_ITU2_125CM: RegionCode.ValueType  # 36
+REGION_ITU2_125CM: RegionCode.ValueType  # 35
 """
 ITU Region 2 Amateur Radio 1.25m '125cm' band (220-225 MHz)
 Note: Some countries do not allocate 220-222 MHz (Ex: USA/Canada). Check local law!

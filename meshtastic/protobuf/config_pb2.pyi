@@ -1357,9 +1357,9 @@ class LoRaConfig(_message.Message):
            the modem preset's name from ModemPresetInfo.name. An empty primary channel
            name means the preset name, so the two agree on a default channel.
 
-    slot_count follows from the region's frequency range and the profile's
-    spacing_khz and padding_khz in the region registry, so it depends on region and
-    preset, not on this field. Most users never see this concept.
+    slot_count is the total of the region's slot plan (SCHEMA.md section 6) for the
+    bandwidth in use, so it depends on region and preset, not on this field. Most users
+    never see this concept.
     """
     override_frequency: _builtins.int
     """

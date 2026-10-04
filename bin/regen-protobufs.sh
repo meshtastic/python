@@ -73,8 +73,8 @@ done
 ./nanopb-0.4.8/generator-bin/protoc -I=./protobufs --include_source_info "--descriptor_set_out=${TMPDIR}/descriptor.binpb" ./protobufs/meshtastic/*.proto
 python3 ./bin/gen_bitfields.py "${TMPDIR}/descriptor.binpb" "${OUTDIR}/meshtastic/protobuf/bitfields.py"
 
-# Hardware model names are registry data, not schema
-cp ./protobufs/registry/generated/hw_devices.json "${OUTDIR}/meshtastic/protobuf/"
+# Hardware model names, regions and modem presets are registry data, not schema
+cp ./protobufs/registry/generated/hw_devices.json ./protobufs/registry/generated/regions.json     ./protobufs/registry/generated/modem_presets.json "${OUTDIR}/meshtastic/protobuf/"
 
 # Change "from meshtastic.protobuf import" to "from . import"
 $SEDCMD 's/^from meshtastic.protobuf import/from . import/' "${OUTDIR}"/meshtastic/protobuf/*pb2*.py[i]

@@ -1,0 +1,183 @@
+{
+  "revision": 2,
+  "presets": [
+    {
+      "preset": "MODEM_LONG_FAST",
+      "name": "LongFast",
+      "bandwidth_hz": 250000,
+      "wide_bandwidth_hz": 812500,
+      "spread_factor": 11,
+      "coding_rate": 5
+    },
+    {
+      "preset": "MODEM_MEDIUM_SLOW",
+      "name": "MediumSlow",
+      "bandwidth_hz": 250000,
+      "wide_bandwidth_hz": 812500,
+      "spread_factor": 10,
+      "coding_rate": 5
+    },
+    {
+      "preset": "MODEM_MEDIUM_FAST",
+      "name": "MediumFast",
+      "bandwidth_hz": 250000,
+      "wide_bandwidth_hz": 812500,
+      "spread_factor": 9,
+      "coding_rate": 5
+    },
+    {
+      "preset": "MODEM_SHORT_SLOW",
+      "name": "ShortSlow",
+      "bandwidth_hz": 250000,
+      "wide_bandwidth_hz": 812500,
+      "spread_factor": 8,
+      "coding_rate": 5
+    },
+    {
+      "preset": "MODEM_SHORT_FAST",
+      "name": "ShortFast",
+      "bandwidth_hz": 250000,
+      "wide_bandwidth_hz": 812500,
+      "spread_factor": 7,
+      "coding_rate": 5
+    },
+    {
+      "preset": "MODEM_LONG_MODERATE",
+      "name": "LongMod",
+      "bandwidth_hz": 125000,
+      "wide_bandwidth_hz": 406250,
+      "spread_factor": 11,
+      "coding_rate": 8
+    },
+    {
+      "preset": "MODEM_SHORT_TURBO",
+      "name": "ShortTurbo",
+      "bandwidth_hz": 500000,
+      "wide_bandwidth_hz": 1625000,
+      "spread_factor": 7,
+      "coding_rate": 5
+    },
+    {
+      "preset": "MODEM_LONG_TURBO",
+      "name": "LongTurbo",
+      "bandwidth_hz": 500000,
+      "wide_bandwidth_hz": 1625000,
+      "spread_factor": 11,
+      "coding_rate": 8
+    },
+    {
+      "preset": "MODEM_LITE_FAST",
+      "name": "LiteFast",
+      "bandwidth_hz": 125000,
+      "wide_bandwidth_hz": 0,
+      "spread_factor": 9,
+      "coding_rate": 5
+    },
+    {
+      "preset": "MODEM_LITE_SLOW",
+      "name": "LiteSlow",
+      "bandwidth_hz": 125000,
+      "wide_bandwidth_hz": 0,
+      "spread_factor": 10,
+      "coding_rate": 5
+    },
+    {
+      "preset": "MODEM_NARROW_FAST",
+      "name": "NarrowFast",
+      "bandwidth_hz": 62500,
+      "wide_bandwidth_hz": 0,
+      "spread_factor": 7,
+      "coding_rate": 6
+    },
+    {
+      "preset": "MODEM_NARROW_SLOW",
+      "name": "NarrowSlow",
+      "bandwidth_hz": 62500,
+      "wide_bandwidth_hz": 0,
+      "spread_factor": 8,
+      "coding_rate": 6
+    },
+    {
+      "preset": "MODEM_TINY_FAST",
+      "name": "TinyFast",
+      "bandwidth_hz": 15600,
+      "wide_bandwidth_hz": 0,
+      "spread_factor": 7,
+      "coding_rate": 5
+    },
+    {
+      "preset": "MODEM_TINY_SLOW",
+      "name": "TinySlow",
+      "bandwidth_hz": 15600,
+      "wide_bandwidth_hz": 0,
+      "spread_factor": 8,
+      "coding_rate": 6
+    },
+    {
+      "preset": "MODEM_MEDIUM_TURBO",
+      "name": "MediumTurbo",
+      "bandwidth_hz": 500000,
+      "wide_bandwidth_hz": 1625000,
+      "spread_factor": 9,
+      "coding_rate": 5
+    }
+  ],
+  "bandwidth_codes": [
+    {
+      "code": 8,
+      "bandwidth_hz": 7800
+    },
+    {
+      "code": 10,
+      "bandwidth_hz": 10400
+    },
+    {
+      "code": 16,
+      "bandwidth_hz": 15600
+    },
+    {
+      "code": 21,
+      "bandwidth_hz": 20800
+    },
+    {
+      "code": 31,
+      "bandwidth_hz": 31250
+    },
+    {
+      "code": 42,
+      "bandwidth_hz": 41700
+    },
+    {
+      "code": 62,
+      "bandwidth_hz": 62500
+    },
+    {
+      "code": 125,
+      "bandwidth_hz": 125000
+    },
+    {
+      "code": 250,
+      "bandwidth_hz": 250000
+    },
+    {
+      "code": 500,
+      "bandwidth_hz": 500000
+    },
+    {
+      "code": 200,
+      "bandwidth_hz": 203125
+    },
+    {
+      "code": 400,
+      "bandwidth_hz": 406250
+    },
+    {
+      "code": 800,
+      "bandwidth_hz": 812500
+    },
+    {
+      "code": 1600,
+      "bandwidth_hz": 1625000
+    }
+  ]
+}

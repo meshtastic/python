@@ -42,8 +42,8 @@ class ModemPresetInfo(_message.Message):
 
     PRESET_FIELD_NUMBER: _builtins.int
     NAME_FIELD_NUMBER: _builtins.int
-    BANDWIDTH_KHZ_FIELD_NUMBER: _builtins.int
-    WIDE_BANDWIDTH_KHZ_FIELD_NUMBER: _builtins.int
+    BANDWIDTH_HZ_FIELD_NUMBER: _builtins.int
+    WIDE_BANDWIDTH_HZ_FIELD_NUMBER: _builtins.int
     SPREAD_FACTOR_FIELD_NUMBER: _builtins.int
     CODING_RATE_FIELD_NUMBER: _builtins.int
     preset: _common_pb2.ModemPreset.ValueType
@@ -55,13 +55,15 @@ class ModemPresetInfo(_message.Message):
     it. Because LoRaConfig.channel_num can hash it, changing one of these names moves
     every node whose channel took its default from that preset.
     """
-    bandwidth_khz: _builtins.int
-    """Bandwidth in kHz in a sub-GHz region (e.g. 125, 250, 500), rounded down"""
-    wide_bandwidth_khz: _builtins.int
+    bandwidth_hz: _builtins.int
     """
-    Bandwidth in kHz in a wide LoRa region (RegionInfo.wide_lora, above 1 GHz),
-    rounded down: 812.5 kHz is 812. 0 = the preset has no wide form, and no wide
-    region permits it.
+    Nominal bandwidth in Hz in a sub-GHz region (e.g. 125000, 62500, 15600), the slot
+    plan's input. The radio may synthesise a slightly different value, 15625 for 15600.
+    """
+    wide_bandwidth_hz: _builtins.int
+    """
+    Nominal bandwidth in Hz in a wide LoRa region (RegionInfo.wide_lora, above 1 GHz),
+    e.g. 812500. 0 = the preset has no wide form, and no wide region permits it.
     """
     spread_factor: _builtins.int
     """Spreading factor (5-12)"""
@@ -72,18 +74,46 @@ class ModemPresetInfo(_message.Message):
         *,
         preset: _common_pb2.ModemPreset.ValueType = ...,
         name: _builtins.str = ...,
-        bandwidth_khz: _builtins.int = ...,
-        wide_bandwidth_khz: _builtins.int = ...,
+        bandwidth_hz: _builtins.int = ...,
+        wide_bandwidth_hz: _builtins.int = ...,
         spread_factor: _builtins.int = ...,
         coding_rate: _builtins.int = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["bandwidth_khz", b"bandwidth_khz", "coding_rate", b"coding_rate", "name", b"name", "preset", b"preset", "spread_factor", b"spread_factor", "wide_bandwidth_khz", b"wide_bandwidth_khz"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["bandwidth_hz", b"bandwidth_hz", "coding_rate", b"coding_rate", "name", b"name", "preset", b"preset", "spread_factor", b"spread_factor", "wide_bandwidth_hz", b"wide_bandwidth_hz"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
 Global___ModemPresetInfo: _TypeAlias = ModemPresetInfo  # noqa: Y015
+
+@_typing.final
+class BandwidthCode(_message.Message):
+    """
+    A LoRaConfig.bandwidth wire code and the nominal bandwidth it stands for
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    CODE_FIELD_NUMBER: _builtins.int
+    BANDWIDTH_HZ_FIELD_NUMBER: _builtins.int
+    code: _builtins.int
+    """The value of LoRaConfig.bandwidth"""
+    bandwidth_hz: _builtins.int
+    """Nominal bandwidth in Hz, the slot plan's input for a custom setting"""
+    def __init__(
+        self,
+        *,
+        code: _builtins.int = ...,
+        bandwidth_hz: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["bandwidth_hz", b"bandwidth_hz", "code", b"code"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___BandwidthCode: _TypeAlias = BandwidthCode  # noqa: Y015
 
 @_typing.final
 class ModemPresetRegistry(_message.Message):
@@ -95,6 +125,7 @@ class ModemPresetRegistry(_message.Message):
 
     PRESETS_FIELD_NUMBER: _builtins.int
     REVISION_FIELD_NUMBER: _builtins.int
+    BANDWIDTH_CODES_FIELD_NUMBER: _builtins.int
     revision: _builtins.int
     """
     Raised by every change to the data. CI rejects a change that leaves it where it
@@ -104,15 +135,24 @@ class ModemPresetRegistry(_message.Message):
     def presets(self) -> _containers.RepeatedCompositeFieldContainer[Global___ModemPresetInfo]:
         """Every preset with a definition"""
 
+    @_builtins.property
+    def bandwidth_codes(self) -> _containers.RepeatedCompositeFieldContainer[Global___BandwidthCode]:
+        """
+        LoRaConfig.bandwidth codes and their nominal bandwidths: every code that stands for
+        something other than its value in kHz, and the whole-kHz ones radios use. A code
+        not listed is kHz as it stands.
+        """
+
     def __init__(
         self,
         *,
         presets: _abc.Iterable[Global___ModemPresetInfo] | None = ...,
         revision: _builtins.int = ...,
+        bandwidth_codes: _abc.Iterable[Global___BandwidthCode] | None = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["presets", b"presets", "revision", b"revision"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["bandwidth_codes", b"bandwidth_codes", "presets", b"presets", "revision", b"revision"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 

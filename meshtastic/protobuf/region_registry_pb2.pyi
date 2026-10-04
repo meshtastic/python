@@ -30,8 +30,9 @@ class RegionInfo(_message.Message):
 
     Each fact is stated in exactly one table, and tables refer to each other by name:
 
-      RegionInfo       band, duty cycle, power limit, slot      -> one RegionProfile
-      RegionProfile    slot layout, audio, licensing,
+      RegionInfo       band, sub-bands, duty cycle, power limit,
+                       slot, edge clearance                     -> one RegionProfile
+      RegionProfile    slot layout, raster, audio, licensing,
                        throttles, default preset                -> one ModemPresetList
       ModemPresetList  the presets a profile permits            -> ModemPreset values
       RegionSwapGroup  regions a preset moves a node between    -> RegionCode values
@@ -39,7 +40,12 @@ class RegionInfo(_message.Message):
     Many regions share one profile, and profiles can share one preset list: NARROW
     and HAM_100KHZ permit the same presets and differ in licensing, padding and
     audio. Whatever follows from the tables is not stored, such as a preset being
-    reachable only by licensed operators, or the presets a swap group offers.
+    reachable only by licensed operators, the presets a swap group offers, or the
+    slot plan, which SCHEMA.md derives from the band, the profile and the bandwidth.
+
+    Frequencies are exact hertz. Regulation beyond band edges, power and one duty
+    cycle (airtime caps, listen-before-talk, role-dependent duty cycles) is firmware
+    region hooks, not data.
 
     The radio parameters of each preset are in modem_preset_registry.proto.
 
@@ -55,34 +61,30 @@ class RegionInfo(_message.Message):
 
     REGION_CODE_FIELD_NUMBER: _builtins.int
     PROFILE_FIELD_NUMBER: _builtins.int
-    FREQ_START_MHZ_X100_FIELD_NUMBER: _builtins.int
-    FREQ_END_MHZ_X100_FIELD_NUMBER: _builtins.int
-    DUTY_CYCLE_FIELD_NUMBER: _builtins.int
-    ROUTER_DUTY_CYCLE_FIELD_NUMBER: _builtins.int
+    FREQ_START_HZ_FIELD_NUMBER: _builtins.int
+    FREQ_END_HZ_FIELD_NUMBER: _builtins.int
+    SUB_BANDS_FIELD_NUMBER: _builtins.int
+    DUTY_CYCLE_PERMILLE_FIELD_NUMBER: _builtins.int
     POWER_LIMIT_DBM_FIELD_NUMBER: _builtins.int
     FREQUENCY_SWITCHING_FIELD_NUMBER: _builtins.int
     WIDE_LORA_FIELD_NUMBER: _builtins.int
     OVERRIDE_SLOT_FIELD_NUMBER: _builtins.int
+    EDGE_CLEARANCE_FIELD_NUMBER: _builtins.int
     region_code: _common_pb2.RegionCode.ValueType
     """Which region this defines"""
     profile: _builtins.str
     """Name of the RegionProfile this region uses"""
-    freq_start_mhz_x100: _builtins.int
+    freq_start_hz: _builtins.int
     """
-    Frequency range start in MHz x100 (e.g. 90200 = 902.00 MHz). A finer band edge
-    is rounded down, 433.075 MHz to 43307; firmware holds the exact value.
+    Lower band edge in Hz. An edge that has no exact value rounds inward, so this
+    one rounds up.
     """
-    freq_end_mhz_x100: _builtins.int
-    """Frequency range end in MHz x100 (e.g. 92800 = 928.00 MHz), rounded down"""
-    duty_cycle: _builtins.int
+    freq_end_hz: _builtins.int
+    """Upper band edge in Hz, rounded down when it has no exact value"""
+    duty_cycle_permille: _builtins.int
     """
-    Duty cycle percentage (1-100, where 100 = no duty cycle restriction). A
-    fractional limit is rounded down, 2.5% to 2; firmware holds the exact value.
-    """
-    router_duty_cycle: _builtins.int
-    """
-    Duty cycle percentage for a node in the ROUTER role, where regulation grants it
-    more airtime than other nodes. 0 = duty_cycle applies to every role.
+    Duty cycle limit in per mille, 1-1000, where 1000 is no limit. A limit that
+    depends on the node's role is a firmware region hook, not data.
     """
     power_limit_dbm: _builtins.int
     """Maximum TX power in dBm. A licensed operator (User.is_licensed) may exceed it."""
@@ -92,7 +94,7 @@ class RegionInfo(_message.Message):
     """
     Whether this region uses wide LoRa. The boundary is 1 GHz: narrow LoRa is sub-GHz,
     wide LoRa above it, and newer chips reach 6 GHz. A wide region needs a
-    wide-capable radio, and its presets use their wide_bandwidth_khz. Kept as its own
+    wide-capable radio, and its presets use their wide_bandwidth_hz. Kept as its own
     field rather than read from the frequency range, because frequency mixing, or
     tuning a wideband transmitter, can open ranges where the band does not decide it.
     """
@@ -104,27 +106,71 @@ class RegionInfo(_message.Message):
       -1     the preset's name
       N > 0  no hash, this region is fixed to slot N, counted from 1
     """
+    edge_clearance: _builtins.bool
+    """
+    Drop one slot when the outermost slots' RF edges would sit closer to the band edge
+    than a quarter of the bandwidth, unless fewer than five slots remain. Never set on
+    a region whose profile has a unit_channel_hz.
+    """
+    @_builtins.property
+    def sub_bands(self) -> _containers.RepeatedCompositeFieldContainer[Global___SubBand]:
+        """
+        The blocks the regulation permits inside the band edges, ascending and not
+        overlapping, the first starting at freq_start_hz and the last ending at
+        freq_end_hz. Empty means one block equal to the band edges; otherwise at least two.
+        Each block gets its own slots and no slot straddles a gap.
+        """
+
     def __init__(
         self,
         *,
         region_code: _common_pb2.RegionCode.ValueType = ...,
         profile: _builtins.str = ...,
-        freq_start_mhz_x100: _builtins.int = ...,
-        freq_end_mhz_x100: _builtins.int = ...,
-        duty_cycle: _builtins.int = ...,
-        router_duty_cycle: _builtins.int = ...,
+        freq_start_hz: _builtins.int = ...,
+        freq_end_hz: _builtins.int = ...,
+        sub_bands: _abc.Iterable[Global___SubBand] | None = ...,
+        duty_cycle_permille: _builtins.int = ...,
         power_limit_dbm: _builtins.int = ...,
         frequency_switching: _builtins.bool = ...,
         wide_lora: _builtins.bool = ...,
         override_slot: _builtins.int = ...,
+        edge_clearance: _builtins.bool = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["duty_cycle", b"duty_cycle", "freq_end_mhz_x100", b"freq_end_mhz_x100", "freq_start_mhz_x100", b"freq_start_mhz_x100", "frequency_switching", b"frequency_switching", "override_slot", b"override_slot", "power_limit_dbm", b"power_limit_dbm", "profile", b"profile", "region_code", b"region_code", "router_duty_cycle", b"router_duty_cycle", "wide_lora", b"wide_lora"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["duty_cycle_permille", b"duty_cycle_permille", "edge_clearance", b"edge_clearance", "freq_end_hz", b"freq_end_hz", "freq_start_hz", b"freq_start_hz", "frequency_switching", b"frequency_switching", "override_slot", b"override_slot", "power_limit_dbm", b"power_limit_dbm", "profile", b"profile", "region_code", b"region_code", "sub_bands", b"sub_bands", "wide_lora", b"wide_lora"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
 Global___RegionInfo: _TypeAlias = RegionInfo  # noqa: Y015
+
+@_typing.final
+class SubBand(_message.Message):
+    """
+    A block of permitted spectrum inside a region's band edges
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    START_HZ_FIELD_NUMBER: _builtins.int
+    END_HZ_FIELD_NUMBER: _builtins.int
+    start_hz: _builtins.int
+    """Lower edge in Hz"""
+    end_hz: _builtins.int
+    """Upper edge in Hz"""
+    def __init__(
+        self,
+        *,
+        start_hz: _builtins.int = ...,
+        end_hz: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["end_hz", b"end_hz", "start_hz", b"start_hz"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___SubBand: _TypeAlias = SubBand  # noqa: Y015
 
 @_typing.final
 class RegionProfile(_message.Message):
@@ -137,8 +183,10 @@ class RegionProfile(_message.Message):
     NAME_FIELD_NUMBER: _builtins.int
     PRESET_LIST_FIELD_NUMBER: _builtins.int
     DEFAULT_PRESET_FIELD_NUMBER: _builtins.int
-    SPACING_KHZ_FIELD_NUMBER: _builtins.int
-    PADDING_KHZ_FIELD_NUMBER: _builtins.int
+    SPACING_HZ_FIELD_NUMBER: _builtins.int
+    PADDING_HZ_FIELD_NUMBER: _builtins.int
+    UNIT_CHANNEL_HZ_FIELD_NUMBER: _builtins.int
+    MAX_BANDWIDTH_HZ_FIELD_NUMBER: _builtins.int
     AUDIO_PERMITTED_FIELD_NUMBER: _builtins.int
     LICENSED_ONLY_FIELD_NUMBER: _builtins.int
     POSITION_THROTTLE_FIELD_NUMBER: _builtins.int
@@ -153,13 +201,20 @@ class RegionProfile(_message.Message):
     Preset a region selects when none is set or the current one is not permitted.
     One of the presets in preset_list.
     """
-    spacing_khz: _builtins.int
-    """Gap between adjacent frequency slots in kHz, rounded down"""
-    padding_khz: _builtins.int
+    spacing_hz: _builtins.int
+    """Gap between adjacent frequency slots in Hz; a whole multiple of unit_channel_hz"""
+    padding_hz: _builtins.int
     """
-    Guard band on each side of a frequency slot in kHz, rounded down. It widens the
-    slot beyond the preset bandwidth, placing 62.5 kHz presets on a 100 kHz raster.
+    Guard band on each side of a frequency slot in Hz, widening the slot beyond the
+    bandwidth. Not stored when unit_channel_hz is set, which derives it.
     """
+    unit_channel_hz: _builtins.int
+    """
+    Regulatory channel raster in Hz, 0 for continuous spectrum. A signal occupies
+    ceil(bandwidth / unit_channel_hz) bonded unit channels and is centred on the bond.
+    """
+    max_bandwidth_hz: _builtins.int
+    """Widest bandwidth in Hz the regions of this profile permit, 0 for no cap"""
     audio_permitted: _builtins.bool
     """Whether audio mode is permitted"""
     licensed_only: _builtins.bool
@@ -184,8 +239,10 @@ class RegionProfile(_message.Message):
         name: _builtins.str = ...,
         preset_list: _builtins.str = ...,
         default_preset: _common_pb2.ModemPreset.ValueType = ...,
-        spacing_khz: _builtins.int = ...,
-        padding_khz: _builtins.int = ...,
+        spacing_hz: _builtins.int = ...,
+        padding_hz: _builtins.int = ...,
+        unit_channel_hz: _builtins.int = ...,
+        max_bandwidth_hz: _builtins.int = ...,
         audio_permitted: _builtins.bool = ...,
         licensed_only: _builtins.bool = ...,
         position_throttle: _builtins.int = ...,
@@ -194,7 +251,7 @@ class RegionProfile(_message.Message):
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["audio_permitted", b"audio_permitted", "default_hop_start", b"default_hop_start", "default_preset", b"default_preset", "licensed_only", b"licensed_only", "name", b"name", "padding_khz", b"padding_khz", "position_throttle", b"position_throttle", "preset_list", b"preset_list", "spacing_khz", b"spacing_khz", "telemetry_throttle", b"telemetry_throttle"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["audio_permitted", b"audio_permitted", "default_hop_start", b"default_hop_start", "default_preset", b"default_preset", "licensed_only", b"licensed_only", "max_bandwidth_hz", b"max_bandwidth_hz", "name", b"name", "padding_hz", b"padding_hz", "position_throttle", b"position_throttle", "preset_list", b"preset_list", "spacing_hz", b"spacing_hz", "telemetry_throttle", b"telemetry_throttle", "unit_channel_hz", b"unit_channel_hz"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -239,8 +296,8 @@ class RegionSwapGroup(_message.Message):
     members' presets in each of them.
 
     Members need not share a frequency range. EU_868 and EU_N_868 overlap, while
-    EU_866 is a bespoke RFID band that overlaps neither. EU_874 and EU_917 follow
-    the same pattern if they are allocated.
+    EU_866 is a bespoke band that overlaps neither. EU_874 and EU_917 permit the same
+    presets as EU_866, so they cannot join the group.
     """
 
     DESCRIPTOR: _descriptor.Descriptor
