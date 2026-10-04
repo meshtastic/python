@@ -56,7 +56,7 @@ class ChannelSettings(_message.Message):
         SCOPE_UNSET: ChannelSettings._Scope.ValueType  # 0
         """Treated as REGIONAL"""
         SCOPE_LOCAL: ChannelSettings._Scope.ValueType  # 1
-        """One or two hops: a site, an event, a household"""
+        """Neighbours and one relay: a site, an event, a household"""
         SCOPE_REGIONAL: ChannelSettings._Scope.ValueType  # 2
         """The region's default hop cap"""
         SCOPE_GLOBAL: ChannelSettings._Scope.ValueType  # 3
@@ -74,7 +74,7 @@ class ChannelSettings(_message.Message):
 
         | scope    | launch hop_start | CHANNEL_UPLINK | congestion control may raise |
         |----------|------------------|----------------|------------------------------|
-        | LOCAL    | 2                | refused        | no                           |
+        | LOCAL    | 1                | refused        | no                           |
         | REGIONAL | region default   | refused        | yes, to the region maximum   |
         | GLOBAL   | 15               | allowed        | yes                          |
 
@@ -86,7 +86,7 @@ class ChannelSettings(_message.Message):
     SCOPE_UNSET: ChannelSettings.Scope.ValueType  # 0
     """Treated as REGIONAL"""
     SCOPE_LOCAL: ChannelSettings.Scope.ValueType  # 1
-    """One or two hops: a site, an event, a household"""
+    """Neighbours and one relay: a site, an event, a household"""
     SCOPE_REGIONAL: ChannelSettings.Scope.ValueType  # 2
     """The region's default hop cap"""
     SCOPE_GLOBAL: ChannelSettings.Scope.ValueType  # 3

@@ -996,6 +996,9 @@ class MeshInterface:  # pylint: disable=R0902
 
         if hopLimit is not None:
             meshPacket.hop_limit = hopLimit
+            # An explicit budget also sets hop_start: the node launches a direct message
+            # with it in place of the channel scope's cap.
+            meshPacket.hop_start = hopLimit
         else:
             loraConfig = getattr(self.localNode.localConfig, "lora")
             meshPacket.hop_limit = getattr(loraConfig, "hop_limit")

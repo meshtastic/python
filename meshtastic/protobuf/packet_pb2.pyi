@@ -470,7 +470,9 @@ class MeshPacket(_message.Message):
     The hop budget the originator launched with: header flags.hop_start, 0-15 in
     four bits, covered by the AAD. hop_start - hop_limit is the number of hops taken,
     and because only one of the two is authenticated it is a hint, never an
-    authorisation input (SCHEMA.md §8, Hop accounting).
+    authorisation input (SCHEMA.md §8, Hop accounting). The node sets it when it
+    launches a frame; a client may set it on a direct message to launch with that
+    budget instead of the channel scope's cap.
     """
     next_hop: _builtins.int
     """

@@ -434,6 +434,17 @@ def test_sendPacket_with_destination_as_int(caplog):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
+def test_sendPacket_explicit_hop_limit_sets_hop_start():
+    """An explicit hopLimit also sets hop_start, which 3.0 firmware honours on a direct message"""
+    iface = MeshInterface(noProto=True)
+    p = iface._sendPacket(packet_pb2.MeshPacket(), destinationId=123, hopLimit=5)
+    assert (p.hop_limit, p.hop_start) == (5, 5)
+    p = iface._sendPacket(packet_pb2.MeshPacket(), destinationId=123)
+    assert p.hop_start == 0
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
 def test_sendPacket_with_destination_starting_with_a_bang(caplog):
     """Test _sendPacket() with int as a destination"""
     iface = MeshInterface(noProto=True)
