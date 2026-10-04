@@ -684,6 +684,26 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
+    def rebootOTA(
+        self,
+        ota_file_hash: bytes,
+        ota_mode: admin_pb2.OTAMode.ValueType = admin_pb2.OTAMode.OTA_BLE,
+    ):
+        """Tell the node to reboot into its OTA loader, ready for the firmware with this
+        SHA-256 (ESP32). BLE by default; the node refuses a request without the hash."""
+        self.ensureSessionKey()
+        p = admin_pb2.AdminMessage()
+        p.ota_request.reboot_ota_mode = ota_mode
+        p.ota_request.ota_hash = ota_file_hash
+        logger.info(f"Telling node to reboot into {admin_pb2.OTAMode.Name(ota_mode)} mode")
+
+        # If sending to a remote node, wait for ACK/NAK
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
     def startOTA(
         self,
         ota_mode: admin_pb2.OTAMode.ValueType,

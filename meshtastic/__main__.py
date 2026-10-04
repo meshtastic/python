@@ -499,6 +499,12 @@ def onConnected(interface):
             waitForAckNak = True
             interface.getNode(args.dest, False, **getNode_kwargs).reboot()
 
+        if args.reboot_ota:
+            closeNow = True
+            waitForAckNak = True
+            ota_hash = meshtastic.ota._file_sha256(args.reboot_ota).digest()  # pylint: disable=W0212
+            interface.getNode(args.dest, False, **getNode_kwargs).rebootOTA(ota_hash)
+
         if args.ota_update:
             closeNow = True
             waitForAckNak = True
@@ -1591,14 +1597,14 @@ def common():
                 meshtastic.util.our_exit("ERROR: Ham radio callsign cannot be empty or contain only whitespace characters")
 
         # Early validation for OTA firmware file before attempting device connection
-        if hasattr(args, 'ota_update') and args.ota_update is not None:
-            if not os.path.isfile(args.ota_update):
-                meshtastic.util.our_exit(f"Error: OTA firmware file not found: {args.ota_update}", 1)
+        for ota_file in (getattr(args, "ota_update", None), getattr(args, "reboot_ota", None)):
+            if ota_file is not None and not os.path.isfile(ota_file):
+                meshtastic.util.our_exit(f"Error: OTA firmware file not found: {ota_file}", 1)
 
         # OTA (WiFi/BLE) only needs the local node to send the admin request and then
         # streams the firmware directly; it never reads the node DB. Skip fetching it so a
         # large node DB dump can't stall/close the connection before the OTA request lands.
-        if getattr(args, "ota_update", None):
+        if getattr(args, "ota_update", None) or getattr(args, "reboot_ota", None):
             args.no_nodes = True
 
         if have_powermon:
@@ -2290,6 +2296,14 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
 
     group.add_argument(
         "--reboot", help="Tell the destination node to reboot", action="store_true"
+    )
+
+    group.add_argument(
+        "--reboot-ota",
+        help="Tell the destination node to reboot into its BLE OTA loader, ready for the given "
+        "firmware file (ESP32). The node checks the update against the file's SHA-256.",
+        metavar="FIRMWARE_FILE",
+        action="store",
     )
 
     group.add_argument(

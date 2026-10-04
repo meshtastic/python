@@ -1918,6 +1918,25 @@ def test_start_ota_local_node():
 
 
 @pytest.mark.unit
+def test_reboot_ota_sends_ota_request():
+    """rebootOTA asks for the BLE OTA loader with the firmware hash, to local and remote nodes alike"""
+    iface = MagicMock(autospec=MeshInterface)
+    local_node = Node(iface, 1234567890, noProto=True)
+    remote_node = Node(iface, 9876543210, noProto=True)
+    iface.localNode = local_node
+    test_hash = bytes(range(32))
+
+    for node, on_response in ((local_node, None), (remote_node, remote_node.onAckNak)):
+        amesg = admin_pb2.AdminMessage()
+        with patch("meshtastic.admin_pb2.AdminMessage", return_value=amesg):
+            with patch.object(node, "_sendAdmin") as mock_send_admin:
+                node.rebootOTA(test_hash)
+        assert amesg.ota_request.reboot_ota_mode == admin_pb2.OTAMode.OTA_BLE
+        assert amesg.ota_request.ota_hash == test_hash
+        mock_send_admin.assert_called_once_with(amesg, onResponse=on_response)
+
+
+@pytest.mark.unit
 def test_start_ota_remote_node_raises_error():
     """Test startOTA on remote node raises ValueError"""
     iface = MagicMock(autospec=MeshInterface)

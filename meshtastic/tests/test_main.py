@@ -1,6 +1,7 @@
 """Meshtastic unit tests for __main__.py"""
 # pylint: disable=C0302,W0613,R0917
 
+import hashlib
 import logging
 import os
 import platform
@@ -3745,6 +3746,36 @@ def test_main_set_ham_empty_string(capsys):
 
 
 # OTA-related tests
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_reboot_ota_sends_firmware_hash(tmp_path):
+    """--reboot-ota FILE asks the node for its BLE OTA loader with the file's SHA-256"""
+    firmware = tmp_path / "firmware.bin"
+    firmware.write_bytes(b"firmware image")
+    sys.argv = ["", "--reboot-ota", str(firmware)]
+    mt_config.args = sys.argv
+
+    mocked_node = MagicMock(autospec=Node)
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+    mocked_node.rebootOTA.assert_called_once_with(hashlib.sha256(b"firmware image").digest())
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_reboot_ota_file_not_found(capsys):
+    """--reboot-ota refuses a firmware file that does not exist before connecting"""
+    sys.argv = ["", "--reboot-ota", "/nonexistent/firmware.bin"]
+    mt_config.args = sys.argv
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        main()
+    assert pytest_wrapped_e.value.code == 1
+    out, _ = capsys.readouterr()
+    assert "OTA firmware file not found" in out
+
+
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
 def test_main_ota_update_file_not_found(capsys):
