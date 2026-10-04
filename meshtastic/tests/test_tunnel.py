@@ -123,6 +123,33 @@ def test_shouldFilterPacket_random(mock_platform_system, caplog, iface_with_node
             assert not ignore
 
 
+@pytest.mark.unit
+@patch("platform.system")
+@pytest.mark.parametrize(
+    "packet",
+    [
+        b"",
+        b"\x00" * 19,
+        "not-a-packet",
+        *[b"\x00" * 9 + bytes([protocol]) + b"\x00" * 10 for protocol in (1, 6, 17)],
+    ],
+)
+def test_shouldFilterPacket_rejects_malformed_packets(
+    mock_platform_system, caplog, iface_with_nodes, packet
+):
+    """Malformed mesh payloads must not crash the tunnel reader."""
+    iface = iface_with_nodes
+    iface.noProto = True
+    mock_platform_system.return_value = "Linux"
+
+    with caplog.at_level(logging.WARNING):
+        with patch("socket.socket"):
+            tun = Tunnel(iface)
+            assert tun._shouldFilterPacket(packet)
+
+    assert re.search(r"Ignoring (malformed|truncated)", caplog.text)
+
+
 @pytest.mark.unitslow
 @patch("platform.system")
 def test_shouldFilterPacket_in_blacklist(
