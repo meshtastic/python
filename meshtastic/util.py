@@ -796,31 +796,32 @@ def find_bit(desc, name: str) -> Optional[Tuple[str, int]]:
     return None
 
 
-def message_to_dict(message: Message, all_bits: bool=False) -> Dict[str, Any]:
+def message_to_dict(message: Message, all_bits: bool=False, **kwargs: Any) -> Dict[str, Any]:
     """MessageToDict, with every packed bitfield replaced by one bool per named bit.
     Only the bits that are set appear, as MessageToDict leaves out default values,
-    unless all_bits is True."""
-    d = MessageToDict(message)
-    _expand_bitfields(message, d, all_bits)
+    unless all_bits is True. Other keyword arguments go to MessageToDict; with
+    preserving_proto_field_name the bits are named in snake_case too."""
+    d = MessageToDict(message, **kwargs)
+    _expand_bitfields(message, d, all_bits, kwargs.get("preserving_proto_field_name", False))
     return d
 
 
-def _expand_bitfields(message: Message, d: Dict[str, Any], all_bits: bool) -> None:
+def _expand_bitfields(message: Message, d: Dict[str, Any], all_bits: bool, snake: bool) -> None:
     desc = message.DESCRIPTOR
     for bit, (field, mask) in bitfield_bits(desc).items():
         word = getattr(message, field)
-        d.pop(desc.fields_by_name[field].json_name, None)
+        d.pop(field if snake else desc.fields_by_name[field].json_name, None)
         if all_bits or word & mask:
-            d[snake_to_camel(bit)] = bool(word & mask)
+            d[bit if snake else snake_to_camel(bit)] = bool(word & mask)
     for fd, value in message.ListFields():
-        sub = d.get(fd.json_name)
+        sub = d.get(fd.name if snake else fd.json_name)
         if fd.message_type is None or sub is None:
             continue
         if isinstance(sub, list):
             for m, s in zip(value, sub):
-                _expand_bitfields(m, s, all_bits)
+                _expand_bitfields(m, s, all_bits, snake)
         elif isinstance(sub, dict) and isinstance(value, Message):
-            _expand_bitfields(value, sub, all_bits)
+            _expand_bitfields(value, sub, all_bits, snake)
 
 
 @functools.lru_cache(maxsize=None)
@@ -835,6 +836,11 @@ def hw_model_name(hw_model: int) -> str:
     if not hw_model:
         return "UNSET"
     return _hw_models().get(hw_model, f"0x{hw_model:04x}")
+
+
+def hw_model_number(name: str) -> int:
+    """The packed hardware model a registry slug names (e.g. "HELTEC_V3"), or 0 when unknown."""
+    return next((n for n, slug in _hw_models().items() if slug == name), 0)
 
 
 def sensor_readings_to_list(readings: telemetry_pb2.SensorReadings, time0: int=0) -> List[Dict[str, Any]]:

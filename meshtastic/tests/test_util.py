@@ -32,6 +32,7 @@ from meshtastic.util import (
     genPSK256,
     hexstr,
     hw_model_name,
+    hw_model_number,
     ipstr,
     is_windows11,
     our_exit,
@@ -1017,6 +1018,8 @@ def test_message_to_dict_expands_bitfields():
     assert d["decoded"]["wantResponse"] is True and "bitfield" not in d["decoded"]
     d = message_to_dict(p, all_bits=True)
     assert d["viaMqtt"] is False and d["decoded"]["okToMqtt"] is False
+    d = message_to_dict(p, preserving_proto_field_name=True)
+    assert d["want_ack"] is True and d["decoded"]["want_response"] is True and "flags" not in d
 
 
 @pytest.mark.unit
@@ -1036,3 +1039,5 @@ def test_hw_model_name():
     assert hw_model_name(0) == "UNSET"
     assert hw_model_name(9) == "RAK4631"
     assert hw_model_name(0x3FFE) == "0x3ffe"
+    assert hw_model_number("RAK4631") == 9
+    assert hw_model_number("NOT_A_BOARD") == 0
