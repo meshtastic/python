@@ -412,7 +412,7 @@ class NodeDatabase(_message.Message):
         """
         Every known node, this node's own entry included. The own entry is kept on
         purpose as a recovery copy of the owner: when DeviceState fails to load, firmware
-        restores the owner's names, is_licensed and is_unmessagable from it, and when the
+        restores the owner's names and descriptive flags from it, and when the
         node database is lost, rebuilds it from DeviceState.owner, DeviceConfig and
         SecurityConfig. It is otherwise an ordinary row, so nothing has to treat this
         node as a special case.

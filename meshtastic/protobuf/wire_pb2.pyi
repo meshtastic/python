@@ -243,10 +243,9 @@ class User(_message.Message):
     LONG_NAME_FIELD_NUMBER: _builtins.int
     SHORT_NAME_FIELD_NUMBER: _builtins.int
     HW_MODEL_FIELD_NUMBER: _builtins.int
-    IS_LICENSED_FIELD_NUMBER: _builtins.int
+    FLAGS_FIELD_NUMBER: _builtins.int
     ROLE_FIELD_NUMBER: _builtins.int
     PUBLIC_KEY_FIELD_NUMBER: _builtins.int
-    IS_UNMESSAGABLE_FIELD_NUMBER: _builtins.int
     RATCHET_KEY_FIELD_NUMBER: _builtins.int
     long_name: _builtins.str
     """
@@ -265,11 +264,12 @@ class User(_message.Message):
     Hardware model, packed as (vendor_id << 8 | device_id).
     Names live in the hardware registry, not in this schema.
     """
-    is_licensed: _builtins.bool
+    flags: _builtins.int
     """
-    In some regions Ham radio operators have different bandwidth limitations than others.
-    If this user is a licensed operator, set this flag.
-    Also, "long_name" should be their licence number.
+    Bitwise OR of NodeFlags values, limited to the bits that describe the node to others:
+    NODE_FLAG_IS_LICENSED (a licensed amateur operator, whose long_name should be their call
+    sign), NODE_FLAG_IS_UNMESSAGABLE with NODE_FLAG_HAS_IS_UNMESSAGABLE, NODE_FLAG_RELAYS_FAVORITES
+    and NODE_FLAG_LOST_AND_FOUND. A receiver ignores any other bit.
     """
     role: _common_pb2.Role.ValueType
     """
@@ -281,10 +281,6 @@ class User(_message.Message):
     """
     The public key of the user's device.
     This is sent out to other nodes on the mesh to allow them to compute a shared secret key.
-    """
-    is_unmessagable: _builtins.bool
-    """
-    Whether or not the node can be messaged
     """
     ratchet_key: _builtins.bytes
     """
@@ -301,19 +297,16 @@ class User(_message.Message):
         long_name: _builtins.str = ...,
         short_name: _builtins.str = ...,
         hw_model: _builtins.int = ...,
-        is_licensed: _builtins.bool = ...,
+        flags: _builtins.int = ...,
         role: _common_pb2.Role.ValueType = ...,
         public_key: _builtins.bytes = ...,
-        is_unmessagable: _builtins.bool | None = ...,
         ratchet_key: _builtins.bytes = ...,
     ) -> None: ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal["_is_unmessagable", b"_is_unmessagable", "is_unmessagable", b"is_unmessagable"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["_is_unmessagable", b"_is_unmessagable", "hw_model", b"hw_model", "is_licensed", b"is_licensed", "is_unmessagable", b"is_unmessagable", "long_name", b"long_name", "public_key", b"public_key", "ratchet_key", b"ratchet_key", "role", b"role", "short_name", b"short_name"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["flags", b"flags", "hw_model", b"hw_model", "long_name", b"long_name", "public_key", b"public_key", "ratchet_key", b"ratchet_key", "role", b"role", "short_name", b"short_name"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
-    _WhichOneofReturnType__is_unmessagable: _TypeAlias = _typing.Literal["is_unmessagable"]  # noqa: Y015
-    _WhichOneofArgType__is_unmessagable: _TypeAlias = _typing.Literal["_is_unmessagable", b"_is_unmessagable"]  # noqa: Y015
-    def WhichOneof(self, oneof_group: _WhichOneofArgType__is_unmessagable) -> _WhichOneofReturnType__is_unmessagable | None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
 Global___User: _TypeAlias = User  # noqa: Y015
 

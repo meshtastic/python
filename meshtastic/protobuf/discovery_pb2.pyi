@@ -84,7 +84,7 @@ class NodeRecord(_message.Message):
     The signed bytes are exactly, with no separators beyond the two terminators shown:
 
       "mnr1" || public_key || varint(seq) || long_name || 0x00 || short_name || 0x00
-             || hw_model (2 bytes, little-endian) || role (1 byte) || flags (2 bytes, LE)
+             || hw_model (2 bytes, little-endian) || role (1 byte) || flags (4 bytes, LE)
 
     A verifier checks the signature first, then checks that CRC32 of public_key equals the
     NodeNum the record was filed under, and drops the record if either fails.
@@ -137,9 +137,9 @@ class NodeRecord(_message.Message):
     """
     flags: _builtins.int
     """
-    A bitwise OR of NodeFlags values, limited to the bits that describe the node to others:
-    NODE_FLAG_IS_LICENSED, NODE_FLAG_IS_UNMESSAGABLE and NODE_FLAG_HAS_IS_UNMESSAGABLE. The
-    rest of NodeFlags is a receiver's own opinion - favourite, ignored, muted, verified - and
+    A bitwise OR of NodeFlags values, limited to the bits that describe the node to others,
+    as User.flags: NODE_FLAG_IS_LICENSED, NODE_FLAG_IS_UNMESSAGABLE, NODE_FLAG_HAS_IS_UNMESSAGABLE,
+    NODE_FLAG_RELAYS_FAVORITES and NODE_FLAG_LOST_AND_FOUND. The rest of NodeFlags is a receiver's own opinion - favourite, ignored, muted, verified - and
     a record that sets one of those is signed nonsense: a receiver ignores those bits rather
     than rejecting the record.
     """

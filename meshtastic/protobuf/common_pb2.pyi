@@ -25,157 +25,54 @@ class _RoleEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_Role.ValueType],
     DESCRIPTOR: _descriptor.EnumDescriptor
     CLIENT: _Role.ValueType  # 0
     """
-    Description: App connected or stand alone messaging device.
-    Technical Details: Default Role
+    A messaging device, app-connected or standalone. Relays normally, and mutes itself while
+    routers already cover it (DEVICE_AUTO_MUTE_DISABLED opts out).
     """
-    CLIENT_MUTE: _Role.ValueType  # 1
+    ROUTER: _Role.ValueType  # 1
     """
-    Description: Device that does not forward packets from other devices.
+    Infrastructure: never cancels a relay, relays early (or late with DEVICE_RELAY_LATE),
+    does not sleep. Clients mute for it, relay rules apply to it, and EU data-network duty
+    cycle rules treat it as an access point.
     """
-    ROUTER: _Role.ValueType  # 2
+    TRACKER: _Role.ValueType  # 2
     """
-    Description: Infrastructure node for extending network coverage by relaying messages. Visible in Nodes list.
-    Technical Details: Mesh packets will prefer to be routed over this node. This node will not be used by client apps.
-      The wifi radio and the oled screen will be put to sleep.
-      This mode may still potentially have higher power usage due to it's preference in message rebroadcasting on the mesh.
+    A position reporter: its positions get queue priority and a hop floor of 2, it may sleep
+    between them, and peers protect it in their warm tier.
     """
-    TRACKER: _Role.ValueType  # 3
+    SENSOR: _Role.ValueType  # 3
     """
-    Description: Broadcasts GPS position packets as priority.
-    Technical Details: Position Mesh packets will be prioritized higher and sent more frequently by default.
-      When used in conjunction with power.is_power_saving = true, nodes will wake up,
-      send position, and then sleep for position.position_broadcast_secs seconds.
-    """
-    SENSOR: _Role.ValueType  # 4
-    """
-    Description: Broadcasts telemetry packets as priority.
-    Technical Details: Telemetry Mesh packets will be prioritized higher and sent more frequently by default.
-      When used in conjunction with power.is_power_saving = true, nodes will wake up,
-      send environment telemetry, and then sleep for telemetry.environment_update_interval seconds.
-    """
-    TAK: _Role.ValueType  # 5
-    """
-    Description: Optimized for ATAK system communication and reduces routine broadcasts.
-    Technical Details: Used for nodes dedicated for connection to an ATAK EUD.
-       Turns off many of the routine broadcasts to favor CoT packet stream
-       from the Meshtastic ATAK plugin -> IMeshService -> Node
-    """
-    CLIENT_HIDDEN: _Role.ValueType  # 6
-    """
-    Description: Device that only broadcasts as needed for stealth or power savings.
-    Technical Details: Used for nodes that "only speak when spoken to"
-       Turns all of the routine broadcasts but allows for ad-hoc communication
-       Still rebroadcasts, but with local only rebroadcast mode (known meshes only)
-       Can be used for clandestine operation or to dramatically reduce airtime / power consumption
-    """
-    LOST_AND_FOUND: _Role.ValueType  # 7
-    """
-    Description: Broadcasts location as message to default channel regularly for to assist with device recovery.
-    Technical Details: Used to automatically send a text message to the mesh
-       with the current position of the device on a frequent interval:
-       "I'm lost! Position: lat / long"
-    """
-    TAK_TRACKER: _Role.ValueType  # 8
-    """
-    Description: Enables automatic TAK PLI broadcasts and reduces routine broadcasts.
-    Technical Details: Turns off many of the routine broadcasts to favor ATAK CoT packet stream
-       and automatic TAK PLI (position location information) broadcasts.
-       Uses position module configuration to determine TAK PLI broadcast interval.
-    """
-    ROUTER_LATE: _Role.ValueType  # 9
-    """
-    Description: Will always rebroadcast packets, but will do so after all other modes.
-    Technical Details: Used for router nodes that are intended to provide additional coverage
-       in areas not already covered by other routers, or to bridge around problematic terrain,
-       but should not be given priority over other routers in order to avoid unnecessarily
-       consuming hops.
-    """
-    CLIENT_BASE: _Role.ValueType  # 10
-    """
-    Description: Treats packets from or to favorited nodes as ROUTER_LATE, and all other packets as CLIENT.
-    Technical Details: Used for stronger attic/roof nodes to distribute messages more widely
-       from weaker, indoor, or less-well-positioned nodes. Recommended for users with multiple nodes
-       where one CLIENT_BASE acts as a more powerful base station, such as an attic/roof node.
+    A telemetry reporter: its telemetry gets priority and a hop floor of 1, it may sleep
+    between reports, and peers protect it in their warm tier.
     """
 
 class Role(_Role, metaclass=_RoleEnumTypeWrapper):
     """
-    Defines the device's role on the Mesh network
+    What a device is on the mesh. Four base roles; finer behaviour is a switch on a role
+    (DeviceConfig.Flags, TAKConfig.Flags), and the defaults each configuration installs are rows in
+    registry/roles.yaml. A peer acts on the advertised role and on NODE_FLAG_RELAYS_FAVORITES and
+    NODE_FLAG_LOST_AND_FOUND.
     """
 
 CLIENT: Role.ValueType  # 0
 """
-Description: App connected or stand alone messaging device.
-Technical Details: Default Role
+A messaging device, app-connected or standalone. Relays normally, and mutes itself while
+routers already cover it (DEVICE_AUTO_MUTE_DISABLED opts out).
 """
-CLIENT_MUTE: Role.ValueType  # 1
+ROUTER: Role.ValueType  # 1
 """
-Description: Device that does not forward packets from other devices.
+Infrastructure: never cancels a relay, relays early (or late with DEVICE_RELAY_LATE),
+does not sleep. Clients mute for it, relay rules apply to it, and EU data-network duty
+cycle rules treat it as an access point.
 """
-ROUTER: Role.ValueType  # 2
+TRACKER: Role.ValueType  # 2
 """
-Description: Infrastructure node for extending network coverage by relaying messages. Visible in Nodes list.
-Technical Details: Mesh packets will prefer to be routed over this node. This node will not be used by client apps.
-  The wifi radio and the oled screen will be put to sleep.
-  This mode may still potentially have higher power usage due to it's preference in message rebroadcasting on the mesh.
+A position reporter: its positions get queue priority and a hop floor of 2, it may sleep
+between them, and peers protect it in their warm tier.
 """
-TRACKER: Role.ValueType  # 3
+SENSOR: Role.ValueType  # 3
 """
-Description: Broadcasts GPS position packets as priority.
-Technical Details: Position Mesh packets will be prioritized higher and sent more frequently by default.
-  When used in conjunction with power.is_power_saving = true, nodes will wake up,
-  send position, and then sleep for position.position_broadcast_secs seconds.
-"""
-SENSOR: Role.ValueType  # 4
-"""
-Description: Broadcasts telemetry packets as priority.
-Technical Details: Telemetry Mesh packets will be prioritized higher and sent more frequently by default.
-  When used in conjunction with power.is_power_saving = true, nodes will wake up,
-  send environment telemetry, and then sleep for telemetry.environment_update_interval seconds.
-"""
-TAK: Role.ValueType  # 5
-"""
-Description: Optimized for ATAK system communication and reduces routine broadcasts.
-Technical Details: Used for nodes dedicated for connection to an ATAK EUD.
-   Turns off many of the routine broadcasts to favor CoT packet stream
-   from the Meshtastic ATAK plugin -> IMeshService -> Node
-"""
-CLIENT_HIDDEN: Role.ValueType  # 6
-"""
-Description: Device that only broadcasts as needed for stealth or power savings.
-Technical Details: Used for nodes that "only speak when spoken to"
-   Turns all of the routine broadcasts but allows for ad-hoc communication
-   Still rebroadcasts, but with local only rebroadcast mode (known meshes only)
-   Can be used for clandestine operation or to dramatically reduce airtime / power consumption
-"""
-LOST_AND_FOUND: Role.ValueType  # 7
-"""
-Description: Broadcasts location as message to default channel regularly for to assist with device recovery.
-Technical Details: Used to automatically send a text message to the mesh
-   with the current position of the device on a frequent interval:
-   "I'm lost! Position: lat / long"
-"""
-TAK_TRACKER: Role.ValueType  # 8
-"""
-Description: Enables automatic TAK PLI broadcasts and reduces routine broadcasts.
-Technical Details: Turns off many of the routine broadcasts to favor ATAK CoT packet stream
-   and automatic TAK PLI (position location information) broadcasts.
-   Uses position module configuration to determine TAK PLI broadcast interval.
-"""
-ROUTER_LATE: Role.ValueType  # 9
-"""
-Description: Will always rebroadcast packets, but will do so after all other modes.
-Technical Details: Used for router nodes that are intended to provide additional coverage
-   in areas not already covered by other routers, or to bridge around problematic terrain,
-   but should not be given priority over other routers in order to avoid unnecessarily
-   consuming hops.
-"""
-CLIENT_BASE: Role.ValueType  # 10
-"""
-Description: Treats packets from or to favorited nodes as ROUTER_LATE, and all other packets as CLIENT.
-Technical Details: Used for stronger attic/roof nodes to distribute messages more widely
-   from weaker, indoor, or less-well-positioned nodes. Recommended for users with multiple nodes
-   where one CLIENT_BASE acts as a more powerful base station, such as an attic/roof node.
+A telemetry reporter: its telemetry gets priority and a hop floor of 1, it may sleep
+between reports, and peers protect it in their warm tier.
 """
 Global___Role: _TypeAlias = Role  # noqa: Y015
 
@@ -673,6 +570,16 @@ class _NodeFlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_NodeFlags.V
     rather than over the air - see NODE_FLAG_VIA_MQTT - nor for one added as a shared
     contact, which has never been heard over RF at all.
     """
+    NODE_FLAG_RELAYS_FAVORITES: _NodeFlags.ValueType  # 33554432
+    """
+    A CLIENT with DEVICE_RELAY_FAVORITES: it relays its favourites' traffic like a router and
+    counts as infrastructure for zero-cost hops between favourites. Set by the node itself.
+    """
+    NODE_FLAG_LOST_AND_FOUND: _NodeFlags.ValueType  # 67108864
+    """
+    A TRACKER with DEVICE_LOST_AND_FOUND: it is asking to be found, so peers let its duplicate
+    positions through more often. Set by the node itself.
+    """
 
 class NodeFlags(_NodeFlags, metaclass=_NodeFlagsEnumTypeWrapper):
     """
@@ -741,6 +648,16 @@ answers, so a client sweeping through presets to listen for traffic does not dis
 them. Never set for a node heard only over MQTT, which reaches us over the internet
 rather than over the air - see NODE_FLAG_VIA_MQTT - nor for one added as a shared
 contact, which has never been heard over RF at all.
+"""
+NODE_FLAG_RELAYS_FAVORITES: NodeFlags.ValueType  # 33554432
+"""
+A CLIENT with DEVICE_RELAY_FAVORITES: it relays its favourites' traffic like a router and
+counts as infrastructure for zero-cost hops between favourites. Set by the node itself.
+"""
+NODE_FLAG_LOST_AND_FOUND: NodeFlags.ValueType  # 67108864
+"""
+A TRACKER with DEVICE_LOST_AND_FOUND: it is asking to be found, so peers let its duplicate
+positions through more often. Set by the node itself.
 """
 Global___NodeFlags: _TypeAlias = NodeFlags  # noqa: Y015
 

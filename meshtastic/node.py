@@ -344,7 +344,8 @@ class Node:
                 long_name = truncated
                 print(f"Maximum is 24 bytes, truncated to {long_name}")
             p.set_owner.long_name = long_name
-            p.set_owner.is_licensed = is_licensed
+            if is_licensed:
+                p.set_owner.flags |= common_pb2.NodeFlags.NODE_FLAG_IS_LICENSED
         if short_name is not None:
             short_name = short_name.strip()
             # Validate that short_name is not empty or whitespace-only
@@ -355,13 +356,14 @@ class Node:
                 print(f"Maximum is 4 characters, truncated to {short_name}")
             p.set_owner.short_name = short_name
         if is_unmessagable is not None:
-            p.set_owner.is_unmessagable = is_unmessagable
+            p.set_owner.flags |= common_pb2.NodeFlags.NODE_FLAG_HAS_IS_UNMESSAGABLE
+            if is_unmessagable:
+                p.set_owner.flags |= common_pb2.NodeFlags.NODE_FLAG_IS_UNMESSAGABLE
 
         # Note: These debug lines are used in unit tests
         logger.debug(f"p.set_owner.long_name:{p.set_owner.long_name}:")
         logger.debug(f"p.set_owner.short_name:{p.set_owner.short_name}:")
-        logger.debug(f"p.set_owner.is_licensed:{p.set_owner.is_licensed}")
-        logger.debug(f"p.set_owner.is_unmessagable:{p.set_owner.is_unmessagable}:")
+        logger.debug(f"p.set_owner.flags:{p.set_owner.flags:#x}")
         # If sending to a remote node, wait for ACK/NAK
         if self == self.iface.localNode:
             onResponse = None
@@ -410,10 +412,8 @@ class Node:
             contact.user.role = common_pb2.Role.Value(u["role"])
         if u.get("publicKey"):
             contact.user.public_key = base64.b64decode(u["publicKey"])
-        if u.get("isLicensed"):
-            contact.user.is_licensed = u["isLicensed"]
-        if u.get("isUnmessagable") is not None:
-            contact.user.is_unmessagable = u["isUnmessagable"]
+        if u.get("flags"):
+            contact.user.flags = u["flags"]
         if should_ignore:
             contact.should_ignore = True
         if manually_verified:

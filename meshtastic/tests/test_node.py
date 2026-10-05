@@ -392,8 +392,7 @@ def test_link_payload_restores_padding_and_reads_the_add_form():
                 "hwModel": 9,  # RAK4631
                 "role": "ROUTER",
                 "publicKey": "Rx8XD96uBAiFGoFusdqwti3eBT4DLyGuG7g5Wcg9Bw==",
-                "isLicensed": True,
-                "isUnmessagable": False,
+                "flags": common_pb2.NodeFlags.NODE_FLAG_IS_LICENSED | common_pb2.NodeFlags.NODE_FLAG_HAS_IS_UNMESSAGABLE,
             },
         },
         True,
@@ -424,7 +423,6 @@ def test_link_payload_restores_padding_and_reads_the_add_form():
                 "hwModel": 43,  # HELTEC_V3
                 "role": "CLIENT",
                 "publicKey": "AAAAAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-                "isLicensed": False,
             },
         },
         True,
@@ -439,7 +437,7 @@ def test_link_payload_restores_padding_and_reads_the_add_form():
                 "longName": "Minimal Contact",
                 "shortName": "MC",
                 "hwModel": 0,
-                "role": "CLIENT_MUTE",
+                "role": "SENSOR",
             },
         },
         False,
@@ -454,8 +452,7 @@ def test_link_payload_restores_padding_and_reads_the_add_form():
                 "longName": "Licensed Node",
                 "shortName": "LN",
                 "hwModel": 14,  # NANO_G1
-                "isLicensed": True,
-                "isUnmessagable": True,
+                "flags": common_pb2.NodeFlags.NODE_FLAG_IS_LICENSED | common_pb2.NodeFlags.NODE_FLAG_HAS_IS_UNMESSAGABLE | common_pb2.NodeFlags.NODE_FLAG_IS_UNMESSAGABLE,
             },
         },
         False,
@@ -494,10 +491,7 @@ def test_contact_url_roundtrip(node_id, node_data, should_ignore, manually_verif
         assert contact.user.role == common_pb2.Role.Value(u["role"])
     if u.get("publicKey"):
         assert contact.user.public_key == base64.b64decode(u["publicKey"])
-    if u.get("isLicensed"):
-        assert contact.user.is_licensed is True
-    if u.get("isUnmessagable") is not None:
-        assert contact.user.is_unmessagable == u["isUnmessagable"]
+    assert contact.user.flags == u.get("flags", 0)
 
     assert contact.should_ignore == should_ignore
     assert contact.manually_verified == manually_verified
@@ -532,8 +526,7 @@ def contact_url_roundtrip_params(draw):
         ))
         public_key_b64 = base64.b64encode(pk_bytes).decode("ascii")
 
-    is_licensed = draw(st.booleans())
-    is_unmessagable = draw(st.booleans())
+    flags = draw(st.sampled_from([0, common_pb2.NodeFlags.NODE_FLAG_IS_LICENSED, common_pb2.NodeFlags.NODE_FLAG_HAS_IS_UNMESSAGABLE, common_pb2.NodeFlags.NODE_FLAG_IS_LICENSED | common_pb2.NodeFlags.NODE_FLAG_HAS_IS_UNMESSAGABLE, common_pb2.NodeFlags.NODE_FLAG_IS_LICENSED | common_pb2.NodeFlags.NODE_FLAG_HAS_IS_UNMESSAGABLE | common_pb2.NodeFlags.NODE_FLAG_IS_UNMESSAGABLE]))
 
     node_data = {
         "num": node_num,
@@ -541,8 +534,7 @@ def contact_url_roundtrip_params(draw):
             "longName": long_name,
             "shortName": short_name,
             "hwModel": hw_model,
-            "isLicensed": is_licensed,
-            "isUnmessagable": is_unmessagable,
+            "flags": flags,
         },
     }
     if role is not None:
@@ -590,8 +582,7 @@ def test_contact_url_roundtrip_hypothesis(params):
         assert contact.user.role == common_pb2.Role.Value(u["role"])
     if "publicKey" in u:
         assert contact.user.public_key == base64.b64decode(u["publicKey"])
-    assert contact.user.is_licensed == u["isLicensed"]
-    assert contact.user.is_unmessagable == u["isUnmessagable"]
+    assert contact.user.flags == u["flags"]
     assert contact.should_ignore == should_ignore
     assert contact.manually_verified == manually_verified
 

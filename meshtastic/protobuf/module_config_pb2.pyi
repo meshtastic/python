@@ -1587,8 +1587,24 @@ class TAKConfig(_message.Message):
 
     DESCRIPTOR: _descriptor.Descriptor
 
+    class _Flags:
+        ValueType = _typing.NewType("ValueType", _builtins.int)
+        V: _TypeAlias = ValueType  # noqa: Y015
+
+    class _FlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[TAKConfig._Flags.ValueType], _builtins.type):
+        DESCRIPTOR: _descriptor.EnumDescriptor
+        TAK_NONE: TAKConfig._Flags.ValueType  # 0
+        TAK_ENABLED: TAKConfig._Flags.ValueType  # 1
+        """Run the ATAK plugin module; a TRACKER sends its position as ATAK PLI"""
+
+    class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper): ...
+    TAK_NONE: TAKConfig.Flags.ValueType  # 0
+    TAK_ENABLED: TAKConfig.Flags.ValueType  # 1
+    """Run the ATAK plugin module; a TRACKER sends its position as ATAK PLI"""
+
     TEAM_FIELD_NUMBER: _builtins.int
     ROLE_FIELD_NUMBER: _builtins.int
+    FLAGS_FIELD_NUMBER: _builtins.int
     team: _atak_pb2.Team.ValueType
     """
     Team color.
@@ -1599,15 +1615,20 @@ class TAKConfig(_message.Message):
     Member role.
     Default Unspecifed -> firmware uses TeamMember
     """
+    flags: _builtins.int
+    """
+    Bitwise OR of Flags values.
+    """
     def __init__(
         self,
         *,
         team: _atak_pb2.Team.ValueType = ...,
         role: _atak_pb2.MemberRole.ValueType = ...,
+        flags: _builtins.int = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["role", b"role", "team", b"team"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["flags", b"flags", "role", b"role", "team", b"team"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 

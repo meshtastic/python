@@ -87,7 +87,7 @@ class RegionInfo(_message.Message):
     depends on the node's role is a firmware region hook, not data.
     """
     power_limit_dbm: _builtins.int
-    """Maximum TX power in dBm. A licensed operator (User.is_licensed) may exceed it."""
+    """Maximum TX power in dBm. A licensed operator (NODE_FLAG_IS_LICENSED) may exceed it."""
     frequency_switching: _builtins.bool
     """Whether frequency hopping/switching is allowed"""
     wide_lora: _builtins.bool
@@ -219,7 +219,7 @@ class RegionProfile(_message.Message):
     """Whether audio mode is permitted"""
     licensed_only: _builtins.bool
     """
-    Only a licensed operator (User.is_licensed) may select a region using this
+    Only a licensed operator (NODE_FLAG_IS_LICENSED) may select a region using this
     profile; firmware rejects the region otherwise.
     """
     position_throttle: _builtins.int

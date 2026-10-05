@@ -42,8 +42,8 @@ class DeviceConfig(_message.Message):
         ALL_SKIP_DECODING: DeviceConfig._RebroadcastMode.ValueType  # 1
         """
         Same behaviour as ALL, but skips packet decoding and simply rebroadcasts: a node
-        that repeats everything it hears without looking inside. Available on the relaying
-        roles, ROUTER and ROUTER_LATE; on any other role it behaves as ALL.
+        that repeats everything it hears without looking inside. Available on a ROUTER; on
+        any other role it behaves as ALL.
         """
         LOCAL_ONLY: DeviceConfig._RebroadcastMode.ValueType  # 2
         """
@@ -57,7 +57,7 @@ class DeviceConfig(_message.Message):
         """
         NONE: DeviceConfig._RebroadcastMode.ValueType  # 4
         """
-        Only permitted for SENSOR, TRACKER and TAK_TRACKER roles, this will inhibit all rebroadcasts, not unlike CLIENT_MUTE role.
+        Relay nothing. Refused on a ROUTER.
         """
         CORE_PORTNUMS_ONLY: DeviceConfig._RebroadcastMode.ValueType  # 5
         """
@@ -78,8 +78,8 @@ class DeviceConfig(_message.Message):
     ALL_SKIP_DECODING: DeviceConfig.RebroadcastMode.ValueType  # 1
     """
     Same behaviour as ALL, but skips packet decoding and simply rebroadcasts: a node
-    that repeats everything it hears without looking inside. Available on the relaying
-    roles, ROUTER and ROUTER_LATE; on any other role it behaves as ALL.
+    that repeats everything it hears without looking inside. Available on a ROUTER; on
+    any other role it behaves as ALL.
     """
     LOCAL_ONLY: DeviceConfig.RebroadcastMode.ValueType  # 2
     """
@@ -93,7 +93,7 @@ class DeviceConfig(_message.Message):
     """
     NONE: DeviceConfig.RebroadcastMode.ValueType  # 4
     """
-    Only permitted for SENSOR, TRACKER and TAK_TRACKER roles, this will inhibit all rebroadcasts, not unlike CLIENT_MUTE role.
+    Relay nothing. Refused on a ROUTER.
     """
     CORE_PORTNUMS_ONLY: DeviceConfig.RebroadcastMode.ValueType  # 5
     """
@@ -184,6 +184,24 @@ class DeviceConfig(_message.Message):
         """Disable the default blinking LED (LED_PIN) behaviour"""
         DEVICE_AUTO_MUTE_DISABLED: DeviceConfig._Flags.ValueType  # 8
         """Turn client auto-mute off: a CLIENT keeps relaying broadcasts however many routers it hears"""
+        DEVICE_RELAY_LATE: DeviceConfig._Flags.ValueType  # 16
+        """ROUTER only: relay in the late rebroadcast window instead of early. Ignored on other roles."""
+        DEVICE_RELAY_FAVORITES: DeviceConfig._Flags.ValueType  # 32
+        """
+        CLIENT only: relay favourites' traffic like a router (never cancel, late window), count
+        as infrastructure for zero-cost hops, keep favourites on a node-DB reset, never
+        auto-favourite, no auto-mute. Advertised as NODE_FLAG_RELAYS_FAVORITES. Ignored on other roles.
+        """
+        DEVICE_QUIET: DeviceConfig._Flags.ValueType  # 64
+        """
+        CLIENT only: no routine broadcasts - node info, position, device telemetry, neighbour
+        info, mesh beacon. Ignored on other roles.
+        """
+        DEVICE_LOST_AND_FOUND: DeviceConfig._Flags.ValueType  # 128
+        """
+        TRACKER only: position every 5 minutes with a lost-and-found text, position replies not
+        throttled. Advertised as NODE_FLAG_LOST_AND_FOUND. Ignored on other roles.
+        """
 
     class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
         """
@@ -200,6 +218,24 @@ class DeviceConfig(_message.Message):
     """Disable the default blinking LED (LED_PIN) behaviour"""
     DEVICE_AUTO_MUTE_DISABLED: DeviceConfig.Flags.ValueType  # 8
     """Turn client auto-mute off: a CLIENT keeps relaying broadcasts however many routers it hears"""
+    DEVICE_RELAY_LATE: DeviceConfig.Flags.ValueType  # 16
+    """ROUTER only: relay in the late rebroadcast window instead of early. Ignored on other roles."""
+    DEVICE_RELAY_FAVORITES: DeviceConfig.Flags.ValueType  # 32
+    """
+    CLIENT only: relay favourites' traffic like a router (never cancel, late window), count
+    as infrastructure for zero-cost hops, keep favourites on a node-DB reset, never
+    auto-favourite, no auto-mute. Advertised as NODE_FLAG_RELAYS_FAVORITES. Ignored on other roles.
+    """
+    DEVICE_QUIET: DeviceConfig.Flags.ValueType  # 64
+    """
+    CLIENT only: no routine broadcasts - node info, position, device telemetry, neighbour
+    info, mesh beacon. Ignored on other roles.
+    """
+    DEVICE_LOST_AND_FOUND: DeviceConfig.Flags.ValueType  # 128
+    """
+    TRACKER only: position every 5 minutes with a lost-and-found text, position replies not
+    throttled. Advertised as NODE_FLAG_LOST_AND_FOUND. Ignored on other roles.
+    """
 
     class _DiscoveryFlags:
         ValueType = _typing.NewType("ValueType", _builtins.int)
@@ -317,7 +353,7 @@ class DeviceConfig(_message.Message):
     auto_mute_router_count: _builtins.int
     """
     Client auto-mute, CLIENT role only. A client that hears at least auto_mute_router_count
-    ROUTER or ROUTER_LATE neighbours directly, at auto_mute_min_snr or better, within
+    ROUTER neighbours directly, at auto_mute_min_snr or better, within
     auto_mute_window_secs stops relaying broadcasts: those routers already reach everyone it
     would. Unicast it is asked to carry is relayed as before. It resumes once the condition has
     not held for a whole window. DEVICE_AUTO_MUTE_DISABLED turns it off.
@@ -1757,8 +1793,8 @@ class RelayConfig(_message.Message):
     """
     Relay Policy
 
-    How this node relays broadcast traffic, per channel hash. Evaluated on the relaying
-    roles, ROUTER and ROUTER_LATE, only; every other role ignores it. Keyed by the
+    How this node relays broadcast traffic, per channel hash. Evaluated on a ROUTER only;
+    every other role ignores it. Keyed by the
     header's one-byte `chan`, so a rule covers every channel that hashes to that byte,
     held or not - which is what lets an operator cap a channel whose key the node does
     not have.
