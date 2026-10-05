@@ -338,6 +338,11 @@ class Node:
             # Validate that long_name is not empty or whitespace-only
             if not long_name:
                 our_exit("ERROR: Long Name cannot be empty or contain only whitespace characters")
+            # 24 bytes is what a device keeps; cut at a character boundary
+            truncated = long_name.encode("utf-8")[:24].decode("utf-8", "ignore")
+            if truncated != long_name:
+                long_name = truncated
+                print(f"Maximum is 24 bytes, truncated to {long_name}")
             p.set_owner.long_name = long_name
             p.set_owner.is_licensed = is_licensed
         if short_name is not None:

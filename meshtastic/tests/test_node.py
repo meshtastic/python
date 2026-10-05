@@ -1874,6 +1874,20 @@ def test_setOwner_whitespace_only_long_name(capsys):
 
 
 @pytest.mark.unit
+def test_setOwner_truncates_long_name_at_a_character_boundary(capsys):
+    """A long name is cut to the 24 bytes a device keeps, never inside a character"""
+    iface = MagicMock(autospec=MeshInterface)
+    anode = Node(iface, 123, noProto=True)
+    anode._sendAdmin = MagicMock()
+
+    anode.setOwner(long_name="Base Camp North Ridge € Relay")
+
+    sent = anode._sendAdmin.call_args[0][0]
+    assert sent.set_owner.long_name == "Base Camp North Ridge "
+    assert "truncated" in capsys.readouterr().out
+
+
+@pytest.mark.unit
 def test_setOwner_empty_long_name(capsys):
     """Test setOwner with empty long name"""
     iface = MagicMock(autospec=MeshInterface)
