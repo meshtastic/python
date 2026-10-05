@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Protobufs version tag to sync to (e.g., v2.7.26). Defaults to the latest protobufs release."
+        description: "Protobufs tag to sync to. Defaults to the tip of the branch .gitmodules tracks, or the latest release tag without one."
         required: false
         default: ""
         type: string
@@ -42,6 +42,7 @@ jobs:
           INPUT_VERSION: ${{ github.event.inputs.version }}
           PAYLOAD_VERSION: ${{ github.event.client_payload.version }}
         run: |
+          branch=$(git config -f .gitmodules submodule.protobufs.branch || true)
           cd protobufs
           git fetch --tags
 
@@ -49,6 +50,12 @@ jobs:
             target="${INPUT_VERSION}"
           elif [ -n "${PAYLOAD_VERSION}" ]; then
             target="${PAYLOAD_VERSION}"
+          elif [ -n "${branch}" ]; then
+            # A branch whose schema is not the released one tracks its own protobufs branch, never a release tag
+            git fetch origin "${branch}"
+            printf 'version=%s\n' "$(git rev-parse --short FETCH_HEAD)" >> "$GITHUB_OUTPUT"
+            echo "Target protobufs: tip of ${branch}"
+            exit 0
           else
             target=$(git tag --list 'v*' --sort=-version:refname | head -n1)
             if [ -z "${target}" ]; then
