@@ -706,16 +706,12 @@ def test_delete_channel_writes_only_changed_suffix(
 
     writes = []
 
-    def fake_write(channel_index, adminIndex=0):
-        writes.append((channel_index, adminIndex))
-
-    anode.writeChannel = fake_write
+    anode.writeChannel = writes.append
 
     anode.deleteChannel(delete_index)
 
-    written_indices = [idx for idx, _ in writes]
+    written_indices = writes
     assert written_indices == expected_writes
-    assert all(admin_idx == 0 for _, admin_idx in writes)
     assert 0 not in written_indices
     assert all(idx < 4 for idx in written_indices)
 
@@ -821,148 +817,6 @@ def test_delete_channel_rejects_primary():
 
 # TODO
 # @pytest.mark.unit
-# def test_deleteChannel_secondary_with_admin_channel_after_testing():
-#    """Try to delete a secondary channel where there is an admin channel."""
-#
-#    channel1 = Channel(index=1)
-#    channel1.settings.modem_config = 3
-#    channel1.settings.psk = b'\x01'
-#
-#    channel2 = Channel(index=2)
-#    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
-#    channel2.settings.name = 'testing'
-#
-#    channel3 = Channel(index=3)
-#    channel3.settings.name = 'admin'
-#
-#    channel4 = Channel(index=4)
-#    channel5 = Channel(index=5)
-#    channel6 = Channel(index=6)
-#    channel7 = Channel(index=7)
-#    channel8 = Channel(index=8)
-#
-#    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
-#
-#
-#    iface = MagicMock(autospec=SerialInterface)
-#    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-#        mo.localNode.getChannelByName.return_value = None
-#        mo.myInfo.max_channels = 8
-#        anode = Node(mo, 'bar', noProto=True)
-#
-#        # Note: Have to do this next line because every call to MagicMock object/method returns a new magic mock
-#        mo.localNode = anode
-#
-#        assert mo.localNode == anode
-#
-#        anode.channels = channels
-#        assert len(anode.channels) == 8
-#        assert channels[0].settings.modem_config == 3
-#        assert channels[1].settings.name == 'testing'
-#        assert channels[2].settings.name == 'admin'
-#        assert channels[3].settings.name == ''
-#        assert channels[4].settings.name == ''
-#        assert channels[5].settings.name == ''
-#        assert channels[6].settings.name == ''
-#        assert channels[7].settings.name == ''
-#
-#        anode.deleteChannel(1)
-#
-#        assert len(anode.channels) == 8
-#        assert channels[0].settings.modem_config == 3
-#        assert channels[1].settings.name == 'admin'
-#        assert channels[2].settings.name == ''
-#        assert channels[3].settings.name == ''
-#        assert channels[4].settings.name == ''
-#        assert channels[5].settings.name == ''
-#        assert channels[6].settings.name == ''
-#        assert channels[7].settings.name == ''
-
-
-# TODO
-# @pytest.mark.unit
-# def test_deleteChannel_secondary_with_admin_channel_before_testing():
-#    """Try to delete a secondary channel where there is an admin channel."""
-#
-#    channel1 = Channel(index=1)
-#    channel1.settings.modem_config = 3
-#    channel1.settings.psk = b'\x01'
-#
-#    channel2 = Channel(index=2)
-#    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
-#    channel2.settings.name = 'admin'
-#
-#    channel3 = Channel(index=3)
-#    channel3.settings.name = 'testing'
-#
-#    channel4 = Channel(index=4)
-#    channel5 = Channel(index=5)
-#    channel6 = Channel(index=6)
-#    channel7 = Channel(index=7)
-#    channel8 = Channel(index=8)
-#
-#    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
-#
-#
-#    iface = MagicMock(autospec=SerialInterface)
-#    with patch('meshtastic.serial_interface.SerialInterface', return_value=iface) as mo:
-#        mo.localNode.getChannelByName.return_value = None
-#        mo.myInfo.max_channels = 8
-#        anode = Node(mo, 'bar', noProto=True)
-#
-#        anode.channels = channels
-#        assert len(anode.channels) == 8
-#        assert channels[0].settings.modem_config == 3
-#        assert channels[1].settings.name == 'admin'
-#        assert channels[2].settings.name == 'testing'
-#        assert channels[3].settings.name == ''
-#        assert channels[4].settings.name == ''
-#        assert channels[5].settings.name == ''
-#        assert channels[6].settings.name == ''
-#        assert channels[7].settings.name == ''
-#
-#        anode.deleteChannel(2)
-#
-#        assert len(anode.channels) == 8
-#        assert channels[0].settings.modem_config == 3
-#        assert channels[1].settings.name == 'admin'
-#        assert channels[2].settings.name == ''
-#        assert channels[3].settings.name == ''
-#        assert channels[4].settings.name == ''
-#        assert channels[5].settings.name == ''
-#        assert channels[6].settings.name == ''
-#        assert channels[7].settings.name == ''
-#
-#
-# @pytest.mark.unit
-# def test_getChannelByName():
-#    """Get a channel by the name."""
-#    anode = Node('foo', 'bar')
-#
-#    channel1 = Channel(index=1)
-#    channel1.settings.modem_config = 3
-#    channel1.settings.psk = b'\x01'
-#
-#    channel2 = Channel(index=2)
-#    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
-#    channel2.settings.name = 'admin'
-#
-#    channel3 = Channel(index=3)
-#    channel4 = Channel(index=4)
-#    channel5 = Channel(index=5)
-#    channel6 = Channel(index=6)
-#    channel7 = Channel(index=7)
-#    channel8 = Channel(index=8)
-#
-#    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
-#
-#    anode.channels = channels
-#    ch = anode.getChannelByName('admin')
-#    assert ch.index == 2
-
-
-# TODO
-# @pytest.mark.unit
 # def test_getChannelByName_invalid_name():
 #    """Get a channel by the name but one that is not present."""
 #    anode = Node('foo', 'bar')
@@ -1042,59 +896,6 @@ def test_delete_channel_rejects_primary():
 #    anode.channels = channels
 #    ch = anode.getDisabledChannel()
 #    assert ch is None
-
-
-# TODO
-# @pytest.mark.unit
-# def test_getAdminChannelIndex():
-#    """Get the 'admin' channel index."""
-#    anode = Node('foo', 'bar')
-#
-#    channel1 = Channel(index=1)
-#    channel1.settings.modem_config = 3
-#    channel1.settings.psk = b'\x01'
-#
-#    channel2 = Channel(index=2)
-#    channel2.settings.psk = b'\x8a\x94y\x0e\xc6\xc9\x1e5\x91\x12@\xa60\xa8\xb43\x87\x00\xf2K\x0e\xe7\x7fAz\xcd\xf5\xb0\x900\xa84'
-#    channel2.settings.name = 'admin'
-#
-#    channel3 = Channel(index=3)
-#    channel4 = Channel(index=4)
-#    channel5 = Channel(index=5)
-#    channel6 = Channel(index=6)
-#    channel7 = Channel(index=7)
-#    channel8 = Channel(index=8)
-#
-#    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
-#
-#    anode.channels = channels
-#    i = anode._getAdminChannelIndex()
-#    assert i == 2
-
-
-# TODO
-# @pytest.mark.unit
-# def test_getAdminChannelIndex_when_no_admin_named_channel():
-#    """Get the 'admin' channel when there is not one."""
-#    anode = Node('foo', 'bar')
-#
-#    channel1 = Channel(index=1)
-#    channel1.settings.modem_config = 3
-#    channel1.settings.psk = b'\x01'
-#
-#    channel2 = Channel(index=2)
-#    channel3 = Channel(index=3)
-#    channel4 = Channel(index=4)
-#    channel5 = Channel(index=5)
-#    channel6 = Channel(index=6)
-#    channel7 = Channel(index=7)
-#    channel8 = Channel(index=8)
-#
-#    channels = [ channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8 ]
-#
-#    anode.channels = channels
-#    i = anode._getAdminChannelIndex()
-#    assert i == 0
 
 
 # TODO

@@ -1431,12 +1431,6 @@ class MeshBeaconConfig(_message.Message):
         """
         Enable periodically broadcasting MESH_BEACON_APP packets from this node.
         """
-        FLAG_TEXT_SPLIT: MeshBeaconConfig._Flags.ValueType  # 4
-        """
-        When both text and offer content are present, split the beacon into a separate
-        MESH_BEACON_APP (offer only) and TEXT_MESSAGE_APP (text only) packet, so a receiver
-        that only decodes TEXT_MESSAGE_APP still gets the human-readable text.
-        """
 
     class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
         """
@@ -1457,12 +1451,6 @@ class MeshBeaconConfig(_message.Message):
     FLAG_BROADCAST_ENABLED: MeshBeaconConfig.Flags.ValueType  # 2
     """
     Enable periodically broadcasting MESH_BEACON_APP packets from this node.
-    """
-    FLAG_TEXT_SPLIT: MeshBeaconConfig.Flags.ValueType  # 4
-    """
-    When both text and offer content are present, split the beacon into a separate
-    MESH_BEACON_APP (offer only) and TEXT_MESSAGE_APP (text only) packet, so a receiver
-    that only decodes TEXT_MESSAGE_APP still gets the human-readable text.
     """
 
     @_typing.final

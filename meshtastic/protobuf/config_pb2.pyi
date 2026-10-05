@@ -1565,8 +1565,6 @@ class SecurityConfig(_message.Message):
         Keep live debug logging on over serial or bluetooth. By default logging stops
         as soon as an API client connects, to keep a shared serial link quiet.
         """
-        SECURITY_ADMIN_CHANNEL_ENABLED: SecurityConfig._Flags.ValueType  # 8
-        """Allow incoming device control over the insecure admin channel"""
 
     class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
         """
@@ -1584,8 +1582,6 @@ class SecurityConfig(_message.Message):
     Keep live debug logging on over serial or bluetooth. By default logging stops
     as soon as an API client connects, to keep a shared serial link quiet.
     """
-    SECURITY_ADMIN_CHANNEL_ENABLED: SecurityConfig.Flags.ValueType  # 8
-    """Allow incoming device control over the insecure admin channel"""
 
     class _RatchetFlags:
         ValueType = _typing.NewType("ValueType", _builtins.int)

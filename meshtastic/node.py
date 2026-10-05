@@ -192,9 +192,7 @@ class Node:
                 )
                 config_values = getattr(self.moduleConfig, config_type.name)
             else:
-                print(
-                    "Did not receive a valid response. Make sure to have a shared channel named 'admin'."
-                )
+                print("Did not receive a valid response.")
                 return
             if config_values is not None:
                 raw_config = getattr(getattr(adminMessage['raw'], oneof), camel_to_snake(field))
@@ -253,12 +251,12 @@ class Node:
             onResponse = self.onAckNak
         self._sendAdmin(p, onResponse=onResponse)
 
-    def writeChannel(self, channelIndex, adminIndex=0):
+    def writeChannel(self, channelIndex):
         """Write the current (edited) channel to the device"""
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.set_channel.CopyFrom(self.channels[channelIndex])
-        self._sendAdmin(p, adminIndex=adminIndex)
+        self._sendAdmin(p)
         logger.debug(f"Wrote channel {channelIndex}")
 
     def getChannelByChannelIndex(self, channelIndex):
@@ -276,10 +274,6 @@ class Node:
         if channelIndex == 0:
             our_exit("Warning: Only SECONDARY channels can be deleted")
 
-        # we are careful here because if we move the "admin" channel the channelIndex we need to use
-        # for sending admin channels will also change
-        adminIndex = self.iface.localNode._getAdminChannelIndex()
-
         # Snapshot serialized channel payloads from channelIndex onward so we
         # can avoid writing slots whose protobuf content did not change after
         # the shift. Use bytes (not message objects), because _fixupChannels()
@@ -295,15 +289,8 @@ class Node:
         index = channelIndex
         for old_ch in old_channels:
             if self.channels[index].SerializeToString() != old_ch:
-                self.writeChannel(index, adminIndex=adminIndex)
+                self.writeChannel(index)
             index += 1
-
-            # if we are updating the local node, we might end up
-            # *moving* the admin channel index as we are writing
-            if (self.iface.localNode == self) and index >= adminIndex:
-                # We've now passed the old location for admin index
-                # (and written it), so we can start finding it by name again
-                adminIndex = 0
 
     def getChannelByName(self, name):
         """Try to find the named channel or return None"""
@@ -318,13 +305,6 @@ class Node:
             if channel_role(c) == "DISABLED":
                 return c
         return None
-
-    def _getAdminChannelIndex(self):
-        """Return the channel number of the admin channel, or 0 if no reserved channel"""
-        for c in self.channels or []:
-            if c.settings and c.settings.name.lower() == "admin":
-                return c.index
-        return 0
 
     def setOwner(self, long_name: Optional[str]=None, short_name: Optional[str]=None, is_licensed: bool=False, is_unmessagable: Optional[bool]=None):
         """Set device owner name"""
@@ -1062,7 +1042,6 @@ class Node:
         p: admin_pb2.AdminMessage,
         wantResponse: bool=True,
         onResponse=None,
-        adminIndex: int=0,
     ):
         """Send an admin message to the specified node (or the local node if destNodeNum is zero)"""
 
@@ -1071,11 +1050,6 @@ class Node:
                 f"Not sending packet because protocol use is disabled by noProto"
             )
         else:
-            if (
-                adminIndex == 0
-            ):  # unless a special channel index was used, we want to use the admin index
-                adminIndex = self.iface.localNode._getAdminChannelIndex()
-            logger.debug(f"adminIndex:{adminIndex}")
             nodeid = to_node_num(self.nodeNum)
             if "adminSessionPassKey" in self.iface._getOrCreateByNum(nodeid):
                 p.session_passkey = self.iface._getOrCreateByNum(nodeid).get("adminSessionPassKey")
@@ -1086,7 +1060,6 @@ class Node:
                 wantAck=True,
                 wantResponse=wantResponse,
                 onResponse=onResponse,
-                channelIndex=adminIndex,
                 pkiEncrypted=True,
             )
 

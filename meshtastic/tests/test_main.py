@@ -905,9 +905,6 @@ def test_main_sendtext_with_dest(mock_findPorts, mock_serial, mocked_open, mock_
             assert not re.search(
                 r"Warning: 0 is not a valid channel", out, re.MULTILINE
             )
-            assert not re.search(
-                r"There is a SECONDARY channel named 'admin'", out, re.MULTILINE
-            )
             print(out)
             assert re.search(r"Not sending packet because", caplog.text, re.MULTILINE)
             assert re.search(r"Warning: There were no self.nodes.", caplog.text, re.MULTILINE)
