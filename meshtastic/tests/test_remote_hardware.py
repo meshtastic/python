@@ -31,18 +31,15 @@ def test_onGPIOreceive(capsys):
 
 
 @pytest.mark.unit
-def test_RemoteHardwareClient_no_gpio_channel(capsys):
-    """Test that we can instantiate a RemoteHardwareClient instance but there is no channel named channel 'gpio'"""
+def test_sendHardware_is_a_pki_direct_message():
+    """A request goes to the node as a PKI direct message; the node authorizes by the sender's key"""
     iface = MagicMock(autospec=SerialInterface)
-    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
-        mo.localNode.getChannelByName.return_value = None
-        with pytest.raises(SystemExit) as pytest_wrapped_e:
-            RemoteHardwareClient(mo)
-        assert pytest_wrapped_e.type == SystemExit
-        assert pytest_wrapped_e.value.code == 1
-        out, err = capsys.readouterr()
-        assert re.search(r"Warning: No channel named", out)
-        assert err == ""
+    rhw = RemoteHardwareClient(iface)
+    rhw.readGPIOs("0x10", 123)
+    kwargs = iface.sendData.call_args.kwargs
+    assert kwargs["pkiEncrypted"] is True
+    assert "channelIndex" not in kwargs
+    iface.close()
 
 
 @pytest.mark.unit

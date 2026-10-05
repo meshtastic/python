@@ -2716,25 +2716,6 @@ def test_set_missing_flags_false():
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
-def test_main_gpio_rd_no_gpio_channel(capsys):
-    """Test --gpio_rd with no named gpio channel"""
-    sys.argv = ["", "--gpio-rd", "0x10", "--dest", "!foo"]
-    mt_config.args = sys.argv
-
-    iface = MagicMock(autospec=SerialInterface)
-    iface.localNode.getChannelByName.return_value = None
-    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
-        with pytest.raises(SystemExit) as pytest_wrapped_e:
-            main()
-        assert pytest_wrapped_e.type == SystemExit
-        assert pytest_wrapped_e.value.code == 1
-        out, err = capsys.readouterr()
-        assert re.search(r"Warning: No channel named", out)
-        assert err == ""
-
-
-@pytest.mark.unit
-@pytest.mark.usefixtures("reset_mt_config")
 def test_main_gpio_rd_no_dest(capsys):
     """Test --gpio_rd with a named gpio channel but no dest was specified"""
     sys.argv = ["", "--gpio-rd", "0x2000"]

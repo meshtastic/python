@@ -42,18 +42,10 @@ class RemoteHardwareClient:
         """
         Constructor
 
-        iface is the already open MeshInterface instance
+        iface is the already open MeshInterface instance. The target node accepts a request only
+        from a public key listed in its remote_hardware.authorized_key.
         """
         self.iface = iface
-        ch = iface.localNode.getChannelByName("gpio")
-        if not ch:
-            our_exit(
-                "Warning: No channel named 'gpio' was found.\n"
-                "On the sending and receive nodes create a channel named 'gpio'.\n"
-                "For example, run '--ch-add gpio' on one device, then '--seturl' on\n"
-                "the other devices using the url from the device where the channel was added."
-            )
-        self.channelIndex = ch.index
 
         pub.subscribe(onGPIOreceive, "meshtastic.receive.remotehw")
 
@@ -67,9 +59,9 @@ class RemoteHardwareClient:
             nodeid,
             portnums_pb2.REMOTE_HARDWARE_APP,
             wantAck=True,
-            channelIndex=self.channelIndex,
             wantResponse=wantResponse,
             onResponse=onResponse,
+            pkiEncrypted=True,
         )
 
     def writeGPIOs(self, nodeid, mask, vals):
