@@ -1,0 +1,120 @@
+{
+  "Owner": [
+    "Meshtastic Test",
+    "MT"
+  ],
+  "MyInfo": {
+    "myNodeNum": 1234,
+    "minAppVersion": 30200,
+    "deviceId": "S==",
+    "pioEnv": "rak4631"
+  },
+  "Metadata": {
+    "firmwareVersion": "2.6.11.60ec05e",
+    "deviceStateVersion": 24,
+    "canShutdown": true,
+    "hasBluetooth": true,
+    "hasEthernet": true,
+    "positionFlags": 811,
+    "hwModel": "RAK4631",
+    "hasPKC": true,
+    "excludedModules": 4480
+  },
+  "Channels": [
+    {
+      "role": 1,
+      "__psk__": "01",
+      "settings": {
+        "psk": "AQ==",
+        "moduleSettings": {
+          "positionPrecision": 13,
+          "isMuted": false
+        },
+        "channelNum": 0,
+        "name": "",
+        "id": 0,
+        "uplinkEnabled": false,
+        "downlinkEnabled": false
+      }
+    },
+    {
+      "role": 0,
+      "settings": {
+        "channelNum": 0,
+        "psk": "",
+        "name": "",
+        "id": 0,
+        "uplinkEnabled": false,
+        "downlinkEnabled": false
+      }
+    },
+    {
+      "role": 0,
+      "settings": {
+        "channelNum": 0,
+        "psk": "",
+        "name": "",
+        "id": 0,
+        "uplinkEnabled": false,
+        "downlinkEnabled": false
+      }
+    },
+    {
+      "role": 0,
+      "settings": {
+        "channelNum": 0,
+        "psk": "",
+        "name": "",
+        "id": 0,
+        "uplinkEnabled": false,
+        "downlinkEnabled": false
+      }
+    },
+    {
+      "role": 0,
+      "settings": {
+        "channelNum": 0,
+        "psk": "",
+        "name": "",
+        "id": 0,
+        "uplinkEnabled": false,
+        "downlinkEnabled": false
+      }
+    },
+    {
+      "role": 0,
+      "settings": {
+        "channelNum": 0,
+        "psk": "",
+        "name": "",
+        "id": 0,
+        "uplinkEnabled": false,
+        "downlinkEnabled": false
+      }
+    },
+    {
+      "role": 0,
+      "settings": {
+        "channelNum": 0,
+        "psk": "",
+        "name": "",
+        "id": 0,
+        "uplinkEnabled": false,
+        "downlinkEnabled": false
+      }
+    },
+    {
+      "role": 0,
+      "settings": {
+        "channelNum": 0,
+        "psk": "",
+        "name": "",
+        "id": 0,
+        "uplinkEnabled": false,
+        "downlinkEnabled": false
+      }
+    }
+  ],
+  "publicURL": "https://meshtastic.org/e/#CgcSAQE6AggNEg8IATgDQANIAVAbaAHABgE",
+  "adminURL": "https://meshtastic.org/e/#CgcSAQE6AggNEg8IATgDQANIAVAbaAHABgE"
+}
