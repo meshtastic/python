@@ -50,7 +50,7 @@ def firmware_node():
     mesh = SimMesh(n_nodes=1, base_port=SINGLE_NODE_BASE_PORT)
     mesh.start()
     node = mesh.get_node(0)
-    set_region(node.port, "US")
+    set_region(node.port, "REGION_US")
     # The region commit restarts the TCP listener, so reconnect the harness
     # interface in case a test wants to use it directly.
     if node.iface is not None:
@@ -76,7 +76,7 @@ def firmware_mesh():
     mesh = SimMesh(n_nodes=3, topology=CHAIN_TOPOLOGY)
     mesh.start()
     for node in mesh.nodes:
-        set_region(node.port, "US")
+        set_region(node.port, "REGION_US")
     # The region commit restarts each node's TCP listener, so reconnect the
     # harness interfaces before waiting for convergence.
     for node in mesh.nodes:

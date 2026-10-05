@@ -1313,7 +1313,7 @@ def test_main_ch_add_invalid_name_too_long(capsys):
         assert pytest_wrapped_e.value.code == 1
         out, err = capsys.readouterr()
         assert re.search(r"Connected to radio", out, re.MULTILINE)
-        assert re.search(r"Warning: Channel name must be shorter", out, re.MULTILINE)
+        assert re.search(r"Warning: Channel name must be at most 11 bytes", out, re.MULTILINE)
         assert err == ""
         mo.assert_called()
 
@@ -2713,6 +2713,21 @@ def test_set_missing_flags_false():
     assert config["position"]["positionBroadcastSmartEnabled"] is False
     assert config["security"]["serialEnabled"] is False
     assert config["mqtt"]["encryptionEnabled"] is False
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_clear_ham_sends_owner_without_licensed_bit():
+    """--clear-ham writes the owner with the licensed bit off and leaves the names alone"""
+    sys.argv = ["", "--clear-ham"]
+    mt_config.args = sys.argv
+
+    mocked_node = MagicMock(autospec=Node)
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value = mocked_node
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        main()
+    mocked_node.setOwner.assert_called_once_with(is_licensed=False)
+
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")

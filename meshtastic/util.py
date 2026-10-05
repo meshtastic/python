@@ -23,7 +23,7 @@ import requests
 import serial # type: ignore[import-untyped]
 import serial.tools.list_ports # type: ignore[import-untyped]
 
-from meshtastic.protobuf import telemetry_pb2
+from meshtastic.protobuf import common_pb2, telemetry_pb2
 from meshtastic.protobuf.bitfields import BITFIELDS
 from meshtastic.supported_device import supported_devices
 from meshtastic.version import get_active_version
@@ -378,18 +378,36 @@ def channel_hash(data: bytes) -> int:
         result ^= char
     return result
 
-def generate_channel_hash(name: Union[str, bytes], key: Union[str, bytes]) -> int:
-    """generate the channel number by hashing the channel name and psk (accepts str or bytes for both)"""
+@functools.lru_cache(maxsize=None)
+def _modem_preset_names() -> Dict[int, str]:
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "protobuf", "modem_presets.json")
+    with open(path, encoding="utf-8") as f:
+        return {common_pb2.ModemPreset.Value(p["preset"]): p["name"] for p in json.load(f)["presets"]}
+
+
+def modem_preset_name(preset: int) -> str:
+    """The display name a modem preset has in the preset registry, such as "LongFast"."""
+    return _modem_preset_names().get(preset, "Invalid")
+
+
+def generate_channel_hash(name: Union[str, bytes], key: Union[str, bytes], preset: Optional[int] = None) -> int:
+    """The one-byte channel hash: XOR of the channel name and the expanded key, as the firmware computes it.
+
+    An empty name hashes as the modem preset's name, or "Custom" when the node uses no preset (preset None).
+    A one-byte key is a default-key index, and index 0 means no key.
+    """
     # Handle key as str or bytes
     if isinstance(key, str):
         key = base64.b64decode(key.replace("-", "+").replace("_", "/").encode("utf-8"))
 
     if len(key) == 1:
-        key = DEFAULT_KEY[:-1] + key
+        key = b"" if key[0] == 0 else DEFAULT_KEY[:-1] + key
 
     # Handle name as str or bytes
     if isinstance(name, str):
         name = name.encode("utf-8")
+    if not name:
+        name = (modem_preset_name(preset) if preset is not None else "Custom").encode("utf-8")
 
     h_name = channel_hash(name)
     h_key = channel_hash(key)

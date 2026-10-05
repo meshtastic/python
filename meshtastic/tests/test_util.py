@@ -794,6 +794,13 @@ def test_generate_channel_hash_basics():
     assert generate_channel_hash("LongFast", DEFAULT_KEY) == 8
     assert generate_channel_hash("MediumFast", DEFAULT_KEY) == 31
 
+def test_generate_channel_hash_matches_firmware_name_and_key_rules():
+    "An empty name hashes as the preset's name (Custom without one), and key index 0 means no key"
+    long_fast = common_pb2.ModemPreset.Value("MODEM_LONG_FAST")
+    assert generate_channel_hash("", bytes([1]), long_fast) == generate_channel_hash("LongFast", bytes([1]))
+    assert generate_channel_hash("", bytes([1])) == generate_channel_hash("Custom", bytes([1]))
+    assert generate_channel_hash("LongFast", bytes([0])) == generate_channel_hash("LongFast", b"")
+
 @given(st.text(min_size=1, max_size=12))
 def test_generate_channel_hash_fuzz_default_key(channel_name):
     "Test generate_channel_hash with fuzzed channel names and the default key, ensuring it produces single-byte values"

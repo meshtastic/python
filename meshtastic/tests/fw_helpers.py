@@ -317,7 +317,7 @@ def subscribe_positions(iface: TCPInterface) -> PacketCollector:
     return _subscribe_topic(iface, "meshtastic.receive.position")
 
 
-def set_region(port: int, region: str = "US") -> None:
+def set_region(port: int, region: str = "REGION_US") -> None:
     """Set the LoRa region on a sim node via the CLI.
 
     The node briefly restarts its TCP listener while committing the radio

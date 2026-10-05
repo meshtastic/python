@@ -494,6 +494,11 @@ def onConnected(interface):
             # Must turn off encryption on primary channel
             interface.getNode(args.dest, **getNode_kwargs).turnOffEncryptionOnPrimaryChannel()
 
+        if args.clear_ham:
+            closeNow = True
+            print("Leaving licensed (ham) mode; channel keys stay as they are")
+            interface.getNode(args.dest, **getNode_kwargs).setOwner(is_licensed=False)
+
         if args.reboot:
             closeNow = True
             waitForAckNak = True
@@ -930,9 +935,9 @@ def onConnected(interface):
                     "Warning: '--ch-add' and '--ch-index' are incompatible. Channel not added."
                 )
             closeNow = True
-            if len(args.ch_add) > 10:
+            if len(args.ch_add.encode("utf-8")) > 11:
                 meshtastic.util.our_exit(
-                    "Warning: Channel name must be shorter. Channel not added."
+                    "Warning: Channel name must be at most 11 bytes. Channel not added."
                 )
             n = interface.getNode(args.dest, **getNode_kwargs)
             ch = n.getChannelByName(args.ch_add)
@@ -2054,6 +2059,12 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     )
 
     group.add_argument(
+        "--clear-ham",
+        help="Leave licensed (ham) mode. Channel keys that licensed mode removed are not restored.",
+        action="store_true",
+    )
+
+    group.add_argument(
         "--set-is-unmessageable", "--set-is-unmessagable",
         help="Set if a node is messageable or not", action="store"
     )
@@ -2261,7 +2272,7 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
         help="Trace the route back to the connected node from a destination. "
         "You need pass the destination ID as argument, like "
         "this: '--traceroute !ba4bf9d0' | '--traceroute 0xba4bf9d0'. "
-        "Only nodes with a shared channel can be traced.",
+        "The request is a direct message, so this node needs the destination's public key.",
         metavar="!xxxxxxxx",
     )
 
@@ -2269,8 +2280,7 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
         "--request-telemetry",
         help="Request telemetry from a node. With an argument, requests that specific type of telemetry: "
         "device, sensors (environment, air quality, power and health), local_stats, host or traffic. "
-        "You need to pass the destination ID as argument with '--dest'. "
-        "For repeaters, the nodeNum is required.",
+        "You need to pass the destination ID as argument with '--dest'.",
         action="store",
         nargs="?",
         default=None,
@@ -2281,15 +2291,14 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
     group.add_argument(
         "--request-position",
         help="Request the position from a node. "
-        "You need to pass the destination ID as an argument with '--dest'. "
-        "For repeaters, the nodeNum is required.",
+        "You need to pass the destination ID as an argument with '--dest'.",
         action="store_true",
     )
 
     group.add_argument(
         "--reply",
-        help="Reply to received messages on the channel they were received. "
-        "If '--ch-index' is set, only messages on that channel are replied to.",
+        help="Reply to received text messages on the channel '--ch-index' names (0, the primary, by default). "
+        "Messages on other channels are ignored.",
         action="store_true",
     )
 
@@ -2319,7 +2328,7 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
 
     group.add_argument(
         "--ota-update",
-        help="Perform an OTA update on the local node (ESP32, firmware version >=2.7.18, WiFi/TCP only for now). "
+        help="Perform an OTA update on the local node (ESP32, over a Wi-Fi/TCP connection). "
         "Specify the path to the firmware file.",
         metavar="FIRMWARE_FILE",
         action="store",
@@ -2454,7 +2463,7 @@ def initParser():
 
     group.add_argument(
         "--seriallog",
-        help="Log device serial output to either 'none' or a filename to append to.  Defaults to '%(const)s' if no filename specified.",
+        help="Log device serial output to either 'none' or a filename, which is overwritten.  Defaults to '%(const)s' if no filename specified.",
         nargs="?",
         const="stdout",
         default=None,
@@ -2559,7 +2568,8 @@ def initParser():
 
     power_group.add_argument(
         "--power-stress",
-        help="Perform power monitor stress testing, to capture a power consumption profile for the device (also requires --power-mon)",
+        help="Perform power monitor stress testing, to capture a power consumption profile for the device "
+        "(also requires a power meter: --power-riden, --power-ppk2-meter, --power-ppk2-supply or --power-sim)",
         action="store_true",
     )
 

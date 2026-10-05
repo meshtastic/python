@@ -1680,6 +1680,21 @@ def test_setOwner_truncates_long_name_at_a_character_boundary(capsys):
 
 
 @pytest.mark.unit
+def test_setOwner_keeps_the_nodes_licensed_state():
+    """An owner write carries the node's current licensed bit unless the caller sets it"""
+    iface = MagicMock(autospec=MeshInterface)
+    iface.nodesByNum = {123: {"num": 123, "user": {"longName": "K1ABC", "isLicensed": True}}}
+    anode = Node(iface, 123, noProto=True)
+    anode._sendAdmin = MagicMock()
+
+    anode.setOwner(short_name="AB")
+    assert anode._sendAdmin.call_args[0][0].set_owner.flags & common_pb2.NodeFlags.NODE_FLAG_IS_LICENSED
+
+    anode.setOwner(short_name="AB", is_licensed=False)
+    assert not anode._sendAdmin.call_args[0][0].set_owner.flags & common_pb2.NodeFlags.NODE_FLAG_IS_LICENSED
+
+
+@pytest.mark.unit
 def test_setOwner_empty_long_name(capsys):
     """Test setOwner with empty long name"""
     iface = MagicMock(autospec=MeshInterface)

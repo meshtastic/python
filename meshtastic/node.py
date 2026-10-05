@@ -306,8 +306,8 @@ class Node:
                 return c
         return None
 
-    def setOwner(self, long_name: Optional[str]=None, short_name: Optional[str]=None, is_licensed: bool=False, is_unmessagable: Optional[bool]=None):
-        """Set device owner name"""
+    def setOwner(self, long_name: Optional[str]=None, short_name: Optional[str]=None, is_licensed: Optional[bool]=None, is_unmessagable: Optional[bool]=None):
+        """Set device owner name. is_licensed None keeps the node's current licensed state."""
         logger.debug(f"in setOwner nodeNum:{self.nodeNum}")
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
@@ -324,8 +324,13 @@ class Node:
                 long_name = truncated
                 print(f"Maximum is 24 bytes, truncated to {long_name}")
             p.set_owner.long_name = long_name
-            if is_licensed:
-                p.set_owner.flags |= common_pb2.NodeFlags.NODE_FLAG_IS_LICENSED
+        if is_licensed is None:
+            # The node takes the licensed bit as its whole state, so an owner write without it would end licensed mode
+            nodes = getattr(self.iface, "nodesByNum", None)
+            user = nodes.get(to_node_num(self.nodeNum), {}).get("user", {}) if isinstance(nodes, dict) else {}
+            is_licensed = bool(user.get("isLicensed"))
+        if is_licensed:
+            p.set_owner.flags |= common_pb2.NodeFlags.NODE_FLAG_IS_LICENSED
         if short_name is not None:
             short_name = short_name.strip()
             # Validate that short_name is not empty or whitespace-only
@@ -1078,9 +1083,14 @@ class Node:
         """Return a list of dicts with channel info and hash."""
         result = []
         if self.channels:
+            lora = self.localConfig.lora
+            preset = lora.modem_preset if lora.flags & config_pb2.LoRaConfig.Flags.LORA_USE_PRESET else None
+            primary_psk = self.channels[0].settings.psk
             for c in self.channels:
                 if c.settings and hasattr(c.settings, "name") and hasattr(c.settings, "psk"):
-                    hash_val = generate_channel_hash(c.settings.name, c.settings.psk)
+                    # A secondary channel with no key uses the primary's key
+                    psk = c.settings.psk if c.settings.psk or c.index == 0 else primary_psk
+                    hash_val = generate_channel_hash(c.settings.name, psk, preset)
                 else:
                     hash_val = None
                 result.append({
