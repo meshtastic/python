@@ -138,30 +138,60 @@ def getPref(node, comp_name) -> bool:
     name = splitCompoundName(comp_name)
     wholeField = name[0] == name[1]  # We want the whole field
 
-    camel_name = meshtastic.util.snake_to_camel(name[1])
-    # Note: protobufs has the keys in snake_case, so snake internally
-    snake_name = meshtastic.util.camel_to_snake(name[1])
-    uni_name = camel_name if mt_config.camel_case else snake_name
-    logger.debug(f"snake_name:{snake_name} camel_name:{camel_name}")
+    path_parts = name[1:] if not wholeField else []
+    display_subpath = ".".join(path_parts)
+    if mt_config.camel_case:
+        display_subpath = ".".join(meshtastic.util.snake_to_camel(p) for p in path_parts)
+
+    logger.debug(f"path_parts:{path_parts} display_subpath:{display_subpath}")
     logger.debug(f"use camel:{mt_config.camel_case}")
 
     # First validate the input
     localConfig = node.localConfig
     moduleConfig = node.moduleConfig
     found: bool = False
+    target_config = None
+    target_type = None
+    target_pref = None
+
     for config in [localConfig, moduleConfig]:
         objDesc = config.DESCRIPTOR
         config_type = objDesc.fields_by_name.get(name[0])
-        pref = ""		#FIXME - is this correct to leave as an empty string if not found?
-        if config_type:
-            pref = config_type.message_type.fields_by_name.get(snake_name)
-            if pref or wholeField:
-                found = True
+        if not config_type:
+            continue
+
+        if wholeField:
+            found = True
+            target_config = config
+            target_type = config_type
+            target_pref = config_type
+            break
+
+        curr_desc = config_type
+        valid_path = True
+        for part in path_parts:
+            part_snake = meshtastic.util.camel_to_snake(part)
+            if curr_desc.message_type is not None:
+                sub_field = curr_desc.message_type.fields_by_name.get(part_snake)
+                if sub_field is not None:
+                    curr_desc = sub_field
+                else:
+                    valid_path = False
+                    break
+            else:
+                valid_path = False
                 break
+
+        if valid_path:
+            found = True
+            target_config = config
+            target_type = config_type
+            target_pref = curr_desc
+            break
 
     if not found:
         print(
-            f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {uni_name}."
+            f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {display_subpath or comp_name}."
         )
         print("Choices are...")
         printConfig(localConfig)
@@ -169,20 +199,38 @@ def getPref(node, comp_name) -> bool:
         return False
 
     # Check if we need to request the config
-    if len(config.ListFields()) != 0 and not isinstance(pref, str): # if str, it's still the empty string, I think
-        # read the value
-        config_values = getattr(config, config_type.name)
-        if not wholeField:
-            pref_value = getattr(config_values, pref.name)
-            repeated = _is_repeated_field(pref)
-            _printSetting(config_type, uni_name, pref_value, repeated)
+    if len(target_config.ListFields()) != 0:
+        config_values = getattr(target_config, target_type.name)
+
+        def _print_submessage(prefix: str, msg_obj, desc) -> None:
+            for f, val in msg_obj.ListFields():
+                repeated = _is_repeated_field(f)
+                full_name = f"{prefix}.{f.name}" if prefix else f.name
+                if f.message_type is not None and not repeated:
+                    _print_submessage(full_name, val, f)
+                else:
+                    out_name = full_name
+                    if mt_config.camel_case:
+                        out_name = ".".join(meshtastic.util.snake_to_camel(p) for p in out_name.split("."))
+                    _printSetting(target_type, out_name, val, repeated)
+
+        if wholeField:
+            _print_submessage("", config_values, target_type)
         else:
-            for field in config_values.ListFields():
-                repeated = _is_repeated_field(field[0])
-                _printSetting(config_type, field[0].name, field[1], repeated)
+            curr_obj = config_values
+            for part in path_parts[:-1]:
+                curr_obj = getattr(curr_obj, meshtastic.util.camel_to_snake(part))
+            leaf_name = meshtastic.util.camel_to_snake(path_parts[-1])
+            if target_pref.message_type is not None and not _is_repeated_field(target_pref):
+                sub_obj = getattr(curr_obj, leaf_name)
+                _print_submessage(display_subpath, sub_obj, target_pref)
+            else:
+                pref_value = getattr(curr_obj, leaf_name)
+                repeated = _is_repeated_field(target_pref)
+                _printSetting(target_type, display_subpath, pref_value, repeated)
     else:
         # Always show whole field for remote node
-        node.requestConfig(config_type)
+        node.requestConfig(target_type)
 
     return True
 
@@ -1212,16 +1260,29 @@ def printConfig(config) -> None:
     objDesc = config.DESCRIPTOR
     for config_section in objDesc.fields:
         if config_section.name != "version":
-            config = objDesc.fields_by_name.get(config_section.name)
+            section_field = objDesc.fields_by_name.get(config_section.name)
             print(f"{config_section.name}:")
             names = []
-            for field in config.message_type.fields:
-                tmp_name = f"{config_section.name}.{field.name}"
-                if mt_config.camel_case:
-                    tmp_name = meshtastic.util.snake_to_camel(tmp_name)
-                names.append(tmp_name)
+
+            def _collect_field_names(prefix: str, desc) -> None:
+                if desc.message_type is not None:
+                    for field in desc.message_type.fields:
+                        field_prefix = f"{prefix}.{field.name}"
+                        if field.message_type is not None and not _is_repeated_field(field):
+                            _collect_field_names(field_prefix, field)
+                        else:
+                            name_to_add = field_prefix
+                            if mt_config.camel_case:
+                                parts = name_to_add.split(".")
+                                name_to_add = parts[0] + "." + ".".join(
+                                    meshtastic.util.snake_to_camel(p) for p in parts[1:]
+                                )
+                            names.append(name_to_add)
+
+            _collect_field_names(config_section.name, section_field)
             for temp_name in sorted(names):
                 print(f"    {temp_name}")
+
 
 
 def onNode(node) -> None:

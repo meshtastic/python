@@ -23,6 +23,8 @@ from meshtastic.__main__ import (
     onNode,
     onReceive,
     setPref,
+    getPref,
+    printConfig,
     tunnelMain,
     set_missing_flags_false,
     _profile_from_yaml,
@@ -3839,3 +3841,109 @@ def test_main_setPref_bitfield_invalid_name(capsys):
     assert "Unknown flag 'TCP'" in out
     assert "NO_BROADCAST" in out
     assert "UDP_BROADCAST" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_printConfig_nested_mqtt_settings(capsys):
+    """Test printConfig displays 3-level nested options like mqtt.map_report_settings."""
+    from meshtastic.protobuf import localonly_pb2
+    config = localonly_pb2.LocalModuleConfig()
+    printConfig(config)
+    out, _ = capsys.readouterr()
+    assert "mqtt.map_report_settings.position_precision" in out
+    assert "mqtt.map_report_settings.publish_interval_secs" in out
+    assert "mqtt.map_report_settings.should_report_location" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_printConfig_nested_camel_case(capsys):
+    """Test printConfig displays 3-level nested options in camelCase when enabled."""
+    from meshtastic.protobuf import localonly_pb2
+    mt_config.camel_case = True
+    config = localonly_pb2.LocalModuleConfig()
+    printConfig(config)
+    out, _ = capsys.readouterr()
+    assert "mqtt.mapReportSettings.positionPrecision" in out
+    assert "mqtt.mapReportSettings.publishIntervalSecs" in out
+    assert "mqtt.mapReportSettings.shouldReportLocation" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_printConfig_nested_network_settings(capsys):
+    """Test printConfig displays nested options in LocalConfig like network.ipv4_config."""
+    from meshtastic.protobuf import localonly_pb2
+    config = localonly_pb2.LocalConfig()
+    printConfig(config)
+    out, _ = capsys.readouterr()
+    assert "network.ipv4_config.ip" in out
+    assert "network.ipv4_config.gateway" in out
+    assert "network.ipv4_config.subnet" in out
+    assert "network.ipv4_config.dns" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_getPref_nested_leaf(capsys):
+    """Test getPref retrieves and prints a 3-level nested leaf setting."""
+    from meshtastic.protobuf import localonly_pb2
+    node = MagicMock()
+    node.localConfig = localonly_pb2.LocalConfig()
+    node.moduleConfig = localonly_pb2.LocalModuleConfig()
+    node.moduleConfig.mqtt.map_report_settings.position_precision = 14
+
+    assert getPref(node, "mqtt.map_report_settings.position_precision") is True
+    out, _ = capsys.readouterr()
+    assert "mqtt.map_report_settings.position_precision: 14" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_getPref_nested_leaf_camel(capsys):
+    """Test getPref retrieves a 3-level nested leaf setting in camelCase."""
+    from meshtastic.protobuf import localonly_pb2
+    mt_config.camel_case = True
+    node = MagicMock()
+    node.localConfig = localonly_pb2.LocalConfig()
+    node.moduleConfig = localonly_pb2.LocalModuleConfig()
+    node.moduleConfig.mqtt.map_report_settings.position_precision = 12
+
+    assert getPref(node, "mqtt.mapReportSettings.positionPrecision") is True
+    out, _ = capsys.readouterr()
+    assert "mqtt.mapReportSettings.positionPrecision: 12" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_getPref_nested_submessage(capsys):
+    """Test getPref retrieving an intermediate submessage prints all its nested fields."""
+    from meshtastic.protobuf import localonly_pb2
+    node = MagicMock()
+    node.localConfig = localonly_pb2.LocalConfig()
+    node.moduleConfig = localonly_pb2.LocalModuleConfig()
+    node.moduleConfig.mqtt.map_report_settings.position_precision = 15
+    node.moduleConfig.mqtt.map_report_settings.publish_interval_secs = 600
+
+    assert getPref(node, "mqtt.map_report_settings") is True
+    out, _ = capsys.readouterr()
+    assert "mqtt.map_report_settings.position_precision: 15" in out
+    assert "mqtt.map_report_settings.publish_interval_secs: 600" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_getPref_nested_invalid(capsys):
+    """Test getPref with invalid nested setting returns False and displays choices."""
+    from meshtastic.protobuf import localonly_pb2
+    node = MagicMock()
+    node.localConfig = localonly_pb2.LocalConfig()
+    node.moduleConfig = localonly_pb2.LocalModuleConfig()
+
+    assert getPref(node, "mqtt.map_report_settings.unknown_key") is False
+    out, _ = capsys.readouterr()
+    assert "do not have attribute" in out
+    assert "Choices are..." in out
+    assert "mqtt.map_report_settings.position_precision" in out
+
