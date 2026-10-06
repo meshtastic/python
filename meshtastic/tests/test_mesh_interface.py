@@ -16,7 +16,12 @@ try:
     from ..slog import LogSet
     from ..powermon import SimPowerSupply
 except ImportError:
-    pytest.skip("Can't import LogSet or SimPowerSupply", allow_module_level=True)
+    import sys
+    from unittest.mock import MagicMock
+    sys.modules['meshtastic.slog'] = MagicMock()
+    sys.modules['meshtastic.powermon'] = MagicMock()
+    LogSet = MagicMock()
+    SimPowerSupply = MagicMock()
 
 # TODO
 # from ..config import Config
@@ -443,6 +448,40 @@ def test_sendPacket_with_destination_starting_with_a_bang(caplog):
         iface._sendPacket(meshPacket, destinationId="!1234")
         assert re.search(r"Not sending packet", caplog.text, re.MULTILINE)
 
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_sendPacket_parsing(caplog):
+    """Test _sendPacket() parsing of explicit hex, implicit hex, and decimal node IDs"""
+    iface = MeshInterface(noProto=True)
+    
+    # Test valid explicit hex
+    p = iface._sendPacket(mesh_pb2.MeshPacket(), destinationId="!0x1234567")
+    assert p.to == 19088743
+
+    # Test implicit hex (>= 8 chars)
+    p = iface._sendPacket(mesh_pb2.MeshPacket(), destinationId="abcdef12")
+    assert p.to == 2882400018
+
+    # Test implicit hex backward compat (exactly 8 digits)
+    p = iface._sendPacket(mesh_pb2.MeshPacket(), destinationId="12345678")
+    assert p.to == 305419896
+
+    # Test decimal (>8 digits)
+    p = iface._sendPacket(mesh_pb2.MeshPacket(), destinationId="305419896")
+    assert p.to == 305419896
+
+    # Test decimal (short)
+    p = iface._sendPacket(mesh_pb2.MeshPacket(), destinationId="1234567")
+    assert p.to == 1234567
+
+    # Test explicit short hex
+    p = iface._sendPacket(mesh_pb2.MeshPacket(), destinationId="!123")
+    assert p.to == 291
+
+    # Test invalid falls back to DB
+    iface.nodes = {"Bob": {"num": 999}}
+    p = iface._sendPacket(mesh_pb2.MeshPacket(), destinationId="Bob")
+    assert p.to == 999
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
