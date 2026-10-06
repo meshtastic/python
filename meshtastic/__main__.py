@@ -11,6 +11,7 @@ from types import ModuleType
 from decimal import Decimal
 
 import argparse
+import base64
 
 argcomplete: Union[None, ModuleType] = None
 try:
@@ -38,6 +39,7 @@ try:
 except ImportError as e:
     have_test = False
 
+import meshtastic.anycast
 import meshtastic.ota
 import meshtastic.util
 import meshtastic.serial_interface
@@ -499,6 +501,38 @@ def onConnected(interface):
             print("Leaving licensed (ham) mode; channel keys stay as they are")
             interface.getNode(args.dest, **getNode_kwargs).setOwner(is_licensed=False)
 
+        if args.group_new:
+            closeNow = True
+            priv, pub = meshtastic.anycast.generate_keypair()
+            interface.getNode(args.dest, **getNode_kwargs).setGroup(args.group_new, pub, priv, uplink=args.group_uplink)
+            print(f"Created group {args.group_new} (!{meshtastic.anycast.group_id(pub):08x}); this node is a member")
+            print(f"Public key for the nodes that send to it: base64:{base64.b64encode(pub).decode()}")
+            print(f"Private key for other members: base64:{base64.b64encode(priv).decode()}")
+
+        if args.group_add:
+            closeNow = True
+            name, pubStr = args.group_add
+            pub = meshtastic.util.fromStr(pubStr)
+            priv = meshtastic.util.fromStr(args.group_priv) if args.group_priv else None
+            if not isinstance(pub, bytes) or (priv is not None and not isinstance(priv, bytes)):
+                meshtastic.util.our_exit("ERROR: give group keys as base64:... or 0x...")
+            interface.getNode(args.dest, **getNode_kwargs).setGroup(name, pub, priv, uplink=args.group_uplink)
+            print(f"Added group {name} (!{meshtastic.anycast.group_id(pub):08x}){', this node is a member' if priv else ''}")
+
+        if args.group_del:
+            closeNow = True
+            interface.getNode(args.dest, **getNode_kwargs).deleteGroup(args.group_del)
+            print(f"Removed group {args.group_del}")
+
+        if args.groups:
+            closeNow = True
+            node = interface.getNode(args.dest, **getNode_kwargs)
+            node._loadGroupConfig()  # pylint: disable=W0212
+            for g in node.listGroups():
+                role = "member" if g["member"] else "sender"
+                uplink = ", uplink" if g["uplink"] else ""
+                print(f"{g['name']}: !{g['id']:08x} ({role}{uplink})")
+
         if args.reboot:
             closeNow = True
             waitForAckNak = True
@@ -611,7 +645,22 @@ def onConnected(interface):
                 args.add_contact
             )
 
-        if args.sendtext:
+        if args.sendtext and args.dest_group:
+            closeNow = True
+            groupNum = interface.localNode.groupId(args.dest_group)
+            if groupNum is None:
+                meshtastic.util.our_exit(f"ERROR: the connected node knows no group named {args.dest_group}")
+            print(f"Sending text message {args.sendtext} to group {args.dest_group} (!{groupNum:08x})")
+            interface.sendText(
+                args.sendtext,
+                groupNum,
+                wantAck=True,
+                channelIndex=mt_config.channel_index or 0,
+                onResponse=interface.localNode.onAckNak,
+                portNum=portnums_pb2.PortNum.PRIVATE_APP if args.private else portnums_pb2.PortNum.TEXT_MESSAGE_APP,
+                anycast=True,
+            )
+        elif args.sendtext:
             closeNow = True
             channelIndex = mt_config.channel_index or 0
             if checkChannel(interface, channelIndex):
@@ -1897,6 +1946,13 @@ def addSelectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser
     )
 
     group.add_argument(
+        "--dest-group",
+        help="Send '--sendtext' to an anycast group the connected node knows: the nearest member delivers it.",
+        default=None,
+        metavar="NAME",
+    )
+
+    group.add_argument(
         "--ch-index",
         help="Set the specified channel index for channel-specific commands. Channels start at 0 (0 is the PRIMARY channel).",
         action="store",
@@ -2061,6 +2117,44 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     group.add_argument(
         "--clear-ham",
         help="Leave licensed (ham) mode. Channel keys that licensed mode removed are not restored.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--group-new",
+        help="Create an anycast group with a fresh key pair and make this node a member. "
+        "Prints the public key to give to the nodes that send to it.",
+        metavar="NAME",
+    )
+
+    group.add_argument(
+        "--group-add",
+        help="Add an anycast group by its public key, to send to it. With '--group-priv' this node is a member.",
+        nargs=2,
+        metavar=("NAME", "PUBLIC_KEY"),
+    )
+
+    group.add_argument(
+        "--group-priv",
+        help="The group's private key, with '--group-add': this node delivers what is sent to the group.",
+        metavar="PRIVATE_KEY",
+    )
+
+    group.add_argument(
+        "--group-uplink",
+        help="With '--group-new' or '--group-add': a member hands what it delivers to MQTT.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--group-del",
+        help="Remove an anycast group; a member also drops its private key.",
+        metavar="NAME",
+    )
+
+    group.add_argument(
+        "--groups",
+        help="List the anycast groups this node knows.",
         action="store_true",
     )
 

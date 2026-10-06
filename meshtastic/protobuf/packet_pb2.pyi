@@ -297,7 +297,8 @@ class MeshPacket(_message.Message):
         """
         PACKET_ANYCAST: MeshPacket._Flags.ValueType  # 128
         """
-        `to` is an anycast group, mirroring the header's HOP_ANYCAST for clients.
+        `to` is an anycast group, mirroring the header's HOP_ANYCAST for clients. A client sets
+        it to send to a group; a `to` that matches a configured group without it is a node.
         """
 
     class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
@@ -328,7 +329,8 @@ class MeshPacket(_message.Message):
     """
     PACKET_ANYCAST: MeshPacket.Flags.ValueType  # 128
     """
-    `to` is an anycast group, mirroring the header's HOP_ANYCAST for clients.
+    `to` is an anycast group, mirroring the header's HOP_ANYCAST for clients. A client sets
+    it to send to a group; a `to` that matches a configured group without it is a node.
     """
 
     class _AckProofStatus:

@@ -14,7 +14,7 @@ import time
 import traceback
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 
 try:
@@ -127,6 +127,7 @@ class MeshInterface:  # pylint: disable=R0902
         )
         self._timeout: Timeout = Timeout(maxSecs=timeout)
         self._acknowledgment: Acknowledgment = Acknowledgment()
+        self.anycastRequests: Set[int] = set()  # ids of packets sent to an anycast group
         self.heartbeatTimer: Optional[threading.Timer] = None
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
         self.currentPacketId: int = random.randint(0, 0xFFFFFFFF)
@@ -419,6 +420,7 @@ class MeshInterface:  # pylint: disable=R0902
         portNum: portnums_pb2.PortNum.ValueType = portnums_pb2.PortNum.TEXT_MESSAGE_APP,
         replyId: Optional[int]=None,
         hopLimit: Optional[int]=None,
+        anycast: bool=False,
     ):
         """Send a utf8 string to some other node, if the node has a display it
            will also be shown on the device.
@@ -437,6 +439,7 @@ class MeshInterface:  # pylint: disable=R0902
                        of the destination, see portnums.proto for a list
             replyId -- the ID of the message that this packet is a response to
             hopLimit {int} -- hop limit to use
+            anycast -- destinationId is an anycast group id: the nearest member delivers it
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -452,6 +455,7 @@ class MeshInterface:  # pylint: disable=R0902
             channelIndex=channelIndex,
             replyId=replyId,
             hopLimit=hopLimit,
+            anycast=anycast,
         )
 
 
@@ -519,6 +523,7 @@ class MeshInterface:  # pylint: disable=R0902
         priority: packet_pb2.MeshPacket.Priority.ValueType=packet_pb2.MeshPacket.Priority.RELIABLE,
         replyId: Optional[int]=None,
         recordPath: bool=False,
+        anycast: bool=False,
     ): # pylint: disable=R0913
         """Send a data packet to some other node
 
@@ -545,6 +550,8 @@ class MeshInterface:  # pylint: disable=R0902
             hopLimit -- hop limit to use
             replyId -- the ID of the message that this packet is a response to
             recordPath -- ask relays to record the path this packet takes
+            anycast -- destinationId is an anycast group id: the nearest member delivers it,
+                       and acks from its own node number
 
         Returns the sent packet. The id field will be populated in this packet
         and can be used to track future message acks/naks.
@@ -572,7 +579,11 @@ class MeshInterface:  # pylint: disable=R0902
             meshPacket.decoded.bitfield = wire_pb2.Data.BITFIELD_WANT_RESPONSE
         if recordPath:
             meshPacket.flags |= packet_pb2.MeshPacket.PACKET_RECORD_PATH
+        if anycast:
+            meshPacket.flags |= packet_pb2.MeshPacket.PACKET_ANYCAST
         meshPacket.id = self._generatePacketId()
+        if anycast:
+            self.anycastRequests.add(meshPacket.id)
         if replyId is not None:
             meshPacket.decoded.reply_id = replyId
         if priority is not None:

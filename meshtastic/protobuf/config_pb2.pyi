@@ -1659,7 +1659,8 @@ class SecurityConfig(_message.Message):
         Held here rather than in GroupConfig because this is where private key material lives,
         with the same handling as private_key: never returned to a client that did not set it.
         Firmware derives each key's public half to match it against a GroupConfig.Group entry,
-        so nothing indexes one list into the other.
+        so nothing indexes one list into the other. A security set carrying no group key keeps
+        the stored ones; a group set drops the key of a group it removes.
         """
 
     def __init__(
@@ -1718,7 +1719,9 @@ class GroupConfig(_message.Message):
 
     A frame to a group is an ordinary UCAST frame with HOP_ANYCAST set, so it is delivered
     to the nearest reachable member by the same next-hop learning as a direct message, and
-    it never becomes a broadcast.
+    it never becomes a broadcast. A group is an X25519 key pair; nothing signs as the group.
+    Firmware refuses a group whose key is not 32 bytes, whose id is 0-3 or 0xFFFFFFFF, or
+    whose id repeats another group's.
     """
 
     DESCRIPTOR: _descriptor.Descriptor

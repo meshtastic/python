@@ -509,7 +509,9 @@ class Routing(_message.Message):
                               "ack" | LE32(from) | LE32(to) | LE32(request_id) | routing)[0..8)
 
     where shared_key is the SHA256(X25519(sender_private, receiver_public)) that PKI packet
-    encryption uses, and `routing` is this encoded Routing message without this field.
+    encryption uses, and `routing` is this encoded Routing message without this field. On a
+    reply to an anycast request it is the key the request was sealed with,
+    SHA256(X25519(group_private, sender_public)), and `from` is the member that answered.
 
     Every input earns its place. request_id stops a captured proof being replayed against a
     different outstanding packet. The Routing bytes stop a bit flip turning a proven success
@@ -735,9 +737,9 @@ class HeaderOptions(_message.Message):
         HOP_ANYCAST: HeaderOptions._HopFlags.ValueType  # 4
         """
         `to` is a group identity rather than a node. Any node holding the group's private
-        key may deliver and acknowledge it. A relay keys its next-hop and dedup tables on
-        (this bit, to) and otherwise treats the frame as ordinary unicast. Meaningless on
-        a broadcast, where a relay ignores it.
+        key may deliver and acknowledge it. A relay keys its next-hop table on (this bit,
+        to) and otherwise treats the frame as ordinary unicast. Meaningless on a broadcast,
+        where a relay ignores it.
         """
 
     class HopFlags(_HopFlags, metaclass=_HopFlagsEnumTypeWrapper):
@@ -767,14 +769,15 @@ class HeaderOptions(_message.Message):
     HOP_ANYCAST: HeaderOptions.HopFlags.ValueType  # 4
     """
     `to` is a group identity rather than a node. Any node holding the group's private
-    key may deliver and acknowledge it. A relay keys its next-hop and dedup tables on
-    (this bit, to) and otherwise treats the frame as ordinary unicast. Meaningless on
-    a broadcast, where a relay ignores it.
+    key may deliver and acknowledge it. A relay keys its next-hop table on (this bit,
+    to) and otherwise treats the frame as ordinary unicast. Meaningless on a broadcast,
+    where a relay ignores it.
     """
 
     FRAGMENT_FIELD_NUMBER: _builtins.int
     HOP_FLAGS_FIELD_NUMBER: _builtins.int
     SCOPE_CODE_FIELD_NUMBER: _builtins.int
+    ANYCAST_REPLY_FIELD_NUMBER: _builtins.int
     fragment: _builtins.int
     """
     Fragmentation state, packed as msg_id(8) | index(3) | total(3).
@@ -820,16 +823,24 @@ class HeaderOptions(_message.Message):
     Region traffic still carries a channel (BCAST) or a destination (UCAST): this
     filters, it does not address.
     """
+    anycast_reply: _builtins.int
+    """
+    On an ack, nak or response to an anycast request: that request's id. Hop-by-hop. A
+    relay that carried the request learns its next hop toward the request's group from
+    the first frame carrying it, and the requester uses it to pick the group key the
+    reply is sealed with. fixed32 because packet ids are random 32-bit values.
+    """
     def __init__(
         self,
         *,
         fragment: _builtins.int = ...,
         hop_flags: _builtins.int = ...,
         scope_code: _builtins.int = ...,
+        anycast_reply: _builtins.int = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["fragment", b"fragment", "hop_flags", b"hop_flags", "scope_code", b"scope_code"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["anycast_reply", b"anycast_reply", "fragment", b"fragment", "hop_flags", b"hop_flags", "scope_code", b"scope_code"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 

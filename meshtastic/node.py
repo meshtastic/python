@@ -8,6 +8,7 @@ import time
 
 from typing import Optional, Union, List
 
+from meshtastic import anycast
 from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, common_pb2, config_pb2, localonly_pb2, portnums_pb2, wire_pb2
 from meshtastic.util import (
     Timeout,
@@ -305,6 +306,74 @@ class Node:
             if channel_role(c) == "DISABLED":
                 return c
         return None
+
+    def _loadGroupConfig(self):
+        """A remote node's group and security config, which nothing loads by default."""
+        if self != self.iface.localNode:
+            for name in ("group", "security"):
+                self.requestConfig(self.localConfig.DESCRIPTOR.fields_by_name.get(name))
+
+    def listGroups(self) -> List[dict]:
+        """The anycast groups this node knows: name, id, whether it is a member, and uplink."""
+        memberKeys = {anycast.public_key(k) for k in self.localConfig.security.group_private_key if len(k) == 32}
+        return [
+            {
+                "name": g.name,
+                "id": anycast.group_id(g.public_key),
+                "member": g.public_key in memberKeys,
+                "uplink": g.uplink_enabled,
+            }
+            for g in self.localConfig.group.groups
+        ]
+
+    def groupId(self, name: str) -> Optional[int]:
+        """The id of anycast group `name`, or None when this node does not know it."""
+        for g in self.localConfig.group.groups:
+            if g.name == name:
+                return anycast.group_id(g.public_key)
+        return None
+
+    def setGroup(self, name: str, publicKey: bytes, privateKey: Optional[bytes] = None, uplink: bool = False):
+        """Add or replace anycast group `name`. With privateKey this node is a member: it delivers
+        what is sent to the group and, with uplink, hands it to MQTT."""
+        if len(publicKey) != 32 or (privateKey is not None and len(privateKey) != 32):
+            our_exit("Error: group keys are 32 bytes")
+        if privateKey is not None and anycast.public_key(privateKey) != publicKey:
+            our_exit("Error: the private key does not belong to that public key")
+        if anycast.group_id(publicKey) in anycast.RESERVED_IDS:
+            our_exit("Error: that key gives a reserved group id, generate another")
+        self.ensureSessionKey()
+        self._loadGroupConfig()
+        kept = [g for g in self.localConfig.group.groups if g.name != name]
+        if len(kept) >= 4:
+            our_exit("Error: a node holds at most 4 groups")
+        del self.localConfig.group.groups[:]
+        self.localConfig.group.groups.extend(kept)
+        g = self.localConfig.group.groups.add()
+        g.name = name
+        g.public_key = publicKey
+        g.uplink_enabled = uplink
+        self.writeConfig("group")
+        if privateKey is not None and privateKey not in self.localConfig.security.group_private_key:
+            if self != self.iface.localNode:
+                print("Warning: a remote node does not return its group keys, so this replaces them")
+            self.localConfig.security.group_private_key.append(privateKey)
+            self.writeConfig("security")
+
+    def deleteGroup(self, name: str):
+        """Remove anycast group `name`; the node drops its private key with it."""
+        self.ensureSessionKey()
+        self._loadGroupConfig()
+        removed = [g.public_key for g in self.localConfig.group.groups if g.name == name]
+        if not removed:
+            our_exit(f"Error: no group named {name}")
+        kept = [g for g in self.localConfig.group.groups if g.name != name]
+        del self.localConfig.group.groups[:]
+        self.localConfig.group.groups.extend(kept)
+        self.writeConfig("group")
+        keys = [k for k in self.localConfig.security.group_private_key if anycast.public_key(k) not in removed]
+        del self.localConfig.security.group_private_key[:]
+        self.localConfig.security.group_private_key.extend(keys)
 
     def setOwner(self, long_name: Optional[str]=None, short_name: Optional[str]=None, is_licensed: Optional[bool]=None, is_unmessagable: Optional[bool]=None):
         """Set device owner name. is_licensed None keeps the node's current licensed state."""
@@ -1017,7 +1086,11 @@ class Node:
                 )
                 self.iface._acknowledgment.receivedImplAck = True
             else:
-                print(f"Received an ACK.")
+                # Any member of a group may answer: say which one did
+                if p["decoded"].get("requestId") in self.iface.anycastRequests:
+                    print(f"Received an ACK from !{int(p['from']):08x}.")
+                else:
+                    print(f"Received an ACK.")
                 self.iface._acknowledgment.receivedAck = True
 
     def _requestChannel(self, channelNum: int):
