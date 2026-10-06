@@ -80,9 +80,8 @@ class MQTTConfig(_message.Message):
         """
         MQTT_ENCRYPTION: MQTTConfig._Flags.ValueType  # 2
         """
-        Send encrypted rather than decrypted packets. Only honoured when a custom
-        server is set; the default mqtt.meshtastic.org server handles encrypted
-        packets. Decrypted packets suit external systems consuming meshtastic traffic.
+        Send encrypted rather than decrypted packets, on any server. Decrypted packets
+        suit external systems consuming meshtastic traffic.
         """
         MQTT_TLS: MQTTConfig._Flags.ValueType  # 4
         """Establish the connection using TLS"""
@@ -105,9 +104,8 @@ class MQTTConfig(_message.Message):
     """
     MQTT_ENCRYPTION: MQTTConfig.Flags.ValueType  # 2
     """
-    Send encrypted rather than decrypted packets. Only honoured when a custom
-    server is set; the default mqtt.meshtastic.org server handles encrypted
-    packets. Decrypted packets suit external systems consuming meshtastic traffic.
+    Send encrypted rather than decrypted packets, on any server. Decrypted packets
+    suit external systems consuming meshtastic traffic.
     """
     MQTT_TLS: MQTTConfig.Flags.ValueType  # 4
     """Establish the connection using TLS"""
@@ -133,15 +131,13 @@ class MQTTConfig(_message.Message):
     """
     username: _builtins.str
     """
-    MQTT username to use (most useful for a custom MQTT server).
-    If using a custom server, this will be honoured even if empty.
-    If using the default server, this will only be honoured if set, otherwise the device will use the default username
+    MQTT username to use. With an address set, the node uses this username, even an empty one;
+    with no address it connects to the default server with that server's default username.
     """
     password: _builtins.str
     """
-    MQTT password to use (most useful for a custom MQTT server).
-    If using a custom server, this will be honoured even if empty.
-    If using the default server, this will only be honoured if set, otherwise the device will use the default password
+    MQTT password to use. With an address set, the node uses this password, even an empty one;
+    with no address it connects to the default server with that server's default password.
     """
     root: _builtins.str
     """
@@ -189,7 +185,8 @@ class MapReportSettings(_message.Message):
     """
     position_precision: _builtins.int
     """
-    Bits of precision for the location sent (default of 32 is full precision).
+    Bits of precision for the location in a map report, 12 to 15. 0, or a value outside that
+    range, means the default of 14.
     """
     should_report_location: _builtins.bool
     """
@@ -276,31 +273,23 @@ class NeighborInfoConfig(_message.Message):
 
     ENABLED_FIELD_NUMBER: _builtins.int
     UPDATE_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
-    TRANSMIT_OVER_LORA_FIELD_NUMBER: _builtins.int
     enabled: _builtins.bool
     """
     Whether the Module is enabled
     """
     update_interval_secs: _builtins.int
     """
-    Interval in seconds of how often we should try to send our
-    Neighbor Info (minimum is 14400, i.e., 4 hours)
-    """
-    transmit_over_lora: _builtins.bool
-    """
-    Whether in addition to sending it to MQTT and the PhoneAPI, our NeighborInfo should be transmitted over LoRa.
-    Note that this is not available on a channel with default key and name.
+    Seconds between reports to the connected client. 0 uses the default of 6 hours.
     """
     def __init__(
         self,
         *,
         enabled: _builtins.bool = ...,
         update_interval_secs: _builtins.int = ...,
-        transmit_over_lora: _builtins.bool = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["enabled", b"enabled", "transmit_over_lora", b"transmit_over_lora", "update_interval_secs", b"update_interval_secs"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["enabled", b"enabled", "update_interval_secs", b"update_interval_secs"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -626,7 +615,7 @@ class TrafficManagementConfig(_message.Message):
     """
     Minimum interval in seconds between position updates from the same node.
     A non-zero value implicitly enables the suppression window; 0 disables it.
-    Firmware default: 21600 (6 hours), installed when this config is first created.
+    Firmware default: 18000 (5 hours), installed when this config is first created.
     """
     rate_limit_window_secs: _builtins.int
     """
@@ -640,9 +629,9 @@ class TrafficManagementConfig(_message.Message):
     """
     unknown_packet_threshold: _builtins.int
     """
-    Maximum unknown/undecryptable packets per rate window before the source
-    is dropped. A non-zero value implicitly enables unknown-packet filtering;
-    0 disables it.
+    Maximum unknown/undecryptable packets per five-minute window before the
+    source is dropped. A non-zero value implicitly enables unknown-packet
+    filtering; 0 disables it.
     """
     def __init__(
         self,
@@ -728,20 +717,10 @@ class SerialConfig(_message.Message):
         """NMEA messages specifically tailored for CalTopo"""
         WS85: SerialConfig._Serial_Mode.ValueType  # 6
         """Ecowitt WS85 weather station"""
-        VE_DIRECT: SerialConfig._Serial_Mode.ValueType  # 7
-        """VE.Direct is a serial protocol used by Victron Energy products
-        https://beta.ivc.no/wiki/index.php/Victron_VE_Direct_DIY_Cable
-        """
-        MS_CONFIG: SerialConfig._Serial_Mode.ValueType  # 8
+        MS_CONFIG: SerialConfig._Serial_Mode.ValueType  # 7
         """Used to configure and view some parameters of MeshSolar.
         https://heltec.org/project/meshsolar/
         """
-        LOG: SerialConfig._Serial_Mode.ValueType  # 9
-        """Logs mesh traffic to the serial pins, ideal for logging via openLog or similar.
-        includes other packets
-        """
-        LOGTEXT: SerialConfig._Serial_Mode.ValueType  # 10
-        """only text (channel & DM)"""
 
     class Serial_Mode(_Serial_Mode, metaclass=_Serial_ModeEnumTypeWrapper):
         """
@@ -757,20 +736,10 @@ class SerialConfig(_message.Message):
     """NMEA messages specifically tailored for CalTopo"""
     WS85: SerialConfig.Serial_Mode.ValueType  # 6
     """Ecowitt WS85 weather station"""
-    VE_DIRECT: SerialConfig.Serial_Mode.ValueType  # 7
-    """VE.Direct is a serial protocol used by Victron Energy products
-    https://beta.ivc.no/wiki/index.php/Victron_VE_Direct_DIY_Cable
-    """
-    MS_CONFIG: SerialConfig.Serial_Mode.ValueType  # 8
+    MS_CONFIG: SerialConfig.Serial_Mode.ValueType  # 7
     """Used to configure and view some parameters of MeshSolar.
     https://heltec.org/project/meshsolar/
     """
-    LOG: SerialConfig.Serial_Mode.ValueType  # 9
-    """Logs mesh traffic to the serial pins, ideal for logging via openLog or similar.
-    includes other packets
-    """
-    LOGTEXT: SerialConfig.Serial_Mode.ValueType  # 10
-    """only text (channel & DM)"""
 
     class _Flags:
         ValueType = _typing.NewType("ValueType", _builtins.int)
@@ -955,7 +924,7 @@ class ExternalNotificationConfig(_message.Message):
     output_buzzer: _builtins.int
     """
     Optional: GPIO an active (on/off) buzzer is connected to, driven when
-    ALERT_USE_PWM is clear. 0 is GPIO0, not "unset": the ALERT_*_BUZZER flags say
+    ALERT_USE_PWM is clear. 0 means no buzzer pin is set. The ALERT_*_BUZZER flags say
     whether it sounds. In standalone devices it matches the UI.
     """
     nag_timeout_secs: _builtins.int
@@ -1060,7 +1029,7 @@ class StoreForwardConfig(_message.Message):
     """
     storage_bytes: _builtins.int
     """
-    Bytes of backing store to use. 0 takes everything the platform offers.
+    Bytes of backing store to use. 0 for the platform default: 1 MiB on ESP32, 4 MiB on Linux.
     """
     max_per_sync: _builtins.int
     """
@@ -1074,7 +1043,8 @@ class StoreForwardConfig(_message.Message):
     """
     Node discovery records to hold, when DeviceConfig sets DISCOVERY_SERVE. A record is about
     135 bytes encoded and 150 with the index, so 1000 records is 150 kB of the same backing
-    store the frame log uses. 0 takes what the platform offers.
+    store the frame log uses. 0 for the default of 1000; an ESP32 holds no more than a quarter
+    of its free PSRAM fits.
     """
     record_ttl_secs: _builtins.int
     """
@@ -1510,7 +1480,7 @@ class MeshBeaconConfig(_message.Message):
     BROADCAST_TARGETS_FIELD_NUMBER: _builtins.int
     flags: _builtins.int
     """
-    Bitwise OR of Flags values (listen, broadcast and text-split toggles).
+    Bitwise OR of Flags values (listen and broadcast toggles).
     """
     broadcast_message: _builtins.str
     """

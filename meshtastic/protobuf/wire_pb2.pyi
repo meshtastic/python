@@ -500,8 +500,8 @@ class Routing(_message.Message):
     Optional proof that this ack or nak was produced by the node that actually received the
     packet named by Data.request_id, rather than by anyone holding the channel key.
 
-    An explicit ack usually travels on the channel, and a channel frame is encrypted but not
-    authenticated, so any listener holding the PSK can forge one. When the acknowledged
+    An explicit ack on a channel is authenticated only to the channel: its AEAD tag proves a
+    member sent it, so any member holding the PSK can forge one. When the acknowledged
     packet was PKI encrypted the two endpoints already share a Curve25519 secret, so the
     receiver proves receipt with a MAC rather than a signature:
 
@@ -1299,71 +1299,79 @@ Global___InjectedFrame: _TypeAlias = InjectedFrame  # noqa: Y015
 @_typing.final
 class NeighborInfo(_message.Message):
     """
-    Full info on edges for a single node
+    A node's directly heard neighbors, built from its node database. A node reports it to
+    its own client only, periodically and in reply to a request from that client; it never
+    goes over LoRa or MQTT.
     """
 
     DESCRIPTOR: _descriptor.Descriptor
 
     NODE_ID_FIELD_NUMBER: _builtins.int
-    LAST_SENT_BY_ID_FIELD_NUMBER: _builtins.int
     NODE_BROADCAST_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
-    NEIGHBOR_IDS_FIELD_NUMBER: _builtins.int
-    NEIGHBOR_SNR_FIELD_NUMBER: _builtins.int
+    NEIGHBORS_FIELD_NUMBER: _builtins.int
     node_id: _builtins.int
     """
-    The node ID of the node sending info on its neighbors
-    """
-    last_sent_by_id: _builtins.int
-    """
-    Field to pass neighbor info for the next sending cycle
+    The reporting node
     """
     node_broadcast_interval_secs: _builtins.int
     """
-    Broadcast interval of the represented node (in seconds)
+    Seconds between the node's periodic reports
     """
     @_builtins.property
-    def neighbor_ids(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
+    def neighbors(self) -> _containers.RepeatedCompositeFieldContainer[Global___Neighbor]:
         """
-        The out edges from this node, as two parallel columns: edge N is
-        (neighbor_ids[N], neighbor_snr[N]), and the two columns MUST stay the same
-        length.
-
-        Columns rather than one submessage per edge: a submessage costs a tag and a
-        length byte per neighbour plus a tag on each field inside it, where the
-        columns pay the field framing once and nothing per edge. That is around a
-        third of the message at ten neighbours, and roughly twice as many edges in
-        one frame.
-
-        A node's view of when it last heard a neighbour, and that neighbour's own
-        broadcast interval, belong to that node's table rather than to a message
-        about the edge, so neither is a column here.
-        """
-
-    @_builtins.property
-    def neighbor_snr(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
-        """
-        SNR of the last message heard from each neighbour, in dB scaled by 2.
-
-        Half-dB steps because this is the one SNR field that goes on the air, once per
-        neighbour: the whole practical range of -32 to +31.5 dB is a single zigzag byte,
-        where the radio's own quarter-dB quantum needs two below -16 dB - exactly the
-        weak links a neighbour table is about. Rounding a quarter-dB reading to halves
-        loses nothing a link decision uses.
+        The direct neighbors heard within twice the report interval
         """
 
     def __init__(
         self,
         *,
         node_id: _builtins.int = ...,
-        last_sent_by_id: _builtins.int = ...,
         node_broadcast_interval_secs: _builtins.int = ...,
-        neighbor_ids: _abc.Iterable[_builtins.int] | None = ...,
-        neighbor_snr: _abc.Iterable[_builtins.int] | None = ...,
+        neighbors: _abc.Iterable[Global___Neighbor] | None = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["last_sent_by_id", b"last_sent_by_id", "neighbor_ids", b"neighbor_ids", "neighbor_snr", b"neighbor_snr", "node_broadcast_interval_secs", b"node_broadcast_interval_secs", "node_id", b"node_id"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["neighbors", b"neighbors", "node_broadcast_interval_secs", b"node_broadcast_interval_secs", "node_id", b"node_id"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
 Global___NeighborInfo: _TypeAlias = NeighborInfo  # noqa: Y015
+
+@_typing.final
+class Neighbor(_message.Message):
+    """
+    One directly heard neighbor
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    NODE_ID_FIELD_NUMBER: _builtins.int
+    SNR_FIELD_NUMBER: _builtins.int
+    LAST_RX_TIME_FIELD_NUMBER: _builtins.int
+    node_id: _builtins.int
+    """
+    Node number of the neighbor
+    """
+    snr: _builtins.int
+    """
+    SNR of the last message heard from the neighbor, in dB scaled by 2
+    """
+    last_rx_time: _builtins.int
+    """
+    When the neighbor was last heard, in seconds since 1970
+    """
+    def __init__(
+        self,
+        *,
+        node_id: _builtins.int = ...,
+        snr: _builtins.int = ...,
+        last_rx_time: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["last_rx_time", b"last_rx_time", "node_id", b"node_id", "snr", b"snr"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___Neighbor: _TypeAlias = Neighbor  # noqa: Y015

@@ -119,7 +119,7 @@ class _PortNumEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_PortNum.Value
     Node Status module
     ENCODING: protobuf
     This module allows setting an extra string of status for a node.
-    Broadcasts on change and on a timer, possibly once a day.
+    Broadcasts two minutes after boot, then every 12 hours.
     """
     MESH_BEACON_APP: _PortNum.ValueType  # 36
     """
@@ -181,8 +181,8 @@ class _PortNumEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_PortNum.Value
     """
     NEIGHBORINFO_APP: _PortNum.ValueType  # 69
     """
-    Aggregates edge info for the network by sending out a list of each node's neighbors
-    ENCODING: Protobuf
+    A node's directly heard neighbors, between a node and its own client only; never sent over LoRa or MQTT
+    ENCODING: Protobuf NeighborInfo
     """
     MAP_REPORT_APP: _PortNum.ValueType  # 70
     """
@@ -352,7 +352,7 @@ NODE_STATUS_APP: PortNum.ValueType  # 35
 Node Status module
 ENCODING: protobuf
 This module allows setting an extra string of status for a node.
-Broadcasts on change and on a timer, possibly once a day.
+Broadcasts two minutes after boot, then every 12 hours.
 """
 MESH_BEACON_APP: PortNum.ValueType  # 36
 """
@@ -414,8 +414,8 @@ ENCODING: Protobuf
 """
 NEIGHBORINFO_APP: PortNum.ValueType  # 69
 """
-Aggregates edge info for the network by sending out a list of each node's neighbors
-ENCODING: Protobuf
+A node's directly heard neighbors, between a node and its own client only; never sent over LoRa or MQTT
+ENCODING: Protobuf NeighborInfo
 """
 MAP_REPORT_APP: PortNum.ValueType  # 70
 """

@@ -41,9 +41,7 @@ class DeviceConfig(_message.Message):
         """
         ALL_SKIP_DECODING: DeviceConfig._RebroadcastMode.ValueType  # 1
         """
-        Same behaviour as ALL, but skips packet decoding and simply rebroadcasts: a node
-        that repeats everything it hears without looking inside. Available on a ROUTER; on
-        any other role it behaves as ALL.
+        Rebroadcast everything without decoding it first. The firmware treats it as ALL on every role.
         """
         LOCAL_ONLY: DeviceConfig._RebroadcastMode.ValueType  # 2
         """
@@ -77,9 +75,7 @@ class DeviceConfig(_message.Message):
     """
     ALL_SKIP_DECODING: DeviceConfig.RebroadcastMode.ValueType  # 1
     """
-    Same behaviour as ALL, but skips packet decoding and simply rebroadcasts: a node
-    that repeats everything it hears without looking inside. Available on a ROUTER; on
-    any other role it behaves as ALL.
+    Rebroadcast everything without decoding it first. The firmware treats it as ALL on every role.
     """
     LOCAL_ONLY: DeviceConfig.RebroadcastMode.ValueType  # 2
     """
@@ -313,8 +309,7 @@ class DeviceConfig(_message.Message):
     """
     node_info_broadcast_secs: _builtins.int
     """
-    Send our nodeinfo this often
-    Defaults to 900 Seconds (15 minutes)
+    Send our nodeinfo this often. 0 for the default of 10800 seconds (3 hours); never more often than every 3600.
     """
     flags: _builtins.int
     """
@@ -541,8 +536,8 @@ class PositionConfig(_message.Message):
     GPS_MODE_FIELD_NUMBER: _builtins.int
     position_broadcast_secs: _builtins.int
     """
-    We should send our position this often (but only if it has changed significantly)
-    Defaults to 15 minutes
+    We should send our position this often (but only if it has changed significantly).
+    0 for the default of 3600 seconds, or 43200 on infrastructure.
     """
     position_broadcast_smart_enabled: _builtins.bool
     """
@@ -557,7 +552,7 @@ class PositionConfig(_message.Message):
     gps_update_interval_secs: _builtins.int
     """
     How often should we try to get GPS position (in seconds)
-    or zero for the default of once every 30 seconds
+    or zero for the default of once every 120 seconds (once a day on infrastructure)
     or a very large value (maxint) to update only once at boot.
     """
     position_flags: _builtins.int
@@ -656,13 +651,13 @@ class PowerConfig(_message.Message):
     """
     Super Deep Sleep Seconds
     While in Light Sleep if mesh_sds_timeout_secs is exceeded we will lower into super deep sleep
-    for this value (default 1 year) or a button press
-    0 for default of one year
+    for this value or until a button press. 0 for the default: until a button press (one day on
+    infrastructure). One sleep lasts at most about 24.8 days.
     """
     ls_secs: _builtins.int
     """
     Description: In light sleep the CPU is suspended, LoRa radio is on, BLE is off an GPS is on
-    Technical Details: ESP32 Only 0 for default of 300
+    Technical Details: ESP32 Only 0 for default of 300 (one day on infrastructure)
     """
     min_wake_secs: _builtins.int
     """
@@ -1138,7 +1133,7 @@ class DisplayConfig(_message.Message):
     screen_on_secs: _builtins.int
     """
     Number of seconds the screen stays on after pressing the user button or receiving a message
-    0 for default of one minute MAXUINT for always on
+    0 for the default of 600 seconds, MAXUINT for always on
     """
     auto_screen_carousel_secs: _builtins.int
     """

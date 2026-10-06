@@ -230,7 +230,7 @@ class RegionProfile(_message.Message):
     """
     Hop budget a node launches with on this profile's regions, 1 to 15. This is the
     "region default" that ChannelSettings.scope caps SCOPE_REGIONAL at; SCOPE_LOCAL caps
-    at 2 regardless and SCOPE_GLOBAL at the full 15. Congestion control may raise a
+    at 1 regardless and SCOPE_GLOBAL at the full 15. Congestion control may raise a
     REGIONAL launch to this value and no further.
     """
     def __init__(

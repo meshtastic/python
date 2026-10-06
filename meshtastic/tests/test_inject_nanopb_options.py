@@ -792,13 +792,12 @@ def test_descriptor_meshpacket_hop_limit():
 
 
 @pytest.mark.unit
-def test_descriptor_neighborinfo_neighbor_snr():
-    """NeighborInfo.neighbor_snr has max_count = 10 and int_size = IS_8 from wire.options."""
+def test_descriptor_neighborinfo_neighbors():
+    """NeighborInfo.neighbors has max_count = 10 from wire.options."""
     opts = _field_opts(
-        wire_pb2.DESCRIPTOR.message_types_by_name["NeighborInfo"], "neighbor_snr"
+        wire_pb2.DESCRIPTOR.message_types_by_name["NeighborInfo"], "neighbors"
     )
     assert opts.max_count == 10
-    assert opts.int_size == nanopb_pb2.IS_8
 
 
 @pytest.mark.unit

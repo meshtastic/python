@@ -280,6 +280,7 @@ class StoreAndForward(_message.Message):
         CAPACITY_FIELD_NUMBER: _builtins.int
         HELD_FIELD_NUMBER: _builtins.int
         FLAGS_FIELD_NUMBER: _builtins.int
+        ANNOUNCE_SECS_FIELD_NUMBER: _builtins.int
         server: _builtins.int
         """
         The server to sync with. Explicit because a MINI frame has no `from` field.
@@ -305,6 +306,10 @@ class StoreAndForward(_message.Message):
         """
         Bitwise OR of Flags values.
         """
+        announce_secs: _builtins.int
+        """
+        Seconds between this server's announces, so a client can tell how many it missed.
+        """
         @_builtins.property
         def served_hashes(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
             """
@@ -321,10 +326,11 @@ class StoreAndForward(_message.Message):
             capacity: _builtins.int = ...,
             held: _builtins.int = ...,
             flags: _builtins.int = ...,
+            announce_secs: _builtins.int = ...,
         ) -> None: ...
         _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
         def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-        _ClearFieldArgType: _TypeAlias = _typing.Literal["capacity", b"capacity", "flags", b"flags", "held", b"held", "max_per_sync", b"max_per_sync", "oldest_rx_time", b"oldest_rx_time", "served_hashes", b"served_hashes", "server", b"server"]  # noqa: Y015
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["announce_secs", b"announce_secs", "capacity", b"capacity", "flags", b"flags", "held", b"held", "max_per_sync", b"max_per_sync", "oldest_rx_time", b"oldest_rx_time", "served_hashes", b"served_hashes", "server", b"server"]  # noqa: Y015
         def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
         def WhichOneof(self, oneof_group: _Never) -> None: ...
 
