@@ -991,20 +991,44 @@ class MeshInterface:  # pylint: disable=R0902
                 nodeNum = self.myInfo.my_node_num
             else:
                 our_exit("Warning: No myInfo found.")
-        # A simple hex style nodeid - we can parse this without needing the DB
-        elif isinstance(destinationId, str) and len(destinationId) >= 8:
-            # assuming some form of node id string such as !1234578 or 0x12345678
-            # always grab the last 8 items of the hexadecimal id str and parse to integer
-            nodeNum = int(destinationId[-8:], 16)
-        else:
-            if self.nodes:
-                node = self.nodes.get(destinationId)
-                if node is None:
-                    our_exit(f"Warning: NodeId {destinationId} not found in DB")
+        elif isinstance(destinationId, str):
+            parsed = False
+            if destinationId.startswith("!") or destinationId.lower().startswith("0x"):
+                try:
+                    val_str = destinationId.lstrip("!").lower()
+                    if val_str.startswith("0x"):
+                        val_str = val_str[2:]
+                    if len(val_str) > 8:
+                        val_str = val_str[-8:]
+                    nodeNum = int(val_str, 16)
+                    parsed = True
+                except ValueError:
+                    pass
+            elif destinationId.isdigit():
+                try:
+                    if len(destinationId) == 8:
+                        nodeNum = int(destinationId, 16)
+                    else:
+                        nodeNum = int(destinationId)
+                    parsed = True
+                except ValueError:
+                    pass
+            elif len(destinationId) >= 8:
+                try:
+                    nodeNum = int(destinationId[-8:], 16)
+                    parsed = True
+                except ValueError:
+                    pass
+
+            if not parsed:
+                if self.nodes:
+                    node = self.nodes.get(destinationId)
+                    if node is None:
+                        our_exit(f"Warning: NodeId {destinationId} not found in DB")
+                    else:
+                        nodeNum = node["num"]
                 else:
-                    nodeNum = node["num"]
-            else:
-                logger.warning("Warning: There were no self.nodes.")
+                    logger.warning("Warning: There were no self.nodes.")
 
         meshPacket.to = nodeNum
         meshPacket.want_ack = wantAck
