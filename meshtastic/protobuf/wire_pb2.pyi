@@ -797,6 +797,17 @@ class HeaderOptions(_message.Message):
     hold no state. Each fragment is an ordinary packet, so want_ack and ReliableRouter
     already provide per-fragment retransmission - there is no separate ARQ.
     msg_id is a per-sender counter and wraps after 256 fragmented messages.
+
+    Packed as msg_id << 6 | index << 3 | total. total == 0 or index > total is invalid
+    and the fragment is dropped. Every fragment carries the message's portnum and a slice
+    of its payload; fragment 0 also carries request_id, reply_id, emoji and want_response.
+    A receiver keys a message on (from, portnum, msg_id) and joins the slices in index
+    order. A message to be kept by store and forward sets HOP_STORE on every fragment.
+
+    Fragmentation is opt-in per portnum, and the port's owner splits and joins: the node
+    for STORE_FORWARD_APP (2 fragments), the client for ATAK_FORWARDER (4) and
+    LORAWAN_BRIDGE (2). A node passes a client-owned port's fragments to its client as they
+    arrive and refuses a client fragment on any other port.
     """
     hop_flags: _builtins.int
     """

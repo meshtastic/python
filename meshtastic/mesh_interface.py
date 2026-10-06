@@ -26,6 +26,7 @@ from pubsub import pub  # type: ignore[import-untyped]
 from tabulate import tabulate
 
 import meshtastic.node
+from meshtastic import fragment
 from meshtastic import (
     BROADCAST_ADDR,
     BROADCAST_NUM,
@@ -127,6 +128,8 @@ class MeshInterface:  # pylint: disable=R0902
         )
         self._timeout: Timeout = Timeout(maxSecs=timeout)
         self._acknowledgment: Acknowledgment = Acknowledgment()
+        self.fragments = fragment.Reassembler()  # client-owned ports arrive split, the node never joins them
+        self._fragmentMsgId: int = random.randint(0, 255)
         self.anycastRequests: Set[int] = set()  # ids of packets sent to an anycast group
         self.heartbeatTimer: Optional[threading.Timer] = None
         random.seed()  # FIXME, we should not clobber the random seedval here, instead tell user they must call it
@@ -562,6 +565,23 @@ class MeshInterface:  # pylint: disable=R0902
             data = data.SerializeToString()
 
         logger.debug(f"len(data): {len(data)}")
+        # A client-owned port splits what does not fit one frame (SCHEMA.md section 8)
+        maxFragments = fragment.CLIENT_PORTS.get(portNum, 0)
+        broadcast = destinationId in (BROADCAST_ADDR, BROADCAST_NUM)
+        if maxFragments and len(data) > (fragment.BROADCAST_SLICE if broadcast else fragment.UNICAST_SLICE):
+            return self._sendFragmented(
+                data,
+                destinationId,
+                portNum,
+                maxFragments,
+                broadcast,
+                wantAck=wantAck,
+                wantResponse=wantResponse,
+                onResponse=onResponse,
+                channelIndex=channelIndex,
+                hopLimit=hopLimit,
+                replyId=replyId,
+            )
         # A frame's worth; the room a frame really leaves is per packet, and the node enforces it
         if len(data) > DATA_PAYLOAD_MAX:
             raise MeshInterface.MeshInterfaceError("Data payload too big")
@@ -941,6 +961,60 @@ class MeshInterface:  # pylint: disable=R0902
         if wantResponse:
             self.waitForWaypoint()
         return d
+
+    def _sendFragmented(
+        self,
+        data: bytes,
+        destinationId: Union[int, str],
+        portNum: portnums_pb2.PortNum.ValueType,
+        maxFragments: int,
+        broadcast: bool,
+        wantAck: bool = False,
+        wantResponse: bool = False,
+        onResponse: Optional[Callable[[dict], Any]] = None,
+        channelIndex: int = 0,
+        hopLimit: Optional[int] = None,
+        replyId: Optional[int] = None,
+    ):
+        """Send `data` as fragments of one message. onResponse fires once: on the first nak, or
+        when every fragment has been acked. Returns the first fragment's packet."""
+        slices = fragment.split(data, broadcast)
+        if len(slices) > maxFragments:
+            raise MeshInterface.MeshInterfaceError("Data payload too big")
+        msgId = self._fragmentMsgId
+        self._fragmentMsgId = (self._fragmentMsgId + 1) & 0xFF
+        ids = [self._generatePacketId() for _ in slices]
+        if onResponse is not None:
+            waiting = set(ids)
+
+            def onFragmentResponse(p):
+                if not waiting:
+                    return
+                waiting.discard(p.get("decoded", {}).get("requestId"))
+                if p.get("decoded", {}).get("routing", {}).get("errorReason", "NONE") != "NONE":
+                    waiting.clear()
+                if not waiting:
+                    onResponse(p)
+
+            for i in ids:
+                self._addResponseHandler(i, onFragmentResponse, ackPermitted=True)
+        sent = []
+        for index, piece in enumerate(slices):
+            meshPacket = packet_pb2.MeshPacket()
+            meshPacket.id = ids[index]
+            meshPacket.channel = channelIndex
+            meshPacket.decoded.portnum = portNum
+            meshPacket.decoded.payload = piece
+            if index == 0:  # the Data fields of the message ride on its first fragment only
+                if wantResponse:
+                    meshPacket.decoded.bitfield = wire_pb2.Data.BITFIELD_WANT_RESPONSE
+                if replyId is not None:
+                    meshPacket.decoded.reply_id = replyId
+            meshPacket.header_options = wire_pb2.HeaderOptions(
+                fragment=fragment.pack(msgId, index, len(slices) - 1)
+            ).SerializeToString()
+            sent.append(self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit))
+        return sent[0]
 
     def _addResponseHandler(
         self,
@@ -1507,6 +1581,12 @@ class MeshInterface:  # pylint: disable=R0902
         - meshtastic.receive.user(packet = MeshPacket dictionary)
         - meshtastic.receive.data(packet = MeshPacket dictionary)
         """
+        # A fragment waits for the rest of its message, which is then handled as one packet
+        if meshPacket.HasField("decoded") and fragment.field_of(meshPacket) is not None:
+            whole = self.fragments.add(meshPacket)
+            if whole is None:
+                return
+            meshPacket = whole
         asDict = message_to_dict(meshPacket)
 
         # We normally decompose the payload into a dictionary so that the client
