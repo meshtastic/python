@@ -72,11 +72,11 @@ class ChannelSettings(_message.Message):
         that cap. It is a sender-side rule: a relay cannot read it, and enforces reach with
         RelayConfig instead.
 
-        | scope    | launch hop_start | CHANNEL_UPLINK | congestion control may raise |
-        |----------|------------------|----------------|------------------------------|
-        | LOCAL    | 1                | refused        | no                           |
-        | REGIONAL | region default   | refused        | yes, to the region maximum   |
-        | GLOBAL   | 15               | allowed        | yes                          |
+        | scope    | launch hop_start | CHANNEL_UPLINK | congestion control may raise | scope_code |
+        |----------|------------------|----------------|------------------------------|------------|
+        | LOCAL    | 1                | refused        | no                           | no         |
+        | REGIONAL | region default   | refused        | yes, to the region maximum   | home_region |
+        | GLOBAL   | 15               | allowed        | yes                          | no         |
 
         A direct message launches with the sender's primary-channel scope unless the client
         sets hop_start itself; after the first flood it steers by next_hop, so the same

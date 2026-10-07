@@ -2,11 +2,14 @@
 """
 import base64
 import functools
+import hashlib
+import hmac
 import json
 import logging
 import os
 import platform
 import re
+import struct
 import subprocess
 import sys
 import threading
@@ -377,6 +380,25 @@ def channel_hash(data: bytes) -> int:
     for char in data:
         result ^= char
     return result
+
+
+def canonical_region_name(name: str, allow_empty: bool = False) -> str:
+    """A scope region name as a node stores it: A-Z folded to lowercase, then 1 to 15
+    characters of a-z, 0-9 and '-'. The scope key hashes the exact bytes, so EU-West and
+    eu-west would otherwise be two regions that never match."""
+    folded = name.lower()
+    if (not folded and not allow_empty) or len(folded) > 15 or not re.fullmatch(r"[a-z0-9-]*", folded):
+        raise ValueError(f"region name {name!r} must be 1 to 15 characters of a-z, 0-9 and '-'")
+    return folded
+
+
+def scope_code(region: str, chan: int, from_node: int, packet_id: int) -> int:
+    """HeaderOptions.scope_code of a broadcast on channel hash `chan` from a node whose
+    home region is `region` (SCHEMA.md section 8, Channel scope)."""
+    key = hashlib.sha256(b"%" + region.encode("utf-8")).digest()[:16]
+    msg = bytes([chan & 0xFF]) + struct.pack("<II", from_node & 0xFFFFFFFF, packet_id & 0xFFFFFFFF)
+    digest = hmac.new(key, msg, hashlib.sha256).digest()
+    return ((digest[0] << 8) | digest[1]) or 1
 
 @functools.lru_cache(maxsize=None)
 def _modem_preset_names() -> Dict[int, str]:

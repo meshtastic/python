@@ -831,8 +831,9 @@ class HeaderOptions(_message.Message):
     foreign traffic off its own infrastructure and for no other purpose. A node that
     wants proof of anything uses the AEAD tag or an XEdDSA signature.
 
-    Region traffic still carries a channel (BCAST) or a destination (UCAST): this
-    filters, it does not address.
+    The originator sets it on a BCAST frame of a REGIONAL channel from
+    RelayConfig.home_region, after the name is folded to lowercase. A relay ignores it on
+    UCAST. Region traffic still carries a channel: this filters, it does not address.
     """
     anycast_reply: _builtins.int
     """

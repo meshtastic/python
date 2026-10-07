@@ -1588,6 +1588,14 @@ class MeshInterface:  # pylint: disable=R0902
                 return
             meshPacket = whole
         asDict = message_to_dict(meshPacket)
+        if meshPacket.header_options:
+            # The options block as fields (hopFlags, scopeCode, ...); the raw bytes stay in "raw"
+            opts = wire_pb2.HeaderOptions()
+            try:
+                opts.ParseFromString(meshPacket.header_options)
+                asDict["headerOptions"] = message_to_dict(opts)
+            except Exception:  # pylint: disable=W0703
+                asDict["headerOptions"] = meshPacket.header_options.hex()
 
         # We normally decompose the payload into a dictionary so that the client
         # doesn't need to understand protobufs.  But advanced clients might

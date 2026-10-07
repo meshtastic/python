@@ -271,6 +271,14 @@ def setPref(config, comp_name, raw_val) -> bool:  # pylint: disable=R0911
         print("Warning: network.wifi_psk must be 8 or more characters.")
         return False
 
+    # The node folds region names to lowercase and refuses the rest: say so before writing
+    if config_type.name == "relay" and snake_name in ("home_region", "regions"):
+        try:
+            val = meshtastic.util.canonical_region_name(str(raw_val), allow_empty=snake_name == "home_region")
+        except ValueError as e:
+            print(f"ERROR: {e}")
+            return False
+
     # Handle uint32 bitfields that have an associated enum of flag names.
     bitfield_enum = None
     if config_type.message_type is not None:

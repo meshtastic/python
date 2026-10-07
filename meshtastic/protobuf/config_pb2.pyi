@@ -1787,11 +1787,16 @@ class RelayConfig(_message.Message):
     """
     Relay Policy
 
-    How this node relays broadcast traffic, per channel hash. Evaluated on a ROUTER only;
-    every other role ignores it. Keyed by the
+    How this node relays broadcast traffic, per channel hash, and which region its own
+    broadcasts claim. rules, default_action, regions and scope_miss_action act on a ROUTER
+    only; home_region acts on every role. Rules are keyed by the
     header's one-byte `chan`, so a rule covers every channel that hashes to that byte,
     held or not - which is what lets an operator cap a channel whose key the node does
     not have.
+
+    A region name is 1 to 15 bytes of a-z, 0-9 and '-'. A node folds A-Z to lowercase and
+    refuses any other name, because the scope key hashes the exact bytes. A relay config
+    write takes effect without a reboot.
 
     Default is no rules and RELAY_FORWARD, so a node relays as it did until an operator
     opts in. A RELAY_DROP on the primary hash partitions a mesh, so rules are admin-only
@@ -1867,14 +1872,20 @@ class RelayConfig(_message.Message):
     DEFAULT_ACTION_FIELD_NUMBER: _builtins.int
     REGIONS_FIELD_NUMBER: _builtins.int
     SCOPE_MISS_ACTION_FIELD_NUMBER: _builtins.int
+    HOME_REGION_FIELD_NUMBER: _builtins.int
     default_action: Global___RelayConfig.Action.ValueType
     """
     What to do with a broadcast that matches no rule.
     """
     scope_miss_action: Global___RelayConfig.Action.ValueType
     """
-    What to do with a broadcast whose scope_code matches none of `regions`. Only
-    consulted when `regions` is non-empty and the frame carries a scope_code.
+    What to do with a broadcast whose scope_code matches neither home_region nor
+    `regions`. Only consulted when one of them is set and the frame carries a scope_code.
+    """
+    home_region: _builtins.str
+    """
+    Region this node's own broadcasts on REGIONAL channels claim in
+    HeaderOptions.scope_code. Any role. Empty, the default, sends no code.
     """
     @_builtins.property
     def rules(self) -> _containers.RepeatedCompositeFieldContainer[Global___RelayConfig.Rule]:
@@ -1885,8 +1896,8 @@ class RelayConfig(_message.Message):
     @_builtins.property
     def regions(self) -> _containers.RepeatedScalarFieldContainer[_builtins.str]:
         """
-        Region names this relay verifies HeaderOptions.scope_code against. Empty means the
-        field is ignored.
+        Region names this relay accepts in HeaderOptions.scope_code, in addition to
+        home_region. With both empty the field is ignored.
         """
 
     def __init__(
@@ -1896,10 +1907,11 @@ class RelayConfig(_message.Message):
         default_action: Global___RelayConfig.Action.ValueType = ...,
         regions: _abc.Iterable[_builtins.str] | None = ...,
         scope_miss_action: Global___RelayConfig.Action.ValueType = ...,
+        home_region: _builtins.str = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["default_action", b"default_action", "regions", b"regions", "rules", b"rules", "scope_miss_action", b"scope_miss_action"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["default_action", b"default_action", "home_region", b"home_region", "regions", b"regions", "rules", b"rules", "scope_miss_action", b"scope_miss_action"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
