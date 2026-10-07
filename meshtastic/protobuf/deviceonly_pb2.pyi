@@ -296,6 +296,105 @@ class DeviceState(_message.Message):
 Global___DeviceState: _TypeAlias = DeviceState  # noqa: Y015
 
 @_typing.final
+class RatchetPeer(_message.Message):
+    """
+    One peer's published ratchet keys, as RatchetState stores them.
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    NUM_FIELD_NUMBER: _builtins.int
+    KEYS_FIELD_NUMBER: _builtins.int
+    AGE_SECS_FIELD_NUMBER: _builtins.int
+    OWN_GENERATION_FIELD_NUMBER: _builtins.int
+    num: _builtins.int
+    """
+    The peer's node number.
+    """
+    age_secs: _builtins.int
+    """
+    How long keys[0] had been held when this was written. Time the node was off is not
+    counted.
+    """
+    own_generation: _builtins.int
+    """
+    The newest RatchetState.generation of this node's keys the peer has used toward it,
+    0 for none. A direct message to the peer uses that key.
+    """
+    @_builtins.property
+    def keys(self) -> _containers.RepeatedScalarFieldContainer[_builtins.bytes]:
+        """
+        Its ratchet public keys, newest first, at most three.
+        """
+
+    def __init__(
+        self,
+        *,
+        num: _builtins.int = ...,
+        keys: _abc.Iterable[_builtins.bytes] | None = ...,
+        age_secs: _builtins.int = ...,
+        own_generation: _builtins.int = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["age_secs", b"age_secs", "keys", b"keys", "num", b"num", "own_generation", b"own_generation"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___RatchetPeer: _TypeAlias = RatchetPeer  # noqa: Y015
+
+@_typing.final
+class RatchetState(_message.Message):
+    """
+    Direct-message forward secrecy state, in its own file. Never sent, never in a backup and
+    never returned by get_config: erasing the oldest private key is what the feature buys.
+    """
+
+    DESCRIPTOR: _descriptor.Descriptor
+
+    PRIVATE_KEYS_FIELD_NUMBER: _builtins.int
+    ROTATED_AT_FIELD_NUMBER: _builtins.int
+    GENERATION_FIELD_NUMBER: _builtins.int
+    PEERS_FIELD_NUMBER: _builtins.int
+    rotated_at: _builtins.int
+    """
+    Unix seconds of the last rotation, or 0 when the clock was not trusted then.
+    """
+    generation: _builtins.int
+    """
+    Generation of private_keys[0]: counts rotations, so RatchetPeer.own_generation can
+    name one of this node's keys across a rotation.
+    """
+    @_builtins.property
+    def private_keys(self) -> _containers.RepeatedScalarFieldContainer[_builtins.bytes]:
+        """
+        X25519 ratchet private keys, newest first, at most three. Public halves are derived.
+        """
+
+    @_builtins.property
+    def peers(self) -> _containers.RepeatedCompositeFieldContainer[Global___RatchetPeer]:
+        """
+        Peers whose ratchet keys this node holds. Kept so a node that was off can still
+        decrypt the direct messages a store-and-forward server replays to it.
+        """
+
+    def __init__(
+        self,
+        *,
+        private_keys: _abc.Iterable[_builtins.bytes] | None = ...,
+        rotated_at: _builtins.int = ...,
+        generation: _builtins.int = ...,
+        peers: _abc.Iterable[Global___RatchetPeer] | None = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["generation", b"generation", "peers", b"peers", "private_keys", b"private_keys", "rotated_at", b"rotated_at"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
+
+Global___RatchetState: _TypeAlias = RatchetState  # noqa: Y015
+
+@_typing.final
 class NodePositionEntry(_message.Message):
     """Satellite per-node entries; stored alongside the slim NodeInfoLite so nodes
     that never report don't pay the embedded cost.

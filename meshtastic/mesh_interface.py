@@ -255,6 +255,7 @@ class MeshInterface:  # pylint: disable=R0902
                 "lastHeard": "LastHeard",
                 "since": "Since",
                 "isFavorite": "Fav",
+                "hasRatchet": "Ratchet",
 
             }
 
@@ -302,7 +303,8 @@ class MeshInterface:  # pylint: disable=R0902
             showFields = ["N", "user.longName", "user.id", "user.shortName", "user.hwModel", "user.publicKey",
                           "user.role", "position.latitude", "position.longitude", "position.altitude",
                           "deviceMetrics.batteryLevel", "deviceMetrics.channelUtilization",
-                          "deviceMetrics.airUtilTx", "snr", "hopsAway", "channel", "isFavorite", "lastHeard", "since"]
+                          "deviceMetrics.airUtilTx", "snr", "hopsAway", "channel", "isFavorite", "hasRatchet", "lastHeard",
+                          "since"]
         else:
             # Always at least include the row number.
             showFields.insert(0, "N")
@@ -344,7 +346,7 @@ class MeshInterface:  # pylint: disable=R0902
                             formatted_value = "Powered"
                         else:
                             formatted_value = formatFloat(raw_value, 0, "%")
-                    elif field == "isFavorite":
+                    elif field in ("isFavorite", "hasRatchet"):
                         formatted_value = "*" if raw_value else ""
                     elif field == "lastHeard":
                         formatted_value = getLH(raw_value)

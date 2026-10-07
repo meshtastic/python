@@ -286,10 +286,11 @@ class User(_message.Message):
     """
     Current X25519 ratchet public key, present only while this node has forward secrecy
     for direct messages enabled (SecurityConfig.ratchet_flags). Rotated every
-    ratchet_interval_secs. A receiver keeps the newest key it has seen for this node and
-    discards it once it is older than the sender's retention window, after which it falls
-    back to the static derivation. Authenticated by the XEdDSA signature on the NodeInfo
-    that carries it: an unsigned NodeInfo's ratchet key is ignored.
+    ratchet_interval_secs. A receiver keeps the three newest keys it has seen for this node,
+    sends with the newest for (K - 1) days after it first saw it, and falls back to the
+    static derivation after that. A key counts only from a NodeInfo whose XEdDSA signature
+    verified or that decrypted under the sender's static key; a NodeInfo of either kind
+    without the field means the node stopped publishing one. Never in a NodeRecord.
     """
     def __init__(
         self,
@@ -404,6 +405,12 @@ class Routing(_message.Message):
         PKI encryption failed, due to no public key for the remote node.
         This is different from PKI_UNKNOWN_PUBKEY which indicates a failure upon receiving a packet.
         """
+        PKI_SEND_FAIL_RATCHET_KEY: Routing._Error.ValueType  # 40
+        """
+        REQUIRE_RATCHET_WHEN_KNOWN refused a direct message: the destination has published a
+        ratchet key, but this node holds no fresh one for it. Local, never on the air. The node
+        asks the destination for its NodeInfo, so a later attempt can succeed.
+        """
 
     class Error(_Error, metaclass=_ErrorEnumTypeWrapper):
         """
@@ -487,6 +494,12 @@ class Routing(_message.Message):
     PKI encryption failed, due to no public key for the remote node.
     This is different from PKI_UNKNOWN_PUBKEY which indicates a failure upon receiving a packet.
     """
+    PKI_SEND_FAIL_RATCHET_KEY: Routing.Error.ValueType  # 40
+    """
+    REQUIRE_RATCHET_WHEN_KNOWN refused a direct message: the destination has published a
+    ratchet key, but this node holds no fresh one for it. Local, never on the air. The node
+    asks the destination for its NodeInfo, so a later attempt can succeed.
+    """
 
     ERROR_REASON_FIELD_NUMBER: _builtins.int
     ACK_PROOF_FIELD_NUMBER: _builtins.int
@@ -508,8 +521,9 @@ class Routing(_message.Message):
       ack_proof = HMAC-SHA256(shared_key,
                               "ack" | LE32(from) | LE32(to) | LE32(request_id) | routing)[0..8)
 
-    where shared_key is the SHA256(X25519(sender_private, receiver_public)) that PKI packet
-    encryption uses, and `routing` is this encoded Routing message without this field. On a
+    where shared_key is SHA256(X25519(sender_private, receiver_public)), the static PKI
+    derivation, also when the acknowledged message used the ratchet, and `routing` is this
+    encoded Routing message without this field. On a
     reply to an anycast request it is the key the request was sealed with,
     SHA256(X25519(group_private, sender_public)), and `from` is the member that answered.
 

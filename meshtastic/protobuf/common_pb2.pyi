@@ -580,6 +580,13 @@ class _NodeFlagsEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_NodeFlags.V
     A TRACKER with DEVICE_LOST_AND_FOUND: it is asking to be found, so peers let its duplicate
     positions through more often. Set by the node itself.
     """
+    NODE_FLAG_HAS_RATCHET: _NodeFlags.ValueType  # 134217728
+    """
+    The node has published a ratchet key (User.ratchet_key) in an authenticated NodeInfo.
+    Local only: set by the first one that carries a key and cleared by one that carries none,
+    so it survives a reboot and is what REQUIRE_RATCHET_WHEN_KNOWN acts on. Never in
+    User.flags or NodeRecord.flags.
+    """
 
 class NodeFlags(_NodeFlags, metaclass=_NodeFlagsEnumTypeWrapper):
     """
@@ -658,6 +665,13 @@ NODE_FLAG_LOST_AND_FOUND: NodeFlags.ValueType  # 67108864
 """
 A TRACKER with DEVICE_LOST_AND_FOUND: it is asking to be found, so peers let its duplicate
 positions through more often. Set by the node itself.
+"""
+NODE_FLAG_HAS_RATCHET: NodeFlags.ValueType  # 134217728
+"""
+The node has published a ratchet key (User.ratchet_key) in an authenticated NodeInfo.
+Local only: set by the first one that carries a key and cleared by one that carries none,
+so it survives a reboot and is what REQUIRE_RATCHET_WHEN_KNOWN acts on. Never in
+User.flags or NodeRecord.flags.
 """
 Global___NodeFlags: _TypeAlias = NodeFlags  # noqa: Y015
 
@@ -846,6 +860,8 @@ class DeviceMetadata(_message.Message):
         """Has public key cryptography"""
         CAPABILITY_HAS_XEDDSA: DeviceMetadata._Capabilities.ValueType  # 64
         """Build includes XEdDSA packet signature verification; clear when not compiled in"""
+        CAPABILITY_HAS_RATCHET: DeviceMetadata._Capabilities.ValueType  # 128
+        """Build includes direct-message forward secrecy (SecurityConfig.ratchet_flags)"""
 
     class Capabilities(_Capabilities, metaclass=_CapabilitiesEnumTypeWrapper):
         """
@@ -869,6 +885,8 @@ class DeviceMetadata(_message.Message):
     """Has public key cryptography"""
     CAPABILITY_HAS_XEDDSA: DeviceMetadata.Capabilities.ValueType  # 64
     """Build includes XEdDSA packet signature verification; clear when not compiled in"""
+    CAPABILITY_HAS_RATCHET: DeviceMetadata.Capabilities.ValueType  # 128
+    """Build includes direct-message forward secrecy (SecurityConfig.ratchet_flags)"""
 
     FIRMWARE_VERSION_FIELD_NUMBER: _builtins.int
     DEVICE_STATE_VERSION_FIELD_NUMBER: _builtins.int

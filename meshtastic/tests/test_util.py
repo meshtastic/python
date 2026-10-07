@@ -907,10 +907,11 @@ _NETWORK_PROTOCOLS = config_pb2.NetworkConfig.ProtocolFlags
         "CAPABILITY_HAS_ETHERNET", "CAPABILITY_HAS_REMOTE_HARDWARE", "CAPABILITY_HAS_PKC",
         "CAPABILITY_HAS_XEDDSA",
     ]),
-    # bit 7 is beyond every currently-defined Capabilities value, so it
+    # bit 8 is beyond every currently-defined Capabilities value, so it
     # exercises the unknown-remainder path
-    (_CAPABILITIES, 0x80, ["UNKNOWN_ADDITIONAL_FLAGS(128)"]),
-    (_CAPABILITIES, 0x81, ["CAPABILITY_CAN_SHUTDOWN", "UNKNOWN_ADDITIONAL_FLAGS(128)"]),
+    (_CAPABILITIES, 0x80, ["CAPABILITY_HAS_RATCHET"]),
+    (_CAPABILITIES, 0x100, ["UNKNOWN_ADDITIONAL_FLAGS(256)"]),
+    (_CAPABILITIES, 0x101, ["CAPABILITY_CAN_SHUTDOWN", "UNKNOWN_ADDITIONAL_FLAGS(256)"]),
     (_POSITION_FLAGS, 0, []),
     (_POSITION_FLAGS, 0x09, ["ALTITUDE", "DOP"]),
     (_POSITION_FLAGS, 0x36D, [

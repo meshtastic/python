@@ -1588,10 +1588,12 @@ class SecurityConfig(_message.Message):
         """Nothing enabled: direct messages derive their key from the static keys alone"""
         RATCHET_ENABLED: SecurityConfig._RatchetFlags.ValueType  # 1
         """Generate, publish and use ratchet keys for PKI direct messages"""
-        RATCHET_REQUIRE_WHEN_KNOWN: SecurityConfig._RatchetFlags.ValueType  # 2
+        REQUIRE_RATCHET_WHEN_KNOWN: SecurityConfig._RatchetFlags.ValueType  # 2
         """
-        Refuse to send a direct message with the static derivation when the peer has
-        published a ratchet key. Off by default: a stale key would cost delivery.
+        Refuse to send a direct message with the static derivation to a node known to have
+        published a ratchet key (NODE_FLAG_HAS_RATCHET). Acks, NodeInfo and key verification
+        stay static. Acts only with RATCHET_ENABLED. Off by default: a stale key would cost
+        delivery.
         """
 
     class RatchetFlags(_RatchetFlags, metaclass=_RatchetFlagsEnumTypeWrapper):
@@ -1603,10 +1605,12 @@ class SecurityConfig(_message.Message):
     """Nothing enabled: direct messages derive their key from the static keys alone"""
     RATCHET_ENABLED: SecurityConfig.RatchetFlags.ValueType  # 1
     """Generate, publish and use ratchet keys for PKI direct messages"""
-    RATCHET_REQUIRE_WHEN_KNOWN: SecurityConfig.RatchetFlags.ValueType  # 2
+    REQUIRE_RATCHET_WHEN_KNOWN: SecurityConfig.RatchetFlags.ValueType  # 2
     """
-    Refuse to send a direct message with the static derivation when the peer has
-    published a ratchet key. Off by default: a stale key would cost delivery.
+    Refuse to send a direct message with the static derivation to a node known to have
+    published a ratchet key (NODE_FLAG_HAS_RATCHET). Acks, NodeInfo and key verification
+    stay static. Acts only with RATCHET_ENABLED. Off by default: a stale key would cost
+    delivery.
     """
 
     PUBLIC_KEY_FIELD_NUMBER: _builtins.int
