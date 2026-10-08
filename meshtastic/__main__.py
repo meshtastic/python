@@ -1581,6 +1581,18 @@ def common():
             meshtastic.util.support_info()
             meshtastic.util.our_exit("", 0)
 
+        #Display Messages
+        if handleShowMessagesArgs(args):
+            return
+
+        #Check if no args beside the allowed ("messages" & "dest -- since it was added if not dest:")
+        #Empty list -- withAllowedOptionsSet -- Only Allowed Flags Used
+        #Return list -- withAllowedOptionsSet -- Will return extra flags Used
+        #Used here if there are no args beside messages provided.
+        if args.messages in ("on", "off", "status") and not withAllowedOptionsSet(args, {"messages"}):
+            handleMessageStoreArgs(args)  # saves the setting / prints status
+            return  # setting-only invocation: nothing to connect to
+
         # Early validation for owner names before attempting device connection
         if hasattr(args, 'set_owner') and args.set_owner is not None:
             stripped_long_name = args.set_owner.strip()
@@ -1655,16 +1667,16 @@ def common():
 
             subscribe()
 
-            #Display Messages
-            if handleShowMessagesArgs(args):
-                return
 
             # (after the early arg checks, before any interface is constructed)
             # Enable? StoreMessages? Call to get bool --> True (Save)
+            messages_enabled = handleMessageStoreArgs(args)
+            
             message_store = None
-            if handleMessageStoreArgs(args):
+            # Enable? Initialise Class MessageStore
+            if messages_enabled:
                 message_store = MessageStore(MessageLog())
-            mt_config.message_store = message_store   # so onConnected can reach it
+            mt_config.message_store = message_store  # so onConnected():sendText can reach it
 
             if args.ble_scan:
                 logger.debug("BLE scan starting")
@@ -1811,6 +1823,11 @@ def common():
                             f"Error connecting to localhost:{ex}", 1
                         )
 
+            #Binding/Passing client -- So to get node_id
+            # Fixes from_id: "self" instead of actual "node_id" in the MessageLog 
+            if mt_config.message_store is not None:
+                mt_config.message_store.interface = client
+
             # We assume client is fully connected now
             onConnected(client)
 
@@ -1876,32 +1893,35 @@ def handleMessageStoreArgs(args) -> bool:
 def handleShowMessagesArgs(args) -> bool:
     """Handle --show-messages. Returns True if it did, so the caller can stop
     before any store is created or any connection is attempted."""
-
-    args = mt_config.args
-    parser = mt_config.parser
-
     mode = getattr(args, "show_messages", None)
-
     if mode is None:
         return False
 
     # Local-only command: refuse anything else that was actually set.
-    # Compare each arg to its parser default so unset flags don't count.
-    allowed = {"show_messages", "dest"} #Exclude dest -- which is set @BRDCST_ADDR 
-    others = [
-        "--" + name.replace("_", "-")
-        for name, value in vars(args).items()
-        if name not in allowed and value != parser.get_default(name)
-    ]
+    # dest is auto-filled with the broadcast address, so it can't count.
+    others = withAllowedOptionsSet(args, {"show_messages"})
     if others:
         meshtastic.util.our_exit(
-            "Error: --show-messages can't be combined with: " + ", ".join(sorted(others)), 1
+            "Error: --show-messages can't be combined with: " + ", ".join(others), 1
         )
 
     if mode == "all":
         print_messages()
     return True
-    
+
+def withAllowedOptionsSet(args, allowed):
+    """Return the options set to anything other than their parser default,
+    excluding the ones in `allowed`, as a sorted list of '--flag' names.
+
+    `allowed` holds argparse dest names (underscores, e.g. "show_messages"),
+    not the dashed flags. An empty result means the user set nothing else.
+    """
+    parser = mt_config.parser
+    return sorted(
+        "--" + name.replace("_", "-")
+        for name, value in vars(args).items()
+        if name not in allowed and value != parser.get_default(name)
+    )
 
 def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """Add connection specification arguments"""

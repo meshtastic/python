@@ -61,7 +61,7 @@ def _data_dir(directory: Optional[Path] = None) -> Path:
         return Path(directory)
     if os.environ.get(ENV_DIR):
         return Path(os.environ[ENV_DIR])
-    return Path.home() / ".meshtastic"
+    return Path.home().resolve() / ".meshtastic"
 
 
 def _tighten_permissions(fd: int) -> None:
