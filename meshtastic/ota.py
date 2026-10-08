@@ -253,7 +253,7 @@ class ESP32BLEOTA:
 
             # Streaming firmware data in chunks of 512 bytes (or MTU size)
             sent_bytes = 0
-            chunk_size = min(512, client.bleak_client.mtu_size)
+            chunk_size = min(512, client.bleak_client.mtu_size - 3)
             while sent_bytes < size:
                 chunk = data[sent_bytes : sent_bytes + chunk_size]
                 client.write_gatt_char(self.WRITE_UUID, chunk, response=True)
