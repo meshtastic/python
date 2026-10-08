@@ -1048,9 +1048,11 @@ class StoreForwardConfig(_message.Message):
     """
     record_ttl_secs: _builtins.int
     """
-    Seconds a discovery record survives without a refresh, after which it is evicted. This is
-    also how an identity retires: there is no tombstone to replay, so a node that stops
-    announcing simply ages out. 0 takes the default of 30 days.
+    Seconds a discovery record stays current without a refresh. After that it is expired: held
+    for one more such period, evicted before any current record, left out of digests and sync,
+    and served as TIER_EXPIRED only when nothing fresher matches. This is also how an identity
+    retires: there is no tombstone to replay, so a node that stops announcing simply ages out.
+    0 takes the default of 30 days.
     """
     discovery_admit_per_hour: _builtins.int
     """
@@ -1088,7 +1090,7 @@ Global___StoreForwardConfig: _TypeAlias = StoreForwardConfig  # noqa: Y015
 @_typing.final
 class TelemetryConfig(_message.Message):
     """
-    Configuration for both device and environment metrics
+    Configuration for device metrics and sensor readings
     """
 
     DESCRIPTOR: _descriptor.Descriptor
@@ -1101,23 +1103,14 @@ class TelemetryConfig(_message.Message):
         DESCRIPTOR: _descriptor.EnumDescriptor
         TELEMETRY_NONE: TelemetryConfig._Flags.ValueType  # 0
         """Nothing enabled"""
-        TELEMETRY_ENVIRONMENT_MEASUREMENT: TelemetryConfig._Flags.ValueType  # 1
-        """Collect environment measurements"""
-        TELEMETRY_ENVIRONMENT_SCREEN: TelemetryConfig._Flags.ValueType  # 2
-        """Show environment measurements on the device screen"""
-        TELEMETRY_AIR_QUALITY: TelemetryConfig._Flags.ValueType  # 8
-        """Collect air quality metrics"""
-        TELEMETRY_AIR_QUALITY_SCREEN: TelemetryConfig._Flags.ValueType  # 16
-        """Show air quality metrics on the device screen"""
-        TELEMETRY_POWER_MEASUREMENT: TelemetryConfig._Flags.ValueType  # 32
-        """Collect power metrics"""
-        TELEMETRY_POWER_SCREEN: TelemetryConfig._Flags.ValueType  # 64
-        """Show power metrics on the device screen"""
-        TELEMETRY_HEALTH_MEASUREMENT: TelemetryConfig._Flags.ValueType  # 128
-        """Collect health metrics"""
-        TELEMETRY_HEALTH_SCREEN: TelemetryConfig._Flags.ValueType  # 256
-        """Show health metrics on the device screen"""
-        TELEMETRY_DEVICE: TelemetryConfig._Flags.ValueType  # 512
+        TELEMETRY_SENSORS: TelemetryConfig._Flags.ValueType  # 1
+        """
+        Read every attached sensor and send its readings: environment, air quality, power,
+        health and the rest travel together as one SensorReadings stream.
+        """
+        TELEMETRY_SENSORS_SCREEN: TelemetryConfig._Flags.ValueType  # 2
+        """Show the latest sensor readings on the device screen"""
+        TELEMETRY_DEVICE: TelemetryConfig._Flags.ValueType  # 4
         """
         Send device telemetry to the mesh. Telemetry still goes to the connected
         phone or client over the API every minute regardless.
@@ -1125,29 +1118,19 @@ class TelemetryConfig(_message.Message):
 
     class Flags(_Flags, metaclass=_FlagsEnumTypeWrapper):
         """
-        Which telemetry sources are collected, sent and shown on screen:
-        a bitwise OR of Flags values.
+        Which telemetry is collected, sent and shown on screen: a bitwise OR of Flags values.
         """
 
     TELEMETRY_NONE: TelemetryConfig.Flags.ValueType  # 0
     """Nothing enabled"""
-    TELEMETRY_ENVIRONMENT_MEASUREMENT: TelemetryConfig.Flags.ValueType  # 1
-    """Collect environment measurements"""
-    TELEMETRY_ENVIRONMENT_SCREEN: TelemetryConfig.Flags.ValueType  # 2
-    """Show environment measurements on the device screen"""
-    TELEMETRY_AIR_QUALITY: TelemetryConfig.Flags.ValueType  # 8
-    """Collect air quality metrics"""
-    TELEMETRY_AIR_QUALITY_SCREEN: TelemetryConfig.Flags.ValueType  # 16
-    """Show air quality metrics on the device screen"""
-    TELEMETRY_POWER_MEASUREMENT: TelemetryConfig.Flags.ValueType  # 32
-    """Collect power metrics"""
-    TELEMETRY_POWER_SCREEN: TelemetryConfig.Flags.ValueType  # 64
-    """Show power metrics on the device screen"""
-    TELEMETRY_HEALTH_MEASUREMENT: TelemetryConfig.Flags.ValueType  # 128
-    """Collect health metrics"""
-    TELEMETRY_HEALTH_SCREEN: TelemetryConfig.Flags.ValueType  # 256
-    """Show health metrics on the device screen"""
-    TELEMETRY_DEVICE: TelemetryConfig.Flags.ValueType  # 512
+    TELEMETRY_SENSORS: TelemetryConfig.Flags.ValueType  # 1
+    """
+    Read every attached sensor and send its readings: environment, air quality, power,
+    health and the rest travel together as one SensorReadings stream.
+    """
+    TELEMETRY_SENSORS_SCREEN: TelemetryConfig.Flags.ValueType  # 2
+    """Show the latest sensor readings on the device screen"""
+    TELEMETRY_DEVICE: TelemetryConfig.Flags.ValueType  # 4
     """
     Send device telemetry to the mesh. Telemetry still goes to the connected
     phone or client over the API every minute regardless.
@@ -1156,6 +1139,7 @@ class TelemetryConfig(_message.Message):
     FLAGS_FIELD_NUMBER: _builtins.int
     DEVICE_UPDATE_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
     SENSOR_UPDATE_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
+    SENSOR_READ_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
     flags: _builtins.int
     """
     Bitwise OR of Flags values.
@@ -1167,10 +1151,14 @@ class TelemetryConfig(_message.Message):
     """
     sensor_update_interval_secs: _builtins.int
     """
-    Interval in seconds of how often we should try to send sensor readings to the
-    mesh. One interval covers every sensor category, since they now travel together
-    in a single SensorReadings list rather than one packet per category.
-    Which categories are collected at all is set by the flags above.
+    Seconds between sends of sensor readings to the mesh. 0 takes the default.
+    """
+    sensor_read_interval_secs: _builtins.int
+    """
+    Seconds between sensor reads. Readings taken between two sends are kept on the node
+    and go out together at the next send, as a batch of samples. 0, or a value at or
+    above sensor_update_interval_secs, reads once per send. Never more often than every
+    60 s.
     """
     def __init__(
         self,
@@ -1178,10 +1166,11 @@ class TelemetryConfig(_message.Message):
         flags: _builtins.int = ...,
         device_update_interval_secs: _builtins.int = ...,
         sensor_update_interval_secs: _builtins.int = ...,
+        sensor_read_interval_secs: _builtins.int = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["device_update_interval_secs", b"device_update_interval_secs", "flags", b"flags", "sensor_update_interval_secs", b"sensor_update_interval_secs"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["device_update_interval_secs", b"device_update_interval_secs", "flags", b"flags", "sensor_read_interval_secs", b"sensor_read_interval_secs", "sensor_update_interval_secs", b"sensor_update_interval_secs"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 

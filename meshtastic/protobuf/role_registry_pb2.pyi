@@ -81,7 +81,7 @@ class RoleDefaults(_message.Message):
     POSITION_FLAGS_FIELD_NUMBER: _builtins.int
     DEVICE_UPDATE_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
     SENSOR_UPDATE_INTERVAL_SECS_FIELD_NUMBER: _builtins.int
-    ENVIRONMENT_MEASUREMENT_FIELD_NUMBER: _builtins.int
+    SENSOR_TELEMETRY_FIELD_NUMBER: _builtins.int
     UNMESSAGABLE_FIELD_NUMBER: _builtins.int
     reset_intervals: _builtins.bool
     """Restore every broadcast, telemetry and power interval to its default before the values below"""
@@ -95,8 +95,8 @@ class RoleDefaults(_message.Message):
     """Bitwise OR of PositionConfig.PositionFlags values"""
     device_update_interval_secs: _builtins.int
     sensor_update_interval_secs: _builtins.int
-    environment_measurement: _builtins.bool
-    """TelemetryConfig environment measurement on or off"""
+    sensor_telemetry: _builtins.bool
+    """TelemetryConfig TELEMETRY_SENSORS on or off"""
     unmessagable: _builtins.bool
     """Advertise the node as not taking direct messages (NODE_FLAG_IS_UNMESSAGABLE)"""
     def __init__(
@@ -112,12 +112,12 @@ class RoleDefaults(_message.Message):
         position_flags: _builtins.int | None = ...,
         device_update_interval_secs: _builtins.int | None = ...,
         sensor_update_interval_secs: _builtins.int | None = ...,
-        environment_measurement: _builtins.bool | None = ...,
+        sensor_telemetry: _builtins.bool | None = ...,
         unmessagable: _builtins.bool | None = ...,
     ) -> None: ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal["_broadcast_smart_minimum_distance", b"_broadcast_smart_minimum_distance", "_broadcast_smart_minimum_interval_secs", b"_broadcast_smart_minimum_interval_secs", "_device_update_interval_secs", b"_device_update_interval_secs", "_environment_measurement", b"_environment_measurement", "_node_info_broadcast_secs", b"_node_info_broadcast_secs", "_position_broadcast_secs", b"_position_broadcast_secs", "_position_broadcast_smart_enabled", b"_position_broadcast_smart_enabled", "_position_flags", b"_position_flags", "_rebroadcast_mode", b"_rebroadcast_mode", "_sensor_update_interval_secs", b"_sensor_update_interval_secs", "_unmessagable", b"_unmessagable", "broadcast_smart_minimum_distance", b"broadcast_smart_minimum_distance", "broadcast_smart_minimum_interval_secs", b"broadcast_smart_minimum_interval_secs", "device_update_interval_secs", b"device_update_interval_secs", "environment_measurement", b"environment_measurement", "node_info_broadcast_secs", b"node_info_broadcast_secs", "position_broadcast_secs", b"position_broadcast_secs", "position_broadcast_smart_enabled", b"position_broadcast_smart_enabled", "position_flags", b"position_flags", "rebroadcast_mode", b"rebroadcast_mode", "sensor_update_interval_secs", b"sensor_update_interval_secs", "unmessagable", b"unmessagable"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_broadcast_smart_minimum_distance", b"_broadcast_smart_minimum_distance", "_broadcast_smart_minimum_interval_secs", b"_broadcast_smart_minimum_interval_secs", "_device_update_interval_secs", b"_device_update_interval_secs", "_node_info_broadcast_secs", b"_node_info_broadcast_secs", "_position_broadcast_secs", b"_position_broadcast_secs", "_position_broadcast_smart_enabled", b"_position_broadcast_smart_enabled", "_position_flags", b"_position_flags", "_rebroadcast_mode", b"_rebroadcast_mode", "_sensor_telemetry", b"_sensor_telemetry", "_sensor_update_interval_secs", b"_sensor_update_interval_secs", "_unmessagable", b"_unmessagable", "broadcast_smart_minimum_distance", b"broadcast_smart_minimum_distance", "broadcast_smart_minimum_interval_secs", b"broadcast_smart_minimum_interval_secs", "device_update_interval_secs", b"device_update_interval_secs", "node_info_broadcast_secs", b"node_info_broadcast_secs", "position_broadcast_secs", b"position_broadcast_secs", "position_broadcast_smart_enabled", b"position_broadcast_smart_enabled", "position_flags", b"position_flags", "rebroadcast_mode", b"rebroadcast_mode", "sensor_telemetry", b"sensor_telemetry", "sensor_update_interval_secs", b"sensor_update_interval_secs", "unmessagable", b"unmessagable"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["_broadcast_smart_minimum_distance", b"_broadcast_smart_minimum_distance", "_broadcast_smart_minimum_interval_secs", b"_broadcast_smart_minimum_interval_secs", "_device_update_interval_secs", b"_device_update_interval_secs", "_environment_measurement", b"_environment_measurement", "_node_info_broadcast_secs", b"_node_info_broadcast_secs", "_position_broadcast_secs", b"_position_broadcast_secs", "_position_broadcast_smart_enabled", b"_position_broadcast_smart_enabled", "_position_flags", b"_position_flags", "_rebroadcast_mode", b"_rebroadcast_mode", "_sensor_update_interval_secs", b"_sensor_update_interval_secs", "_unmessagable", b"_unmessagable", "broadcast_smart_minimum_distance", b"broadcast_smart_minimum_distance", "broadcast_smart_minimum_interval_secs", b"broadcast_smart_minimum_interval_secs", "device_update_interval_secs", b"device_update_interval_secs", "environment_measurement", b"environment_measurement", "node_info_broadcast_secs", b"node_info_broadcast_secs", "position_broadcast_secs", b"position_broadcast_secs", "position_broadcast_smart_enabled", b"position_broadcast_smart_enabled", "position_flags", b"position_flags", "rebroadcast_mode", b"rebroadcast_mode", "reset_intervals", b"reset_intervals", "sensor_update_interval_secs", b"sensor_update_interval_secs", "unmessagable", b"unmessagable"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_broadcast_smart_minimum_distance", b"_broadcast_smart_minimum_distance", "_broadcast_smart_minimum_interval_secs", b"_broadcast_smart_minimum_interval_secs", "_device_update_interval_secs", b"_device_update_interval_secs", "_node_info_broadcast_secs", b"_node_info_broadcast_secs", "_position_broadcast_secs", b"_position_broadcast_secs", "_position_broadcast_smart_enabled", b"_position_broadcast_smart_enabled", "_position_flags", b"_position_flags", "_rebroadcast_mode", b"_rebroadcast_mode", "_sensor_telemetry", b"_sensor_telemetry", "_sensor_update_interval_secs", b"_sensor_update_interval_secs", "_unmessagable", b"_unmessagable", "broadcast_smart_minimum_distance", b"broadcast_smart_minimum_distance", "broadcast_smart_minimum_interval_secs", b"broadcast_smart_minimum_interval_secs", "device_update_interval_secs", b"device_update_interval_secs", "node_info_broadcast_secs", b"node_info_broadcast_secs", "position_broadcast_secs", b"position_broadcast_secs", "position_broadcast_smart_enabled", b"position_broadcast_smart_enabled", "position_flags", b"position_flags", "rebroadcast_mode", b"rebroadcast_mode", "reset_intervals", b"reset_intervals", "sensor_telemetry", b"sensor_telemetry", "sensor_update_interval_secs", b"sensor_update_interval_secs", "unmessagable", b"unmessagable"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     _WhichOneofReturnType__broadcast_smart_minimum_distance: _TypeAlias = _typing.Literal["broadcast_smart_minimum_distance"]  # noqa: Y015
     _WhichOneofArgType__broadcast_smart_minimum_distance: _TypeAlias = _typing.Literal["_broadcast_smart_minimum_distance", b"_broadcast_smart_minimum_distance"]  # noqa: Y015
@@ -125,8 +125,6 @@ class RoleDefaults(_message.Message):
     _WhichOneofArgType__broadcast_smart_minimum_interval_secs: _TypeAlias = _typing.Literal["_broadcast_smart_minimum_interval_secs", b"_broadcast_smart_minimum_interval_secs"]  # noqa: Y015
     _WhichOneofReturnType__device_update_interval_secs: _TypeAlias = _typing.Literal["device_update_interval_secs"]  # noqa: Y015
     _WhichOneofArgType__device_update_interval_secs: _TypeAlias = _typing.Literal["_device_update_interval_secs", b"_device_update_interval_secs"]  # noqa: Y015
-    _WhichOneofReturnType__environment_measurement: _TypeAlias = _typing.Literal["environment_measurement"]  # noqa: Y015
-    _WhichOneofArgType__environment_measurement: _TypeAlias = _typing.Literal["_environment_measurement", b"_environment_measurement"]  # noqa: Y015
     _WhichOneofReturnType__node_info_broadcast_secs: _TypeAlias = _typing.Literal["node_info_broadcast_secs"]  # noqa: Y015
     _WhichOneofArgType__node_info_broadcast_secs: _TypeAlias = _typing.Literal["_node_info_broadcast_secs", b"_node_info_broadcast_secs"]  # noqa: Y015
     _WhichOneofReturnType__position_broadcast_secs: _TypeAlias = _typing.Literal["position_broadcast_secs"]  # noqa: Y015
@@ -137,6 +135,8 @@ class RoleDefaults(_message.Message):
     _WhichOneofArgType__position_flags: _TypeAlias = _typing.Literal["_position_flags", b"_position_flags"]  # noqa: Y015
     _WhichOneofReturnType__rebroadcast_mode: _TypeAlias = _typing.Literal["rebroadcast_mode"]  # noqa: Y015
     _WhichOneofArgType__rebroadcast_mode: _TypeAlias = _typing.Literal["_rebroadcast_mode", b"_rebroadcast_mode"]  # noqa: Y015
+    _WhichOneofReturnType__sensor_telemetry: _TypeAlias = _typing.Literal["sensor_telemetry"]  # noqa: Y015
+    _WhichOneofArgType__sensor_telemetry: _TypeAlias = _typing.Literal["_sensor_telemetry", b"_sensor_telemetry"]  # noqa: Y015
     _WhichOneofReturnType__sensor_update_interval_secs: _TypeAlias = _typing.Literal["sensor_update_interval_secs"]  # noqa: Y015
     _WhichOneofArgType__sensor_update_interval_secs: _TypeAlias = _typing.Literal["_sensor_update_interval_secs", b"_sensor_update_interval_secs"]  # noqa: Y015
     _WhichOneofReturnType__unmessagable: _TypeAlias = _typing.Literal["unmessagable"]  # noqa: Y015
@@ -148,8 +148,6 @@ class RoleDefaults(_message.Message):
     @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__device_update_interval_secs) -> _WhichOneofReturnType__device_update_interval_secs | None: ...
     @_typing.overload
-    def WhichOneof(self, oneof_group: _WhichOneofArgType__environment_measurement) -> _WhichOneofReturnType__environment_measurement | None: ...
-    @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__node_info_broadcast_secs) -> _WhichOneofReturnType__node_info_broadcast_secs | None: ...
     @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__position_broadcast_secs) -> _WhichOneofReturnType__position_broadcast_secs | None: ...
@@ -159,6 +157,8 @@ class RoleDefaults(_message.Message):
     def WhichOneof(self, oneof_group: _WhichOneofArgType__position_flags) -> _WhichOneofReturnType__position_flags | None: ...
     @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__rebroadcast_mode) -> _WhichOneofReturnType__rebroadcast_mode | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__sensor_telemetry) -> _WhichOneofReturnType__sensor_telemetry | None: ...
     @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__sensor_update_interval_secs) -> _WhichOneofReturnType__sensor_update_interval_secs | None: ...
     @_typing.overload

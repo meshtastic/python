@@ -894,13 +894,18 @@ def sensor_readings_to_list(readings: telemetry_pb2.SensorReadings, time0: int=0
     samples: List[Dict[str, Any]] = [{"time": t} for t in times]
     values = iter(readings.values)
     quantity = telemetry_pb2.SensorReadings.Quantity
+    words = (len(readings.keys) + 31) // 32  # per sample bitmap: keys 32w..32w+31 in word w
     for k, key in enumerate(readings.keys):
         q = key & 0x7F
         name = quantity.Name(q) if q in quantity.values() else f"QUANTITY_{q}"  # type: ignore[arg-type]
         scale = 100 if name.endswith("_CENTI") else 10 if name.endswith("_DECI") else 1
         if key >> 8:
             name += f"#{key >> 8}"
-        rows = [i for i in range(len(samples)) if not readings.present or readings.present[i] >> k & 1]
+        rows = [
+            i
+            for i in range(len(samples))
+            if not readings.present or readings.present[i * words + k // 32] >> (k % 32) & 1
+        ]
         if key & 0x80:  # constant across the batch: one entry
             v = next(values)
             for i in rows:

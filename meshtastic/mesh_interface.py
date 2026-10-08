@@ -761,16 +761,20 @@ class MeshInterface:  # pylint: disable=R0902
         channelIndex: int = 0,
         telemetryType: str = "device_metrics",
         hopLimit: Optional[int]=None,
+        quantities: Optional[List[int]]=None,
     ):
         """Send telemetry and optionally ask for a response.
 
         telemetryType names a Telemetry variant: device_metrics (filled from our node),
         or sensor_readings, local_stats, host_metrics or traffic_management_stats, which
-        go out empty as a request."""
+        go out empty as a request. A sensor_readings request asks for the SensorReadings
+        quantities listed, or for all the node has; the answer may take several messages."""
         r = telemetry_pb2.Telemetry()
 
         if telemetryType in ("sensor_readings", "local_stats", "host_metrics", "traffic_management_stats"):
             getattr(r, telemetryType).SetInParent()
+            if telemetryType == "sensor_readings" and quantities:
+                r.sensor_readings.keys.extend(quantities)
         else: # fall through to device metrics
             if self.nodesByNum is not None:
                 node = self.nodesByNum.get(self.localNode.nodeNum)
@@ -832,6 +836,8 @@ class MeshInterface:  # pylint: disable=R0902
                 if m.HasField("uptime_minutes"):
                     print(f"Uptime: {m.uptime_minutes} min")
             elif telemetry.HasField("sensor_readings"):
+                # The rest of a long answer follows under the same request id
+                self._addResponseHandler(p["decoded"]["requestId"], self.onResponseTelemetry)
                 for sample in sensor_readings_to_list(telemetry.sensor_readings, telemetry.time):
                     print(f"sensorReadings at {sample.pop('time')}:")
                     for name, value in sample.items():

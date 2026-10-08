@@ -5,6 +5,7 @@ import logging
 import re
 import time
 from types import SimpleNamespace
+from typing import List
 from unittest.mock import patch
 
 import pytest
@@ -1002,6 +1003,24 @@ def test_sensor_readings_to_list():
         {"time": 4600, "AIR_TEMPERATURE_C_CENTI": 15.48, "AIR_PRESSURE_PA": 98801},
         {"time": 8240, "AIR_TEMPERATURE_C_CENTI#1": 20.1},
     ]
+
+
+@pytest.mark.unit
+def test_sensor_readings_present_spans_words_past_32_keys():
+    """With more than 32 keys each sample's present bitmap is ceil(keys / 32) words, word w
+    holding keys 32w to 32w + 31: key index 35 is bit 3 of the second word."""
+    keys = list(range(1, 41))
+    values: List[int] = []
+    for k in keys:
+        values += [k] if k == 36 else [k, 1]  # absolute, then +1 in sample two; key 36 only in sample one
+    readings = telemetry_pb2.SensorReadings(
+        keys=keys, values=values, time_deltas=[60], present=[0xFFFFFFFF, 0xFF, 0xFFFFFFFF, 0xF7]
+    )
+    first, second = sensor_readings_to_list(readings)
+    name = telemetry_pb2.SensorReadings.Quantity.Name
+    assert name(36) in first and name(36) not in second
+    assert (first[name(35)], second[name(35)]) == (35, 36)
+    assert second[name(40)] == 41 / 10  # the column after the gap still lines up
 
 
 @pytest.mark.unit

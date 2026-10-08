@@ -286,9 +286,11 @@ class SyncDigest(_message.Message):
     of the record hashes per bucket, about 150 bytes in all, and a bucket whose count or hash
     differs is the only one worth transferring.
 
-    Servers exchange this over the mesh or a wired backhaul between co-located nodes. Not over
-    MQTT: a broker that aggregates every record of every mesh is a directory, which is a
-    different thing from a mesh that will answer a question about one node.
+    Servers exchange this over the mesh or a wired backhaul between co-located nodes. On the
+    backhaul (UDP multicast) a server broadcasts it at hop_limit 0 every hour, which also tells
+    co-located servers it exists, and they sync over the backhaul only. Not over MQTT: a broker
+    that aggregates every record of every mesh is a directory, which is a different thing from
+    a mesh that will answer a question about one node.
     """
 
     DESCRIPTOR: _descriptor.Descriptor
@@ -388,7 +390,9 @@ class DiscoveryMessage(_message.Message):
     @_builtins.property
     def publish(self) -> Global___NodeRecord:
         """
-        A node announcing itself, or a server refreshing what it holds.
+        A node announcing itself, or a server publishing a record it holds for a node that did
+        not answer a broadcast query for it. A carried record is learned second-hand and never
+        filed by a server.
         """
 
     @_builtins.property

@@ -884,7 +884,12 @@ class SensorReadings(_message.Message):
     about 71 bytes here against 200 as one message per reading.
 
     A single sample is the live broadcast: one entry per column, no deltas, no times.
-    Send as many samples as the payload allows, then start another message.
+    A sender fills a message with readings, or with samples of a batch, until the frame has
+    no room left, then starts another message for the rest.
+
+    A Telemetry carrying sensor_readings with keys and no values is a request: the node
+    answers with its current reading of each listed quantity it has, or of every quantity
+    when the list is empty. The answer may take several messages.
 
     On size: a reading costs one key byte plus one to three value bytes, against a
     typed field's one to two tag bytes plus the same value. That is slightly larger for
@@ -920,12 +925,12 @@ class SensorReadings(_message.Message):
         """Wind gust, centimetres per second"""
         WIND_LULL_CMS: SensorReadings._Quantity.ValueType  # 7
         """Wind lull, centimetres per second"""
-        RAINFALL_1H_MM: SensorReadings._Quantity.ValueType  # 8
-        """Rainfall in the last hour, millimetres"""
-        RAINFALL_24H_MM: SensorReadings._Quantity.ValueType  # 9
-        """Rainfall in the last 24 hours, millimetres"""
-        RADIATION_URH: SensorReadings._Quantity.ValueType  # 10
-        """Ionising radiation, microroentgen per hour"""
+        RAINFALL_1H_MM_DECI: SensorReadings._Quantity.ValueType  # 8
+        """Rainfall in the last hour, deci-millimetres (28 = 2.8 mm): a rain gauge tips at 0.2 to 0.3 mm"""
+        RAINFALL_24H_MM_DECI: SensorReadings._Quantity.ValueType  # 9
+        """Rainfall in the last 24 hours, deci-millimetres"""
+        RADIATION_URH_DECI: SensorReadings._Quantity.ValueType  # 10
+        """Ionising radiation, deci-microroentgen per hour (123 = 12.3 uR/h): background is 10 to 20"""
         LIGHTNING_STRIKES_1H: SensorReadings._Quantity.ValueType  # 11
         """Lightning strikes detected in the last hour"""
         LIGHTNING_DISTANCE_KM: SensorReadings._Quantity.ValueType  # 12
@@ -1142,12 +1147,12 @@ class SensorReadings(_message.Message):
     """Wind gust, centimetres per second"""
     WIND_LULL_CMS: SensorReadings.Quantity.ValueType  # 7
     """Wind lull, centimetres per second"""
-    RAINFALL_1H_MM: SensorReadings.Quantity.ValueType  # 8
-    """Rainfall in the last hour, millimetres"""
-    RAINFALL_24H_MM: SensorReadings.Quantity.ValueType  # 9
-    """Rainfall in the last 24 hours, millimetres"""
-    RADIATION_URH: SensorReadings.Quantity.ValueType  # 10
-    """Ionising radiation, microroentgen per hour"""
+    RAINFALL_1H_MM_DECI: SensorReadings.Quantity.ValueType  # 8
+    """Rainfall in the last hour, deci-millimetres (28 = 2.8 mm): a rain gauge tips at 0.2 to 0.3 mm"""
+    RAINFALL_24H_MM_DECI: SensorReadings.Quantity.ValueType  # 9
+    """Rainfall in the last 24 hours, deci-millimetres"""
+    RADIATION_URH_DECI: SensorReadings.Quantity.ValueType  # 10
+    """Ionising radiation, deci-microroentgen per hour (123 = 12.3 uR/h): background is 10 to 20"""
     LIGHTNING_STRIKES_1H: SensorReadings.Quantity.ValueType  # 11
     """Lightning strikes detected in the last hour"""
     LIGHTNING_DISTANCE_KM: SensorReadings.Quantity.ValueType  # 12
@@ -1395,7 +1400,9 @@ class SensorReadings(_message.Message):
     @_builtins.property
     def present(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
         """
-        One bitmap per sample, oldest first: bit k set when that sample carries keys[k].
+        One bitmap per sample, oldest first: bit k set when that sample carries keys[k]. A
+        bitmap is ceil(keys / 32) words, word w holding keys 32w to 32w + 31, so a message
+        with up to 32 keys has one word per sample.
 
         It is what tells a reader how long each column in `values` is, and which samples
         a column's deltas step between - a column skips absent samples rather than

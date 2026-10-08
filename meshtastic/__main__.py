@@ -65,7 +65,7 @@ except ImportError as e:
     have_powermon = False
     powermon_exception = e
     meter = None
-from meshtastic.protobuf import admin_pb2, channel_pb2, clientonly_pb2, common_pb2, config_pb2, portnums_pb2
+from meshtastic.protobuf import admin_pb2, channel_pb2, clientonly_pb2, common_pb2, config_pb2, portnums_pb2, telemetry_pb2
 from meshtastic.version import get_active_version
 
 logger = logging.getLogger(__name__)
@@ -706,21 +706,22 @@ def onConnected(interface):
             else:
                 channelIndex = mt_config.channel_index or 0
                 if checkChannel(interface, channelIndex):
-                    # 3.0 carries environment, air quality, power and health as one SensorReadings list
                     telemMap = {
                         "device": "device_metrics",
                         "sensors": "sensor_readings",
-                        "environment": "sensor_readings",
-                        "air_quality": "sensor_readings",
-                        "airquality": "sensor_readings",
-                        "power": "sensor_readings",
-                        "health": "sensor_readings",
                         "localstats": "local_stats",
                         "local_stats": "local_stats",
                         "host": "host_metrics",
                         "traffic": "traffic_management_stats",
                     }
-                    telemType = telemMap.get(args.request_telemetry, "device_metrics")
+                    # sensors:CO2_PPM,AIR_TEMPERATURE_C_CENTI asks for those quantities only
+                    kind, _, named = args.request_telemetry.partition(":")
+                    telemType = telemMap.get(kind, "device_metrics")
+                    quantity = telemetry_pb2.SensorReadings.Quantity
+                    try:
+                        quantities = [quantity.Value(n.strip().upper()) for n in named.split(",") if n.strip()]
+                    except ValueError as e:
+                        meshtastic.util.our_exit(f"ERROR: {e}")
                     print(
                         f"Sending {telemType} telemetry request to {args.dest} on channelIndex:{channelIndex} (this could take a while)"
                     )
@@ -729,6 +730,7 @@ def onConnected(interface):
                         wantResponse=True,
                         channelIndex=channelIndex,
                         telemetryType=telemType,
+                        quantities=quantities,
                     )
 
         if args.request_position:
@@ -2381,7 +2383,8 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
     group.add_argument(
         "--request-telemetry",
         help="Request telemetry from a node. With an argument, requests that specific type of telemetry: "
-        "device, sensors (environment, air quality, power and health), local_stats, host or traffic. "
+        "device, sensors, local_stats, host or traffic. sensors:NAME,NAME asks for the named "
+        "SensorReadings quantities only (e.g. sensors:CO2_PPM,AIR_TEMPERATURE_C_CENTI). "
         "You need to pass the destination ID as argument with '--dest'.",
         action="store",
         nargs="?",
