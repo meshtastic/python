@@ -181,7 +181,10 @@ class ESP32BLEOTA:
         except Exception:
             pass
         finally:
-            client.disconnect()
+            try:
+                client.disconnect()
+            except Exception:
+                pass
             client.close()
         return device_name
 
@@ -248,9 +251,9 @@ class ESP32BLEOTA:
                 else:
                     raise OTAError("Timeout waiting for response")
 
-            # Streaming firmware data in chunks of 512 bytes
+            # Streaming firmware data in chunks of 512 bytes (or MTU size)
             sent_bytes = 0
-            chunk_size = 512
+            chunk_size = min(512, client.bleak_client.mtu_size)
             while sent_bytes < size:
                 chunk = data[sent_bytes : sent_bytes + chunk_size]
                 client.write_gatt_char(self.WRITE_UUID, chunk, response=True)
