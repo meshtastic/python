@@ -66,6 +66,8 @@ except ImportError as e:
 from meshtastic.protobuf import admin_pb2, channel_pb2, clientonly_pb2, config_pb2, portnums_pb2, mesh_pb2
 from meshtastic.version import get_active_version
 
+from meshtastic.message_store import MessageSettings, MessageStore, MessageLog, print_messages
+
 logger = logging.getLogger(__name__)
 
 # Map dotted preference paths to the protobuf enum that defines their flags.
@@ -600,6 +602,16 @@ def onConnected(interface):
                     onResponse=interface.getNode(args.dest, False, **getNode_kwargs).onAckNak,
                     portNum=portnums_pb2.PortNum.PRIVATE_APP if args.private else portnums_pb2.PortNum.TEXT_MESSAGE_APP
                 )
+
+                #Save Outbound Messages -- if save enabled
+                if mt_config.message_store:
+                    #Donot Save on Private 
+                    if not args.private:
+                        mt_config.message_store.log_sent(
+                            args.sendtext,
+                            destination_id=args.dest,
+                            channel=channelIndex,
+                        )
             else:
                 meshtastic.util.our_exit(
                     f"Warning: {channelIndex} is not a valid channel. Channel must not be DISABLED."
@@ -1569,6 +1581,18 @@ def common():
             meshtastic.util.support_info()
             meshtastic.util.our_exit("", 0)
 
+        #Display Messages
+        if handleShowMessagesArgs(args):
+            return
+
+        #Check if no args beside the allowed ("messages" & "dest -- since it was added if not dest:")
+        #Empty list -- withAllowedOptionsSet -- Only Allowed Flags Used
+        #Return list -- withAllowedOptionsSet -- Will return extra flags Used
+        #Used here if there are no args beside messages provided.
+        if args.messages in ("on", "off", "status") and not withAllowedOptionsSet(args, {"messages"}):
+            handleMessageStoreArgs(args)  # saves the setting / prints status
+            return  # setting-only invocation: nothing to connect to
+
         # Early validation for owner names before attempting device connection
         if hasattr(args, 'set_owner') and args.set_owner is not None:
             stripped_long_name = args.set_owner.strip()
@@ -1642,6 +1666,18 @@ def common():
                 mt_config.logfile = logfile
 
             subscribe()
+
+
+            # (after the early arg checks, before any interface is constructed)
+            # Enable? StoreMessages? Call to get bool --> True (Save)
+            messages_enabled = handleMessageStoreArgs(args)
+            
+            message_store = None
+            # Enable? Initialise Class MessageStore
+            if messages_enabled:
+                message_store = MessageStore(MessageLog())
+            mt_config.message_store = message_store  # so onConnected():sendText can reach it
+
             if args.ble_scan:
                 logger.debug("BLE scan starting")
                 for x in BLEInterface.scan():
@@ -1787,6 +1823,11 @@ def common():
                             f"Error connecting to localhost:{ex}", 1
                         )
 
+            #Binding/Passing client -- So to get node_id
+            # Fixes from_id: "self" instead of actual "node_id" in the MessageLog 
+            if mt_config.message_store is not None:
+                mt_config.message_store.interface = client
+
             # We assume client is fully connected now
             onConnected(client)
 
@@ -1806,6 +1847,81 @@ def common():
         # don't call exit, background threads might be running still
         # sys.exit(0)
 
+def handleMessageStoreArgs(args) -> bool:
+    """Resolve whether message logging is enabled for this run.
+
+    Reads --messages, updates the saved setting for on/off, and returns
+    the effective logging state. Does not attach hooks or exit.
+    """
+
+    args = mt_config.args
+    mode = args.messages
+
+    store = MessageSettings() 
+
+    # No flag: use the saved setting (defaults to off if missing/corrupt)
+    if mode is None:
+        return store.is_enabled()
+
+    #Flag Messages ON: True - Creates MessageStore(MessageLog) to Log Messages
+    if mode == "on":
+        if not store.set_enabled(True):     # persist -- if write to config fails
+            print("Message logging is on for this run only (could not save the setting).")
+        return True
+
+    if mode == "off":
+        if not store.set_enabled(False):    # persist -- if write to config fails -- throws an err
+            meshtastic.util.our_exit(
+                "Error: could not save the 'off' setting, so message logging "
+                "may still be ON next time. Check permissions on ~/.meshtastic and retry.",
+                1
+            )
+        return False
+
+    if mode == "live":
+        # Log for this run only; saved setting is untouched
+        return True
+
+    #Check the current status from the config
+    if mode == "status":
+        saved = store.is_enabled()
+        print(f"Message logging is {'ON' if saved else 'OFF'}")
+        return saved
+
+    return False  # unreachable with argparse choices, but safe 
+
+def handleShowMessagesArgs(args) -> bool:
+    """Handle --show-messages. Returns True if it did, so the caller can stop
+    before any store is created or any connection is attempted."""
+    mode = getattr(args, "show_messages", None)
+    if mode is None:
+        return False
+
+    # Local-only command: refuse anything else that was actually set.
+    # dest is auto-filled with the broadcast address, so it can't count.
+    others = withAllowedOptionsSet(args, {"show_messages"})
+    if others:
+        meshtastic.util.our_exit(
+            "Error: --show-messages can't be combined with: " + ", ".join(others), 1
+        )
+
+    if mode == "all":
+        print_messages()
+    return True
+
+def withAllowedOptionsSet(args, allowed):
+    """Return the options set to anything other than their parser default,
+    excluding the ones in `allowed`, as a sorted list of '--flag' names.
+
+    `allowed` holds argparse dest names (underscores, e.g. "show_messages"),
+    not the dashed flags. An empty result means the user set nothing else.
+    """
+    parser = mt_config.parser
+    return sorted(
+        "--" + name.replace("_", "-")
+        for name, value in vars(args).items()
+        if name not in allowed and value != parser.get_default(name)
+    )
 
 def addConnectionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """Add connection specification arguments"""
@@ -2396,6 +2512,43 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
 
     return parser
 
+
+def addMessageArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add message logging / history arguments."""
+    group = parser.add_argument_group(
+        "Messages",
+        "Persistent text-message logging (client-side JSONL). "
+    )
+
+    group.add_argument(
+        "--messages",
+        nargs="?",
+        const="status",
+        default=None,
+        choices=["on", "off", "status", "live"],
+        metavar="on|off|status|live",
+        help=(
+            "on/off: enable or disable message logging (saved) (default off). "
+            "status: show whether logging is on/off. "
+            "live: log messages for this run only, without changing the saved "
+            "setting. Combine with --listen or other commands."
+        )
+    )
+
+    group.add_argument(
+        "--show-messages",
+        nargs="?",
+        const="all",
+        default=None,
+        choices=["all"],
+        help=(
+            "Print stored messages. Currently supports: all."
+        )
+    )
+
+    return parser
+
+
 def initParser():
     """Initialize the command line argument parsing."""
     parser = mt_config.parser
@@ -2435,6 +2588,9 @@ def initParser():
     # Arguments for sending or requesting things from the mesh
     parser = addRemoteActionArgs(parser)
     parser = addRemoteAdminArgs(parser)
+
+    #Arguments for Message Parsing
+    parser = addMessageArgs(parser)
 
     # All the rest of the arguments
     group = parser.add_argument_group("Miscellaneous arguments")
