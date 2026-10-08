@@ -2332,7 +2332,7 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
 
     group.add_argument(
         "--ota-update",
-        help="Perform an OTA update on the local node (ESP32, firmware version >=2.7.18, WiFi/TCP only for now). "
+        help="Perform an OTA update on the local node (ESP32, firmware version >=2.7.18, WiFi/TCP or BLE only). "
         "Specify the path to the firmware file.",
         metavar="FIRMWARE_FILE",
         action="store",
