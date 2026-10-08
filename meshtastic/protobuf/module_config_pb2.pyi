@@ -391,7 +391,19 @@ class ModuleConfig(google.protobuf.message.Message):
             CODEC2_1300: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 5
             CODEC2_1200: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 6
             CODEC2_700: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 7
+            """
+            Removed from libcodec2 upstream. A device configured to one of these
+            falls back to CODEC2_700C.
+            """
             CODEC2_700B: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 8
+            CODEC2_700C: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 9
+            """
+            Replaces CODEC2_700. Default for new configurations.
+            """
+            CODEC2_450: ModuleConfig.AudioConfig._Audio_Baud.ValueType  # 10
+            """
+            Lowest rate, and the only one usable on slower modem presets.
+            """
 
         class Audio_Baud(_Audio_Baud, metaclass=_Audio_BaudEnumTypeWrapper):
             """
@@ -406,7 +418,19 @@ class ModuleConfig(google.protobuf.message.Message):
         CODEC2_1300: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 5
         CODEC2_1200: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 6
         CODEC2_700: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 7
+        """
+        Removed from libcodec2 upstream. A device configured to one of these
+        falls back to CODEC2_700C.
+        """
         CODEC2_700B: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 8
+        CODEC2_700C: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 9
+        """
+        Replaces CODEC2_700. Default for new configurations.
+        """
+        CODEC2_450: ModuleConfig.AudioConfig.Audio_Baud.ValueType  # 10
+        """
+        Lowest rate, and the only one usable on slower modem presets.
+        """
 
         CODEC2_ENABLED_FIELD_NUMBER: builtins.int
         PTT_PIN_FIELD_NUMBER: builtins.int
@@ -425,7 +449,7 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         bitrate: global___ModuleConfig.AudioConfig.Audio_Baud.ValueType
         """
-        The audio sample rate to use for codec2
+        The codec2 bitrate to encode at. Sample rate is always 8 kHz.
         """
         i2s_ws: builtins.int
         """
@@ -499,7 +523,10 @@ class ModuleConfig(google.protobuf.message.Message):
     class TrafficManagementConfig(google.protobuf.message.Message):
         """
         Config for the Traffic Management module.
-        Provides packet inspection and traffic shaping to help reduce channel utilization
+        Provides packet inspection and traffic shaping to help reduce channel utilization.
+        Every field uses the proto3 zero value to mean "disabled"; there is no
+        "use the firmware default" sentinel. Firmware installs its own defaults when it
+        first creates this config, and a client that writes 0 turns that feature off.
         """
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -513,6 +540,7 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         Minimum interval in seconds between position updates from the same node.
         A non-zero value implicitly enables the suppression window; 0 disables it.
+        Firmware default: 21600 (6 hours), installed when this config is first created.
         """
         nodeinfo_direct_response_max_hops: builtins.int
         """
@@ -1331,6 +1359,7 @@ class ModuleConfig(google.protobuf.message.Message):
             PRESET_FIELD_NUMBER: builtins.int
             REGION_FIELD_NUMBER: builtins.int
             CHANNEL_INDEX_FIELD_NUMBER: builtins.int
+            FREQUENCY_SLOT_FIELD_NUMBER: builtins.int
             preset: meshtastic.protobuf.config_pb2.Config.LoRaConfig.ModemPreset.ValueType
             """
             Modem preset to use for this target.
@@ -1350,21 +1379,32 @@ class ModuleConfig(google.protobuf.message.Message):
             on the node (its key is needed to encrypt). If unset, the default channel for the
             preset is used.
             """
+            frequency_slot: builtins.int
+            """
+            Frequency slot to transmit this target's beacon on, 1-based, matching
+            Config.LoRaConfig.channel_num. Unset means derive it the way any node on this
+            channel would: the region's override slot if it has one, otherwise the hash of the
+            target channel's name. Do not send 0 - it is the same as unset.
+            """
             def __init__(
                 self,
                 *,
                 preset: meshtastic.protobuf.config_pb2.Config.LoRaConfig.ModemPreset.ValueType | None = ...,
                 region: meshtastic.protobuf.config_pb2.Config.LoRaConfig.RegionCode.ValueType = ...,
                 channel_index: builtins.int | None = ...,
+                frequency_slot: builtins.int | None = ...,
             ) -> None: ...
-            def HasField(self, field_name: typing.Literal["_channel_index", b"_channel_index", "_preset", b"_preset", "channel_index", b"channel_index", "preset", b"preset"]) -> builtins.bool: ...
-            def ClearField(self, field_name: typing.Literal["_channel_index", b"_channel_index", "_preset", b"_preset", "channel_index", b"channel_index", "preset", b"preset", "region", b"region"]) -> None: ...
+            def HasField(self, field_name: typing.Literal["_channel_index", b"_channel_index", "_frequency_slot", b"_frequency_slot", "_preset", b"_preset", "channel_index", b"channel_index", "frequency_slot", b"frequency_slot", "preset", b"preset"]) -> builtins.bool: ...
+            def ClearField(self, field_name: typing.Literal["_channel_index", b"_channel_index", "_frequency_slot", b"_frequency_slot", "_preset", b"_preset", "channel_index", b"channel_index", "frequency_slot", b"frequency_slot", "preset", b"preset", "region", b"region"]) -> None: ...
             @typing.overload
             def WhichOneof(self, oneof_group: typing.Literal["_channel_index", b"_channel_index"]) -> typing.Literal["channel_index"] | None: ...
+            @typing.overload
+            def WhichOneof(self, oneof_group: typing.Literal["_frequency_slot", b"_frequency_slot"]) -> typing.Literal["frequency_slot"] | None: ...
             @typing.overload
             def WhichOneof(self, oneof_group: typing.Literal["_preset", b"_preset"]) -> typing.Literal["preset"] | None: ...
 
         FLAGS_FIELD_NUMBER: builtins.int
+        BROADCAST_OFFER_FREQUENCY_SLOT_FIELD_NUMBER: builtins.int
         BROADCAST_MESSAGE_FIELD_NUMBER: builtins.int
         BROADCAST_OFFER_CHANNEL_FIELD_NUMBER: builtins.int
         BROADCAST_OFFER_REGION_FIELD_NUMBER: builtins.int
@@ -1375,9 +1415,20 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         Bitwise-OR of Flags values (listen / broadcast / legacy-split toggles).
         """
+        broadcast_offer_frequency_slot: builtins.int
+        """
+        Frequency slot to advertise, 1-based, matching Config.LoRaConfig.channel_num.
+        Unset means the receiver derives it from the advertised region, channel name and
+        preset, which covers a region that mandates a slot and a mesh on the default hash.
+        Set it only where the mesh deliberately pins a non-default slot. Do not send 0.
+        """
         broadcast_message: builtins.str
         """
-        Message to include in each beacon broadcast. Max 100 bytes enforced by firmware.
+        Message to include in each beacon broadcast.
+        Every beacon copy carries this on the air, so it is the largest single cost in both
+        this config and the packet it produces. Held to 60 bytes for that reason. The nanopb
+        max_size is 61 because it counts the terminator, which is what leaves a client a
+        round 60.
         """
         broadcast_offer_region: meshtastic.protobuf.config_pb2.Config.LoRaConfig.RegionCode.ValueType
         """
@@ -1413,6 +1464,7 @@ class ModuleConfig(google.protobuf.message.Message):
             self,
             *,
             flags: builtins.int = ...,
+            broadcast_offer_frequency_slot: builtins.int | None = ...,
             broadcast_message: builtins.str = ...,
             broadcast_offer_channel: meshtastic.protobuf.channel_pb2.ChannelSettings | None = ...,
             broadcast_offer_region: meshtastic.protobuf.config_pb2.Config.LoRaConfig.RegionCode.ValueType = ...,
@@ -1420,8 +1472,11 @@ class ModuleConfig(google.protobuf.message.Message):
             broadcast_interval_secs: builtins.int = ...,
             broadcast_targets: collections.abc.Iterable[global___ModuleConfig.MeshBeaconConfig.BroadcastTarget] | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing.Literal["_broadcast_offer_preset", b"_broadcast_offer_preset", "broadcast_offer_channel", b"broadcast_offer_channel", "broadcast_offer_preset", b"broadcast_offer_preset"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing.Literal["_broadcast_offer_preset", b"_broadcast_offer_preset", "broadcast_interval_secs", b"broadcast_interval_secs", "broadcast_message", b"broadcast_message", "broadcast_offer_channel", b"broadcast_offer_channel", "broadcast_offer_preset", b"broadcast_offer_preset", "broadcast_offer_region", b"broadcast_offer_region", "broadcast_targets", b"broadcast_targets", "flags", b"flags"]) -> None: ...
+        def HasField(self, field_name: typing.Literal["_broadcast_offer_frequency_slot", b"_broadcast_offer_frequency_slot", "_broadcast_offer_preset", b"_broadcast_offer_preset", "broadcast_offer_channel", b"broadcast_offer_channel", "broadcast_offer_frequency_slot", b"broadcast_offer_frequency_slot", "broadcast_offer_preset", b"broadcast_offer_preset"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["_broadcast_offer_frequency_slot", b"_broadcast_offer_frequency_slot", "_broadcast_offer_preset", b"_broadcast_offer_preset", "broadcast_interval_secs", b"broadcast_interval_secs", "broadcast_message", b"broadcast_message", "broadcast_offer_channel", b"broadcast_offer_channel", "broadcast_offer_frequency_slot", b"broadcast_offer_frequency_slot", "broadcast_offer_preset", b"broadcast_offer_preset", "broadcast_offer_region", b"broadcast_offer_region", "broadcast_targets", b"broadcast_targets", "flags", b"flags"]) -> None: ...
+        @typing.overload
+        def WhichOneof(self, oneof_group: typing.Literal["_broadcast_offer_frequency_slot", b"_broadcast_offer_frequency_slot"]) -> typing.Literal["broadcast_offer_frequency_slot"] | None: ...
+        @typing.overload
         def WhichOneof(self, oneof_group: typing.Literal["_broadcast_offer_preset", b"_broadcast_offer_preset"]) -> typing.Literal["broadcast_offer_preset"] | None: ...
 
     @typing.final

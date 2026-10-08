@@ -303,6 +303,7 @@ class StoreAndForward(google.protobuf.message.Message):
     HISTORY_FIELD_NUMBER: builtins.int
     HEARTBEAT_FIELD_NUMBER: builtins.int
     TEXT_FIELD_NUMBER: builtins.int
+    ORIGINAL_ID_FIELD_NUMBER: builtins.int
     rr: global___StoreAndForward.RequestResponse.ValueType
     """
     TODO: REPLACE
@@ -310,6 +311,10 @@ class StoreAndForward(google.protobuf.message.Message):
     text: builtins.bytes
     """
     Text from history message.
+    """
+    original_id: builtins.int
+    """
+    Contains the original ID of the contained message.
     """
     @property
     def stats(self) -> global___StoreAndForward.Statistics:
@@ -337,9 +342,10 @@ class StoreAndForward(google.protobuf.message.Message):
         history: global___StoreAndForward.History | None = ...,
         heartbeat: global___StoreAndForward.Heartbeat | None = ...,
         text: builtins.bytes = ...,
+        original_id: builtins.int = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["heartbeat", b"heartbeat", "history", b"history", "stats", b"stats", "text", b"text", "variant", b"variant"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["heartbeat", b"heartbeat", "history", b"history", "rr", b"rr", "stats", b"stats", "text", b"text", "variant", b"variant"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["heartbeat", b"heartbeat", "history", b"history", "original_id", b"original_id", "rr", b"rr", "stats", b"stats", "text", b"text", "variant", b"variant"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["variant", b"variant"]) -> typing.Literal["stats", "history", "heartbeat", "text"] | None: ...
 
 global___StoreAndForward = StoreAndForward

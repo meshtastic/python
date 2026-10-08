@@ -16,7 +16,7 @@ from meshtastic.protobuf import config_pb2 as meshtastic_dot_protobuf_dot_config
 from meshtastic.protobuf import nanopb_pb2 as meshtastic_dot_protobuf_dot_nanopb__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%meshtastic/protobuf/mesh_beacon.proto\x12\x13meshtastic.protobuf\x1a!meshtastic/protobuf/channel.proto\x1a meshtastic/protobuf/config.proto\x1a meshtastic/protobuf/nanopb.proto\"\x8a\x02\n\nMeshBeacon\x12\x16\n\x07message\x18\x01 \x01(\tB\x05\x92?\x02\x08\x65\x12;\n\roffer_channel\x18\x02 \x01(\x0b\x32$.meshtastic.protobuf.ChannelSettings\x12G\n\x0coffer_region\x18\x03 \x01(\x0e\x32\x31.meshtastic.protobuf.Config.LoRaConfig.RegionCode\x12M\n\x0coffer_preset\x18\x04 \x01(\x0e\x32\x32.meshtastic.protobuf.Config.LoRaConfig.ModemPresetH\x00\x88\x01\x01\x42\x0f\n\r_offer_presetBf\n\x14org.meshtastic.protoB\x10MeshBeaconProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%meshtastic/protobuf/mesh_beacon.proto\x12\x13meshtastic.protobuf\x1a!meshtastic/protobuf/channel.proto\x1a meshtastic/protobuf/config.proto\x1a meshtastic/protobuf/nanopb.proto\"\xc6\x02\n\nMeshBeacon\x12\x16\n\x07message\x18\x01 \x01(\tB\x05\x92?\x02\x08=\x12;\n\roffer_channel\x18\x02 \x01(\x0b\x32$.meshtastic.protobuf.ChannelSettings\x12G\n\x0coffer_region\x18\x03 \x01(\x0e\x32\x31.meshtastic.protobuf.Config.LoRaConfig.RegionCode\x12M\n\x0coffer_preset\x18\x04 \x01(\x0e\x32\x32.meshtastic.protobuf.Config.LoRaConfig.ModemPresetH\x00\x88\x01\x01\x12!\n\x14offer_frequency_slot\x18\x05 \x01(\rH\x01\x88\x01\x01\x42\x0f\n\r_offer_presetB\x17\n\x15_offer_frequency_slotBf\n\x14org.meshtastic.protoB\x10MeshBeaconProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -25,7 +25,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\024org.meshtastic.protoB\020MeshBeaconProtosZ\"github.com/meshtastic/go/generated\252\002\024Meshtastic.Protobufs\272\002\000'
   _MESHBEACON.fields_by_name['message']._options = None
-  _MESHBEACON.fields_by_name['message']._serialized_options = b'\222?\002\010e'
+  _MESHBEACON.fields_by_name['message']._serialized_options = b'\222?\002\010='
   _globals['_MESHBEACON']._serialized_start=166
-  _globals['_MESHBEACON']._serialized_end=432
+  _globals['_MESHBEACON']._serialized_end=492
 # @@protoc_insertion_point(module_scope)

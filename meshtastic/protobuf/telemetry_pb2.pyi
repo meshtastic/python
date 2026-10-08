@@ -239,7 +239,7 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     ICM42607P: _TelemetrySensorType.ValueType  # 53
     """
-    ICM-42607-P 6‑Axis IMU
+    ICM-42607-P 6-Axis IMU
     """
     SPA06: _TelemetrySensorType.ValueType  # 54
     """
@@ -477,7 +477,7 @@ MMC5983MA 3-Axis Digital Magnetic Sensor
 """
 ICM42607P: TelemetrySensorType.ValueType  # 53
 """
-ICM-42607-P 6‑Axis IMU
+ICM-42607-P 6-Axis IMU
 """
 SPA06: TelemetrySensorType.ValueType  # 54
 """
@@ -900,6 +900,147 @@ class EnvironmentMetrics(google.protobuf.message.Message):
     def WhichOneof(self, oneof_group: typing.Literal["_wind_speed", b"_wind_speed"]) -> typing.Literal["wind_speed"] | None: ...
 
 global___EnvironmentMetrics = EnvironmentMetrics
+
+@typing.final
+class SoilWaterMetrics(google.protobuf.message.Message):
+    """
+    Soil and water probe metrics.
+
+    Chemistry reported by soil probes (RS-485/SDI-12 NPK probes) and by
+    water-quality sondes. Split out of EnvironmentMetrics so that message stays
+    within the mesh payload budget.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SOIL_PH_FIELD_NUMBER: builtins.int
+    PH_FIELD_NUMBER: builtins.int
+    ELECTRICAL_CONDUCTIVITY_FIELD_NUMBER: builtins.int
+    SALINITY_FIELD_NUMBER: builtins.int
+    NITROGEN_FIELD_NUMBER: builtins.int
+    PHOSPHORUS_FIELD_NUMBER: builtins.int
+    POTASSIUM_FIELD_NUMBER: builtins.int
+    DISSOLVED_OXYGEN_FIELD_NUMBER: builtins.int
+    ORP_FIELD_NUMBER: builtins.int
+    CHEMICAL_OXYGEN_DEMAND_FIELD_NUMBER: builtins.int
+    TURBIDITY_FIELD_NUMBER: builtins.int
+    NITRATE_FIELD_NUMBER: builtins.int
+    AMMONIUM_FIELD_NUMBER: builtins.int
+    BIOCHEMICAL_OXYGEN_DEMAND_FIELD_NUMBER: builtins.int
+    SOLAR_IRRADIANCE_FIELD_NUMBER: builtins.int
+    soil_ph: builtins.float
+    """
+    Soil pH, 0-14
+    """
+    ph: builtins.float
+    """
+    pH of water or other solution, 0-14
+    """
+    electrical_conductivity: builtins.float
+    """
+    Electrical conductivity in mS/cm
+    """
+    salinity: builtins.float
+    """
+    Salinity in mg/l
+    """
+    nitrogen: builtins.float
+    """
+    Nitrogen concentration in mg/kg
+    """
+    phosphorus: builtins.float
+    """
+    Phosphorus concentration in mg/kg
+    """
+    potassium: builtins.float
+    """
+    Potassium concentration in mg/kg
+    """
+    dissolved_oxygen: builtins.float
+    """
+    Dissolved oxygen in mg/l
+    """
+    orp: builtins.float
+    """
+    Oxidation-reduction potential (ORP) in mV
+    """
+    chemical_oxygen_demand: builtins.float
+    """
+    Chemical oxygen demand in mg/l
+    """
+    turbidity: builtins.float
+    """
+    Turbidity in NTU
+    """
+    nitrate: builtins.float
+    """
+    Nitrate concentration in ppm
+    """
+    ammonium: builtins.float
+    """
+    Ammonium concentration in ppm
+    """
+    biochemical_oxygen_demand: builtins.float
+    """
+    Biochemical oxygen demand in mg/l
+    """
+    solar_irradiance: builtins.float
+    """
+    Solar irradiance in W/m^2 (distinct from the radiation field's uR/h)
+    """
+    def __init__(
+        self,
+        *,
+        soil_ph: builtins.float | None = ...,
+        ph: builtins.float | None = ...,
+        electrical_conductivity: builtins.float | None = ...,
+        salinity: builtins.float | None = ...,
+        nitrogen: builtins.float | None = ...,
+        phosphorus: builtins.float | None = ...,
+        potassium: builtins.float | None = ...,
+        dissolved_oxygen: builtins.float | None = ...,
+        orp: builtins.float | None = ...,
+        chemical_oxygen_demand: builtins.float | None = ...,
+        turbidity: builtins.float | None = ...,
+        nitrate: builtins.float | None = ...,
+        ammonium: builtins.float | None = ...,
+        biochemical_oxygen_demand: builtins.float | None = ...,
+        solar_irradiance: builtins.float | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_ammonium", b"_ammonium", "_biochemical_oxygen_demand", b"_biochemical_oxygen_demand", "_chemical_oxygen_demand", b"_chemical_oxygen_demand", "_dissolved_oxygen", b"_dissolved_oxygen", "_electrical_conductivity", b"_electrical_conductivity", "_nitrate", b"_nitrate", "_nitrogen", b"_nitrogen", "_orp", b"_orp", "_ph", b"_ph", "_phosphorus", b"_phosphorus", "_potassium", b"_potassium", "_salinity", b"_salinity", "_soil_ph", b"_soil_ph", "_solar_irradiance", b"_solar_irradiance", "_turbidity", b"_turbidity", "ammonium", b"ammonium", "biochemical_oxygen_demand", b"biochemical_oxygen_demand", "chemical_oxygen_demand", b"chemical_oxygen_demand", "dissolved_oxygen", b"dissolved_oxygen", "electrical_conductivity", b"electrical_conductivity", "nitrate", b"nitrate", "nitrogen", b"nitrogen", "orp", b"orp", "ph", b"ph", "phosphorus", b"phosphorus", "potassium", b"potassium", "salinity", b"salinity", "soil_ph", b"soil_ph", "solar_irradiance", b"solar_irradiance", "turbidity", b"turbidity"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_ammonium", b"_ammonium", "_biochemical_oxygen_demand", b"_biochemical_oxygen_demand", "_chemical_oxygen_demand", b"_chemical_oxygen_demand", "_dissolved_oxygen", b"_dissolved_oxygen", "_electrical_conductivity", b"_electrical_conductivity", "_nitrate", b"_nitrate", "_nitrogen", b"_nitrogen", "_orp", b"_orp", "_ph", b"_ph", "_phosphorus", b"_phosphorus", "_potassium", b"_potassium", "_salinity", b"_salinity", "_soil_ph", b"_soil_ph", "_solar_irradiance", b"_solar_irradiance", "_turbidity", b"_turbidity", "ammonium", b"ammonium", "biochemical_oxygen_demand", b"biochemical_oxygen_demand", "chemical_oxygen_demand", b"chemical_oxygen_demand", "dissolved_oxygen", b"dissolved_oxygen", "electrical_conductivity", b"electrical_conductivity", "nitrate", b"nitrate", "nitrogen", b"nitrogen", "orp", b"orp", "ph", b"ph", "phosphorus", b"phosphorus", "potassium", b"potassium", "salinity", b"salinity", "soil_ph", b"soil_ph", "solar_irradiance", b"solar_irradiance", "turbidity", b"turbidity"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ammonium", b"_ammonium"]) -> typing.Literal["ammonium"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_biochemical_oxygen_demand", b"_biochemical_oxygen_demand"]) -> typing.Literal["biochemical_oxygen_demand"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_chemical_oxygen_demand", b"_chemical_oxygen_demand"]) -> typing.Literal["chemical_oxygen_demand"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_dissolved_oxygen", b"_dissolved_oxygen"]) -> typing.Literal["dissolved_oxygen"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_electrical_conductivity", b"_electrical_conductivity"]) -> typing.Literal["electrical_conductivity"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_nitrate", b"_nitrate"]) -> typing.Literal["nitrate"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_nitrogen", b"_nitrogen"]) -> typing.Literal["nitrogen"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_orp", b"_orp"]) -> typing.Literal["orp"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_ph", b"_ph"]) -> typing.Literal["ph"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_phosphorus", b"_phosphorus"]) -> typing.Literal["phosphorus"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_potassium", b"_potassium"]) -> typing.Literal["potassium"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_salinity", b"_salinity"]) -> typing.Literal["salinity"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_soil_ph", b"_soil_ph"]) -> typing.Literal["soil_ph"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_solar_irradiance", b"_solar_irradiance"]) -> typing.Literal["solar_irradiance"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_turbidity", b"_turbidity"]) -> typing.Literal["turbidity"] | None: ...
+
+global___SoilWaterMetrics = SoilWaterMetrics
 
 @typing.final
 class PowerMetrics(google.protobuf.message.Message):
@@ -1576,6 +1717,7 @@ class Telemetry(google.protobuf.message.Message):
     HEALTH_METRICS_FIELD_NUMBER: builtins.int
     HOST_METRICS_FIELD_NUMBER: builtins.int
     TRAFFIC_MANAGEMENT_STATS_FIELD_NUMBER: builtins.int
+    SOIL_WATER_METRICS_FIELD_NUMBER: builtins.int
     time: builtins.int
     """
     Seconds since 1970 - or 0 for unknown/unset
@@ -1628,6 +1770,12 @@ class Telemetry(google.protobuf.message.Message):
         Traffic management statistics
         """
 
+    @property
+    def soil_water_metrics(self) -> global___SoilWaterMetrics:
+        """
+        Soil and water probe metrics
+        """
+
     def __init__(
         self,
         *,
@@ -1640,10 +1788,11 @@ class Telemetry(google.protobuf.message.Message):
         health_metrics: global___HealthMetrics | None = ...,
         host_metrics: global___HostMetrics | None = ...,
         traffic_management_stats: global___TrafficManagementStats | None = ...,
+        soil_water_metrics: global___SoilWaterMetrics | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "traffic_management_stats", b"traffic_management_stats", "variant", b"variant"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "time", b"time", "traffic_management_stats", b"traffic_management_stats", "variant", b"variant"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["variant", b"variant"]) -> typing.Literal["device_metrics", "environment_metrics", "air_quality_metrics", "power_metrics", "local_stats", "health_metrics", "host_metrics", "traffic_management_stats"] | None: ...
+    def HasField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "soil_water_metrics", b"soil_water_metrics", "traffic_management_stats", b"traffic_management_stats", "variant", b"variant"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["air_quality_metrics", b"air_quality_metrics", "device_metrics", b"device_metrics", "environment_metrics", b"environment_metrics", "health_metrics", b"health_metrics", "host_metrics", b"host_metrics", "local_stats", b"local_stats", "power_metrics", b"power_metrics", "soil_water_metrics", b"soil_water_metrics", "time", b"time", "traffic_management_stats", b"traffic_management_stats", "variant", b"variant"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["variant", b"variant"]) -> typing.Literal["device_metrics", "environment_metrics", "air_quality_metrics", "power_metrics", "local_stats", "health_metrics", "host_metrics", "traffic_management_stats", "soil_water_metrics"] | None: ...
 
 global___Telemetry = Telemetry
 
@@ -1676,9 +1825,9 @@ class Nau7802Config(google.protobuf.message.Message):
 global___Nau7802Config = Nau7802Config
 
 @typing.final
-class AS3935Config(google.protobuf.message.Message):
+class AS3935State(google.protobuf.message.Message):
     """
-    AS3935 lightning sensor configuration, for saving to flash
+    AS3935 lightning sensor state, for saving to flash
     """
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -1696,7 +1845,7 @@ class AS3935Config(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing.Literal["tuning_cap_pf", b"tuning_cap_pf"]) -> None: ...
 
-global___AS3935Config = AS3935Config
+global___AS3935State = AS3935State
 
 @typing.final
 class SEN5XState(google.protobuf.message.Message):

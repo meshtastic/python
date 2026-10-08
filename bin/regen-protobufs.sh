@@ -44,6 +44,13 @@ $SEDCMD 's/^package meshtastic;/package meshtastic.protobuf;/' "${INDIR}/"*.prot
 # fix the imports to match
 $SEDCMD 's/^import "meshtastic\//import "meshtastic\/protobuf\//' "${INDIR}/"*.proto
 
+# Requalify custom option references, e.g. (meshtastic.field_metadata) and
+# (meshtastic.enum_value_metadata) (see meshtastic/field_metadata.proto), to
+# the renamed package so protoc can resolve them.  Option references are always
+# parenthesized with a lowercase-initial name; type references and URLs in
+# comments (meshtastic.GeoPoint, meshtastic.org) do not match this pattern.
+$SEDCMD 's/\(meshtastic\.([a-z][a-zA-Z0-9_]*)\)/(meshtastic.protobuf.\1)/g' "${INDIR}/"*.proto
+
 $SEDCMD 's/^import "nanopb.proto"/import "meshtastic\/protobuf\/nanopb.proto"/' "${INDIR}/"*.proto
 
 # Inject nanopb .options constraints as inline proto field options so that

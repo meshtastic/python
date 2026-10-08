@@ -20,6 +20,8 @@ from hypothesis import given, strategies as st
 from meshtastic.protobuf import (
     atak_pb2,
     config_pb2,
+    field_metadata_pb2,
+    interdevice_pb2,
     mesh_pb2,
     mqtt_pb2,
     nanopb_pb2,
@@ -470,6 +472,198 @@ def test_inject_multiple_options_on_one_field():
 
 
 # ---------------------------------------------------------------------------
+# inject_into_proto — multi-line declarations (upstream field_metadata format)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_inject_multiline_options_field():
+    """A field with a multi-line options block gets nanopb options appended to
+    the existing block, collapsed onto one line, existing options preserved."""
+    proto = """\
+        syntax = "proto3";
+        message NetworkConfig {
+          string wifi_ssid = 3 [(meshtastic.protobuf.field_metadata) = {
+            label: "SSID"
+            description: "WiFi network name to connect to"
+          }];
+        }
+    """
+    result = _inject(proto, specific={("NetworkConfig", "wifi_ssid"): {"max_size": 33}})
+    assert (
+        'wifi_ssid = 3 [(meshtastic.protobuf.field_metadata) = { label: "SSID" '
+        'description: "WiFi network name to connect to" }, (nanopb).max_size = 33];'
+    ) in result
+
+
+@pytest.mark.unit
+def test_inject_multiline_field_without_options_left_unchanged():
+    """A multi-line declaration with no applicable options keeps its original
+    multi-line formatting instead of being collapsed."""
+    proto = """\
+        syntax = "proto3";
+        message Foo {
+          string plain = 1 [(meshtastic.protobuf.field_metadata) = {
+            label: "Plain"
+          }];
+        }
+    """
+    result = _inject(proto, specific={("Other", "plain"): {"max_size": 10}})
+    assert "(nanopb)" not in result
+    assert 'string plain = 1 [(meshtastic.protobuf.field_metadata) = {' in result
+    assert 'label: "Plain"' in result
+    assert "}];" in result
+
+
+@pytest.mark.unit
+def test_inject_field_with_trailing_comment():
+    """A declaration with a trailing // comment after the ';' still gets its
+    options, and the comment is preserved."""
+    proto = """\
+        syntax = "proto3";
+        message CasevacReport {
+          uint32 epw = 12; // enemy prisoner of war
+        }
+    """
+    result = _inject(proto, specific={("CasevacReport", "epw"): {"int_size": 8}})
+    assert "uint32 epw = 12 [(nanopb).int_size = IS_8]; // enemy prisoner of war" in result
+
+
+@pytest.mark.unit
+def test_inject_multiline_field_with_trailing_comment():
+    """A multi-line declaration terminated by '};' followed by a comment."""
+    proto = """\
+        syntax = "proto3";
+        message DeviceConfig {
+          string tzdef = 11 [(meshtastic.protobuf.field_metadata) = {
+            label: "Time Zone"
+          }]; // POSIX timezone definition
+        }
+    """
+    result = _inject(proto, specific={("DeviceConfig", "tzdef"): {"max_size": 65}})
+    assert (
+        'string tzdef = 11 [(meshtastic.protobuf.field_metadata) = { label: "Time Zone" }, '
+        "(nanopb).max_size = 65]; // POSIX timezone definition"
+    ) in result
+
+
+@pytest.mark.unit
+def test_inject_multiline_field_with_brackets_in_strings():
+    """']' and ';' inside string values in a multi-line options block do not
+    terminate the declaration early."""
+    proto = """\
+        syntax = "proto3";
+        message Foo {
+          string keywords = 1 [(meshtastic.protobuf.field_metadata) = {
+            keywords: "a]b;c"
+            description: "see [docs]; ok"
+          }];
+        }
+    """
+    result = _inject(proto, specific={("Foo", "keywords"): {"max_size": 32}})
+    assert 'keywords: "a]b;c"' in result
+    assert "(nanopb).max_size = 32" in result
+
+
+@pytest.mark.unit
+def test_inject_multiline_enum_value_braces_do_not_corrupt_context():
+    """Multi-line enum value declarations (including a lone '}' line inside
+    their options block) must not pop the message context: a later field in
+    the same message still gets its options (regression: DeviceConfig)."""
+    proto = """\
+        syntax = "proto3";
+        message DeviceConfig {
+          enum Role {
+            CLIENT = 0 [(meshtastic.protobuf.enum_value_metadata) = {
+              label: "Client"
+            }];
+            REPEATER = 4 [
+              deprecated = true,
+              (meshtastic.protobuf.enum_value_metadata) = {
+                label: "Repeater"
+              }
+            ];
+          }
+          BuzzerMode buzzer_mode = 13 [(meshtastic.protobuf.field_metadata) = {since_firmware: "2.7.0"}];
+        }
+    """
+    result = _inject(proto, specific={("DeviceConfig", "buzzer_mode"): {"int_size": 8}})
+    assert result.count("(nanopb)") == 1
+    assert (
+        'buzzer_mode = 13 [(meshtastic.protobuf.field_metadata) = {since_firmware: "2.7.0"}, '
+        "(nanopb).int_size = IS_8];"
+    ) in result
+
+
+@pytest.mark.unit
+def test_inject_multiline_field_close_does_not_pop_scope():
+    """The '}];' closer of a multi-line field options block must not pop the
+    message context: later sibling messages still get their options
+    (regression: LoRaConfig options were skipped after DeviceConfig)."""
+    proto = """\
+        syntax = "proto3";
+        message Config {
+          message DeviceConfig {
+            string tzdef = 11 [(meshtastic.protobuf.field_metadata) = {
+              label: "Time Zone"
+            }];
+          }
+          message LoRaConfig {
+            int32 tx_power = 10 [(meshtastic.protobuf.field_metadata) = {
+              label: "Transmit Power"
+            }];
+          }
+        }
+    """
+    result = _inject(
+        proto,
+        specific={
+            ("DeviceConfig", "tzdef"): {"max_size": 65},
+            ("LoRaConfig", "tx_power"): {"int_size": 8},
+        },
+    )
+    assert result.count("(nanopb)") == 2
+    assert "(nanopb).max_size = 65" in result
+    assert "(nanopb).int_size = IS_8" in result
+
+
+@pytest.mark.unit
+def test_inject_extend_block_braces_do_not_pop_scope():
+    """A closing brace of an extend block must not pop the enclosing message
+    context: a later field of the same message still gets its options."""
+    proto = """\
+        syntax = "proto3";
+        import "google/protobuf/descriptor.proto";
+        message Outer {
+          string a = 1;
+          extend google.protobuf.FieldOptions {
+            optional Foo my_opt = 50001;
+          }
+          string b = 2;
+        }
+    """
+    result = _inject(proto, specific={("Outer", "b"): {"max_size": 16}})
+    assert "string b = 2 [(nanopb).max_size = 16];" in result
+
+
+@pytest.mark.unit
+def test_inject_option_line_not_treated_as_field():
+    """An 'option name = number;' line is not a field declaration, even when a
+    wildcard pattern matches its name."""
+    proto = """\
+        syntax = "proto3";
+        message Foo {
+          option my_setting = 5;
+          string my_setting = 1;
+        }
+    """
+    result = _inject(proto, wildcard={"my_setting": {"max_size": 16}})
+    assert result.count("(nanopb)") == 1
+    assert "option my_setting = 5;" in result
+    assert "string my_setting = 1 [(nanopb).max_size = 16];" in result
+
+
+# ---------------------------------------------------------------------------
 # inject_into_proto — import insertion
 # ---------------------------------------------------------------------------
 
@@ -653,3 +847,60 @@ def test_descriptor_mqtt_service_envelope_pointer_fields():
     envelope = mqtt_pb2.DESCRIPTOR.message_types_by_name["ServiceEnvelope"]
     for name in ("packet", "channel_id", "gateway_id"):
         assert _field_opts(envelope, name).type == nanopb_pb2.FT_POINTER
+
+
+@pytest.mark.unit
+def test_descriptor_deviceconfig_tzdef_metadata_preserved():
+    """tzdef keeps its nanopb max_size AND its field_metadata despite the
+    multi-line options block (regression: options were silently dropped)."""
+    config = config_pb2.DESCRIPTOR.message_types_by_name["Config"]
+    device = config.nested_types_by_name["DeviceConfig"]
+    opts = _field_opts(config, "DeviceConfig", "tzdef")
+    assert opts.max_size == 65
+    meta = device.fields_by_name["tzdef"].GetOptions().Extensions[
+        field_metadata_pb2.field_metadata
+    ]
+    assert meta.label == "Time Zone"
+
+
+@pytest.mark.unit
+def test_descriptor_deviceconfig_buzzer_mode():
+    """buzzer_mode carries int_size = IS_8 and its since_firmware metadata
+    (regression: enum Role's multi-line values corrupted the context)."""
+    config = config_pb2.DESCRIPTOR.message_types_by_name["Config"]
+    device = config.nested_types_by_name["DeviceConfig"]
+    assert _field_opts(config, "DeviceConfig", "buzzer_mode").int_size == nanopb_pb2.IS_8
+    meta = device.fields_by_name["buzzer_mode"].GetOptions().Extensions[
+        field_metadata_pb2.field_metadata
+    ]
+    assert meta.since_firmware == "2.7.0"
+
+
+@pytest.mark.unit
+def test_descriptor_atak_casevacreport_epw():
+    """epw, declared with a trailing // comment, still gets int_size = IS_8
+    (regression: trailing comments stopped the fast path matching)."""
+    atak = atak_pb2.DESCRIPTOR.message_types_by_name["CasevacReport"]
+    assert _field_opts(atak, "epw").int_size == nanopb_pb2.IS_8
+
+
+@pytest.mark.unit
+def test_descriptor_interdevice_trailing_comment_fields():
+    """interdevice fields declared with trailing // comments keep their
+    nanopb constraints."""
+    mod = interdevice_pb2.DESCRIPTOR.message_types_by_name
+    assert _field_opts(mod["FileTransfer"], "filepath").max_size == 256
+    assert _field_opts(mod["FileTransfer"], "filedata").max_size == 4096
+    assert _field_opts(mod["I2CTransaction"], "write_data").max_size == 256
+
+
+@pytest.mark.unit
+def test_descriptor_enum_value_metadata_label():
+    """Role.CLIENT carries its enum_value_metadata label through the whole
+    pipeline, proving the enum value metadata options resolve and embed."""
+    config = config_pb2.DESCRIPTOR.message_types_by_name["Config"]
+    role = config.nested_types_by_name["DeviceConfig"].enum_types_by_name["Role"]
+    meta = role.values_by_name["CLIENT"].GetOptions().Extensions[
+        field_metadata_pb2.enum_value_metadata
+    ]
+    assert meta.label == "Client"

@@ -188,6 +188,12 @@ class NodeInfoLite(google.protobuf.message.Message):
     bitfield: builtins.int
     """
     Bitfield for storing booleans. See NODEINFO_BITFIELD_* in src/mesh/NodeDB.h.
+    Bit 11 is NODEINFO_BITFIELD_HAS_RF_HEAR, set once this node has been heard
+    over our own radio and never cleared afterwards. Bits 12..23 hold a
+    fingerprint of the LoRa slot it was last heard on. NodeInfo.heard_on_current_lora
+    is derived from those two together, not stored: it is true when the node has
+    been heard over RF and its recorded slot matches the slot the radio is
+    currently committed to. Bits 24..31 are reserved.
     """
     long_name: builtins.str
     """Flattened user fields (formerly UserLite). macaddr dropped (deprecated 1.2.11).

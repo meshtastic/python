@@ -950,7 +950,8 @@ class Config(google.protobuf.message.Message):
 
         class DeprecatedGpsCoordinateFormat(_DeprecatedGpsCoordinateFormat, metaclass=_DeprecatedGpsCoordinateFormatEnumTypeWrapper):
             """
-            Deprecated in 2.7.4: Unused
+            Unused. Kept so the deprecated gps_format field still has a type; when
+            firmware stopped reading that field is recorded on the field itself.
             """
 
         UNUSED: Config.DisplayConfig.DeprecatedGpsCoordinateFormat.ValueType  # 0
@@ -1180,7 +1181,6 @@ class Config(google.protobuf.message.Message):
         """
         gps_format: global___Config.DisplayConfig.DeprecatedGpsCoordinateFormat.ValueType
         """
-        Deprecated in 2.7.4: Unused
         How the GPS coordinates are formatted on the OLED screen.
         """
         auto_screen_carousel_secs: builtins.int
@@ -1837,8 +1837,10 @@ class Config(google.protobuf.message.Message):
         SERIAL_HAL_ONLY_FIELD_NUMBER: builtins.int
         use_preset: builtins.bool
         """
-        When enabled, the `modem_preset` fields will be adhered to, else the `bandwidth`/`spread_factor`/`coding_rate`
-        will be taked from their respective manually defined fields
+        When enabled, the `modem_preset` sets the bandwidth and spread factor, and the
+        `bandwidth`/`spread_factor` fields are ignored. `coding_rate` is the exception:
+        see that field. When disabled, all three are taken from their respective
+        manually defined fields.
         """
         modem_preset: global___Config.LoRaConfig.ModemPreset.ValueType
         """
@@ -1846,23 +1848,40 @@ class Config(google.protobuf.message.Message):
         As a heuristic: If bandwidth is specified, do not use modem_config.
         Because protobufs take ZERO space when the value is zero this works out nicely.
         This value is replaced by bandwidth/spread_factor/coding_rate.
+        The one exception is `coding_rate`, which can raise the preset's coding rate
+        without moving off the preset; see that field.
         If you'd like to experiment with other options add them to MeshRadio.cpp in the device code.
         """
         bandwidth: builtins.int
         """
-        Bandwidth in MHz
+        Bandwidth in kHz
         Certain bandwidth numbers are 'special' and will be converted to the
-        appropriate floating point value: 31 -> 31.25MHz
+        appropriate floating point value: 31 -> 31.25kHz
         """
         spread_factor: builtins.int
         """
-        A number from 7 to 12.
+        A number from 5 to 12, which the firmware clamps to that range.
         Indicates number of chirps per symbol as 1<<spread_factor.
+        RF95 radios additionally reject 5 and 6; that exclusion is per hardware
+        and so is not expressible as a bound here.
         """
         coding_rate: builtins.int
         """
         The denominator of the coding rate.
         ie for 4/5, the value is 5. 4/8 the value is 8.
+
+        With `use_preset` disabled this is the coding rate, clamped to 5 through 8.
+
+        With `use_preset` enabled, since 2.7.18 this raises the preset's coding rate
+        when it is 5 through 8 AND higher than the preset's. A lower value, a value
+        out of range, and 0 all leave the preset's coding rate in place, so 0 is how
+        a client says "use the preset's". Bandwidth and spread factor still come from
+        the preset, and the coding rate travels in the explicit LoRa header, so nodes
+        on the same preset still hear each other either way.
+
+        No bound is stated here because the valid set differs between the two cases:
+        5 through 8 with `use_preset` off, and 0 plus anything from above the preset's
+        own coding rate up to 8 with it on.
         """
         frequency_offset: builtins.float
         """
