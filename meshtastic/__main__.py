@@ -487,36 +487,62 @@ def onConnected(interface):
             closeNow = True
             waitForAckNak = True
 
-            if not isinstance(interface, meshtastic.tcp_interface.TCPInterface):
-                meshtastic.util.our_exit(
-                    "Error: OTA update currently requires a TCP connection to the node (use --host)."
+            if isinstance(interface, meshtastic.tcp_interface.TCPInterface):
+                ota = meshtastic.ota.ESP32WiFiOTA(args.ota_update, interface.hostname)
+                
+                print(f"Triggering OTA update on {interface.hostname}...")
+                interface.getNode(args.dest, False, **getNode_kwargs).startOTA(
+                    ota_mode=admin_pb2.OTAMode.OTA_WIFI,
+                    ota_file_hash=ota.hash_bytes()
+                )
+                
+                print("Waiting for device to reboot into OTA mode...")
+                time.sleep(5)
+                
+                retries = 5
+                while retries > 0:
+                    try:
+                        ota.update()
+                        break
+                
+                    except Exception as e:
+                        retries -= 1
+                        if retries == 0:
+                            meshtastic.util.our_exit(f"\nOTA update failed: {e}")
+                
+                        time.sleep(2)
+                
+                print("\nOTA update completed successfully!")
+            elif isinstance(interface, meshtastic.ble_interface.BLEInterface):
+                ota = meshtastic.ota.ESP32BLEOTA(args.ota_update)
+
+                print(f"Triggering OTA update on {interface.client.bleak_client.address}...")
+                interface.getNode(args.dest, False, **getNode_kwargs).startOTA(
+                    ota_mode=admin_pb2.OTAMode.OTA_BLE,
+                    ota_file_hash=ota.hash_bytes()
                 )
 
-            ota = meshtastic.ota.ESP32WiFiOTA(args.ota_update, interface.hostname)
+                interface.close()
 
-            print(f"Triggering OTA update on {interface.hostname}...")
-            interface.getNode(args.dest, False, **getNode_kwargs).startOTA(
-                ota_mode=admin_pb2.OTAMode.OTA_WIFI,
-                ota_file_hash=ota.hash_bytes()
-            )
+                print("Waiting for device to reboot into OTA mode...")
+                time.sleep(5)
 
-            print("Waiting for device to reboot into OTA mode...")
-            time.sleep(5)
-
-            retries = 5
-            while retries > 0:
-                try:
-                    ota.update()
-                    break
-
-                except Exception as e:
-                    retries -= 1
-                    if retries == 0:
-                        meshtastic.util.our_exit(f"\nOTA update failed: {e}")
-
-                    time.sleep(2)
-
-            print("\nOTA update completed successfully!")
+                retries = 5
+                while retries > 0:
+                    try:
+                        ota.update()
+                        break
+                
+                    except Exception as e:
+                        retries -= 1
+                        if retries == 0:
+                            meshtastic.util.our_exit(f"\nOTA update failed: {e}")
+                
+                        time.sleep(2)
+            else:
+                meshtastic.util.our_exit(
+                    "Error: OTA update currently requires a BLE or TCP connection to the node (use --host or --ble)."
+                )
 
         if args.enter_dfu:
             closeNow = True
@@ -2306,7 +2332,7 @@ def addRemoteAdminArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
 
     group.add_argument(
         "--ota-update",
-        help="Perform an OTA update on the local node (ESP32, firmware version >=2.7.18, WiFi/TCP only for now). "
+        help="Perform an OTA update on the local node (ESP32, firmware version >=2.7.18, WiFi/TCP or BLE only). "
         "Specify the path to the firmware file.",
         metavar="FIRMWARE_FILE",
         action="store",
