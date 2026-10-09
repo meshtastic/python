@@ -266,6 +266,16 @@ class Timeout:
             time.sleep(self.sleepInterval)
         return False
 
+    def waitForNodeInfo(self, acknowledgment) -> bool:
+        """Block until NodeInfo response is received. Returns True if NodeInfo response has been received."""
+        self.reset()
+        while time.time() < self.expireTime:
+            if getattr(acknowledgment, "receivedNodeInfo", None):
+                acknowledgment.reset()
+                return True
+            time.sleep(self.sleepInterval)
+        return False
+
 class Acknowledgment:
     "A class that records which type of acknowledgment was just received, if any."
 
@@ -278,6 +288,7 @@ class Acknowledgment:
         self.receivedTelemetry = False
         self.receivedPosition = False
         self.receivedWaypoint = False
+        self.receivedNodeInfo = False
 
     def reset(self) -> None:
         """reset"""
@@ -288,6 +299,7 @@ class Acknowledgment:
         self.receivedTelemetry = False
         self.receivedPosition = False
         self.receivedWaypoint = False
+        self.receivedNodeInfo = False
 
 
 class DeferredExecution:

@@ -642,6 +642,21 @@ def onConnected(interface):
                         telemetryType=telemType,
                     )
 
+        if args.request_nodeinfo:
+            if args.dest == BROADCAST_ADDR:
+                meshtastic.util.our_exit("Warning: Must use a destination node ID.")
+            else:
+                channelIndex = mt_config.channel_index or 0
+                if checkChannel(interface, channelIndex):
+                    print(
+                        f"Sending NodeInfo request to {args.dest} on channelIndex:{channelIndex} (this could take a while)"
+                    )
+                    interface.requestNodeInfo(
+                        destinationId=args.dest,
+                        wantResponse=True,
+                        channelIndex=channelIndex,
+                    )
+
         if args.request_position:
             if args.dest == BROADCAST_ADDR:
                 meshtastic.util.our_exit("Warning: Must use a destination node ID.")
@@ -2265,6 +2280,14 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
         default=None,
         const="device",
         metavar="TYPE",
+    )
+
+    group.add_argument(
+        "--request-nodeinfo",
+        help="Request NodeInfo (name, hardware model, etc) from a node. "
+        "You need to pass the destination ID as an argument with '--dest'. "
+        "For repeaters, the nodeNum is required.",
+        action="store_true",
     )
 
     group.add_argument(
