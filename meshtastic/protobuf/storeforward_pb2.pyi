@@ -137,7 +137,8 @@ class StoreAndForward(_message.Message):
         """
         SYNC: StoreAndForward._Type.ValueType  # 2
         """
-        Client to server: where each of the client's streams stands.
+        Client to server: where each of the client's streams stands. From a client app to its
+        own node, with nothing else set: sync now.
         """
         FRAME: StoreAndForward._Type.ValueType  # 3
         """
@@ -176,7 +177,8 @@ class StoreAndForward(_message.Message):
     """
     SYNC: StoreAndForward.Type.ValueType  # 2
     """
-    Client to server: where each of the client's streams stands.
+    Client to server: where each of the client's streams stands. From a client app to its
+    own node, with nothing else set: sync now.
     """
     FRAME: StoreAndForward.Type.ValueType  # 3
     """

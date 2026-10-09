@@ -748,6 +748,10 @@ def onConnected(interface):
                         channelIndex=channelIndex,
                     )
 
+        if args.sync_store_forward:
+            print("Asking the node to sync with its store and forward server")
+            interface.requestStoreForwardSync()
+
         if args.gpio_wrb or args.gpio_rd or args.gpio_watch:
             if args.dest == BROADCAST_ADDR:
                 meshtastic.util.our_exit("Warning: Must use a destination node ID.")
@@ -2397,6 +2401,12 @@ def addRemoteActionArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
         "--request-position",
         help="Request the position from a node. "
         "You need to pass the destination ID as an argument with '--dest'.",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--sync-store-forward",
+        help="Ask the connected node to sync with its store and forward server now, for what it missed.",
         action="store_true",
     )
 

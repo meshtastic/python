@@ -36,7 +36,7 @@ from meshtastic import (
     protocols,
     publishingThread,
 )
-from meshtastic.protobuf import api_pb2, common_pb2, packet_pb2, portnums_pb2, telemetry_pb2, wire_pb2
+from meshtastic.protobuf import api_pb2, common_pb2, packet_pb2, portnums_pb2, storeforward_pb2, telemetry_pb2, wire_pb2
 from meshtastic.util import (
     Acknowledgment,
     Timeout,
@@ -820,6 +820,15 @@ class MeshInterface:  # pylint: disable=R0902
                 # The rest of a long answer follows the first part back to back
                 while self._timeout.waitForTelemetry(self._acknowledgment, SENSOR_REPLY_PART_GAP_SECS):
                     pass
+
+    def requestStoreForwardSync(self):
+        """Ask our own node to sync with its store-and-forward server now. A node that is no
+        store-and-forward client, or has heard no server, answers with a ClientNotification."""
+        self.sendData(
+            storeforward_pb2.StoreAndForward(type=storeforward_pb2.StoreAndForward.SYNC),
+            destinationId=LOCAL_ADDR,
+            portNum=portnums_pb2.PortNum.STORE_FORWARD_APP,
+        )
 
     def onResponseTelemetry(self, p: dict):
         """on response for telemetry"""

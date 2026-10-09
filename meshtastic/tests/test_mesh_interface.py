@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from hypothesis import given, strategies as st
 
-from ..protobuf import config_pb2, packet_pb2
+from ..protobuf import config_pb2, packet_pb2, portnums_pb2
 from .. import BROADCAST_ADDR, LOCAL_ADDR
 from ..mesh_interface import SENSOR_REPLY_PART_GAP_SECS, MeshInterface, _timeago
 from ..node import Node
@@ -874,3 +874,17 @@ def test_sendTelemetry_sensor_request_names_quantities_and_waits_for_every_part(
     assert list(sent[0].sensor_readings.keys) == [55] and not sent[0].sensor_readings.values
     assert waits == [None, SENSOR_REPLY_PART_GAP_SECS, SENSOR_REPLY_PART_GAP_SECS]
     iface.close()
+
+
+@pytest.mark.unit
+def test_requestStoreForwardSync_sends_an_empty_sync_to_the_node_itself():
+    """A store-and-forward sync request is a SYNC with nothing else set, addressed to our own node."""
+    iface = MeshInterface(noProto=True)
+    sent = []
+    iface.sendData = lambda m, **kw: sent.append((m, kw))
+    iface.requestStoreForwardSync()
+    m, kw = sent[0]
+    assert m.type == m.SYNC and not m.HasField("sync")
+    assert kw["destinationId"] == LOCAL_ADDR and kw["portNum"] == portnums_pb2.PortNum.STORE_FORWARD_APP
+    iface.close()
+
