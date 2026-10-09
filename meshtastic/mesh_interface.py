@@ -668,7 +668,10 @@ class MeshInterface:  # pylint: disable=R0902
         if p["decoded"]["portnum"] == "NODEINFO_APP":
             self._acknowledgment.receivedNodeInfo = True
             if "user" in p["decoded"]:
-                print(f"NodeInfo received:\n{p['decoded']['user']}")
+                print("NodeInfo received:")
+                for key, value in p["decoded"]["user"].items():
+                    if key != "raw":
+                        print(f"  {key}: {value}")
 
     def onResponsePosition(self, p):
         """on response for position"""
