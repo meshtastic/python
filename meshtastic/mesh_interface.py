@@ -671,7 +671,7 @@ class MeshInterface:  # pylint: disable=R0902
                 print("NodeInfo received:")
                 for key, value in p["decoded"]["user"].items():
                     if key != "raw":
-                        print(f"  {key}: {value}")
+                        print(f"{key}: {value}")
 
     def onResponsePosition(self, p):
         """on response for position"""
