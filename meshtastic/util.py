@@ -243,9 +243,9 @@ class Timeout:
             time.sleep(self.sleepInterval)
         return False
 
-    def waitForTelemetry(self, acknowledgment) -> bool:
+    def waitForTelemetry(self, acknowledgment, maxSecs: Optional[float]=None) -> bool:
         """Block until telemetry response is received. Returns True if telemetry response has been received."""
-        self.reset()
+        self.reset(maxSecs)
         while time.time() < self.expireTime:
             if getattr(acknowledgment, "receivedTelemetry", None):
                 acknowledgment.reset()

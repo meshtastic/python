@@ -9,7 +9,7 @@ from hypothesis import given, strategies as st
 
 from ..protobuf import config_pb2, packet_pb2
 from .. import BROADCAST_ADDR, LOCAL_ADDR
-from ..mesh_interface import MeshInterface, _timeago
+from ..mesh_interface import SENSOR_REPLY_PART_GAP_SECS, MeshInterface, _timeago
 from ..node import Node
 try:
     # Depends upon the powermon group, not installed by default
@@ -853,3 +853,24 @@ def test_onResponseTraceRoute_without_recorded_path(capsys):
     iface.onResponseTraceRoute({"from": 1, "to": 2, "decoded": {"portnum": "TELEMETRY_APP"}, "raw": raw})
     out, _ = capsys.readouterr()
     assert "!00000001 --> (2 hops, path not recorded) --> !00000002" in out
+
+
+@pytest.mark.unit
+def test_sendTelemetry_sensor_request_names_quantities_and_waits_for_every_part():
+    """A sensor_readings request lists its quantities in keys with no values, and keeps listening
+    while further parts of the answer arrive, ending at the first gap of SENSOR_REPLY_PART_GAP_SECS."""
+    iface = MeshInterface(noProto=True)
+    sent = []
+    iface.sendData = lambda r, **kw: sent.append(r)
+    answers = iter([True, True, False])
+    waits = []
+
+    def fake_wait(ack, maxSecs=None):
+        waits.append(maxSecs)
+        return next(answers)
+
+    iface._timeout.waitForTelemetry = fake_wait
+    iface.sendTelemetry(destinationId=1, wantResponse=True, telemetryType="sensor_readings", quantities=[55])
+    assert list(sent[0].sensor_readings.keys) == [55] and not sent[0].sensor_readings.values
+    assert waits == [None, SENSOR_REPLY_PART_GAP_SECS, SENSOR_REPLY_PART_GAP_SECS]
+    iface.close()

@@ -55,6 +55,9 @@ DATA_PAYLOAD_MAX = 256
 """Data.payload's bound: one LoRa frame. What a frame really leaves for the payload depends on
 the packet (header profile, options, path tail, signature), so the node does the final check."""
 
+# A node sends the parts of a long sensor reply back to back; a gap this long ends the answer
+SENSOR_REPLY_PART_GAP_SECS = 15
+
 def _timeago(delta_secs: int) -> str:
     """Convert a number of seconds in the past into a short, friendly string
     e.g. "now", "30 sec ago",  "1 hour ago"
@@ -813,6 +816,10 @@ class MeshInterface:  # pylint: disable=R0902
         )
         if wantResponse:
             self.waitForTelemetry()
+            if telemetryType == "sensor_readings":
+                # The rest of a long answer follows the first part back to back
+                while self._timeout.waitForTelemetry(self._acknowledgment, SENSOR_REPLY_PART_GAP_SECS):
+                    pass
 
     def onResponseTelemetry(self, p: dict):
         """on response for telemetry"""
