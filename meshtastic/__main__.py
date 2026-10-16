@@ -30,6 +30,7 @@ except ImportError as e:
     pyqrcode = None
 
 import yaml
+from google.protobuf.descriptor import Descriptor, FieldDescriptor
 from google.protobuf.json_format import MessageToDict
 from pubsub import pub  # type: ignore[import-untyped]
 
@@ -138,11 +139,6 @@ def getPref(node, comp_name) -> bool:
     name = splitCompoundName(comp_name)
     wholeField = name[0] == name[1]  # We want the whole field
 
-    camel_name = meshtastic.util.snake_to_camel(name[1])
-    # Note: protobufs has the keys in snake_case, so snake internally
-    snake_name = meshtastic.util.camel_to_snake(name[1])
-    uni_name = camel_name if mt_config.camel_case else snake_name
-    logger.debug(f"snake_name:{snake_name} camel_name:{camel_name}")
     logger.debug(f"use camel:{mt_config.camel_case}")
 
     # First validate the input
@@ -151,28 +147,27 @@ def getPref(node, comp_name) -> bool:
     found: bool = False
     for config in [localConfig, moduleConfig]:
         objDesc = config.DESCRIPTOR
-        config_type = objDesc.fields_by_name.get(name[0])
-        pref = ""		#FIXME - is this correct to leave as an empty string if not found?
-        if config_type:
-            pref = config_type.message_type.fields_by_name.get(snake_name)
+        config_type = _resolve_field(objDesc, name[0])
+        pref = None
+        if config_type and config_type.message_type is not None:
+            pref = _resolve_field(config_type.message_type, name[1])
             if pref or wholeField:
                 found = True
                 break
 
-    if not found:
-        print(
-            f"{localConfig.__class__.__name__} and {moduleConfig.__class__.__name__} do not have attribute {uni_name}."
-        )
+    if not found or config_type is None:
+        print(f"Unknown configuration field: {comp_name}")
         print("Choices are...")
         printConfig(localConfig)
         printConfig(moduleConfig)
         return False
 
     # Check if we need to request the config
-    if len(config.ListFields()) != 0 and not isinstance(pref, str): # if str, it's still the empty string, I think
+    if len(config.ListFields()) != 0:
         # read the value
         config_values = getattr(config, config_type.name)
-        if not wholeField:
+        if not wholeField and pref is not None:
+            uni_name = pref.json_name if mt_config.camel_case else pref.name  # type: ignore[attr-defined]
             pref_value = getattr(config_values, pref.name)
             repeated = _is_repeated_field(pref)
             _printSetting(config_type, uni_name, pref_value, repeated)
@@ -196,15 +191,31 @@ def splitCompoundName(comp_name: str) -> List[str]:
     return name
 
 
+def _resolve_field(descriptor: Descriptor, name: str) -> Optional[FieldDescriptor]:
+    """Resolve protobuf and JSON names, retaining legacy camel-case conversion."""
+    return (
+        descriptor.fields_by_name.get(name)
+        or next((field for field in descriptor.fields if field.json_name == name), None)
+        or descriptor.fields_by_name.get(meshtastic.util.camel_to_snake(name))
+    )
+
+
 def traverseConfig(config_root, config, interface_config) -> bool:
     """Iterate through current config level preferences and either traverse deeper if preference is a dict or set preference"""
-    snake_name = meshtastic.util.camel_to_snake(config_root)
+    descriptor = interface_config.DESCRIPTOR
+    for part in config_root.split("."):
+        field = _resolve_field(descriptor, part)
+        if field is None or field.message_type is None:
+            raise ValueError(f"Invalid configuration field: {config_root}")
+        descriptor = field.message_type
+    if not isinstance(config, dict):
+        raise ValueError(f"Expected a mapping for configuration field: {config_root}")
     for pref in config:
-        pref_name = f"{snake_name}.{pref}"
+        pref_name = f"{config_root}.{pref}"
         if isinstance(config[pref], dict):
             traverseConfig(pref_name, config[pref], interface_config)
-        else:
-            setPref(interface_config, pref_name, config[pref])
+        elif not setPref(interface_config, pref_name, config[pref]):
+            raise ValueError(f"Invalid configuration field or value: {pref_name}")
 
     return True
 
@@ -214,29 +225,34 @@ def setPref(config, comp_name, raw_val) -> bool:
 
     name = splitCompoundName(comp_name)
 
-    snake_name = meshtastic.util.camel_to_snake(name[-1])
-    camel_name = meshtastic.util.snake_to_camel(name[-1])
-    uni_name = camel_name if mt_config.camel_case else snake_name
-    logger.debug(f"snake_name:{snake_name}")
-    logger.debug(f"camel_name:{camel_name}")
-
     objDesc = config.DESCRIPTOR
     config_part = config
-    config_type = objDesc.fields_by_name.get(name[0])
+    resolved_fields: List[FieldDescriptor] = []
+    config_type = _resolve_field(objDesc, name[0])
     if config_type and config_type.message_type is not None:
         for name_part in name[1:-1]:
-            part_snake_name = meshtastic.util.camel_to_snake((name_part))
-            config_part = getattr(config, config_type.name)
-            config_type = config_type.message_type.fields_by_name.get(part_snake_name)
+            if config_type is None or config_type.message_type is None:
+                config_type = None
+                break
+            resolved_fields.append(config_type)
+            config_part = getattr(config_part, config_type.name)
+            config_type = _resolve_field(config_type.message_type, name_part)
     pref = None
     if config_type and config_type.message_type is not None:
-        pref = config_type.message_type.fields_by_name.get(snake_name)
+        pref = _resolve_field(config_type.message_type, name[-1])
     # Others like ChannelSettings are standalone
-    elif config_type:
+    elif config_type and len(name) == 2 and name[0] == name[1]:
         pref = config_type
 
     if (not pref) or (not config_type):
         return False
+
+    if config_type.message_type is not None:
+        resolved_fields.append(config_type)
+    resolved_fields.append(pref)
+    snake_name = pref.name
+    uni_name = pref.json_name if mt_config.camel_case else pref.name  # type: ignore[attr-defined]
+    logger.debug(f"Resolved {comp_name} to protobuf field {snake_name}")
 
     if isinstance(raw_val, str):
         val = meshtastic.util.fromStr(raw_val)
@@ -297,10 +313,10 @@ def setPref(config, comp_name, raw_val) -> bool:
             setattr(config_values, pref.name, str(val))
     elif type(val) == list:
         new_vals = [meshtastic.util.fromStr(x) for x in val]
-        config_values = getattr(config, config_type.name)
+        config_values = getattr(config_part, config_type.name)
         getattr(config_values, pref.name)[:] = new_vals
     else:
-        config_values = getattr(config, config_type.name)
+        config_values = getattr(config_part, config_type.name)
         if val == 0:
             # clear values
             print(f"Clearing {pref.name} list")
@@ -313,8 +329,11 @@ def setPref(config, comp_name, raw_val) -> bool:
             getattr(config_values, pref.name)[:] = cur_vals
         return True
 
-    prefix = f"{'.'.join(name[0:-1])}." if config_type.message_type is not None else ""
-    print(f"Set {prefix}{uni_name} to {raw_val}")
+    display_path = ".".join(
+        field.json_name if mt_config.camel_case else field.name  # type: ignore[attr-defined]
+        for field in resolved_fields
+    )
+    print(f"Set {display_path} to {raw_val}")
 
     return True
 
@@ -707,17 +726,15 @@ def onConnected(interface):
             fields = set()
             for pref in args.set:
                 found = False
-                field = splitCompoundName(pref[0].lower())[0]
+                field = splitCompoundName(pref[0])[0]
                 for config in [node.localConfig, node.moduleConfig]:
-                    config_type = config.DESCRIPTOR.fields_by_name.get(field)
+                    config_type = _resolve_field(config.DESCRIPTOR, field)
                     if config_type:
                         if len(config.ListFields()) == 0:
-                            node.requestConfig(
-                                config.DESCRIPTOR.fields_by_name.get(field)
-                            )
+                            node.requestConfig(config_type)
                         found = setPref(config, pref[0], pref[1])
                         if found:
-                            fields.add(field)
+                            fields.add(config_type.name)
                             break
 
             if found:
@@ -1373,6 +1390,14 @@ def _profile_from_yaml(
     before applying YAML values.  It should return the current protobuf message
     for that section (or None) so that unmentioned fields are preserved.
     """
+    supported_keys = {
+        "owner", "owner_short", "ownerShort", "channel_url", "channelUrl",
+        "canned_messages", "ringtone", "location", "config", "module_config",
+    }
+    for key in configuration:
+        if key not in supported_keys:
+            raise ValueError(f"Unknown configuration key: {key}")
+
     profile = clientonly_pb2.DeviceProfile()
     if "owner" in configuration:
         _set_if_populated(profile, "long_name", configuration["owner"])
@@ -1399,7 +1424,10 @@ def _profile_from_yaml(
             profile.fixed_position.altitude = alt
     if "config" in configuration:
         for section in configuration["config"]:
-            section_snake = meshtastic.util.camel_to_snake(section)
+            field = _resolve_field(profile.config.DESCRIPTOR, section)
+            if field is None or field.message_type is None:
+                raise ValueError(f"Invalid configuration field: config.{section}")
+            section_snake = field.name
             if seed_fn is not None:
                 seeded = seed_fn(section_snake, False)
                 if seeded is not None:
@@ -1407,7 +1435,10 @@ def _profile_from_yaml(
             traverseConfig(section, configuration["config"][section], profile.config)
     if "module_config" in configuration:
         for section in configuration["module_config"]:
-            section_snake = meshtastic.util.camel_to_snake(section)
+            field = _resolve_field(profile.module_config.DESCRIPTOR, section)
+            if field is None or field.message_type is None:
+                raise ValueError(f"Invalid configuration field: module_config.{section}")
+            section_snake = field.name
             if seed_fn is not None:
                 seeded = seed_fn(section_snake, True)
                 if seeded is not None:

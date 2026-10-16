@@ -9,8 +9,8 @@ location:
   lon: -93.88888
   alt: 304
 
-userPrefs:
-  region: 1
-  isAlwaysPowered: "true"
-  screenOnSecs: 31536000
-  waitBluetoothSecs: 31536000
+config:
+  lora:
+    region: US
+  display:
+    screenOnSecs: 31536000
