@@ -36,7 +36,6 @@ config:
     positionFlags: 3
   power:
     lsSecs: 300
-    meshSdsTimeoutSecs: 7200
     minWakeSecs: 10
     sdsSecs: 4294967295
 
