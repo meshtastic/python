@@ -256,11 +256,11 @@ class BLEInterface(MeshInterface):
         self._closing = True
 
         try:
-            MeshInterface.close(self)
-        except Exception as e:
-            logger.error(f"Error closing mesh interface: {e}")
+            try:
+                MeshInterface.close(self)
+            except Exception as e:
+                logger.error(f"Error closing mesh interface: {e}")
 
-        if self._want_receive:
             self._want_receive = False  # Tell the thread we want it to stop
             if self._receiveThread:
                 self._receiveThread.join(
@@ -268,12 +268,16 @@ class BLEInterface(MeshInterface):
                 )  # If bleak is hung, don't wait for the thread to exit (it is critical we disconnect)
                 self._receiveThread = None
 
-        if self.client:
-            atexit.unregister(self._exit_handler)
-            self.client.disconnect()
-            self.client.close()
-            self.client = None
-        self._disconnected() # send the disconnected indicator up to clients
+            if self.client:
+                self.client.disconnect()
+                self.client.close()
+                atexit.unregister(self._exit_handler)
+                self.client = None
+            self._disconnected() # send the disconnected indicator up to clients
+        except BaseException:
+            # Keep successful closes idempotent, but allow failed cleanup to retry.
+            self._closing = False
+            raise
 
 
 class BLEClient:
