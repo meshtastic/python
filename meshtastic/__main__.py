@@ -1081,12 +1081,6 @@ def onConnected(interface):
                 interface.getNode(args.dest, **getNode_kwargs).showInfo()
                 closeNow = True
                 print("")
-                pypi_version = meshtastic.util.check_if_newer_version()
-                if pypi_version:
-                    print(
-                        f"*** A newer version v{pypi_version} is available!"
-                        ' Consider running "pip install --upgrade meshtastic" ***\n'
-                    )
             else:
                 print("Showing info of remote node is not supported.")
                 print(
