@@ -1749,6 +1749,51 @@ def test_main_ch_longfast_on_non_primary_channel(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
+def test_main_get_reports_completion_after_closing():
+    """A one-shot get must finish shutting down before reporting success."""
+    sys.argv = ["", "--get", "lora"]
+    mt_config.args = sys.argv
+
+    events = []
+    iface = MagicMock(autospec=SerialInterface)
+    iface.close.side_effect = lambda: events.append("close")
+
+    def record_print(*values, **_kwargs):
+        events.append(" ".join(str(value) for value in values))
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with patch("meshtastic.__main__.getPref", return_value=True):
+            with patch("builtins.print", side_effect=record_print):
+                main()
+
+    assert events.count("Completed getting preferences") == 1
+    assert events.index("close") < events.index("Completed getting preferences")
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+@pytest.mark.parametrize("keep_open_args", [["--listen"], ["--seriallog", "stdout"]])
+def test_main_get_does_not_report_completion_while_connection_stays_open(
+    capsys, keep_open_args
+):
+    """A get must not report post-cleanup success when cleanup is skipped."""
+    sys.argv = ["", "--get", "lora", *keep_open_args]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with patch("meshtastic.__main__.getPref", return_value=True):
+            with patch("meshtastic.__main__.time.sleep", side_effect=KeyboardInterrupt):
+                main()
+
+    out, _err = capsys.readouterr()
+    iface.close.assert_not_called()
+    assert "Completed getting preferences" not in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
 def test_main_get_with_invalid(capsys):
     """Test --get with invalid field"""
     sys.argv = ["", "--get", "foo"]
