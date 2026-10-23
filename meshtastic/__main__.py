@@ -47,6 +47,8 @@ import meshtastic.tcp_interface
 from meshtastic import BROADCAST_ADDR, mt_config, remote_hardware
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
+from meshtastic.serial_interface import SerialInterface
+from meshtastic.tcp_interface import TCPInterface
 try:
     from meshtastic.powermon import (
         PowerMeter,
@@ -336,7 +338,16 @@ def onConnected(interface):
 
         # do not print this line if we are exporting the config
         if not args.export_config:
-            print("Connected to radio")
+            connection = "Connected to radio"
+            if isinstance(interface, SerialInterface):
+                connection += f" via serial {interface.devPath}"
+            elif isinstance(interface, TCPInterface):
+                connection += f" via TCP {interface.hostname}:{interface.portNumber}"
+            elif isinstance(interface, BLEInterface):
+                connection += " via BLE"
+                if interface.client is not None:
+                    connection += f" {interface.client.address}"
+            print(connection)
 
         if args.set_time is not None:
             interface.getNode(args.dest, False, **getNode_kwargs).setTime(args.set_time)
