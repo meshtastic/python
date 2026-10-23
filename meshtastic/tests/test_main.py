@@ -1772,6 +1772,28 @@ def test_main_get_reports_completion_after_closing():
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
+@pytest.mark.parametrize("keep_open_args", [["--listen"], ["--seriallog", "stdout"]])
+def test_main_get_does_not_report_completion_while_connection_stays_open(
+    capsys, keep_open_args
+):
+    """A get must not report post-cleanup success when cleanup is skipped."""
+    sys.argv = ["", "--get", "lora", *keep_open_args]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with patch("meshtastic.__main__.getPref", return_value=True):
+            with patch("meshtastic.__main__.time.sleep", side_effect=KeyboardInterrupt):
+                main()
+
+    out, _err = capsys.readouterr()
+    iface.close.assert_not_called()
+    assert "Completed getting preferences" not in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
 def test_main_get_with_invalid(capsys):
     """Test --get with invalid field"""
     sys.argv = ["", "--get", "foo"]
