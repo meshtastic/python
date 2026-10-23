@@ -18,6 +18,7 @@ from meshtastic.util import (
     message_to_json,
     generate_channel_hash,
     to_node_num,
+    toStr,
     flags_to_list,
 )
 
@@ -156,7 +157,13 @@ class Node:
             if config_values is not None:
                 raw_config = getattr(getattr(adminMessage['raw'], oneof), camel_to_snake(field))
                 config_values.CopyFrom(raw_config)
-                print(f"{str(camel_to_snake(field))}:\n{str(config_values)}")
+                for pref, value in config_values.ListFields():
+                    if hasattr(pref, "is_repeated"):
+                        repeated = pref.is_repeated
+                    else:
+                        repeated = pref.label == pref.LABEL_REPEATED
+                    formatted = [toStr(v) for v in value] if repeated else toStr(value)
+                    print(f"{camel_to_snake(field)}.{pref.name}: {formatted}")
 
     def requestConfig(self, configType):
         """Request the config from the node via admin message"""
