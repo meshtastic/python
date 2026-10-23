@@ -3839,3 +3839,47 @@ def test_main_setPref_bitfield_invalid_name(capsys):
     assert "Unknown flag 'TCP'" in out
     assert "NO_BROADCAST" in out
     assert "UDP_BROADCAST" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+@pytest.mark.parametrize(
+    "interface_type,attributes,expected",
+    [
+        (SerialInterface, {"devPath": "/dev/ttyUSB0"},
+         "Connected to radio via serial /dev/ttyUSB0"),
+        (TCPInterface, {"hostname": "meshtastic.local", "portNumber": 4403},
+         "Connected to radio via TCP meshtastic.local:4403"),
+        (TCPInterface, {"hostname": "localhost", "portNumber": 4404},
+         "Connected to radio via TCP localhost:4404"),
+        (mt_main.BLEInterface, {"client": SimpleNamespace(address="AA:BB:CC:DD:EE:FF")},
+         "Connected to radio via BLE AA:BB:CC:DD:EE:FF"),
+        (mt_main.BLEInterface, {"client": None}, "Connected to radio via BLE"),
+        (MeshInterface, {}, "Connected to radio"),
+    ],
+)
+def test_on_connected_transport(interface_type, attributes, expected, monkeypatch, capsys):
+    """Report the connected interface, including discovered or fallback endpoints."""
+    monkeypatch.setattr(sys, "argv", [""])
+    initParser()
+    iface = MagicMock(spec=interface_type)
+    for name, value in attributes.items():
+        setattr(iface, name, value)
+
+    mt_main.onConnected(iface)
+
+    assert capsys.readouterr().out == expected + "\n"
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_on_connected_transport_export_config(monkeypatch, capsys):
+    """Keep connection status out of exported configuration."""
+    monkeypatch.setattr(sys, "argv", ["", "--export-config"])
+    initParser()
+    iface = MagicMock(spec=TCPInterface)
+    iface.hostname = "meshtastic.local"
+    iface.portNumber = 4403
+    with patch("meshtastic.__main__.export_config", return_value="config: exported"):
+        mt_main.onConnected(iface)
+    assert "Connected to radio" not in capsys.readouterr().out
