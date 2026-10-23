@@ -1093,6 +1093,7 @@ def onConnected(interface):
                     "Use the '--get' command for a specific configuration (e.g. 'lora') instead."
                 )
 
+        completed_get = False
         if args.get:
             closeNow = True
             node = interface.getNode(args.dest, False, **getNode_kwargs)
@@ -1100,7 +1101,7 @@ def onConnected(interface):
                 found = getPref(node, pref[0])
 
             if found:
-                print("Completed getting preferences")
+                completed_get = True
 
         if args.nodes:
             closeNow = True
@@ -1200,6 +1201,9 @@ def onConnected(interface):
         # Close any structured logs after we've done all of our API operations
         if log_set:
             log_set.close()
+
+        if completed_get:
+            print("Completed getting preferences")
 
     except Exception as ex:
         print(f"Aborting due to: {ex}")

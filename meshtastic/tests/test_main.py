@@ -1749,6 +1749,29 @@ def test_main_ch_longfast_on_non_primary_channel(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
+def test_main_get_reports_completion_after_closing():
+    """A one-shot get must finish shutting down before reporting success."""
+    sys.argv = ["", "--get", "lora"]
+    mt_config.args = sys.argv
+
+    events = []
+    iface = MagicMock(autospec=SerialInterface)
+    iface.close.side_effect = lambda: events.append("close")
+
+    def record_print(*values, **_kwargs):
+        events.append(" ".join(str(value) for value in values))
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with patch("meshtastic.__main__.getPref", return_value=True):
+            with patch("builtins.print", side_effect=record_print):
+                main()
+
+    assert events.count("Completed getting preferences") == 1
+    assert events.index("close") < events.index("Completed getting preferences")
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
 def test_main_get_with_invalid(capsys):
     """Test --get with invalid field"""
     sys.argv = ["", "--get", "foo"]
