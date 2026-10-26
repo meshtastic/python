@@ -1,7 +1,7 @@
 """Code for IP tunnel over a mesh
 
 # Note python-pytuntap was too buggy
-# using pip3 install pytap2
+# using pip3 install pytap3
 # make sure to "sudo setcap cap_net_admin+eip /usr/bin/python3.8" so python can access tun device without being root
 # sudo ip tuntap del mode tun tun0
 # sudo bin/run.sh --port /dev/ttyUSB0 --setch-shortfast
@@ -20,7 +20,7 @@ import platform
 import threading
 
 from pubsub import pub # type: ignore[import-untyped]
-from pytap2 import TapDevice
+from pytap3 import TapDevice
 
 from meshtastic.protobuf import portnums_pb2
 from meshtastic import mt_config
@@ -63,9 +63,6 @@ class Tunnel:
 
         self.iface = iface
         self.subnetPrefix = subnet
-
-        if platform.system() != "Linux":
-            raise Tunnel.TunnelError("Tunnel() can only be run instantiated on a Linux system")
 
         mt_config.tunnelInstance = self
 
