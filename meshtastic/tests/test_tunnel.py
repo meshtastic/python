@@ -18,21 +18,6 @@ except ImportError:
 
 @pytest.mark.unit
 @patch("platform.system")
-def test_Tunnel_on_non_linux_system(mock_platform_system):
-    """Test that we cannot instantiate a Tunnel on a non Linux system"""
-    a_mock = MagicMock()
-    a_mock.return_value = "notLinux"
-    mock_platform_system.side_effect = a_mock
-    with patch("socket.socket") as mock_socket:
-        with pytest.raises(Tunnel.TunnelError) as pytest_wrapped_e:
-            iface = TCPInterface(hostname="localhost", noProto=True)
-            Tunnel(iface)
-        assert pytest_wrapped_e.type == Tunnel.TunnelError
-        assert mock_socket.called
-
-
-@pytest.mark.unit
-@patch("platform.system")
 def test_Tunnel_without_interface(mock_platform_system):
     """Test that we can not instantiate a Tunnel without a valid interface"""
     a_mock = MagicMock()

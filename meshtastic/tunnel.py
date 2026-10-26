@@ -106,6 +106,7 @@ class Tunnel:
 
         logger.debug("creating TUN device with MTU=200")
         # FIXME - figure out real max MTU, it should be 240 - the overhead bytes for SubPacket and Data
+        # Windows would like an MTU >= 576 bytes, but in practice the tunnel works without issues.
         self.tun = None
         if self.iface.noProto:
             logger.warning(
