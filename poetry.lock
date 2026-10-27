@@ -4547,14 +4547,14 @@ cp2110 = ["hidapi"]
 
 [[package]]
 name = "pytap3"
-version = "3.0.2"
+version = "3.1.2"
 description = "Cross-platform tunnel interface for Python"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
 markers = "extra == \"tunnel\""
 files = [
-    {file = "pytap3-3.0.2.tar.gz", hash = "sha256:0ae36d8badc39bd2263e20ffcb02c32a641f85cf87431234b51b9c3cedc40063"},
+    {file = "pytap3-3.1.2.tar.gz", hash = "sha256:c260e3d00e6af57b1486e01ec45e5bb26299a827c8803a92b1acc4ef2201efe4"},
 ]
 
 [[package]]
@@ -6185,4 +6185,4 @@ tunnel = ["pytap3"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.15"
-content-hash = "fc0d78fb1bbfe78504676fbe1fd1eb02a815a1cad26e7ed0b828c20bc1fd402c"
+content-hash = "f0cb25533d38970846250f178ec62089abf9c0dd0da40bf893a46bc62b69d4ea"
