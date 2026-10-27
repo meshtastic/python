@@ -1165,8 +1165,7 @@ def onConnected(interface):
         if args.listen:
             closeNow = False
 
-        have_tunnel = platform.system() == "Linux"
-        if have_tunnel and args.tunnel:
+        if args.tunnel:
             if args.dest != BROADCAST_ADDR:
                 print("A tunnel can only be created using the local node.")
                 return
@@ -1790,11 +1789,10 @@ def common():
             # We assume client is fully connected now
             onConnected(client)
 
-            have_tunnel = platform.system() == "Linux"
             if (
                 args.noproto
                 or args.reply
-                or (have_tunnel and args.tunnel)
+                or args.tunnel
                 or args.listen
             ):  # loop until someone presses ctrlc
                 try:
@@ -2581,22 +2579,20 @@ def initParser():
         "--gpio-watch", help="Start watching a GPIO mask for changes (ex: '0x10')"
     )
 
-    have_tunnel = platform.system() == "Linux"
-    if have_tunnel:
-        tunnelArgs = parser.add_argument_group(
-            "Tunnel", "Arguments related to establishing a tunnel device over the mesh."
-        )
-        tunnelArgs.add_argument(
-            "--tunnel",
-            action="store_true",
-            help="Create a TUN tunnel device for forwarding IP packets over the mesh",
-        )
-        tunnelArgs.add_argument(
-            "--subnet",
-            dest="tunnel_net",
-            help="Sets the local-end subnet address for the TUN IP bridge. (ex: 10.115' which is the default)",
-            default=None,
-        )
+    tunnelArgs = parser.add_argument_group(
+        "Tunnel", "Arguments related to establishing a tunnel device over the mesh."
+    )
+    tunnelArgs.add_argument(
+        "--tunnel",
+        action="store_true",
+        help="Create a TUN tunnel device for forwarding IP packets over the mesh",
+    )
+    tunnelArgs.add_argument(
+        "--subnet",
+        dest="tunnel_net",
+        help="Sets the local-end subnet address for the TUN IP bridge. (ex: 10.115' which is the default)",
+        default=None,
+    )
 
     parser.set_defaults(deprecated=None)
 

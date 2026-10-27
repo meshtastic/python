@@ -10,25 +10,10 @@ from meshtastic import mt_config
 
 from ..tcp_interface import TCPInterface
 try:
-    # Depends upon pytap2, not installed by default
+    # Depends upon pytap3, not installed by default
     from ..tunnel import Tunnel, onTunnelReceive
 except ImportError:
     pytest.skip("Can't import Tunnel or onTunnelReceive", allow_module_level=True)
-
-
-@pytest.mark.unit
-@patch("platform.system")
-def test_Tunnel_on_non_linux_system(mock_platform_system):
-    """Test that we cannot instantiate a Tunnel on a non Linux system"""
-    a_mock = MagicMock()
-    a_mock.return_value = "notLinux"
-    mock_platform_system.side_effect = a_mock
-    with patch("socket.socket") as mock_socket:
-        with pytest.raises(Tunnel.TunnelError) as pytest_wrapped_e:
-            iface = TCPInterface(hostname="localhost", noProto=True)
-            Tunnel(iface)
-        assert pytest_wrapped_e.type == Tunnel.TunnelError
-        assert mock_socket.called
 
 
 @pytest.mark.unit
