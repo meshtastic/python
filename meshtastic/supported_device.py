@@ -231,6 +231,18 @@ tdeck = SupportedDevice(
 
 
 
+pico2 = SupportedDevice(
+    name="Raspberry Pi Pico 2",
+    version="",
+    for_firmware="pico2",
+    device_class="rp2350",
+    baseport_on_linux="ttyACM",
+    baseport_on_mac="cu.usbmodem",
+    baseport_on_windows="COM",
+    usb_vendor_id_in_hex="2e8a",
+    usb_product_id_in_hex="000f",
+)
+
 supported_devices = [
     tbeam_v0_7,
     tbeam_v1_1,
@@ -252,4 +264,5 @@ supported_devices = [
     nano_g1,
     seeed_xiao_s3,
     tdeck,  # T-Deck support added
+    pico2,
 ]
