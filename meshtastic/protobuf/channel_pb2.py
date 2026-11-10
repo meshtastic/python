@@ -11,10 +11,11 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
+from meshtastic.protobuf import field_metadata_pb2 as meshtastic_dot_protobuf_dot_field__metadata__pb2
 from meshtastic.protobuf import nanopb_pb2 as meshtastic_dot_protobuf_dot_nanopb__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n!meshtastic/protobuf/channel.proto\x12\x13meshtastic.protobuf\x1a meshtastic/protobuf/nanopb.proto\"\xe1\x01\n\x0f\x43hannelSettings\x12\x17\n\x0b\x63hannel_num\x18\x01 \x01(\rB\x02\x18\x01\x12\x12\n\x03psk\x18\x02 \x01(\x0c\x42\x05\x92?\x02\x08 \x12\x13\n\x04name\x18\x03 \x01(\tB\x05\x92?\x02\x08\x0c\x12\n\n\x02id\x18\x04 \x01(\x07\x12\x16\n\x0euplink_enabled\x18\x05 \x01(\x08\x12\x18\n\x10\x64ownlink_enabled\x18\x06 \x01(\x08\x12<\n\x0fmodule_settings\x18\x07 \x01(\x0b\x32#.meshtastic.protobuf.ModuleSettings\x12\x10\n\x08use_aead\x18\x08 \x01(\x08\">\n\x0eModuleSettings\x12\x1a\n\x12position_precision\x18\x01 \x01(\r\x12\x10\n\x08is_muted\x18\x02 \x01(\x08\"\xba\x01\n\x07\x43hannel\x12\x14\n\x05index\x18\x01 \x01(\x05\x42\x05\x92?\x02\x38\x08\x12\x36\n\x08settings\x18\x02 \x01(\x0b\x32$.meshtastic.protobuf.ChannelSettings\x12/\n\x04role\x18\x03 \x01(\x0e\x32!.meshtastic.protobuf.Channel.Role\"0\n\x04Role\x12\x0c\n\x08\x44ISABLED\x10\x00\x12\x0b\n\x07PRIMARY\x10\x01\x12\r\n\tSECONDARY\x10\x02\x42\x63\n\x14org.meshtastic.protoB\rChannelProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n!meshtastic/protobuf/channel.proto\x12\x13meshtastic.protobuf\x1a(meshtastic/protobuf/field_metadata.proto\x1a meshtastic/protobuf/nanopb.proto\"\xe7\x01\n\x0f\x43hannelSettings\x12\x17\n\x0b\x63hannel_num\x18\x01 \x01(\rB\x02\x18\x01\x12\x18\n\x03psk\x18\x02 \x01(\x0c\x42\x0b\x92?\x02\x08 \xca\xf3\x18\x02h\x01\x12\x13\n\x04name\x18\x03 \x01(\tB\x05\x92?\x02\x08\x0c\x12\n\n\x02id\x18\x04 \x01(\x07\x12\x16\n\x0euplink_enabled\x18\x05 \x01(\x08\x12\x18\n\x10\x64ownlink_enabled\x18\x06 \x01(\x08\x12<\n\x0fmodule_settings\x18\x07 \x01(\x0b\x32#.meshtastic.protobuf.ModuleSettings\x12\x10\n\x08use_aead\x18\x08 \x01(\x08\">\n\x0eModuleSettings\x12\x1a\n\x12position_precision\x18\x01 \x01(\r\x12\x10\n\x08is_muted\x18\x02 \x01(\x08\"\xba\x01\n\x07\x43hannel\x12\x14\n\x05index\x18\x01 \x01(\x05\x42\x05\x92?\x02\x38\x08\x12\x36\n\x08settings\x18\x02 \x01(\x0b\x32$.meshtastic.protobuf.ChannelSettings\x12/\n\x04role\x18\x03 \x01(\x0e\x32!.meshtastic.protobuf.Channel.Role\"0\n\x04Role\x12\x0c\n\x08\x44ISABLED\x10\x00\x12\x0b\n\x07PRIMARY\x10\x01\x12\r\n\tSECONDARY\x10\x02\x42\x63\n\x14org.meshtastic.protoB\rChannelProtosZ\"github.com/meshtastic/go/generated\xaa\x02\x14Meshtastic.Protobufs\xba\x02\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -25,17 +26,17 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _CHANNELSETTINGS.fields_by_name['channel_num']._options = None
   _CHANNELSETTINGS.fields_by_name['channel_num']._serialized_options = b'\030\001'
   _CHANNELSETTINGS.fields_by_name['psk']._options = None
-  _CHANNELSETTINGS.fields_by_name['psk']._serialized_options = b'\222?\002\010 '
+  _CHANNELSETTINGS.fields_by_name['psk']._serialized_options = b'\222?\002\010 \312\363\030\002h\001'
   _CHANNELSETTINGS.fields_by_name['name']._options = None
   _CHANNELSETTINGS.fields_by_name['name']._serialized_options = b'\222?\002\010\014'
   _CHANNEL.fields_by_name['index']._options = None
   _CHANNEL.fields_by_name['index']._serialized_options = b'\222?\0028\010'
-  _globals['_CHANNELSETTINGS']._serialized_start=93
-  _globals['_CHANNELSETTINGS']._serialized_end=318
-  _globals['_MODULESETTINGS']._serialized_start=320
-  _globals['_MODULESETTINGS']._serialized_end=382
-  _globals['_CHANNEL']._serialized_start=385
-  _globals['_CHANNEL']._serialized_end=571
-  _globals['_CHANNEL_ROLE']._serialized_start=523
-  _globals['_CHANNEL_ROLE']._serialized_end=571
+  _globals['_CHANNELSETTINGS']._serialized_start=135
+  _globals['_CHANNELSETTINGS']._serialized_end=366
+  _globals['_MODULESETTINGS']._serialized_start=368
+  _globals['_MODULESETTINGS']._serialized_end=430
+  _globals['_CHANNEL']._serialized_start=433
+  _globals['_CHANNEL']._serialized_end=619
+  _globals['_CHANNEL_ROLE']._serialized_start=571
+  _globals['_CHANNEL_ROLE']._serialized_end=619
 # @@protoc_insertion_point(module_scope)

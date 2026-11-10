@@ -3562,6 +3562,7 @@ class TAKPacketV2(google.protobuf.message.Message):
     REMARKS_FIELD_NUMBER: builtins.int
     ENVIRONMENT_FIELD_NUMBER: builtins.int
     SENSOR_FOV_FIELD_NUMBER: builtins.int
+    START_EPOCH_LO14_FIELD_NUMBER: builtins.int
     MARTI_FIELD_NUMBER: builtins.int
     CHAT_FIELD_NUMBER: builtins.int
     AIRCRAFT_FIELD_NUMBER: builtins.int
@@ -3682,6 +3683,14 @@ class TAKPacketV2(google.protobuf.message.Message):
     when the original CoT event carried non-empty remarks text.
     GeoChat messages carry their text in GeoChat.message instead.
     Empty string (proto3 default) means no remarks were present.
+    """
+    start_epoch_lo14: builtins.int
+    """
+    Low 14 bits of the event's `start` time, as epoch seconds UTC. 14 bits rather
+    than a full timestamp, so the field costs 4 bytes on the wire instead of 7.
+    Order and deduplicates packets from a single sender. Valid only when within an
+    hour of current wall time. `optional` is deliberate. It costs essentially
+    nothing and distinguishes "sender did not populate this" from a legitimate zero.
     """
     raw_detail: builtins.bytes
     """
@@ -3824,6 +3833,7 @@ class TAKPacketV2(google.protobuf.message.Message):
         remarks: builtins.str = ...,
         environment: global___TAKEnvironment | None = ...,
         sensor_fov: global___SensorFov | None = ...,
+        start_epoch_lo14: builtins.int | None = ...,
         marti: global___Marti | None = ...,
         chat: global___GeoChat | None = ...,
         aircraft: global___AircraftTrack | None = ...,
@@ -3838,14 +3848,16 @@ class TAKPacketV2(google.protobuf.message.Message):
         taktalk: global___TakTalkMessage | None = ...,
         taktalk_room: global___TakTalkRoomData | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_environment", b"_environment", "_marti", b"_marti", "_sensor_fov", b"_sensor_fov", "aircraft", b"aircraft", "casevac", b"casevac", "chat", b"chat", "emergency", b"emergency", "environment", b"environment", "marker", b"marker", "marti", b"marti", "payload_variant", b"payload_variant", "rab", b"rab", "raw_detail", b"raw_detail", "route", b"route", "sensor_fov", b"sensor_fov", "shape", b"shape", "taktalk", b"taktalk", "taktalk_room", b"taktalk_room", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_environment", b"_environment", "_marti", b"_marti", "_sensor_fov", b"_sensor_fov", "aircraft", b"aircraft", "alt_src", b"alt_src", "altitude", b"altitude", "battery", b"battery", "callsign", b"callsign", "casevac", b"casevac", "chat", b"chat", "cot_type_id", b"cot_type_id", "cot_type_str", b"cot_type_str", "course", b"course", "device_callsign", b"device_callsign", "emergency", b"emergency", "endpoint", b"endpoint", "environment", b"environment", "geo_src", b"geo_src", "how", b"how", "latitude_i", b"latitude_i", "longitude_i", b"longitude_i", "marker", b"marker", "marti", b"marti", "payload_variant", b"payload_variant", "phone", b"phone", "rab", b"rab", "raw_detail", b"raw_detail", "remarks", b"remarks", "role", b"role", "route", b"route", "sensor_fov", b"sensor_fov", "shape", b"shape", "speed", b"speed", "stale_seconds", b"stale_seconds", "tak_device", b"tak_device", "tak_os", b"tak_os", "tak_platform", b"tak_platform", "tak_version", b"tak_version", "taktalk", b"taktalk", "taktalk_room", b"taktalk_room", "task", b"task", "team", b"team", "uid", b"uid"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_environment", b"_environment", "_marti", b"_marti", "_sensor_fov", b"_sensor_fov", "_start_epoch_lo14", b"_start_epoch_lo14", "aircraft", b"aircraft", "casevac", b"casevac", "chat", b"chat", "emergency", b"emergency", "environment", b"environment", "marker", b"marker", "marti", b"marti", "payload_variant", b"payload_variant", "rab", b"rab", "raw_detail", b"raw_detail", "route", b"route", "sensor_fov", b"sensor_fov", "shape", b"shape", "start_epoch_lo14", b"start_epoch_lo14", "taktalk", b"taktalk", "taktalk_room", b"taktalk_room", "task", b"task"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_environment", b"_environment", "_marti", b"_marti", "_sensor_fov", b"_sensor_fov", "_start_epoch_lo14", b"_start_epoch_lo14", "aircraft", b"aircraft", "alt_src", b"alt_src", "altitude", b"altitude", "battery", b"battery", "callsign", b"callsign", "casevac", b"casevac", "chat", b"chat", "cot_type_id", b"cot_type_id", "cot_type_str", b"cot_type_str", "course", b"course", "device_callsign", b"device_callsign", "emergency", b"emergency", "endpoint", b"endpoint", "environment", b"environment", "geo_src", b"geo_src", "how", b"how", "latitude_i", b"latitude_i", "longitude_i", b"longitude_i", "marker", b"marker", "marti", b"marti", "payload_variant", b"payload_variant", "phone", b"phone", "rab", b"rab", "raw_detail", b"raw_detail", "remarks", b"remarks", "role", b"role", "route", b"route", "sensor_fov", b"sensor_fov", "shape", b"shape", "speed", b"speed", "stale_seconds", b"stale_seconds", "start_epoch_lo14", b"start_epoch_lo14", "tak_device", b"tak_device", "tak_os", b"tak_os", "tak_platform", b"tak_platform", "tak_version", b"tak_version", "taktalk", b"taktalk", "taktalk_room", b"taktalk_room", "task", b"task", "team", b"team", "uid", b"uid"]) -> None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_environment", b"_environment"]) -> typing.Literal["environment"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_marti", b"_marti"]) -> typing.Literal["marti"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_sensor_fov", b"_sensor_fov"]) -> typing.Literal["sensor_fov"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_start_epoch_lo14", b"_start_epoch_lo14"]) -> typing.Literal["start_epoch_lo14"] | None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["chat", "aircraft", "raw_detail", "shape", "marker", "rab", "route", "casevac", "emergency", "task", "taktalk", "taktalk_room"] | None: ...
 
