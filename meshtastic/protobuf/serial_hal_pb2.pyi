@@ -45,6 +45,21 @@ class SerialHalCommand(google.protobuf.message.Message):
         DETACH_INTERRUPT: SerialHalCommand._Type.ValueType  # 5
         SPI_TRANSFER: SerialHalCommand._Type.ValueType  # 6
         NOOP: SerialHalCommand._Type.ValueType  # 7
+        SPI_TRANSACTION: SerialHalCommand._Type.ValueType  # 8
+        """One radio SPI command: wait for BUSY (value) to read low, drive CS (pin)
+        low, transfer data, drive CS high, then wait for BUSY low again. The
+        response carries the received bytes in data and the BUSY level after the
+        second wait in value (0 = low, 1 = still high).
+
+        Each wait is bounded by the device (the firmware uses 10 ms). If the
+        first wait times out, nothing is transferred and the response is ERROR
+        with value = 1; the host waits for BUSY itself and resends. If the second
+        wait times out, the response is OK with value = 1, and the host polls
+        BUSY with DIGITAL_READ before its next command.
+
+        A value of 0xFFFFFFFF means no BUSY line: both waits are skipped, and the
+        response value is 0 and carries no meaning.
+        """
 
     class Type(_Type, metaclass=_TypeEnumTypeWrapper): ...
     UNSET: SerialHalCommand.Type.ValueType  # 0
@@ -55,6 +70,21 @@ class SerialHalCommand(google.protobuf.message.Message):
     DETACH_INTERRUPT: SerialHalCommand.Type.ValueType  # 5
     SPI_TRANSFER: SerialHalCommand.Type.ValueType  # 6
     NOOP: SerialHalCommand.Type.ValueType  # 7
+    SPI_TRANSACTION: SerialHalCommand.Type.ValueType  # 8
+    """One radio SPI command: wait for BUSY (value) to read low, drive CS (pin)
+    low, transfer data, drive CS high, then wait for BUSY low again. The
+    response carries the received bytes in data and the BUSY level after the
+    second wait in value (0 = low, 1 = still high).
+
+    Each wait is bounded by the device (the firmware uses 10 ms). If the
+    first wait times out, nothing is transferred and the response is ERROR
+    with value = 1; the host waits for BUSY itself and resends. If the second
+    wait times out, the response is OK with value = 1, and the host polls
+    BUSY with DIGITAL_READ before its next command.
+
+    A value of 0xFFFFFFFF means no BUSY line: both waits are skipped, and the
+    response value is 0 and carries no meaning.
+    """
 
     TRANSACTION_ID_FIELD_NUMBER: builtins.int
     TYPE_FIELD_NUMBER: builtins.int

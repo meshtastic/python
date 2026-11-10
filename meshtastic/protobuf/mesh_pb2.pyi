@@ -650,6 +650,14 @@ class _HardwareModelEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._
     """
     Elecrow ThinkNode MX
     """
+    NODARA: _HardwareModel.ValueType  # 151
+    """
+    Radioddity Nodara
+    """
+    HELTEC_MESH_POCKET_V2: _HardwareModel.ValueType  # 152
+    """
+    Heltec Magnetic Power Bank V2
+    """
     PRIVATE_HW: _HardwareModel.ValueType  # 255
     """
     ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1282,6 +1290,14 @@ MakerFabs Nomad Terminal
 THINKNODE_MX: HardwareModel.ValueType  # 150
 """
 Elecrow ThinkNode MX
+"""
+NODARA: HardwareModel.ValueType  # 151
+"""
+Radioddity Nodara
+"""
+HELTEC_MESH_POCKET_V2: HardwareModel.ValueType  # 152
+"""
+Heltec Magnetic Power Bank V2
 """
 PRIVATE_HW: HardwareModel.ValueType  # 255
 """
@@ -3999,6 +4015,8 @@ class FromRadio(google.protobuf.message.Message):
     DEVICEUICONFIG_FIELD_NUMBER: builtins.int
     LOCKDOWN_STATUS_FIELD_NUMBER: builtins.int
     REGION_PRESETS_FIELD_NUMBER: builtins.int
+    DISPLAY_FRAME_FIELD_NUMBER: builtins.int
+    DISPLAY_PALETTE_FIELD_NUMBER: builtins.int
     id: builtins.int
     """
     The packet id, used to allow the phone to request missing read packets from the FIFO,
@@ -4124,6 +4142,21 @@ class FromRadio(google.protobuf.message.Message):
         any group carries no constraint info and should not be restricted.
         """
 
+    @property
+    def display_frame(self) -> global___DisplayFrame:
+        """
+        One chunk of the device's display framebuffer, sent while display
+        mirroring is active (see AdminMessage.set_display_mirror and
+        AdminMessage.get_display_frame_request).
+        """
+
+    @property
+    def display_palette(self) -> global___DisplayPalette:
+        """
+        One chunk of the color palette referenced by display_frame's
+        palette_signature (see DisplayPalette).
+        """
+
     def __init__(
         self,
         *,
@@ -4146,12 +4179,293 @@ class FromRadio(google.protobuf.message.Message):
         deviceuiConfig: meshtastic.protobuf.device_ui_pb2.DeviceUIConfig | None = ...,
         lockdown_status: global___LockdownStatus | None = ...,
         region_presets: global___LoRaRegionPresetMap | None = ...,
+        display_frame: global___DisplayFrame | None = ...,
+        display_palette: global___DisplayPalette | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "deviceuiConfig", b"deviceuiConfig", "fileInfo", b"fileInfo", "lockdown_status", b"lockdown_status", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "region_presets", b"region_presets", "xmodemPacket", b"xmodemPacket"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "deviceuiConfig", b"deviceuiConfig", "fileInfo", b"fileInfo", "id", b"id", "lockdown_status", b"lockdown_status", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "region_presets", b"region_presets", "xmodemPacket", b"xmodemPacket"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["packet", "my_info", "node_info", "config", "log_record", "config_complete_id", "rebooted", "moduleConfig", "channel", "queueStatus", "xmodemPacket", "metadata", "mqttClientProxyMessage", "fileInfo", "clientNotification", "deviceuiConfig", "lockdown_status", "region_presets"] | None: ...
+    def HasField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "deviceuiConfig", b"deviceuiConfig", "display_frame", b"display_frame", "display_palette", b"display_palette", "fileInfo", b"fileInfo", "lockdown_status", b"lockdown_status", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "region_presets", b"region_presets", "xmodemPacket", b"xmodemPacket"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["channel", b"channel", "clientNotification", b"clientNotification", "config", b"config", "config_complete_id", b"config_complete_id", "deviceuiConfig", b"deviceuiConfig", "display_frame", b"display_frame", "display_palette", b"display_palette", "fileInfo", b"fileInfo", "id", b"id", "lockdown_status", b"lockdown_status", "log_record", b"log_record", "metadata", b"metadata", "moduleConfig", b"moduleConfig", "mqttClientProxyMessage", b"mqttClientProxyMessage", "my_info", b"my_info", "node_info", b"node_info", "packet", b"packet", "payload_variant", b"payload_variant", "queueStatus", b"queueStatus", "rebooted", b"rebooted", "region_presets", b"region_presets", "xmodemPacket", b"xmodemPacket"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["packet", "my_info", "node_info", "config", "log_record", "config_complete_id", "rebooted", "moduleConfig", "channel", "queueStatus", "xmodemPacket", "metadata", "mqttClientProxyMessage", "fileInfo", "clientNotification", "deviceuiConfig", "lockdown_status", "region_presets", "display_frame", "display_palette"] | None: ...
 
 global___FromRadio = FromRadio
+
+@typing.final
+class DisplayFrame(google.protobuf.message.Message):
+    """
+    A chunk of the device's display framebuffer, streamed to the local client
+    over BLE/serial/TCP. Frames larger than one chunk are split by byte offset;
+    a chunk with offset + data length == total_size completes the frame.
+    This is application-level chunking of a framebuffer into several complete
+    FromRadio messages, and is unrelated to ClientApiChunkedPayload, which
+    splits ONE serialized FromRadio across a small BLE MTU. A frame cannot ride
+    that wrapper: FromRadio is statically capped at MAX_TO_FROM_RADIO_SIZE, far
+    below a full framebuffer. The two compose - a chunked-transport client
+    receives these frames through it.
+
+    Chunks of one frame arrive contiguously (no other display_frame between
+    them; display_palette messages may interleave) and in offset order, so a
+    client never has to reorder. It does have to check for loss: the queue to
+    the client drops its oldest entry when full, and a frame in flight can be
+    truncated when mirroring is disabled. A client MUST verify that offset
+    equals the number of bytes it has already accumulated for this frame_id,
+    and discard the partial frame on any gap or frame_id change. An incomplete
+    frame must never be rendered.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _Format:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _FormatEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[DisplayFrame._Format.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        FORMAT_UNSPECIFIED: DisplayFrame._Format.ValueType  # 0
+        """
+        Default; should not be sent.
+        """
+        MONO_VLSB: DisplayFrame._Format.ValueType  # 1
+        """
+        1 bit per pixel, vertical LSB-first pages (SSD1306/OLEDDisplay layout):
+        byte index = x + (y / 8) * width, bit index = y % 8.
+        """
+        RGB565: DisplayFrame._Format.ValueType  # 2
+        """
+        16 bits per pixel, RGB565 in little-endian byte order, rows tightly
+        packed. Used with the partial-update rect fields: data covers only
+        the rectangle. Streamed by LVGL-based color UIs.
+        """
+
+    class Format(_Format, metaclass=_FormatEnumTypeWrapper):
+        """
+        Pixel encodings of the framebuffer bytes.
+        """
+
+    FORMAT_UNSPECIFIED: DisplayFrame.Format.ValueType  # 0
+    """
+    Default; should not be sent.
+    """
+    MONO_VLSB: DisplayFrame.Format.ValueType  # 1
+    """
+    1 bit per pixel, vertical LSB-first pages (SSD1306/OLEDDisplay layout):
+    byte index = x + (y / 8) * width, bit index = y % 8.
+    """
+    RGB565: DisplayFrame.Format.ValueType  # 2
+    """
+    16 bits per pixel, RGB565 in little-endian byte order, rows tightly
+    packed. Used with the partial-update rect fields: data covers only
+    the rectangle. Streamed by LVGL-based color UIs.
+    """
+
+    WIDTH_FIELD_NUMBER: builtins.int
+    HEIGHT_FIELD_NUMBER: builtins.int
+    FORMAT_FIELD_NUMBER: builtins.int
+    FRAME_ID_FIELD_NUMBER: builtins.int
+    OFFSET_FIELD_NUMBER: builtins.int
+    TOTAL_SIZE_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    RECT_X_FIELD_NUMBER: builtins.int
+    RECT_Y_FIELD_NUMBER: builtins.int
+    RECT_WIDTH_FIELD_NUMBER: builtins.int
+    RECT_HEIGHT_FIELD_NUMBER: builtins.int
+    PALETTE_SIGNATURE_FIELD_NUMBER: builtins.int
+    width: builtins.int
+    """
+    Display width in pixels.
+    """
+    height: builtins.int
+    """
+    Display height in pixels.
+    """
+    format: global___DisplayFrame.Format.ValueType
+    """
+    Pixel encoding of data.
+    """
+    frame_id: builtins.int
+    """
+    Frame counter, constant across the chunks of one frame, so a change
+    marks the start of a new frame. It cannot reveal loss WITHIN a frame,
+    since every chunk of that frame carries the same value; only offset
+    contiguity can. Increments per captured frame, wraps at uint32 range,
+    and restarts from 1 on device reboot, so treat any change as "a new
+    frame" rather than as an ordering guarantee.
+    """
+    offset: builtins.int
+    """
+    Byte offset of this chunk within the full frame buffer.
+    """
+    total_size: builtins.int
+    """
+    Total size in bytes of the full frame buffer.
+    """
+    data: builtins.bytes
+    """
+    The framebuffer bytes for this chunk.
+    """
+    rect_x: builtins.int
+    """
+    Optional partial-update rectangle (dirty-rect streaming from LVGL-based
+    color UIs, format RGB565). A zero rect_width or rect_height means the
+    full panel in that axis, so data carries the pixels of the resulting
+    rectangle and offset/total_size describe that rectangle's own buffer;
+    width/height above always remain the full display dimensions, and each
+    rectangle is an independently completed unit under its own frame_id.
+    MONO_VLSB frames never set these fields.
+    """
+    rect_y: builtins.int
+    """
+    See rect_x.
+    """
+    rect_width: builtins.int
+    """
+    See rect_x.
+    """
+    rect_height: builtins.int
+    """
+    See rect_x.
+    """
+    palette_signature: builtins.int
+    """
+    Identity of the DisplayPalette that colorizes this frame, matching
+    DisplayPalette.signature. 0 when the device renders monochrome (no
+    color panel); clients without the referenced palette yet should render
+    monochrome until its chunks arrive.
+    """
+    def __init__(
+        self,
+        *,
+        width: builtins.int = ...,
+        height: builtins.int = ...,
+        format: global___DisplayFrame.Format.ValueType = ...,
+        frame_id: builtins.int = ...,
+        offset: builtins.int = ...,
+        total_size: builtins.int = ...,
+        data: builtins.bytes = ...,
+        rect_x: builtins.int = ...,
+        rect_y: builtins.int = ...,
+        rect_width: builtins.int = ...,
+        rect_height: builtins.int = ...,
+        palette_signature: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["data", b"data", "format", b"format", "frame_id", b"frame_id", "height", b"height", "offset", b"offset", "palette_signature", b"palette_signature", "rect_height", b"rect_height", "rect_width", b"rect_width", "rect_x", b"rect_x", "rect_y", b"rect_y", "total_size", b"total_size", "width", b"width"]) -> None: ...
+
+global___DisplayFrame = DisplayFrame
+
+@typing.final
+class DisplayPalette(google.protobuf.message.Message):
+    """
+    Colorization palette for DisplayFrame streams from devices that paint the
+    1bpp base UI onto a color panel. The panel applies per-region on/off
+    colors at flush time; streaming the same region table lets a client
+    render the mirror in the panel's true colors at 1bpp bandwidth.
+    Sent as FromRadio.display_palette, split by region index when the table
+    exceeds one message; re-sent only when the region layout or theme changes
+    (the signature changes with it). Regions are ordered by table index; a
+    region with a higher table index overrides lower-indexed ones where they
+    overlap, regardless of chunk boundaries. A client holding partial chunks
+    of a signature that no longer matches incoming chunks should discard
+    them. All colors are RGB565 in logical bit layout (RRRRRGGGGGGBBBBB).
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class ColorRegion(google.protobuf.message.Message):
+        """
+        One colorized rectangle of the display.
+        """
+
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        X_FIELD_NUMBER: builtins.int
+        Y_FIELD_NUMBER: builtins.int
+        WIDTH_FIELD_NUMBER: builtins.int
+        HEIGHT_FIELD_NUMBER: builtins.int
+        ON_COLOR_FIELD_NUMBER: builtins.int
+        OFF_COLOR_FIELD_NUMBER: builtins.int
+        x: builtins.int
+        """
+        Region origin and size in pixels.
+        """
+        y: builtins.int
+        """
+        See x.
+        """
+        width: builtins.int
+        """
+        See x.
+        """
+        height: builtins.int
+        """
+        See x.
+        """
+        on_color: builtins.int
+        """
+        RGB565 drawn for set (1) pixels inside this region.
+        """
+        off_color: builtins.int
+        """
+        RGB565 drawn for clear (0) pixels inside this region.
+        """
+        def __init__(
+            self,
+            *,
+            x: builtins.int = ...,
+            y: builtins.int = ...,
+            width: builtins.int = ...,
+            height: builtins.int = ...,
+            on_color: builtins.int = ...,
+            off_color: builtins.int = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["height", b"height", "off_color", b"off_color", "on_color", b"on_color", "width", b"width", "x", b"x", "y", b"y"]) -> None: ...
+
+    SIGNATURE_FIELD_NUMBER: builtins.int
+    DEFAULT_ON_COLOR_FIELD_NUMBER: builtins.int
+    DEFAULT_OFF_COLOR_FIELD_NUMBER: builtins.int
+    REGION_OFFSET_FIELD_NUMBER: builtins.int
+    REGION_TOTAL_FIELD_NUMBER: builtins.int
+    REGIONS_FIELD_NUMBER: builtins.int
+    signature: builtins.int
+    """
+    Identity of this palette; DisplayFrame.palette_signature references it.
+    Changes whenever the region table or theme changes. Never 0, which
+    DisplayFrame.palette_signature reserves for monochrome.
+    """
+    default_on_color: builtins.int
+    """
+    RGB565 for set pixels outside all regions. The region_offset 0 chunk is authoritative.
+    """
+    default_off_color: builtins.int
+    """
+    RGB565 for clear pixels outside all regions. The region_offset 0 chunk is authoritative.
+    """
+    region_offset: builtins.int
+    """
+    Table index of the first region in this chunk.
+    """
+    region_total: builtins.int
+    """
+    Total regions in the complete palette; region_offset + regions length
+    == region_total completes it.
+    """
+    @property
+    def regions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___DisplayPalette.ColorRegion]:
+        """
+        The regions of this chunk, in table order.
+        """
+
+    def __init__(
+        self,
+        *,
+        signature: builtins.int = ...,
+        default_on_color: builtins.int = ...,
+        default_off_color: builtins.int = ...,
+        region_offset: builtins.int = ...,
+        region_total: builtins.int = ...,
+        regions: collections.abc.Iterable[global___DisplayPalette.ColorRegion] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["default_off_color", b"default_off_color", "default_on_color", b"default_on_color", "region_offset", b"region_offset", "region_total", b"region_total", "regions", b"regions", "signature", b"signature"]) -> None: ...
+
+global___DisplayPalette = DisplayPalette
 
 @typing.final
 class LockdownStatus(google.protobuf.message.Message):
@@ -4301,10 +4615,427 @@ class ClientNotification(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    class _NotificationType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _NotificationTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ClientNotification._NotificationType.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNSET: ClientNotification._NotificationType.ValueType  # 0
+        """
+        Not set. Older firmware, or a message without its own type.
+        """
+        POSITION_SHARING_DISABLED: ClientNotification._NotificationType.ValueType  # 1
+        """
+        Position packet rejected: location sharing is disabled on this channel.
+        """
+        TRACEROUTE_RATE_LIMITED: ClientNotification._NotificationType.ValueType  # 2
+        """
+        Traceroute rejected: only one may be sent every 30 seconds.
+        """
+        TRACEROUTE_BROADCAST_REJECTED: ClientNotification._NotificationType.ValueType  # 3
+        """
+        Traceroute rejected: multi-hop traceroute to the broadcast address is not allowed.
+        """
+        DUTY_CYCLE_LIMIT_EXCEEDED: ClientNotification._NotificationType.ValueType  # 4
+        """
+        Send aborted: the duty cycle limit is exceeded. The message gives the minutes until sending resumes.
+        """
+        POSITION_SENT_SLEEPING: ClientNotification._NotificationType.ValueType  # 5
+        """
+        Power-saving tracker sent its position and is about to sleep for the broadcast interval.
+        """
+        TELEMETRY_SENT_SLEEPING: ClientNotification._NotificationType.ValueType  # 6
+        """
+        Power-saving sensor sent its telemetry and is about to sleep for the update interval.
+        """
+        KEY_VERIFICATION_NUMBER_INFORM: ClientNotification._NotificationType.ValueType  # 7
+        """
+        Incoming key verification: display the security number. Carries key_verification_number_inform.
+        """
+        KEY_VERIFICATION_NUMBER_REQUEST: ClientNotification._NotificationType.ValueType  # 8
+        """
+        Outgoing key verification: enter the security number shown on the remote node. Carries key_verification_number_request.
+        """
+        KEY_VERIFICATION_FINAL_INCOMING: ClientNotification._NotificationType.ValueType  # 9
+        """
+        Final confirmation of an incoming key verification. Carries key_verification_final.
+        """
+        KEY_VERIFICATION_FINAL_OUTGOING: ClientNotification._NotificationType.ValueType  # 10
+        """
+        Final confirmation of an outgoing key verification. Carries key_verification_final.
+        """
+        KEY_VERIFICATION_LICENSED_UNAVAILABLE: ClientNotification._NotificationType.ValueType  # 11
+        """
+        Key verification is unavailable in licensed (ham) mode.
+        """
+        DUPLICATED_PUBLIC_KEY: ClientNotification._NotificationType.ValueType  # 12
+        """
+        A remote node advertised this node's public key; the key may be compromised.
+        """
+        LOW_ENTROPY_KEY_REGENERATED: ClientNotification._NotificationType.ValueType  # 13
+        """
+        Compromised (low-entropy) keys were detected at boot and regenerated.
+        """
+        LOW_ENTROPY_KEY_RESTORE_REJECTED: ClientNotification._NotificationType.ValueType  # 14
+        """
+        A restored key is a known low-entropy key; a new key was generated and the node number changed.
+        """
+        LICENSED_MODE_ACTIVATED: ClientNotification._NotificationType.ValueType  # 15
+        """
+        Licensed mode activated: the admin channel and encryption were removed from all channels.
+        """
+        LICENSED_IDENTITY_WILL_CHANGE: ClientNotification._NotificationType.ValueType  # 16
+        """
+        Licensed signing needs an identity key; the node identity will change after key generation.
+        """
+        LICENSED_IDENTITY_CHANGED: ClientNotification._NotificationType.ValueType  # 17
+        """
+        Licensed signing generated a new identity key; the node identity changed.
+        """
+        PROTECTED_NODE_LIMIT_REACHED: ClientNotification._NotificationType.ValueType  # 18
+        """
+        Favorite or ignore refused: the protected-node limit is reached.
+        """
+        ROUTER_REBROADCAST_NONE_REJECTED: ClientNotification._NotificationType.ValueType  # 19
+        """
+        Rebroadcast mode NONE is not allowed for a router role; it was set to ALL.
+        """
+        PACKET_SIGNATURE_POLICY_UNAVAILABLE: ClientNotification._NotificationType.ValueType  # 20
+        """
+        The packet signature policy is unavailable on this firmware build; it was set to COMPATIBLE.
+        """
+        MANAGED_MODE_REQUIRES_ADMIN_KEY: ClientNotification._NotificationType.ValueType  # 21
+        """
+        Managed mode needs at least one admin public key; it was left disabled.
+        """
+        PUBLIC_CHANNEL_POSITION_PRECISION_REDUCED: ClientNotification._NotificationType.ValueType  # 22
+        """
+        Precise position is not allowed on a public channel; precision was reduced.
+        """
+        CHANNEL_BLANK_PSK: ClientNotification._NotificationType.ValueType  # 23
+        """
+        A channel has a blank PSK (no encryption) instead of the default key.
+        """
+        CHANNEL_NAME_PRESET_MISTYPE: ClientNotification._NotificationType.ValueType  # 24
+        """
+        A channel name looks like a mistyped modem preset name; the user should type it exactly.
+        """
+        CHANNEL_NAME_PRESET_MISTYPE_CLEAR_NAME: ClientNotification._NotificationType.ValueType  # 42
+        """
+        A channel name looks like a mistyped modem preset name; clearing it lets the preset name apply automatically.
+        """
+        CHANNEL_PRESET_NON_DEFAULT_KEY: ClientNotification._NotificationType.ValueType  # 25
+        """
+        A channel resolves to or matches a modem preset but uses a non-default key.
+        """
+        CHANNEL_NAME_MATCHES_OLD_PRESET: ClientNotification._NotificationType.ValueType  # 26
+        """
+        After a modem preset change, a channel name still matches the old preset.
+        """
+        CHANNEL_NAME_WONT_AUTO_RESOLVE: ClientNotification._NotificationType.ValueType  # 27
+        """
+        After a modem preset change, a channel name matches the new preset but won't auto-resolve.
+        """
+        CHANNEL_NAME_ISSUES: ClientNotification._NotificationType.ValueType  # 28
+        """
+        Name issues on one or more channels (several warnings combined).
+        """
+        CHANNEL_PSK_ISSUES: ClientNotification._NotificationType.ValueType  # 29
+        """
+        PSK issues on one or more channels (several warnings combined).
+        """
+        CHANNEL_NAME_AND_PSK_ISSUES: ClientNotification._NotificationType.ValueType  # 30
+        """
+        Name and PSK issues on one or more channels (several warnings combined).
+        """
+        LORA_REGION_UNRECOGNIZED: ClientNotification._NotificationType.ValueType  # 31
+        """
+        LoRa region code is not recognized.
+        """
+        LORA_REGION_REQUIRES_LICENSE: ClientNotification._NotificationType.ValueType  # 32
+        """
+        LoRa region requires licensed mode.
+        """
+        LORA_REGION_UNSUPPORTED_BY_RADIO: ClientNotification._NotificationType.ValueType  # 33
+        """
+        LoRa region needs a band (2.4 GHz or sub-GHz) this radio does not support.
+        """
+        LORA_PRESET_REGION_SWAP: ClientNotification._NotificationType.ValueType  # 34
+        """
+        The selected modem preset moved the node to a sibling region.
+        """
+        LORA_PRESET_INVALID_FOR_REGION: ClientNotification._NotificationType.ValueType  # 35
+        """
+        Modem preset is invalid for the region; the region default may have been applied.
+        """
+        LORA_BANDWIDTH_EXCEEDS_REGION: ClientNotification._NotificationType.ValueType  # 36
+        """
+        Requested bandwidth is wider than the region's span; the region default may have been applied.
+        """
+        LORA_CHANNEL_NUM_INVALID: ClientNotification._NotificationType.ValueType  # 37
+        """
+        Channel number is out of range for the region; a valid slot may have been applied.
+        """
+        SERIAL_CONSOLE_OVERRIDE_INVALID: ClientNotification._NotificationType.ValueType  # 38
+        """
+        Serial config rejected: overriding the console serial port needs an output-only mode (NMEA, CalTopo or MS Config).
+        """
+        MQTT_SERVER_UNREACHABLE: ClientNotification._NotificationType.ValueType  # 39
+        """
+        MQTT server could not be reached; the settings were saved anyway.
+        """
+        MQTT_PROXY_TO_CLIENT_REQUIRED: ClientNotification._NotificationType.ValueType  # 40
+        """
+        MQTT config rejected: proxy_to_client_enabled is required on a node without a network.
+        """
+        MQTT_DEFAULT_SERVER_PORT_INVALID: ClientNotification._NotificationType.ValueType  # 41
+        """
+        MQTT config rejected: the default server address must not have a port specified.
+        """
+        OTA_INVALID_HASH: ClientNotification._NotificationType.ValueType  # 43
+        """
+        OTA refused: the provided ota_hash is invalid.
+        """
+        OTA_LOADER_PARTITION_MISSING: ClientNotification._NotificationType.ValueType  # 44
+        """
+        OTA refused: no OTA loader partition was found.
+        """
+        OTA_LOADER_INVALID: ClientNotification._NotificationType.ValueType  # 45
+        """
+        OTA refused: the OTA loader partition does not hold a valid loader.
+        """
+        OTA_MODE_UNSUPPORTED: ClientNotification._NotificationType.ValueType  # 46
+        """
+        OTA refused: the OTA loader does not support the requested mode (BLE or WiFi).
+        """
+        OTA_REBOOTING: ClientNotification._NotificationType.ValueType  # 47
+        """
+        OTA accepted: rebooting into the OTA loader for the requested mode.
+        """
+        OTA_PARTITION_SWITCH_FAILED: ClientNotification._NotificationType.ValueType  # 48
+        """
+        OTA refused: switching to the OTA partition failed.
+        """
+        UNSIGNED_IDENTITY_UPDATE_IGNORED: ClientNotification._NotificationType.ValueType  # 49
+        """
+        A NodeInfo update without a valid signature tried to change a known node's name or role,
+        and packet_signature_policy (Balanced or Strict) refused it. The stored identity is kept.
+        """
+
+    class NotificationType(_NotificationType, metaclass=_NotificationTypeEnumTypeWrapper):
+        """
+        Identifies which firmware message a notification carries, so clients can
+        localize or act on it without parsing the message text.
+        """
+
+    UNSET: ClientNotification.NotificationType.ValueType  # 0
+    """
+    Not set. Older firmware, or a message without its own type.
+    """
+    POSITION_SHARING_DISABLED: ClientNotification.NotificationType.ValueType  # 1
+    """
+    Position packet rejected: location sharing is disabled on this channel.
+    """
+    TRACEROUTE_RATE_LIMITED: ClientNotification.NotificationType.ValueType  # 2
+    """
+    Traceroute rejected: only one may be sent every 30 seconds.
+    """
+    TRACEROUTE_BROADCAST_REJECTED: ClientNotification.NotificationType.ValueType  # 3
+    """
+    Traceroute rejected: multi-hop traceroute to the broadcast address is not allowed.
+    """
+    DUTY_CYCLE_LIMIT_EXCEEDED: ClientNotification.NotificationType.ValueType  # 4
+    """
+    Send aborted: the duty cycle limit is exceeded. The message gives the minutes until sending resumes.
+    """
+    POSITION_SENT_SLEEPING: ClientNotification.NotificationType.ValueType  # 5
+    """
+    Power-saving tracker sent its position and is about to sleep for the broadcast interval.
+    """
+    TELEMETRY_SENT_SLEEPING: ClientNotification.NotificationType.ValueType  # 6
+    """
+    Power-saving sensor sent its telemetry and is about to sleep for the update interval.
+    """
+    KEY_VERIFICATION_NUMBER_INFORM: ClientNotification.NotificationType.ValueType  # 7
+    """
+    Incoming key verification: display the security number. Carries key_verification_number_inform.
+    """
+    KEY_VERIFICATION_NUMBER_REQUEST: ClientNotification.NotificationType.ValueType  # 8
+    """
+    Outgoing key verification: enter the security number shown on the remote node. Carries key_verification_number_request.
+    """
+    KEY_VERIFICATION_FINAL_INCOMING: ClientNotification.NotificationType.ValueType  # 9
+    """
+    Final confirmation of an incoming key verification. Carries key_verification_final.
+    """
+    KEY_VERIFICATION_FINAL_OUTGOING: ClientNotification.NotificationType.ValueType  # 10
+    """
+    Final confirmation of an outgoing key verification. Carries key_verification_final.
+    """
+    KEY_VERIFICATION_LICENSED_UNAVAILABLE: ClientNotification.NotificationType.ValueType  # 11
+    """
+    Key verification is unavailable in licensed (ham) mode.
+    """
+    DUPLICATED_PUBLIC_KEY: ClientNotification.NotificationType.ValueType  # 12
+    """
+    A remote node advertised this node's public key; the key may be compromised.
+    """
+    LOW_ENTROPY_KEY_REGENERATED: ClientNotification.NotificationType.ValueType  # 13
+    """
+    Compromised (low-entropy) keys were detected at boot and regenerated.
+    """
+    LOW_ENTROPY_KEY_RESTORE_REJECTED: ClientNotification.NotificationType.ValueType  # 14
+    """
+    A restored key is a known low-entropy key; a new key was generated and the node number changed.
+    """
+    LICENSED_MODE_ACTIVATED: ClientNotification.NotificationType.ValueType  # 15
+    """
+    Licensed mode activated: the admin channel and encryption were removed from all channels.
+    """
+    LICENSED_IDENTITY_WILL_CHANGE: ClientNotification.NotificationType.ValueType  # 16
+    """
+    Licensed signing needs an identity key; the node identity will change after key generation.
+    """
+    LICENSED_IDENTITY_CHANGED: ClientNotification.NotificationType.ValueType  # 17
+    """
+    Licensed signing generated a new identity key; the node identity changed.
+    """
+    PROTECTED_NODE_LIMIT_REACHED: ClientNotification.NotificationType.ValueType  # 18
+    """
+    Favorite or ignore refused: the protected-node limit is reached.
+    """
+    ROUTER_REBROADCAST_NONE_REJECTED: ClientNotification.NotificationType.ValueType  # 19
+    """
+    Rebroadcast mode NONE is not allowed for a router role; it was set to ALL.
+    """
+    PACKET_SIGNATURE_POLICY_UNAVAILABLE: ClientNotification.NotificationType.ValueType  # 20
+    """
+    The packet signature policy is unavailable on this firmware build; it was set to COMPATIBLE.
+    """
+    MANAGED_MODE_REQUIRES_ADMIN_KEY: ClientNotification.NotificationType.ValueType  # 21
+    """
+    Managed mode needs at least one admin public key; it was left disabled.
+    """
+    PUBLIC_CHANNEL_POSITION_PRECISION_REDUCED: ClientNotification.NotificationType.ValueType  # 22
+    """
+    Precise position is not allowed on a public channel; precision was reduced.
+    """
+    CHANNEL_BLANK_PSK: ClientNotification.NotificationType.ValueType  # 23
+    """
+    A channel has a blank PSK (no encryption) instead of the default key.
+    """
+    CHANNEL_NAME_PRESET_MISTYPE: ClientNotification.NotificationType.ValueType  # 24
+    """
+    A channel name looks like a mistyped modem preset name; the user should type it exactly.
+    """
+    CHANNEL_NAME_PRESET_MISTYPE_CLEAR_NAME: ClientNotification.NotificationType.ValueType  # 42
+    """
+    A channel name looks like a mistyped modem preset name; clearing it lets the preset name apply automatically.
+    """
+    CHANNEL_PRESET_NON_DEFAULT_KEY: ClientNotification.NotificationType.ValueType  # 25
+    """
+    A channel resolves to or matches a modem preset but uses a non-default key.
+    """
+    CHANNEL_NAME_MATCHES_OLD_PRESET: ClientNotification.NotificationType.ValueType  # 26
+    """
+    After a modem preset change, a channel name still matches the old preset.
+    """
+    CHANNEL_NAME_WONT_AUTO_RESOLVE: ClientNotification.NotificationType.ValueType  # 27
+    """
+    After a modem preset change, a channel name matches the new preset but won't auto-resolve.
+    """
+    CHANNEL_NAME_ISSUES: ClientNotification.NotificationType.ValueType  # 28
+    """
+    Name issues on one or more channels (several warnings combined).
+    """
+    CHANNEL_PSK_ISSUES: ClientNotification.NotificationType.ValueType  # 29
+    """
+    PSK issues on one or more channels (several warnings combined).
+    """
+    CHANNEL_NAME_AND_PSK_ISSUES: ClientNotification.NotificationType.ValueType  # 30
+    """
+    Name and PSK issues on one or more channels (several warnings combined).
+    """
+    LORA_REGION_UNRECOGNIZED: ClientNotification.NotificationType.ValueType  # 31
+    """
+    LoRa region code is not recognized.
+    """
+    LORA_REGION_REQUIRES_LICENSE: ClientNotification.NotificationType.ValueType  # 32
+    """
+    LoRa region requires licensed mode.
+    """
+    LORA_REGION_UNSUPPORTED_BY_RADIO: ClientNotification.NotificationType.ValueType  # 33
+    """
+    LoRa region needs a band (2.4 GHz or sub-GHz) this radio does not support.
+    """
+    LORA_PRESET_REGION_SWAP: ClientNotification.NotificationType.ValueType  # 34
+    """
+    The selected modem preset moved the node to a sibling region.
+    """
+    LORA_PRESET_INVALID_FOR_REGION: ClientNotification.NotificationType.ValueType  # 35
+    """
+    Modem preset is invalid for the region; the region default may have been applied.
+    """
+    LORA_BANDWIDTH_EXCEEDS_REGION: ClientNotification.NotificationType.ValueType  # 36
+    """
+    Requested bandwidth is wider than the region's span; the region default may have been applied.
+    """
+    LORA_CHANNEL_NUM_INVALID: ClientNotification.NotificationType.ValueType  # 37
+    """
+    Channel number is out of range for the region; a valid slot may have been applied.
+    """
+    SERIAL_CONSOLE_OVERRIDE_INVALID: ClientNotification.NotificationType.ValueType  # 38
+    """
+    Serial config rejected: overriding the console serial port needs an output-only mode (NMEA, CalTopo or MS Config).
+    """
+    MQTT_SERVER_UNREACHABLE: ClientNotification.NotificationType.ValueType  # 39
+    """
+    MQTT server could not be reached; the settings were saved anyway.
+    """
+    MQTT_PROXY_TO_CLIENT_REQUIRED: ClientNotification.NotificationType.ValueType  # 40
+    """
+    MQTT config rejected: proxy_to_client_enabled is required on a node without a network.
+    """
+    MQTT_DEFAULT_SERVER_PORT_INVALID: ClientNotification.NotificationType.ValueType  # 41
+    """
+    MQTT config rejected: the default server address must not have a port specified.
+    """
+    OTA_INVALID_HASH: ClientNotification.NotificationType.ValueType  # 43
+    """
+    OTA refused: the provided ota_hash is invalid.
+    """
+    OTA_LOADER_PARTITION_MISSING: ClientNotification.NotificationType.ValueType  # 44
+    """
+    OTA refused: no OTA loader partition was found.
+    """
+    OTA_LOADER_INVALID: ClientNotification.NotificationType.ValueType  # 45
+    """
+    OTA refused: the OTA loader partition does not hold a valid loader.
+    """
+    OTA_MODE_UNSUPPORTED: ClientNotification.NotificationType.ValueType  # 46
+    """
+    OTA refused: the OTA loader does not support the requested mode (BLE or WiFi).
+    """
+    OTA_REBOOTING: ClientNotification.NotificationType.ValueType  # 47
+    """
+    OTA accepted: rebooting into the OTA loader for the requested mode.
+    """
+    OTA_PARTITION_SWITCH_FAILED: ClientNotification.NotificationType.ValueType  # 48
+    """
+    OTA refused: switching to the OTA partition failed.
+    """
+    UNSIGNED_IDENTITY_UPDATE_IGNORED: ClientNotification.NotificationType.ValueType  # 49
+    """
+    A NodeInfo update without a valid signature tried to change a known node's name or role,
+    and packet_signature_policy (Balanced or Strict) refused it. The stored identity is kept.
+    """
+
     REPLY_ID_FIELD_NUMBER: builtins.int
     TIME_FIELD_NUMBER: builtins.int
     LEVEL_FIELD_NUMBER: builtins.int
     MESSAGE_FIELD_NUMBER: builtins.int
+    TYPE_FIELD_NUMBER: builtins.int
     KEY_VERIFICATION_NUMBER_INFORM_FIELD_NUMBER: builtins.int
     KEY_VERIFICATION_NUMBER_REQUEST_FIELD_NUMBER: builtins.int
     KEY_VERIFICATION_FINAL_FIELD_NUMBER: builtins.int
@@ -4326,6 +5057,10 @@ class ClientNotification(google.protobuf.message.Message):
     """
     The message body of the notification
     """
+    type: global___ClientNotification.NotificationType.ValueType
+    """
+    Which firmware message this notification carries. UNSET when not known.
+    """
     @property
     def key_verification_number_inform(self) -> global___KeyVerificationNumberInform: ...
     @property
@@ -4343,6 +5078,7 @@ class ClientNotification(google.protobuf.message.Message):
         time: builtins.int = ...,
         level: global___LogRecord.Level.ValueType = ...,
         message: builtins.str = ...,
+        type: global___ClientNotification.NotificationType.ValueType = ...,
         key_verification_number_inform: global___KeyVerificationNumberInform | None = ...,
         key_verification_number_request: global___KeyVerificationNumberRequest | None = ...,
         key_verification_final: global___KeyVerificationFinal | None = ...,
@@ -4350,7 +5086,7 @@ class ClientNotification(google.protobuf.message.Message):
         low_entropy_key: global___LowEntropyKey | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["_reply_id", b"_reply_id", "duplicated_public_key", b"duplicated_public_key", "key_verification_final", b"key_verification_final", "key_verification_number_inform", b"key_verification_number_inform", "key_verification_number_request", b"key_verification_number_request", "low_entropy_key", b"low_entropy_key", "payload_variant", b"payload_variant", "reply_id", b"reply_id"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_reply_id", b"_reply_id", "duplicated_public_key", b"duplicated_public_key", "key_verification_final", b"key_verification_final", "key_verification_number_inform", b"key_verification_number_inform", "key_verification_number_request", b"key_verification_number_request", "level", b"level", "low_entropy_key", b"low_entropy_key", "message", b"message", "payload_variant", b"payload_variant", "reply_id", b"reply_id", "time", b"time"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["_reply_id", b"_reply_id", "duplicated_public_key", b"duplicated_public_key", "key_verification_final", b"key_verification_final", "key_verification_number_inform", b"key_verification_number_inform", "key_verification_number_request", b"key_verification_number_request", "level", b"level", "low_entropy_key", b"low_entropy_key", "message", b"message", "payload_variant", b"payload_variant", "reply_id", b"reply_id", "time", b"time", "type", b"type"]) -> None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_reply_id", b"_reply_id"]) -> typing.Literal["reply_id"] | None: ...
     @typing.overload
@@ -4674,6 +5410,9 @@ class DeviceMetadata(google.protobuf.message.Message):
     HASPKC_FIELD_NUMBER: builtins.int
     EXCLUDED_MODULES_FIELD_NUMBER: builtins.int
     HAS_XEDDSA_FIELD_NUMBER: builtins.int
+    DISPLAY_FIELD_NUMBER: builtins.int
+    BLE_ADDRESS_FIELD_NUMBER: builtins.int
+    BOOTLOADER_VERSION_FIELD_NUMBER: builtins.int
     firmware_version: builtins.str
     """
     Device firmware version string
@@ -4728,6 +5467,32 @@ class DeviceMetadata(google.protobuf.message.Message):
     Indicates whether this firmware build includes XEdDSA packet signature verification.
     This is a read-only capability and must be false when XEdDSA is not compiled in.
     """
+    ble_address: builtins.str
+    """
+    The address this node's BLE radio advertises and accepts connections on, as
+    colon-separated uppercase hex, most significant byte first ("AA:BB:CC:DD:EE:FF").
+    Read from the BLE stack, so it is the address phones and other centrals see.
+    It can differ from User.macaddr: on ESP32, Bluetooth uses its own MAC derived
+    from the base MAC. Reported while Bluetooth is disabled in config whenever the
+    hardware address is known. Empty when the device has no BLE radio or the
+    address cannot be determined.
+    """
+    bootloader_version: builtins.int
+    """
+    nRF52 bootloader version, packed as major << 16 | minor << 8 | patch, as the
+    bootloader hands it to the application at boot. Meshtastic nRF52 Bootloader
+    releases before 2.6.0 report 0.9.2, the same as stock Adafruit 0.9.2. 0 means
+    not reported: a non-nRF52 device, or firmware that predates this field.
+    """
+    @property
+    def display(self) -> global___DisplayInfo:
+        """
+        Describes the device's screen when one is present; absent on display-less
+        builds. Lets clients gate display-mirroring UI (see DisplayFrame) and
+        adapt to the panel, e.g. expect slow refresh from EINK, or offer
+        tap-to-touch when has_touch is set.
+        """
+
     def __init__(
         self,
         *,
@@ -4744,10 +5509,126 @@ class DeviceMetadata(google.protobuf.message.Message):
         hasPKC: builtins.bool = ...,
         excluded_modules: builtins.int = ...,
         has_xeddsa: builtins.bool = ...,
+        display: global___DisplayInfo | None = ...,
+        ble_address: builtins.str = ...,
+        bootloader_version: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["canShutdown", b"canShutdown", "device_state_version", b"device_state_version", "excluded_modules", b"excluded_modules", "firmware_version", b"firmware_version", "hasBluetooth", b"hasBluetooth", "hasEthernet", b"hasEthernet", "hasPKC", b"hasPKC", "hasRemoteHardware", b"hasRemoteHardware", "hasWifi", b"hasWifi", "has_xeddsa", b"has_xeddsa", "hw_model", b"hw_model", "position_flags", b"position_flags", "role", b"role"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["display", b"display"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["ble_address", b"ble_address", "bootloader_version", b"bootloader_version", "canShutdown", b"canShutdown", "device_state_version", b"device_state_version", "display", b"display", "excluded_modules", b"excluded_modules", "firmware_version", b"firmware_version", "hasBluetooth", b"hasBluetooth", "hasEthernet", b"hasEthernet", "hasPKC", b"hasPKC", "hasRemoteHardware", b"hasRemoteHardware", "hasWifi", b"hasWifi", "has_xeddsa", b"has_xeddsa", "hw_model", b"hw_model", "position_flags", b"position_flags", "role", b"role"]) -> None: ...
 
 global___DeviceMetadata = DeviceMetadata
+
+@typing.final
+class DisplayInfo(google.protobuf.message.Message):
+    """
+    Static description of a device's display, sent inside DeviceMetadata
+    during the connection handshake.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _PanelClass:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _PanelClassEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[DisplayInfo._PanelClass.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        PANEL_CLASS_UNSPECIFIED: DisplayInfo._PanelClass.ValueType  # 0
+        """
+        Unknown, or selected at runtime (e.g. a native build's configured panel).
+        """
+        OLED: DisplayInfo._PanelClass.ValueType  # 1
+        """
+        Monochrome OLED (SSD1306/SH1106 family).
+        """
+        LCD: DisplayInfo._PanelClass.ValueType  # 2
+        """
+        Monochrome LCD (ST7567 family).
+        """
+        TFT: DisplayInfo._PanelClass.ValueType  # 3
+        """
+        Color TFT.
+        """
+        EINK: DisplayInfo._PanelClass.ValueType  # 4
+        """
+        E-ink panel: refresh is slow and full-screen; clients should prefer
+        one-shot frame requests over continuous mirroring.
+        """
+        HUB75: DisplayInfo._PanelClass.ValueType  # 5
+        """
+        LED matrix (HUB75).
+        """
+
+    class PanelClass(_PanelClass, metaclass=_PanelClassEnumTypeWrapper):
+        """
+        Physical panel technology, as a hint for client rendering and refresh
+        expectations.
+        """
+
+    PANEL_CLASS_UNSPECIFIED: DisplayInfo.PanelClass.ValueType  # 0
+    """
+    Unknown, or selected at runtime (e.g. a native build's configured panel).
+    """
+    OLED: DisplayInfo.PanelClass.ValueType  # 1
+    """
+    Monochrome OLED (SSD1306/SH1106 family).
+    """
+    LCD: DisplayInfo.PanelClass.ValueType  # 2
+    """
+    Monochrome LCD (ST7567 family).
+    """
+    TFT: DisplayInfo.PanelClass.ValueType  # 3
+    """
+    Color TFT.
+    """
+    EINK: DisplayInfo.PanelClass.ValueType  # 4
+    """
+    E-ink panel: refresh is slow and full-screen; clients should prefer
+    one-shot frame requests over continuous mirroring.
+    """
+    HUB75: DisplayInfo.PanelClass.ValueType  # 5
+    """
+    LED matrix (HUB75).
+    """
+
+    WIDTH_FIELD_NUMBER: builtins.int
+    HEIGHT_FIELD_NUMBER: builtins.int
+    FORMAT_FIELD_NUMBER: builtins.int
+    PANEL_CLASS_FIELD_NUMBER: builtins.int
+    HAS_TOUCH_FIELD_NUMBER: builtins.int
+    width: builtins.int
+    """
+    Display width in pixels.
+    """
+    height: builtins.int
+    """
+    Display height in pixels.
+    """
+    format: global___DisplayFrame.Format.ValueType
+    """
+    Pixel encoding that DisplayFrame streams from this device will use.
+    """
+    panel_class: global___DisplayInfo.PanelClass.ValueType
+    """
+    Physical panel technology.
+    """
+    has_touch: builtins.bool
+    """
+    True when the panel accepts touch input; clients may map taps on a
+    mirrored frame to AdminMessage.send_input_event touch coordinates.
+    """
+    def __init__(
+        self,
+        *,
+        width: builtins.int = ...,
+        height: builtins.int = ...,
+        format: global___DisplayFrame.Format.ValueType = ...,
+        panel_class: global___DisplayInfo.PanelClass.ValueType = ...,
+        has_touch: builtins.bool = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["format", b"format", "has_touch", b"has_touch", "height", b"height", "panel_class", b"panel_class", "width", b"width"]) -> None: ...
+
+global___DisplayInfo = DisplayInfo
 
 @typing.final
 class LoRaPresetGroup(google.protobuf.message.Message):
