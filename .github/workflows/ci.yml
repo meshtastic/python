@@ -65,14 +65,14 @@ jobs:
       - name: Run lint, type check, and tests in parallel
         run: make -j3 --output-sync=target ci
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           env_vars: OS, PYTHON
           files: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
 
   simradio_testing:
