@@ -14,10 +14,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.12"
 
       - name: Install dependencies
         run: |
@@ -77,10 +77,10 @@ jobs:
   #       with:
   #         ref: ${{ needs.release_create.outputs.new_sha }}
 
-  #     - name: Set up Python 3.9
+  #     - name: Set up Python 3.12
   #       uses: actions/setup-python@v5
   #       with:
-  #         python-version: "3.9"
+  #         python-version: "3.12"
 
   #     - name: Setup code signing
   #       env:
@@ -123,10 +123,10 @@ jobs:
         with:
           ref: ${{ needs.release_create.outputs.new_sha }}
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.12"
 
       - name: Build
         run: |
@@ -162,10 +162,10 @@ jobs:
   #       with:
   #         ref: ${{ needs.release_create.outputs.new_sha }}
 
-  #     - name: Set up Python 3.9
+  #     - name: Set up Python 3.12
   #       uses: actions/setup-python@v5
   #       with:
-  #         python-version: "3.9"
+  #         python-version: "3.12"
 
   #     - name: Build
   #       run: |

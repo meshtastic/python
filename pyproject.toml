@@ -7,7 +7,7 @@ license = "GPL-3.0-only"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9,<3.15"                                               # 3.9 is needed for pandas
+python = "^3.11,<3.16"                                               # 3.11 is the oldest non-EOL Python (3.9 EOL 2025-10, 3.10 EOL 2026-10)
 pyserial = "^3.5"
 protobuf = ">=4.21.12"
 tabulate = "^0.9.0"
@@ -23,7 +23,10 @@ print-color = { version = "^0.4.6", optional = true }
 dash = { version = "^2.17.1", optional = true }
 pytap2 = { version = "^2.3.0", optional = true }
 dash-bootstrap-components = { version = "^1.6.0", optional = true }
-pandas = { version = "^2.2.2", optional = true }
+pandas = [
+    { version = ">=2.2.2,<3", optional = true, python = "<3.13" },
+    { version = ">=3.1.1", optional = true, python = ">=3.13" },
+]
 pandas-stubs = { version = "^2.2.2.240603", optional = true }
 wcwidth = {version = "^0.2.13", optional = true}
 
