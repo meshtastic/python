@@ -56,7 +56,8 @@ ppk2-api = "^0.9.2"
 parse = "^1.20.2"
 pyarrow = [
     { version = "^18.0.0", python = "<3.14" },
-    { version = "^22.0.0", python = ">=3.14" }
+    { version = "^22.0.0", python = ">=3.14,<3.15" },
+    { version = "^26.0.0", python = ">=3.15" }
 ]
 platformdirs = "^4.2.2"
 
