@@ -1408,7 +1408,7 @@ class MeshInterface:  # pylint: disable=R0902
 
             self._startConfig()  # redownload the node db etc...
 
-        elif fromRadio.HasField("config") or fromRadio.HasField("moduleConfig"):
+        elif fromRadio.HasField("config"):
             if fromRadio.config.HasField("device"):
                 self.localNode.localConfig.device.CopyFrom(fromRadio.config.device)
             elif fromRadio.config.HasField("position"):
@@ -1429,57 +1429,11 @@ class MeshInterface:  # pylint: disable=R0902
                 self.localNode.localConfig.security.CopyFrom(
                     fromRadio.config.security
                 )
-            elif fromRadio.moduleConfig.HasField("mqtt"):
-                self.localNode.moduleConfig.mqtt.CopyFrom(fromRadio.moduleConfig.mqtt)
-            elif fromRadio.moduleConfig.HasField("serial"):
-                self.localNode.moduleConfig.serial.CopyFrom(
-                    fromRadio.moduleConfig.serial
-                )
-            elif fromRadio.moduleConfig.HasField("external_notification"):
-                self.localNode.moduleConfig.external_notification.CopyFrom(
-                    fromRadio.moduleConfig.external_notification
-                )
-            elif fromRadio.moduleConfig.HasField("store_forward"):
-                self.localNode.moduleConfig.store_forward.CopyFrom(
-                    fromRadio.moduleConfig.store_forward
-                )
-            elif fromRadio.moduleConfig.HasField("range_test"):
-                self.localNode.moduleConfig.range_test.CopyFrom(
-                    fromRadio.moduleConfig.range_test
-                )
-            elif fromRadio.moduleConfig.HasField("telemetry"):
-                self.localNode.moduleConfig.telemetry.CopyFrom(
-                    fromRadio.moduleConfig.telemetry
-                )
-            elif fromRadio.moduleConfig.HasField("canned_message"):
-                self.localNode.moduleConfig.canned_message.CopyFrom(
-                    fromRadio.moduleConfig.canned_message
-                )
-            elif fromRadio.moduleConfig.HasField("audio"):
-                self.localNode.moduleConfig.audio.CopyFrom(fromRadio.moduleConfig.audio)
-            elif fromRadio.moduleConfig.HasField("remote_hardware"):
-                self.localNode.moduleConfig.remote_hardware.CopyFrom(
-                    fromRadio.moduleConfig.remote_hardware
-                )
-            elif fromRadio.moduleConfig.HasField("neighbor_info"):
-                self.localNode.moduleConfig.neighbor_info.CopyFrom(
-                    fromRadio.moduleConfig.neighbor_info
-                )
-            elif fromRadio.moduleConfig.HasField("detection_sensor"):
-                self.localNode.moduleConfig.detection_sensor.CopyFrom(
-                    fromRadio.moduleConfig.detection_sensor
-                )
-            elif fromRadio.moduleConfig.HasField("ambient_lighting"):
-                self.localNode.moduleConfig.ambient_lighting.CopyFrom(
-                    fromRadio.moduleConfig.ambient_lighting
-                )
-            elif fromRadio.moduleConfig.HasField("paxcounter"):
-                self.localNode.moduleConfig.paxcounter.CopyFrom(
-                    fromRadio.moduleConfig.paxcounter
-                )
-            elif fromRadio.moduleConfig.HasField("traffic_management"):
-                self.localNode.moduleConfig.traffic_management.CopyFrom(
-                    fromRadio.moduleConfig.traffic_management
+        elif fromRadio.HasField("moduleConfig"):
+            variant = fromRadio.moduleConfig.WhichOneof("payload_variant")
+            if variant:
+                getattr(self.localNode.moduleConfig, variant).CopyFrom(
+                    getattr(fromRadio.moduleConfig, variant)
                 )
 
         else:
