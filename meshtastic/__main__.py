@@ -2456,7 +2456,7 @@ def initParser():
 
     group.add_argument(
         "--timeout",
-        help="How long to wait for replies. Default %(default)ss.",
+        help="Internal timeout for operations like traceroutes that require responses. Default %(default)ss.",
         default=300,
         type=int,
         metavar="SECONDS",
