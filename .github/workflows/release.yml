@@ -243,7 +243,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           # The release tag points at the version-bump commit.
-          ref: ${{ github.event.release.tag_name }}
+          ref: refs/tags/${{ github.event.release.tag_name }}
           persist-credentials: false
 
       - name: Set up Python 3.12
