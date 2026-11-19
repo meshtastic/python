@@ -1972,3 +1972,71 @@ def test_start_ota_remote_node_raises_error():
 #    anode._timeout = Timeout(0.01)
 #    result = anode.waitForConfig()
 #    assert not result
+
+
+@pytest.mark.unit
+def test_requested_security_keys_match_local_format(capsys):
+    """Remote settings should use the same reusable base64 values as local --get."""
+    from google.protobuf.json_format import MessageToDict  # pylint: disable=import-outside-toplevel
+    from meshtastic.__main__ import getPref  # pylint: disable=import-outside-toplevel
+
+    iface = MagicMock(spec=MeshInterface)
+    iface._acknowledgment = MagicMock()
+    node = Node(iface, 12345678)
+    security = config_pb2.Config.SecurityConfig(
+        public_key=b"\x00\x80\xff", private_key=b"\x81\x02\x00",
+        admin_key=[b"\xff\x00\x80", b"\x01\x02\x03", b""], serial_enabled=True,
+    )
+    node.localConfig.security.CopyFrom(security)
+    assert getPref(node, "security")
+    local_output = capsys.readouterr().out
+    node.localConfig.ClearField("security")
+    message = admin_pb2.AdminMessage()
+    message.get_config_response.security.CopyFrom(security)
+    packet = {"decoded": {"admin": {**MessageToDict(message), "raw": message}}}
+
+    node.onResponseRequestSettings(packet)
+
+    remote_output = capsys.readouterr().out
+    assert remote_output.strip() == local_output.strip()
+    assert "security.admin_key: ['base64:/wCA', 'base64:AQID', 'base64:']" in remote_output
+    assert "security.public_key: base64:AID/" in remote_output
+    assert "security.private_key: base64:gQIA" in remote_output
+    assert "security.serial_enabled: True" in remote_output
+    assert node.localConfig.security == security
+    assert iface._acknowledgment.receivedAck is True
+
+
+@pytest.mark.unit
+def test_requested_module_config_matches_local_format(capsys):
+    """The module response path also preserves scalar setting values."""
+    from google.protobuf.json_format import MessageToDict  # pylint: disable=import-outside-toplevel
+    from meshtastic.__main__ import getPref  # pylint: disable=import-outside-toplevel
+
+    iface = MagicMock(spec=MeshInterface)
+    iface._acknowledgment = MagicMock()
+    node = Node(iface, 12345678)
+    message = admin_pb2.AdminMessage()
+    message.get_module_config_response.mqtt.enabled = True
+    message.get_module_config_response.mqtt.address = "mqtt.example.org"
+    node.moduleConfig.mqtt.CopyFrom(message.get_module_config_response.mqtt)
+    assert getPref(node, "mqtt")
+    local_output = capsys.readouterr().out
+    node.moduleConfig.ClearField("mqtt")
+    packet = {"decoded": {"admin": {**MessageToDict(message), "raw": message}}}
+
+    node.onResponseRequestSettings(packet)
+
+    assert capsys.readouterr().out.strip() == local_output.strip()
+    assert node.moduleConfig.mqtt == message.get_module_config_response.mqtt
+
+
+@pytest.mark.unit
+def test_requested_config_nak(capsys):
+    """A rejected remote settings request still records and reports its NAK."""
+    iface = MagicMock(spec=MeshInterface)
+    iface._acknowledgment = MagicMock()
+    node = Node(iface, 12345678)
+    node.onResponseRequestSettings({"decoded": {"routing": {"errorReason": "NOT_AUTHORIZED"}}})
+    assert capsys.readouterr().out == "Error on response: NOT_AUTHORIZED\n"
+    assert iface._acknowledgment.receivedNak is True
