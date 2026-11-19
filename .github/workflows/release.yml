@@ -64,6 +64,16 @@ jobs:
             (not squash) so the tag stays reachable from master.
           add-paths: pyproject.toml
 
+      - name: Checkout bump commit
+        # create-pull-request commits to the PR branch and leaves the
+        # workspace restored to the base branch, so HEAD here is the pre-bump
+        # commit. Check out the bump commit so the tag and every build in
+        # this workflow use the bumped version.
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.bump_pr.outputs.pull-request-head-sha }}
+          persist-credentials: false
+
       - name: Record release commit
         id: commit_updated
         run: |

@@ -24,6 +24,11 @@ permissions:
 jobs:
   update-protobufs:
     runs-on: ubuntu-latest
+    env:
+      # The secrets context cannot be referenced in a step-level `if`
+      # (actionlint: "context secrets is not allowed here"). Expose a flag
+      # that the auto-merge step can test through the env context instead.
+      HAS_AUTOMATION_TOKEN: ${{ secrets.MESHTASTIC_AUTOMATION_TOKEN != '' }}
 
     steps:
       - name: Checkout code
@@ -127,7 +132,12 @@ jobs:
       - name: Enable auto-merge
         # GITHUB_TOKEN cannot enqueue into the master merge queue, so this only
         # runs when MESHTASTIC_AUTOMATION_TOKEN is set.
-        if: ${{ (steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated') && secrets.MESHTASTIC_AUTOMATION_TOKEN != '' }}
+        if: >-
+          ${{
+            (steps.pr.outputs.pull-request-operation == 'created' ||
+            steps.pr.outputs.pull-request-operation == 'updated') &&
+            env.HAS_AUTOMATION_TOKEN == 'true'
+          }}
         env:
           GH_TOKEN: ${{ secrets.MESHTASTIC_AUTOMATION_TOKEN }}
           PR_NUMBER: ${{ steps.pr.outputs.pull-request-number }}
