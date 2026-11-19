@@ -33,10 +33,14 @@ wcwidth = {version = "^0.2.13", optional = true}
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.103.2"
 pytest = "^8.2.2"
-pytest-cov = "^5.0.0"
+# coverage >= 7.13.3 fixes a Python 3.14 sysmon-core performance regression (coveragepy #2082)
+pytest-cov = "^7.1.0"
+coverage = ">=7.13.3"
 pdoc3 = "^0.10.0"
 autopep8 = "^2.1.0"
-pylint = "^3.2.3"
+# pylint >= 4.1 handles Python 3.15's decimal fallback shim (no _decimal ext in
+# some CI interpreter builds) and the 3.14+ type-statement syntax.
+pylint = "^4.1.4"
 pyinstaller = "^6.10.0"
 mypy = "^1.10.0"
 mypy-protobuf = "^3.3.0"

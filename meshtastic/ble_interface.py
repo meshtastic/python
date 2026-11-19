@@ -8,7 +8,7 @@ import sys
 import time
 import io
 from threading import Thread, Event
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import google.protobuf
 from bleak import BleakClient, BleakScanner, BLEDevice
@@ -29,6 +29,10 @@ logger = logging.getLogger(__name__)
 
 class BLEInterface(MeshInterface):
     """MeshInterface using BLE to connect to devices."""
+
+    # Declared at class level: close() may run during __init__ (connect-failure
+    # path) before the atexit handler is assigned further down in __init__.
+    _exit_handler: Optional[Any]
 
     class BLEError(Exception):
         """An exception class for BLE errors."""
@@ -94,7 +98,7 @@ class BLEInterface(MeshInterface):
         # We MUST run atexit (if we can) because otherwise (at least on linux) the BLE device is not disconnected
         # and future connection attempts will fail.  (BlueZ kinda sucks)
         # Note: the on disconnected callback will call our self.close which will make us nicely wait for threads to exit
-        self._exit_handler = atexit.register(self.client.disconnect)
+        self._exit_handler: Optional[Any] = atexit.register(self.client.disconnect)
 
     def __repr__(self):
         rep = f"BLEInterface(address={self.client.address if self.client else None!r}"
@@ -264,7 +268,8 @@ class BLEInterface(MeshInterface):
                 self._receiveThread = None
 
         if self.client:
-            atexit.unregister(self._exit_handler)
+            if self._exit_handler is not None:
+                atexit.unregister(self._exit_handler)
             self.client.disconnect()
             self.client.close()
             self.client = None
