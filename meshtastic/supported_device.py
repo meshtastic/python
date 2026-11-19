@@ -28,9 +28,18 @@ class SupportedDevice:
         self.for_firmware = for_firmware
         self.device_class = device_class  # could be "nrf52"
 
+        def _norm_usb_id(usb_id):
+            """lower case, no "0x" prefix, zero-padded to 4 hex digits"""
+            if not usb_id:
+                return usb_id
+            usb_id = usb_id.strip().lower()
+            if usb_id.startswith("0x"):
+                usb_id = usb_id[2:]
+            return usb_id.zfill(4)
+
         # when you run "lsusb -d xxxx:" in linux
-        self.usb_vendor_id_in_hex = usb_vendor_id_in_hex  # store in lower case
-        self.usb_product_id_in_hex = usb_product_id_in_hex  # store in lower case
+        self.usb_vendor_id_in_hex = _norm_usb_id(usb_vendor_id_in_hex)
+        self.usb_product_id_in_hex = _norm_usb_id(usb_product_id_in_hex)
 
         self.baseport_on_linux = baseport_on_linux  # ex: ttyUSB or ttyACM
         self.baseport_on_mac = baseport_on_mac
@@ -231,6 +240,18 @@ tdeck = SupportedDevice(
 
 
 
+pico2 = SupportedDevice(
+    name="Raspberry Pi Pico 2",
+    version="",
+    for_firmware="pico2",
+    device_class="rp2350",
+    baseport_on_linux="ttyACM",
+    baseport_on_mac="cu.usbmodem",
+    baseport_on_windows="COM",
+    usb_vendor_id_in_hex="2e8a",
+    usb_product_id_in_hex="000f",
+)
+
 supported_devices = [
     tbeam_v0_7,
     tbeam_v1_1,
@@ -252,4 +273,5 @@ supported_devices = [
     nano_g1,
     seeed_xiao_s3,
     tdeck,  # T-Deck support added
+    pico2,
 ]

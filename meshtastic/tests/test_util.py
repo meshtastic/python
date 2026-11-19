@@ -10,6 +10,7 @@ from unittest.mock import patch
 import pytest
 from hypothesis import given, strategies as st
 
+from meshtastic import supported_device
 from meshtastic.supported_device import SupportedDevice
 from meshtastic.protobuf import mesh_pb2, config_pb2
 from meshtastic.util import (
@@ -29,6 +30,8 @@ from meshtastic.util import (
     fromStr,
     generate_channel_hash,
     genPSK256,
+    get_devices_with_vendor_id,
+    get_unique_vendor_ids,
     hexstr,
     ipstr,
     is_windows11,
@@ -974,3 +977,11 @@ def test_flags_from_list_roundtrip(flags):
     # but for combinations of known non-zero flags it should return the same set of names.
     nonzero_flags = {f for f in flags if _POSITION_FLAGS.Value(f)}
     assert set(decoded) == nonzero_flags
+
+
+@pytest.mark.unit
+def test_pico2_supported_device():
+    """Test that the Raspberry Pi Pico 2 is detected by its vendor id"""
+    assert supported_device.pico2 in get_devices_with_vendor_id("2e8a")
+    assert "2e8a" in get_unique_vendor_ids()
+    assert supported_device.pico2.for_firmware == "pico2"
