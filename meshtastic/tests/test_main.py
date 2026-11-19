@@ -246,6 +246,34 @@ def test_main_info(capsys, caplog):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
+@pytest.mark.parametrize("connection_args,interface_class", [
+    ([], "meshtastic.serial_interface.SerialInterface"),
+    (["--host", "meshtastic.local"], "meshtastic.tcp_interface.TCPInterface"),
+])
+def test_main_info_without_internet(connection_args, interface_class, monkeypatch, capsys):
+    """Local radio information must not make an Internet request."""
+    monkeypatch.setattr(sys, "argv", ["", "--info", *connection_args])
+    iface = MagicMock()
+    iface.showInfo.side_effect = lambda: print("Radio information")
+    iface.getNode.return_value.showInfo.side_effect = lambda: print("Node configuration")
+
+    with patch(interface_class, return_value=iface), patch(
+        "meshtastic.util.requests.get"
+    ) as request:
+        main()
+
+    request.assert_not_called()
+    iface.showInfo.assert_called_once_with()
+    iface.getNode.return_value.showInfo.assert_called_once_with()
+    iface.close.assert_called()
+    out, err = capsys.readouterr()
+    assert "Radio information" in out
+    assert "Node configuration" in out
+    assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
 @patch("os.getlogin")
 def test_main_info_with_permission_error(patched_getlogin, capsys, caplog):
     """Test --info"""
