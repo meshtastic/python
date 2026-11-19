@@ -1,6 +1,10 @@
 name: Make Release
 on: workflow_dispatch
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   release_create:
     runs-on: ubuntu-latest
@@ -13,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -31,17 +37,38 @@ jobs:
       - name: Get version
         id: get_version
         run: >-
-          poetry version --short | sed 's/^/::set-output name=version::/'
+          printf 'version=%s\n' "$(poetry version --short)" >> "$GITHUB_OUTPUT"
 
-      - name: Commit updated version.
+      - name: Create version bump PR
+        id: bump_pr
+        uses: peter-evans/create-pull-request@v8
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        with:
+          # The release tag points at the bump commit, which must live on a
+          # durable branch. It lands on master when this PR is merged with a
+          # merge commit (see the PR body note about merge vs squash).
+          # With the default GITHUB_TOKEN the PR needs a maintainer click to
+          # run CI and merge; set MESHTASTIC_AUTOMATION_TOKEN for fully
+          # unattended operation (see update_protobufs.yml).
+          token: ${{ secrets.MESHTASTIC_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
+          branch: release-bump/${{ env.VERSION }}
+          delete-branch: true
+          title: "bump version to ${{ env.VERSION }}"
+          commit-message: "bump version to ${{ env.VERSION }}"
+          body: |
+            Automated version bump to ${{ env.VERSION }} from the *Make Release*
+            workflow.
+
+            The release tag for ${{ env.VERSION }} points at this commit. Merge
+            (not squash) so the tag stays reachable from master.
+          add-paths: pyproject.toml
+
+      - name: Record release commit
         id: commit_updated
         run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'bot@noreply.github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git add pyproject.toml
-          git commit -m "bump version to ${{ steps.get_version.outputs.version }}" && git push || echo "No changes to commit"
-          git log -n 1 --pretty=format:"%H" | tail -n 1 | awk '{print "::set-output name=sha::"$0}'
+          set -euo pipefail
+          printf 'sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub release
         uses: actions/create-release@v1
