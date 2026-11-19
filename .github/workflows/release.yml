@@ -1,5 +1,8 @@
 name: Make Release
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
 
 permissions:
   contents: write
@@ -7,6 +10,9 @@ permissions:
 
 jobs:
   release_create:
+    # Dispatch-only: when this workflow also runs on release publish, this job
+    # must not fire again on that event (it would create a second bump PR).
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     outputs:
@@ -99,11 +105,14 @@ jobs:
         run: >-
           poetry build
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Validate distributions
+        # Dry-run for the PyPI upload: twine check validates the metadata PyPI
+        # itself would reject (long descriptions, README rendering, metadata
+        # syntax) without uploading anything. The real upload happens when the
+        # GitHub release is published (publish-to-pypi job).
+        run: |
+          python -m pip install --upgrade twine
+          twine check dist/*
 
   # build-and-publish-mac:
   #   runs-on: macos-latest
@@ -152,6 +161,8 @@ jobs:
   #         asset_content_type: application/zip
 
   build-and-publish-ubuntu:
+    # Dispatch-only, same reason as release_create.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     needs: release_create
     steps:
@@ -218,3 +229,47 @@ jobs:
   #         asset_path: dist/meshtastic.exe
   #         asset_name: meshtastic_windows
   #         asset_content_type: application/zip
+
+  publish-to-pypi:
+    # The real PyPI upload happens when the GitHub release is published, so
+    # the draft release and the merge of the bump PR come first and a human
+    # decides when the version goes live. Nothing is uploaded on dispatch.
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@v4
+        with:
+          # The release tag points at the version-bump commit.
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build a binary wheel and a source tarball
+        run: |
+          python -m pip install --upgrade pip
+          pip3 install poetry
+          poetry build
+
+      - name: Verify built version matches the release
+        run: |
+          set -euo pipefail
+          BUILT_VERSION="$(poetry version --short)"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [[ "${BUILT_VERSION}" != "${TAG_VERSION}" ]]; then
+            echo "::error::Built version ${BUILT_VERSION} does not match release tag ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+          echo "Built ${BUILT_VERSION} matches release ${TAG_VERSION}"
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.14.3
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
