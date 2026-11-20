@@ -111,7 +111,7 @@ def test_ble_close_can_retry_after_cleanup_failure(failure) -> None:
     iface.client = client
     iface._exit_handler = lambda: None
     notification = MagicMock()
-    iface._disconnected = notification
+    iface._disconnected = notification # type: ignore[method-assign]
     failing_step = {
         "join": receive_thread.join,
         "disconnect": client.disconnect,
