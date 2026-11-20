@@ -93,6 +93,53 @@ def test_ble_close_reentrant_does_not_deadlock() -> None:
     with patch("meshtastic.mesh_interface.MeshInterface.close"), \
          patch.object(iface, "_disconnected"):
         iface.close()
+        iface.close()  # A completed close must also remain idempotent.
 
     assert disconnect_count == 1, "disconnect() should be called exactly once"
     assert iface.client is None, "client should be cleaned up"
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("failure", ["join", "disconnect", "close", "notification"])
+def test_ble_close_can_retry_after_cleanup_failure(failure) -> None:
+    """A failed cleanup must not permanently disable close()."""
+    iface = object.__new__(BLEInterface)
+    iface._closing = False
+    iface._want_receive = True
+    receive_thread = MagicMock()
+    iface._receiveThread = receive_thread
+    client = MagicMock()
+    iface.client = client
+    iface._exit_handler = lambda: None
+    notification = MagicMock()
+    iface._disconnected = notification
+    failing_step = {
+        "join": receive_thread.join,
+        "disconnect": client.disconnect,
+        "close": client.close,
+        "notification": notification,
+    }[failure]
+    failing_step.side_effect = RuntimeError("cleanup failed")
+
+    with patch("meshtastic.mesh_interface.MeshInterface.close"), \
+         patch("meshtastic.ble_interface.atexit.unregister") as unregister:
+        with pytest.raises(RuntimeError, match="cleanup failed"):
+            iface.close()
+
+        assert iface._closing is False
+        if failure != "notification":
+            assert iface.client is client
+            unregister.assert_not_called()
+
+        failing_step.side_effect = None
+        iface.close()
+        iface.close()
+
+    assert iface._closing is True
+    assert iface.client is None
+    assert iface._receiveThread is None
+    assert iface._want_receive is False
+    assert failing_step.call_count == 2
+    unregister.assert_called_once_with(iface._exit_handler)
+    client.close.assert_called()
+    notification.assert_called()
