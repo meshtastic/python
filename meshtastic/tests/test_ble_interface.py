@@ -1,6 +1,5 @@
 """Meshtastic unit tests for ble_interface.py"""
 
-import atexit
 from unittest.mock import MagicMock, patch
 
 import pytest
