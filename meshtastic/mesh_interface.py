@@ -582,6 +582,35 @@ class MeshInterface:  # pylint: disable=R0902
         p = self._sendPacket(meshPacket, destinationId, wantAck=wantAck, hopLimit=hopLimit, pkiEncrypted=pkiEncrypted, publicKey=publicKey)
         return p
 
+    def requestNodeInfo(
+        self,
+        destinationId: Union[int, str] = BROADCAST_ADDR,
+        wantResponse: bool = False,
+        channelIndex: int = 0,
+        hopLimit: Optional[int] = None,
+    ):
+        """Send a NodeInfo request and optionally ask for a response"""
+        u = mesh_pb2.User()
+
+        if wantResponse:
+            onResponse = self.onResponseNodeInfo
+        else:
+            onResponse = None
+
+        d = self.sendData(
+            u,
+            destinationId=destinationId,
+            portNum=portnums_pb2.PortNum.NODEINFO_APP,
+            wantResponse=wantResponse,
+            onResponse=onResponse,
+            channelIndex=channelIndex,
+            hopLimit=hopLimit,
+        )
+
+        if wantResponse:
+            self.waitForNodeInfo()
+        return d
+
     def sendPosition(
         self,
         latitude: float = 0.0,
@@ -633,6 +662,16 @@ class MeshInterface:  # pylint: disable=R0902
         if wantResponse:
             self.waitForPosition()
         return d
+
+    def onResponseNodeInfo(self, p: dict):
+        """on response for NodeInfo"""
+        if p["decoded"]["portnum"] == "NODEINFO_APP":
+            self._acknowledgment.receivedNodeInfo = True
+            if "user" in p["decoded"]:
+                print("NodeInfo received:")
+                for key, value in p["decoded"]["user"].items():
+                    if key != "raw":
+                        print(f"{key}: {value}")
 
     def onResponsePosition(self, p):
         """on response for position"""
@@ -1066,6 +1105,12 @@ class MeshInterface:  # pylint: disable=R0902
         success = self._timeout.waitForTelemetry(self._acknowledgment)
         if not success:
             raise MeshInterface.MeshInterfaceError("Timed out waiting for telemetry")
+
+    def waitForNodeInfo(self):
+        """Wait for NodeInfo"""
+        success = self._timeout.waitForNodeInfo(self._acknowledgment)
+        if not success:
+            raise MeshInterface.MeshInterfaceError("Timed out waiting for NodeInfo")
 
     def waitForPosition(self):
         """Wait for position"""
