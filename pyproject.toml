@@ -32,7 +32,7 @@ wcwidth = {version = "^0.2.13", optional = true}
 
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.103.2"
-pytest = "^8.2.2"
+pytest = ">=8.2.2,<10.0.0"
 # coverage >= 7.13.3 fixes a Python 3.14 sysmon-core performance regression (coveragepy #2082)
 pytest-cov = "^7.1.0"
 coverage = ">=7.13.3"
