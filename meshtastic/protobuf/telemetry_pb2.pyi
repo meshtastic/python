@@ -257,6 +257,10 @@ class _TelemetrySensorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wra
     """
     AS3935 Franklin lightning sensor
     """
+    INA228: _TelemetrySensorType.ValueType  # 58
+    """
+    TI INA228 20-bit current, voltage and power monitor
+    """
 
 class TelemetrySensorType(_TelemetrySensorType, metaclass=_TelemetrySensorTypeEnumTypeWrapper):
     """
@@ -494,6 +498,10 @@ Sensirion SEN6X PM/RHT/VOC/NOx/CO2/HCHO sensor family (SEN62, SEN63C, SEN65, SEN
 AS3935: TelemetrySensorType.ValueType  # 57
 """
 AS3935 Franklin lightning sensor
+"""
+INA228: TelemetrySensorType.ValueType  # 58
+"""
+TI INA228 20-bit current, voltage and power monitor
 """
 global___TelemetrySensorType = TelemetrySensorType
 

@@ -109,9 +109,11 @@ class ModuleConfig(google.protobuf.message.Message):
         encryption_enabled: builtins.bool
         """
         Whether to send encrypted or decrypted packets to MQTT.
-        This parameter is only honoured if you also set server
-        (the default official mqtt.meshtastic.org server can handle encrypted packets)
-        Decrypted packets may be useful for external systems that want to consume meshtastic packets
+        When false, packets on channels with uplink enabled are published decrypted, and decrypted packets
+        from the broker are accepted on channels with downlink enabled without channel authentication,
+        including on AES-CCM channels. This trusts the broker, and anyone who can publish to it, as much
+        as the channel's own members.
+        Decrypted packets may be useful for external systems that want to consume meshtastic packets.
         """
         json_enabled: builtins.bool
         """
@@ -540,7 +542,7 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         Minimum interval in seconds between position updates from the same node.
         A non-zero value implicitly enables the suppression window; 0 disables it.
-        Firmware default: 21600 (6 hours), installed when this config is first created.
+        Firmware default: 18000 (5 hours), installed when this config is first created.
         """
         nodeinfo_direct_response_max_hops: builtins.int
         """
@@ -560,7 +562,7 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         unknown_packet_threshold: builtins.int
         """
-        Maximum unknown/undecryptable packets per rate window before the source
+        Maximum unknown/undecryptable packets per 5 minutes before the source
         is dropped. A non-zero value implicitly enables unknown-packet filtering;
         0 disables it.
         """
@@ -657,6 +659,8 @@ class ModuleConfig(google.protobuf.message.Message):
             """
             LOGTEXT: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 10
             """only text (channel & DM)"""
+            MODBUS: ModuleConfig.SerialConfig._Serial_Mode.ValueType  # 11
+            """Modbus-RTU master, polls an RS485 sensor and sends telemetry"""
 
         class Serial_Mode(_Serial_Mode, metaclass=_Serial_ModeEnumTypeWrapper):
             """
@@ -686,6 +690,8 @@ class ModuleConfig(google.protobuf.message.Message):
         """
         LOGTEXT: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 10
         """only text (channel & DM)"""
+        MODBUS: ModuleConfig.SerialConfig.Serial_Mode.ValueType  # 11
+        """Modbus-RTU master, polls an RS485 sensor and sends telemetry"""
 
         ENABLED_FIELD_NUMBER: builtins.int
         ECHO_FIELD_NUMBER: builtins.int

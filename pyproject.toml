@@ -7,7 +7,7 @@ license = "GPL-3.0-only"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9,<3.15"                                               # 3.9 is needed for pandas
+python = "^3.11,<3.16"                                               # 3.11 is the oldest non-EOL Python (3.9 EOL 2025-10, 3.10 EOL 2026-10)
 pyserial = "^3.5"
 protobuf = ">=4.21.12"
 tabulate = "^0.9.0"
@@ -23,17 +23,24 @@ print-color = { version = "^0.4.6", optional = true }
 dash = { version = "^2.17.1", optional = true }
 pytap3 = { version = ">=3.1.2", optional = true }
 dash-bootstrap-components = { version = "^1.6.0", optional = true }
-pandas = { version = "^2.2.2", optional = true }
+pandas = [
+    { version = ">=2.2.2,<3", optional = true, python = "<3.13" },
+    { version = ">=3.1.1", optional = true, python = ">=3.13" },
+]
 pandas-stubs = { version = "^2.2.2.240603", optional = true }
 wcwidth = {version = "^0.2.13", optional = true}
 
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.103.2"
 pytest = "^8.2.2"
-pytest-cov = "^5.0.0"
+# coverage >= 7.13.3 fixes a Python 3.14 sysmon-core performance regression (coveragepy #2082)
+pytest-cov = "^7.1.0"
+coverage = ">=7.13.3"
 pdoc3 = "^0.10.0"
 autopep8 = "^2.1.0"
-pylint = "^3.2.3"
+# pylint >= 4.1 handles Python 3.15's decimal fallback shim (no _decimal ext in
+# some CI interpreter builds) and the 3.14+ type-statement syntax.
+pylint = "^4.1.4"
 pyinstaller = "^6.10.0"
 mypy = "^1.10.0"
 mypy-protobuf = "^3.3.0"
@@ -53,7 +60,8 @@ ppk2-api = "^0.9.2"
 parse = "^1.20.2"
 pyarrow = [
     { version = "^18.0.0", python = "<3.14" },
-    { version = "^22.0.0", python = ">=3.14" }
+    { version = "^22.0.0", python = ">=3.14,<3.15" },
+    { version = "^26.0.0", python = ">=3.15" }
 ]
 platformdirs = "^4.2.2"
 

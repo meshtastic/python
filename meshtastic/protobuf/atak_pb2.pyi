@@ -3393,6 +3393,7 @@ class TakTalkMessage(google.protobuf.message.Message):
     CHATROOM_ID_FIELD_NUMBER: builtins.int
     LANG_FIELD_NUMBER: builtins.int
     FROM_VOICE_FIELD_NUMBER: builtins.int
+    VOICE_PROFILE_ID_FIELD_NUMBER: builtins.int
     text: builtins.str
     """
     The text body of the TAKTALK message (speech-to-text transcript when
@@ -3416,6 +3417,11 @@ class TakTalkMessage(google.protobuf.message.Message):
     originated as push-to-talk speech-to-text. Lets receivers show a mic
     icon. Proto3 only encodes when true so empty payload cost is 0 bytes.
     """
+    voice_profile_id: builtins.str
+    """
+    Voice profile to speak this message with on the receiver, matching
+    VoiceProfile.voice_profile_id. Empty = the receiver's default voice.
+    """
     def __init__(
         self,
         *,
@@ -3423,8 +3429,9 @@ class TakTalkMessage(google.protobuf.message.Message):
         chatroom_id: builtins.str = ...,
         lang: builtins.str = ...,
         from_voice: builtins.bool = ...,
+        voice_profile_id: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["chatroom_id", b"chatroom_id", "from_voice", b"from_voice", "lang", b"lang", "text", b"text"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["chatroom_id", b"chatroom_id", "from_voice", b"from_voice", "lang", b"lang", "text", b"text", "voice_profile_id", b"voice_profile_id"]) -> None: ...
 
 global___TakTalkMessage = TakTalkMessage
 
@@ -3484,6 +3491,95 @@ class TakTalkRoomData(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["participants", b"participants", "room_id", b"room_id", "room_name", b"room_name", "sender_callsign", b"sender_callsign"]) -> None: ...
 
 global___TakTalkRoomData = TakTalkRoomData
+
+@typing.final
+class VoiceProfile(google.protobuf.message.Message):
+    """
+    A synthetic speech profile, so receivers can render a sender's TAKTALK
+    messages in that sender's own voice.
+
+    Opaque model data, not audio: sent once per peer on request and cached,
+    after which only text crosses the mesh. profile_data is compact binary
+    that gains nothing from the TAK dictionary, so send it uncompressed.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    VOICE_PROFILE_ID_FIELD_NUMBER: builtins.int
+    VOICE_PROFILE_NAME_FIELD_NUMBER: builtins.int
+    PROFILE_DATA_FIELD_NUMBER: builtins.int
+    voice_profile_id: builtins.str
+    """
+    Stable identifier for this profile, matching
+    TakTalkMessage.voice_profile_id and GeoChat.voice_profile_id.
+    """
+    voice_profile_name: builtins.str
+    """
+    Friendly display name for the voice (e.g. "Alpha Lead").
+    """
+    profile_data: builtins.bytes
+    """
+    The profile itself, opaque to this schema.
+    """
+    def __init__(
+        self,
+        *,
+        voice_profile_id: builtins.str = ...,
+        voice_profile_name: builtins.str = ...,
+        profile_data: builtins.bytes = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["profile_data", b"profile_data", "voice_profile_id", b"voice_profile_id", "voice_profile_name", b"voice_profile_name"]) -> None: ...
+
+global___VoiceProfile = VoiceProfile
+
+@typing.final
+class VoiceProfileRequest(google.protobuf.message.Message):
+    """
+    Request for a peer's voice profile (CoT type y-).
+
+    Addressed with Marti; the reply is a VoiceProfile.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    VOICE_PROFILE_ID_FIELD_NUMBER: builtins.int
+    voice_profile_id: builtins.str
+    """
+    Profile wanted, matching VoiceProfile.voice_profile_id. Empty = whichever
+    profile the peer is currently using.
+    """
+    def __init__(
+        self,
+        *,
+        voice_profile_id: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["voice_profile_id", b"voice_profile_id"]) -> None: ...
+
+global___VoiceProfileRequest = VoiceProfileRequest
+
+@typing.final
+class TakTalkRoomRequest(google.protobuf.message.Message):
+    """
+    Request for a room's name and roster (CoT type y-).
+
+    Addressed with Marti; the reply is a TakTalkRoomData.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ROOM_ID_FIELD_NUMBER: builtins.int
+    room_id: builtins.str
+    """
+    Room UUID wanted, matching TakTalkRoomData.room_id.
+    """
+    def __init__(
+        self,
+        *,
+        room_id: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["room_id", b"room_id"]) -> None: ...
+
+global___TakTalkRoomRequest = TakTalkRoomRequest
 
 @typing.final
 class Marti(google.protobuf.message.Message):
@@ -3562,6 +3658,7 @@ class TAKPacketV2(google.protobuf.message.Message):
     REMARKS_FIELD_NUMBER: builtins.int
     ENVIRONMENT_FIELD_NUMBER: builtins.int
     SENSOR_FOV_FIELD_NUMBER: builtins.int
+    START_EPOCH_LO14_FIELD_NUMBER: builtins.int
     MARTI_FIELD_NUMBER: builtins.int
     CHAT_FIELD_NUMBER: builtins.int
     AIRCRAFT_FIELD_NUMBER: builtins.int
@@ -3575,6 +3672,9 @@ class TAKPacketV2(google.protobuf.message.Message):
     TASK_FIELD_NUMBER: builtins.int
     TAKTALK_FIELD_NUMBER: builtins.int
     TAKTALK_ROOM_FIELD_NUMBER: builtins.int
+    VOICE_PROFILE_FIELD_NUMBER: builtins.int
+    VOICE_PROFILE_REQUEST_FIELD_NUMBER: builtins.int
+    TAKTALK_ROOM_REQUEST_FIELD_NUMBER: builtins.int
     cot_type_id: global___CotType.ValueType
     """
     Well-known CoT event type enum.
@@ -3682,6 +3782,14 @@ class TAKPacketV2(google.protobuf.message.Message):
     when the original CoT event carried non-empty remarks text.
     GeoChat messages carry their text in GeoChat.message instead.
     Empty string (proto3 default) means no remarks were present.
+    """
+    start_epoch_lo14: builtins.int
+    """
+    Low 14 bits of the event's `start` time, as epoch seconds UTC. 14 bits rather
+    than a full timestamp, so the field costs 4 bytes on the wire instead of 7.
+    Order and deduplicates packets from a single sender. Valid only when within an
+    hour of current wall time. `optional` is deliberate. It costs essentially
+    nothing and distinguishes "sender did not populate this" from a legitimate zero.
     """
     raw_detail: builtins.bytes
     """
@@ -3795,6 +3903,26 @@ class TAKPacketV2(google.protobuf.message.Message):
         GeoChat.room_id) to display name + roster on receivers.
         """
 
+    @property
+    def voice_profile(self) -> global___VoiceProfile:
+        """
+        Sender's synthetic speech profile. See VoiceProfile.
+        """
+
+    @property
+    def voice_profile_request(self) -> global___VoiceProfileRequest:
+        """
+        Request for a peer's voice profile (CoT type y-).
+        See VoiceProfileRequest.
+        """
+
+    @property
+    def taktalk_room_request(self) -> global___TakTalkRoomRequest:
+        """
+        Request for a room's name and roster (CoT type y-).
+        See TakTalkRoomRequest.
+        """
+
     def __init__(
         self,
         *,
@@ -3824,6 +3952,7 @@ class TAKPacketV2(google.protobuf.message.Message):
         remarks: builtins.str = ...,
         environment: global___TAKEnvironment | None = ...,
         sensor_fov: global___SensorFov | None = ...,
+        start_epoch_lo14: builtins.int | None = ...,
         marti: global___Marti | None = ...,
         chat: global___GeoChat | None = ...,
         aircraft: global___AircraftTrack | None = ...,
@@ -3837,9 +3966,12 @@ class TAKPacketV2(google.protobuf.message.Message):
         task: global___TaskRequest | None = ...,
         taktalk: global___TakTalkMessage | None = ...,
         taktalk_room: global___TakTalkRoomData | None = ...,
+        voice_profile: global___VoiceProfile | None = ...,
+        voice_profile_request: global___VoiceProfileRequest | None = ...,
+        taktalk_room_request: global___TakTalkRoomRequest | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_environment", b"_environment", "_marti", b"_marti", "_sensor_fov", b"_sensor_fov", "aircraft", b"aircraft", "casevac", b"casevac", "chat", b"chat", "emergency", b"emergency", "environment", b"environment", "marker", b"marker", "marti", b"marti", "payload_variant", b"payload_variant", "rab", b"rab", "raw_detail", b"raw_detail", "route", b"route", "sensor_fov", b"sensor_fov", "shape", b"shape", "taktalk", b"taktalk", "taktalk_room", b"taktalk_room", "task", b"task"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_environment", b"_environment", "_marti", b"_marti", "_sensor_fov", b"_sensor_fov", "aircraft", b"aircraft", "alt_src", b"alt_src", "altitude", b"altitude", "battery", b"battery", "callsign", b"callsign", "casevac", b"casevac", "chat", b"chat", "cot_type_id", b"cot_type_id", "cot_type_str", b"cot_type_str", "course", b"course", "device_callsign", b"device_callsign", "emergency", b"emergency", "endpoint", b"endpoint", "environment", b"environment", "geo_src", b"geo_src", "how", b"how", "latitude_i", b"latitude_i", "longitude_i", b"longitude_i", "marker", b"marker", "marti", b"marti", "payload_variant", b"payload_variant", "phone", b"phone", "rab", b"rab", "raw_detail", b"raw_detail", "remarks", b"remarks", "role", b"role", "route", b"route", "sensor_fov", b"sensor_fov", "shape", b"shape", "speed", b"speed", "stale_seconds", b"stale_seconds", "tak_device", b"tak_device", "tak_os", b"tak_os", "tak_platform", b"tak_platform", "tak_version", b"tak_version", "taktalk", b"taktalk", "taktalk_room", b"taktalk_room", "task", b"task", "team", b"team", "uid", b"uid"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_environment", b"_environment", "_marti", b"_marti", "_sensor_fov", b"_sensor_fov", "_start_epoch_lo14", b"_start_epoch_lo14", "aircraft", b"aircraft", "casevac", b"casevac", "chat", b"chat", "emergency", b"emergency", "environment", b"environment", "marker", b"marker", "marti", b"marti", "payload_variant", b"payload_variant", "rab", b"rab", "raw_detail", b"raw_detail", "route", b"route", "sensor_fov", b"sensor_fov", "shape", b"shape", "start_epoch_lo14", b"start_epoch_lo14", "taktalk", b"taktalk", "taktalk_room", b"taktalk_room", "taktalk_room_request", b"taktalk_room_request", "task", b"task", "voice_profile", b"voice_profile", "voice_profile_request", b"voice_profile_request"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_environment", b"_environment", "_marti", b"_marti", "_sensor_fov", b"_sensor_fov", "_start_epoch_lo14", b"_start_epoch_lo14", "aircraft", b"aircraft", "alt_src", b"alt_src", "altitude", b"altitude", "battery", b"battery", "callsign", b"callsign", "casevac", b"casevac", "chat", b"chat", "cot_type_id", b"cot_type_id", "cot_type_str", b"cot_type_str", "course", b"course", "device_callsign", b"device_callsign", "emergency", b"emergency", "endpoint", b"endpoint", "environment", b"environment", "geo_src", b"geo_src", "how", b"how", "latitude_i", b"latitude_i", "longitude_i", b"longitude_i", "marker", b"marker", "marti", b"marti", "payload_variant", b"payload_variant", "phone", b"phone", "rab", b"rab", "raw_detail", b"raw_detail", "remarks", b"remarks", "role", b"role", "route", b"route", "sensor_fov", b"sensor_fov", "shape", b"shape", "speed", b"speed", "stale_seconds", b"stale_seconds", "start_epoch_lo14", b"start_epoch_lo14", "tak_device", b"tak_device", "tak_os", b"tak_os", "tak_platform", b"tak_platform", "tak_version", b"tak_version", "taktalk", b"taktalk", "taktalk_room", b"taktalk_room", "taktalk_room_request", b"taktalk_room_request", "task", b"task", "team", b"team", "uid", b"uid", "voice_profile", b"voice_profile", "voice_profile_request", b"voice_profile_request"]) -> None: ...
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_environment", b"_environment"]) -> typing.Literal["environment"] | None: ...
     @typing.overload
@@ -3847,6 +3979,8 @@ class TAKPacketV2(google.protobuf.message.Message):
     @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_sensor_fov", b"_sensor_fov"]) -> typing.Literal["sensor_fov"] | None: ...
     @typing.overload
-    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["chat", "aircraft", "raw_detail", "shape", "marker", "rab", "route", "casevac", "emergency", "task", "taktalk", "taktalk_room"] | None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_start_epoch_lo14", b"_start_epoch_lo14"]) -> typing.Literal["start_epoch_lo14"] | None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["payload_variant", b"payload_variant"]) -> typing.Literal["chat", "aircraft", "raw_detail", "shape", "marker", "rab", "route", "casevac", "emergency", "task", "taktalk", "taktalk_room", "voice_profile", "voice_profile_request", "taktalk_room_request"] | None: ...
 
 global___TAKPacketV2 = TAKPacketV2

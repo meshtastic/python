@@ -246,6 +246,34 @@ def test_main_info(capsys, caplog):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
+@pytest.mark.parametrize("connection_args,interface_class", [
+    ([], "meshtastic.serial_interface.SerialInterface"),
+    (["--host", "meshtastic.local"], "meshtastic.tcp_interface.TCPInterface"),
+])
+def test_main_info_without_internet(connection_args, interface_class, monkeypatch, capsys):
+    """Local radio information must not make an Internet request."""
+    monkeypatch.setattr(sys, "argv", ["", "--info", *connection_args])
+    iface = MagicMock()
+    iface.showInfo.side_effect = lambda: print("Radio information")
+    iface.getNode.return_value.showInfo.side_effect = lambda: print("Node configuration")
+
+    with patch(interface_class, return_value=iface), patch(
+        "meshtastic.util.requests.get"
+    ) as request:
+        main()
+
+    request.assert_not_called()
+    iface.showInfo.assert_called_once_with()
+    iface.getNode.return_value.showInfo.assert_called_once_with()
+    iface.close.assert_called()
+    out, err = capsys.readouterr()
+    assert "Radio information" in out
+    assert "Node configuration" in out
+    assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
 @patch("os.getlogin")
 def test_main_info_with_permission_error(patched_getlogin, capsys, caplog):
     """Test --info"""
@@ -1745,6 +1773,51 @@ def test_main_ch_longfast_on_non_primary_channel(capsys):
 #            assert re.search(r"wifiSsid: foo", out, re.MULTILINE)
 #            assert re.search(r"fixedPosition: False", out, re.MULTILINE)
 #            assert err == ""
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_get_reports_completion_after_closing():
+    """A one-shot get must finish shutting down before reporting success."""
+    sys.argv = ["", "--get", "lora"]
+    mt_config.args = sys.argv
+
+    events = []
+    iface = MagicMock(autospec=SerialInterface)
+    iface.close.side_effect = lambda: events.append("close")
+
+    def record_print(*values, **_kwargs):
+        events.append(" ".join(str(value) for value in values))
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with patch("meshtastic.__main__.getPref", return_value=True):
+            with patch("builtins.print", side_effect=record_print):
+                main()
+
+    assert events.count("Completed getting preferences") == 1
+    assert events.index("close") < events.index("Completed getting preferences")
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+@pytest.mark.parametrize("keep_open_args", [["--listen"], ["--seriallog", "stdout"]])
+def test_main_get_does_not_report_completion_while_connection_stays_open(
+    capsys, keep_open_args
+):
+    """A get must not report post-cleanup success when cleanup is skipped."""
+    sys.argv = ["", "--get", "lora", *keep_open_args]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with patch("meshtastic.__main__.getPref", return_value=True):
+            with patch("meshtastic.__main__.time.sleep", side_effect=KeyboardInterrupt):
+                main()
+
+    out, _err = capsys.readouterr()
+    iface.close.assert_not_called()
+    assert "Completed getting preferences" not in out
 
 
 @pytest.mark.unit
@@ -3839,3 +3912,47 @@ def test_main_setPref_bitfield_invalid_name(capsys):
     assert "Unknown flag 'TCP'" in out
     assert "NO_BROADCAST" in out
     assert "UDP_BROADCAST" in out
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+@pytest.mark.parametrize(
+    "interface_type,attributes,expected",
+    [
+        (SerialInterface, {"devPath": "/dev/ttyUSB0"},
+         "Connected to radio via serial /dev/ttyUSB0"),
+        (TCPInterface, {"hostname": "meshtastic.local", "portNumber": 4403},
+         "Connected to radio via TCP meshtastic.local:4403"),
+        (TCPInterface, {"hostname": "localhost", "portNumber": 4404},
+         "Connected to radio via TCP localhost:4404"),
+        (mt_main.BLEInterface, {"client": SimpleNamespace(address="AA:BB:CC:DD:EE:FF")},
+         "Connected to radio via BLE AA:BB:CC:DD:EE:FF"),
+        (mt_main.BLEInterface, {"client": None}, "Connected to radio via BLE"),
+        (MeshInterface, {}, "Connected to radio"),
+    ],
+)
+def test_on_connected_transport(interface_type, attributes, expected, monkeypatch, capsys):
+    """Report the connected interface, including discovered or fallback endpoints."""
+    monkeypatch.setattr(sys, "argv", [""])
+    initParser()
+    iface = MagicMock(spec=interface_type)
+    for name, value in attributes.items():
+        setattr(iface, name, value)
+
+    mt_main.onConnected(iface)
+
+    assert capsys.readouterr().out == expected + "\n"
+
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_on_connected_transport_export_config(monkeypatch, capsys):
+    """Keep connection status out of exported configuration."""
+    monkeypatch.setattr(sys, "argv", ["", "--export-config"])
+    initParser()
+    iface = MagicMock(spec=TCPInterface)
+    iface.hostname = "meshtastic.local"
+    iface.portNumber = 4403
+    with patch("meshtastic.__main__.export_config", return_value="config: exported"):
+        mt_main.onConnected(iface)
+    assert "Connected to radio" not in capsys.readouterr().out

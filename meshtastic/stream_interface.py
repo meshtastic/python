@@ -161,7 +161,7 @@ class StreamInterface(MeshInterface):
         utf = "?"  # assume we might fail
         try:
             utf = b.decode("utf-8")
-        except:
+        except UnicodeDecodeError:
             pass
 
         if utf == "\r":

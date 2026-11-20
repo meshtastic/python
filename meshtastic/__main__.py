@@ -47,6 +47,8 @@ import meshtastic.tcp_interface
 from meshtastic import BROADCAST_ADDR, mt_config, remote_hardware
 from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_interface import MeshInterface
+from meshtastic.serial_interface import SerialInterface
+from meshtastic.tcp_interface import TCPInterface
 try:
     from meshtastic.powermon import (
         PowerMeter,
@@ -336,7 +338,16 @@ def onConnected(interface):
 
         # do not print this line if we are exporting the config
         if not args.export_config:
-            print("Connected to radio")
+            connection = "Connected to radio"
+            if isinstance(interface, SerialInterface):
+                connection += f" via serial {interface.devPath}"
+            elif isinstance(interface, TCPInterface):
+                connection += f" via TCP {interface.hostname}:{interface.portNumber}"
+            elif isinstance(interface, BLEInterface):
+                connection += " via BLE"
+                if interface.client is not None:
+                    connection += f" {interface.client.address}"
+            print(connection)
 
         if args.set_time is not None:
             interface.getNode(args.dest, False, **getNode_kwargs).setTime(args.set_time)
@@ -1081,18 +1092,13 @@ def onConnected(interface):
                 interface.getNode(args.dest, **getNode_kwargs).showInfo()
                 closeNow = True
                 print("")
-                pypi_version = meshtastic.util.check_if_newer_version()
-                if pypi_version:
-                    print(
-                        f"*** A newer version v{pypi_version} is available!"
-                        ' Consider running "pip install --upgrade meshtastic" ***\n'
-                    )
             else:
                 print("Showing info of remote node is not supported.")
                 print(
                     "Use the '--get' command for a specific configuration (e.g. 'lora') instead."
                 )
 
+        completed_get = False
         if args.get:
             closeNow = True
             node = interface.getNode(args.dest, False, **getNode_kwargs)
@@ -1100,7 +1106,7 @@ def onConnected(interface):
                 found = getPref(node, pref[0])
 
             if found:
-                print("Completed getting preferences")
+                completed_get = True
 
         if args.nodes:
             closeNow = True
@@ -1193,12 +1199,17 @@ def onConnected(interface):
             time.sleep(int(args.wait_to_disconnect))
 
         # if the user didn't ask for serial debugging output, we might want to exit after we've done our operation
+        did_close_interface = False
         if (not args.seriallog) and closeNow:
             interface.close()  # after running command then exit
+            did_close_interface = True
 
         # Close any structured logs after we've done all of our API operations
         if log_set:
             log_set.close()
+
+        if completed_get and did_close_interface:
+            print("Completed getting preferences")
 
     except Exception as ex:
         print(f"Aborting due to: {ex}")
@@ -2454,7 +2465,7 @@ def initParser():
 
     group.add_argument(
         "--timeout",
-        help="How long to wait for replies. Default %(default)ss.",
+        help="Internal timeout for operations like traceroutes that require responses. Default %(default)ss.",
         default=300,
         type=int,
         metavar="SECONDS",
