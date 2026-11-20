@@ -49,6 +49,8 @@ from meshtastic.util import (
 
 logger = logging.getLogger(__name__)
 
+WANT_CONFIG_RETRY_SECS = 3.0
+
 def _timeago(delta_secs: int) -> str:
     """Convert a number of seconds in the past into a short, friendly string
     e.g. "now", "30 sec ago",  "1 hour ago"
@@ -1130,12 +1132,23 @@ class MeshInterface:  # pylint: disable=R0902
 
     def _waitConnected(self, timeout=30.0):
         """Block until the initial node db download is complete, or timeout
-        and raise an exception"""
+        and raise an exception
+
+        A radio that is restarting when we connect can drop our want_config, and
+        then never sends its config. While nothing of the config has arrived,
+        ask again every WANT_CONFIG_RETRY_SECS."""
         if not self.noProto:
-            if not self.isConnected.wait(timeout):  # timeout after x seconds
-                raise MeshInterface.MeshInterfaceError(
-                    "Timed out waiting for connection completion"
-                )
+            deadline = time.monotonic() + timeout
+            while not self.isConnected.wait(
+                max(0.0, min(WANT_CONFIG_RETRY_SECS, deadline - time.monotonic()))
+            ):
+                if time.monotonic() >= deadline:
+                    raise MeshInterface.MeshInterfaceError(
+                        "Timed out waiting for connection completion"
+                    )
+                if self.myInfo is None:
+                    logger.info("No reply to want_config, sending it again")
+                    self._startConfig()
 
         # If we failed while connecting, raise the connection to the client
         if self.failure:

@@ -742,6 +742,38 @@ def test_waitConnected_isConnected_timeout(capsys):
 
 
 @pytest.mark.unit
+def test_waitConnected_resends_want_config_until_the_radio_answers():
+    """A want_config a restarting radio dropped is sent again"""
+    iface = MeshInterface()
+    sent = []
+
+    def answer_second_request():
+        sent.append(1)
+        if len(sent) == 2:
+            iface.myInfo = mesh_pb2.MyNodeInfo(my_node_num=1)
+            iface.isConnected.set()
+
+    with patch("meshtastic.mesh_interface.WANT_CONFIG_RETRY_SECS", 0.01), patch.object(
+        iface, "_startConfig", side_effect=answer_second_request
+    ):
+        iface._waitConnected(5)
+    assert len(sent) == 2
+
+
+@pytest.mark.unit
+def test_waitConnected_does_not_restart_a_config_download_under_way():
+    """Once the radio has started answering, a slow download is left alone"""
+    iface = MeshInterface()
+    iface.myInfo = mesh_pb2.MyNodeInfo(my_node_num=1)
+    with patch("meshtastic.mesh_interface.WANT_CONFIG_RETRY_SECS", 0.01), patch.object(
+        iface, "_startConfig"
+    ) as start:
+        with pytest.raises(MeshInterface.MeshInterfaceError):
+            iface._waitConnected(0.05)
+    start.assert_not_called()
+
+
+@pytest.mark.unit
 def test_timeago():
     """Test that the _timeago function returns sane values"""
     assert _timeago(0) == "now"
