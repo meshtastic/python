@@ -3683,16 +3683,15 @@ files = [
 cp2110 = ["hidapi"]
 
 [[package]]
-name = "pytap2"
-version = "2.3.0"
-description = "Object-oriented wrapper around the Linux Tun/Tap device"
+name = "pytap3"
+version = "3.1.2"
+description = "Cross-platform tunnel interface for Python"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
 markers = "extra == \"tunnel\""
 files = [
-    {file = "pytap2-2.3.0-py3-none-any.whl", hash = "sha256:a1edc287cf25c61f8fa8415fb6b61e50ac119ef5cd758ce15f2105d2c69f24ef"},
-    {file = "pytap2-2.3.0.tar.gz", hash = "sha256:5a90d7b7c7107a438e53c7b27c1baadffe72889ada6024c02d19801fece2c383"},
+    {file = "pytap3-3.1.2.tar.gz", hash = "sha256:c260e3d00e6af57b1486e01ec45e5bb26299a827c8803a92b1acc4ef2201efe4"},
 ]
 
 [[package]]
@@ -5021,7 +5020,7 @@ type = ["pytest-mypy"]
 [extras]
 analysis = ["dash", "dash-bootstrap-components", "pandas", "pandas", "pandas-stubs"]
 cli = ["argcomplete", "dotmap", "print-color", "pyqrcode", "wcwidth"]
-tunnel = ["pytap2"]
+tunnel = ["pytap3"]
 
 [metadata]
 lock-version = "2.1"

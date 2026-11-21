@@ -1,6 +1,6 @@
 # delete me eventually
 # Note python-pytuntap was too buggy
-# using pip3 install pytap2
+# using pip3 install pytap3
 # make sure to "sudo setcap cap_net_admin+eip /usr/bin/python3.8" so python can access tun device without being root
 # sudo ip tuntap del mode tun tun0
 
@@ -11,7 +11,7 @@
 import logging
 from _thread import start_new_thread
 
-from pytap2 import TapDevice
+from pytap3 import TapDevice
 
 """A list of chatty UDP services we should never accidentally
 forward to our slow network"""
