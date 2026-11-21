@@ -2040,3 +2040,84 @@ def test_requested_config_nak(capsys):
     node.onResponseRequestSettings({"decoded": {"routing": {"errorReason": "NOT_AUTHORIZED"}}})
     assert capsys.readouterr().out == "Error on response: NOT_AUTHORIZED\n"
     assert iface._acknowledgment.receivedNak is True
+
+
+def _ui_config_response(**fields):
+    """Build a fake get_ui_config_response packet as the mesh interface delivers it"""
+    resp = admin_pb2.AdminMessage()
+    for k, v in fields.items():
+        setattr(resp.get_ui_config_response, k, v)
+    return {"decoded": {"admin": {"raw": resp}}}
+
+
+@pytest.mark.unit
+def test_getUIConfig():
+    """Test getUIConfig returns the config from the response"""
+    iface = MagicMock(autospec=SerialInterface)
+    node = Node(iface, 12345678, timeout=1)
+
+    def answer(p, *args, **kwargs):  # pylint: disable=unused-argument
+        assert p.get_ui_config_request is True
+        assert kwargs["wantResponse"] is True
+        kwargs["onResponse"](_ui_config_response(screen_brightness=153, settings_lock=True))
+
+    iface.sendData.side_effect = answer
+    cfg = node.getUIConfig()
+    assert cfg.screen_brightness == 153
+    assert cfg.settings_lock is True
+
+
+@pytest.mark.unit
+def test_getUIConfig_timeout():
+    """Test getUIConfig returns None when the node does not answer"""
+    iface = MagicMock(autospec=SerialInterface)
+    node = Node(iface, 12345678, timeout=1)
+    assert node.getUIConfig() is None
+
+
+@pytest.mark.unit
+def test_getUIConfig_routing_error(capsys):
+    """Test getUIConfig returns None and stops waiting on a routing error"""
+    iface = MagicMock(autospec=SerialInterface)
+    node = Node(iface, 12345678, timeout=30)
+    iface.sendData.side_effect = lambda p, *a, **kw: kw["onResponse"](
+        {"decoded": {"routing": {"errorReason": "NO_RESPONSE"}}}
+    )
+    assert node.getUIConfig() is None
+    out, _ = capsys.readouterr()
+    assert "Error on response: NO_RESPONSE" in out
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("locked", [True, False])
+def test_setSettingsLock_keeps_other_fields(locked):
+    """Test setSettingsLock only changes settings_lock and stores the rest unchanged"""
+    iface = MagicMock(autospec=SerialInterface)
+    node = Node(iface, 12345678, timeout=1)
+    sent = []
+
+    def answer(p, *args, **kwargs):  # pylint: disable=unused-argument
+        sent.append(p)
+        if p.HasField("get_ui_config_request"):
+            kwargs["onResponse"](
+                _ui_config_response(screen_brightness=153, screen_timeout=30, settings_lock=not locked)
+            )
+
+    iface.sendData.side_effect = answer
+    node.setSettingsLock(locked)
+
+    assert len(sent) == 2
+    stored = sent[1].store_ui_config
+    assert stored.settings_lock is locked
+    assert stored.screen_brightness == 153
+    assert stored.screen_timeout == 30
+
+
+@pytest.mark.unit
+def test_setSettingsLock_no_answer():
+    """Test setSettingsLock does not store anything if the UI config can't be read"""
+    iface = MagicMock(autospec=SerialInterface)
+    node = Node(iface, 12345678, timeout=1)
+    with pytest.raises(SystemExit):
+        node.setSettingsLock(True)
+    assert iface.sendData.call_count == 1
