@@ -763,6 +763,23 @@ def test_main_get_settings_lock(capsys):
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")
+def test_main_get_settings_lock_no_answer(capsys):
+    """Test --get-settings-lock exits with an error when the UI config can't be read"""
+    sys.argv = ["", "--get-settings-lock"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value.getUIConfig.return_value = None
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.value.code == 1
+        out, _ = capsys.readouterr()
+        assert re.search(r"ERROR: Could not read the UI config", out, re.MULTILINE)
+        assert not re.search(r"settings_lock:", out, re.MULTILINE)
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
 def test_main_set_ham_to_KI123(capsys):
     """Test --set-ham KI123"""
     sys.argv = ["", "--set-ham", "KI123"]

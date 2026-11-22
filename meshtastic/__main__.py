@@ -1114,9 +1114,8 @@ def onConnected(interface):
             print("")
             uiConfig = interface.getNode(args.dest, False, **getNode_kwargs).getUIConfig()
             if uiConfig is None:
-                print("Could not read the UI config")
-            else:
-                print(f"settings_lock:{uiConfig.settings_lock}")
+                meshtastic.util.our_exit("ERROR: Could not read the UI config")
+            print(f"settings_lock:{uiConfig.settings_lock}")
 
         if args.info:
             print("")

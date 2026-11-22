@@ -5,6 +5,7 @@ import base64
 import logging
 import time
 
+from types import SimpleNamespace
 from typing import Optional, Union, List
 
 from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, config_pb2, device_ui_pb2, localonly_pb2, mesh_pb2, portnums_pb2
@@ -44,9 +45,8 @@ class Node:
         self.cannedPluginMessageMessages = None
         self.ringtone = None
         self.ringtonePart = None
-        self.uiConfig: Optional[device_ui_pb2.DeviceUIConfig] = None
 
-        self.gotResponse: Optional[bool] = None
+        self.gotResponse = None
 
     def __repr__(self):
         r = f"Node({self.iface!r}, 0x{self.nodeNum:08x}"
@@ -964,32 +964,35 @@ class Node:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
 
-    def onResponseRequestUIConfig(self, p):
-        """Handle the response packet for a get_ui_config_request"""
-        logger.debug(f"onResponseRequestUIConfig() p:{p}")
-        decoded = p.get("decoded", {})
-        if "routing" in decoded:
-            if decoded["routing"]["errorReason"] != "NONE":
-                print(f'Error on response: {decoded["routing"]["errorReason"]}')
-                self.gotResponse = True
-            return
-        raw = decoded.get("admin", {}).get("raw")
-        if raw is not None and raw.HasField("get_ui_config_response"):
-            self.uiConfig = device_ui_pb2.DeviceUIConfig()
-            self.uiConfig.CopyFrom(raw.get_ui_config_response)
-            self.gotResponse = True
-
     def getUIConfig(self) -> Optional[device_ui_pb2.DeviceUIConfig]:
         """Request the node's DeviceUIConfig. Returns None if there was no valid answer in time."""
         self.ensureSessionKey()
         p = admin_pb2.AdminMessage()
         p.get_ui_config_request = True
-        self.uiConfig = None
-        self.gotResponse = False
-        self._sendAdmin(p, wantResponse=True, onResponse=self.onResponseRequestUIConfig)
-        if not self._timeout.waitForSet(self, attrs=("gotResponse",)):
+
+        # Completion state belongs to this request only, so a late answer to an earlier,
+        # timed-out request can't complete this one.
+        request = SimpleNamespace(done=False, uiConfig=None)
+
+        def onResponse(packet):
+            logger.debug(f"getUIConfig onResponse() p:{packet}")
+            decoded = packet.get("decoded", {})
+            if "routing" in decoded:
+                if decoded["routing"]["errorReason"] != "NONE":
+                    print(f'Error on response: {decoded["routing"]["errorReason"]}')
+                    request.done = True
+                return
+            raw = decoded.get("admin", {}).get("raw")
+            if raw is not None and raw.HasField("get_ui_config_response"):
+                uiConfig = device_ui_pb2.DeviceUIConfig()
+                uiConfig.CopyFrom(raw.get_ui_config_response)
+                request.uiConfig = uiConfig
+                request.done = True
+
+        self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
+        if not self._timeout.waitForSet(request, attrs=("done",)):
             logger.warning("Timed out waiting for the UI config")
-        return self.uiConfig
+        return request.uiConfig
 
     def setUIConfig(self, uiConfig: device_ui_pb2.DeviceUIConfig):
         """Store a complete DeviceUIConfig on the node, replacing the one it has."""

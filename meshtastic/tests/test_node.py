@@ -2121,3 +2121,21 @@ def test_setSettingsLock_no_answer():
     with pytest.raises(SystemExit):
         node.setSettingsLock(True)
     assert iface.sendData.call_count == 1
+
+
+@pytest.mark.unit
+def test_getUIConfig_ignores_late_answer_to_earlier_request():
+    """Test a late answer to a timed-out getUIConfig doesn't complete a later one"""
+    iface = MagicMock(autospec=SerialInterface)
+    node = Node(iface, 12345678, timeout=1)
+    callbacks = []
+
+    def answer(p, *args, **kwargs):  # pylint: disable=unused-argument
+        callbacks.append(kwargs["onResponse"])
+        if len(callbacks) == 2:
+            # only the first request's answer arrives, late, while the second request waits
+            callbacks[0](_ui_config_response(screen_brightness=153))
+
+    iface.sendData.side_effect = answer
+    assert node.getUIConfig() is None
+    assert node.getUIConfig() is None
