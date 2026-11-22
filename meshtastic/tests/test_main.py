@@ -29,6 +29,7 @@ from meshtastic.__main__ import (
 )
 from meshtastic import mt_config
 
+from ..protobuf import device_ui_pb2
 from ..protobuf.channel_pb2 import Channel # pylint: disable=E0611
 from ..protobuf.config_pb2 import Config # pylint: disable=E0611
 from ..protobuf.clientonly_pb2 import DeviceProfile # pylint: disable=E0611
@@ -709,6 +710,73 @@ def test_main_get_ringtone(capsys, caplog, iface_with_nodes):
             assert re.search(r"ringtone:foo,bar", out, re.MULTILINE)
             assert err == ""
             mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+@pytest.mark.parametrize("value,expected", [("true", True), ("false", False)])
+def test_main_set_settings_lock(capsys, value, expected):
+    """Test --set-settings-lock"""
+    sys.argv = ["", "--set-settings-lock", value]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"Connected to radio", out, re.MULTILINE)
+        assert re.search(rf"Setting settings_lock to {expected}", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+        iface.getNode.return_value.setSettingsLock.assert_called_once_with(expected)
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_set_settings_lock_invalid(capsys):
+    """Test --set-settings-lock with a value that isn't a boolean"""
+    sys.argv = ["", "--set-settings-lock", "maybe"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.value.code == 1
+        out, _ = capsys.readouterr()
+        assert re.search(r"--set-settings-lock takes true or false", out, re.MULTILINE)
+        iface.getNode.return_value.setSettingsLock.assert_not_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_get_settings_lock(capsys):
+    """Test --get-settings-lock"""
+    sys.argv = ["", "--get-settings-lock"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value.getUIConfig.return_value = device_ui_pb2.DeviceUIConfig(settings_lock=True)
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface) as mo:
+        main()
+        out, err = capsys.readouterr()
+        assert re.search(r"settings_lock:True", out, re.MULTILINE)
+        assert err == ""
+        mo.assert_called()
+
+@pytest.mark.unit
+@pytest.mark.usefixtures("reset_mt_config")
+def test_main_get_settings_lock_no_answer(capsys):
+    """Test --get-settings-lock exits with an error when the UI config can't be read"""
+    sys.argv = ["", "--get-settings-lock"]
+    mt_config.args = sys.argv
+
+    iface = MagicMock(autospec=SerialInterface)
+    iface.getNode.return_value.getUIConfig.return_value = None
+    with patch("meshtastic.serial_interface.SerialInterface", return_value=iface):
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            main()
+        assert pytest_wrapped_e.value.code == 1
+        out, _ = capsys.readouterr()
+        assert re.search(r"ERROR: Could not read the UI config", out, re.MULTILINE)
+        assert not re.search(r"settings_lock:", out, re.MULTILINE)
 
 @pytest.mark.unit
 @pytest.mark.usefixtures("reset_mt_config")

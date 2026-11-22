@@ -459,6 +459,15 @@ def onConnected(interface):
             else:
                 print("External Notification is excluded by firmware; skipping ringtone set.")
 
+        if args.set_settings_lock is not None:
+            closeNow = True
+            waitForAckNak = True
+            locked = meshtastic.util.fromStr(args.set_settings_lock)
+            if not isinstance(locked, bool):
+                meshtastic.util.our_exit("ERROR: --set-settings-lock takes true or false")
+            print(f"Setting settings_lock to {locked}")
+            interface.getNode(args.dest, False, **getNode_kwargs).setSettingsLock(locked)
+
         if args.pos_fields:
             # If --pos-fields invoked with args, set position fields
             closeNow = True
@@ -1099,6 +1108,14 @@ def onConnected(interface):
             print("")
             ringtone = interface.getNode(args.dest, **getNode_kwargs).get_ringtone()
             print(f"ringtone:{ringtone}")
+
+        if args.get_settings_lock:
+            closeNow = True
+            print("")
+            uiConfig = interface.getNode(args.dest, False, **getNode_kwargs).getUIConfig()
+            if uiConfig is None:
+                meshtastic.util.our_exit("ERROR: Could not read the UI config")
+            print(f"settings_lock:{uiConfig.settings_lock}")
 
         if args.info:
             print("")
@@ -2013,6 +2030,21 @@ def addConfigArgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         help="Set the Notification Ringtone (up to 230 characters).",
         action="store",
         metavar="RINGTONE",
+    )
+
+    group.add_argument(
+        "--get-settings-lock",
+        help="Show whether changing settings from the device's own screen menus is locked",
+        action="store_true",
+    )
+
+    group.add_argument(
+        "--set-settings-lock",
+        help="Lock (true) or unlock (false) changing settings from the device's own screen menus. "
+        "Other UI settings are kept. Takes effect without a reboot only on firmware that applies "
+        "store_ui_config immediately.",
+        metavar="true|false",
+        action="store",
     )
 
     group.add_argument(

@@ -5,9 +5,10 @@ import base64
 import logging
 import time
 
+from types import SimpleNamespace
 from typing import Optional, Union, List
 
-from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, config_pb2, localonly_pb2, mesh_pb2, portnums_pb2
+from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, config_pb2, device_ui_pb2, localonly_pb2, mesh_pb2, portnums_pb2
 from meshtastic.util import (
     Timeout,
     camel_to_snake,
@@ -962,6 +963,58 @@ class Node:
         else:
             onResponse = self.onAckNak
         return self._sendAdmin(p, onResponse=onResponse)
+
+    def getUIConfig(self) -> Optional[device_ui_pb2.DeviceUIConfig]:
+        """Request the node's DeviceUIConfig. Returns None if there was no valid answer in time."""
+        self.ensureSessionKey()
+        p = admin_pb2.AdminMessage()
+        p.get_ui_config_request = True
+
+        # Completion state belongs to this request only, so a late answer to an earlier,
+        # timed-out request can't complete this one.
+        request = SimpleNamespace(done=False, uiConfig=None)
+
+        def onResponse(packet):
+            logger.debug(f"getUIConfig onResponse() p:{packet}")
+            decoded = packet.get("decoded", {})
+            if "routing" in decoded:
+                if decoded["routing"]["errorReason"] != "NONE":
+                    print(f'Error on response: {decoded["routing"]["errorReason"]}')
+                    request.done = True
+                return
+            raw = decoded.get("admin", {}).get("raw")
+            if raw is not None and raw.HasField("get_ui_config_response"):
+                uiConfig = device_ui_pb2.DeviceUIConfig()
+                uiConfig.CopyFrom(raw.get_ui_config_response)
+                request.uiConfig = uiConfig
+                request.done = True
+
+        self._sendAdmin(p, wantResponse=True, onResponse=onResponse)
+        if not self._timeout.waitForSet(request, attrs=("done",)):
+            logger.warning("Timed out waiting for the UI config")
+        return request.uiConfig
+
+    def setUIConfig(self, uiConfig: device_ui_pb2.DeviceUIConfig):
+        """Store a complete DeviceUIConfig on the node, replacing the one it has."""
+        self.ensureSessionKey()
+        p = admin_pb2.AdminMessage()
+        p.store_ui_config.CopyFrom(uiConfig)
+
+        if self == self.iface.localNode:
+            onResponse = None
+        else:
+            onResponse = self.onAckNak
+        return self._sendAdmin(p, onResponse=onResponse)
+
+    def setSettingsLock(self, locked: bool):
+        """Lock or unlock changing settings from the device's own screen menus (DeviceUIConfig.settings_lock).
+
+        Reads the current UI config first, so that the other UI settings are kept."""
+        uiConfig = self.getUIConfig()
+        if uiConfig is None:
+            our_exit("Warning: Could not read the UI config, settings lock not changed.")
+        uiConfig.settings_lock = locked
+        return self.setUIConfig(uiConfig)
 
     def _fixupChannels(self):
         """Fixup indexes and add disabled channels as needed"""
