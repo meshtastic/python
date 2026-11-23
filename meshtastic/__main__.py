@@ -1648,6 +1648,9 @@ def common():
         if not args.dest:
             args.dest = BROADCAST_ADDR
 
+        if args.capture_logs:
+            args.noproto = True
+
         if not args.seriallog:
             if args.noproto:
                 args.seriallog = "stdout"
@@ -1840,8 +1843,12 @@ def common():
                 or args.listen
             ):  # loop until someone presses ctrlc
                 try:
-                    while True:
-                        time.sleep(1000)
+                    if args.capture_logs:
+                        time.sleep(args.capture_logs)
+                        logger.info("Log capture finished")
+                    else:
+                        while True:
+                            time.sleep(1000)
                 except KeyboardInterrupt:
                     logger.info("Exiting due to keyboard interrupt")
 
@@ -2538,6 +2545,13 @@ def initParser():
         "--noproto",
         help="Don't start the API, just function as a dumb serial terminal.",
         action="store_true",
+    )
+
+    group.add_argument(
+        "--capture-logs",
+        help="Capture serial logs for the given number of seconds.",
+        type=int,
+        metavar="SECONDS",
     )
 
     group.add_argument(
