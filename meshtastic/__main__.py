@@ -1648,7 +1648,9 @@ def common():
         if not args.dest:
             args.dest = BROADCAST_ADDR
 
-        if args.capture_logs:
+        if args.capture_logs is not None:
+            if args.capture_logs <= 0:
+                meshtastic.util.our_exit("Error: --capture-logs must be a positive number of seconds")
             args.noproto = True
 
         if not args.seriallog:
