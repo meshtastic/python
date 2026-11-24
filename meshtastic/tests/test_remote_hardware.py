@@ -31,6 +31,18 @@ def test_onGPIOreceive(capsys):
 
 
 @pytest.mark.unit
+def test_onGPIOreceive_hex_format(capsys):
+    """Test onGPIOreceive prints mask and masked value in hex, like the write output"""
+    iface = MagicMock(autospec=SerialInterface)
+    iface.mask = 0x1000
+    packet = {"decoded": {"remotehw": {"type": "READ_GPIOS_REPLY", "gpioValue": "12288"}}}
+    onGPIOreceive(packet, iface)
+    out, err = capsys.readouterr()
+    assert out == "Received RemoteHardware type=READ_GPIOS_REPLY, mask=0x1000 value=0x1000\n"
+    assert err == ""
+
+
+@pytest.mark.unit
 def test_RemoteHardwareClient_no_gpio_channel(capsys):
     """Test that we can instantiate a RemoteHardwareClient instance but there is no channel named channel 'gpio'"""
     iface = MagicMock(autospec=SerialInterface)
