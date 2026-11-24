@@ -23,11 +23,10 @@ def onGPIOreceive(packet, interface) -> None:
             # so, we set it here
             gpioValue = 0
 
-    # print(f'mask:{interface.mask}')
-    value = int(gpioValue) & int(interface.mask)
-    print(
-        f'Received RemoteHardware type={hw["type"]}, gpio_value={gpioValue} value={value}'
-    )
+    mask = int(interface.mask)
+    value = int(gpioValue) & mask
+    # Use the same hex notation as the "Writing GPIO mask ..." output
+    print(f'Received RemoteHardware type={hw["type"]}, mask=0x{mask:x} value=0x{value:x}')
     interface.gotResponse = True
 
 
