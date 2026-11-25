@@ -194,7 +194,7 @@ The CLI is in `meshtastic/__main__.py`. When adding new CLI commands:
 
 ### Optional (extras)
 - `cli` extra: `pyqrcode`, `print-color`, `dotmap`, `argcomplete`
-- `tunnel` extra: `pytap2`
+- `tunnel` extra: `pytap3`
 - `analysis` extra: `dash`, `pandas`
 
 ## Important Notes
