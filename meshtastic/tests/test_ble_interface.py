@@ -201,3 +201,45 @@ def test_ble_client_disconnect_does_not_wait_for_a_hung_operation() -> None:
     finally:
         client.close()
     client.bleak_client.disconnect.assert_awaited_once()
+
+
+@pytest.mark.unit
+def test_ble_close_reaches_disconnect_while_an_operation_hangs() -> None:
+    """With another GATT operation stuck holding the lock, close() must still get to the transport
+    disconnect: the disconnect message write gives up after CLOSE_WRITE_TIMEOUT instead of waiting."""
+    iface = object.__new__(BLEInterface)
+    iface._closing = False
+    iface._want_receive = False
+    iface._receiveThread = None
+    iface._exit_handler = None
+    client = BLEClient()
+    client.bleak_client = MagicMock()
+    client.bleak_client.write_gatt_char = AsyncMock()
+    client.bleak_client.disconnect = AsyncMock()
+    iface.client = client
+    iface.heartbeatTimer = None
+    done = threading.Event()
+    sent = []
+
+    def send_disconnect(self) -> None:
+        sent.append(True)
+        self._sendToRadioImpl(MagicMock(SerializeToString=lambda: b"\x01"))
+
+    def close() -> None:
+        iface.close()
+        done.set()
+
+    try:
+        with patch("meshtastic.ble_interface.CLOSE_WRITE_TIMEOUT", 0.2), \
+             patch.object(iface, "_disconnected"), \
+             patch.object(client, "close"), \
+             patch("meshtastic.mesh_interface.MeshInterface._sendDisconnect", send_disconnect):
+            with client._gatt_lock:  # an operation in flight that never completes
+                threading.Thread(target=close, daemon=True).start()
+                assert done.wait(timeout=5), "close() waited for the in-flight operation"
+    finally:
+        BLEClient.close(client)
+    assert sent, "the disconnect message was never attempted"
+    client.bleak_client.disconnect.assert_awaited_once()
+    client.bleak_client.write_gatt_char.assert_not_awaited()
+    assert iface.client is None

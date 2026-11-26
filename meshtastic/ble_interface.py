@@ -2,7 +2,6 @@
 """
 import asyncio
 import atexit
-import contextlib
 import logging
 import struct
 import sys
@@ -25,6 +24,8 @@ FROMRADIO_UUID = "2c55e69e-4993-11ed-b878-0242ac120002"
 FROMNUM_UUID = "ed9da18c-a800-4f66-a670-aa7547e34453"
 LEGACY_LOGRADIO_UUID = "6c6fd238-78fa-436b-aacf-15c5be1ef2e2"
 LOGRADIO_UUID = "5a3d6e49-06e6-4423-9944-e9de8cdf9547"
+# Seconds close() gives the disconnect message (lock wait plus write), matching the receive-thread join below.
+CLOSE_WRITE_TIMEOUT = 2.0
 logger = logging.getLogger(__name__)
 
 
@@ -242,8 +243,10 @@ class BLEInterface(MeshInterface):
         if b and self.client:  # we silently ignore writes while we are shutting down
             logger.debug(f"TORADIO write: {b.hex()}")
             try:
+                # While closing, bound the disconnect message: if another GATT operation never completes, its lock
+                # would otherwise hold close() here, before the transport disconnect that ends that operation.
                 self.client.write_gatt_char(
-                    TORADIO_UUID, b, response=True
+                    TORADIO_UUID, b, response=True, timeout=CLOSE_WRITE_TIMEOUT if self._closing else None
                 )  # FIXME: or False?
                 # search Bleak src for org.bluez.Error.InProgress
             except Exception as e:
@@ -325,8 +328,8 @@ class BLEClient:
     def read_gatt_char(self, *args, **kwargs):  # pylint: disable=C0116
         return self.async_await(self.bleak_client.read_gatt_char(*args, **kwargs))
 
-    def write_gatt_char(self, *args, **kwargs):  # pylint: disable=C0116
-        self.async_await(self.bleak_client.write_gatt_char(*args, **kwargs))
+    def write_gatt_char(self, *args, timeout: Optional[float] = None, **kwargs):  # pylint: disable=C0116
+        self.async_await(self.bleak_client.write_gatt_char(*args, **kwargs), timeout=timeout)
 
     def has_characteristic(self, specifier):
         """Check if the connected node supports a specified characteristic."""
@@ -345,15 +348,21 @@ class BLEClient:
     def __exit__(self, _type, _value, _traceback):
         self.close()
 
-    def async_await(self, coro, timeout=None, serialize: bool = True):  # pylint: disable=C0116
+    def async_await(self, coro, timeout: Optional[float] = None, serialize: bool = True):  # pylint: disable=C0116
         """Wait for async operation to complete.
+
+        timeout bounds both the wait for the GATT lock and the operation itself.
 
         On macOS, CoreBluetooth requires occasional I/O operations for
         callbacks to be properly delivered. The debug logging provides this
         I/O when enabled, allowing the system to process pending callbacks.
         """
         logger.debug(f"async_await: waiting for {coro}")
-        with self._gatt_lock if serialize else contextlib.nullcontext():
+        # Explicit acquire/release, not `with`: the lock wait itself has to honor timeout.
+        if serialize and not self._gatt_lock.acquire(timeout=-1 if timeout is None else timeout):  # pylint: disable=consider-using-with
+            coro.close()  # never scheduled
+            raise TimeoutError("timed out waiting for another BLE operation to finish")
+        try:
             future = self.async_run(coro)
             # On macOS without debug logging, callbacks may not be delivered
             # unless we trigger some I/O. This is a known quirk of CoreBluetooth.
@@ -361,8 +370,13 @@ class BLEClient:
             try:
                 result = future.result(timeout)
             except TimeoutError:
-                future.cancel()  # don't leave it running into the next operation once the lock is released
+                # Stops bleak waiting; it can't cancel a request already handed to the OS stack. The only caller
+                # with a timeout is close(), which disconnects next and so ends that request.
+                future.cancel()
                 raise
+        finally:
+            if serialize:
+                self._gatt_lock.release()
         logger.debug("async_await: complete")
         return result
 
