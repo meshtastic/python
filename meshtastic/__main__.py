@@ -365,7 +365,7 @@ def onConnected(interface):
             elif isinstance(interface, BLEInterface):
                 connection += " via BLE"
                 if interface.client is not None:
-                    connection += f" {interface.client.address}"
+                    connection += f" {interface.client.bleak_client.address}"
             print(connection)
 
         if args.set_time is not None:
