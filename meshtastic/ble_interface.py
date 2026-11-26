@@ -2,6 +2,7 @@
 """
 import asyncio
 import atexit
+import contextlib
 import logging
 import struct
 import sys
@@ -317,7 +318,9 @@ class BLEClient:
         return self.async_await(self.bleak_client.connect(**kwargs))
 
     def disconnect(self, **kwargs):  # pylint: disable=C0116
-        self.async_await(self.bleak_client.disconnect(**kwargs))
+        # Not serialized: disconnect is how close() and the atexit handler get out of an operation that never
+        # completes, so it must not wait behind that operation's lock.
+        self.async_await(self.bleak_client.disconnect(**kwargs), serialize=False)
 
     def read_gatt_char(self, *args, **kwargs):  # pylint: disable=C0116
         return self.async_await(self.bleak_client.read_gatt_char(*args, **kwargs))
@@ -342,7 +345,7 @@ class BLEClient:
     def __exit__(self, _type, _value, _traceback):
         self.close()
 
-    def async_await(self, coro, timeout=None):  # pylint: disable=C0116
+    def async_await(self, coro, timeout=None, serialize: bool = True):  # pylint: disable=C0116
         """Wait for async operation to complete.
 
         On macOS, CoreBluetooth requires occasional I/O operations for
@@ -350,12 +353,16 @@ class BLEClient:
         I/O when enabled, allowing the system to process pending callbacks.
         """
         logger.debug(f"async_await: waiting for {coro}")
-        with self._gatt_lock:
+        with self._gatt_lock if serialize else contextlib.nullcontext():
             future = self.async_run(coro)
             # On macOS without debug logging, callbacks may not be delivered
             # unless we trigger some I/O. This is a known quirk of CoreBluetooth.
             sys.stdout.flush()
-            result = future.result(timeout)
+            try:
+                result = future.result(timeout)
+            except TimeoutError:
+                future.cancel()  # don't leave it running into the next operation once the lock is released
+                raise
         logger.debug("async_await: complete")
         return result
 

@@ -2,7 +2,7 @@
 
 import asyncio
 import threading
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from bleak.exc import BleakError
@@ -156,16 +156,21 @@ def test_ble_client_serializes_gatt_operations() -> None:
     client = BLEClient()  # no address: event loop only, no BleakClient
     active = 0
     peak = 0
+    finished = []
 
-    async def gatt_op():
+    async def gatt_op() -> None:
         nonlocal active, peak
         active += 1
         peak = max(peak, active)
         await asyncio.sleep(0.05)
         active -= 1
 
+    def run_op() -> None:
+        client.async_await(gatt_op())
+        finished.append(True)
+
     try:
-        threads = [threading.Thread(target=client.async_await, args=(gatt_op(),)) for _ in range(4)]
+        threads = [threading.Thread(target=run_op, daemon=True) for _ in range(4)]
         for t in threads:
             t.start()
         for t in threads:
@@ -173,4 +178,26 @@ def test_ble_client_serializes_gatt_operations() -> None:
     finally:
         client.close()
 
+    assert len(finished) == 4, f"only {len(finished)} of 4 operations completed"
     assert peak == 1, f"{peak} GATT operations ran concurrently"
+
+
+@pytest.mark.unit
+def test_ble_client_disconnect_does_not_wait_for_a_hung_operation() -> None:
+    """disconnect() is the way out of an operation that never completes, so it must not queue behind it."""
+    client = BLEClient()
+    client.bleak_client = MagicMock()
+    client.bleak_client.disconnect = AsyncMock()
+    done = threading.Event()
+
+    def disconnect() -> None:
+        client.disconnect()
+        done.set()
+
+    try:
+        with client._gatt_lock:  # an operation in flight that never completes
+            threading.Thread(target=disconnect, daemon=True).start()
+            assert done.wait(timeout=5), "disconnect() waited for the in-flight operation"
+    finally:
+        client.close()
+    client.bleak_client.disconnect.assert_awaited_once()
