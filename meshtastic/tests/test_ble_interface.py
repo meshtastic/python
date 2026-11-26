@@ -1,11 +1,13 @@
 """Meshtastic unit tests for ble_interface.py"""
 
+import asyncio
+import threading
 from unittest.mock import MagicMock, patch
 
 import pytest
 from bleak.exc import BleakError
 
-from ..ble_interface import BLEInterface
+from ..ble_interface import BLEClient, BLEInterface
 
 
 @pytest.mark.unit
@@ -142,3 +144,33 @@ def test_ble_close_can_retry_after_cleanup_failure(failure) -> None:
     unregister.assert_called_once_with(iface._exit_handler)
     client.close.assert_called()
     notification.assert_called()
+
+
+@pytest.mark.unit
+def test_ble_client_serializes_gatt_operations() -> None:
+    """async_await from several threads must not run two GATT operations at once.
+
+    On macOS, an operation started while another is in flight (e.g. the BLEReceive thread's
+    heartbeat write at config-complete racing the caller's start_notify) may never complete,
+    blocking that thread forever."""
+    client = BLEClient()  # no address: event loop only, no BleakClient
+    active = 0
+    peak = 0
+
+    async def gatt_op():
+        nonlocal active, peak
+        active += 1
+        peak = max(peak, active)
+        await asyncio.sleep(0.05)
+        active -= 1
+
+    try:
+        threads = [threading.Thread(target=client.async_await, args=(gatt_op(),)) for _ in range(4)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join(timeout=5)
+    finally:
+        client.close()
+
+    assert peak == 1, f"{peak} GATT operations ran concurrently"

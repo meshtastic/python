@@ -7,7 +7,7 @@ import struct
 import sys
 import time
 import io
-from threading import Thread, Event
+from threading import Thread, Event, Lock
 from typing import Any, List, Optional
 
 import google.protobuf
@@ -290,6 +290,10 @@ class BLEClient:
 
     def __init__(self, address=None, **kwargs) -> None:
         self._loop_ready = Event()
+        # One GATT operation at a time: the BLEReceive thread (heartbeat at config-complete, reads), the heartbeat
+        # timer and the caller's thread all issue operations, and on macOS (CoreBluetooth) an operation started while
+        # another is in flight may never complete, leaving its thread blocked forever.
+        self._gatt_lock = Lock()
         self._eventLoop = asyncio.new_event_loop()
         self._eventThread = Thread(
             target=self._run_event_loop, name="BLEClient", daemon=True
@@ -346,11 +350,12 @@ class BLEClient:
         I/O when enabled, allowing the system to process pending callbacks.
         """
         logger.debug(f"async_await: waiting for {coro}")
-        future = self.async_run(coro)
-        # On macOS without debug logging, callbacks may not be delivered
-        # unless we trigger some I/O. This is a known quirk of CoreBluetooth.
-        sys.stdout.flush()
-        result = future.result(timeout)
+        with self._gatt_lock:
+            future = self.async_run(coro)
+            # On macOS without debug logging, callbacks may not be delivered
+            # unless we trigger some I/O. This is a known quirk of CoreBluetooth.
+            sys.stdout.flush()
+            result = future.result(timeout)
         logger.debug("async_await: complete")
         return result
 
