@@ -1,5 +1,6 @@
 """Meshtastic unit tests for ble_interface.py"""
 
+import threading
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -142,3 +143,23 @@ def test_ble_close_can_retry_after_cleanup_failure(failure) -> None:
     unregister.assert_called_once_with(iface._exit_handler)
     client.close.assert_called()
     notification.assert_called()
+
+
+@pytest.mark.unit
+def test_ble_disconnected_callback_closes_off_the_event_loop() -> None:
+    """bleak runs the disconnected callback on BLEClient's event loop; close() waits on that loop,
+    so the callback must hand close() to another thread instead of calling it inline."""
+    iface = object.__new__(BLEInterface)
+    caller = threading.current_thread()
+    closed_on = []
+    done = threading.Event()
+
+    def fake_close():
+        closed_on.append(threading.current_thread())
+        done.set()
+
+    with patch.object(iface, "close", side_effect=fake_close):
+        iface._on_disconnected(MagicMock())
+        assert done.wait(timeout=5), "close() was never called"
+
+    assert closed_on[0] is not caller, "close() ran on the callback's (event loop) thread"

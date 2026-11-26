@@ -194,10 +194,18 @@ class BLEInterface(MeshInterface):
 
         # Bleak docs recommend always doing a scan before connecting (even if we know addr)
         device = self.find_device(address)
-        client = BLEClient(device.address, disconnected_callback=lambda _: self.close())
+        client = BLEClient(device.address, disconnected_callback=self._on_disconnected)
         client.connect()
         client.discover()
         return client
+
+    def _on_disconnected(self, _client) -> None:
+        """bleak's disconnected callback, which runs on BLEClient's event loop thread.
+
+        close() blocks on operations that run on that same loop (writing the disconnect message, bleak's
+        disconnect), so calling it here deadlocks the loop whenever the device drops the link itself, e.g.
+        on a reboot: connection.lost is never published. Close from a separate thread instead."""
+        Thread(target=self.close, name="BLEClose", daemon=True).start()
 
     def _receiveFromRadioImpl(self) -> None:
         while self._want_receive:
