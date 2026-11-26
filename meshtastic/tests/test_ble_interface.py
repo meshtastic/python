@@ -1,5 +1,6 @@
 """Meshtastic unit tests for ble_interface.py"""
 
+import threading
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -142,3 +143,66 @@ def test_ble_close_can_retry_after_cleanup_failure(failure) -> None:
     unregister.assert_called_once_with(iface._exit_handler)
     client.close.assert_called()
     notification.assert_called()
+
+
+@pytest.mark.unit
+def test_ble_disconnected_callback_closes_off_the_event_loop() -> None:
+    """bleak runs the disconnected callback on BLEClient's event loop; close() waits on that loop,
+    so the callback must hand close() to another thread instead of calling it inline."""
+    iface = object.__new__(BLEInterface)
+    caller = threading.current_thread()
+    closed_on = []
+    done = threading.Event()
+
+    def fake_close() -> None:
+        closed_on.append(threading.current_thread())
+        done.set()
+
+    with patch.object(iface, "close", side_effect=fake_close):
+        iface._on_disconnected(MagicMock())
+        assert done.wait(timeout=5), "close() was never called"
+
+    assert closed_on[0] is not caller, "close() ran on the callback's (event loop) thread"
+
+
+@pytest.mark.unit
+def test_ble_connect_registers_disconnected_callback() -> None:
+    """connect() must hand bleak _on_disconnected, not a callback that closes inline on the event loop."""
+    iface = object.__new__(BLEInterface)
+    device = MagicMock()
+    with patch.object(iface, "find_device", return_value=device), \
+         patch("meshtastic.ble_interface.BLEClient") as client_cls:
+        iface.connect("node")
+    callback = client_cls.call_args.kwargs["disconnected_callback"]
+    assert callback.__func__ is BLEInterface._on_disconnected and callback.__self__ is iface
+
+
+@pytest.mark.unit
+def test_ble_receive_stops_quietly_when_device_dropped_link() -> None:
+    """A read in flight when the device drops the link (any BleakError wording) ends the reader, not raises."""
+    iface = object.__new__(BLEInterface)
+    iface.should_read = True
+    iface._want_receive = True
+    iface.client = MagicMock()
+    iface.client.bleak_client.is_connected = False
+    iface.client.read_gatt_char.side_effect = BleakError("Peripheral disconnected")
+    iface._receiveFromRadioImpl()
+    assert iface._want_receive is False
+
+
+@pytest.mark.unit
+def test_ble_close_before_atexit_handler_registered() -> None:
+    """The device can drop the link mid-__init__, after self.client is set but before the atexit
+    handler is registered; close() must still clean up."""
+    iface = object.__new__(BLEInterface)
+    iface._closing = False
+    iface._want_receive = False
+    iface._receiveThread = None
+    client = MagicMock()
+    iface.client = client
+    with patch("meshtastic.mesh_interface.MeshInterface.close"), \
+         patch.object(iface, "_disconnected") as notification:
+        iface.close()
+    client.disconnect.assert_called_once()
+    assert iface.client is None
+    notification.assert_called_once()
