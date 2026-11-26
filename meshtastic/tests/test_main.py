@@ -3925,7 +3925,9 @@ def test_main_setPref_bitfield_invalid_name(capsys):
          "Connected to radio via TCP meshtastic.local:4403"),
         (TCPInterface, {"hostname": "localhost", "portNumber": 4404},
          "Connected to radio via TCP localhost:4404"),
-        (mt_main.BLEInterface, {"client": SimpleNamespace(address="AA:BB:CC:DD:EE:FF")},
+        # Real shape: BLEInterface.client is a BLEClient, whose address lives on the wrapped BleakClient.
+        (mt_main.BLEInterface,
+         {"client": SimpleNamespace(bleak_client=SimpleNamespace(address="AA:BB:CC:DD:EE:FF"))},
          "Connected to radio via BLE AA:BB:CC:DD:EE:FF"),
         (mt_main.BLEInterface, {"client": None}, "Connected to radio via BLE"),
         (MeshInterface, {}, "Connected to radio"),
