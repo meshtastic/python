@@ -30,9 +30,9 @@ logger = logging.getLogger(__name__)
 class BLEInterface(MeshInterface):
     """MeshInterface using BLE to connect to devices."""
 
-    # Declared at class level: close() may run during __init__ (connect-failure
-    # path) before the atexit handler is assigned further down in __init__.
-    _exit_handler: Optional[Any]
+    # Defaults at class level: close() may run during __init__ (connect-failure path, or the device dropping
+    # the link mid-__init__) before the atexit handler is assigned further down in __init__.
+    _exit_handler: Optional[Any] = None
 
     class BLEError(Exception):
         """An exception class for BLE errors."""
@@ -199,13 +199,18 @@ class BLEInterface(MeshInterface):
         client.discover()
         return client
 
-    def _on_disconnected(self, _client) -> None:
+    def _on_disconnected(self, _client: BleakClient) -> None:
         """bleak's disconnected callback, which runs on BLEClient's event loop thread.
 
         close() blocks on operations that run on that same loop (writing the disconnect message, bleak's
         disconnect), so calling it here deadlocks the loop whenever the device drops the link itself, e.g.
         on a reboot: connection.lost is never published. Close from a separate thread instead."""
         Thread(target=self.close, name="BLEClose", daemon=True).start()
+
+    def _link_down(self) -> bool:
+        """True once the device is gone: no client, or bleak reports it disconnected."""
+        client = self.client
+        return client is None or not client.bleak_client.is_connected
 
     def _receiveFromRadioImpl(self) -> None:
         while self._want_receive:
@@ -223,16 +228,18 @@ class BLEInterface(MeshInterface):
                         # Device disconnected probably, so end our read loop immediately
                         logger.debug(f"Device disconnected, shutting down {e}")
                         self._want_receive = False
+                        continue
                     except BleakError as e:
-                        # We were definitely disconnected
-                        if "Not connected" in str(e):
+                        # CoreBluetooth fails a read in flight with errors that don't say "Not connected" when the
+                        # device drops the link, so also ask bleak whether it's still connected.
+                        if "Not connected" in str(e) or self._link_down():
                             logger.debug(f"Device disconnected, shutting down {e}")
                             self._want_receive = False
-                        else:
-                            raise BLEInterface.BLEError(
-                                "Error reading BLE",
-                                BLEInterface.BLEError.READ_ERROR,
-                            ) from e
+                            continue
+                        raise BLEInterface.BLEError(
+                            "Error reading BLE",
+                            BLEInterface.BLEError.READ_ERROR,
+                        ) from e
                     if not b:
                         if retries < 5:
                             time.sleep(0.1)
@@ -271,7 +278,11 @@ class BLEInterface(MeshInterface):
             try:
                 MeshInterface.close(self)
             except Exception as e:
-                logger.error(f"Error closing mesh interface: {e}")
+                if self._link_down():
+                    # The device already dropped the link (e.g. it rebooted), so the disconnect message can't go out.
+                    logger.debug(f"Device already disconnected; not sent: {e}")
+                else:
+                    logger.error(f"Error closing mesh interface: {e}")
 
             self._want_receive = False  # Tell the thread we want it to stop
             if self._receiveThread:
