@@ -2,6 +2,7 @@
 
 import asyncio
 import threading
+import time
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -201,6 +202,32 @@ def test_ble_client_disconnect_does_not_wait_for_a_hung_operation() -> None:
     finally:
         client.close()
     client.bleak_client.disconnect.assert_awaited_once()
+
+
+@pytest.mark.unit
+def test_ble_client_timeout_covers_lock_wait_and_operation() -> None:
+    """timeout is one budget: time spent waiting for the lock comes out of the operation's wait."""
+    client = BLEClient()
+
+    async def hung_op() -> None:
+        await asyncio.sleep(60)  # never completes within the test
+
+    def hold_lock() -> None:
+        with client._gatt_lock:
+            time.sleep(0.4)
+
+    try:
+        holder = threading.Thread(target=hold_lock, daemon=True)
+        holder.start()
+        time.sleep(0.05)  # let the holder take the lock
+        start = time.monotonic()
+        with pytest.raises(TimeoutError):
+            client.async_await(hung_op(), timeout=0.5)
+        elapsed = time.monotonic() - start
+        holder.join(timeout=5)
+    finally:
+        client.close()
+    assert elapsed < 0.8, f"lock wait and operation each got the full timeout ({elapsed:.2f}s)"
 
 
 @pytest.mark.unit

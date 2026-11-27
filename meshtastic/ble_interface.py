@@ -351,13 +351,14 @@ class BLEClient:
     def async_await(self, coro, timeout: Optional[float] = None, serialize: bool = True):  # pylint: disable=C0116
         """Wait for async operation to complete.
 
-        timeout bounds both the wait for the GATT lock and the operation itself.
+        timeout is one budget covering both the wait for the GATT lock and the operation itself.
 
         On macOS, CoreBluetooth requires occasional I/O operations for
         callbacks to be properly delivered. The debug logging provides this
         I/O when enabled, allowing the system to process pending callbacks.
         """
         logger.debug(f"async_await: waiting for {coro}")
+        deadline = None if timeout is None else time.monotonic() + timeout
         # Explicit acquire/release, not `with`: the lock wait itself has to honor timeout.
         if serialize and not self._gatt_lock.acquire(timeout=-1 if timeout is None else timeout):  # pylint: disable=consider-using-with
             coro.close()  # never scheduled
@@ -368,7 +369,7 @@ class BLEClient:
             # unless we trigger some I/O. This is a known quirk of CoreBluetooth.
             sys.stdout.flush()
             try:
-                result = future.result(timeout)
+                result = future.result(None if deadline is None else max(0.0, deadline - time.monotonic()))
             except TimeoutError:
                 # Stops bleak waiting; it can't cancel a request already handed to the OS stack. The only caller
                 # with a timeout is close(), which disconnects next and so ends that request.
